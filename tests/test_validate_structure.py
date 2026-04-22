@@ -40,6 +40,14 @@ def test_validate_structure_tracks_runtime_and_memory_scaffold() -> None:
     ]:
         assert rel in validate_structure.REQUIRED_FILES
 
+    for rel in [
+        "schemas/policy/workflow.schema.json",
+        "schemas/policy/stages.schema.json",
+        "schemas/policy/gates.schema.json",
+        "schemas/policy/complexity-routing.schema.json",
+    ]:
+        assert rel in validate_structure.REQUIRED_FILES
+
     result = subprocess.run(
         [sys.executable, "scripts/validate_structure.py"],
         cwd=ROOT,
@@ -50,3 +58,10 @@ def test_validate_structure_tracks_runtime_and_memory_scaffold() -> None:
 
     assert result.returncode == 0
     assert "STRUCTURE VALIDATION: PASS" in result.stdout
+
+
+def test_validate_workflow_installs_policy_validator_dependencies() -> None:
+    workflow = (ROOT / ".github" / "workflows" / "validate.yml").read_text(encoding="utf-8").lower()
+
+    assert "jsonschema" in workflow
+    assert "pyyaml" in workflow
