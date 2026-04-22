@@ -50,7 +50,15 @@ ForgeFlow tries not to do that.
 make validate
 make generate
 make regen
+make runtime-sample
 ```
+
+## Runtime sample
+```bash
+python3 scripts/run_orchestrator.py run --task-dir examples/runtime-fixtures/small-doc-task --route small
+```
+
+이 명령은 local artifact 디렉터리를 기준으로 `small` route를 끝까지 실행하고 `run-state.json`, `decision-log.json`을 쓴다.
 
 ## Current status
 This repo is a **P0 seed**.
@@ -62,8 +70,9 @@ It already includes:
 - validation scripts
 - sample artifact fixtures
 
-It does **not** yet include a full runtime orchestrator.
-That is deliberate.
+It now includes a **minimal local runtime orchestrator CLI** for artifact-directory execution.
+It still does **not** include provider-specific integrations or a full hosted runtime.
+That boundary is deliberate.
 
 ## Design lineage
 ForgeFlow borrows its best bones from four places:
