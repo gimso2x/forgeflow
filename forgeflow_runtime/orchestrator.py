@@ -309,6 +309,148 @@ def _require_plan_ledger_for_route(task_dir: Path, route_name: str, *, canonical
     return payload
 
 
+def _load_checkpoint(task_dir: Path, *, canonical_task_id: str) -> dict[str, Any] | None:
+    path = _artifact_path(task_dir, "checkpoint")
+    if not path.exists():
+        return None
+    return _load_validated_artifact(task_dir, "checkpoint", expected_task_id=canonical_task_id)
+
+
+def _checkpoint_ref_path(task_dir: Path, ref: str) -> Path:
+    ref_path = Path(ref)
+    if ref_path.is_absolute():
+        raise RuntimeViolation(f"checkpoint.json ref {ref} must be task-relative")
+    resolved = (task_dir / ref_path).resolve()
+    task_root = task_dir.resolve()
+    if task_root not in {resolved, *resolved.parents}:
+        raise RuntimeViolation(f"checkpoint.json ref {ref} escapes task directory")
+    return resolved
+
+
+def _validate_checkpoint(
+    task_dir: Path,
+    checkpoint: dict[str, Any],
+    *,
+    route_name: str,
+    canonical_task_id: str,
+    run_state: dict[str, Any],
+    plan_ledger: dict[str, Any] | None,
+) -> None:
+    checkpoint_route = checkpoint.get("route")
+    if checkpoint_route != route_name:
+        raise RuntimeViolation(f"checkpoint.json route {checkpoint_route} does not match requested route {route_name}")
+    checkpoint_stage = checkpoint.get("current_stage")
+    run_state_stage = run_state.get("current_stage")
+    if checkpoint_stage != run_state_stage:
+        raise RuntimeViolation(
+            f"checkpoint.json current_stage {checkpoint_stage} does not match run-state current_stage {run_state_stage}"
+        )
+
+    ref_map = {
+        "plan_ref": checkpoint.get("plan_ref"),
+        "plan_ledger_ref": checkpoint.get("plan_ledger_ref"),
+        "run_state_ref": checkpoint.get("run_state_ref"),
+        "latest_review_ref": checkpoint.get("latest_review_ref"),
+    }
+    for field_name, ref in ref_map.items():
+        if not isinstance(ref, str) or not ref:
+            continue
+        resolved = _checkpoint_ref_path(task_dir, ref)
+        if not resolved.exists():
+            raise RuntimeViolation(f"checkpoint.json {field_name} {ref} does not exist")
+
+    run_state_ref = checkpoint.get("run_state_ref")
+    if run_state_ref != "run-state.json":
+        raise RuntimeViolation(f"checkpoint.json run_state_ref {run_state_ref} must point to run-state.json")
+
+    checkpoint_task_id = checkpoint.get("current_task_id")
+    if plan_ledger is not None:
+        ledger_task_id = plan_ledger.get("current_task_id")
+        if checkpoint_task_id and checkpoint_task_id != ledger_task_id:
+            raise RuntimeViolation(
+                f"checkpoint.json current_task_id {checkpoint_task_id} does not match plan-ledger current_task_id {ledger_task_id}"
+            )
+    elif checkpoint_task_id and checkpoint_task_id != run_state.get("current_task_id"):
+        raise RuntimeViolation(
+            f"checkpoint.json current_task_id {checkpoint_task_id} does not match run-state current_task_id {run_state.get('current_task_id')}"
+        )
+
+
+def _latest_review_ref(task_dir: Path) -> str | None:
+    for artifact_name in ["review-report-quality", "review-report-spec", "review-report"]:
+        if _artifact_path(task_dir, artifact_name).exists():
+            return f"{artifact_name}.json"
+    return None
+
+
+def _default_checkpoint(*, task_dir: Path, route_name: str, run_state: dict[str, Any], plan_ledger: dict[str, Any] | None) -> dict[str, Any]:
+    checkpoint = {
+        "schema_version": "0.1",
+        "task_id": run_state["task_id"],
+        "route": route_name,
+        "current_stage": run_state["current_stage"],
+        "plan_ref": "plan.json" if _artifact_path(task_dir, "plan").exists() else "brief.json",
+        "plan_ledger_ref": "plan-ledger.json" if plan_ledger is not None else "run-state.json",
+        "run_state_ref": "run-state.json",
+        "next_action": "Resume from the current stage after reloading canonical artifacts.",
+        "open_blockers": [],
+        "updated_at": datetime.now(UTC).replace(microsecond=0).strftime("%Y-%m-%dT%H:%M:%SZ"),
+    }
+    current_task_id = run_state.get("current_task_id") or (plan_ledger or {}).get("current_task_id")
+    if current_task_id:
+        checkpoint["current_task_id"] = current_task_id
+    latest_review_ref = _latest_review_ref(task_dir)
+    if latest_review_ref is not None:
+        checkpoint["latest_review_ref"] = latest_review_ref
+    return checkpoint
+
+
+def _checkpoint_next_action(stage_name: str, route: list[str]) -> str:
+    if stage_name == route[-1]:
+        return "Route complete. Review final artifacts and hand off results."
+    next_index = route.index(stage_name) + 1
+    return f"Resume at {route[next_index]} after reloading canonical artifacts."
+
+
+def _sync_checkpoint(
+    task_dir: Path,
+    *,
+    route_name: str,
+    route: list[str],
+    run_state: dict[str, Any],
+    plan_ledger: dict[str, Any] | None,
+    checkpoint: dict[str, Any] | None,
+) -> dict[str, Any]:
+    payload = dict(checkpoint) if checkpoint is not None else _default_checkpoint(
+        task_dir=task_dir,
+        route_name=route_name,
+        run_state=run_state,
+        plan_ledger=plan_ledger,
+    )
+    payload["schema_version"] = "0.1"
+    payload["task_id"] = run_state["task_id"]
+    payload["route"] = route_name
+    payload["current_stage"] = run_state["current_stage"]
+    payload["plan_ref"] = "plan.json" if _artifact_path(task_dir, "plan").exists() else payload.get("plan_ref", "brief.json")
+    payload["plan_ledger_ref"] = "plan-ledger.json" if plan_ledger is not None else payload.get("plan_ledger_ref", "run-state.json")
+    payload["run_state_ref"] = "run-state.json"
+    current_task_id = run_state.get("current_task_id") or (plan_ledger or {}).get("current_task_id")
+    if current_task_id:
+        payload["current_task_id"] = current_task_id
+    else:
+        payload.pop("current_task_id", None)
+    latest_review_ref = _latest_review_ref(task_dir)
+    if latest_review_ref is not None:
+        payload["latest_review_ref"] = latest_review_ref
+    else:
+        payload.pop("latest_review_ref", None)
+    payload["next_action"] = _checkpoint_next_action(run_state["current_stage"], route)
+    payload["open_blockers"] = [] if run_state.get("status") == "completed" else list(payload.get("open_blockers", []))
+    payload["updated_at"] = datetime.now(UTC).replace(microsecond=0).strftime("%Y-%m-%dT%H:%M:%SZ")
+    _write_validated_artifact(task_dir, "checkpoint", payload)
+    return payload
+
+
 def _default_run_state(task_dir: Path) -> dict[str, Any]:
     return {
         "schema_version": "0.1",
@@ -559,8 +701,18 @@ def run_route(task_dir: Path, policy: RuntimePolicy, route_name: str) -> dict[st
     plan_ledger = _require_plan_ledger_for_route(task_dir, route_name, canonical_task_id=canonical_task_id)
     run_state = _ensure_run_state(task_dir, canonical_task_id=canonical_task_id)
     decision_log = _ensure_decision_log(task_dir, canonical_task_id=canonical_task_id)
+    checkpoint = _load_checkpoint(task_dir, canonical_task_id=canonical_task_id)
     if plan_ledger is not None and plan_ledger.get("current_task_id"):
         run_state["current_task_id"] = plan_ledger["current_task_id"]
+    if checkpoint is not None:
+        _validate_checkpoint(
+            task_dir,
+            checkpoint,
+            route_name=route_name,
+            canonical_task_id=canonical_task_id,
+            run_state=run_state,
+            plan_ledger=plan_ledger,
+        )
     resume_from_stage = run_state.get("current_stage")
     start_index = _resume_start_index(run_state, route)
 
@@ -574,6 +726,14 @@ def run_route(task_dir: Path, policy: RuntimePolicy, route_name: str) -> dict[st
         )
         _write_validated_artifact(task_dir, "decision-log", decision_log)
         _write_validated_artifact(task_dir, "run-state", run_state)
+        _sync_checkpoint(
+            task_dir,
+            route_name=route_name,
+            route=route,
+            run_state=run_state,
+            plan_ledger=plan_ledger,
+            checkpoint=checkpoint,
+        )
         return run_state
 
     if start_index == 0:
@@ -632,6 +792,14 @@ def run_route(task_dir: Path, policy: RuntimePolicy, route_name: str) -> dict[st
         )
         _write_validated_artifact(task_dir, "run-state", run_state)
         _write_validated_artifact(task_dir, "decision-log", decision_log)
+        checkpoint = _sync_checkpoint(
+            task_dir,
+            route_name=route_name,
+            route=route,
+            run_state=run_state,
+            plan_ledger=plan_ledger,
+            checkpoint=checkpoint,
+        )
 
     return run_state
 

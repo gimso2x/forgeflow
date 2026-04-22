@@ -92,6 +92,13 @@ resume 시 절차는 아래 순서여야 한다.
 4. `current_stage` / `current_task_id` 정합성 확인
 5. `next_action`에서 재개
 
+런타임 V1에서는 이것도 강제한다.
+- `checkpoint.route`는 요청 route와 일치해야 한다.
+- `checkpoint.current_stage`는 `run-state.current_stage`와 일치해야 한다.
+- `run_state_ref`는 `run-state.json`을 가리켜야 한다.
+- 모든 ref는 task dir 내부의 실제 파일이어야 한다.
+- route가 끝날 때마다 `checkpoint.json`은 최신 stage/next_action으로 다시 써야 한다.
+
 핵심:
 **checkpoint만 믿고 바로 진행하면 안 된다. 항상 원본 artifact를 재조회한다.**
 

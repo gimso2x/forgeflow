@@ -270,6 +270,22 @@ def test_run_route_resumes_from_existing_checkpoint(tmp_path: Path) -> None:
             "next_action": "finalize 가능",
         },
     )
+    _write_json(
+        task_dir / "checkpoint.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "route": "small",
+            "current_stage": "execute",
+            "plan_ref": "brief.json",
+            "plan_ledger_ref": "run-state.json",
+            "run_state_ref": "run-state.json",
+            "latest_review_ref": "review-report.json",
+            "next_action": "quality-review를 검증하고 finalize로 진행",
+            "open_blockers": [],
+            "updated_at": "2026-04-22T00:05:00Z"
+        },
+    )
 
     result = run_route(task_dir=task_dir, policy=policy, route_name="small")
 
@@ -290,6 +306,48 @@ def test_run_route_resumes_from_existing_checkpoint(tmp_path: Path) -> None:
         "stage entered: quality-review",
         "stage entered: finalize",
     ]
+    checkpoint = json.loads((task_dir / "checkpoint.json").read_text(encoding="utf-8"))
+    _assert_schema_valid("checkpoint", checkpoint)
+    assert checkpoint["current_stage"] == "finalize"
+    assert checkpoint["run_state_ref"] == "run-state.json"
+    assert checkpoint["latest_review_ref"] == "review-report.json"
+    assert checkpoint["next_action"] == "Route complete. Review final artifacts and hand off results."
+    assert checkpoint["open_blockers"] == []
+
+
+def test_run_route_rejects_mismatched_checkpoint_route(tmp_path: Path) -> None:
+    policy = load_runtime_policy(ROOT)
+    task_dir = _make_task_dir(tmp_path)
+    _write_json(
+        task_dir / "checkpoint.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "route": "medium",
+            "current_stage": "clarify",
+            "plan_ref": "brief.json",
+            "plan_ledger_ref": "run-state.json",
+            "run_state_ref": "run-state.json",
+            "next_action": "route를 재개",
+            "open_blockers": [],
+            "updated_at": "2026-04-22T00:05:00Z"
+        },
+    )
+    _write_json(
+        task_dir / "review-report.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "review_type": "quality",
+            "verdict": "approved",
+            "findings": ["looks fine"],
+            "approved_by": "quality-reviewer",
+            "next_action": "finalize 가능",
+        },
+    )
+
+    with pytest.raises(RuntimeViolation, match="checkpoint.json route medium does not match requested route small"):
+        run_route(task_dir=task_dir, policy=policy, route_name="small")
 
 
 def test_run_route_rejects_checkpoint_gate_drift(tmp_path: Path) -> None:
