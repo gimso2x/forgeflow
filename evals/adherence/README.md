@@ -19,6 +19,8 @@ make adherence-evals
 - `negative/missing-run-state-before-spec-review`에서 spec-review 진입 거부
 - `negative/missing-eval-record-before-long-run`에서 long-run gate 거부
 - `negative/checkpoint-gate-drift`에서 prefix가 깨진 checkpoint resume 거부
+- `negative/future-gate-checkpoint-drift`에서 미래 gate가 미리 찍힌 checkpoint resume 거부
+- `negative/completed-checkpoint-drift`에서 terminal stage에 있지 않은 completed checkpoint 거부
 
 핵심 규칙:
 - artifact 없이 stage 전환 금지

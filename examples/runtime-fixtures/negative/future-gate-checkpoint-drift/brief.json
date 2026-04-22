@@ -1,0 +1,10 @@
+{
+  "schema_version": "0.1",
+  "task_id": "future-gate-drift-001",
+  "objective": "Reject future gate checkpoint drift",
+  "in_scope": ["runtime"],
+  "out_of_scope": [],
+  "constraints": ["local only"],
+  "acceptance_criteria": ["future gate drift is blocked"],
+  "risk_level": "low"
+}

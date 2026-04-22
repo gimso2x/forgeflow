@@ -352,17 +352,33 @@ def _resume_start_index(run_state: dict[str, Any], route: list[str]) -> int:
         )
 
     current_gate = STAGE_GATE_MAP.get(current_stage)
-    if current_gate and current_gate in completed_gates:
-        expected_all_completed = expected_prefix + [current_gate]
-        unexpected_earlier = [gate for gate in completed_gates if gate in STAGE_GATE_MAP.values() and gate not in expected_all_completed]
-        if unexpected_earlier:
-            raise RuntimeViolation(
-                f"run-state checkpoint has out-of-sequence completed gates at {current_stage}: {', '.join(unexpected_earlier)}"
-            )
-        current_index += 1
+    allowed_gates = set(expected_prefix)
+    if current_gate:
+        allowed_gates.add(current_gate)
+    unexpected_gates = [
+        gate for gate in completed_gates if gate in STAGE_GATE_MAP.values() and gate not in allowed_gates
+    ]
+    if unexpected_gates:
+        raise RuntimeViolation(
+            f"run-state checkpoint has out-of-sequence completed gates at {current_stage}: {', '.join(unexpected_gates)}"
+        )
 
     if status == "completed":
+        terminal_stage = route[-1]
+        if current_stage != terminal_stage:
+            raise RuntimeViolation(
+                f"completed run-state checkpoint must already be at terminal stage {terminal_stage}"
+            )
+        terminal_gate = STAGE_GATE_MAP.get(terminal_stage)
+        if terminal_gate and terminal_gate not in completed_gates:
+            raise RuntimeViolation(
+                f"completed run-state checkpoint is missing terminal gate {terminal_gate}"
+            )
         return len(route)
+
+    if current_gate and current_gate in completed_gates:
+        current_index += 1
+
     if status in {"in_progress", "blocked", "not_started"}:
         return current_index
     raise RuntimeViolation(f"run-state checkpoint has unsupported status: {status}")

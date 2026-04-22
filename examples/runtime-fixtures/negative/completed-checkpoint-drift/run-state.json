@@ -1,0 +1,12 @@
+{
+  "schema_version": "0.1",
+  "task_id": "completed-checkpoint-drift-001",
+  "current_stage": "execute",
+  "status": "completed",
+  "completed_gates": ["clarification_complete", "execution_evidenced"],
+  "failed_gates": [],
+  "retries": {},
+  "spec_review_approved": false,
+  "quality_review_approved": false,
+  "final_status": "success"
+}

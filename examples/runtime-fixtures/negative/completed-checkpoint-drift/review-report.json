@@ -1,0 +1,7 @@
+{
+  "schema_version": "0.1",
+  "task_id": "completed-checkpoint-drift-001",
+  "review_type": "quality",
+  "verdict": "approved",
+  "findings": ["fixture only"]
+}

@@ -229,6 +229,71 @@ def test_run_route_rejects_checkpoint_gate_drift(tmp_path: Path) -> None:
         run_route(task_dir=task_dir, policy=policy, route_name="small")
 
 
+def test_run_route_rejects_future_gate_checkpoint_drift(tmp_path: Path) -> None:
+    policy = load_runtime_policy(ROOT)
+    task_dir = _make_task_dir(tmp_path)
+    _write_json(
+        task_dir / "run-state.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "current_stage": "execute",
+            "status": "in_progress",
+            "completed_gates": ["clarification_complete", "quality_review_passed"],
+            "failed_gates": [],
+            "retries": {},
+            "spec_review_approved": False,
+            "quality_review_approved": False,
+        },
+    )
+    _write_json(
+        task_dir / "review-report.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "review_type": "quality",
+            "verdict": "approved",
+            "findings": ["looks fine"],
+        },
+    )
+
+    with pytest.raises(RuntimeViolation, match="run-state checkpoint has out-of-sequence completed gates at execute: quality_review_passed"):
+        run_route(task_dir=task_dir, policy=policy, route_name="small")
+
+
+def test_run_route_rejects_incomplete_completed_checkpoint(tmp_path: Path) -> None:
+    policy = load_runtime_policy(ROOT)
+    task_dir = _make_task_dir(tmp_path)
+    _write_json(
+        task_dir / "run-state.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "current_stage": "execute",
+            "status": "completed",
+            "completed_gates": ["clarification_complete", "execution_evidenced"],
+            "failed_gates": [],
+            "retries": {},
+            "spec_review_approved": False,
+            "quality_review_approved": False,
+            "final_status": "success",
+        },
+    )
+    _write_json(
+        task_dir / "review-report.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "review_type": "quality",
+            "verdict": "approved",
+            "findings": ["looks fine"],
+        },
+    )
+
+    with pytest.raises(RuntimeViolation, match="completed run-state checkpoint must already be at terminal stage finalize"):
+        run_route(task_dir=task_dir, policy=policy, route_name="small")
+
+
 def test_small_route_runs_end_to_end_and_updates_state(tmp_path: Path) -> None:
     policy = load_runtime_policy(ROOT)
     task_dir = tmp_path / "task"
@@ -628,3 +693,5 @@ def test_adherence_eval_cli_runs_valid_and_negative_fixtures() -> None:
     assert "missing-run-state-before-spec-review" in result.stdout
     assert "missing-eval-record-before-long-run" in result.stdout
     assert "checkpoint-gate-drift" in result.stdout
+    assert "future-gate-checkpoint-drift" in result.stdout
+    assert "completed-checkpoint-drift" in result.stdout

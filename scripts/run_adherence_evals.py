@@ -65,6 +65,8 @@ def main() -> int:
             scenarios.append(_negative_advance_case('missing-run-state-before-spec-review', negative_root / 'missing-run-state-before-spec-review', 'large_high_risk', 'execute', 'missing required artifacts for spec-review: run-state', workspace))
             scenarios.append(_negative_run_case('missing-eval-record-before-long-run', negative_root / 'missing-eval-record-before-long-run', 'large_high_risk', 'long-run requires artifacts satisfying gate worth_long_run_capture: eval-record', workspace))
             scenarios.append(_negative_run_case('checkpoint-gate-drift', negative_root / 'checkpoint-gate-drift', 'small', 'run-state checkpoint is missing completed gates before execute: clarification_complete', workspace))
+            scenarios.append(_negative_run_case('future-gate-checkpoint-drift', negative_root / 'future-gate-checkpoint-drift', 'small', 'run-state checkpoint has out-of-sequence completed gates at execute: quality_review_passed', workspace))
+            scenarios.append(_negative_run_case('completed-checkpoint-drift', negative_root / 'completed-checkpoint-drift', 'small', 'completed run-state checkpoint must already be at terminal stage finalize', workspace))
     except Exception as exc:
         print('ADHERENCE EVALS: FAIL')
         print(f'- {exc}')
