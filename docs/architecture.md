@@ -82,8 +82,10 @@ ForgeFlow artifact-first delivery harness.
 - `policy/canonical/`
 - `schemas/`
 - `prompts/canonical/`
+- `runtime/`
+- `memory/`
 
-여기가 의미론을 결정한다.
+여기가 의미론과 scaffold surface를 결정한다.
 
 ### Data plane
 - task별 artifact
@@ -91,6 +93,7 @@ ForgeFlow artifact-first delivery harness.
 - decision-log
 - review-report
 - eval-record
+- `memory/patterns/`, `memory/decisions/`에 남는 inspectable long-run learnings
 
 여기는 실행 흔적과 판정 결과가 쌓이는 영역이다.
 

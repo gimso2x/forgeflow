@@ -42,6 +42,9 @@ ForgeFlow tries not to do that.
 - `prompts/canonical/` — canonical role prompts
 - `adapters/targets/` — target manifests
 - `adapters/generated/` — generated runtime surfaces
+- `runtime/` — scaffold-level runtime surfaces for orchestrator, ledger, gates, recovery
+- `forgeflow_runtime/` — executable Python runtime implementation used by the local CLI
+- `memory/` — inspectable local memory scaffold for reusable patterns and decisions
 - `examples/artifacts/` — sample artifact fixtures
 - `scripts/` — validation and generation utilities
 
@@ -70,7 +73,7 @@ It already includes:
 - validation scripts
 - sample artifact fixtures
 
-It now includes a **minimal local runtime orchestrator CLI** for artifact-directory execution.
+It now includes a **minimal local runtime orchestrator CLI** for artifact-directory execution plus the explicit `runtime/` and `memory/` scaffold surfaces promised by the design docs.
 It still does **not** include provider-specific integrations or a full hosted runtime.
 That boundary is deliberate.
 
