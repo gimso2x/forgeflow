@@ -19,6 +19,7 @@ class RuntimePolicy:
     workflow_stages: list[str]
     stage_requirements: dict[str, list[str]]
     gate_requirements: dict[str, list[str]]
+    gate_reviews: dict[str, dict[str, str]]
     routes: dict[str, list[str]]
     finalize_flags: list[str]
 
@@ -86,22 +87,28 @@ def _parse_stage_requirements(path: Path) -> dict[str, list[str]]:
     return requirements
 
 
-def _parse_gate_requirements(path: Path) -> tuple[dict[str, list[str]], list[str]]:
+def _parse_gate_requirements(path: Path) -> tuple[dict[str, list[str]], dict[str, dict[str, str]], list[str]]:
     requirements: dict[str, list[str]] = {}
+    gate_reviews: dict[str, dict[str, str]] = {}
     finalize_flags: list[str] = []
     current_gate: str | None = None
     for raw in _load_yaml_lines(path):
         if raw.startswith("  ") and not raw.startswith("    ") and raw.strip().endswith(":"):
             current_gate = raw.strip()[:-1]
             requirements[current_gate] = []
+            gate_reviews[current_gate] = {}
             continue
         if current_gate and raw.startswith("    requires: ["):
             chunk = raw.strip()[len("requires: [") : -1]
             requirements[current_gate] = [item.strip() for item in chunk.split(",") if item.strip()]
+        if current_gate and raw.startswith("    review_type: "):
+            gate_reviews[current_gate]["review_type"] = raw.strip()[len("review_type: ") :]
+        if current_gate and raw.startswith("    verdict: "):
+            gate_reviews[current_gate]["verdict"] = raw.strip()[len("verdict: ") :]
         if current_gate == "ready_to_finalize" and raw.startswith("    run_state_flags: ["):
             chunk = raw.strip()[len("run_state_flags: [") : -1]
             finalize_flags = [item.strip() for item in chunk.split(",") if item.strip()]
-    return requirements, finalize_flags
+    return requirements, gate_reviews, finalize_flags
 
 
 def _parse_routes(path: Path) -> dict[str, list[str]]:
@@ -316,13 +323,45 @@ def _record_gate(run_state: dict[str, Any], stage_name: str) -> None:
         run_state["completed_gates"].append(gate_name)
 
 
+def _matching_review_payload(task_dir: Path, expected_review_type: str, expected_verdict: str) -> dict[str, Any] | None:
+    for artifact_name in ["review-report", "review-report-spec", "review-report-quality"]:
+        review_path = _artifact_path(task_dir, artifact_name)
+        if not review_path.exists():
+            continue
+        payload = _load_validated_artifact(task_dir, artifact_name)
+        if payload.get("review_type") == expected_review_type and payload.get("verdict") == expected_verdict:
+            return payload
+    return None
+
+
+def _enforce_stage_gate(task_dir: Path, policy: RuntimePolicy, stage_name: str) -> None:
+    gate_name = STAGE_GATE_MAP.get(stage_name)
+    if gate_name is None:
+        return
+
+    missing_gate_artifacts = _missing_artifacts(task_dir, policy.gate_requirements.get(gate_name, []))
+    if missing_gate_artifacts:
+        raise RuntimeViolation(
+            f"{stage_name} requires artifacts satisfying gate {gate_name}: {', '.join(missing_gate_artifacts)}"
+        )
+
+    gate_review = policy.gate_reviews.get(gate_name, {})
+    expected_review_type = gate_review.get("review_type")
+    expected_verdict = gate_review.get("verdict")
+    if expected_review_type and expected_verdict and _matching_review_payload(task_dir, expected_review_type, expected_verdict) is None:
+        raise RuntimeViolation(
+            f"{stage_name} requires approved {expected_review_type} review-report artifact"
+        )
+
+
 def load_runtime_policy(root: Path) -> RuntimePolicy:
     policy_root = root / "policy" / "canonical"
-    gate_requirements, finalize_flags = _parse_gate_requirements(policy_root / "gates.yaml")
+    gate_requirements, gate_reviews, finalize_flags = _parse_gate_requirements(policy_root / "gates.yaml")
     return RuntimePolicy(
         workflow_stages=_parse_workflow_stages(policy_root / "workflow.yaml"),
         stage_requirements=_parse_stage_requirements(policy_root / "stages.yaml"),
         gate_requirements=gate_requirements,
+        gate_reviews=gate_reviews,
         routes=_parse_routes(policy_root / "complexity-routing.yaml"),
         finalize_flags=finalize_flags,
     )
@@ -379,6 +418,7 @@ def run_route(task_dir: Path, policy: RuntimePolicy, route_name: str) -> dict[st
         run_state["current_stage"] = stage_name
         run_state["status"] = "in_progress"
         _sync_review_flags(task_dir, run_state)
+        _enforce_stage_gate(task_dir, policy, stage_name)
         _record_gate(run_state, stage_name)
 
         if stage_name == "execute" and not _artifact_path(task_dir, "decision-log").exists():

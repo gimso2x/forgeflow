@@ -113,6 +113,24 @@ def test_finalize_blocks_missing_review_flags(tmp_path: Path) -> None:
         advance_to_next_stage(task_dir=task_dir, policy=policy, route_name="small", current_stage="quality-review")
 
 
+def test_run_route_rejects_non_approved_quality_review(tmp_path: Path) -> None:
+    policy = load_runtime_policy(ROOT)
+    task_dir = _make_task_dir(tmp_path)
+    _write_json(
+        task_dir / "review-report.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "review_type": "quality",
+            "verdict": "changes_requested",
+            "findings": ["missing verification"],
+        },
+    )
+
+    with pytest.raises(RuntimeViolation, match="quality-review requires approved quality review-report artifact"):
+        run_route(task_dir=task_dir, policy=policy, route_name="small")
+
+
 def test_small_route_runs_end_to_end_and_updates_state(tmp_path: Path) -> None:
     policy = load_runtime_policy(ROOT)
     task_dir = tmp_path / "task"
@@ -336,6 +354,63 @@ def test_large_route_runs_end_to_end_and_collects_both_review_flags(tmp_path: Pa
     ]
 
 
+def test_large_route_rejects_missing_eval_record_before_long_run(tmp_path: Path) -> None:
+    policy = load_runtime_policy(ROOT)
+    task_dir = tmp_path / "large-task-missing-eval"
+    task_dir.mkdir()
+    _write_json(
+        task_dir / "brief.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-large-002",
+            "objective": "Run a large route",
+            "in_scope": ["runtime"],
+            "out_of_scope": [],
+            "constraints": ["local only"],
+            "acceptance_criteria": ["large route works"],
+            "risk_level": "high",
+        },
+    )
+    _write_json(
+        task_dir / "plan.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-large-002",
+            "steps": [
+                {
+                    "id": "step-1",
+                    "objective": "Run route",
+                    "expected_output": "done",
+                    "verification": "pytest",
+                }
+            ],
+        },
+    )
+    _write_json(
+        task_dir / "review-report-spec.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-large-002",
+            "review_type": "spec",
+            "verdict": "approved",
+            "findings": ["spec ok"],
+        },
+    )
+    _write_json(
+        task_dir / "review-report-quality.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-large-002",
+            "review_type": "quality",
+            "verdict": "approved",
+            "findings": ["quality ok"],
+        },
+    )
+
+    with pytest.raises(RuntimeViolation, match="long-run requires artifacts satisfying gate worth_long_run_capture: eval-record"):
+        run_route(task_dir=task_dir, policy=policy, route_name="large_high_risk")
+
+
 def test_retry_is_bounded(tmp_path: Path) -> None:
     task_dir = _make_task_dir(tmp_path)
 
@@ -451,3 +526,4 @@ def test_adherence_eval_cli_runs_valid_and_negative_fixtures() -> None:
     assert "missing-quality-approval" in result.stdout
     assert "invalid-review-report" in result.stdout
     assert "missing-run-state-before-spec-review" in result.stdout
+    assert "missing-eval-record-before-long-run" in result.stdout

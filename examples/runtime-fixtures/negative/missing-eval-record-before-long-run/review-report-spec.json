@@ -1,0 +1,9 @@
+{
+  "schema_version": "0.1",
+  "task_id": "task-neg-003",
+  "review_type": "spec",
+  "verdict": "approved",
+  "findings": [
+    "spec review intentionally passes"
+  ]
+}

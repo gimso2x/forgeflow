@@ -59,9 +59,10 @@ def main() -> int:
             scenarios.append(_positive_case('medium-refactor-task', fixtures_root / 'medium-refactor-task', 'medium', 'finalize', workspace))
             scenarios.append(_positive_case('large-migration-task', fixtures_root / 'large-migration-task', 'large_high_risk', 'long-run', workspace))
             negative_root = fixtures_root / 'negative'
-            scenarios.append(_negative_run_case('missing-quality-approval', negative_root / 'missing-quality-approval', 'small', 'finalize requires run-state approval flags: quality_review_approved', workspace))
+            scenarios.append(_negative_run_case('missing-quality-approval', negative_root / 'missing-quality-approval', 'small', 'quality-review requires approved quality review-report artifact', workspace))
             scenarios.append(_negative_run_case('invalid-review-report', negative_root / 'invalid-review-report', 'small', 'review-report.json failed schema validation', workspace))
             scenarios.append(_negative_advance_case('missing-run-state-before-spec-review', negative_root / 'missing-run-state-before-spec-review', 'large_high_risk', 'execute', 'missing required artifacts for spec-review: run-state', workspace))
+            scenarios.append(_negative_run_case('missing-eval-record-before-long-run', negative_root / 'missing-eval-record-before-long-run', 'large_high_risk', 'long-run requires artifacts satisfying gate worth_long_run_capture: eval-record', workspace))
     except Exception as exc:
         print('ADHERENCE EVALS: FAIL')
         print(f'- {exc}')

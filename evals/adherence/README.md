@@ -13,9 +13,10 @@ make adherence-evals
 - `examples/runtime-fixtures/small-doc-task` small route happy path
 - `examples/runtime-fixtures/medium-refactor-task` medium route happy path
 - `examples/runtime-fixtures/large-migration-task` large/high-risk happy path
-- `negative/missing-quality-approval`에서 finalize approval gate 거부
+- `negative/missing-quality-approval`에서 non-approved quality review 거부
 - `negative/invalid-review-report`에서 schema-invalid review artifact 거부
 - `negative/missing-run-state-before-spec-review`에서 spec-review 진입 거부
+- `negative/missing-eval-record-before-long-run`에서 long-run gate 거부
 
 핵심 규칙:
 - artifact 없이 stage 전환 금지
