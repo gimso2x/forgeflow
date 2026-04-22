@@ -1,0 +1,19 @@
+{
+  "schema_version": "0.1",
+  "task_id": "task-invalid-ledger-001",
+  "route": "medium",
+  "current_task_id": "task-2",
+  "tasks": [
+    {
+      "id": "task-1",
+      "title": "done task without evidence",
+      "depends_on": [],
+      "files": ["examples/artifacts/brief.sample.json"],
+      "parallel_safe": true,
+      "status": "done",
+      "required_gates": [],
+      "evidence_refs": [],
+      "attempt_count": 0
+    }
+  ]
+}

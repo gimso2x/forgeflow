@@ -42,12 +42,14 @@ STAGE_GATE_MAP = {
 SCHEMA_BY_ARTIFACT = {
     "brief": "brief",
     "plan": "plan",
+    "plan-ledger": "plan-ledger",
     "decision-log": "decision-log",
     "run-state": "run-state",
     "review-report": "review-report",
     "review-report-spec": "review-report",
     "review-report-quality": "review-report",
     "eval-record": "eval-record",
+    "checkpoint": "checkpoint",
 }
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -284,6 +286,29 @@ def _task_id(task_dir: Path) -> str:
     return _canonical_task_id(task_dir)
 
 
+def _load_plan_ledger(task_dir: Path, *, canonical_task_id: str) -> dict[str, Any] | None:
+    path = _artifact_path(task_dir, "plan-ledger")
+    if not path.exists():
+        return None
+    payload = _load_validated_artifact(task_dir, "plan-ledger", expected_task_id=canonical_task_id)
+    current_task_id = payload.get("current_task_id")
+    if current_task_id is not None and not any(task.get("id") == current_task_id for task in payload.get("tasks", [])):
+        raise RuntimeViolation(f"plan-ledger.json current_task_id {current_task_id} is not present in tasks[]")
+    return payload
+
+
+def _require_plan_ledger_for_route(task_dir: Path, route_name: str, *, canonical_task_id: str) -> dict[str, Any] | None:
+    if route_name == "small":
+        return None
+    payload = _load_plan_ledger(task_dir, canonical_task_id=canonical_task_id)
+    if payload is None:
+        raise RuntimeViolation(f"{route_name} route requires plan-ledger.json")
+    ledger_route = payload.get("route")
+    if ledger_route != route_name:
+        raise RuntimeViolation(f"plan-ledger.json route {ledger_route} does not match requested route {route_name}")
+    return payload
+
+
 def _default_run_state(task_dir: Path) -> dict[str, Any]:
     return {
         "schema_version": "0.1",
@@ -294,10 +319,10 @@ def _default_run_state(task_dir: Path) -> dict[str, Any]:
         "failed_gates": [],
         "retries": {},
         "evidence_refs": [],
+        "current_task_id": "",
         "spec_review_approved": False,
         "quality_review_approved": False,
     }
-
 
 def _ensure_run_state(task_dir: Path, *, canonical_task_id: str | None = None) -> dict[str, Any]:
     path = _artifact_path(task_dir, "run-state")
@@ -531,8 +556,11 @@ def advance_to_next_stage(task_dir: Path, policy: RuntimePolicy, route_name: str
 def run_route(task_dir: Path, policy: RuntimePolicy, route_name: str) -> dict[str, Any]:
     route = _resolve_route(policy, route_name)
     canonical_task_id = _canonical_task_id(task_dir)
+    plan_ledger = _require_plan_ledger_for_route(task_dir, route_name, canonical_task_id=canonical_task_id)
     run_state = _ensure_run_state(task_dir, canonical_task_id=canonical_task_id)
     decision_log = _ensure_decision_log(task_dir, canonical_task_id=canonical_task_id)
+    if plan_ledger is not None and plan_ledger.get("current_task_id"):
+        run_state["current_task_id"] = plan_ledger["current_task_id"]
     resume_from_stage = run_state.get("current_stage")
     start_index = _resume_start_index(run_state, route)
 

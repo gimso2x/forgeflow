@@ -10,6 +10,7 @@
 2. retry는 이유가 기록될 때만 허용한다.
 3. recovery도 stage machine 안에서 관리한다.
 4. 막히면 stop 또는 human escalation이 정상이다.
+5. resume은 compact summary가 아니라 artifact reload를 기준으로 한다.
 
 ---
 
@@ -41,12 +42,24 @@
 ---
 
 ## 기록 규칙
-모든 recovery는 `decision-log`와 `run-state`에 남긴다.
+모든 recovery는 `decision-log`, `run-state`, 필요 시 `checkpoint`에 남긴다.
 남겨야 할 것:
 - failure category
 - retry reason
 - chosen recovery action
 - next gate expectation
+- resume 시 다시 읽어야 할 artifact ref
+
+---
+
+## resume 규칙
+resume 시에는 아래 순서를 따른다.
+1. 최신 `checkpoint`가 있으면 먼저 읽는다.
+2. `run-state`, `plan-ledger`, 관련 review artifact를 다시 연다.
+3. 참조 artifact 정합성을 확인한다.
+4. 그 다음에만 다음 action을 이어간다.
+
+요약문은 길 안내일 수는 있어도 진실원천이 아니다.
 
 ---
 
@@ -54,3 +67,4 @@
 - 원인 기록 없는 재시도
 - review 실패를 무시한 finalize
 - long-run capture를 핑계로 unresolved failure를 덮기
+- checkpoint 없이 summary만 믿고 재개하기

@@ -6,6 +6,7 @@
   "completed_gates": ["clarification_complete", "execution_evidenced"],
   "failed_gates": [],
   "retries": {},
+  "current_task_id": "",
   "spec_review_approved": false,
   "quality_review_approved": false
 }

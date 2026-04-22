@@ -59,6 +59,7 @@ def _make_task_dir(tmp_path: Path) -> Path:
             "completed_gates": ["clarification_complete"],
             "failed_gates": [],
             "retries": {},
+            "current_task_id": "",
             "spec_review_approved": False,
             "quality_review_approved": False,
         },
@@ -93,6 +94,94 @@ def test_advance_blocks_missing_entry_artifacts(tmp_path: Path) -> None:
 
     with pytest.raises(RuntimeViolation, match="missing required artifacts for spec-review: run-state"):
         advance_to_next_stage(task_dir=task_dir, policy=policy, route_name="large_high_risk", current_stage="execute")
+
+
+def test_run_route_requires_plan_ledger_for_medium_route(tmp_path: Path) -> None:
+    policy = load_runtime_policy(ROOT)
+    task_dir = _make_task_dir(tmp_path)
+    _write_json(
+        task_dir / "plan.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "steps": [
+                {
+                    "id": "step-1",
+                    "objective": "update workflow docs",
+                    "dependencies": [],
+                    "expected_output": "workflow docs reflect medium route behavior",
+                    "verification": "pytest tests/test_runtime_orchestrator.py -q",
+                    "rollback_note": "remove incomplete workflow edits if validation fails",
+                }
+            ],
+        },
+    )
+
+    with pytest.raises(RuntimeViolation, match="medium route requires plan-ledger.json"):
+        run_route(task_dir=task_dir, policy=policy, route_name="medium")
+
+
+def test_run_route_syncs_current_task_from_plan_ledger(tmp_path: Path) -> None:
+    policy = load_runtime_policy(ROOT)
+    task_dir = _make_task_dir(tmp_path)
+    _write_json(
+        task_dir / "plan.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "steps": [
+                {
+                    "id": "step-1",
+                    "objective": "update workflow docs",
+                    "dependencies": [],
+                    "expected_output": "workflow docs reflect medium route behavior",
+                    "verification": "pytest tests/test_runtime_orchestrator.py -q",
+                    "rollback_note": "remove incomplete workflow edits if validation fails",
+                }
+            ],
+        },
+    )
+    _write_json(
+        task_dir / "plan-ledger.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "route": "medium",
+            "current_task_id": "task-1",
+            "tasks": [
+                {
+                    "id": "task-1",
+                    "title": "update workflow docs",
+                    "depends_on": [],
+                    "files": ["docs/workflow.md"],
+                    "parallel_safe": False,
+                    "status": "in_progress",
+                    "required_gates": ["machine", "validator"],
+                    "evidence_refs": [],
+                    "attempt_count": 0,
+                }
+            ],
+        },
+    )
+    _write_json(
+        task_dir / "review-report.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "review_type": "quality",
+            "verdict": "approved",
+            "findings": ["looks fine"],
+            "approved_by": "quality-reviewer",
+            "next_action": "finalize 가능",
+        },
+    )
+
+    result = run_route(task_dir=task_dir, policy=policy, route_name="medium")
+
+    assert result["current_stage"] == "finalize"
+    assert result["current_task_id"] == "task-1"
+    persisted_run_state = json.loads((task_dir / "run-state.json").read_text(encoding="utf-8"))
+    assert persisted_run_state["current_task_id"] == "task-1"
 
 
 def test_finalize_blocks_missing_review_flags(tmp_path: Path) -> None:
@@ -147,6 +236,7 @@ def test_run_route_resumes_from_existing_checkpoint(tmp_path: Path) -> None:
             "completed_gates": ["clarification_complete", "execution_evidenced"],
             "failed_gates": [],
             "retries": {},
+            "current_task_id": "",
             "spec_review_approved": False,
             "quality_review_approved": False,
         },
@@ -215,6 +305,7 @@ def test_run_route_rejects_checkpoint_gate_drift(tmp_path: Path) -> None:
             "completed_gates": ["execution_evidenced"],
             "failed_gates": [],
             "retries": {},
+            "current_task_id": "",
             "spec_review_approved": False,
             "quality_review_approved": False,
         },
@@ -249,6 +340,7 @@ def test_run_route_rejects_future_gate_checkpoint_drift(tmp_path: Path) -> None:
             "completed_gates": ["clarification_complete", "quality_review_passed"],
             "failed_gates": [],
             "retries": {},
+            "current_task_id": "",
             "spec_review_approved": False,
             "quality_review_approved": False,
         },
@@ -283,6 +375,7 @@ def test_run_route_rejects_incomplete_completed_checkpoint(tmp_path: Path) -> No
             "completed_gates": ["clarification_complete", "execution_evidenced"],
             "failed_gates": [],
             "retries": {},
+            "current_task_id": "",
             "spec_review_approved": False,
             "quality_review_approved": False,
             "final_status": "success",
@@ -373,6 +466,7 @@ def test_run_route_rejects_schema_invalid_existing_run_state(tmp_path: Path) -> 
             "completed_gates": [],
             "failed_gates": [],
             "retries": {},
+            "current_task_id": "",
             "spec_review_approved": False,
             "quality_review_approved": False,
         },
@@ -462,6 +556,28 @@ def test_run_route_rejects_mismatched_eval_record_task_id(tmp_path: Path) -> Non
                     "verification": "pytest",
                 }
             ],
+        },
+    )
+    _write_json(
+        task_dir / "plan-ledger.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-large-001",
+            "route": "large_high_risk",
+            "current_task_id": "task-1",
+            "tasks": [
+                {
+                    "id": "task-1",
+                    "title": "Run route",
+                    "depends_on": [],
+                    "files": ["plan.json", "review-report-spec.json", "review-report-quality.json", "eval-record.json"],
+                    "parallel_safe": False,
+                    "status": "in_progress",
+                    "required_gates": ["machine", "validator", "scenario"],
+                    "evidence_refs": [],
+                    "attempt_count": 0
+                }
+            ]
         },
     )
     _write_json(
@@ -592,6 +708,28 @@ def test_large_route_runs_end_to_end_and_collects_both_review_flags(tmp_path: Pa
         },
     )
     _write_json(
+        task_dir / "plan-ledger.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-large-001",
+            "route": "large_high_risk",
+            "current_task_id": "task-1",
+            "tasks": [
+                {
+                    "id": "task-1",
+                    "title": "Run route",
+                    "depends_on": [],
+                    "files": ["plan.json", "review-report-spec.json", "review-report-quality.json", "eval-record.json"],
+                    "parallel_safe": False,
+                    "status": "in_progress",
+                    "required_gates": ["machine", "validator", "scenario"],
+                    "evidence_refs": [],
+                    "attempt_count": 0
+                }
+            ]
+        },
+    )
+    _write_json(
         task_dir / "review-report-spec.json",
         {
             "schema_version": "0.1",
@@ -674,6 +812,28 @@ def test_large_route_rejects_missing_eval_record_before_long_run(tmp_path: Path)
                     "verification": "pytest",
                 }
             ],
+        },
+    )
+    _write_json(
+        task_dir / "plan-ledger.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-large-002",
+            "route": "large_high_risk",
+            "current_task_id": "task-1",
+            "tasks": [
+                {
+                    "id": "task-1",
+                    "title": "Run route",
+                    "depends_on": [],
+                    "files": ["plan.json", "review-report-spec.json", "review-report-quality.json", "eval-record.json"],
+                    "parallel_safe": False,
+                    "status": "in_progress",
+                    "required_gates": ["machine", "validator", "scenario"],
+                    "evidence_refs": [],
+                    "attempt_count": 0
+                }
+            ]
         },
     )
     _write_json(

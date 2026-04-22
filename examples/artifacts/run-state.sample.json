@@ -20,6 +20,7 @@
     "docs/workflow.md",
     "docs/adapter-model.md"
   ],
+  "current_task_id": "",
   "spec_review_approved": true,
   "quality_review_approved": true,
   "final_status": "success"

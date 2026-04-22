@@ -10,17 +10,21 @@ ROOT = Path(__file__).resolve().parents[1]
 POSITIVE_SAMPLES = {
     "examples/artifacts/brief.sample.json": ROOT / "schemas/brief.schema.json",
     "examples/artifacts/plan.sample.json": ROOT / "schemas/plan.schema.json",
+    "examples/artifacts/plan-ledger.sample.json": ROOT / "schemas/plan-ledger.schema.json",
     "examples/artifacts/decision-log.sample.json": ROOT / "schemas/decision-log.schema.json",
     "examples/artifacts/run-state.sample.json": ROOT / "schemas/run-state.schema.json",
     "examples/artifacts/review-report-spec.sample.json": ROOT / "schemas/review-report.schema.json",
     "examples/artifacts/review-report-quality.sample.json": ROOT / "schemas/review-report.schema.json",
     "examples/artifacts/eval-record.sample.json": ROOT / "schemas/eval-record.schema.json",
+    "examples/artifacts/checkpoint.sample.json": ROOT / "schemas/checkpoint.schema.json",
 }
 NEGATIVE_SAMPLES = {
     "run-state-invalid-stage.sample.json": ROOT / "schemas/run-state.schema.json",
     "decision-log-invalid-entry.sample.json": ROOT / "schemas/decision-log.schema.json",
     "review-report-approved-missing-approved-by.sample.json": ROOT / "schemas/review-report.schema.json",
     "review-report-blocked-missing-next-action.sample.json": ROOT / "schemas/review-report.schema.json",
+    "plan-ledger-done-without-evidence.sample.json": ROOT / "schemas/plan-ledger.schema.json",
+    "checkpoint-invalid-updated-at.sample.json": ROOT / "schemas/checkpoint.schema.json",
 }
 FORMAT_CHECKER = FormatChecker()
 
