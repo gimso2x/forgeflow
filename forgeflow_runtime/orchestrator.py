@@ -486,8 +486,15 @@ def load_runtime_policy(root: Path) -> RuntimePolicy:
     )
 
 
+def _resolve_route(policy: RuntimePolicy, route_name: str) -> list[str]:
+    route = policy.routes.get(route_name)
+    if route is None:
+        raise RuntimeViolation(f"unknown route: {route_name}")
+    return route
+
+
 def advance_to_next_stage(task_dir: Path, policy: RuntimePolicy, route_name: str, current_stage: str) -> TransitionResult:
-    route = policy.routes[route_name]
+    route = _resolve_route(policy, route_name)
     canonical_task_id = _canonical_task_id(task_dir)
     if current_stage not in route:
         raise RuntimeViolation(f"stage {current_stage} is not part of route {route_name}")
@@ -522,7 +529,7 @@ def advance_to_next_stage(task_dir: Path, policy: RuntimePolicy, route_name: str
 
 
 def run_route(task_dir: Path, policy: RuntimePolicy, route_name: str) -> dict[str, Any]:
-    route = policy.routes[route_name]
+    route = _resolve_route(policy, route_name)
     canonical_task_id = _canonical_task_id(task_dir)
     run_state = _ensure_run_state(task_dir, canonical_task_id=canonical_task_id)
     decision_log = _ensure_decision_log(task_dir, canonical_task_id=canonical_task_id)
@@ -625,7 +632,7 @@ def retry_stage(task_dir: Path, stage_name: str, max_retries: int = 2) -> dict[s
 
 
 def step_back(task_dir: Path, policy: RuntimePolicy, route_name: str, current_stage: str) -> dict[str, Any]:
-    route = policy.routes[route_name]
+    route = _resolve_route(policy, route_name)
     if current_stage not in route:
         raise RuntimeViolation(f"stage {current_stage} is not part of route {route_name}")
     index = route.index(current_stage)

@@ -708,6 +708,16 @@ def test_escalate_route_switches_to_large_high_risk(tmp_path: Path) -> None:
     assert decision_log["entries"][-1]["decision"] == "route escalated: small -> large_high_risk"
 
 
+def _run_orchestrator_cli(*args: str) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        [sys.executable, "scripts/run_orchestrator.py", *args],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+
 def test_cli_run_executes_sample_fixture(tmp_path: Path) -> None:
     task_dir = tmp_path / "cli-task"
     task_dir.mkdir()
@@ -735,25 +745,69 @@ def test_cli_run_executes_sample_fixture(tmp_path: Path) -> None:
         },
     )
 
-    result = subprocess.run(
-        [
-            sys.executable,
-            "scripts/run_orchestrator.py",
-            "run",
-            "--task-dir",
-            str(task_dir),
-            "--route",
-            "small",
-        ],
-        cwd=ROOT,
-        capture_output=True,
-        text=True,
-        check=False,
-    )
+    result = _run_orchestrator_cli("run", "--task-dir", str(task_dir), "--route", "small")
 
     assert result.returncode == 0
     assert (task_dir / "run-state.json").exists()
     assert (task_dir / "decision-log.json").exists()
+
+
+def test_cli_supports_recovery_commands(tmp_path: Path) -> None:
+    task_dir = _make_task_dir(tmp_path)
+
+    advance_result = _run_orchestrator_cli(
+        "advance",
+        "--task-dir",
+        str(task_dir),
+        "--route",
+        "small",
+        "--current-stage",
+        "clarify",
+    )
+    assert advance_result.returncode == 0
+    assert json.loads(advance_result.stdout)["next_stage"] == "execute"
+
+    retry_result = _run_orchestrator_cli("retry", "--task-dir", str(task_dir), "--stage", "execute", "--max-retries", "2")
+    assert retry_result.returncode == 0
+    assert json.loads(retry_result.stdout)["retries"]["execute"] == 1
+
+    step_back_result = _run_orchestrator_cli(
+        "step-back",
+        "--task-dir",
+        str(task_dir),
+        "--route",
+        "small",
+        "--current-stage",
+        "quality-review",
+    )
+    assert step_back_result.returncode == 0
+    assert json.loads(step_back_result.stdout)["current_stage"] == "execute"
+
+    escalate_result = _run_orchestrator_cli("escalate", "--task-dir", str(task_dir), "--from-route", "small")
+    assert escalate_result.returncode == 0
+    assert json.loads(escalate_result.stdout)["status"] == "blocked"
+
+
+def test_cli_reports_runtime_violations_without_tracebacks(tmp_path: Path) -> None:
+    task_dir = _make_task_dir(tmp_path)
+
+    for command_args, expected_error in [
+        (("run", "--task-dir", str(task_dir), "--route", "unknown"), "ERROR: unknown route: unknown"),
+        (
+            ("advance", "--task-dir", str(task_dir), "--route", "unknown", "--current-stage", "clarify"),
+            "ERROR: unknown route: unknown",
+        ),
+        (
+            ("step-back", "--task-dir", str(task_dir), "--route", "unknown", "--current-stage", "quality-review"),
+            "ERROR: unknown route: unknown",
+        ),
+        (("escalate", "--task-dir", str(task_dir), "--from-route", "unknown"), "ERROR: unknown route for escalation: unknown"),
+    ]:
+        result = _run_orchestrator_cli(*command_args)
+
+        assert result.returncode == 1
+        assert result.stdout == ""
+        assert result.stderr.startswith(expected_error)
 
 
 def test_medium_and_large_runtime_fixtures_run_end_to_end(tmp_path: Path) -> None:
