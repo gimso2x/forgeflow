@@ -1,0 +1,9 @@
+{
+  "schema_version": "0.1",
+  "task_id": "task-invalid-review-002",
+  "review_type": "spec",
+  "verdict": "blocked",
+  "findings": ["missing plan evidence"],
+  "approved_by": "spec-reviewer",
+  "evidence_refs": ["plan.json"]
+}

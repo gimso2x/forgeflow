@@ -108,6 +108,9 @@ def build_content(target: str, manifest: dict[str, object]) -> str:
     installation_steps_blob = '\n'.join(
         f'{index}. {step}' for index, step in enumerate(installation_steps, start=1)
     )
+    session_persistence = manifest.get('session_persistence')
+    workspace_boundary = manifest.get('workspace_boundary')
+    review_delivery = manifest.get('review_delivery')
     parts = [
         f'# {target.capitalize()} ForgeFlow Adapter',
         '',
@@ -133,6 +136,11 @@ def build_content(target: str, manifest: dict[str, object]) -> str:
         '## Target operating notes',
         f'- surface_style: {surface_style}',
         f'- handoff_format: {handoff_format}',
+        '',
+        '## Runtime realism contract',
+        f'- session_persistence: {session_persistence}',
+        f'- workspace_boundary: {workspace_boundary}',
+        f'- review_delivery: {review_delivery}',
         '',
         '## Non-negotiable rules',
         '- Do not change canonical stage semantics.',

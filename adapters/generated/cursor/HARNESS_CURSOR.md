@@ -24,6 +24,11 @@ Do not edit manually. Update canonical docs/policy/prompts and rerun `scripts/ge
 - surface_style: cursor-rules-markdown
 - handoff_format: artifacts-plus-chat-summary
 
+## Runtime realism contract
+- session_persistence: rule file persists across chat sessions until regenerated
+- workspace_boundary: project rules live under .cursor/rules and guide editor-native runs
+- review_delivery: chat summary plus artifact file updates inside the workspace
+
 ## Non-negotiable rules
 - Do not change canonical stage semantics.
 - Do not bypass artifact gates.

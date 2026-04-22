@@ -106,6 +106,8 @@ def test_finalize_blocks_missing_review_flags(tmp_path: Path) -> None:
             "review_type": "quality",
             "verdict": "approved",
             "findings": ["looks fine"],
+            "approved_by": "quality-reviewer",
+            "next_action": "finalize 가능",
         },
     )
 
@@ -124,6 +126,7 @@ def test_run_route_rejects_non_approved_quality_review(tmp_path: Path) -> None:
             "review_type": "quality",
             "verdict": "changes_requested",
             "findings": ["missing verification"],
+            "next_action": "execute stage evidence를 보강",
         },
     )
 
@@ -173,6 +176,8 @@ def test_run_route_resumes_from_existing_checkpoint(tmp_path: Path) -> None:
             "review_type": "quality",
             "verdict": "approved",
             "findings": ["looks fine"],
+            "approved_by": "quality-reviewer",
+            "next_action": "finalize 가능",
         },
     )
 
@@ -222,6 +227,8 @@ def test_run_route_rejects_checkpoint_gate_drift(tmp_path: Path) -> None:
             "review_type": "quality",
             "verdict": "approved",
             "findings": ["looks fine"],
+            "approved_by": "quality-reviewer",
+            "next_action": "finalize 가능",
         },
     )
 
@@ -254,6 +261,8 @@ def test_run_route_rejects_future_gate_checkpoint_drift(tmp_path: Path) -> None:
             "review_type": "quality",
             "verdict": "approved",
             "findings": ["looks fine"],
+            "approved_by": "quality-reviewer",
+            "next_action": "finalize 가능",
         },
     )
 
@@ -287,6 +296,8 @@ def test_run_route_rejects_incomplete_completed_checkpoint(tmp_path: Path) -> No
             "review_type": "quality",
             "verdict": "approved",
             "findings": ["looks fine"],
+            "approved_by": "quality-reviewer",
+            "next_action": "finalize 가능",
         },
     )
 
@@ -319,6 +330,8 @@ def test_small_route_runs_end_to_end_and_updates_state(tmp_path: Path) -> None:
             "review_type": "quality",
             "verdict": "approved",
             "findings": ["looks fine"],
+            "approved_by": "quality-reviewer",
+            "next_action": "finalize 가능",
         },
     )
 
@@ -372,6 +385,8 @@ def test_run_route_rejects_schema_invalid_existing_run_state(tmp_path: Path) -> 
             "review_type": "quality",
             "verdict": "approved",
             "findings": ["looks fine"],
+            "approved_by": "quality-reviewer",
+            "next_action": "finalize 가능",
         },
     )
 
@@ -408,6 +423,8 @@ def test_run_route_rejects_mismatched_review_report_task_id(tmp_path: Path) -> N
             "review_type": "quality",
             "verdict": "approved",
             "findings": ["looks fine"],
+            "approved_by": "quality-reviewer",
+            "next_action": "finalize 가능",
         },
     )
 
@@ -455,6 +472,8 @@ def test_run_route_rejects_mismatched_eval_record_task_id(tmp_path: Path) -> Non
             "review_type": "spec",
             "verdict": "approved",
             "findings": ["spec ok"],
+            "approved_by": "spec-reviewer",
+            "next_action": "quality-review로 진행",
         },
     )
     _write_json(
@@ -465,6 +484,8 @@ def test_run_route_rejects_mismatched_eval_record_task_id(tmp_path: Path) -> Non
             "review_type": "quality",
             "verdict": "approved",
             "findings": ["quality ok"],
+            "approved_by": "quality-reviewer",
+            "next_action": "finalize 가능",
         },
     )
     _write_json(
@@ -525,6 +546,8 @@ def test_run_route_migrates_legacy_decision_log_timestamps(tmp_path: Path) -> No
             "review_type": "quality",
             "verdict": "approved",
             "findings": ["looks fine"],
+            "approved_by": "quality-reviewer",
+            "next_action": "finalize 가능",
         },
     )
 
@@ -576,6 +599,8 @@ def test_large_route_runs_end_to_end_and_collects_both_review_flags(tmp_path: Pa
             "review_type": "spec",
             "verdict": "approved",
             "findings": ["spec ok"],
+            "approved_by": "spec-reviewer",
+            "next_action": "quality-review로 진행",
         },
     )
     _write_json(
@@ -586,6 +611,8 @@ def test_large_route_runs_end_to_end_and_collects_both_review_flags(tmp_path: Pa
             "review_type": "quality",
             "verdict": "approved",
             "findings": ["quality ok"],
+            "approved_by": "quality-reviewer",
+            "next_action": "finalize 가능",
         },
     )
     _write_json(
@@ -657,6 +684,8 @@ def test_large_route_rejects_missing_eval_record_before_long_run(tmp_path: Path)
             "review_type": "spec",
             "verdict": "approved",
             "findings": ["spec ok"],
+            "approved_by": "spec-reviewer",
+            "next_action": "quality-review로 진행",
         },
     )
     _write_json(
@@ -667,6 +696,8 @@ def test_large_route_rejects_missing_eval_record_before_long_run(tmp_path: Path)
             "review_type": "quality",
             "verdict": "approved",
             "findings": ["quality ok"],
+            "approved_by": "quality-reviewer",
+            "next_action": "finalize 가능",
         },
     )
 
@@ -742,6 +773,8 @@ def test_cli_run_executes_sample_fixture(tmp_path: Path) -> None:
             "review_type": "quality",
             "verdict": "approved",
             "findings": ["cli looks fine"],
+            "approved_by": "quality-reviewer",
+            "next_action": "finalize 가능",
         },
     )
 

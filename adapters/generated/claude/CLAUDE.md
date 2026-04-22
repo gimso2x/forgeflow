@@ -24,6 +24,11 @@ Do not edit manually. Update canonical docs/policy/prompts and rerun `scripts/ge
 - surface_style: root-instruction-file
 - handoff_format: artifacts-plus-terminal-summary
 
+## Runtime realism contract
+- session_persistence: root instruction file persists across repo sessions until regenerated
+- workspace_boundary: repo root instruction file shapes CLI runs but artifacts still live in the project workspace
+- review_delivery: terminal-oriented summary plus artifact files checked in the repo
+
 ## Non-negotiable rules
 - Do not change canonical stage semantics.
 - Do not bypass artifact gates.

@@ -3,5 +3,7 @@
   "task_id": "task-invalid-review-001",
   "review_type": "quality",
   "verdict": "approved",
-  "findings": "this must be an array, not a string"
+  "findings": "this must be an array, not a string",
+  "approved_by": "quality-reviewer",
+  "next_action": "finalize 가능"
 }

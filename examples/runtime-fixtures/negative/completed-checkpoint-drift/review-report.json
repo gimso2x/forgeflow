@@ -3,5 +3,9 @@
   "task_id": "completed-checkpoint-drift-001",
   "review_type": "quality",
   "verdict": "approved",
-  "findings": ["fixture only"]
+  "findings": [
+    "fixture only"
+  ],
+  "approved_by": "quality-reviewer",
+  "next_action": "finalize 가능"
 }

@@ -91,6 +91,9 @@ generated_filename: CUSTOM_CODEX.md
 recommended_location: ./CODEX.md
 surface_style: root-instruction-file
 handoff_format: artifacts-plus-git-diff
+session_persistence: root instruction file persists across repo sessions until regenerated
+workspace_boundary: repo root instruction file steers CLI work while emphasizing git-visible workspace changes
+review_delivery: git-diff-centric summary plus artifact files checked in the repo
 installation_steps:
   - Copy the generated adapter to ./CODEX.md at the repo root.
   - Preserve the canonical review order even when Codex returns git-oriented summaries.
@@ -119,6 +122,7 @@ tooling_constraints:
                     "This file is generated from canonical harness policy.",
                     "Installation guidance",
                     "Target operating notes",
+                    "Runtime realism contract",
                     "Non-negotiable rules",
                     "Canonical workflow snapshot",
                     "Canonical role prompts",
@@ -129,6 +133,9 @@ tooling_constraints:
                     install_2,
                     f"- surface_style: {surface}",
                     f"- handoff_format: {handoff}",
+                    "- session_persistence: root instruction file persists across repo sessions until regenerated" if target == "claude" else "- session_persistence: rule file persists across chat sessions until regenerated",
+                    "- workspace_boundary: repo root instruction file shapes CLI runs but artifacts still live in the project workspace" if target == "claude" else "- workspace_boundary: project rules live under .cursor/rules and guide editor-native runs",
+                    "- review_delivery: terminal-oriented summary plus artifact files checked in the repo" if target == "claude" else "- review_delivery: chat summary plus artifact file updates inside the workspace",
                     "# Coordinator" if target == "claude" else "# Planner",
                     "# Planner",
                     "# Worker",
@@ -154,12 +161,15 @@ supports_generated_files: true
 generated_filename: {filename}
 recommended_location: {location}
 surface_style: {surface}
-handoff_format: {handoff}
-installation_steps:
-  - {install_1[3:]}
-  - {install_2[3:]}
-tooling_constraints:
-  - generated artifacts must not redefine canonical semantics
+    handoff_format: {handoff}
+    session_persistence: {'rule file persists across chat sessions until regenerated' if target == 'cursor' else 'root instruction file persists across repo sessions until regenerated'}
+    workspace_boundary: {'project rules live under .cursor/rules and guide editor-native runs' if target == 'cursor' else ('repo root instruction file shapes CLI runs but artifacts still live in the project workspace' if target == 'claude' else 'repo root instruction file steers CLI work while emphasizing git-visible workspace changes')}
+    review_delivery: {'chat summary plus artifact file updates inside the workspace' if target == 'cursor' else ('terminal-oriented summary plus artifact files checked in the repo' if target == 'claude' else 'git-diff-centric summary plus artifact files checked in the repo')}
+    installation_steps:
+      - {install_1[3:]}
+      - {install_2[3:]}
+    tooling_constraints:
+
 """,
             encoding="utf-8",
         )
@@ -172,6 +182,7 @@ tooling_constraints:
                 "This file is generated from canonical harness policy.",
                 "Installation guidance",
                 "Target operating notes",
+                "Runtime realism contract",
                 "Non-negotiable rules",
                 "Canonical workflow snapshot",
                 "Canonical role prompts",
@@ -182,6 +193,9 @@ tooling_constraints:
                 "2. Preserve the canonical review order even when Codex returns git-oriented summaries.",
                 "- surface_style: root-instruction-file",
                 "- handoff_format: artifacts-plus-git-diff",
+                "- session_persistence: root instruction file persists across repo sessions until regenerated",
+                "- workspace_boundary: repo root instruction file steers CLI work while emphasizing git-visible workspace changes",
+                "- review_delivery: git-diff-centric summary plus artifact files checked in the repo",
                 "# Coordinator",
                 "# Planner",
                 "# Worker",
@@ -240,6 +254,7 @@ def test_validate_generated_rejects_stale_tracked_generated_files_for_removed_ta
                     "This file is generated from canonical harness policy.",
                     "Installation guidance",
                     "Target operating notes",
+                    "Runtime realism contract",
                     "Non-negotiable rules",
                     "Canonical workflow snapshot",
                     "Canonical role prompts",
@@ -250,6 +265,9 @@ def test_validate_generated_rejects_stale_tracked_generated_files_for_removed_ta
                     install_2,
                     f"- surface_style: {surface}",
                     f"- handoff_format: {handoff}",
+                    "- session_persistence: rule file persists across chat sessions until regenerated" if target == "cursor" else "- session_persistence: root instruction file persists across repo sessions until regenerated",
+                    "- workspace_boundary: project rules live under .cursor/rules and guide editor-native runs" if target == "cursor" else ("- workspace_boundary: repo root instruction file shapes CLI runs but artifacts still live in the project workspace" if target == "claude" else "- workspace_boundary: repo root instruction file steers CLI work while emphasizing git-visible workspace changes"),
+                    "- review_delivery: chat summary plus artifact file updates inside the workspace" if target == "cursor" else ("- review_delivery: terminal-oriented summary plus artifact files checked in the repo" if target == "claude" else "- review_delivery: git-diff-centric summary plus artifact files checked in the repo"),
                     *roles,
                 ]
             ),
@@ -272,12 +290,15 @@ supports_generated_files: true
 generated_filename: {filename}
 recommended_location: {location}
 surface_style: {surface}
-handoff_format: {handoff}
-installation_steps:
-  - {install_1[3:]}
-  - {install_2[3:]}
-tooling_constraints:
-  - generated artifacts must not redefine canonical semantics
+    handoff_format: {handoff}
+    session_persistence: {'rule file persists across chat sessions until regenerated' if target == 'cursor' else 'root instruction file persists across repo sessions until regenerated'}
+    workspace_boundary: {'project rules live under .cursor/rules and guide editor-native runs' if target == 'cursor' else ('repo root instruction file shapes CLI runs but artifacts still live in the project workspace' if target == 'claude' else 'repo root instruction file steers CLI work while emphasizing git-visible workspace changes')}
+    review_delivery: {'chat summary plus artifact file updates inside the workspace' if target == 'cursor' else ('terminal-oriented summary plus artifact files checked in the repo' if target == 'claude' else 'git-diff-centric summary plus artifact files checked in the repo')}
+    installation_steps:
+      - {install_1[3:]}
+      - {install_2[3:]}
+    tooling_constraints:
+
 """,
             encoding="utf-8",
         )
@@ -338,6 +359,7 @@ def test_validate_generated_derives_expected_output_path_from_manifest(tmp_path:
                 "This file is generated from canonical harness policy.",
                 "Installation guidance",
                 "Target operating notes",
+                "Runtime realism contract",
                 "Non-negotiable rules",
                 "Canonical workflow snapshot",
                 "Canonical role prompts",
@@ -348,6 +370,9 @@ def test_validate_generated_derives_expected_output_path_from_manifest(tmp_path:
                 "2. Keep ForgeFlow workflow semantics in this rule file and avoid per-chat rewrites.",
                 "- surface_style: cursor-rules-markdown",
                 "- handoff_format: artifacts-plus-chat-summary",
+                "- session_persistence: rule file persists across chat sessions until regenerated",
+                "- workspace_boundary: project rules live under .cursor/rules and guide editor-native runs",
+                "- review_delivery: chat summary plus artifact file updates inside the workspace",
                 "# Planner",
                 "# Worker",
                 "# Spec Reviewer",
@@ -373,6 +398,9 @@ generated_filename: CUSTOM_CURSOR.md
 recommended_location: .cursor/rules/forgeflow.mdc
 surface_style: cursor-rules-markdown
 handoff_format: artifacts-plus-chat-summary
+session_persistence: rule file persists across chat sessions until regenerated
+workspace_boundary: project rules live under .cursor/rules and guide editor-native runs
+review_delivery: chat summary plus artifact file updates inside the workspace
 installation_steps:
   - Place the generated content in .cursor/rules/forgeflow.mdc.
   - Keep ForgeFlow workflow semantics in this rule file and avoid per-chat rewrites.
@@ -386,12 +414,23 @@ tooling_constraints:
         file_path = root / "adapters" / "generated" / target / filename
         file_path.parent.mkdir(parents=True, exist_ok=True)
         handoff = "artifacts-plus-terminal-summary" if target == "claude" else "artifacts-plus-git-diff"
+        workspace_boundary = (
+            "repo root instruction file shapes CLI runs but artifacts still live in the project workspace"
+            if target == "claude"
+            else "repo root instruction file steers CLI work while emphasizing git-visible workspace changes"
+        )
+        review_delivery = (
+            "terminal-oriented summary plus artifact files checked in the repo"
+            if target == "claude"
+            else "git-diff-centric summary plus artifact files checked in the repo"
+        )
         file_path.write_text(
             "\n".join(
                 [
                     "This file is generated from canonical harness policy.",
                     "Installation guidance",
                     "Target operating notes",
+                    "Runtime realism contract",
                     "Non-negotiable rules",
                     "Canonical workflow snapshot",
                     "Canonical role prompts",
@@ -402,6 +441,9 @@ tooling_constraints:
                     f"2. Preserve the canonical review order even when {target.capitalize()} returns specialized summaries.",
                     "- surface_style: root-instruction-file",
                     f"- handoff_format: {handoff}",
+                    "- session_persistence: root instruction file persists across repo sessions until regenerated",
+                    f"- workspace_boundary: {workspace_boundary}",
+                    f"- review_delivery: {review_delivery}",
                     "# Coordinator",
                     "# Planner",
                     "# Worker",
@@ -428,6 +470,9 @@ generated_filename: {filename}
 recommended_location: ./{filename}
 surface_style: root-instruction-file
 handoff_format: {handoff}
+session_persistence: root instruction file persists across repo sessions until regenerated
+workspace_boundary: {workspace_boundary}
+review_delivery: {review_delivery}
 installation_steps:
   - Copy the generated adapter to ./{filename} at the repo root.
   - Preserve the canonical review order even when {target.capitalize()} returns specialized summaries.

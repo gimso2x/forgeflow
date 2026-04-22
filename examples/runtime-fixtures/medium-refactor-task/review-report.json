@@ -5,5 +5,7 @@
   "verdict": "approved",
   "findings": [
     "quality checks passed for medium route fixture"
-  ]
+  ],
+  "approved_by": "quality-reviewer",
+  "next_action": "finalize 가능"
 }

@@ -15,6 +15,9 @@ handoff_format: artifacts-plus-chat-summary
 installation_steps:
   - Place the generated content in .cursor/rules/forgeflow.mdc.
   - Keep ForgeFlow workflow semantics in this rule file and avoid per-chat rewrites.
+session_persistence: rule file persists across chat sessions until regenerated
+workspace_boundary: project rules live under .cursor/rules and guide editor-native runs
+review_delivery: chat summary plus artifact file updates inside the workspace
 tooling_constraints:
   - rules surface may require .mdc or cursor-specific placement
   - generated artifacts must not redefine canonical semantics

@@ -15,6 +15,7 @@ REQUIRED_MARKERS = [
     'This file is generated from canonical harness policy.',
     'Installation guidance',
     'Target operating notes',
+    'Runtime realism contract',
     'Non-negotiable rules',
     'Canonical workflow snapshot',
     'Canonical role prompts',
@@ -156,11 +157,17 @@ def check_generated_outputs(root: Path) -> list[str]:
                 errors.append(f'{path.relative_to(root)} includes unsupported role {role}')
             if should_have and not has_title:
                 errors.append(f'{path.relative_to(root)} missing supported role {role}')
+        expected_session = load_manifest_value(manifest, 'session_persistence')
+        expected_boundary = load_manifest_value(manifest, 'workspace_boundary')
+        expected_review_delivery = load_manifest_value(manifest, 'review_delivery')
         expected_lines = [
             f'- generated_filename: {expected_filename}',
             f'- recommended_location: {expected_location}',
             f'- surface_style: {expected_surface}',
             f'- handoff_format: {expected_handoff}',
+            f'- session_persistence: {expected_session}',
+            f'- workspace_boundary: {expected_boundary}',
+            f'- review_delivery: {expected_review_delivery}',
             '## Installation steps',
         ]
         for expected_line in expected_lines:

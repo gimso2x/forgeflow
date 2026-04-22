@@ -5,5 +5,7 @@
   "verdict": "approved",
   "findings": [
     "spec review passed for large route fixture"
-  ]
+  ],
+  "approved_by": "spec-reviewer",
+  "next_action": "quality-review로 진행"
 }

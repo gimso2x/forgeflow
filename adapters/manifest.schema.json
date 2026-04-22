@@ -14,7 +14,10 @@
     "recommended_location",
     "surface_style",
     "handoff_format",
-    "installation_steps"
+    "installation_steps",
+    "session_persistence",
+    "workspace_boundary",
+    "review_delivery"
   ],
   "properties": {
     "name": {"type": "string"},
@@ -42,7 +45,10 @@
       "type": "array",
       "minItems": 2,
       "items": {"type": "string", "minLength": 1}
-    }
+    },
+    "session_persistence": {"type": "string", "minLength": 1},
+    "workspace_boundary": {"type": "string", "minLength": 1},
+    "review_delivery": {"type": "string", "minLength": 1}
   },
   "additionalProperties": false
 }

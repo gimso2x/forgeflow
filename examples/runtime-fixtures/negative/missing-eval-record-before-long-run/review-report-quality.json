@@ -5,5 +5,7 @@
   "verdict": "approved",
   "findings": [
     "quality review intentionally passes"
-  ]
+  ],
+  "approved_by": "quality-reviewer",
+  "next_action": "finalize 가능"
 }

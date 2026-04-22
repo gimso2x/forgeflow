@@ -75,6 +75,50 @@ def test_decision_log_schema_rejects_invalid_timestamp_and_actor() -> None:
     assert any(list(err.path) == ["entries", 0, "actor"] for err in errors)
 
 
+def test_review_report_schema_requires_approved_by_for_approved_verdict() -> None:
+    schema = json.loads((ROOT / "schemas" / "review-report.schema.json").read_text(encoding="utf-8"))
+    validator = Draft202012Validator(schema, format_checker=FormatChecker())
+
+    errors = sorted(
+        validator.iter_errors(
+            {
+                "schema_version": "0.1",
+                "task_id": "task-001",
+                "review_type": "quality",
+                "verdict": "approved",
+                "findings": ["looks fine"],
+                "next_action": "finalize 가능",
+            }
+        ),
+        key=lambda err: list(err.path),
+    )
+
+    assert errors
+    assert any(err.validator == "required" and "approved_by" in err.message for err in errors)
+
+
+def test_review_report_schema_requires_next_action_for_non_approved_verdict() -> None:
+    schema = json.loads((ROOT / "schemas" / "review-report.schema.json").read_text(encoding="utf-8"))
+    validator = Draft202012Validator(schema, format_checker=FormatChecker())
+
+    errors = sorted(
+        validator.iter_errors(
+            {
+                "schema_version": "0.1",
+                "task_id": "task-001",
+                "review_type": "spec",
+                "verdict": "blocked",
+                "findings": ["missing plan evidence"],
+                "approved_by": "spec-reviewer",
+            }
+        ),
+        key=lambda err: list(err.path),
+    )
+
+    assert errors
+    assert any(err.validator == "required" and "next_action" in err.message for err in errors)
+
+
 def test_validate_sample_artifacts_tracks_positive_and_negative_fixtures() -> None:
     validate_samples = _load_validate_samples_module()
 
@@ -99,6 +143,8 @@ def test_validate_sample_artifacts_tracks_positive_and_negative_fixtures() -> No
     [
         ("run-state-invalid-stage.sample.json", "current_stage"),
         ("decision-log-invalid-entry.sample.json", "timestamp"),
+        ("review-report-approved-missing-approved-by.sample.json", "approved_by"),
+        ("review-report-blocked-missing-next-action.sample.json", "next_action"),
     ],
 )
 def test_negative_fixtures_fail_for_expected_reason(fixture_name: str, expected_fragment: str) -> None:

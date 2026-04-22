@@ -3,5 +3,9 @@
   "task_id": "resume-small-001",
   "review_type": "quality",
   "verdict": "approved",
-  "findings": ["resume checkpoint is ready"]
+  "findings": [
+    "resume checkpoint is ready"
+  ],
+  "approved_by": "quality-reviewer",
+  "next_action": "finalize 가능"
 }

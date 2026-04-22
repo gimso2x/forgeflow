@@ -32,6 +32,33 @@ def test_validate_manifest_requires_target_specific_metadata() -> None:
         generate_adapters.validate_manifest(manifest, ROOT / "adapters" / "targets" / "claude" / "manifest.yaml")
 
 
+def test_validate_manifest_rejects_missing_runtime_realism_fields() -> None:
+    generate_adapters = _load_generate_adapters_module()
+    manifest = {
+        "name": "claude",
+        "runtime_type": "cli-agent",
+        "input_mode": "prompt-and-files",
+        "output_mode": "markdown-and-files",
+        "supports_roles": ["coordinator", "planner", "worker", "spec-reviewer", "quality-reviewer"],
+        "supports_generated_files": True,
+        "tooling_constraints": [
+            "prompt surface may be CLAUDE.md style",
+            "generated artifacts must not redefine canonical semantics",
+        ],
+        "generated_filename": "CLAUDE.md",
+        "recommended_location": "./CLAUDE.md",
+        "surface_style": "root-instruction-file",
+        "handoff_format": "artifacts-plus-terminal-summary",
+        "installation_steps": [
+            "Copy the generated adapter to ./CLAUDE.md at the repo root.",
+            "Keep Claude-specific helper notes in surrounding docs, not by changing ForgeFlow semantics.",
+        ],
+    }
+
+    with pytest.raises(ValueError, match="missing required keys \['session_persistence', 'workspace_boundary', 'review_delivery'\]"):
+        generate_adapters.validate_manifest(manifest, ROOT / "adapters" / "targets" / "claude" / "manifest.yaml")
+
+
 def test_validate_manifest_rejects_missing_installation_steps() -> None:
     generate_adapters = _load_generate_adapters_module()
     manifest = {
@@ -49,6 +76,9 @@ def test_validate_manifest_rejects_missing_installation_steps() -> None:
         "recommended_location": ".cursor/rules/forgeflow.mdc",
         "surface_style": "cursor-rules-markdown",
         "handoff_format": "artifacts-plus-chat-summary",
+        "session_persistence": "rule-file persists across chat sessions until regenerated",
+        "workspace_boundary": "project rules live under .cursor/rules and guide editor-native runs",
+        "review_delivery": "chat summary plus artifact file updates inside the workspace",
     }
 
     with pytest.raises(ValueError, match="missing required keys \['installation_steps'\]"):
@@ -86,6 +116,9 @@ def test_build_content_includes_target_specific_install_and_handoff_sections() -
         "recommended_location": ".cursor/rules/forgeflow.mdc",
         "surface_style": "cursor-rules-markdown",
         "handoff_format": "artifacts-plus-chat-summary",
+        "session_persistence": "rule-file persists across chat sessions until regenerated",
+        "workspace_boundary": "project rules live under .cursor/rules and guide editor-native runs",
+        "review_delivery": "chat summary plus artifact file updates inside the workspace",
     }
 
     content = generate_adapters.build_content("cursor", manifest)
@@ -99,4 +132,8 @@ def test_build_content_includes_target_specific_install_and_handoff_sections() -
     assert "## Target operating notes" in content
     assert "- surface_style: cursor-rules-markdown" in content
     assert "- handoff_format: artifacts-plus-chat-summary" in content
+    assert "## Runtime realism contract" in content
+    assert "- session_persistence: rule-file persists across chat sessions until regenerated" in content
+    assert "- workspace_boundary: project rules live under .cursor/rules and guide editor-native runs" in content
+    assert "- review_delivery: chat summary plus artifact file updates inside the workspace" in content
     assert "Copy this generated adapter into `.cursor/rules/forgeflow.mdc`" in content

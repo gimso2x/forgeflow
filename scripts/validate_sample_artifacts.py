@@ -19,6 +19,8 @@ POSITIVE_SAMPLES = {
 NEGATIVE_SAMPLES = {
     "run-state-invalid-stage.sample.json": ROOT / "schemas/run-state.schema.json",
     "decision-log-invalid-entry.sample.json": ROOT / "schemas/decision-log.schema.json",
+    "review-report-approved-missing-approved-by.sample.json": ROOT / "schemas/review-report.schema.json",
+    "review-report-blocked-missing-next-action.sample.json": ROOT / "schemas/review-report.schema.json",
 }
 FORMAT_CHECKER = FormatChecker()
 
