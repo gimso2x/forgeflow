@@ -1,0 +1,9 @@
+{
+  "schema_version": "0.1",
+  "task_id": "task-large-001",
+  "review_type": "spec",
+  "verdict": "approved",
+  "findings": [
+    "spec review passed for large route fixture"
+  ]
+}

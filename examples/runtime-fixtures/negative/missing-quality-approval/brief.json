@@ -1,0 +1,16 @@
+{
+  "schema_version": "0.1",
+  "task_id": "task-neg-001",
+  "objective": "Fail finalize without approvals",
+  "in_scope": [
+    "runtime"
+  ],
+  "out_of_scope": [],
+  "constraints": [
+    "negative fixture"
+  ],
+  "acceptance_criteria": [
+    "orchestrator rejects finalize"
+  ],
+  "risk_level": "low"
+}

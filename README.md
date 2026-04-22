@@ -51,6 +51,7 @@ ForgeFlow tries not to do that.
 ## Quick start
 ```bash
 make validate
+make adherence-evals
 make generate
 make regen
 make runtime-sample
@@ -94,6 +95,7 @@ This runs:
 - policy validation
 - generated adapter validation
 - sample artifact validation
+- executable adherence evals across small/medium/large and negative runtime fixtures
 
 ## Naming
 The name is **ForgeFlow** because the point is to forge messy agent work into a flow with gates, evidence, and review.

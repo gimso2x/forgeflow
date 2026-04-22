@@ -315,3 +315,37 @@ def test_cli_run_executes_sample_fixture(tmp_path: Path) -> None:
     assert result.returncode == 0
     assert (task_dir / "run-state.json").exists()
     assert (task_dir / "decision-log.json").exists()
+
+
+def test_medium_and_large_runtime_fixtures_run_end_to_end(tmp_path: Path) -> None:
+    fixtures_root = ROOT / "examples" / "runtime-fixtures"
+
+    for fixture_name, route_name, expected_stage in [
+        ("medium-refactor-task", "medium", "finalize"),
+        ("large-migration-task", "large_high_risk", "long-run"),
+    ]:
+        source_dir = fixtures_root / fixture_name
+        task_dir = tmp_path / fixture_name
+        subprocess.run(["cp", "-R", str(source_dir), str(task_dir)], check=True)
+
+        result = run_route(task_dir=task_dir, policy=load_runtime_policy(ROOT), route_name=route_name)
+
+        assert result["status"] == "completed"
+        assert result["current_stage"] == expected_stage
+
+
+def test_adherence_eval_cli_runs_valid_and_negative_fixtures() -> None:
+    result = subprocess.run(
+        [sys.executable, "scripts/run_adherence_evals.py"],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 0
+    assert "ADHERENCE EVALS: PASS" in result.stdout
+    assert "medium-refactor-task" in result.stdout
+    assert "large-migration-task" in result.stdout
+    assert "missing-quality-approval" in result.stdout
+    assert "missing-run-state-before-spec-review" in result.stdout
