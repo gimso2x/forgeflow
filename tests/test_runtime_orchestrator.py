@@ -397,6 +397,106 @@ def test_run_route_rejects_schema_invalid_review_report(tmp_path: Path) -> None:
         run_route(task_dir=task_dir, policy=policy, route_name="small")
 
 
+def test_run_route_rejects_mismatched_review_report_task_id(tmp_path: Path) -> None:
+    policy = load_runtime_policy(ROOT)
+    task_dir = _make_task_dir(tmp_path)
+    _write_json(
+        task_dir / "review-report.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "other-task",
+            "review_type": "quality",
+            "verdict": "approved",
+            "findings": ["looks fine"],
+        },
+    )
+
+    with pytest.raises(RuntimeViolation, match="review-report.json task_id other-task does not match canonical task_id task-001"):
+        run_route(task_dir=task_dir, policy=policy, route_name="small")
+
+
+def test_run_route_rejects_mismatched_eval_record_task_id(tmp_path: Path) -> None:
+    policy = load_runtime_policy(ROOT)
+    task_dir = tmp_path / "large-task"
+    task_dir.mkdir()
+    _write_json(
+        task_dir / "brief.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-large-001",
+            "objective": "Run a large route",
+            "in_scope": ["runtime"],
+            "out_of_scope": [],
+            "constraints": ["local only"],
+            "acceptance_criteria": ["large route works"],
+            "risk_level": "high",
+        },
+    )
+    _write_json(
+        task_dir / "plan.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-large-001",
+            "steps": [
+                {
+                    "id": "step-1",
+                    "objective": "Run route",
+                    "expected_output": "done",
+                    "verification": "pytest",
+                }
+            ],
+        },
+    )
+    _write_json(
+        task_dir / "review-report-spec.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-large-001",
+            "review_type": "spec",
+            "verdict": "approved",
+            "findings": ["spec ok"],
+        },
+    )
+    _write_json(
+        task_dir / "review-report-quality.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-large-001",
+            "review_type": "quality",
+            "verdict": "approved",
+            "findings": ["quality ok"],
+        },
+    )
+    _write_json(
+        task_dir / "eval-record.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "other-task",
+            "outcome": "success",
+            "what_worked": ["route worked"],
+            "what_failed": [],
+        },
+    )
+
+    with pytest.raises(RuntimeViolation, match="eval-record.json task_id other-task does not match canonical task_id task-large-001"):
+        run_route(task_dir=task_dir, policy=policy, route_name="large_high_risk")
+
+
+def test_retry_stage_rejects_mismatched_decision_log_task_id(tmp_path: Path) -> None:
+    task_dir = _make_task_dir(tmp_path)
+    _write_json(
+        task_dir / "decision-log.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "other-task",
+            "entries": [],
+        },
+    )
+
+    with pytest.raises(RuntimeViolation, match="decision-log.json task_id other-task does not match canonical task_id task-001"):
+        retry_stage(task_dir=task_dir, stage_name="execute")
+
+
 def test_run_route_migrates_legacy_decision_log_timestamps(tmp_path: Path) -> None:
     policy = load_runtime_policy(ROOT)
     task_dir = _make_task_dir(tmp_path)

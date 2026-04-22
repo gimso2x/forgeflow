@@ -207,17 +207,35 @@ def _coerce_legacy_artifact_payload(artifact_name: str, payload: dict[str, Any])
     return {**payload, "entries": migrated_entries}
 
 
-def _load_validated_artifact(task_dir: Path, artifact_name: str) -> dict[str, Any]:
+def _assert_task_id_matches(path: Path, payload: dict[str, Any], expected_task_id: str | None) -> None:
+    if expected_task_id is None:
+        return
+    artifact_task_id = payload.get("task_id")
+    if artifact_task_id != expected_task_id:
+        raise RuntimeViolation(
+            f"{path.name} task_id {artifact_task_id} does not match canonical task_id {expected_task_id}"
+        )
+
+
+
+def _load_validated_artifact(
+    task_dir: Path,
+    artifact_name: str,
+    *,
+    expected_task_id: str | None = None,
+) -> dict[str, Any]:
     path = _artifact_path(task_dir, artifact_name)
     payload = _load_json(path)
     try:
         _validate_artifact_payload(artifact_name=artifact_name, payload=payload, source_name=path.name)
+        _assert_task_id_matches(path, payload, expected_task_id)
         return payload
     except RuntimeViolation:
         coerced_payload = _coerce_legacy_artifact_payload(artifact_name, payload)
         if coerced_payload == payload:
             raise
         _validate_artifact_payload(artifact_name=artifact_name, payload=coerced_payload, source_name=path.name)
+        _assert_task_id_matches(path, coerced_payload, expected_task_id)
         _write_json(path, coerced_payload)
         return coerced_payload
 
@@ -235,14 +253,35 @@ def _write_validated_artifact(task_dir: Path, artifact_name: str, payload: dict[
     _write_json(_artifact_path(task_dir, artifact_name), payload)
 
 
-def _task_id(task_dir: Path) -> str:
+def _canonical_task_id(task_dir: Path) -> str:
+    brief_payload: dict[str, Any] | None = None
+    run_state_payload: dict[str, Any] | None = None
+
     brief_path = _artifact_path(task_dir, "brief")
     if brief_path.exists():
-        return _load_validated_artifact(task_dir, "brief")["task_id"]
+        brief_payload = _load_validated_artifact(task_dir, "brief")
     run_state_path = _artifact_path(task_dir, "run-state")
     if run_state_path.exists():
-        return _load_validated_artifact(task_dir, "run-state")["task_id"]
+        run_state_payload = _load_validated_artifact(task_dir, "run-state")
+
+    if brief_payload is not None and run_state_payload is not None:
+        brief_task_id = brief_payload["task_id"]
+        run_state_task_id = run_state_payload["task_id"]
+        if brief_task_id != run_state_task_id:
+            raise RuntimeViolation(
+                f"run-state.json task_id {run_state_task_id} does not match canonical task_id {brief_task_id}"
+            )
+        return brief_task_id
+    if brief_payload is not None:
+        return brief_payload["task_id"]
+    if run_state_payload is not None:
+        return run_state_payload["task_id"]
     raise RuntimeViolation("task directory must contain brief.json or run-state.json")
+
+
+
+def _task_id(task_dir: Path) -> str:
+    return _canonical_task_id(task_dir)
 
 
 def _default_run_state(task_dir: Path) -> dict[str, Any]:
@@ -260,19 +299,20 @@ def _default_run_state(task_dir: Path) -> dict[str, Any]:
     }
 
 
-def _ensure_run_state(task_dir: Path) -> dict[str, Any]:
+def _ensure_run_state(task_dir: Path, *, canonical_task_id: str | None = None) -> dict[str, Any]:
     path = _artifact_path(task_dir, "run-state")
     if path.exists():
-        return _load_validated_artifact(task_dir, "run-state")
+        return _load_validated_artifact(task_dir, "run-state", expected_task_id=canonical_task_id)
     run_state = _default_run_state(task_dir)
     _write_validated_artifact(task_dir, "run-state", run_state)
     return run_state
 
 
-def _ensure_decision_log(task_dir: Path) -> dict[str, Any]:
+
+def _ensure_decision_log(task_dir: Path, *, canonical_task_id: str | None = None) -> dict[str, Any]:
     path = _artifact_path(task_dir, "decision-log")
     if path.exists():
-        return _load_validated_artifact(task_dir, "decision-log")
+        return _load_validated_artifact(task_dir, "decision-log", expected_task_id=canonical_task_id)
     decision_log = {
         "schema_version": "0.1",
         "task_id": _task_id(task_dir),
@@ -295,12 +335,12 @@ def _append_decision(decision_log: dict[str, Any], *, actor: str, category: str,
     )
 
 
-def _sync_review_flags(task_dir: Path, run_state: dict[str, Any]) -> None:
+def _sync_review_flags(task_dir: Path, run_state: dict[str, Any], *, canonical_task_id: str) -> None:
     for artifact_name in ["review-report", "review-report-spec", "review-report-quality"]:
         review_path = _artifact_path(task_dir, artifact_name)
         if not review_path.exists():
             continue
-        review = _load_validated_artifact(task_dir, artifact_name)
+        review = _load_validated_artifact(task_dir, artifact_name, expected_task_id=canonical_task_id)
         if review.get("review_type") == "spec" and review.get("verdict") == "approved":
             run_state["spec_review_approved"] = True
         if review.get("review_type") == "quality" and review.get("verdict") == "approved":
@@ -384,18 +424,25 @@ def _resume_start_index(run_state: dict[str, Any], route: list[str]) -> int:
     raise RuntimeViolation(f"run-state checkpoint has unsupported status: {status}")
 
 
-def _matching_review_payload(task_dir: Path, expected_review_type: str, expected_verdict: str) -> dict[str, Any] | None:
+def _matching_review_payload(
+    task_dir: Path,
+    expected_review_type: str,
+    expected_verdict: str,
+    *,
+    canonical_task_id: str,
+) -> dict[str, Any] | None:
     for artifact_name in ["review-report", "review-report-spec", "review-report-quality"]:
         review_path = _artifact_path(task_dir, artifact_name)
         if not review_path.exists():
             continue
-        payload = _load_validated_artifact(task_dir, artifact_name)
+        payload = _load_validated_artifact(task_dir, artifact_name, expected_task_id=canonical_task_id)
         if payload.get("review_type") == expected_review_type and payload.get("verdict") == expected_verdict:
             return payload
     return None
 
 
-def _enforce_stage_gate(task_dir: Path, policy: RuntimePolicy, stage_name: str) -> None:
+
+def _enforce_stage_gate(task_dir: Path, policy: RuntimePolicy, stage_name: str, *, canonical_task_id: str) -> None:
     gate_name = STAGE_GATE_MAP.get(stage_name)
     if gate_name is None:
         return
@@ -406,10 +453,21 @@ def _enforce_stage_gate(task_dir: Path, policy: RuntimePolicy, stage_name: str) 
             f"{stage_name} requires artifacts satisfying gate {gate_name}: {', '.join(missing_gate_artifacts)}"
         )
 
+    for required_artifact in policy.gate_requirements.get(gate_name, []):
+        for variant in _artifact_variants(required_artifact):
+            variant_path = _artifact_path(task_dir, variant)
+            if variant_path.exists():
+                _load_validated_artifact(task_dir, variant, expected_task_id=canonical_task_id)
+
     gate_review = policy.gate_reviews.get(gate_name, {})
     expected_review_type = gate_review.get("review_type")
     expected_verdict = gate_review.get("verdict")
-    if expected_review_type and expected_verdict and _matching_review_payload(task_dir, expected_review_type, expected_verdict) is None:
+    if expected_review_type and expected_verdict and _matching_review_payload(
+        task_dir,
+        expected_review_type,
+        expected_verdict,
+        canonical_task_id=canonical_task_id,
+    ) is None:
         raise RuntimeViolation(
             f"{stage_name} requires approved {expected_review_type} review-report artifact"
         )
@@ -430,6 +488,7 @@ def load_runtime_policy(root: Path) -> RuntimePolicy:
 
 def advance_to_next_stage(task_dir: Path, policy: RuntimePolicy, route_name: str, current_stage: str) -> TransitionResult:
     route = policy.routes[route_name]
+    canonical_task_id = _canonical_task_id(task_dir)
     if current_stage not in route:
         raise RuntimeViolation(f"stage {current_stage} is not part of route {route_name}")
 
@@ -444,8 +503,14 @@ def advance_to_next_stage(task_dir: Path, policy: RuntimePolicy, route_name: str
             f"missing required artifacts for {next_stage}: {', '.join(missing_artifacts)}"
         )
 
+    for required_artifact in policy.stage_requirements.get(next_stage, []):
+        for variant in _artifact_variants(required_artifact):
+            variant_path = _artifact_path(task_dir, variant)
+            if variant_path.exists():
+                _load_validated_artifact(task_dir, variant, expected_task_id=canonical_task_id)
+
     if next_stage == "finalize":
-        run_state = _load_validated_artifact(task_dir, "run-state")
+        run_state = _load_validated_artifact(task_dir, "run-state", expected_task_id=canonical_task_id)
         required_flags = _required_finalize_flags(policy, route_name)
         missing_flags = [flag for flag in required_flags if not run_state.get(flag, False)]
         if missing_flags:
@@ -458,8 +523,9 @@ def advance_to_next_stage(task_dir: Path, policy: RuntimePolicy, route_name: str
 
 def run_route(task_dir: Path, policy: RuntimePolicy, route_name: str) -> dict[str, Any]:
     route = policy.routes[route_name]
-    run_state = _ensure_run_state(task_dir)
-    decision_log = _ensure_decision_log(task_dir)
+    canonical_task_id = _canonical_task_id(task_dir)
+    run_state = _ensure_run_state(task_dir, canonical_task_id=canonical_task_id)
+    decision_log = _ensure_decision_log(task_dir, canonical_task_id=canonical_task_id)
     resume_from_stage = run_state.get("current_stage")
     start_index = _resume_start_index(run_state, route)
 
@@ -501,8 +567,8 @@ def run_route(task_dir: Path, policy: RuntimePolicy, route_name: str) -> dict[st
 
         run_state["current_stage"] = stage_name
         run_state["status"] = "in_progress"
-        _sync_review_flags(task_dir, run_state)
-        _enforce_stage_gate(task_dir, policy, stage_name)
+        _sync_review_flags(task_dir, run_state, canonical_task_id=canonical_task_id)
+        _enforce_stage_gate(task_dir, policy, stage_name, canonical_task_id=canonical_task_id)
         _record_gate(run_state, stage_name)
 
         if stage_name == "execute" and not _artifact_path(task_dir, "decision-log").exists():
@@ -536,8 +602,9 @@ def run_route(task_dir: Path, policy: RuntimePolicy, route_name: str) -> dict[st
 
 
 def retry_stage(task_dir: Path, stage_name: str, max_retries: int = 2) -> dict[str, Any]:
-    run_state = _ensure_run_state(task_dir)
-    decision_log = _ensure_decision_log(task_dir)
+    canonical_task_id = _canonical_task_id(task_dir)
+    run_state = _ensure_run_state(task_dir, canonical_task_id=canonical_task_id)
+    decision_log = _ensure_decision_log(task_dir, canonical_task_id=canonical_task_id)
     current = int(run_state["retries"].get(stage_name, 0))
     if current >= max_retries:
         raise RuntimeViolation(f"retry budget exceeded for {stage_name}: {current}/{max_retries}")
@@ -566,8 +633,9 @@ def step_back(task_dir: Path, policy: RuntimePolicy, route_name: str, current_st
         raise RuntimeViolation(f"cannot step back before first stage of route {route_name}")
 
     previous_stage = route[index - 1]
-    run_state = _ensure_run_state(task_dir)
-    decision_log = _ensure_decision_log(task_dir)
+    canonical_task_id = _canonical_task_id(task_dir)
+    run_state = _ensure_run_state(task_dir, canonical_task_id=canonical_task_id)
+    decision_log = _ensure_decision_log(task_dir, canonical_task_id=canonical_task_id)
     run_state["current_stage"] = previous_stage
     run_state["status"] = "in_progress"
     _append_decision(
@@ -585,8 +653,9 @@ def step_back(task_dir: Path, policy: RuntimePolicy, route_name: str, current_st
 def escalate_route(task_dir: Path, from_route: str) -> dict[str, Any]:
     if from_route not in {"small", "medium", "large_high_risk"}:
         raise RuntimeViolation(f"unknown route for escalation: {from_route}")
-    run_state = _ensure_run_state(task_dir)
-    decision_log = _ensure_decision_log(task_dir)
+    canonical_task_id = _canonical_task_id(task_dir)
+    run_state = _ensure_run_state(task_dir, canonical_task_id=canonical_task_id)
+    decision_log = _ensure_decision_log(task_dir, canonical_task_id=canonical_task_id)
     run_state["current_stage"] = "clarify"
     run_state["status"] = "blocked"
     _append_decision(
