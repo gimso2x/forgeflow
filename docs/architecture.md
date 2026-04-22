@@ -1,0 +1,142 @@
+# Architecture
+
+## 한 줄 정의
+artifact-first delivery harness.
+
+이 repo는 AI 에이전트의 감정과 세계관을 관리하는 곳이 아니다.
+작업을 **stage**, **artifact**, **gate**, **review**로 묶어 실패를 줄이는 쪽에 집중한다.
+
+---
+
+## 1. Design lineage
+- **engineering-discipline**: workflow skeleton, complexity routing, worker/validator 분리
+- **hoyeon**: artifact contract, schema discipline, monotonic ledger, bounded recovery
+- **gstack**: canonical policy, runtime adapter generation, inspectable local memory, eval persistence
+- **superpowers**: adversarial review, spec-review → quality-review ordering, anti-rationalization
+
+---
+
+## 2. System thesis
+이 harness의 핵심 명제는 세 가지다.
+
+1. **chat는 state가 아니다**
+   - state는 artifact와 ledger에 남겨야 한다.
+2. **구현과 판정은 분리해야 한다**
+   - worker가 자기 자신을 승인하면 검증이 아니라 기분표현이 된다.
+3. **runtime 차이는 surface 문제다**
+   - workflow semantics는 canonical policy에서만 정의한다.
+
+---
+
+## 3. Primary components
+
+### A. Stage machine
+책임:
+- 현재 작업이 어느 단계에 있는지 추적
+- complexity route 적용
+- required artifact가 없으면 진입 차단
+
+코어 stage:
+- clarify
+- plan
+- execute
+- spec-review
+- quality-review
+- finalize
+- long-run
+
+### B. Artifact registry
+책임:
+- 각 stage의 입력/출력 계약 유지
+- schema validation 기준 제공
+- resume/review를 위한 handoff 단위 제공
+
+### C. Ledger / run-state
+책임:
+- 현재 stage, gate, retry, blocker, evidence ref 기록
+- append-only decision 흔적 유지
+- finalize 전 상태 판정 근거 제공
+
+### D. Review engine
+책임:
+- spec correctness와 quality를 분리 판정
+- worker 자기보고 대신 artifact/evidence 기준 판단
+- anti-rationalization rule 적용
+
+### E. Adapter generator
+책임:
+- canonical policy를 host-specific 산출물로 변환
+- Claude/Codex/Cursor 차이를 surface에서만 흡수
+
+### F. Eval + memory layer
+책임:
+- workflow adherence 평가
+- 반복 가치가 있는 패턴만 local memory로 남김
+- hidden memory가 아니라 inspectable storage 유지
+
+---
+
+## 4. Control plane vs data plane
+
+### Control plane
+- `policy/canonical/`
+- `schemas/`
+- `prompts/canonical/`
+
+여기가 의미론을 결정한다.
+
+### Data plane
+- task별 artifact
+- run-state
+- decision-log
+- review-report
+- eval-record
+
+여기는 실행 흔적과 판정 결과가 쌓이는 영역이다.
+
+### Adapter plane
+- `adapters/targets/`
+- `adapters/generated/`
+
+여기는 host 차이를 처리한다.
+
+---
+
+## 5. Hard invariants
+1. artifact 없이 stage 전환 금지
+2. spec-review 실패 시 quality-review 금지
+3. review 결과 없는 finalize 금지
+4. adapter가 stage/gate/review semantics 변경 금지
+5. retry는 bounded budget 안에서만 허용
+6. unresolved blocker를 success처럼 포장 금지
+
+---
+
+## 6. P0 scope boundary
+P0에서 반드시 들어가는 것:
+- workflow, stages, gates, routing
+- 6 core artifact schemas
+- canonical role prompts
+- adapter manifest schema
+- claude/codex/cursor target placeholders
+- eval/readme와 examples
+
+P0에서 일부러 안 넣는 것:
+- plugin marketplace
+- persona zoo
+- giant command taxonomy
+- auto-self-evolution loop
+- cross-project magical memory
+
+---
+
+## 7. What success looks like
+설계 완료 기준은 문장이 예쁜 게 아니다.
+다음 질문에 답할 수 있어야 한다.
+
+- 지금 task는 어느 stage인가?
+- 다음 stage로 넘어갈 artifact가 있는가?
+- 누가 구현했고 누가 판정하는가?
+- review는 무엇을 근거로 pass/fail 했는가?
+- 이 semantics가 Claude/Codex/Cursor에서 동일하게 유지되는가?
+- 실패했을 때 어디서 resume할 수 있는가?

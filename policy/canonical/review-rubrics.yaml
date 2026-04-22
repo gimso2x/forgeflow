@@ -1,0 +1,21 @@
+version: 0.1
+spec_review:
+  questions:
+    - Did the output satisfy the brief objective?
+    - Were acceptance criteria met?
+    - Did execution stay inside scope?
+    - Is evidence sufficient for the claimed completion?
+  fail_on:
+    - missing acceptance coverage
+    - unapproved scope drift
+    - evidence-free completion claim
+quality_review:
+  questions:
+    - Is the result simple enough?
+    - Is the verification quality acceptable?
+    - Are residual risks documented?
+    - Is maintainability acceptable for the task size?
+  fail_on:
+    - avoidable complexity
+    - weak verification
+    - hidden residual risk

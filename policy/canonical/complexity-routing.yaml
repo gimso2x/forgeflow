@@ -1,0 +1,20 @@
+version: 0.1
+routes:
+  small:
+    stages: [clarify, execute, quality-review, finalize]
+    traits:
+      - low risk
+      - small scope
+      - easy rollback
+  medium:
+    stages: [clarify, plan, execute, quality-review, finalize]
+    traits:
+      - multiple steps
+      - moderate scope
+      - verification needed
+  large_high_risk:
+    stages: [clarify, plan, execute, spec-review, quality-review, finalize, long-run]
+    traits:
+      - architecture or infra impact
+      - hard rollback
+      - resume/recovery important

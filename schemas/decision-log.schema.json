@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DecisionLog",
+  "type": "object",
+  "required": ["schema_version", "task_id", "entries"],
+  "properties": {
+    "schema_version": {"type": "string"},
+    "task_id": {"type": "string"},
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["timestamp", "actor", "category", "decision", "rationale"],
+        "properties": {
+          "timestamp": {"type": "string"},
+          "actor": {"type": "string"},
+          "category": {"type": "string"},
+          "decision": {"type": "string"},
+          "rationale": {"type": "string"},
+          "affected_artifacts": {"type": "array", "items": {"type": "string"}}
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

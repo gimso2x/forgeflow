@@ -1,0 +1,13 @@
+name: cursor
+runtime_type: editor-agent
+input_mode: rules-and-context
+output_mode: files-and-chat
+supports_roles:
+  - planner
+  - worker
+  - spec-reviewer
+  - quality-reviewer
+supports_generated_files: true
+tooling_constraints:
+  - rules surface may require .mdc or cursor-specific placement
+  - generated artifacts must not redefine canonical semantics

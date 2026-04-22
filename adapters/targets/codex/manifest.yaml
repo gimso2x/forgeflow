@@ -1,0 +1,14 @@
+name: codex
+runtime_type: cli-agent
+input_mode: prompt-and-files
+output_mode: markdown-and-files
+supports_roles:
+  - coordinator
+  - planner
+  - worker
+  - spec-reviewer
+  - quality-reviewer
+supports_generated_files: true
+tooling_constraints:
+  - git-oriented runtime assumptions may exist
+  - generated artifacts must not redefine canonical semantics

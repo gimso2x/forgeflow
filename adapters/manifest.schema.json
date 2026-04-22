@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AdapterManifest",
+  "type": "object",
+  "required": [
+    "name",
+    "runtime_type",
+    "input_mode",
+    "output_mode",
+    "supports_roles",
+    "supports_generated_files",
+    "tooling_constraints"
+  ],
+  "properties": {
+    "name": {"type": "string"},
+    "runtime_type": {"type": "string"},
+    "input_mode": {"type": "string"},
+    "output_mode": {"type": "string"},
+    "supports_roles": {"type": "array", "items": {"type": "string"}},
+    "supports_generated_files": {"type": "boolean"},
+    "tooling_constraints": {"type": "array", "items": {"type": "string"}}
+  },
+  "additionalProperties": false
+}

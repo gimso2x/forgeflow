@@ -1,0 +1,21 @@
+version: 0.2
+gates:
+  clarification_complete:
+    requires: [brief]
+  plan_executable:
+    requires: [plan]
+  execution_evidenced:
+    requires: [decision-log, run-state]
+  spec_review_passed:
+    requires: [review-report]
+    review_type: spec
+    verdict: approved
+  quality_review_passed:
+    requires: [review-report]
+    review_type: quality
+    verdict: approved
+  ready_to_finalize:
+    requires: [run-state]
+    run_state_flags: [spec_review_approved, quality_review_approved]
+  worth_long_run_capture:
+    requires: [eval-record]

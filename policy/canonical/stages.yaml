@@ -1,0 +1,23 @@
+version: 0.1
+stages:
+  clarify:
+    artifact_out: [brief]
+    required_for_entry: []
+  plan:
+    artifact_out: [plan]
+    required_for_entry: [brief]
+  execute:
+    artifact_out: [decision-log, run-state]
+    required_for_entry: [brief]
+  spec-review:
+    artifact_out: [review-report]
+    required_for_entry: [brief, run-state]
+  quality-review:
+    artifact_out: [review-report]
+    required_for_entry: [run-state]
+  finalize:
+    artifact_out: [run-state]
+    required_for_entry: [run-state, review-report]
+  long-run:
+    artifact_out: [eval-record]
+    required_for_entry: [run-state, review-report]

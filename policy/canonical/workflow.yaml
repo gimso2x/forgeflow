@@ -1,0 +1,15 @@
+version: 0.1
+stages:
+  - clarify
+  - plan
+  - execute
+  - spec-review
+  - quality-review
+  - finalize
+  - long-run
+review_order:
+  - spec-review
+  - quality-review
+notes:
+  - engineering-discipline skeleton
+  - superpowers review ordering
