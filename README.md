@@ -1,6 +1,6 @@
-# Harness
+# ForgeFlow
 
-artifact-first delivery harness 초안.
+ForgeFlow artifact-first delivery harness seed.
 
 ## 목적
 이 repo는 AI 코딩 에이전트를 위한 범용 잡탕 프레임워크가 아니다.

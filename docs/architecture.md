@@ -1,7 +1,7 @@
 # Architecture
 
 ## 한 줄 정의
-artifact-first delivery harness.
+ForgeFlow artifact-first delivery harness.
 
 이 repo는 AI 에이전트의 감정과 세계관을 관리하는 곳이 아니다.
 작업을 **stage**, **artifact**, **gate**, **review**로 묶어 실패를 줄이는 쪽에 집중한다.

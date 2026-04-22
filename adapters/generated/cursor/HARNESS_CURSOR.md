@@ -1,4 +1,4 @@
-# Cursor Harness Adapter
+# Cursor ForgeFlow Adapter
 
 This file is generated from canonical harness policy.
 Do not edit manually. Update canonical docs/policy/prompts and rerun `scripts/generate_adapters.py`.
