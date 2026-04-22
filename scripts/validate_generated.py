@@ -42,39 +42,73 @@ def load_manifest_roles(path: Path) -> list[str]:
     return roles
 
 
-def main() -> int:
+def check_generated_outputs(root: Path) -> list[str]:
     errors = []
     regen = subprocess.run(
-        [sys.executable, str(ROOT / 'scripts' / 'generate_adapters.py')],
-        cwd=ROOT,
+        [sys.executable, str(root / 'scripts' / 'generate_adapters.py')],
+        cwd=root,
         capture_output=True,
         text=True,
     )
     if regen.returncode != 0:
-        print('GENERATED VALIDATION: FAIL')
-        print('- generator itself failed')
-        print(regen.stdout)
-        print(regen.stderr)
-        return 1
+        return [
+            'generator itself failed',
+            regen.stdout.strip(),
+            regen.stderr.strip(),
+        ]
+
+    diff = subprocess.run(
+        ['git', 'diff', '--exit-code', '--', 'adapters/generated'],
+        cwd=root,
+        capture_output=True,
+        text=True,
+    )
+    drift_messages: list[str] = []
+    if diff.returncode != 0:
+        tracked_drift = (diff.stdout or diff.stderr).strip()
+        if not tracked_drift:
+            tracked_drift = 'git diff reported generated adapter changes after regeneration'
+        drift_messages.append(tracked_drift)
+
+    untracked = subprocess.run(
+        ['git', 'ls-files', '--others', '--exclude-standard', '--', 'adapters/generated'],
+        cwd=root,
+        capture_output=True,
+        text=True,
+    )
+    untracked_paths = [line.strip() for line in untracked.stdout.splitlines() if line.strip()]
+    if untracked_paths:
+        drift_messages.append('untracked files:\n' + '\n'.join(untracked_paths))
+
+    if drift_messages:
+        errors.append(
+            'generated adapters drift from canonical sources after regeneration:\n'
+            + '\n'.join(drift_messages)
+        )
 
     for target, name in REQUIRED_GENERATED.items():
-        path = ROOT / 'adapters' / 'generated' / target / name
-        manifest = ROOT / 'adapters' / 'targets' / target / 'manifest.yaml'
+        path = root / 'adapters' / 'generated' / target / name
+        manifest = root / 'adapters' / 'targets' / target / 'manifest.yaml'
         if not path.is_file():
-            errors.append(f'missing generated file: {path.relative_to(ROOT)}')
+            errors.append(f'missing generated file: {path.relative_to(root)}')
             continue
         text = path.read_text(encoding='utf-8')
         for marker in REQUIRED_MARKERS:
             if marker not in text:
-                errors.append(f'{path.relative_to(ROOT)} missing marker: {marker}')
+                errors.append(f'{path.relative_to(root)} missing marker: {marker}')
         supported_roles = load_manifest_roles(manifest)
         for role, title in ROLE_TITLES.items():
             has_title = title in text
             should_have = role in supported_roles
             if has_title and not should_have:
-                errors.append(f'{path.relative_to(ROOT)} includes unsupported role {role}')
+                errors.append(f'{path.relative_to(root)} includes unsupported role {role}')
             if should_have and not has_title:
-                errors.append(f'{path.relative_to(ROOT)} missing supported role {role}')
+                errors.append(f'{path.relative_to(root)} missing supported role {role}')
+    return [err for err in errors if err]
+
+
+def main() -> int:
+    errors = check_generated_outputs(ROOT)
     if errors:
         print('GENERATED VALIDATION: FAIL')
         for err in errors:
@@ -83,6 +117,7 @@ def main() -> int:
     print('GENERATED VALIDATION: PASS')
     for target, name in REQUIRED_GENERATED.items():
         print(f'- checked adapters/generated/{target}/{name}')
+    print('- regeneration left adapters/generated clean')
     return 0
 
 
