@@ -14,6 +14,7 @@ make adherence-evals
 - `examples/runtime-fixtures/medium-refactor-task` medium route happy path
 - `examples/runtime-fixtures/large-migration-task` large/high-risk happy path
 - `negative/missing-quality-approval`에서 finalize approval gate 거부
+- `negative/invalid-review-report`에서 schema-invalid review artifact 거부
 - `negative/missing-run-state-before-spec-review`에서 spec-review 진입 거부
 
 핵심 규칙:

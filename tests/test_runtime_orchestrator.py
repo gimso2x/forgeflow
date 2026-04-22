@@ -4,6 +4,7 @@ import sys
 from pathlib import Path
 
 import pytest
+from jsonschema import Draft202012Validator
 
 from forgeflow_runtime.orchestrator import (
     RuntimeViolation,
@@ -21,6 +22,15 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def _write_json(path: Path, payload: dict) -> None:
     path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+
+
+def _load_schema(name: str) -> dict:
+    return json.loads((ROOT / "schemas" / f"{name}.schema.json").read_text(encoding="utf-8"))
+
+
+def _assert_schema_valid(name: str, payload: dict) -> None:
+    errors = sorted(Draft202012Validator(_load_schema(name)).iter_errors(payload), key=lambda err: list(err.path))
+    assert not errors, [f"{list(err.path)}: {err.message}" for err in errors]
 
 
 def _make_task_dir(tmp_path: Path) -> Path:
@@ -142,8 +152,10 @@ def test_small_route_runs_end_to_end_and_updates_state(tmp_path: Path) -> None:
         "quality_review_passed",
         "ready_to_finalize",
     ]
+    _assert_schema_valid("run-state", result)
 
     decision_log = json.loads((task_dir / "decision-log.json").read_text(encoding="utf-8"))
+    _assert_schema_valid("decision-log", decision_log)
     decisions = [entry["decision"] for entry in decision_log["entries"]]
     assert decisions == [
         "route selected: small",
@@ -152,6 +164,95 @@ def test_small_route_runs_end_to_end_and_updates_state(tmp_path: Path) -> None:
         "stage entered: quality-review",
         "stage entered: finalize",
     ]
+
+
+def test_run_route_rejects_schema_invalid_existing_run_state(tmp_path: Path) -> None:
+    policy = load_runtime_policy(ROOT)
+    task_dir = _make_task_dir(tmp_path)
+    _write_json(
+        task_dir / "run-state.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "current_stage": "invented-stage",
+            "status": "in_progress",
+            "completed_gates": [],
+            "failed_gates": [],
+            "retries": {},
+            "spec_review_approved": False,
+            "quality_review_approved": False,
+        },
+    )
+    _write_json(
+        task_dir / "review-report.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "review_type": "quality",
+            "verdict": "approved",
+            "findings": ["looks fine"],
+        },
+    )
+
+    with pytest.raises(RuntimeViolation, match="run-state.json failed schema validation"):
+        run_route(task_dir=task_dir, policy=policy, route_name="small")
+
+
+def test_run_route_rejects_schema_invalid_review_report(tmp_path: Path) -> None:
+    policy = load_runtime_policy(ROOT)
+    task_dir = _make_task_dir(tmp_path)
+    _write_json(
+        task_dir / "review-report.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "review_type": "quality",
+            "verdict": "approved",
+            "findings": "looks fine",
+        },
+    )
+
+    with pytest.raises(RuntimeViolation, match="review-report.json failed schema validation"):
+        run_route(task_dir=task_dir, policy=policy, route_name="small")
+
+
+def test_run_route_migrates_legacy_decision_log_timestamps(tmp_path: Path) -> None:
+    policy = load_runtime_policy(ROOT)
+    task_dir = _make_task_dir(tmp_path)
+    _write_json(
+        task_dir / "decision-log.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "entries": [
+                {
+                    "timestamp": "seq-001",
+                    "actor": "orchestrator",
+                    "category": "routing",
+                    "decision": "route selected: small",
+                    "rationale": "legacy runtime output",
+                    "affected_artifacts": ["run-state", "decision-log"],
+                }
+            ],
+        },
+    )
+    _write_json(
+        task_dir / "review-report.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "review_type": "quality",
+            "verdict": "approved",
+            "findings": ["looks fine"],
+        },
+    )
+
+    result = run_route(task_dir=task_dir, policy=policy, route_name="small")
+
+    assert result["status"] == "completed"
+    decision_log = json.loads((task_dir / "decision-log.json").read_text(encoding="utf-8"))
+    _assert_schema_valid("decision-log", decision_log)
+    assert decision_log["entries"][0]["timestamp"] == "1970-01-01T00:00:01Z"
 
 
 def test_large_route_runs_end_to_end_and_collects_both_review_flags(tmp_path: Path) -> None:
@@ -348,4 +449,5 @@ def test_adherence_eval_cli_runs_valid_and_negative_fixtures() -> None:
     assert "medium-refactor-task" in result.stdout
     assert "large-migration-task" in result.stdout
     assert "missing-quality-approval" in result.stdout
+    assert "invalid-review-report" in result.stdout
     assert "missing-run-state-before-spec-review" in result.stdout

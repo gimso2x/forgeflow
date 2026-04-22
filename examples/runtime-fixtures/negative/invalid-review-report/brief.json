@@ -1,0 +1,10 @@
+{
+  "schema_version": "0.1",
+  "task_id": "task-invalid-review-001",
+  "objective": "Exercise schema-aware runtime validation",
+  "in_scope": ["runtime"],
+  "out_of_scope": [],
+  "constraints": ["local only"],
+  "acceptance_criteria": ["runtime rejects malformed review artifacts"],
+  "risk_level": "low"
+}

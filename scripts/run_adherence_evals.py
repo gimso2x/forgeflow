@@ -60,6 +60,7 @@ def main() -> int:
             scenarios.append(_positive_case('large-migration-task', fixtures_root / 'large-migration-task', 'large_high_risk', 'long-run', workspace))
             negative_root = fixtures_root / 'negative'
             scenarios.append(_negative_run_case('missing-quality-approval', negative_root / 'missing-quality-approval', 'small', 'finalize requires run-state approval flags: quality_review_approved', workspace))
+            scenarios.append(_negative_run_case('invalid-review-report', negative_root / 'invalid-review-report', 'small', 'review-report.json failed schema validation', workspace))
             scenarios.append(_negative_advance_case('missing-run-state-before-spec-review', negative_root / 'missing-run-state-before-spec-review', 'large_high_risk', 'execute', 'missing required artifacts for spec-review: run-state', workspace))
     except Exception as exc:
         print('ADHERENCE EVALS: FAIL')

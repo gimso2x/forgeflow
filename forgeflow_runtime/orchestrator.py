@@ -2,8 +2,12 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass
+from datetime import UTC, datetime, timedelta
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
+
+from jsonschema import Draft202012Validator
 
 
 class RuntimeViolation(Exception):
@@ -33,6 +37,19 @@ STAGE_GATE_MAP = {
     "finalize": "ready_to_finalize",
     "long-run": "worth_long_run_capture",
 }
+
+SCHEMA_BY_ARTIFACT = {
+    "brief": "brief",
+    "plan": "plan",
+    "decision-log": "decision-log",
+    "run-state": "run-state",
+    "review-report": "review-report",
+    "review-report-spec": "review-report",
+    "review-report-quality": "review-report",
+    "eval-record": "eval-record",
+}
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
 
 
 def _load_yaml_lines(path: Path) -> list[str]:
@@ -129,17 +146,95 @@ def _load_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+@lru_cache(maxsize=None)
+def _schema_validator(schema_name: str) -> Draft202012Validator:
+    schema_path = REPO_ROOT / "schemas" / f"{schema_name}.schema.json"
+    schema = json.loads(schema_path.read_text(encoding="utf-8"))
+    return Draft202012Validator(schema)
+
+
+def _schema_name_for_artifact(artifact_name: str) -> str | None:
+    return SCHEMA_BY_ARTIFACT.get(artifact_name)
+
+
+def _validate_artifact_payload(*, artifact_name: str, payload: dict[str, Any], source_name: str) -> None:
+    schema_name = _schema_name_for_artifact(artifact_name)
+    if schema_name is None:
+        return
+    errors = sorted(_schema_validator(schema_name).iter_errors(payload), key=lambda err: list(err.path))
+    if errors:
+        details = "; ".join(
+            f"{'/'.join(map(str, err.path)) or '<root>'}: {err.message}" for err in errors[:3]
+        )
+        raise RuntimeViolation(f"{source_name} failed schema validation: {details}")
+
+
+def _coerce_legacy_artifact_payload(artifact_name: str, payload: dict[str, Any]) -> dict[str, Any]:
+    if artifact_name != "decision-log":
+        return payload
+
+    entries = payload.get("entries")
+    if not isinstance(entries, list):
+        return payload
+
+    migrated_entries: list[dict[str, Any]] = []
+    migrated = False
+    base = datetime(1970, 1, 1, tzinfo=UTC)
+    for entry in entries:
+        if not isinstance(entry, dict):
+            return payload
+        timestamp = entry.get("timestamp")
+        if isinstance(timestamp, str) and timestamp.startswith("seq-"):
+            suffix = timestamp[4:]
+            if not suffix.isdigit():
+                return payload
+            sequence = int(suffix)
+            normalized = (base + timedelta(seconds=sequence)).strftime("%Y-%m-%dT%H:%M:%SZ")
+            migrated_entries.append({**entry, "timestamp": normalized})
+            migrated = True
+        else:
+            migrated_entries.append(entry)
+
+    if not migrated:
+        return payload
+    return {**payload, "entries": migrated_entries}
+
+
+def _load_validated_artifact(task_dir: Path, artifact_name: str) -> dict[str, Any]:
+    path = _artifact_path(task_dir, artifact_name)
+    payload = _load_json(path)
+    try:
+        _validate_artifact_payload(artifact_name=artifact_name, payload=payload, source_name=path.name)
+        return payload
+    except RuntimeViolation:
+        coerced_payload = _coerce_legacy_artifact_payload(artifact_name, payload)
+        if coerced_payload == payload:
+            raise
+        _validate_artifact_payload(artifact_name=artifact_name, payload=coerced_payload, source_name=path.name)
+        _write_json(path, coerced_payload)
+        return coerced_payload
+
+
 def _write_json(path: Path, payload: dict[str, Any]) -> None:
     path.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+
+
+def _write_validated_artifact(task_dir: Path, artifact_name: str, payload: dict[str, Any]) -> None:
+    _validate_artifact_payload(
+        artifact_name=artifact_name,
+        payload=payload,
+        source_name=_artifact_path(task_dir, artifact_name).name,
+    )
+    _write_json(_artifact_path(task_dir, artifact_name), payload)
 
 
 def _task_id(task_dir: Path) -> str:
     brief_path = _artifact_path(task_dir, "brief")
     if brief_path.exists():
-        return _load_json(brief_path)["task_id"]
+        return _load_validated_artifact(task_dir, "brief")["task_id"]
     run_state_path = _artifact_path(task_dir, "run-state")
     if run_state_path.exists():
-        return _load_json(run_state_path)["task_id"]
+        return _load_validated_artifact(task_dir, "run-state")["task_id"]
     raise RuntimeViolation("task directory must contain brief.json or run-state.json")
 
 
@@ -161,30 +256,29 @@ def _default_run_state(task_dir: Path) -> dict[str, Any]:
 def _ensure_run_state(task_dir: Path) -> dict[str, Any]:
     path = _artifact_path(task_dir, "run-state")
     if path.exists():
-        return _load_json(path)
+        return _load_validated_artifact(task_dir, "run-state")
     run_state = _default_run_state(task_dir)
-    _write_json(path, run_state)
+    _write_validated_artifact(task_dir, "run-state", run_state)
     return run_state
 
 
 def _ensure_decision_log(task_dir: Path) -> dict[str, Any]:
     path = _artifact_path(task_dir, "decision-log")
     if path.exists():
-        return _load_json(path)
+        return _load_validated_artifact(task_dir, "decision-log")
     decision_log = {
         "schema_version": "0.1",
         "task_id": _task_id(task_dir),
         "entries": [],
     }
-    _write_json(path, decision_log)
+    _write_validated_artifact(task_dir, "decision-log", decision_log)
     return decision_log
 
 
 def _append_decision(decision_log: dict[str, Any], *, actor: str, category: str, decision: str, rationale: str) -> None:
-    sequence = len(decision_log["entries"]) + 1
     decision_log["entries"].append(
         {
-            "timestamp": f"seq-{sequence:03d}",
+            "timestamp": datetime.now(UTC).replace(microsecond=0).strftime("%Y-%m-%dT%H:%M:%SZ"),
             "actor": actor,
             "category": category,
             "decision": decision,
@@ -199,7 +293,7 @@ def _sync_review_flags(task_dir: Path, run_state: dict[str, Any]) -> None:
         review_path = _artifact_path(task_dir, artifact_name)
         if not review_path.exists():
             continue
-        review = _load_json(review_path)
+        review = _load_validated_artifact(task_dir, artifact_name)
         if review.get("review_type") == "spec" and review.get("verdict") == "approved":
             run_state["spec_review_approved"] = True
         if review.get("review_type") == "quality" and review.get("verdict") == "approved":
@@ -251,7 +345,7 @@ def advance_to_next_stage(task_dir: Path, policy: RuntimePolicy, route_name: str
         )
 
     if next_stage == "finalize":
-        run_state = _load_json(_artifact_path(task_dir, "run-state"))
+        run_state = _load_validated_artifact(task_dir, "run-state")
         required_flags = _required_finalize_flags(policy, route_name)
         missing_flags = [flag for flag in required_flags if not run_state.get(flag, False)]
         if missing_flags:
@@ -311,8 +405,8 @@ def run_route(task_dir: Path, policy: RuntimePolicy, route_name: str) -> dict[st
             decision=f"stage entered: {stage_name}",
             rationale=f"route {route_name} progressed to {stage_name}",
         )
-        _write_json(_artifact_path(task_dir, "run-state"), run_state)
-        _write_json(_artifact_path(task_dir, "decision-log"), decision_log)
+        _write_validated_artifact(task_dir, "run-state", run_state)
+        _write_validated_artifact(task_dir, "decision-log", decision_log)
 
     return run_state
 
@@ -334,8 +428,8 @@ def retry_stage(task_dir: Path, stage_name: str, max_retries: int = 2) -> dict[s
         decision=f"retry requested: {stage_name}",
         rationale=f"bounded retry {current + 1}/{max_retries}",
     )
-    _write_json(_artifact_path(task_dir, "run-state"), run_state)
-    _write_json(_artifact_path(task_dir, "decision-log"), decision_log)
+    _write_validated_artifact(task_dir, "run-state", run_state)
+    _write_validated_artifact(task_dir, "decision-log", decision_log)
     return run_state
 
 
@@ -359,8 +453,8 @@ def step_back(task_dir: Path, policy: RuntimePolicy, route_name: str, current_st
         decision=f"step back: {current_stage} -> {previous_stage}",
         rationale="operator requested previous safe stage",
     )
-    _write_json(_artifact_path(task_dir, "run-state"), run_state)
-    _write_json(_artifact_path(task_dir, "decision-log"), decision_log)
+    _write_validated_artifact(task_dir, "run-state", run_state)
+    _write_validated_artifact(task_dir, "decision-log", decision_log)
     return run_state
 
 
@@ -378,6 +472,6 @@ def escalate_route(task_dir: Path, from_route: str) -> dict[str, Any]:
         decision=f"route escalated: {from_route} -> large_high_risk",
         rationale="risk or recovery pressure exceeded original route",
     )
-    _write_json(_artifact_path(task_dir, "run-state"), run_state)
-    _write_json(_artifact_path(task_dir, "decision-log"), decision_log)
+    _write_validated_artifact(task_dir, "run-state", run_state)
+    _write_validated_artifact(task_dir, "decision-log", decision_log)
     return run_state

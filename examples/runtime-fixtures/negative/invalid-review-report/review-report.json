@@ -1,0 +1,7 @@
+{
+  "schema_version": "0.1",
+  "task_id": "task-invalid-review-001",
+  "review_type": "quality",
+  "verdict": "approved",
+  "findings": "this must be an array, not a string"
+}
