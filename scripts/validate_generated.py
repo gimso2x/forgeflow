@@ -109,16 +109,33 @@ def check_generated_outputs(root: Path) -> list[str]:
     if untracked_paths:
         drift_messages.append('untracked files:\n' + '\n'.join(untracked_paths))
 
+    tracked = subprocess.run(
+        ['git', 'ls-files', '--', 'adapters/generated'],
+        cwd=root,
+        capture_output=True,
+        text=True,
+    )
+    tracked_paths = {line.strip() for line in tracked.stdout.splitlines() if line.strip()}
+    if tracked.returncode != 0:
+        tracked_error = (tracked.stdout or tracked.stderr).strip()
+        if not tracked_error:
+            tracked_error = 'git ls-files reported tracked generated files lookup failure'
+        errors.extend(['generator tracked-file lookup failed', tracked_error])
+        tracked_paths = set()
+
     if drift_messages:
         errors.append(
             'generated adapters drift from canonical sources after regeneration:\n'
             + '\n'.join(drift_messages)
         )
 
+    expected_generated_paths = set()
     for target, name in REQUIRED_GENERATED.items():
         manifest = root / 'adapters' / 'targets' / target / 'manifest.yaml'
         expected_filename = load_manifest_value(manifest, 'generated_filename') or name
-        path = root / 'adapters' / 'generated' / target / expected_filename
+        relative_path = Path('adapters/generated') / target / expected_filename
+        expected_generated_paths.add(str(relative_path))
+        path = root / relative_path
         if not path.is_file():
             errors.append(f'missing generated file: {path.relative_to(root)}')
             continue
@@ -153,6 +170,9 @@ def check_generated_outputs(root: Path) -> list[str]:
             expected_step = f'{index}. {step}'
             if expected_step not in text:
                 errors.append(f'{path.relative_to(root)} missing installation step: {expected_step}')
+    stale_tracked_paths = sorted(tracked_paths - expected_generated_paths)
+    for stale_path in stale_tracked_paths:
+        errors.append(f'stale generated file tracked outside canonical manifest set: {stale_path}')
     return [err for err in errors if err]
 
 
