@@ -1,50 +1,88 @@
 # ForgeFlow
 
-ForgeFlow artifact-first delivery harness seed.
+ForgeFlow is an artifact-first delivery harness for AI coding agents.
 
-## 목적
-이 repo는 AI 코딩 에이전트를 위한 범용 잡탕 프레임워크가 아니다.
-목표는 더 단순하다.
+It is **not** an agent OS and it is **not** a prompt zoo.
+It is a repo seed for running work through explicit stages, artifacts, gates, and independent review.
 
-- 작업을 stage machine으로 관리한다
-- artifact를 남겨서 상태를 복구 가능하게 만든다
-- worker와 reviewer를 분리해 self-approval를 막는다
-- runtime 차이는 adapter로 격리한다
-- 작은 일은 가볍게, 큰 일은 엄격하게 처리한다
+## What ForgeFlow does
+- models work as a stage machine
+- keeps state in artifacts instead of chat memory
+- separates worker and reviewer roles to reduce self-approval
+- isolates runtime differences behind generated adapters
+- keeps small tasks light and high-risk tasks strict
 
-## 설계 계보
-- skeleton: engineering-discipline
-- artifact/state rigor: hoyeon
-- runtime adapter generation: gstack
-- adversarial review discipline: superpowers
+## Core workflow
+1. `clarify`
+2. `plan`
+3. `execute`
+4. `spec-review`
+5. `quality-review`
+6. `finalize`
+7. `long-run`
 
-## 핵심 stage
-1. clarify
-2. plan
-3. execute
-4. spec-review
-5. quality-review
-6. finalize
-7. long-run
+## Complexity routing
+- **small** → `clarify -> execute -> quality-review -> finalize`
+- **medium** → `clarify -> plan -> execute -> quality-review -> finalize`
+- **large/high-risk** → `clarify -> plan -> execute -> spec-review -> quality-review -> finalize -> long-run`
 
-## complexity routing
-- small → clarify -> execute -> quality-review -> finalize
-- medium → clarify -> plan -> execute -> quality-review -> finalize
-- large/high-risk → clarify -> plan -> execute -> spec-review -> quality-review -> finalize -> long-run
+## Why this exists
+Most agent repos do at least one of these badly:
+- treat chat history as state
+- let the implementer implicitly approve their own work
+- copy host-specific rules everywhere
+- grow into a weird little religion
 
-## source of truth
-- 사람 설명용: `docs/`
-- 운영 의미론: `policy/canonical/`
-- artifact 계약: `schemas/`
-- 역할 정의: `prompts/canonical/`
-- 런타임 차이: `adapters/targets/`
-- 생성물: `adapters/generated/`
+ForgeFlow tries not to do that.
 
-## P0 완료 기준
-- stage machine 문서화
-- core artifact schema 6종 존재
-- gate와 review order 정의
-- worker / reviewer role 문서화
-- adapter manifest 정의
-- 예시 task 흐름 존재
-- workflow adherence eval 자리 존재
+## Repo map
+- `docs/` — human-readable design docs
+- `policy/canonical/` — workflow semantics, gates, review order, routing
+- `schemas/` — artifact contracts
+- `prompts/canonical/` — canonical role prompts
+- `adapters/targets/` — target manifests
+- `adapters/generated/` — generated runtime surfaces
+- `examples/artifacts/` — sample artifact fixtures
+- `scripts/` — validation and generation utilities
+
+## Quick start
+```bash
+make validate
+make generate
+make regen
+```
+
+## Current status
+This repo is a **P0 seed**.
+It already includes:
+- design docs
+- canonical policy files
+- JSON schemas for core artifacts
+- generated adapters for Claude / Codex / Cursor
+- validation scripts
+- sample artifact fixtures
+
+It does **not** yet include a full runtime orchestrator.
+That is deliberate.
+
+## Design lineage
+ForgeFlow borrows its best bones from four places:
+- `engineering-discipline` — workflow skeleton, complexity routing, worker/validator split
+- `hoyeon` — artifact contracts, schema discipline, bounded recovery
+- `gstack` — canonical policy → generated adapters
+- `superpowers` — adversarial review, spec-review before quality-review
+
+## Validation
+```bash
+make validate
+```
+
+This runs:
+- structure validation
+- policy validation
+- generated adapter validation
+- sample artifact validation
+
+## Naming
+The name is **ForgeFlow** because the point is to forge messy agent work into a flow with gates, evidence, and review.
+Not because everything needs a dramatic fantasy backstory.

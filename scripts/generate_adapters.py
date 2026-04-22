@@ -90,7 +90,7 @@ def build_content(target: str, manifest: dict[str, object]) -> str:
     roles = ', '.join(supported_roles)
     constraints = '\n'.join(f'- {item}' for item in manifest.get('tooling_constraints', []))
     parts = [
-        f'# {target.capitalize()} Harness Adapter',
+        f'# {target.capitalize()} ForgeFlow Adapter',
         '',
         'This file is generated from canonical harness policy.',
         'Do not edit manually. Update canonical docs/policy/prompts and rerun `scripts/generate_adapters.py`.',
