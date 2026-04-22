@@ -792,6 +792,8 @@ def test_adherence_eval_cli_runs_valid_and_negative_fixtures() -> None:
     assert "invalid-review-report" in result.stdout
     assert "missing-run-state-before-spec-review" in result.stdout
     assert "missing-eval-record-before-long-run" in result.stdout
+    assert "mixed-task-review-report" in result.stdout
+    assert "mixed-task-decision-log" in result.stdout
     assert "checkpoint-gate-drift" in result.stdout
     assert "future-gate-checkpoint-drift" in result.stdout
     assert "completed-checkpoint-drift" in result.stdout

@@ -1,0 +1,18 @@
+{
+  "schema_version": "0.1",
+  "task_id": "mixed-task-review-001",
+  "objective": "Reject a review artifact from a different task.",
+  "in_scope": [
+    "small-route gate enforcement"
+  ],
+  "out_of_scope": [
+    "provider integration"
+  ],
+  "constraints": [
+    "artifact-directory execution only"
+  ],
+  "acceptance_criteria": [
+    "orchestrator rejects mismatched review-report task ids"
+  ],
+  "risk_level": "low"
+}

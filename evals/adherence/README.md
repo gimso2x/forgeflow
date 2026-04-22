@@ -16,8 +16,10 @@ make adherence-evals
 - `examples/runtime-fixtures/large-migration-task` large/high-risk happy path
 - `negative/missing-quality-approval`에서 non-approved quality review 거부
 - `negative/invalid-review-report`에서 schema-invalid review artifact 거부
+- `negative/mixed-task-review-report`에서 다른 task의 review artifact 거부
 - `negative/missing-run-state-before-spec-review`에서 spec-review 진입 거부
 - `negative/missing-eval-record-before-long-run`에서 long-run gate 거부
+- `negative/mixed-task-decision-log`에서 recovery helper가 다른 task의 decision log를 거부
 - `negative/checkpoint-gate-drift`에서 prefix가 깨진 checkpoint resume 거부
 - `negative/future-gate-checkpoint-drift`에서 미래 gate가 미리 찍힌 checkpoint resume 거부
 - `negative/completed-checkpoint-drift`에서 terminal stage에 있지 않은 completed checkpoint 거부

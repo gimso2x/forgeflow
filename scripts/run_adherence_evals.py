@@ -49,6 +49,19 @@ def _negative_advance_case(name: str, fixture_dir: Path, route_name: str, curren
     raise AssertionError(f'{name}: expected RuntimeViolation')
 
 
+def _negative_retry_case(name: str, fixture_dir: Path, stage_name: str, expected_error: str, workspace: Path) -> str:
+    task_dir = _copy_fixture(fixture_dir, workspace)
+    try:
+        from forgeflow_runtime.orchestrator import retry_stage
+
+        retry_stage(task_dir=task_dir, stage_name=stage_name)
+    except RuntimeViolation as exc:
+        if expected_error not in str(exc):
+            raise AssertionError(f'{name}: expected error containing {expected_error!r}, got {exc!r}') from exc
+        return f'PASS {name}: blocked with {exc}'
+    raise AssertionError(f'{name}: expected RuntimeViolation')
+
+
 def main() -> int:
     fixtures_root = ROOT / 'examples' / 'runtime-fixtures'
     scenarios = []
@@ -62,8 +75,10 @@ def main() -> int:
             negative_root = fixtures_root / 'negative'
             scenarios.append(_negative_run_case('missing-quality-approval', negative_root / 'missing-quality-approval', 'small', 'quality-review requires approved quality review-report artifact', workspace))
             scenarios.append(_negative_run_case('invalid-review-report', negative_root / 'invalid-review-report', 'small', 'review-report.json failed schema validation', workspace))
+            scenarios.append(_negative_run_case('mixed-task-review-report', negative_root / 'mixed-task-review-report', 'small', 'review-report.json task_id other-task-review-999 does not match canonical task_id mixed-task-review-001', workspace))
             scenarios.append(_negative_advance_case('missing-run-state-before-spec-review', negative_root / 'missing-run-state-before-spec-review', 'large_high_risk', 'execute', 'missing required artifacts for spec-review: run-state', workspace))
             scenarios.append(_negative_run_case('missing-eval-record-before-long-run', negative_root / 'missing-eval-record-before-long-run', 'large_high_risk', 'long-run requires artifacts satisfying gate worth_long_run_capture: eval-record', workspace))
+            scenarios.append(_negative_retry_case('mixed-task-decision-log', negative_root / 'mixed-task-decision-log', 'execute', 'decision-log.json task_id other-task-log-999 does not match canonical task_id mixed-task-log-001', workspace))
             scenarios.append(_negative_run_case('checkpoint-gate-drift', negative_root / 'checkpoint-gate-drift', 'small', 'run-state checkpoint is missing completed gates before execute: clarification_complete', workspace))
             scenarios.append(_negative_run_case('future-gate-checkpoint-drift', negative_root / 'future-gate-checkpoint-drift', 'small', 'run-state checkpoint has out-of-sequence completed gates at execute: quality_review_passed', workspace))
             scenarios.append(_negative_run_case('completed-checkpoint-drift', negative_root / 'completed-checkpoint-drift', 'small', 'completed run-state checkpoint must already be at terminal stage finalize', workspace))
