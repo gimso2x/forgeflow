@@ -131,6 +131,104 @@ def test_run_route_rejects_non_approved_quality_review(tmp_path: Path) -> None:
         run_route(task_dir=task_dir, policy=policy, route_name="small")
 
 
+def test_run_route_resumes_from_existing_checkpoint(tmp_path: Path) -> None:
+    policy = load_runtime_policy(ROOT)
+    task_dir = _make_task_dir(tmp_path)
+    _write_json(
+        task_dir / "run-state.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "current_stage": "execute",
+            "status": "in_progress",
+            "completed_gates": ["clarification_complete", "execution_evidenced"],
+            "failed_gates": [],
+            "retries": {},
+            "spec_review_approved": False,
+            "quality_review_approved": False,
+        },
+    )
+    _write_json(
+        task_dir / "decision-log.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "entries": [
+                {
+                    "timestamp": "2026-04-22T00:00:00Z",
+                    "actor": "orchestrator",
+                    "category": "stage-transition",
+                    "decision": "stage entered: execute",
+                    "rationale": "checkpoint created during an earlier run",
+                    "affected_artifacts": ["run-state", "decision-log"],
+                }
+            ],
+        },
+    )
+    _write_json(
+        task_dir / "review-report.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "review_type": "quality",
+            "verdict": "approved",
+            "findings": ["looks fine"],
+        },
+    )
+
+    result = run_route(task_dir=task_dir, policy=policy, route_name="small")
+
+    assert result["current_stage"] == "finalize"
+    assert result["status"] == "completed"
+    assert result["completed_gates"] == [
+        "clarification_complete",
+        "execution_evidenced",
+        "quality_review_passed",
+        "ready_to_finalize",
+    ]
+
+    decision_log = json.loads((task_dir / "decision-log.json").read_text(encoding="utf-8"))
+    decisions = [entry["decision"] for entry in decision_log["entries"]]
+    assert decisions == [
+        "stage entered: execute",
+        "route resumed: small from execute",
+        "stage entered: quality-review",
+        "stage entered: finalize",
+    ]
+
+
+def test_run_route_rejects_checkpoint_gate_drift(tmp_path: Path) -> None:
+    policy = load_runtime_policy(ROOT)
+    task_dir = _make_task_dir(tmp_path)
+    _write_json(
+        task_dir / "run-state.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "current_stage": "execute",
+            "status": "in_progress",
+            "completed_gates": ["execution_evidenced"],
+            "failed_gates": [],
+            "retries": {},
+            "spec_review_approved": False,
+            "quality_review_approved": False,
+        },
+    )
+    _write_json(
+        task_dir / "review-report.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "review_type": "quality",
+            "verdict": "approved",
+            "findings": ["looks fine"],
+        },
+    )
+
+    with pytest.raises(RuntimeViolation, match="run-state checkpoint is missing completed gates before execute: clarification_complete"):
+        run_route(task_dir=task_dir, policy=policy, route_name="small")
+
+
 def test_small_route_runs_end_to_end_and_updates_state(tmp_path: Path) -> None:
     policy = load_runtime_policy(ROOT)
     task_dir = tmp_path / "task"
@@ -521,9 +619,12 @@ def test_adherence_eval_cli_runs_valid_and_negative_fixtures() -> None:
 
     assert result.returncode == 0
     assert "ADHERENCE EVALS: PASS" in result.stdout
+    assert "small-doc-task" in result.stdout
+    assert "resume-small-task" in result.stdout
     assert "medium-refactor-task" in result.stdout
     assert "large-migration-task" in result.stdout
     assert "missing-quality-approval" in result.stdout
     assert "invalid-review-report" in result.stdout
     assert "missing-run-state-before-spec-review" in result.stdout
     assert "missing-eval-record-before-long-run" in result.stdout
+    assert "checkpoint-gate-drift" in result.stdout

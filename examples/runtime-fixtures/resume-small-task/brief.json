@@ -1,0 +1,10 @@
+{
+  "schema_version": "0.1",
+  "task_id": "resume-small-001",
+  "objective": "Resume a small route from checkpoint",
+  "in_scope": ["runtime"],
+  "out_of_scope": [],
+  "constraints": ["local only"],
+  "acceptance_criteria": ["resume works"],
+  "risk_level": "low"
+}

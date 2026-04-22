@@ -75,6 +75,7 @@ It already includes:
 - sample artifact fixtures
 
 It now includes a **minimal local runtime orchestrator CLI** for artifact-directory execution plus the explicit `runtime/` and `memory/` scaffold surfaces promised by the design docs.
+The local runtime can also resume from a validated `run-state.json` checkpoint instead of replaying already-completed stages.
 It still does **not** include provider-specific integrations or a full hosted runtime.
 That boundary is deliberate.
 

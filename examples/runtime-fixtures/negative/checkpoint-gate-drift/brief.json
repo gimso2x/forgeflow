@@ -1,0 +1,10 @@
+{
+  "schema_version": "0.1",
+  "task_id": "checkpoint-drift-001",
+  "objective": "Reject invalid checkpoint",
+  "in_scope": ["runtime"],
+  "out_of_scope": [],
+  "constraints": ["local only"],
+  "acceptance_criteria": ["invalid checkpoint is blocked"],
+  "risk_level": "low"
+}

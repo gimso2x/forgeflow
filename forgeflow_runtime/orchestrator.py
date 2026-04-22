@@ -323,6 +323,51 @@ def _record_gate(run_state: dict[str, Any], stage_name: str) -> None:
         run_state["completed_gates"].append(gate_name)
 
 
+def _expected_gates_before_stage(route: list[str], stage_name: str) -> list[str]:
+    stage_index = route.index(stage_name)
+    gates: list[str] = []
+    for prior_stage in route[:stage_index]:
+        gate_name = STAGE_GATE_MAP.get(prior_stage)
+        if gate_name is not None:
+            gates.append(gate_name)
+    return gates
+
+
+def _resume_start_index(run_state: dict[str, Any], route: list[str]) -> int:
+    current_stage = run_state.get("current_stage")
+    status = run_state.get("status")
+    completed_gates = run_state.get("completed_gates", [])
+
+    if current_stage not in route:
+        raise RuntimeViolation(f"run-state checkpoint stage {current_stage} is not part of route")
+    if not isinstance(completed_gates, list):
+        raise RuntimeViolation("run-state checkpoint completed_gates must be a list")
+
+    current_index = route.index(current_stage)
+    expected_prefix = _expected_gates_before_stage(route, current_stage)
+    missing_prefix = [gate for gate in expected_prefix if gate not in completed_gates]
+    if missing_prefix:
+        raise RuntimeViolation(
+            f"run-state checkpoint is missing completed gates before {current_stage}: {', '.join(missing_prefix)}"
+        )
+
+    current_gate = STAGE_GATE_MAP.get(current_stage)
+    if current_gate and current_gate in completed_gates:
+        expected_all_completed = expected_prefix + [current_gate]
+        unexpected_earlier = [gate for gate in completed_gates if gate in STAGE_GATE_MAP.values() and gate not in expected_all_completed]
+        if unexpected_earlier:
+            raise RuntimeViolation(
+                f"run-state checkpoint has out-of-sequence completed gates at {current_stage}: {', '.join(unexpected_earlier)}"
+            )
+        current_index += 1
+
+    if status == "completed":
+        return len(route)
+    if status in {"in_progress", "blocked", "not_started"}:
+        return current_index
+    raise RuntimeViolation(f"run-state checkpoint has unsupported status: {status}")
+
+
 def _matching_review_payload(task_dir: Path, expected_review_type: str, expected_verdict: str) -> dict[str, Any] | None:
     for artifact_name in ["review-report", "review-report-spec", "review-report-quality"]:
         review_path = _artifact_path(task_dir, artifact_name)
@@ -399,16 +444,39 @@ def run_route(task_dir: Path, policy: RuntimePolicy, route_name: str) -> dict[st
     route = policy.routes[route_name]
     run_state = _ensure_run_state(task_dir)
     decision_log = _ensure_decision_log(task_dir)
+    resume_from_stage = run_state.get("current_stage")
+    start_index = _resume_start_index(run_state, route)
 
-    _append_decision(
-        decision_log,
-        actor="orchestrator",
-        category="routing",
-        decision=f"route selected: {route_name}",
-        rationale="canonical complexity route applied",
-    )
+    if start_index >= len(route):
+        _append_decision(
+            decision_log,
+            actor="orchestrator",
+            category="routing",
+            decision=f"route already complete: {route_name}",
+            rationale="validated checkpoint already reached route terminal stage",
+        )
+        _write_validated_artifact(task_dir, "decision-log", decision_log)
+        _write_validated_artifact(task_dir, "run-state", run_state)
+        return run_state
 
-    for index, stage_name in enumerate(route):
+    if start_index == 0:
+        _append_decision(
+            decision_log,
+            actor="orchestrator",
+            category="routing",
+            decision=f"route selected: {route_name}",
+            rationale="canonical complexity route applied",
+        )
+    else:
+        _append_decision(
+            decision_log,
+            actor="orchestrator",
+            category="routing",
+            decision=f"route resumed: {route_name} from {resume_from_stage}",
+            rationale="validated checkpoint state reused instead of replaying prior stages",
+        )
+
+    for stage_name in route[start_index:]:
         missing_artifacts = _missing_artifacts(task_dir, policy.stage_requirements.get(stage_name, []))
         if missing_artifacts:
             raise RuntimeViolation(

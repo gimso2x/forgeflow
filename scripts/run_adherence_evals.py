@@ -56,6 +56,7 @@ def main() -> int:
         with tempfile.TemporaryDirectory(prefix='forgeflow-adherence-') as tmpdir:
             workspace = Path(tmpdir)
             scenarios.append(_positive_case('small-doc-task', fixtures_root / 'small-doc-task', 'small', 'finalize', workspace))
+            scenarios.append(_positive_case('resume-small-task', fixtures_root / 'resume-small-task', 'small', 'finalize', workspace))
             scenarios.append(_positive_case('medium-refactor-task', fixtures_root / 'medium-refactor-task', 'medium', 'finalize', workspace))
             scenarios.append(_positive_case('large-migration-task', fixtures_root / 'large-migration-task', 'large_high_risk', 'long-run', workspace))
             negative_root = fixtures_root / 'negative'
@@ -63,6 +64,7 @@ def main() -> int:
             scenarios.append(_negative_run_case('invalid-review-report', negative_root / 'invalid-review-report', 'small', 'review-report.json failed schema validation', workspace))
             scenarios.append(_negative_advance_case('missing-run-state-before-spec-review', negative_root / 'missing-run-state-before-spec-review', 'large_high_risk', 'execute', 'missing required artifacts for spec-review: run-state', workspace))
             scenarios.append(_negative_run_case('missing-eval-record-before-long-run', negative_root / 'missing-eval-record-before-long-run', 'large_high_risk', 'long-run requires artifacts satisfying gate worth_long_run_capture: eval-record', workspace))
+            scenarios.append(_negative_run_case('checkpoint-gate-drift', negative_root / 'checkpoint-gate-drift', 'small', 'run-state checkpoint is missing completed gates before execute: clarification_complete', workspace))
     except Exception as exc:
         print('ADHERENCE EVALS: FAIL')
         print(f'- {exc}')
