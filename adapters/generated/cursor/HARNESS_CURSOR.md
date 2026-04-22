@@ -11,6 +11,15 @@ Do not edit manually. Update canonical docs/policy/prompts and rerun `scripts/ge
 - supports_roles: planner, worker, spec-reviewer, quality-reviewer
 - supports_generated_files: True
 
+## Installation guidance
+- generated_filename: HARNESS_CURSOR.md
+- recommended_location: .cursor/rules/forgeflow.mdc
+- Copy this generated adapter into `.cursor/rules/forgeflow.mdc` when wiring ForgeFlow into cursor.
+
+## Target operating notes
+- surface_style: cursor-rules-markdown
+- handoff_format: artifacts-plus-chat-summary
+
 ## Non-negotiable rules
 - Do not change canonical stage semantics.
 - Do not bypass artifact gates.

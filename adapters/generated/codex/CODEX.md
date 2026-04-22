@@ -11,6 +11,15 @@ Do not edit manually. Update canonical docs/policy/prompts and rerun `scripts/ge
 - supports_roles: coordinator, planner, worker, spec-reviewer, quality-reviewer
 - supports_generated_files: True
 
+## Installation guidance
+- generated_filename: CODEX.md
+- recommended_location: ./CODEX.md
+- Copy this generated adapter into `./CODEX.md` when wiring ForgeFlow into codex.
+
+## Target operating notes
+- surface_style: root-instruction-file
+- handoff_format: artifacts-plus-git-diff
+
 ## Non-negotiable rules
 - Do not change canonical stage semantics.
 - Do not bypass artifact gates.

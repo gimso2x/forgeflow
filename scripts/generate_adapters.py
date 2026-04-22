@@ -89,6 +89,10 @@ def build_content(target: str, manifest: dict[str, object]) -> str:
     roles_blob = '\n\n'.join((PROMPTS_DIR / name).read_text(encoding='utf-8').strip() for name in role_files)
     roles = ', '.join(supported_roles)
     constraints = '\n'.join(f'- {item}' for item in manifest.get('tooling_constraints', []))
+    generated_filename = manifest.get('generated_filename')
+    recommended_location = manifest.get('recommended_location')
+    surface_style = manifest.get('surface_style')
+    handoff_format = manifest.get('handoff_format')
     parts = [
         f'# {target.capitalize()} ForgeFlow Adapter',
         '',
@@ -102,6 +106,15 @@ def build_content(target: str, manifest: dict[str, object]) -> str:
         f'- output_mode: {manifest.get("output_mode")}',
         f'- supports_roles: {roles}',
         f'- supports_generated_files: {manifest.get("supports_generated_files")}',
+        '',
+        '## Installation guidance',
+        f'- generated_filename: {generated_filename}',
+        f'- recommended_location: {recommended_location}',
+        f'- Copy this generated adapter into `{recommended_location}` when wiring ForgeFlow into {target}.',
+        '',
+        '## Target operating notes',
+        f'- surface_style: {surface_style}',
+        f'- handoff_format: {handoff_format}',
         '',
         '## Non-negotiable rules',
         '- Do not change canonical stage semantics.',

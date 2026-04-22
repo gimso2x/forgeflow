@@ -9,6 +9,10 @@ supports_roles:
   - spec-reviewer
   - quality-reviewer
 supports_generated_files: true
+generated_filename: CLAUDE.md
+recommended_location: ./CLAUDE.md
+surface_style: root-instruction-file
+handoff_format: artifacts-plus-terminal-summary
 tooling_constraints:
   - prompt surface may be CLAUDE.md style
   - generated artifacts must not redefine canonical semantics

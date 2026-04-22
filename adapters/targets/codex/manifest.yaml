@@ -9,6 +9,10 @@ supports_roles:
   - spec-reviewer
   - quality-reviewer
 supports_generated_files: true
+generated_filename: CODEX.md
+recommended_location: ./CODEX.md
+surface_style: root-instruction-file
+handoff_format: artifacts-plus-git-diff
 tooling_constraints:
   - git-oriented runtime assumptions may exist
   - generated artifacts must not redefine canonical semantics

@@ -13,6 +13,8 @@ REQUIRED_GENERATED = {
 }
 REQUIRED_MARKERS = [
     'This file is generated from canonical harness policy.',
+    'Installation guidance',
+    'Target operating notes',
     'Non-negotiable rules',
     'Canonical workflow snapshot',
     'Canonical role prompts',
@@ -40,6 +42,15 @@ def load_manifest_roles(path: Path) -> list[str]:
             elif stripped:
                 break
     return roles
+
+
+def load_manifest_value(path: Path, key: str) -> str | None:
+    prefix = f'{key}:'
+    for raw in path.read_text(encoding='utf-8').splitlines():
+        stripped = raw.strip()
+        if stripped.startswith(prefix):
+            return stripped[len(prefix):].strip()
+    return None
 
 
 def check_generated_outputs(root: Path) -> list[str]:
@@ -97,6 +108,10 @@ def check_generated_outputs(root: Path) -> list[str]:
             if marker not in text:
                 errors.append(f'{path.relative_to(root)} missing marker: {marker}')
         supported_roles = load_manifest_roles(manifest)
+        expected_filename = load_manifest_value(manifest, 'generated_filename')
+        expected_location = load_manifest_value(manifest, 'recommended_location')
+        expected_surface = load_manifest_value(manifest, 'surface_style')
+        expected_handoff = load_manifest_value(manifest, 'handoff_format')
         for role, title in ROLE_TITLES.items():
             has_title = title in text
             should_have = role in supported_roles
@@ -104,6 +119,15 @@ def check_generated_outputs(root: Path) -> list[str]:
                 errors.append(f'{path.relative_to(root)} includes unsupported role {role}')
             if should_have and not has_title:
                 errors.append(f'{path.relative_to(root)} missing supported role {role}')
+        expected_lines = [
+            f'- generated_filename: {expected_filename}',
+            f'- recommended_location: {expected_location}',
+            f'- surface_style: {expected_surface}',
+            f'- handoff_format: {expected_handoff}',
+        ]
+        for expected_line in expected_lines:
+            if expected_line not in text:
+                errors.append(f'{path.relative_to(root)} missing manifest-derived line: {expected_line}')
     return [err for err in errors if err]
 
 

@@ -9,7 +9,11 @@
     "output_mode",
     "supports_roles",
     "supports_generated_files",
-    "tooling_constraints"
+    "tooling_constraints",
+    "generated_filename",
+    "recommended_location",
+    "surface_style",
+    "handoff_format"
   ],
   "properties": {
     "name": {"type": "string"},
@@ -18,7 +22,11 @@
     "output_mode": {"type": "string"},
     "supports_roles": {"type": "array", "items": {"type": "string"}},
     "supports_generated_files": {"type": "boolean"},
-    "tooling_constraints": {"type": "array", "items": {"type": "string"}}
+    "tooling_constraints": {"type": "array", "items": {"type": "string"}},
+    "generated_filename": {"type": "string"},
+    "recommended_location": {"type": "string"},
+    "surface_style": {"type": "string"},
+    "handoff_format": {"type": "string"}
   },
   "additionalProperties": false
 }
