@@ -73,7 +73,11 @@ def validate_manifest(manifest: dict[str, object], source: Path) -> None:
             raise ValueError(f'{source}: unsupported role {role}')
 
 
-def file_for_target(name: str) -> str:
+def file_for_target(name: str, manifest: dict[str, object] | None = None) -> str:
+    if manifest is not None:
+        generated_filename = manifest.get('generated_filename')
+        if isinstance(generated_filename, str) and generated_filename:
+            return generated_filename
     mapping = {
         'claude': 'CLAUDE.md',
         'codex': 'CODEX.md',
@@ -146,7 +150,7 @@ def main() -> int:
         target = manifest_path.parent.name
         out_dir = GENERATED_DIR / target
         out_dir.mkdir(parents=True, exist_ok=True)
-        out_file = out_dir / file_for_target(target)
+        out_file = out_dir / file_for_target(target, manifest)
         out_file.write_text(build_content(target, manifest), encoding='utf-8')
         generated.append(str(out_file.relative_to(ROOT)))
     print('ADAPTER GENERATION: PASS')

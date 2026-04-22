@@ -98,8 +98,9 @@ def check_generated_outputs(root: Path) -> list[str]:
         )
 
     for target, name in REQUIRED_GENERATED.items():
-        path = root / 'adapters' / 'generated' / target / name
         manifest = root / 'adapters' / 'targets' / target / 'manifest.yaml'
+        expected_filename = load_manifest_value(manifest, 'generated_filename') or name
+        path = root / 'adapters' / 'generated' / target / expected_filename
         if not path.is_file():
             errors.append(f'missing generated file: {path.relative_to(root)}')
             continue

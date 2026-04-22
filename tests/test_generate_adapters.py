@@ -32,6 +32,16 @@ def test_validate_manifest_requires_target_specific_metadata() -> None:
         generate_adapters.validate_manifest(manifest, ROOT / "adapters" / "targets" / "claude" / "manifest.yaml")
 
 
+def test_generated_filename_comes_from_manifest() -> None:
+    generate_adapters = _load_generate_adapters_module()
+
+    manifest = {
+        "generated_filename": "CUSTOM_CURSOR.md",
+    }
+
+    assert generate_adapters.file_for_target("cursor", manifest) == "CUSTOM_CURSOR.md"
+
+
 def test_build_content_includes_target_specific_install_and_handoff_sections() -> None:
     generate_adapters = _load_generate_adapters_module()
     manifest = {
