@@ -71,6 +71,7 @@ It already includes:
 - canonical policy files
 - JSON schemas for core artifacts
 - generated adapters for Claude / Codex / Cursor
+- target-specific installation guidance captured in manifest metadata and rendered into generated adapters
 - validation scripts
 - sample artifact fixtures
 

@@ -48,6 +48,7 @@ adapter가 바꾸면 안 되는 것:
 - `recommended_location`
 - `surface_style`
 - `handoff_format`
+- `installation_steps`
 - `tooling_constraints`
 
 ---
@@ -63,6 +64,7 @@ P0 기준 generated 산출물:
 
 주의:
 - generated output은 install path / surface style / handoff format까지 target별로 드러내야 한다.
+- generated output은 manifest의 installation_steps를 그대로 포함해서 실제 배치 순서를 보여줘야 한다.
 - Cursor용 `.mdc` 또는 `rules/` 레이아웃은 generated markdown 안에서 명시적으로 안내한다.
 - canonical semantics를 보존하는 범위에서만 target-aware formatting을 허용한다.
 

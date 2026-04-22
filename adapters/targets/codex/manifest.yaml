@@ -13,6 +13,9 @@ generated_filename: CODEX.md
 recommended_location: ./CODEX.md
 surface_style: root-instruction-file
 handoff_format: artifacts-plus-git-diff
+installation_steps:
+  - Copy the generated adapter to ./CODEX.md at the repo root.
+  - Preserve the canonical review order even when Codex returns git-oriented summaries.
 tooling_constraints:
   - git-oriented runtime assumptions may exist
   - generated artifacts must not redefine canonical semantics

@@ -81,6 +81,9 @@ def test_validate_generated_derives_expected_output_path_from_manifest(tmp_path:
                 "Canonical role prompts",
                 "- generated_filename: CUSTOM_CURSOR.md",
                 "- recommended_location: .cursor/rules/forgeflow.mdc",
+                "## Installation steps",
+                "1. Place the generated content in .cursor/rules/forgeflow.mdc.",
+                "2. Keep ForgeFlow workflow semantics in this rule file and avoid per-chat rewrites.",
                 "- surface_style: cursor-rules-markdown",
                 "- handoff_format: artifacts-plus-chat-summary",
                 "# Planner",
@@ -108,6 +111,9 @@ generated_filename: CUSTOM_CURSOR.md
 recommended_location: .cursor/rules/forgeflow.mdc
 surface_style: cursor-rules-markdown
 handoff_format: artifacts-plus-chat-summary
+installation_steps:
+  - Place the generated content in .cursor/rules/forgeflow.mdc.
+  - Keep ForgeFlow workflow semantics in this rule file and avoid per-chat rewrites.
 tooling_constraints:
   - rules surface may require .mdc or cursor-specific placement
   - generated artifacts must not redefine canonical semantics
@@ -129,6 +135,9 @@ tooling_constraints:
                     "Canonical role prompts",
                     f"- generated_filename: {filename}",
                     f"- recommended_location: ./{filename}",
+                    "## Installation steps",
+                    f"1. Copy the generated adapter to ./{filename} at the repo root.",
+                    f"2. Preserve the canonical review order even when {target.capitalize()} returns specialized summaries.",
                     "- surface_style: root-instruction-file",
                     f"- handoff_format: {handoff}",
                     "# Coordinator",
@@ -157,6 +166,9 @@ generated_filename: {filename}
 recommended_location: ./{filename}
 surface_style: root-instruction-file
 handoff_format: {handoff}
+installation_steps:
+  - Copy the generated adapter to ./{filename} at the repo root.
+  - Preserve the canonical review order even when {target.capitalize()} returns specialized summaries.
 tooling_constraints:
   - generated artifacts must not redefine canonical semantics
 """,

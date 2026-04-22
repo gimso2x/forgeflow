@@ -32,6 +32,29 @@ def test_validate_manifest_requires_target_specific_metadata() -> None:
         generate_adapters.validate_manifest(manifest, ROOT / "adapters" / "targets" / "claude" / "manifest.yaml")
 
 
+def test_validate_manifest_rejects_missing_installation_steps() -> None:
+    generate_adapters = _load_generate_adapters_module()
+    manifest = {
+        "name": "cursor",
+        "runtime_type": "editor-agent",
+        "input_mode": "rules-and-context",
+        "output_mode": "files-and-chat",
+        "supports_roles": ["planner", "worker", "spec-reviewer", "quality-reviewer"],
+        "supports_generated_files": True,
+        "tooling_constraints": [
+            "rules surface may require .mdc or cursor-specific placement",
+            "generated artifacts must not redefine canonical semantics",
+        ],
+        "generated_filename": "HARNESS_CURSOR.md",
+        "recommended_location": ".cursor/rules/forgeflow.mdc",
+        "surface_style": "cursor-rules-markdown",
+        "handoff_format": "artifacts-plus-chat-summary",
+    }
+
+    with pytest.raises(ValueError, match="missing required keys \['installation_steps'\]"):
+        generate_adapters.validate_manifest(manifest, ROOT / "adapters" / "targets" / "cursor" / "manifest.yaml")
+
+
 def test_generated_filename_comes_from_manifest() -> None:
     generate_adapters = _load_generate_adapters_module()
 
@@ -55,6 +78,10 @@ def test_build_content_includes_target_specific_install_and_handoff_sections() -
             "rules surface may require .mdc or cursor-specific placement",
             "generated artifacts must not redefine canonical semantics",
         ],
+        "installation_steps": [
+            "Place the generated content in .cursor/rules/forgeflow.mdc.",
+            "Keep ForgeFlow workflow semantics in this rule file and avoid per-chat rewrites.",
+        ],
         "generated_filename": "HARNESS_CURSOR.md",
         "recommended_location": ".cursor/rules/forgeflow.mdc",
         "surface_style": "cursor-rules-markdown",
@@ -66,6 +93,9 @@ def test_build_content_includes_target_specific_install_and_handoff_sections() -
     assert "## Installation guidance" in content
     assert "- generated_filename: HARNESS_CURSOR.md" in content
     assert "- recommended_location: .cursor/rules/forgeflow.mdc" in content
+    assert "## Installation steps" in content
+    assert "1. Place the generated content in .cursor/rules/forgeflow.mdc." in content
+    assert "2. Keep ForgeFlow workflow semantics in this rule file and avoid per-chat rewrites." in content
     assert "## Target operating notes" in content
     assert "- surface_style: cursor-rules-markdown" in content
     assert "- handoff_format: artifacts-plus-chat-summary" in content

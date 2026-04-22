@@ -53,6 +53,24 @@ def load_manifest_value(path: Path, key: str) -> str | None:
     return None
 
 
+def load_manifest_list(path: Path, key: str) -> list[str]:
+    values = []
+    capture = False
+    prefix = f'{key}:'
+    for raw in path.read_text(encoding='utf-8').splitlines():
+        stripped = raw.strip()
+        if stripped == prefix:
+            capture = True
+            continue
+        if capture:
+            if stripped.startswith('- '):
+                values.append(stripped[2:].strip())
+                continue
+            if stripped:
+                break
+    return values
+
+
 def check_generated_outputs(root: Path) -> list[str]:
     errors = []
     regen = subprocess.run(
@@ -113,6 +131,7 @@ def check_generated_outputs(root: Path) -> list[str]:
         expected_location = load_manifest_value(manifest, 'recommended_location')
         expected_surface = load_manifest_value(manifest, 'surface_style')
         expected_handoff = load_manifest_value(manifest, 'handoff_format')
+        installation_steps = load_manifest_list(manifest, 'installation_steps')
         for role, title in ROLE_TITLES.items():
             has_title = title in text
             should_have = role in supported_roles
@@ -125,10 +144,15 @@ def check_generated_outputs(root: Path) -> list[str]:
             f'- recommended_location: {expected_location}',
             f'- surface_style: {expected_surface}',
             f'- handoff_format: {expected_handoff}',
+            '## Installation steps',
         ]
         for expected_line in expected_lines:
             if expected_line not in text:
                 errors.append(f'{path.relative_to(root)} missing manifest-derived line: {expected_line}')
+        for index, step in enumerate(installation_steps, start=1):
+            expected_step = f'{index}. {step}'
+            if expected_step not in text:
+                errors.append(f'{path.relative_to(root)} missing installation step: {expected_step}')
     return [err for err in errors if err]
 
 
@@ -140,8 +164,10 @@ def main() -> int:
             print(f'- {err}')
         return 1
     print('GENERATED VALIDATION: PASS')
-    for target, name in REQUIRED_GENERATED.items():
-        print(f'- checked adapters/generated/{target}/{name}')
+    for target, fallback_name in REQUIRED_GENERATED.items():
+        manifest = ROOT / 'adapters' / 'targets' / target / 'manifest.yaml'
+        expected_name = load_manifest_value(manifest, 'generated_filename') or fallback_name
+        print(f'- checked adapters/generated/{target}/{expected_name}')
     print('- regeneration left adapters/generated clean')
     return 0
 

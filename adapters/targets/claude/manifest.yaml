@@ -13,6 +13,9 @@ generated_filename: CLAUDE.md
 recommended_location: ./CLAUDE.md
 surface_style: root-instruction-file
 handoff_format: artifacts-plus-terminal-summary
+installation_steps:
+  - Copy the generated adapter to ./CLAUDE.md at the repo root.
+  - Keep Claude-specific helper notes in surrounding docs, not by changing ForgeFlow semantics.
 tooling_constraints:
   - prompt surface may be CLAUDE.md style
   - generated artifacts must not redefine canonical semantics

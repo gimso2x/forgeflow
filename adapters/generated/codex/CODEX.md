@@ -16,6 +16,10 @@ Do not edit manually. Update canonical docs/policy/prompts and rerun `scripts/ge
 - recommended_location: ./CODEX.md
 - Copy this generated adapter into `./CODEX.md` when wiring ForgeFlow into codex.
 
+## Installation steps
+1. Copy the generated adapter to ./CODEX.md at the repo root.
+2. Preserve the canonical review order even when Codex returns git-oriented summaries.
+
 ## Target operating notes
 - surface_style: root-instruction-file
 - handoff_format: artifacts-plus-git-diff

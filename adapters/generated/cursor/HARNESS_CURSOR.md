@@ -16,6 +16,10 @@ Do not edit manually. Update canonical docs/policy/prompts and rerun `scripts/ge
 - recommended_location: .cursor/rules/forgeflow.mdc
 - Copy this generated adapter into `.cursor/rules/forgeflow.mdc` when wiring ForgeFlow into cursor.
 
+## Installation steps
+1. Place the generated content in .cursor/rules/forgeflow.mdc.
+2. Keep ForgeFlow workflow semantics in this rule file and avoid per-chat rewrites.
+
 ## Target operating notes
 - surface_style: cursor-rules-markdown
 - handoff_format: artifacts-plus-chat-summary

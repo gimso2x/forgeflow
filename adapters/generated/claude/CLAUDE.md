@@ -16,6 +16,10 @@ Do not edit manually. Update canonical docs/policy/prompts and rerun `scripts/ge
 - recommended_location: ./CLAUDE.md
 - Copy this generated adapter into `./CLAUDE.md` when wiring ForgeFlow into claude.
 
+## Installation steps
+1. Copy the generated adapter to ./CLAUDE.md at the repo root.
+2. Keep Claude-specific helper notes in surrounding docs, not by changing ForgeFlow semantics.
+
 ## Target operating notes
 - surface_style: root-instruction-file
 - handoff_format: artifacts-plus-terminal-summary
