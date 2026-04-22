@@ -457,15 +457,24 @@ def _infer_route_for_recovery(
     plan_ledger: dict[str, Any] | None,
     fallback_route: str,
 ) -> str:
-    if checkpoint is not None:
-        checkpoint_route = checkpoint.get("route")
-        if isinstance(checkpoint_route, str) and checkpoint_route:
-            return checkpoint_route
-    if plan_ledger is not None:
-        ledger_route = plan_ledger.get("route")
-        if isinstance(ledger_route, str) and ledger_route:
-            return ledger_route
+    ledger_route = plan_ledger.get("route") if plan_ledger is not None else None
+    checkpoint_route = checkpoint.get("route") if checkpoint is not None else None
+
+    if isinstance(ledger_route, str) and ledger_route:
+        if isinstance(checkpoint_route, str) and checkpoint_route and checkpoint_route != ledger_route:
+            raise RuntimeViolation(
+                f"checkpoint.json route {checkpoint_route} does not match canonical route {ledger_route}"
+            )
+        return ledger_route
+
+    if isinstance(checkpoint_route, str) and checkpoint_route:
+        return checkpoint_route
     return fallback_route
+
+
+def _assert_stage_in_route(*, route_name: str, route: list[str], stage_name: str) -> None:
+    if stage_name not in route:
+        raise RuntimeViolation(f"recovery route {route_name} does not include current stage {stage_name}")
 
 
 def _default_run_state(task_dir: Path) -> dict[str, Any]:
@@ -846,10 +855,12 @@ def retry_stage(task_dir: Path, stage_name: str, max_retries: int = 2) -> dict[s
     _write_validated_artifact(task_dir, "run-state", run_state)
     _write_validated_artifact(task_dir, "decision-log", decision_log)
     recovery_route = _infer_route_for_recovery(checkpoint=checkpoint, plan_ledger=plan_ledger, fallback_route="small")
+    recovery_route_stages = _resolve_route(load_runtime_policy(REPO_ROOT), recovery_route)
+    _assert_stage_in_route(route_name=recovery_route, route=recovery_route_stages, stage_name=run_state["current_stage"])
     _sync_checkpoint(
         task_dir,
         route_name=recovery_route,
-        route=_resolve_route(load_runtime_policy(REPO_ROOT), recovery_route),
+        route=recovery_route_stages,
         run_state=run_state,
         plan_ledger=plan_ledger,
         checkpoint=checkpoint,
