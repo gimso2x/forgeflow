@@ -1,0 +1,18 @@
+{
+  "schema_version": "0.1",
+  "task_id": "task-ui-header-copy-001",
+  "review_type": "spec",
+  "verdict": "approved",
+  "findings": [
+    "README와 docs의 정체성이 artifact-first delivery harness로 일치한다.",
+    "scope drift 없이 문서 표현 정리만 수행됐다."
+  ],
+  "missing_evidence": [],
+  "approved_by": "spec-reviewer",
+  "next_action": "quality-review로 진행",
+  "evidence_refs": [
+    "README.md",
+    "docs/architecture.md",
+    "docs/workflow.md"
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "schema_version": "0.1",
+  "task_id": "task-ui-header-copy-001",
+  "review_type": "quality",
+  "verdict": "approved",
+  "findings": [
+    "문서 구조가 과하지 않고 P0 범위를 유지한다.",
+    "generated adapter contract와 문서 설명이 충돌하지 않는다."
+  ],
+  "missing_evidence": [],
+  "approved_by": "quality-reviewer",
+  "next_action": "finalize 가능",
+  "evidence_refs": [
+    "docs/adapter-model.md",
+    "adapters/generated/cursor/HARNESS_CURSOR.md",
+    "scripts/validate_generated.py"
+  ]
+}

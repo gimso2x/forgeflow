@@ -1,0 +1,26 @@
+{
+  "schema_version": "0.1",
+  "task_id": "task-ui-header-copy-001",
+  "objective": "대시보드 상단 카피를 artifact-first delivery harness 표현으로 정리한다.",
+  "in_scope": [
+    "README와 docs 표현 정리",
+    "사용자-facing 문구 일관성 확보"
+  ],
+  "out_of_scope": [
+    "runtime orchestration 구현",
+    "새 adapter target 추가"
+  ],
+  "constraints": [
+    "stage semantics는 바꾸지 않는다",
+    "generated adapter 형식은 유지한다"
+  ],
+  "acceptance_criteria": [
+    "README와 docs의 핵심 표현이 서로 충돌하지 않는다",
+    "artifact-first 정체성이 문서에서 분명하게 보인다"
+  ],
+  "risk_level": "low",
+  "assumptions": [
+    "현재 target은 claude/codex/cursor 세 개다"
+  ],
+  "open_questions": []
+}

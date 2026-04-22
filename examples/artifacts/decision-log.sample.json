@@ -1,0 +1,22 @@
+{
+  "schema_version": "0.1",
+  "task_id": "task-ui-header-copy-001",
+  "entries": [
+    {
+      "timestamp": "2026-04-22T23:30:00Z",
+      "actor": "planner",
+      "category": "scope",
+      "decision": "이번 작업은 문서/표현 정리에 한정한다.",
+      "rationale": "runtime이나 policy semantics까지 건드리면 low-risk 작업 범위를 넘는다.",
+      "affected_artifacts": ["brief", "plan"]
+    },
+    {
+      "timestamp": "2026-04-22T23:42:00Z",
+      "actor": "worker",
+      "category": "consistency",
+      "decision": "Cursor output은 P0에서 HARNESS_CURSOR.md 형태를 유지한다.",
+      "rationale": ".mdc 규칙 레이아웃은 P1 이후 선택지로 미룬다.",
+      "affected_artifacts": ["adapter-model", "generated/cursor"]
+    }
+  ]
+}

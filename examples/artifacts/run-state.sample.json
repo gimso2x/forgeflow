@@ -1,0 +1,26 @@
+{
+  "schema_version": "0.1",
+  "task_id": "task-ui-header-copy-001",
+  "current_stage": "finalize",
+  "status": "completed",
+  "completed_gates": [
+    "clarification_complete",
+    "plan_executable",
+    "execution_evidenced",
+    "spec_review_passed",
+    "quality_review_passed"
+  ],
+  "failed_gates": [],
+  "retries": {
+    "execute": 0,
+    "quality-review": 0
+  },
+  "evidence_refs": [
+    "docs/architecture.md",
+    "docs/workflow.md",
+    "docs/adapter-model.md"
+  ],
+  "spec_review_approved": true,
+  "quality_review_approved": true,
+  "final_status": "success"
+}

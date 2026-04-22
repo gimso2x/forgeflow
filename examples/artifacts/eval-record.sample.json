@@ -1,0 +1,17 @@
+{
+  "schema_version": "0.1",
+  "task_id": "task-ui-header-copy-001",
+  "outcome": "success",
+  "what_worked": [
+    "artifact schema 기준으로 샘플을 만들어 문서와 구조를 함께 검증했다.",
+    "review separation을 run-state flag와 gate policy에 함께 반영했다."
+  ],
+  "what_failed": [
+    "초기 generated validator는 marker 검사만 해서 신뢰도가 낮았다."
+  ],
+  "reusable_rule_candidates": [
+    "generated output은 target supports_roles와 실제 섹션을 비교 검증한다.",
+    "high-risk finalize는 spec/quality 승인 플래그 없이는 통과시키지 않는다."
+  ],
+  "follow_up_worth": true
+}
