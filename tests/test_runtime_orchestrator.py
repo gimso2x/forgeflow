@@ -931,9 +931,66 @@ def test_retry_is_bounded(tmp_path: Path) -> None:
 
     assert first["retries"]["execute"] == 1
     assert second["retries"]["execute"] == 2
+    checkpoint = json.loads((task_dir / "checkpoint.json").read_text(encoding="utf-8"))
+    _assert_schema_valid("checkpoint", checkpoint)
+    assert checkpoint["current_stage"] == "execute"
+    assert checkpoint["run_state_ref"] == "run-state.json"
+    assert checkpoint["next_action"] == "Resume at quality-review after reloading canonical artifacts."
 
     with pytest.raises(RuntimeViolation, match="retry budget exceeded for execute: 2/2"):
         retry_stage(task_dir=task_dir, stage_name="execute", max_retries=2)
+
+
+def test_retry_stage_preserves_medium_route_checkpoint(tmp_path: Path) -> None:
+    task_dir = _make_task_dir(tmp_path)
+    _write_json(
+        task_dir / "plan-ledger.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "route": "medium",
+            "current_task_id": "task-1",
+            "tasks": [
+                {
+                    "id": "task-1",
+                    "title": "execute bounded refactor",
+                    "depends_on": [],
+                    "files": ["run-state.json"],
+                    "parallel_safe": False,
+                    "status": "in_progress",
+                    "required_gates": ["machine", "validator"],
+                    "evidence_refs": [],
+                    "attempt_count": 0
+                }
+            ]
+        },
+    )
+    _write_json(
+        task_dir / "checkpoint.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "route": "medium",
+            "current_stage": "execute",
+            "current_task_id": "task-1",
+            "plan_ref": "brief.json",
+            "plan_ledger_ref": "plan-ledger.json",
+            "run_state_ref": "run-state.json",
+            "next_action": "retry execute",
+            "open_blockers": [],
+            "updated_at": "2026-04-22T00:05:00Z"
+        },
+    )
+
+    state = retry_stage(task_dir=task_dir, stage_name="execute", max_retries=2)
+
+    assert state["current_task_id"] == "task-1"
+    checkpoint = json.loads((task_dir / "checkpoint.json").read_text(encoding="utf-8"))
+    _assert_schema_valid("checkpoint", checkpoint)
+    assert checkpoint["route"] == "medium"
+    assert checkpoint["plan_ledger_ref"] == "plan-ledger.json"
+    assert checkpoint["current_task_id"] == "task-1"
+    assert checkpoint["next_action"] == "Resume at quality-review after reloading canonical artifacts."
 
 
 def test_step_back_rewinds_to_previous_stage(tmp_path: Path) -> None:
@@ -943,6 +1000,11 @@ def test_step_back_rewinds_to_previous_stage(tmp_path: Path) -> None:
 
     assert state["current_stage"] == "execute"
     assert state["status"] == "in_progress"
+    checkpoint = json.loads((task_dir / "checkpoint.json").read_text(encoding="utf-8"))
+    _assert_schema_valid("checkpoint", checkpoint)
+    assert checkpoint["route"] == "small"
+    assert checkpoint["current_stage"] == "execute"
+    assert checkpoint["next_action"] == "Resume at quality-review after reloading canonical artifacts."
 
 
 def test_escalate_route_switches_to_large_high_risk(tmp_path: Path) -> None:
@@ -952,6 +1014,11 @@ def test_escalate_route_switches_to_large_high_risk(tmp_path: Path) -> None:
 
     assert state["status"] == "blocked"
     assert state["current_stage"] == "clarify"
+    checkpoint = json.loads((task_dir / "checkpoint.json").read_text(encoding="utf-8"))
+    _assert_schema_valid("checkpoint", checkpoint)
+    assert checkpoint["route"] == "large_high_risk"
+    assert checkpoint["current_stage"] == "clarify"
+    assert checkpoint["next_action"] == "Resume at plan after reloading canonical artifacts."
 
     decision_log = json.loads((task_dir / "decision-log.json").read_text(encoding="utf-8"))
     assert decision_log["entries"][-1]["decision"] == "route escalated: small -> large_high_risk"

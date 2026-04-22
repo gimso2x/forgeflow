@@ -451,6 +451,23 @@ def _sync_checkpoint(
     return payload
 
 
+def _infer_route_for_recovery(
+    *,
+    checkpoint: dict[str, Any] | None,
+    plan_ledger: dict[str, Any] | None,
+    fallback_route: str,
+) -> str:
+    if checkpoint is not None:
+        checkpoint_route = checkpoint.get("route")
+        if isinstance(checkpoint_route, str) and checkpoint_route:
+            return checkpoint_route
+    if plan_ledger is not None:
+        ledger_route = plan_ledger.get("route")
+        if isinstance(ledger_route, str) and ledger_route:
+            return ledger_route
+    return fallback_route
+
+
 def _default_run_state(task_dir: Path) -> dict[str, Any]:
     return {
         "schema_version": "0.1",
@@ -808,6 +825,10 @@ def retry_stage(task_dir: Path, stage_name: str, max_retries: int = 2) -> dict[s
     canonical_task_id = _canonical_task_id(task_dir)
     run_state = _ensure_run_state(task_dir, canonical_task_id=canonical_task_id)
     decision_log = _ensure_decision_log(task_dir, canonical_task_id=canonical_task_id)
+    checkpoint = _load_checkpoint(task_dir, canonical_task_id=canonical_task_id)
+    plan_ledger = _load_plan_ledger(task_dir, canonical_task_id=canonical_task_id)
+    if plan_ledger is not None and plan_ledger.get("current_task_id"):
+        run_state["current_task_id"] = plan_ledger["current_task_id"]
     current = int(run_state["retries"].get(stage_name, 0))
     if current >= max_retries:
         raise RuntimeViolation(f"retry budget exceeded for {stage_name}: {current}/{max_retries}")
@@ -824,6 +845,15 @@ def retry_stage(task_dir: Path, stage_name: str, max_retries: int = 2) -> dict[s
     )
     _write_validated_artifact(task_dir, "run-state", run_state)
     _write_validated_artifact(task_dir, "decision-log", decision_log)
+    recovery_route = _infer_route_for_recovery(checkpoint=checkpoint, plan_ledger=plan_ledger, fallback_route="small")
+    _sync_checkpoint(
+        task_dir,
+        route_name=recovery_route,
+        route=_resolve_route(load_runtime_policy(REPO_ROOT), recovery_route),
+        run_state=run_state,
+        plan_ledger=plan_ledger,
+        checkpoint=checkpoint,
+    )
     return run_state
 
 
@@ -839,6 +869,10 @@ def step_back(task_dir: Path, policy: RuntimePolicy, route_name: str, current_st
     canonical_task_id = _canonical_task_id(task_dir)
     run_state = _ensure_run_state(task_dir, canonical_task_id=canonical_task_id)
     decision_log = _ensure_decision_log(task_dir, canonical_task_id=canonical_task_id)
+    checkpoint = _load_checkpoint(task_dir, canonical_task_id=canonical_task_id)
+    plan_ledger = _load_plan_ledger(task_dir, canonical_task_id=canonical_task_id)
+    if plan_ledger is not None and plan_ledger.get("current_task_id"):
+        run_state["current_task_id"] = plan_ledger["current_task_id"]
     run_state["current_stage"] = previous_stage
     run_state["status"] = "in_progress"
     _append_decision(
@@ -850,6 +884,14 @@ def step_back(task_dir: Path, policy: RuntimePolicy, route_name: str, current_st
     )
     _write_validated_artifact(task_dir, "run-state", run_state)
     _write_validated_artifact(task_dir, "decision-log", decision_log)
+    _sync_checkpoint(
+        task_dir,
+        route_name=route_name,
+        route=route,
+        run_state=run_state,
+        plan_ledger=plan_ledger,
+        checkpoint=checkpoint,
+    )
     return run_state
 
 
@@ -859,6 +901,10 @@ def escalate_route(task_dir: Path, from_route: str) -> dict[str, Any]:
     canonical_task_id = _canonical_task_id(task_dir)
     run_state = _ensure_run_state(task_dir, canonical_task_id=canonical_task_id)
     decision_log = _ensure_decision_log(task_dir, canonical_task_id=canonical_task_id)
+    checkpoint = _load_checkpoint(task_dir, canonical_task_id=canonical_task_id)
+    plan_ledger = _load_plan_ledger(task_dir, canonical_task_id=canonical_task_id)
+    if plan_ledger is not None and plan_ledger.get("current_task_id"):
+        run_state["current_task_id"] = plan_ledger["current_task_id"]
     run_state["current_stage"] = "clarify"
     run_state["status"] = "blocked"
     _append_decision(
@@ -870,4 +916,12 @@ def escalate_route(task_dir: Path, from_route: str) -> dict[str, Any]:
     )
     _write_validated_artifact(task_dir, "run-state", run_state)
     _write_validated_artifact(task_dir, "decision-log", decision_log)
+    _sync_checkpoint(
+        task_dir,
+        route_name="large_high_risk",
+        route=_resolve_route(load_runtime_policy(REPO_ROOT), "large_high_risk"),
+        run_state=run_state,
+        plan_ledger=plan_ledger,
+        checkpoint=checkpoint,
+    )
     return run_state
