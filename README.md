@@ -94,7 +94,7 @@ This runs:
 - structure validation
 - policy validation
 - generated adapter validation
-- sample artifact validation
+- JSON Schema sample artifact validation for positive and negative fixtures
 - executable adherence evals across small/medium/large and negative runtime fixtures
 
 ## Naming

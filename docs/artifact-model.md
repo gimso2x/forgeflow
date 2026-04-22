@@ -67,6 +67,7 @@ artifact는 stage 간 handoff 계약이며, resume과 review의 최소 단위다
 핵심 규칙:
 - 이미 끝난 결정을 슬쩍 덮어쓰지 않는다.
 - 변경은 새 항목으로 남긴다.
+- timestamp/actor/category는 느슨한 자유서술이 아니라 schema로 제한한다.
 
 ---
 
@@ -88,6 +89,7 @@ artifact는 stage 간 handoff 계약이며, resume과 review의 최소 단위다
 핵심 규칙:
 - monotonic progression 우선
 - rollback은 기록된 예외로만 허용
+- `current_stage`와 gate 이름은 canonical stage machine enum 밖으로 벗어나면 안 된다
 - finalize는 spec/quality 승인 플래그 없이 통과할 수 없다
 
 ---
