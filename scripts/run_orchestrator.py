@@ -22,10 +22,43 @@ from forgeflow_runtime.orchestrator import (  # noqa: E402
     status_summary,
     step_back,
 )
+from forgeflow_runtime.engine import execute_stage  # noqa: E402
+
+
+def _execution_payload(*, stage: str, role: str, adapter: str, result) -> dict:
+    payload = {
+        "stage": stage,
+        "role": role,
+        "adapter": adapter,
+        "status": result.status,
+        "artifacts_produced": result.artifacts_produced,
+        "token_usage": result.token_usage,
+    }
+    if result.error:
+        payload["error"] = result.error
+    return payload
 
 
 def _print_payload(payload: dict) -> None:
     print(json.dumps(payload, indent=2, ensure_ascii=False))
+
+
+STAGE_ROLE_MAP: dict[str, str] = {
+    "clarify": "coordinator",
+    "plan": "planner",
+    "execute": "worker",
+    "spec-review": "spec-reviewer",
+    "quality-review": "quality-reviewer",
+    "finalize": "coordinator",
+    "long-run": "worker",
+}
+
+
+def _role_for_stage(stage: str) -> str:
+    role = STAGE_ROLE_MAP.get(stage)
+    if not role:
+        raise RuntimeViolation(f"no default role mapping for stage: {stage}")
+    return role
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -52,6 +85,11 @@ def build_parser() -> argparse.ArgumentParser:
     advance_parser.add_argument("--task-dir", required=True)
     advance_parser.add_argument("--route", required=True)
     advance_parser.add_argument("--current-stage", required=True)
+    advance_parser.add_argument("--execute", action="store_true", help="execute the next stage immediately after advancing")
+    advance_parser.add_argument("--adapter", choices=["claude", "codex", "cursor"], default="claude")
+    advance_parser.add_argument("--role", default=None, help="override role when --execute is used")
+    advance_parser.add_argument("--artifacts", nargs="+", default=None, help="artifact names to stream when --execute is used")
+    advance_parser.add_argument("--real", action="store_true", help="use real CLI adapters when --execute is used")
 
     retry_parser = subparsers.add_parser("retry", help="retry the current stage within budget")
     retry_parser.add_argument("--task-dir", required=True)
@@ -66,6 +104,14 @@ def build_parser() -> argparse.ArgumentParser:
     escalate_parser = subparsers.add_parser("escalate", help="escalate a route to large_high_risk")
     escalate_parser.add_argument("--task-dir", required=True)
     escalate_parser.add_argument("--from-route", required=True)
+
+    exec_parser = subparsers.add_parser("execute", help="execute the current stage via an LLM adapter")
+    exec_parser.add_argument("--task-dir", required=True)
+    exec_parser.add_argument("--route", required=True)
+    exec_parser.add_argument("--adapter", choices=["claude", "codex", "cursor"], default="claude")
+    exec_parser.add_argument("--role", default=None, help="override role (auto-detected from stage if omitted)")
+    exec_parser.add_argument("--artifacts", nargs="+", default=None, help="artifact names to stream")
+    exec_parser.add_argument("--real", action="store_true", help="use real CLI adapters instead of stubs")
 
     return parser
 
@@ -86,9 +132,34 @@ def main() -> int:
         elif args.command == "status":
             _print_payload(status_summary(task_dir=task_dir, policy=policy, route_name=args.route))
         elif args.command == "advance":
-            _print_payload(
-                {"next_stage": advance_to_next_stage(task_dir=task_dir, policy=policy, route_name=args.route, current_stage=args.current_stage).next_stage}
+            transition = advance_to_next_stage(
+                task_dir=task_dir,
+                policy=policy,
+                route_name=args.route,
+                current_stage=args.current_stage,
             )
+            payload = {"next_stage": transition.next_stage}
+            if args.execute:
+                role = args.role or _role_for_stage(transition.next_stage)
+                result = execute_stage(
+                    task_dir=task_dir,
+                    task_id=json.loads((task_dir / "run-state.json").read_text(encoding="utf-8")).get("task_id", "unknown"),
+                    stage=transition.next_stage,
+                    route=args.route,
+                    role=role,
+                    adapter_target=args.adapter,
+                    artifacts_to_stream=args.artifacts,
+                    use_real=args.real,
+                )
+                if result.status == "success" and result.raw_output:
+                    (task_dir / f"{transition.next_stage}-output.md").write_text(result.raw_output, encoding="utf-8")
+                payload["execution"] = _execution_payload(
+                    stage=transition.next_stage,
+                    role=role,
+                    adapter=args.adapter,
+                    result=result,
+                )
+            _print_payload(payload)
         elif args.command == "retry":
             _print_payload(retry_stage(task_dir=task_dir, stage_name=args.stage, max_retries=args.max_retries))
         elif args.command == "step-back":
@@ -97,6 +168,37 @@ def main() -> int:
             )
         elif args.command == "escalate":
             _print_payload(escalate_route(task_dir=task_dir, from_route=args.from_route))
+        elif args.command == "execute":
+            run_state_path = task_dir / "run-state.json"
+            if not run_state_path.exists():
+                print("ERROR: run-state.json not found; start or resume the task first.", file=sys.stderr)
+                return 1
+            run_state = json.loads(run_state_path.read_text(encoding="utf-8"))
+            current_stage = run_state.get("current_stage")
+            if not current_stage:
+                print("ERROR: current_stage not set in run-state.", file=sys.stderr)
+                return 1
+            role = args.role or _role_for_stage(current_stage)
+            result = execute_stage(
+                task_dir=task_dir,
+                task_id=run_state.get("task_id", "unknown"),
+                stage=current_stage,
+                route=args.route,
+                role=role,
+                adapter_target=args.adapter,
+                artifacts_to_stream=args.artifacts,
+                use_real=args.real,
+            )
+            if result.status == "success" and result.raw_output:
+                (task_dir / f"{current_stage}-output.md").write_text(result.raw_output, encoding="utf-8")
+            _print_payload(
+                _execution_payload(
+                    stage=current_stage,
+                    role=role,
+                    adapter=args.adapter,
+                    result=result,
+                )
+            )
         else:
             parser.error(f"unknown command: {args.command}")
     except RuntimeViolation as exc:

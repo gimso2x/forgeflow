@@ -1,0 +1,19 @@
+{
+  "schema_version": "0.1",
+  "task_id": "task-runtime-small-001",
+  "current_stage": "finalize",
+  "status": "completed",
+  "completed_gates": [
+    "clarification_complete",
+    "execution_evidenced",
+    "quality_review_passed",
+    "ready_to_finalize"
+  ],
+  "failed_gates": [],
+  "retries": {},
+  "evidence_refs": [],
+  "current_task_id": "",
+  "spec_review_approved": false,
+  "quality_review_approved": true,
+  "final_status": "success"
+}

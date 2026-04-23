@@ -1,0 +1,72 @@
+{
+  "schema_version": "0.1",
+  "task_id": "task-runtime-small-001",
+  "entries": [
+    {
+      "timestamp": "2026-04-23T01:47:37Z",
+      "actor": "orchestrator",
+      "category": "routing",
+      "decision": "route selected: small",
+      "rationale": "canonical complexity route applied",
+      "affected_artifacts": [
+        "run-state",
+        "decision-log"
+      ]
+    },
+    {
+      "timestamp": "2026-04-23T01:47:37Z",
+      "actor": "orchestrator",
+      "category": "stage-transition",
+      "decision": "stage entered: clarify",
+      "rationale": "route small progressed to clarify",
+      "affected_artifacts": [
+        "run-state",
+        "decision-log"
+      ]
+    },
+    {
+      "timestamp": "2026-04-23T01:47:37Z",
+      "actor": "orchestrator",
+      "category": "stage-transition",
+      "decision": "stage entered: execute",
+      "rationale": "route small progressed to execute",
+      "affected_artifacts": [
+        "run-state",
+        "decision-log"
+      ]
+    },
+    {
+      "timestamp": "2026-04-23T01:47:37Z",
+      "actor": "orchestrator",
+      "category": "stage-transition",
+      "decision": "stage entered: quality-review",
+      "rationale": "route small progressed to quality-review",
+      "affected_artifacts": [
+        "run-state",
+        "decision-log"
+      ]
+    },
+    {
+      "timestamp": "2026-04-23T01:47:37Z",
+      "actor": "orchestrator",
+      "category": "stage-transition",
+      "decision": "stage entered: finalize",
+      "rationale": "route small progressed to finalize",
+      "affected_artifacts": [
+        "run-state",
+        "decision-log"
+      ]
+    },
+    {
+      "timestamp": "2026-04-23T02:11:22Z",
+      "actor": "orchestrator",
+      "category": "routing",
+      "decision": "route already complete: small",
+      "rationale": "validated checkpoint already reached route terminal stage",
+      "affected_artifacts": [
+        "run-state",
+        "decision-log"
+      ]
+    }
+  ]
+}

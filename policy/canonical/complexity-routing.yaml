@@ -1,19 +1,22 @@
-version: 0.1
+version: 0.2
 routes:
   small:
     stages: [clarify, execute, quality-review, finalize]
+    max_retries: 2
     traits:
       - low risk
       - small scope
       - easy rollback
   medium:
     stages: [clarify, plan, execute, quality-review, finalize]
+    max_retries: 3
     traits:
       - multiple steps
       - moderate scope
       - verification needed
   large_high_risk:
     stages: [clarify, plan, execute, spec-review, quality-review, finalize, long-run]
+    max_retries: 5
     traits:
       - architecture or infra impact
       - hard rollback

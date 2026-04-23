@@ -82,7 +82,7 @@ def test_load_runtime_policy_and_resolve_small_route() -> None:
         "finalize",
         "long-run",
     ]
-    assert policy.routes["small"] == [
+    assert policy.routes["small"]["stages"] == [
         "clarify",
         "execute",
         "quality-review",
@@ -124,9 +124,7 @@ def test_run_route_requires_plan_ledger_for_medium_route(tmp_path: Path) -> None
         run_route(task_dir=task_dir, policy=policy, route_name="medium")
 
 
-def test_run_route_syncs_current_task_from_plan_ledger(tmp_path: Path) -> None:
-    policy = load_runtime_policy(ROOT)
-    task_dir = _make_task_dir(tmp_path)
+def _write_medium_plan_artifacts(task_dir: Path, *, route_name: str = "medium") -> None:
     _write_json(
         task_dir / "plan.json",
         {
@@ -149,7 +147,7 @@ def test_run_route_syncs_current_task_from_plan_ledger(tmp_path: Path) -> None:
         {
             "schema_version": "0.1",
             "task_id": "task-001",
-            "route": "medium",
+            "route": route_name,
             "current_task_id": "task-1",
             "tasks": [
                 {
@@ -166,6 +164,12 @@ def test_run_route_syncs_current_task_from_plan_ledger(tmp_path: Path) -> None:
             ],
         },
     )
+
+
+def test_run_route_syncs_current_task_from_plan_ledger(tmp_path: Path) -> None:
+    policy = load_runtime_policy(ROOT)
+    task_dir = _make_task_dir(tmp_path)
+    _write_medium_plan_artifacts(task_dir)
     _write_json(
         task_dir / "review-report.json",
         {
@@ -185,6 +189,37 @@ def test_run_route_syncs_current_task_from_plan_ledger(tmp_path: Path) -> None:
     assert result["current_task_id"] == "task-1"
     persisted_run_state = json.loads((task_dir / "run-state.json").read_text(encoding="utf-8"))
     assert persisted_run_state["current_task_id"] == "task-1"
+    persisted_plan_ledger = json.loads((task_dir / "plan-ledger.json").read_text(encoding="utf-8"))
+    assert persisted_plan_ledger["tasks"][0]["status"] == "done"
+    assert persisted_plan_ledger["tasks"][0]["attempt_count"] == 1
+    assert "run-state.json#gate:plan_executable" in persisted_plan_ledger["tasks"][0]["evidence_refs"]
+    assert "review-report.json#verdict:approved" in persisted_plan_ledger["tasks"][0]["evidence_refs"]
+    assert persisted_plan_ledger["last_review_verdict"] == "approved"
+
+
+def test_retry_stage_updates_plan_ledger_attempts(tmp_path: Path) -> None:
+    task_dir = _make_task_dir(tmp_path)
+    _write_medium_plan_artifacts(task_dir)
+
+    result = retry_stage(task_dir=task_dir, stage_name="execute", max_retries=2)
+
+    assert result["retries"]["execute"] == 1
+    persisted_plan_ledger = json.loads((task_dir / "plan-ledger.json").read_text(encoding="utf-8"))
+    assert persisted_plan_ledger["tasks"][0]["attempt_count"] == 1
+    assert persisted_plan_ledger["tasks"][0]["status"] == "in_progress"
+
+
+def test_advance_updates_plan_ledger_gate_evidence(tmp_path: Path) -> None:
+    policy = load_runtime_policy(ROOT)
+    task_dir = _make_task_dir(tmp_path)
+    _write_medium_plan_artifacts(task_dir)
+
+    result = advance_to_next_stage(task_dir=task_dir, policy=policy, route_name="medium", current_stage="plan")
+
+    assert result.next_stage == "execute"
+    persisted_plan_ledger = json.loads((task_dir / "plan-ledger.json").read_text(encoding="utf-8"))
+    assert persisted_plan_ledger["tasks"][0]["status"] == "in_progress"
+    assert "run-state.json#gate:plan_executable" in persisted_plan_ledger["tasks"][0]["evidence_refs"]
 
 
 def test_finalize_blocks_missing_review_flags(tmp_path: Path) -> None:
@@ -1352,6 +1387,45 @@ def test_cli_supports_recovery_commands(tmp_path: Path) -> None:
     escalate_result = _run_orchestrator_cli("escalate", "--task-dir", str(task_dir), "--from-route", "small")
     assert escalate_result.returncode == 0
     assert json.loads(escalate_result.stdout)["status"] == "blocked"
+
+
+def test_cli_execute_runs_current_stage_and_writes_output(tmp_path: Path) -> None:
+    task_dir = _make_task_dir(tmp_path)
+    execute_result = _run_orchestrator_cli("execute", "--task-dir", str(task_dir), "--route", "small", "--adapter", "codex")
+
+    assert execute_result.returncode == 0
+    payload = json.loads(execute_result.stdout)
+    assert payload["stage"] == "clarify"
+    assert payload["adapter"] == "codex"
+    output_path = task_dir / "clarify-output.md"
+    assert output_path.exists()
+    assert "stub-codex-output" in output_path.read_text(encoding="utf-8")
+
+
+def test_cli_advance_with_execute_runs_next_stage_and_updates_run_state(tmp_path: Path) -> None:
+    task_dir = _make_task_dir(tmp_path)
+
+    result = _run_orchestrator_cli(
+        "advance",
+        "--task-dir",
+        str(task_dir),
+        "--route",
+        "small",
+        "--current-stage",
+        "clarify",
+        "--execute",
+        "--adapter",
+        "cursor",
+    )
+
+    assert result.returncode == 0
+    payload = json.loads(result.stdout)
+    assert payload["next_stage"] == "execute"
+    assert payload["execution"]["status"] == "success"
+    assert payload["execution"]["stage"] == "execute"
+    run_state = json.loads((task_dir / "run-state.json").read_text(encoding="utf-8"))
+    assert run_state["current_stage"] == "execute"
+    assert (task_dir / "execute-output.md").exists()
 
 
 def test_cli_reports_runtime_violations_without_tracebacks(tmp_path: Path) -> None:

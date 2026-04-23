@@ -9,35 +9,18 @@ from typing import Any
 
 from jsonschema import Draft202012Validator
 
+from forgeflow_runtime.policy_loader import RuntimePolicy, load_runtime_policy
+
 
 class RuntimeViolation(Exception):
     """Raised when a requested stage transition violates runtime policy."""
 
 
 @dataclass(frozen=True)
-class RuntimePolicy:
-    workflow_stages: list[str]
-    stage_requirements: dict[str, list[str]]
-    gate_requirements: dict[str, list[str]]
-    gate_reviews: dict[str, dict[str, str]]
-    routes: dict[str, list[str]]
-    finalize_flags: list[str]
-
-
-@dataclass(frozen=True)
 class TransitionResult:
     next_stage: str
+    execution: dict[str, Any] | None = None
 
-
-STAGE_GATE_MAP = {
-    "clarify": "clarification_complete",
-    "plan": "plan_executable",
-    "execute": "execution_evidenced",
-    "spec-review": "spec_review_passed",
-    "quality-review": "quality_review_passed",
-    "finalize": "ready_to_finalize",
-    "long-run": "worth_long_run_capture",
-}
 
 SCHEMA_BY_ARTIFACT = {
     "brief": "brief",
@@ -54,84 +37,6 @@ SCHEMA_BY_ARTIFACT = {
 }
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-
-
-def _load_yaml_lines(path: Path) -> list[str]:
-    return path.read_text(encoding="utf-8").splitlines()
-
-
-def _parse_workflow_stages(path: Path) -> list[str]:
-    stages: list[str] = []
-    capture = False
-    for raw in _load_yaml_lines(path):
-        stripped = raw.strip()
-        if stripped == "stages:":
-            capture = True
-            continue
-        if capture:
-            if stripped.startswith("- "):
-                stages.append(stripped[2:].strip())
-            elif stripped and not raw.startswith("  "):
-                break
-    return stages
-
-
-def _parse_stage_requirements(path: Path) -> dict[str, list[str]]:
-    requirements: dict[str, list[str]] = {}
-    current_stage: str | None = None
-    for raw in _load_yaml_lines(path):
-        if raw.startswith("  ") and not raw.startswith("    ") and raw.strip().endswith(":"):
-            current_stage = raw.strip()[:-1]
-            requirements[current_stage] = []
-            continue
-        if current_stage and raw.startswith("    required_for_entry: ["):
-            chunk = raw.strip()[len("required_for_entry: [") : -1]
-            requirements[current_stage] = [item.strip() for item in chunk.split(",") if item.strip()]
-    return requirements
-
-
-def _parse_gate_requirements(path: Path) -> tuple[dict[str, list[str]], dict[str, dict[str, str]], list[str]]:
-    requirements: dict[str, list[str]] = {}
-    gate_reviews: dict[str, dict[str, str]] = {}
-    finalize_flags: list[str] = []
-    current_gate: str | None = None
-    for raw in _load_yaml_lines(path):
-        if raw.startswith("  ") and not raw.startswith("    ") and raw.strip().endswith(":"):
-            current_gate = raw.strip()[:-1]
-            requirements[current_gate] = []
-            gate_reviews[current_gate] = {}
-            continue
-        if current_gate and raw.startswith("    requires: ["):
-            chunk = raw.strip()[len("requires: [") : -1]
-            requirements[current_gate] = [item.strip() for item in chunk.split(",") if item.strip()]
-        if current_gate and raw.startswith("    review_type: "):
-            gate_reviews[current_gate]["review_type"] = raw.strip()[len("review_type: ") :]
-        if current_gate and raw.startswith("    verdict: "):
-            gate_reviews[current_gate]["verdict"] = raw.strip()[len("verdict: ") :]
-        if current_gate == "ready_to_finalize" and raw.startswith("    run_state_flags: ["):
-            chunk = raw.strip()[len("run_state_flags: [") : -1]
-            finalize_flags = [item.strip() for item in chunk.split(",") if item.strip()]
-    return requirements, gate_reviews, finalize_flags
-
-
-def _parse_routes(path: Path) -> dict[str, list[str]]:
-    routes: dict[str, list[str]] = {}
-    current_route: str | None = None
-    in_routes = False
-    for raw in _load_yaml_lines(path):
-        if raw.strip() == "routes:":
-            in_routes = True
-            continue
-        if not in_routes:
-            continue
-        if raw.startswith("  ") and not raw.startswith("    ") and raw.strip().endswith(":"):
-            current_route = raw.strip()[:-1]
-            routes[current_route] = []
-            continue
-        if current_route and raw.startswith("    stages: ["):
-            chunk = raw.strip()[len("stages: [") : -1]
-            routes[current_route] = [item.strip() for item in chunk.split(",") if item.strip()]
-    return routes
 
 
 def _artifact_path(task_dir: Path, artifact_name: str) -> Path:
@@ -308,6 +213,72 @@ def _require_plan_ledger_for_route(task_dir: Path, route_name: str, *, canonical
     if ledger_route != route_name:
         raise RuntimeViolation(f"plan-ledger.json route {ledger_route} does not match requested route {route_name}")
     return payload
+
+
+def _current_plan_task(plan_ledger: dict[str, Any] | None) -> dict[str, Any] | None:
+    if plan_ledger is None:
+        return None
+    current_task_id = plan_ledger.get("current_task_id")
+    if not current_task_id:
+        return None
+    for task in plan_ledger.get("tasks", []):
+        if task.get("id") == current_task_id:
+            return task
+    raise RuntimeViolation(f"plan-ledger.json current_task_id {current_task_id} is not present in tasks[]")
+
+
+def _append_evidence_ref(task: dict[str, Any], evidence_ref: str) -> None:
+    evidence_refs = task.setdefault("evidence_refs", [])
+    if evidence_ref not in evidence_refs:
+        evidence_refs.append(evidence_ref)
+
+
+def _gate_evidence_ref(stage_name: str, gate_name: str) -> str:
+    prefix = "run-state.json" if stage_name not in {"spec-review", "quality-review", "long-run"} else {
+        "spec-review": "review-report-spec.json",
+        "quality-review": "review-report.json",
+        "long-run": "eval-record.json",
+    }[stage_name]
+    return f"{prefix}#gate:{gate_name}"
+
+
+def _sync_plan_ledger_gate(plan_ledger: dict[str, Any] | None, *, stage_name: str, gate_name: str | None) -> None:
+    task = _current_plan_task(plan_ledger)
+    if task is None or gate_name is None:
+        return
+    task["status"] = "in_progress"
+    _append_evidence_ref(task, _gate_evidence_ref(stage_name, gate_name))
+
+
+def _sync_plan_ledger_retry(plan_ledger: dict[str, Any] | None) -> None:
+    task = _current_plan_task(plan_ledger)
+    if task is None:
+        return
+    task["status"] = "in_progress"
+    task["attempt_count"] = int(task.get("attempt_count", 0)) + 1
+
+
+def _sync_plan_ledger_review(plan_ledger: dict[str, Any] | None, *, review_artifact: str | None, verdict: str | None) -> None:
+    if plan_ledger is None or verdict is None:
+        return
+    plan_ledger["last_review_verdict"] = verdict
+    task = _current_plan_task(plan_ledger)
+    if task is None or review_artifact is None:
+        return
+    _append_evidence_ref(task, f"{review_artifact}#verdict:{verdict}")
+
+
+def _finalize_plan_ledger_task(plan_ledger: dict[str, Any] | None) -> None:
+    task = _current_plan_task(plan_ledger)
+    if task is None:
+        return
+    task["status"] = "done"
+    task["attempt_count"] = max(1, int(task.get("attempt_count", 0)))
+
+
+def _write_plan_ledger_if_present(task_dir: Path, plan_ledger: dict[str, Any] | None) -> None:
+    if plan_ledger is not None:
+        _write_validated_artifact(task_dir, "plan-ledger", plan_ledger)
 
 
 def _load_checkpoint(task_dir: Path, *, canonical_task_id: str) -> dict[str, Any] | None:
@@ -628,7 +599,7 @@ def _sync_review_flags(task_dir: Path, run_state: dict[str, Any], *, canonical_t
 
 
 def _required_finalize_flags(policy: RuntimePolicy, route_name: str) -> list[str]:
-    route = policy.routes[route_name]
+    route = _resolve_route(policy, route_name)
     required = list(policy.finalize_flags)
     if "spec-review" not in route and "spec_review_approved" in required:
         required.remove("spec_review_approved")
@@ -637,23 +608,23 @@ def _required_finalize_flags(policy: RuntimePolicy, route_name: str) -> list[str
     return required
 
 
-def _record_gate(run_state: dict[str, Any], stage_name: str) -> None:
-    gate_name = STAGE_GATE_MAP.get(stage_name)
+def _record_gate(run_state: dict[str, Any], stage_name: str, *, stage_gate_map: dict[str, str]) -> None:
+    gate_name = stage_gate_map.get(stage_name)
     if gate_name and gate_name not in run_state["completed_gates"]:
         run_state["completed_gates"].append(gate_name)
 
 
-def _expected_gates_before_stage(route: list[str], stage_name: str) -> list[str]:
+def _expected_gates_before_stage(route: list[str], stage_name: str, *, stage_gate_map: dict[str, str]) -> list[str]:
     stage_index = route.index(stage_name)
     gates: list[str] = []
     for prior_stage in route[:stage_index]:
-        gate_name = STAGE_GATE_MAP.get(prior_stage)
+        gate_name = stage_gate_map.get(prior_stage)
         if gate_name is not None:
             gates.append(gate_name)
     return gates
 
 
-def _resume_start_index(run_state: dict[str, Any], route: list[str]) -> int:
+def _resume_start_index(run_state: dict[str, Any], route: list[str], *, stage_gate_map: dict[str, str]) -> int:
     current_stage = run_state.get("current_stage")
     status = run_state.get("status")
     completed_gates = run_state.get("completed_gates", [])
@@ -664,19 +635,19 @@ def _resume_start_index(run_state: dict[str, Any], route: list[str]) -> int:
         raise RuntimeViolation("run-state checkpoint completed_gates must be a list")
 
     current_index = route.index(current_stage)
-    expected_prefix = _expected_gates_before_stage(route, current_stage)
+    expected_prefix = _expected_gates_before_stage(route, current_stage, stage_gate_map=stage_gate_map)
     missing_prefix = [gate for gate in expected_prefix if gate not in completed_gates]
     if missing_prefix:
         raise RuntimeViolation(
             f"run-state checkpoint is missing completed gates before {current_stage}: {', '.join(missing_prefix)}"
         )
 
-    current_gate = STAGE_GATE_MAP.get(current_stage)
+    current_gate = stage_gate_map.get(current_stage)
     allowed_gates = set(expected_prefix)
     if current_gate:
         allowed_gates.add(current_gate)
     unexpected_gates = [
-        gate for gate in completed_gates if gate in STAGE_GATE_MAP.values() and gate not in allowed_gates
+        gate for gate in completed_gates if gate in stage_gate_map.values() and gate not in allowed_gates
     ]
     if unexpected_gates:
         raise RuntimeViolation(
@@ -689,7 +660,7 @@ def _resume_start_index(run_state: dict[str, Any], route: list[str]) -> int:
             raise RuntimeViolation(
                 f"completed run-state checkpoint must already be at terminal stage {terminal_stage}"
             )
-        terminal_gate = STAGE_GATE_MAP.get(terminal_stage)
+        terminal_gate = stage_gate_map.get(terminal_stage)
         if terminal_gate and terminal_gate not in completed_gates:
             raise RuntimeViolation(
                 f"completed run-state checkpoint is missing terminal gate {terminal_gate}"
@@ -721,9 +692,8 @@ def _matching_review_payload(
     return None
 
 
-
 def _enforce_stage_gate(task_dir: Path, policy: RuntimePolicy, stage_name: str, *, canonical_task_id: str) -> None:
-    gate_name = STAGE_GATE_MAP.get(stage_name)
+    gate_name = policy.stage_gate_map.get(stage_name)
     if gate_name is None:
         return
 
@@ -955,9 +925,9 @@ def status_summary(task_dir: Path, policy: RuntimePolicy, route_name: str | None
     route = _resolve_route(policy, resumed["route"])
     current_index = route.index(run_state["current_stage"])
     required_gates = [
-        STAGE_GATE_MAP[stage_name]
+        policy.stage_gate_map[stage_name]
         for stage_name in route[current_index:]
-        if stage_name in STAGE_GATE_MAP and STAGE_GATE_MAP[stage_name] not in run_state.get("completed_gates", [])
+        if stage_name in policy.stage_gate_map and policy.stage_gate_map[stage_name] not in run_state.get("completed_gates", [])
     ]
     return {
         "task_id": canonical_task_id,
@@ -971,29 +941,26 @@ def status_summary(task_dir: Path, policy: RuntimePolicy, route_name: str | None
     }
 
 
-def load_runtime_policy(root: Path) -> RuntimePolicy:
-    policy_root = root / "policy" / "canonical"
-    gate_requirements, gate_reviews, finalize_flags = _parse_gate_requirements(policy_root / "gates.yaml")
-    return RuntimePolicy(
-        workflow_stages=_parse_workflow_stages(policy_root / "workflow.yaml"),
-        stage_requirements=_parse_stage_requirements(policy_root / "stages.yaml"),
-        gate_requirements=gate_requirements,
-        gate_reviews=gate_reviews,
-        routes=_parse_routes(policy_root / "complexity-routing.yaml"),
-        finalize_flags=finalize_flags,
-    )
-
-
 def _resolve_route(policy: RuntimePolicy, route_name: str) -> list[str]:
     route = policy.routes.get(route_name)
     if route is None:
         raise RuntimeViolation(f"unknown route: {route_name}")
-    return route
+    return route["stages"]
 
 
-def advance_to_next_stage(task_dir: Path, policy: RuntimePolicy, route_name: str, current_stage: str) -> TransitionResult:
+def advance_to_next_stage(
+    task_dir: Path,
+    policy: RuntimePolicy,
+    route_name: str,
+    current_stage: str,
+) -> TransitionResult:
     route = _resolve_route(policy, route_name)
     canonical_task_id = _canonical_task_id(task_dir)
+    plan_ledger = _load_plan_ledger(task_dir, canonical_task_id=canonical_task_id)
+    run_state_path = _artifact_path(task_dir, "run-state")
+    run_state = _load_validated_artifact(task_dir, "run-state", expected_task_id=canonical_task_id) if run_state_path.exists() else None
+    checkpoint = _load_checkpoint(task_dir, canonical_task_id=canonical_task_id)
+    session_state = _load_session_state(task_dir, canonical_task_id=canonical_task_id)
     if current_stage not in route:
         raise RuntimeViolation(f"stage {current_stage} is not part of route {route_name}")
 
@@ -1014,14 +981,40 @@ def advance_to_next_stage(task_dir: Path, policy: RuntimePolicy, route_name: str
             if variant_path.exists():
                 _load_validated_artifact(task_dir, variant, expected_task_id=canonical_task_id)
 
+    if run_state is None:
+        run_state = _default_run_state(task_dir)
+
     if next_stage == "finalize":
-        run_state = _load_validated_artifact(task_dir, "run-state", expected_task_id=canonical_task_id)
         required_flags = _required_finalize_flags(policy, route_name)
         missing_flags = [flag for flag in required_flags if not run_state.get(flag, False)]
         if missing_flags:
             raise RuntimeViolation(
                 f"finalize requires run-state approval flags: {', '.join(missing_flags)}"
             )
+
+    _sync_plan_ledger_gate(plan_ledger, stage_name=current_stage, gate_name=policy.stage_gate_map.get(current_stage))
+    run_state["current_stage"] = next_stage
+    run_state["status"] = "in_progress"
+    if plan_ledger is not None and plan_ledger.get("current_task_id"):
+        run_state["current_task_id"] = plan_ledger["current_task_id"]
+    _write_validated_artifact(task_dir, "run-state", run_state)
+    _write_plan_ledger_if_present(task_dir, plan_ledger)
+    checkpoint = _sync_checkpoint(
+        task_dir,
+        route_name=route_name,
+        route=route,
+        run_state=run_state,
+        plan_ledger=plan_ledger,
+        checkpoint=checkpoint,
+    )
+    _sync_session_state(
+        task_dir,
+        route_name=route_name,
+        run_state=run_state,
+        checkpoint=checkpoint,
+        plan_ledger=plan_ledger,
+        session_state=session_state,
+    )
 
     return TransitionResult(next_stage=next_stage)
 
@@ -1046,7 +1039,7 @@ def run_route(task_dir: Path, policy: RuntimePolicy, route_name: str) -> dict[st
             plan_ledger=plan_ledger,
         )
     resume_from_stage = run_state.get("current_stage")
-    start_index = _resume_start_index(run_state, route)
+    start_index = _resume_start_index(run_state, route, stage_gate_map=policy.stage_gate_map)
 
     if start_index >= len(route):
         _append_decision(
@@ -1104,10 +1097,16 @@ def run_route(task_dir: Path, policy: RuntimePolicy, route_name: str) -> dict[st
         run_state["status"] = "in_progress"
         _sync_review_flags(task_dir, run_state, canonical_task_id=canonical_task_id)
         _enforce_stage_gate(task_dir, policy, stage_name, canonical_task_id=canonical_task_id)
-        _record_gate(run_state, stage_name)
+        _record_gate(run_state, stage_name, stage_gate_map=policy.stage_gate_map)
+        _sync_plan_ledger_gate(plan_ledger, stage_name=stage_name, gate_name=policy.stage_gate_map.get(stage_name))
 
         if stage_name == "execute" and not _artifact_path(task_dir, "decision-log").exists():
             raise RuntimeViolation("execute requires decision-log.json to exist")
+
+        if stage_name in {"spec-review", "quality-review"}:
+            review_artifact = _latest_review_ref(task_dir)
+            review_verdict = _latest_review_verdict(task_dir, canonical_task_id=canonical_task_id)
+            _sync_plan_ledger_review(plan_ledger, review_artifact=review_artifact, verdict=review_verdict)
 
         if stage_name == "finalize":
             required_flags = _required_finalize_flags(policy, route_name)
@@ -1118,10 +1117,12 @@ def run_route(task_dir: Path, policy: RuntimePolicy, route_name: str) -> dict[st
                 )
             run_state["status"] = "completed"
             run_state["final_status"] = "success"
+            _finalize_plan_ledger_task(plan_ledger)
 
         if stage_name == "long-run":
             run_state["status"] = "completed"
             run_state["final_status"] = run_state.get("final_status", "success")
+            _finalize_plan_ledger_task(plan_ledger)
 
         _append_decision(
             decision_log,
@@ -1132,6 +1133,7 @@ def run_route(task_dir: Path, policy: RuntimePolicy, route_name: str) -> dict[st
         )
         _write_validated_artifact(task_dir, "run-state", run_state)
         _write_validated_artifact(task_dir, "decision-log", decision_log)
+        _write_plan_ledger_if_present(task_dir, plan_ledger)
         checkpoint = _sync_checkpoint(
             task_dir,
             route_name=route_name,
@@ -1168,6 +1170,7 @@ def retry_stage(task_dir: Path, stage_name: str, max_retries: int = 2) -> dict[s
     run_state["retries"][stage_name] = current + 1
     run_state["current_stage"] = stage_name
     run_state["status"] = "in_progress"
+    _sync_plan_ledger_retry(plan_ledger)
     _append_decision(
         decision_log,
         actor="orchestrator",
@@ -1177,6 +1180,7 @@ def retry_stage(task_dir: Path, stage_name: str, max_retries: int = 2) -> dict[s
     )
     _write_validated_artifact(task_dir, "run-state", run_state)
     _write_validated_artifact(task_dir, "decision-log", decision_log)
+    _write_plan_ledger_if_present(task_dir, plan_ledger)
     recovery_route = _infer_route_for_recovery(checkpoint=checkpoint, plan_ledger=plan_ledger, fallback_route="small")
     recovery_route_stages = _resolve_route(load_runtime_policy(REPO_ROOT), recovery_route)
     _assert_stage_in_route(route_name=recovery_route, route=recovery_route_stages, stage_name=run_state["current_stage"])

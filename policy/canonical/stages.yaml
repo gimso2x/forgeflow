@@ -1,23 +1,30 @@
-version: 0.1
+version: 0.2
 stages:
   clarify:
     artifact_out: [brief]
     required_for_entry: []
+    gate: clarification_complete
   plan:
     artifact_out: [plan]
     required_for_entry: [brief]
+    gate: plan_executable
   execute:
     artifact_out: [decision-log, run-state]
     required_for_entry: [brief]
+    gate: execution_evidenced
   spec-review:
     artifact_out: [review-report]
     required_for_entry: [brief, run-state]
+    gate: spec_review_passed
   quality-review:
     artifact_out: [review-report]
     required_for_entry: [run-state]
+    gate: quality_review_passed
   finalize:
     artifact_out: [run-state]
     required_for_entry: [run-state, review-report]
+    gate: ready_to_finalize
   long-run:
     artifact_out: [eval-record]
     required_for_entry: [run-state, review-report]
+    gate: worth_long_run_capture

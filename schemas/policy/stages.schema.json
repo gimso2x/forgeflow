@@ -20,6 +20,10 @@
           "required_for_entry": {
             "type": "array",
             "items": {"type": "string", "minLength": 1}
+          },
+          "gate": {
+            "type": "string",
+            "minLength": 1
           }
         }
       }

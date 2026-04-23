@@ -1,0 +1,13 @@
+{
+  "schema_version": "0.1",
+  "task_id": "task-runtime-small-001",
+  "route": "small",
+  "current_stage": "finalize",
+  "plan_ref": "brief.json",
+  "plan_ledger_ref": "run-state.json",
+  "run_state_ref": "run-state.json",
+  "next_action": "Route complete. Review final artifacts and hand off results.",
+  "open_blockers": [],
+  "updated_at": "2026-04-23T02:11:22Z",
+  "latest_review_ref": "review-report.json"
+}
