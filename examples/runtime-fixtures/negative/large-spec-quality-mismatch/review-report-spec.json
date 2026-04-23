@@ -1,0 +1,11 @@
+{
+  "schema_version": "0.1",
+  "task_id": "task-large-mismatch-001",
+  "review_type": "quality",
+  "verdict": "approved",
+  "findings": [
+    "wrong review type on spec-review artifact to prove substitution is rejected"
+  ],
+  "approved_by": "spec-reviewer",
+  "next_action": "quality-review로 진행"
+}

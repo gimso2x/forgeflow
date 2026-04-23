@@ -1,0 +1,24 @@
+{
+  "schema_version": "0.1",
+  "task_id": "task-large-stale-ref-001",
+  "steps": [
+    {
+      "id": "step-1",
+      "objective": "Plan migration",
+      "expected_output": "sequenced plan",
+      "verification": "review plan"
+    },
+    {
+      "id": "step-2",
+      "objective": "Execute migration changes",
+      "expected_output": "execution evidence captured",
+      "verification": "run orchestrator"
+    },
+    {
+      "id": "step-3",
+      "objective": "Capture long-run learnings",
+      "expected_output": "eval record present",
+      "verification": "inspect eval record"
+    }
+  ]
+}

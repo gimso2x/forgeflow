@@ -71,7 +71,9 @@ def main() -> int:
             scenarios.append(_positive_case('small-doc-task', fixtures_root / 'small-doc-task', 'small', 'finalize', workspace))
             scenarios.append(_positive_case('resume-small-task', fixtures_root / 'resume-small-task', 'small', 'finalize', workspace))
             scenarios.append(_positive_case('medium-refactor-task', fixtures_root / 'medium-refactor-task', 'medium', 'finalize', workspace))
+            scenarios.append(_positive_case('medium-plan-with-weak-verification', fixtures_root / 'medium-plan-with-weak-verification', 'medium', 'finalize', workspace))
             scenarios.append(_positive_case('large-migration-task', fixtures_root / 'large-migration-task', 'large_high_risk', 'long-run', workspace))
+            scenarios.append(_positive_case('large-approved-but-unsafe', fixtures_root / 'large-approved-but-unsafe', 'large_high_risk', 'long-run', workspace))
             negative_root = fixtures_root / 'negative'
             scenarios.append(_negative_run_case('missing-quality-approval', negative_root / 'missing-quality-approval', 'small', 'quality-review requires approved quality review-report artifact', workspace))
             scenarios.append(_negative_run_case('invalid-review-report', negative_root / 'invalid-review-report', 'small', 'review-report.json failed schema validation', workspace))
@@ -82,6 +84,9 @@ def main() -> int:
             scenarios.append(_negative_run_case('checkpoint-gate-drift', negative_root / 'checkpoint-gate-drift', 'small', 'run-state checkpoint is missing completed gates before execute: clarification_complete', workspace))
             scenarios.append(_negative_run_case('future-gate-checkpoint-drift', negative_root / 'future-gate-checkpoint-drift', 'small', 'run-state checkpoint has out-of-sequence completed gates at execute: quality_review_passed', workspace))
             scenarios.append(_negative_run_case('completed-checkpoint-drift', negative_root / 'completed-checkpoint-drift', 'small', 'completed run-state checkpoint must already be at terminal stage finalize', workspace))
+            scenarios.append(_negative_run_case('medium-ledger-gate-drift', negative_root / 'medium-ledger-gate-drift', 'medium', 'plan-ledger checkpoint has out-of-sequence completed gates at clarify: quality_review_passed', workspace))
+            scenarios.append(_negative_run_case('large-spec-quality-mismatch', negative_root / 'large-spec-quality-mismatch', 'large_high_risk', 'spec-review requires approved spec review-report artifact', workspace))
+            scenarios.append(_negative_run_case('large-session-state-stale-review-ref', negative_root / 'large-session-state-stale-review-ref', 'large_high_risk', 'checkpoint.json latest_review_ref review-report-stale.json does not exist', workspace))
     except Exception as exc:
         print('ADHERENCE EVALS: FAIL')
         print(f'- {exc}')

@@ -1,0 +1,11 @@
+{
+  "schema_version": "0.1",
+  "task_id": "task-large-stale-ref-001",
+  "review_type": "spec",
+  "verdict": "approved",
+  "findings": [
+    "spec review passed for large route fixture"
+  ],
+  "approved_by": "spec-reviewer",
+  "next_action": "quality-review로 진행"
+}

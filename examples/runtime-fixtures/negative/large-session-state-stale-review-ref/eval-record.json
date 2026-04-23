@@ -1,0 +1,9 @@
+{
+  "schema_version": "0.1",
+  "task_id": "task-large-stale-ref-001",
+  "outcome": "success",
+  "what_worked": [
+    "route completed to long-run"
+  ],
+  "what_failed": []
+}

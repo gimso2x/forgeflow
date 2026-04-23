@@ -1,0 +1,11 @@
+{
+  "schema_version": "0.1",
+  "task_id": "task-large-mismatch-001",
+  "review_type": "quality",
+  "verdict": "approved",
+  "findings": [
+    "quality approval exists but must not satisfy the spec-review gate"
+  ],
+  "approved_by": "quality-reviewer",
+  "next_action": "finalize 가능"
+}
