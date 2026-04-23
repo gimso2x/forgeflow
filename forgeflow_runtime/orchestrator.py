@@ -22,11 +22,12 @@ class TransitionResult:
     execution: dict[str, Any] | None = None
 
 
-def _execution_payload(*, stage: str, role: str, adapter: str, result: Any) -> dict[str, Any]:
+def _execution_payload(*, stage: str, role: str, adapter: str, result: Any, use_real: bool = False) -> dict[str, Any]:
     payload = {
         "stage": stage,
         "role": role,
         "adapter": adapter,
+        "execution_mode": "real" if use_real else "stub",
         "status": result.status,
         "artifacts_produced": result.artifacts_produced,
         "token_usage": result.token_usage,
@@ -1343,6 +1344,7 @@ def advance_to_next_stage(
             role=execution_role,
             adapter=adapter_target,
             result=result,
+            use_real=use_real,
         )
 
     run_state = staged_run_state

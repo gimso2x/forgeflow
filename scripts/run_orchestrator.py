@@ -28,11 +28,12 @@ from forgeflow_runtime.executor import ExecutorError  # noqa: E402
 from forgeflow_runtime.generator import GenerationError  # noqa: E402
 
 
-def _execution_payload(*, stage: str, role: str, adapter: str, result) -> dict:
+def _execution_payload(*, stage: str, role: str, adapter: str, result, use_real: bool = False) -> dict:
     payload = {
         "stage": stage,
         "role": role,
         "adapter": adapter,
+        "execution_mode": "real" if use_real else "stub",
         "status": result.status,
         "artifacts_produced": result.artifacts_produced,
         "token_usage": result.token_usage,
@@ -298,6 +299,7 @@ def main() -> int:
                     role=role,
                     adapter=args.adapter,
                     result=result,
+                    use_real=args.real,
                 )
             )
         else:

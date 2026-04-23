@@ -138,7 +138,7 @@ class ClaudeCodeAdapter:
         if not self._binary:
             return RunTaskResult(
                 status="failure",
-                error="claude binary not found on PATH",
+                error="claude binary not found on PATH; install/auth Claude Code or omit --real to use the safe stub",
             )
 
         prompt_tokens = self.estimate_tokens(request.prompt)
@@ -284,6 +284,7 @@ STUB_REGISTRY: dict[str, ExecutorAdapter] = {
 
 
 REAL_REGISTRY: dict[str, ExecutorAdapter] = {
+    "claude": ClaudeCodeAdapter(),
     "codex": CodexCLIAdapter(),
 }
 SUPPORTED_REAL_ADAPTERS = tuple(sorted(REAL_REGISTRY))
