@@ -60,7 +60,6 @@ def main() -> int:
 
         payload = json.loads(result.stdout)
         payload["sample_source_fixture"] = str(fixture_dir.relative_to(ROOT)) if fixture_dir.is_relative_to(ROOT) else str(fixture_dir)
-        payload["sample_workspace"] = str(task_dir)
         print(json.dumps(payload, indent=2, ensure_ascii=False))
     return 0
 
