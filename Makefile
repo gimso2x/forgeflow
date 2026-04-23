@@ -10,7 +10,7 @@ validate:
 	$(PYTHON) scripts/run_adherence_evals.py
 
 runtime-sample:
-	$(PYTHON) scripts/run_orchestrator.py run --task-dir examples/runtime-fixtures/small-doc-task --route small
+	$(PYTHON) scripts/run_runtime_sample.py --fixture-dir examples/runtime-fixtures/small-doc-task --route small
 
 adherence-evals:
 	$(PYTHON) scripts/run_adherence_evals.py
