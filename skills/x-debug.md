@@ -35,7 +35,8 @@ Fix a bug using reproduce-first, 4-phase root cause analysis. Never guess.
    - Use logging, breakpoints, or binary search through code history.
 4. **VERIFY:** Apply the fix and confirm the reproduction now passes.
    - Run the full test suite to check for regressions.
-5. **DOCUMENT:** Write a decision entry in `decision-log.json` with root cause and fix.
+5. **PREVENT:** Add a regression test that fails before the fix and passes after.
+6. **DOCUMENT:** Write a decision entry in `decision-log.json` with root cause, fix, and regression test location.
 
 ## Constraints
 

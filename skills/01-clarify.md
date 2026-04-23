@@ -31,9 +31,9 @@ Turn a vague user request into a scoped **Context Brief** with an assigned compl
    - **9–12 (medium):** Multi-file change, some uncertainty, one external dependency.
    - **13–15 (large):** Architectural change, high uncertainty, multiple stakeholders, long-running.
 4. **Assign route** based on score:
-   - small → `clarify → execute → quality-review → finalize`
-   - medium → `clarify → plan → execute → quality-review → finalize`
-   - large → `clarify → plan → execute → spec-review → quality-review → finalize → long-run`
+   - small → `clarify → run → review → ship`
+   - medium → `clarify → specify → plan → run → review → ship`
+   - large → `clarify → x-office-hours → specify → plan → run → x-spec-review → review → ship` (with checkpoints)
 5. **Write `brief.json`** with schema version `0.1`.
 
 ## Constraints
