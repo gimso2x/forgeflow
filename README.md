@@ -59,7 +59,7 @@ make runtime-sample
 
 ## Runtime sample
 ```bash
-python3 scripts/run_orchestrator.py run --task-dir examples/runtime-fixtures/small-doc-task --route small
+python3 scripts/run_runtime_sample.py --fixture-dir examples/runtime-fixtures/small-doc-task --route small
 python3 scripts/run_orchestrator.py execute --task-dir examples/runtime-fixtures/small-doc-task --route small --adapter codex
 python3 scripts/run_orchestrator.py advance --task-dir examples/runtime-fixtures/small-doc-task --route small --current-stage clarify
 python3 scripts/run_orchestrator.py advance --task-dir examples/runtime-fixtures/small-doc-task --route small --current-stage clarify --execute --adapter cursor
@@ -67,6 +67,8 @@ python3 scripts/run_orchestrator.py retry --task-dir examples/runtime-fixtures/s
 python3 scripts/run_orchestrator.py step-back --task-dir examples/runtime-fixtures/small-doc-task --route small --current-stage quality-review
 python3 scripts/run_orchestrator.py escalate --task-dir examples/runtime-fixtures/small-doc-task --from-route small
 ```
+
+`run_runtime_sample.py`는 fixture를 임시 workspace로 복사한 뒤 실행해서 샘플 명령만으로 tracked runtime fixture가 dirty 상태가 되지 않게 막는다. manual `execute`/`advance`/`retry` 예시는 여전히 원본 task-dir를 직접 대상으로 삼지만, `run` 샘플은 disposable copy에서만 돈다.
 
 이 CLI는 local artifact 디렉터리를 기준으로 route 실행과 recovery helper를 노출한다. `run`은 artifact/gate 기준으로 route 상태를 진행하는 orchestration 명령이고, `execute`는 현재 stage를 어댑터로 실행한다. `advance --execute`는 다음 stage로 넘긴 뒤 바로 실행까지 붙이되, 실행이 실패하면 stage pointer를 커밋하지 않는다. medium/large route에서는 `advance`/`run` 모두 `plan-ledger.json`이 있어야 하고, `step-back`은 되감는 stage에 해당하는 review approval/evidence만 지운다. 정책 위반이나 잘못된 route가 들어오면 traceback 대신 `ERROR:` 형식의 명시적 runtime 오류를 반환한다.
 

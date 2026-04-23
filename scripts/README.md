@@ -9,6 +9,7 @@ P0에서 필요한 최소 자동화를 둔다.
 - `generate_adapters.py` : canonical policy와 prompt를 target별 generated output으로 변환
 - `validate_generated.py` : generated 산출물이 최소 규칙을 지키는지 검증
 - `validate_sample_artifacts.py` : sample artifact fixture가 schema와 맞는지 검증
+- `run_runtime_sample.py` : runtime sample을 disposable fixture copy에서 실행해서 tracked example이 더러워지지 않게 보호
 
 ## 권장 실행 순서
 1. `python3 scripts/validate_structure.py`
@@ -16,3 +17,7 @@ P0에서 필요한 최소 자동화를 둔다.
 3. `python3 scripts/generate_adapters.py`
 4. `python3 scripts/validate_generated.py`
 5. `python3 scripts/validate_sample_artifacts.py`
+
+## Runtime sample
+- `python3 scripts/run_runtime_sample.py --fixture-dir examples/runtime-fixtures/small-doc-task --route small`
+- disposable copy에서 실행하므로 tracked fixture가 dirty 상태로 남지 않는다.

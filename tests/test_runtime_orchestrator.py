@@ -1984,10 +1984,44 @@ def test_cli_medium_route_execute_flow_is_automated_end_to_end(tmp_path: Path) -
 def test_readme_examples_describe_manual_execution_flow() -> None:
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
 
+    assert "scripts/run_runtime_sample.py --fixture-dir" in readme
     assert "scripts/run_orchestrator.py execute --task-dir" in readme
     assert "advance --execute" in readme
     assert "run`은 artifact/gate 기준으로 route 상태를 진행" in readme
     assert "execute`는 현재 stage를 어댑터로 실행" in readme
+
+
+def test_runtime_sample_cli_uses_disposable_fixture_copy() -> None:
+    fixture_dir = ROOT / "examples" / "runtime-fixtures" / "small-doc-task"
+    tracked_files = {
+        rel: (fixture_dir / rel).read_text(encoding="utf-8")
+        for rel in ["checkpoint.json", "decision-log.json", "session-state.json"]
+    }
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            "scripts/run_runtime_sample.py",
+            "--fixture-dir",
+            str(fixture_dir),
+            "--route",
+            "small",
+        ],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 0
+    payload = json.loads(result.stdout)
+    assert payload["status"] == "completed"
+    assert payload["current_stage"] == "finalize"
+    assert payload["sample_source_fixture"] == "examples/runtime-fixtures/small-doc-task"
+    assert "forgeflow-runtime-sample-" in payload["sample_workspace"]
+
+    for rel, original in tracked_files.items():
+        assert (fixture_dir / rel).read_text(encoding="utf-8") == original
 
 
 def test_cli_reports_runtime_violations_without_tracebacks(tmp_path: Path) -> None:
