@@ -220,7 +220,7 @@ class CodexCLIAdapter:
         if not self._binary:
             return RunTaskResult(
                 status="failure",
-                error="codex binary not found on PATH",
+                error="codex binary not found on PATH; install/auth Codex CLI or omit --real to use the safe stub",
             )
 
         prompt_tokens = self.estimate_tokens(request.prompt)
@@ -283,14 +283,10 @@ STUB_REGISTRY: dict[str, ExecutorAdapter] = {
 }
 
 
-def _real_registry() -> dict[str, ExecutorAdapter]:
-    """Build a registry of real adapters available on this machine."""
-    reg: dict[str, ExecutorAdapter] = {}
-    if shutil.which("claude"):
-        reg["claude"] = ClaudeCodeAdapter()
-    if shutil.which("codex"):
-        reg["codex"] = CodexCLIAdapter()
-    return reg
+REAL_REGISTRY: dict[str, ExecutorAdapter] = {
+    "codex": CodexCLIAdapter(),
+}
+SUPPORTED_REAL_ADAPTERS = tuple(sorted(REAL_REGISTRY))
 
 
 def dispatch(request: RunTaskRequest, *, use_real: bool = False) -> RunTaskResult:
@@ -302,8 +298,19 @@ def dispatch(request: RunTaskRequest, *, use_real: bool = False) -> RunTaskResul
             Codex CLI) when available.  Defaults to ``False`` (stubs) so
             tests and local development do not incur API costs.
     """
-    registry = _real_registry() if use_real else STUB_REGISTRY
-    adapter = registry.get(request.adapter_target)
+    if use_real:
+        adapter = REAL_REGISTRY.get(request.adapter_target)
+        if adapter is None:
+            return RunTaskResult(
+                status="failure",
+                error=(
+                    f"real adapter unsupported: {request.adapter_target}; "
+                    f"supported real adapters: {', '.join(SUPPORTED_REAL_ADAPTERS)}"
+                ),
+            )
+        return adapter.run_task(request)
+
+    adapter = STUB_REGISTRY.get(request.adapter_target)
     if adapter is None:
         return RunTaskResult(
             status="failure",
@@ -314,5 +321,5 @@ def dispatch(request: RunTaskRequest, *, use_real: bool = False) -> RunTaskResul
 
 def list_adapters(*, include_real: bool = False) -> list[str]:
     if include_real:
-        return sorted(set(STUB_REGISTRY) | set(_real_registry()))
+        return sorted(set(STUB_REGISTRY) | set(REAL_REGISTRY))
     return sorted(STUB_REGISTRY.keys())
