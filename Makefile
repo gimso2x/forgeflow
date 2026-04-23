@@ -1,6 +1,17 @@
 PYTHON ?= python3
+VENV ?= .venv
+VENV_PYTHON := $(VENV)/bin/python
+VENV_PIP := $(VENV)/bin/pip
 
-.PHONY: validate generate regen clean validate-samples runtime-sample adherence-evals
+.PHONY: setup check-env validate generate regen clean validate-samples runtime-sample adherence-evals
+
+setup:
+	$(PYTHON) -m venv $(VENV)
+	$(VENV_PYTHON) -m pip install --upgrade pip
+	$(VENV_PYTHON) -m pip install -r requirements.txt
+
+check-env:
+	$(PYTHON) scripts/check_environment.py
 
 validate:
 	$(PYTHON) scripts/validate_structure.py

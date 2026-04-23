@@ -87,7 +87,16 @@ ForgeFlow tries not to do that.
 
 Start here if you just cloned the repo and want to know whether it works.
 
-### 1. Validate the harness
+### 1. Set up dependencies
+
+```bash
+make setup
+make check-env
+```
+
+This creates or reuses `.venv`, installs the minimal Python dependencies from `requirements.txt`, and prints actionable missing dependency errors before validation. No hidden local environment is assumed.
+
+### 2. Validate the harness
 
 ```bash
 make validate
@@ -95,7 +104,7 @@ make validate
 
 Expected result: structure, policy, generated adapters, sample artifacts, and adherence evals all pass.
 
-### 2. Inspect the operator shell
+### 3. Inspect the operator shell
 
 ```bash
 python3 scripts/run_orchestrator.py --help
@@ -103,7 +112,7 @@ python3 scripts/run_orchestrator.py --help
 
 This shows the local CLI surface for `start`, `run`, `status`, `resume`, `advance`, `retry`, `step-back`, `escalate`, and `execute`.
 
-### 3. Run the safe sample
+### 4. Run the safe sample
 
 ```bash
 python3 scripts/run_runtime_sample.py --fixture-dir examples/runtime-fixtures/small-doc-task --route small
@@ -111,7 +120,7 @@ python3 scripts/run_runtime_sample.py --fixture-dir examples/runtime-fixtures/sm
 
 This copies the fixture to a disposable workspace before running, so tracked sample artifacts stay clean.
 
-### 4. Start your own task
+### 5. Start your own task
 
 ```bash
 python3 scripts/run_orchestrator.py init \
@@ -123,7 +132,7 @@ python3 scripts/run_orchestrator.py init \
 
 This creates schema-valid starter artifacts and leaves the task at `clarify`.
 
-### 5. Inspect the fixture state
+### 6. Inspect the fixture state
 
 ```bash
 python3 scripts/run_orchestrator.py status --task-dir examples/runtime-fixtures/small-doc-task
@@ -131,7 +140,7 @@ python3 scripts/run_orchestrator.py status --task-dir examples/runtime-fixtures/
 
 Manual `run_orchestrator.py` commands mutate their target `--task-dir`; use `run_runtime_sample.py` for demos unless mutation is intentional.
 
-### 6. Use an adapter in another project
+### 7. Use an adapter in another project
 
 ```bash
 cp adapters/generated/codex/CODEX.md /path/to/your-project/CODEX.md
