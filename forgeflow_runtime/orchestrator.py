@@ -242,20 +242,39 @@ def _gate_evidence_ref(stage_name: str, gate_name: str) -> str:
     return f"{prefix}#gate:{gate_name}"
 
 
+def _plan_ledger_progress(plan_ledger: dict[str, Any] | None) -> dict[str, Any] | None:
+    if plan_ledger is None:
+        return None
+    plan_ledger.setdefault("completed_stages", [])
+    plan_ledger.setdefault("completed_gates", [])
+    plan_ledger.setdefault("retries", {})
+    return plan_ledger
+
+
 def _sync_plan_ledger_gate(plan_ledger: dict[str, Any] | None, *, stage_name: str, gate_name: str | None) -> None:
+    _plan_ledger_progress(plan_ledger)
     task = _current_plan_task(plan_ledger)
     if task is None or gate_name is None:
         return
     task["status"] = "in_progress"
+    completed_stages = plan_ledger.setdefault("completed_stages", [])
+    if stage_name not in completed_stages:
+        completed_stages.append(stage_name)
+    completed_gates = plan_ledger.setdefault("completed_gates", [])
+    if gate_name not in completed_gates:
+        completed_gates.append(gate_name)
     _append_evidence_ref(task, _gate_evidence_ref(stage_name, gate_name))
 
 
-def _sync_plan_ledger_retry(plan_ledger: dict[str, Any] | None) -> None:
+def _sync_plan_ledger_retry(plan_ledger: dict[str, Any] | None, *, stage_name: str) -> None:
+    _plan_ledger_progress(plan_ledger)
     task = _current_plan_task(plan_ledger)
     if task is None:
         return
     task["status"] = "in_progress"
     task["attempt_count"] = int(task.get("attempt_count", 0)) + 1
+    retries = plan_ledger.setdefault("retries", {})
+    retries[stage_name] = int(retries.get(stage_name, 0)) + 1
 
 
 def _sync_plan_ledger_review(plan_ledger: dict[str, Any] | None, *, review_artifact: str | None, verdict: str | None) -> None:
@@ -608,9 +627,15 @@ def _required_finalize_flags(policy: RuntimePolicy, route_name: str) -> list[str
     return required
 
 
-def _record_gate(run_state: dict[str, Any], stage_name: str, *, stage_gate_map: dict[str, str]) -> None:
+def _record_gate(
+    run_state: dict[str, Any],
+    stage_name: str,
+    *,
+    stage_gate_map: dict[str, str],
+    plan_ledger: dict[str, Any] | None = None,
+) -> None:
     gate_name = stage_gate_map.get(stage_name)
-    if gate_name and gate_name not in run_state["completed_gates"]:
+    if gate_name and plan_ledger is None and gate_name not in run_state["completed_gates"]:
         run_state["completed_gates"].append(gate_name)
 
 
@@ -624,22 +649,31 @@ def _expected_gates_before_stage(route: list[str], stage_name: str, *, stage_gat
     return gates
 
 
-def _resume_start_index(run_state: dict[str, Any], route: list[str], *, stage_gate_map: dict[str, str]) -> int:
+def _resume_start_index(
+    run_state: dict[str, Any],
+    route: list[str],
+    *,
+    stage_gate_map: dict[str, str],
+    plan_ledger: dict[str, Any] | None = None,
+) -> int:
     current_stage = run_state.get("current_stage")
     status = run_state.get("status")
-    completed_gates = run_state.get("completed_gates", [])
+    source_name = "plan-ledger" if plan_ledger is not None else "run-state"
+    progress_source = _plan_ledger_progress(plan_ledger) if plan_ledger is not None else run_state
+    completed_gates = progress_source.get("completed_gates", [])
 
     if current_stage not in route:
         raise RuntimeViolation(f"run-state checkpoint stage {current_stage} is not part of route")
     if not isinstance(completed_gates, list):
-        raise RuntimeViolation("run-state checkpoint completed_gates must be a list")
+        source_name = "plan-ledger" if plan_ledger is not None else "run-state"
+        raise RuntimeViolation(f"{source_name} checkpoint completed_gates must be a list")
 
     current_index = route.index(current_stage)
     expected_prefix = _expected_gates_before_stage(route, current_stage, stage_gate_map=stage_gate_map)
     missing_prefix = [gate for gate in expected_prefix if gate not in completed_gates]
     if missing_prefix:
         raise RuntimeViolation(
-            f"run-state checkpoint is missing completed gates before {current_stage}: {', '.join(missing_prefix)}"
+            f"{source_name} checkpoint is missing completed gates before {current_stage}: {', '.join(missing_prefix)}"
         )
 
     current_gate = stage_gate_map.get(current_stage)
@@ -651,19 +685,19 @@ def _resume_start_index(run_state: dict[str, Any], route: list[str], *, stage_ga
     ]
     if unexpected_gates:
         raise RuntimeViolation(
-            f"run-state checkpoint has out-of-sequence completed gates at {current_stage}: {', '.join(unexpected_gates)}"
+            f"{source_name} checkpoint has out-of-sequence completed gates at {current_stage}: {', '.join(unexpected_gates)}"
         )
 
     if status == "completed":
         terminal_stage = route[-1]
         if current_stage != terminal_stage:
             raise RuntimeViolation(
-                f"completed run-state checkpoint must already be at terminal stage {terminal_stage}"
+                f"completed {source_name} checkpoint must already be at terminal stage {terminal_stage}"
             )
         terminal_gate = stage_gate_map.get(terminal_stage)
         if terminal_gate and terminal_gate not in completed_gates:
             raise RuntimeViolation(
-                f"completed run-state checkpoint is missing terminal gate {terminal_gate}"
+                f"completed {source_name} checkpoint is missing terminal gate {terminal_gate}"
             )
         return len(route)
 
@@ -759,6 +793,9 @@ def _bootstrap_plan_ledger(task_id: str, route_name: str) -> dict[str, Any]:
         "schema_version": "0.1",
         "task_id": task_id,
         "route": route_name,
+        "completed_stages": [],
+        "completed_gates": [],
+        "retries": {},
         "current_task_id": "task-1",
         "tasks": [
             {
@@ -920,14 +957,16 @@ def status_summary(task_dir: Path, policy: RuntimePolicy, route_name: str | None
     canonical_task_id = resumed["task_id"]
     run_state = _ensure_run_state(task_dir, canonical_task_id=canonical_task_id)
     checkpoint = _load_checkpoint(task_dir, canonical_task_id=canonical_task_id)
+    plan_ledger = _load_plan_ledger(task_dir, canonical_task_id=canonical_task_id)
     if checkpoint is None:
         raise RuntimeViolation("status requires checkpoint.json")
     route = _resolve_route(policy, resumed["route"])
     current_index = route.index(run_state["current_stage"])
+    completed_gates = (_plan_ledger_progress(plan_ledger) or run_state).get("completed_gates", [])
     required_gates = [
         policy.stage_gate_map[stage_name]
         for stage_name in route[current_index:]
-        if stage_name in policy.stage_gate_map and policy.stage_gate_map[stage_name] not in run_state.get("completed_gates", [])
+        if stage_name in policy.stage_gate_map and policy.stage_gate_map[stage_name] not in completed_gates
     ]
     return {
         "task_id": canonical_task_id,
@@ -1043,7 +1082,7 @@ def run_route(task_dir: Path, policy: RuntimePolicy, route_name: str) -> dict[st
             plan_ledger=plan_ledger,
         )
     resume_from_stage = run_state.get("current_stage")
-    start_index = _resume_start_index(run_state, route, stage_gate_map=policy.stage_gate_map)
+    start_index = _resume_start_index(run_state, route, stage_gate_map=policy.stage_gate_map, plan_ledger=plan_ledger)
 
     if start_index >= len(route):
         _append_decision(
@@ -1101,7 +1140,7 @@ def run_route(task_dir: Path, policy: RuntimePolicy, route_name: str) -> dict[st
         run_state["status"] = "in_progress"
         _sync_review_flags(task_dir, run_state, canonical_task_id=canonical_task_id)
         _enforce_stage_gate(task_dir, policy, stage_name, canonical_task_id=canonical_task_id)
-        _record_gate(run_state, stage_name, stage_gate_map=policy.stage_gate_map)
+        _record_gate(run_state, stage_name, stage_gate_map=policy.stage_gate_map, plan_ledger=plan_ledger)
         _sync_plan_ledger_gate(plan_ledger, stage_name=stage_name, gate_name=policy.stage_gate_map.get(stage_name))
 
         if stage_name == "execute" and not _artifact_path(task_dir, "decision-log").exists():
@@ -1155,7 +1194,11 @@ def run_route(task_dir: Path, policy: RuntimePolicy, route_name: str) -> dict[st
             session_state=session_state,
         )
 
-    return run_state
+    result = dict(run_state)
+    progress = _plan_ledger_progress(plan_ledger) or run_state
+    result["completed_gates"] = list(progress.get("completed_gates", []))
+    result["retries"] = dict(progress.get("retries", result.get("retries", {})))
+    return result
 
 
 def retry_stage(task_dir: Path, stage_name: str, max_retries: int = 2) -> dict[str, Any]:
@@ -1167,14 +1210,17 @@ def retry_stage(task_dir: Path, stage_name: str, max_retries: int = 2) -> dict[s
     plan_ledger = _load_plan_ledger(task_dir, canonical_task_id=canonical_task_id)
     if plan_ledger is not None and plan_ledger.get("current_task_id"):
         run_state["current_task_id"] = plan_ledger["current_task_id"]
-    current = int(run_state["retries"].get(stage_name, 0))
+    retries_source = (_plan_ledger_progress(plan_ledger) or run_state)["retries"]
+    current = int(retries_source.get(stage_name, 0))
     if current >= max_retries:
         raise RuntimeViolation(f"retry budget exceeded for {stage_name}: {current}/{max_retries}")
 
-    run_state["retries"][stage_name] = current + 1
+    if plan_ledger is None:
+        run_state["retries"][stage_name] = current + 1
+    else:
+        _sync_plan_ledger_retry(plan_ledger, stage_name=stage_name)
     run_state["current_stage"] = stage_name
     run_state["status"] = "in_progress"
-    _sync_plan_ledger_retry(plan_ledger)
     _append_decision(
         decision_log,
         actor="orchestrator",
@@ -1204,7 +1250,9 @@ def retry_stage(task_dir: Path, stage_name: str, max_retries: int = 2) -> dict[s
         plan_ledger=plan_ledger,
         session_state=session_state,
     )
-    return run_state
+    result = dict(run_state)
+    result["retries"] = dict((_plan_ledger_progress(plan_ledger) or run_state)["retries"])
+    return result
 
 
 def step_back(task_dir: Path, policy: RuntimePolicy, route_name: str, current_stage: str) -> dict[str, Any]:

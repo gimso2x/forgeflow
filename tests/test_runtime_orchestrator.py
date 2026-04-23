@@ -148,6 +148,9 @@ def _write_medium_plan_artifacts(task_dir: Path, *, route_name: str = "medium") 
             "schema_version": "0.1",
             "task_id": "task-001",
             "route": route_name,
+            "completed_stages": [],
+            "completed_gates": [],
+            "retries": {},
             "current_task_id": "task-1",
             "tasks": [
                 {
@@ -192,9 +195,18 @@ def test_run_route_syncs_current_task_from_plan_ledger(tmp_path: Path) -> None:
     persisted_plan_ledger = json.loads((task_dir / "plan-ledger.json").read_text(encoding="utf-8"))
     assert persisted_plan_ledger["tasks"][0]["status"] == "done"
     assert persisted_plan_ledger["tasks"][0]["attempt_count"] == 1
+    assert persisted_plan_ledger["completed_stages"] == ["clarify", "plan", "execute", "quality-review", "finalize"]
+    assert persisted_plan_ledger["completed_gates"] == [
+        "clarification_complete",
+        "plan_executable",
+        "execution_evidenced",
+        "quality_review_passed",
+        "ready_to_finalize",
+    ]
     assert "run-state.json#gate:plan_executable" in persisted_plan_ledger["tasks"][0]["evidence_refs"]
     assert "review-report.json#verdict:approved" in persisted_plan_ledger["tasks"][0]["evidence_refs"]
     assert persisted_plan_ledger["last_review_verdict"] == "approved"
+    assert persisted_run_state["completed_gates"] == ["clarification_complete"]
 
 
 def test_retry_stage_updates_plan_ledger_attempts(tmp_path: Path) -> None:
@@ -205,8 +217,11 @@ def test_retry_stage_updates_plan_ledger_attempts(tmp_path: Path) -> None:
 
     assert result["retries"]["execute"] == 1
     persisted_plan_ledger = json.loads((task_dir / "plan-ledger.json").read_text(encoding="utf-8"))
+    persisted_run_state = json.loads((task_dir / "run-state.json").read_text(encoding="utf-8"))
     assert persisted_plan_ledger["tasks"][0]["attempt_count"] == 1
     assert persisted_plan_ledger["tasks"][0]["status"] == "in_progress"
+    assert persisted_plan_ledger["retries"] == {"execute": 1}
+    assert persisted_run_state["retries"] == {}
 
 
 def test_advance_updates_plan_ledger_gate_evidence(tmp_path: Path) -> None:
@@ -221,8 +236,12 @@ def test_advance_updates_plan_ledger_gate_evidence(tmp_path: Path) -> None:
 
     assert result.next_stage == "execute"
     persisted_plan_ledger = json.loads((task_dir / "plan-ledger.json").read_text(encoding="utf-8"))
+    persisted_run_state = json.loads((task_dir / "run-state.json").read_text(encoding="utf-8"))
     assert persisted_plan_ledger["tasks"][0]["status"] == "in_progress"
+    assert persisted_plan_ledger["completed_stages"] == ["plan"]
+    assert persisted_plan_ledger["completed_gates"] == ["plan_executable"]
     assert "run-state.json#gate:plan_executable" in persisted_plan_ledger["tasks"][0]["evidence_refs"]
+    assert persisted_run_state["completed_gates"] == ["clarification_complete"]
 
 
 def test_advance_rejects_mismatched_run_state_stage(tmp_path: Path) -> None:
