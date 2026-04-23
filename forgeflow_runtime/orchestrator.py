@@ -439,7 +439,12 @@ def _validate_session_state(
         ref = session_state.get(field_name)
         if not isinstance(ref, str) or not ref:
             raise RuntimeViolation(f"session-state.json {field_name} is required")
-        resolved = _checkpoint_ref_path(task_dir, ref)
+        resolved = _artifact_ref_path(
+            task_dir,
+            ref,
+            source_name="session-state.json",
+            field_name=field_name,
+        )
         if not resolved.exists():
             raise RuntimeViolation(f"session-state.json {field_name} {ref} does not exist")
     if session_state.get("latest_checkpoint_ref") != "checkpoint.json":
@@ -467,7 +472,12 @@ def _validate_session_state(
     if latest_review_ref is not None:
         if not isinstance(latest_review_ref, str) or not latest_review_ref:
             raise RuntimeViolation("session-state.json latest_review_ref must be a non-empty string when present")
-        resolved = _checkpoint_ref_path(task_dir, latest_review_ref)
+        resolved = _artifact_ref_path(
+            task_dir,
+            latest_review_ref,
+            source_name="session-state.json",
+            field_name="latest_review_ref",
+        )
         if not resolved.exists():
             raise RuntimeViolation(f"session-state.json latest_review_ref {latest_review_ref} does not exist")
         canonical_latest_review_ref = _latest_review_ref(task_dir)
@@ -477,15 +487,19 @@ def _validate_session_state(
             )
 
 
-def _checkpoint_ref_path(task_dir: Path, ref: str) -> Path:
+def _artifact_ref_path(task_dir: Path, ref: str, *, source_name: str, field_name: str) -> Path:
     ref_path = Path(ref)
     if ref_path.is_absolute():
-        raise RuntimeViolation(f"checkpoint.json ref {ref} must be task-relative")
+        raise RuntimeViolation(f"{source_name} {field_name} {ref} must be task-relative")
     resolved = (task_dir / ref_path).resolve()
     task_root = task_dir.resolve()
     if task_root not in {resolved, *resolved.parents}:
-        raise RuntimeViolation(f"checkpoint.json ref {ref} escapes task directory")
+        raise RuntimeViolation(f"{source_name} {field_name} {ref} escapes task directory")
     return resolved
+
+
+def _checkpoint_ref_path(task_dir: Path, ref: str) -> Path:
+    return _artifact_ref_path(task_dir, ref, source_name="checkpoint.json", field_name="ref")
 
 
 def _validate_checkpoint(
