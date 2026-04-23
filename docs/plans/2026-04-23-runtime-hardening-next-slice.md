@@ -18,9 +18,9 @@ ForgeFlow is already past the "static design repo" phase:
 - `make validate` and adherence evals are green on main
 
 What still looks soft:
-1. runtime validation still leans heavily on per-artifact schema checks and a subset of semantic cross-checks
+1. runtime already has meaningful semantic cross-checks, but they are still concentrated in a subset of resume/review paths rather than covering the full medium/large drift surface
 2. medium/large fixtures are not yet diverse enough to prove the runtime rejects realistic drift and weak review states
-3. issue #1 is still open because the remaining checklist items were never split into focused follow-up slices
+3. the remaining runtime hardening work is now split across focused follow-up slices, but the repo still needs a crisp execution order for them
 
 ---
 
@@ -31,10 +31,10 @@ Catch semantic drift inside the runtime itself instead of relying on docs/tests 
 
 ### Files
 - Modify: `forgeflow_runtime/orchestrator.py`
-- Modify: `scripts/run_orchestrator.py`
+- Modify: `scripts/run_orchestrator.py` only if CLI error/reporting behavior must change after runtime hardening
 - Modify: `tests/test_runtime_orchestrator.py`
-- Modify: `tests/test_validate_sample_artifacts.py`
-- Optionally modify: `schemas/review-report.schema.json` only if a real runtime invariant cannot be expressed without schema support
+- Modify: `tests/test_validate_sample_artifacts.py` only for new artifact-contract coverage tied to runtime semantics
+- Modify: `schemas/review-report.schema.json` before runtime checks if the new review semantics need explicit contract support
 
 ### Required checks to add
 1. **Session-state semantic cross-checks**
@@ -45,10 +45,11 @@ Catch semantic drift inside the runtime itself instead of relying on docs/tests 
    - `session-state.latest_review_ref` must not point outside task dir and must agree with latest review artifact if present
 
 2. **Review-report semantic cross-checks at runtime**
+   - first extend the review-report contract if this slice introduces `safe_for_next_stage`, explicit blocker buckets, or similar fields that do not exist today
    - `review_type=spec` cannot satisfy quality-review gate
    - `review_type=quality` cannot satisfy spec-review gate
-   - `verdict=approved` with unresolved blockers should fail runtime validation
-   - `safe_for_next_stage=false` must block finalize/next-stage progress even if `verdict=approved`
+   - `verdict=approved` with unresolved blockers should fail runtime validation once blockers are modeled explicitly in the artifact contract
+   - `safe_for_next_stage=false` must block finalize/next-stage progress once that field exists in the review-report contract
 
 3. **Plan-ledger consistency checks**
    - completed stages must respect route order
@@ -58,7 +59,7 @@ Catch semantic drift inside the runtime itself instead of relying on docs/tests 
 
 4. **Checkpoint/session-state drift checks during resume/status**
    - resume should reject stale `next_action` pointers that reference missing artifacts
-   - status should surface open blockers when semantic invariants fail instead of pretending the task is healthy
+   - status should follow the same strict model as `resume`: reject invalid semantic state explicitly rather than pretending the task is healthy
 
 ### Verification
 - `pytest -q tests/test_runtime_orchestrator.py`
@@ -87,11 +88,11 @@ Increase confidence that ForgeFlow rejects realistic medium/large route failures
 
 ### Fixture intent
 1. **medium-plan-with-weak-verification**
-   - positive-ish fixture for status/review visibility
-   - should expose that plan exists but verification is still weak enough to require quality-review scrutiny
+   - richer status/review fixture for a medium route that is structurally valid
+   - should pass `status`/`resume`, but still be the kind of task that quality-review must scrutinize before finalize
 
 2. **large-approved-but-unsafe**
-   - review verdict may say approved, but `safe_for_next_stage=false`
+   - review verdict may say approved, but the review artifact contract marks it unsafe for the next stage
    - finalize must be blocked
 
 3. **negative/medium-ledger-gate-drift**
@@ -107,6 +108,8 @@ Increase confidence that ForgeFlow rejects realistic medium/large route failures
    - resume/status must reject it explicitly
 
 ### Verification
+- unit tests should fail first for the new semantic invariants before runtime logic is changed
+- runtime hardening should land before the new negative adherence cases are expected to pass
 - `python3 scripts/run_adherence_evals.py`
 - `make validate`
 - ensure README/adherence docs mention the new negative cases briefly, without turning into a novel
@@ -128,8 +131,8 @@ Stop leaving the remaining work hidden inside one stale umbrella issue.
 
 ### Decision on issue #1
 - keep closed/open history honest
-- either close it after the follow-up issues are created and note that provider integrations remain out of scope
-- or edit/comment that the remaining checklist items have been split into dedicated issues
+- keep the old orchestrator umbrella issue as historical context only; do not route new implementation work through it again
+- note in follow-up issues that provider integrations remain out of scope for this slice
 
 My opinion: **split and close** is cleaner if the umbrella issue already delivered the core orchestrator.
 
@@ -144,13 +147,13 @@ My opinion: **split and close** is cleaner if the umbrella issue already deliver
 
 ### Task 2: Harden orchestrator checks
 - Target: `forgeflow_runtime/orchestrator.py`
-- Implement the minimal logic to make those tests pass
+- implement the minimal logic to make those tests pass; if new review semantics require contract fields, update the schema/sample artifacts first in this task
 - Re-run targeted tests, then full runtime suite
 
 ### Task 3: Add medium/large negative fixtures
 - Target: `examples/runtime-fixtures/negative/*`
 - Wire them into `scripts/run_adherence_evals.py`
-- Verify the eval harness fails before the implementation and passes after
+- verify the broader adherence harness is red before the remaining runtime logic for those new cases, then green after the implementation is complete
 
 ### Task 4: Add medium/large richer positive-ish fixtures
 - Target: `examples/runtime-fixtures/*`
