@@ -1,0 +1,14 @@
+{
+  "schema_version": "0.1",
+  "task_id": "task-large-stale-ref-001",
+  "route": "large_high_risk",
+  "current_stage": "long-run",
+  "plan_ref": "plan.json",
+  "plan_ledger_ref": "plan-ledger.json",
+  "run_state_ref": "run-state.json",
+  "latest_checkpoint_ref": "checkpoint.json",
+  "current_task_id": "task-3",
+  "latest_review_ref": "review-report-stale.json",
+  "next_action": "Resume at long-run after reloading canonical artifacts.",
+  "updated_at": "2026-04-23T07:00:00Z"
+}

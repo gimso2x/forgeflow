@@ -1,0 +1,19 @@
+{
+  "schema_version": "0.1",
+  "task_id": "task-medium-weak-001",
+  "objective": "Refactor a medium route task that still has thin verification notes",
+  "in_scope": [
+    "runtime",
+    "tests"
+  ],
+  "out_of_scope": [
+    "provider integrations"
+  ],
+  "constraints": [
+    "local fixture only"
+  ],
+  "acceptance_criteria": [
+    "medium route completes"
+  ],
+  "risk_level": "medium"
+}

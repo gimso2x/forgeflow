@@ -1,0 +1,18 @@
+{
+  "schema_version": "0.1",
+  "task_id": "task-medium-weak-001",
+  "steps": [
+    {
+      "id": "step-1",
+      "objective": "Prepare refactor plan",
+      "expected_output": "plan recorded",
+      "verification": "review plan"
+    },
+    {
+      "id": "step-2",
+      "objective": "Execute bounded refactor",
+      "expected_output": "decision log and state written",
+      "verification": "run orchestrator"
+    }
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "schema_version": "0.1",
+  "task_id": "task-large-mismatch-001",
+  "route": "large_high_risk",
+  "current_task_id": "task-3",
+  "tasks": [
+    {
+      "id": "task-1",
+      "title": "Plan migration",
+      "depends_on": [],
+      "files": [
+        "plan.json"
+      ],
+      "parallel_safe": true,
+      "status": "done",
+      "required_gates": [
+        "validator"
+      ],
+      "evidence_refs": [
+        "plan.json"
+      ],
+      "attempt_count": 0
+    },
+    {
+      "id": "task-2",
+      "title": "Execute migration changes",
+      "depends_on": [
+        "task-1"
+      ],
+      "files": [
+        "review-report-spec.json",
+        "review-report-quality.json"
+      ],
+      "parallel_safe": false,
+      "status": "done",
+      "required_gates": [
+        "machine",
+        "validator",
+        "scenario"
+      ],
+      "evidence_refs": [
+        "review-report-spec.json",
+        "review-report-quality.json"
+      ],
+      "attempt_count": 1
+    },
+    {
+      "id": "task-3",
+      "title": "Capture long-run learnings",
+      "depends_on": [
+        "task-2"
+      ],
+      "files": [
+        "eval-record.json"
+      ],
+      "parallel_safe": false,
+      "status": "in_progress",
+      "required_gates": [
+        "validator"
+      ],
+      "evidence_refs": [],
+      "attempt_count": 0
+    }
+  ]
+}

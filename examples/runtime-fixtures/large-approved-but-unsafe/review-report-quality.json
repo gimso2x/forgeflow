@@ -1,0 +1,11 @@
+{
+  "schema_version": "0.1",
+  "task_id": "task-large-unsafe-001",
+  "review_type": "quality",
+  "verdict": "approved",
+  "findings": [
+    "quality review approved with explicit caution that rollout should stay gated until long-run evidence is captured"
+  ],
+  "approved_by": "quality-reviewer",
+  "next_action": "finalize 가능"
+}

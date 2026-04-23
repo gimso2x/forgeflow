@@ -1,0 +1,22 @@
+{
+  "schema_version": "0.1",
+  "task_id": "task-large-stale-ref-001",
+  "current_stage": "long-run",
+  "status": "in_progress",
+  "completed_gates": [
+    "clarification_complete",
+    "planning_complete",
+    "implementation_complete",
+    "spec_review_passed",
+    "quality_review_passed"
+  ],
+  "failed_gates": [],
+  "retries": {},
+  "evidence_refs": [
+    "review-report-spec.json",
+    "review-report-quality.json"
+  ],
+  "current_task_id": "task-3",
+  "spec_review_approved": true,
+  "quality_review_approved": true
+}

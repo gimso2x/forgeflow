@@ -2088,7 +2088,9 @@ def test_medium_and_large_runtime_fixtures_run_end_to_end(tmp_path: Path) -> Non
 
     for fixture_name, route_name, expected_stage in [
         ("medium-refactor-task", "medium", "finalize"),
+        ("medium-plan-with-weak-verification", "medium", "finalize"),
         ("large-migration-task", "large_high_risk", "long-run"),
+        ("large-approved-but-unsafe", "large_high_risk", "long-run"),
     ]:
         source_dir = fixtures_root / fixture_name
         task_dir = tmp_path / fixture_name
@@ -2114,7 +2116,9 @@ def test_adherence_eval_cli_runs_valid_and_negative_fixtures() -> None:
     assert "small-doc-task" in result.stdout
     assert "resume-small-task" in result.stdout
     assert "medium-refactor-task" in result.stdout
+    assert "medium-plan-with-weak-verification" in result.stdout
     assert "large-migration-task" in result.stdout
+    assert "large-approved-but-unsafe" in result.stdout
     assert "missing-quality-approval" in result.stdout
     assert "invalid-review-report" in result.stdout
     assert "missing-run-state-before-spec-review" in result.stdout
@@ -2124,3 +2128,6 @@ def test_adherence_eval_cli_runs_valid_and_negative_fixtures() -> None:
     assert "checkpoint-gate-drift" in result.stdout
     assert "future-gate-checkpoint-drift" in result.stdout
     assert "completed-checkpoint-drift" in result.stdout
+    assert "medium-ledger-gate-drift" in result.stdout
+    assert "large-spec-quality-mismatch" in result.stdout
+    assert "large-session-state-stale-review-ref" in result.stdout
