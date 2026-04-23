@@ -1,0 +1,19 @@
+{
+  "schema_version": "0.1",
+  "task_id": "task-neg-002",
+  "route": "large_high_risk",
+  "current_task_id": "task-1",
+  "tasks": [
+    {
+      "id": "task-1",
+      "title": "Fail advance into spec-review without run-state",
+      "depends_on": [],
+      "files": ["brief.json"],
+      "parallel_safe": false,
+      "status": "in_progress",
+      "required_gates": ["validator"],
+      "evidence_refs": [],
+      "attempt_count": 0
+    }
+  ]
+}

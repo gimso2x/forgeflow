@@ -22,10 +22,13 @@ resume 시 필요한 건 감상문이 아니라 아래다.
 ## checkpoint와 다른 artifact의 차이
 
 ### `run-state`
-현재 route/stage/gate/retry 상태를 기록하는 canonical runtime ledger.
+현재 route/stage 위치와 approval flag를 기록하는 runtime state pointer.
+small route에서는 gate/retry truth도 여기 둔다.
 
 ### `plan-ledger`
-task 단위 실행 truth.
+medium/large route의 task 단위 실행 truth.
+stage 완료, gate, retry, current task progress는 여기 기준으로 본다.
+`advance`나 `run`에서 medium/large route가 이 파일 없이 진행되면 안 된다.
 
 ### `checkpoint`
 재개용 tactical pointer.
@@ -36,6 +39,7 @@ task 단위 실행 truth.
 즉:
 - `run-state` / `plan-ledger` = 진실원천
 - `checkpoint` = 재개용 포인터
+- `advance --execute`는 실행이 성공해야만 이 진실원천을 다음 stage로 이동시킨다.
 
 ---
 

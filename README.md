@@ -68,7 +68,7 @@ python3 scripts/run_orchestrator.py step-back --task-dir examples/runtime-fixtur
 python3 scripts/run_orchestrator.py escalate --task-dir examples/runtime-fixtures/small-doc-task --from-route small
 ```
 
-이 CLI는 local artifact 디렉터리를 기준으로 route 실행과 recovery helper를 노출한다. `run`은 artifact/gate 기준으로 route 상태를 진행하는 orchestration 명령이고, `execute`는 현재 stage를 어댑터로 실행한다. `advance --execute`는 다음 stage로 넘긴 뒤 바로 실행까지 붙인다. 정책 위반이나 잘못된 route가 들어오면 traceback 대신 `ERROR:` 형식의 명시적 runtime 오류를 반환한다.
+이 CLI는 local artifact 디렉터리를 기준으로 route 실행과 recovery helper를 노출한다. `run`은 artifact/gate 기준으로 route 상태를 진행하는 orchestration 명령이고, `execute`는 현재 stage를 어댑터로 실행한다. `advance --execute`는 다음 stage로 넘긴 뒤 바로 실행까지 붙이되, 실행이 실패하면 stage pointer를 커밋하지 않는다. medium/large route에서는 `advance`/`run` 모두 `plan-ledger.json`이 있어야 하고, `step-back`은 되감는 stage에 해당하는 review approval/evidence만 지운다. 정책 위반이나 잘못된 route가 들어오면 traceback 대신 `ERROR:` 형식의 명시적 runtime 오류를 반환한다.
 
 ## Current status
 This repo is a **P0 seed**.
@@ -82,7 +82,7 @@ It already includes:
 - sample artifact fixtures
 
 It now includes a **minimal local runtime orchestrator CLI** for artifact-directory execution plus the explicit `runtime/` and `memory/` scaffold surfaces promised by the design docs.
-The local runtime can also resume from a validated `run-state.json` checkpoint instead of replaying already-completed stages.
+The local runtime resumes from validated checkpoints, using `run-state.json` for stage position and `plan-ledger.json` as the gate/retry/task-progress truth source on medium/large routes.
 It still does **not** include provider-specific integrations or a full hosted runtime.
 That boundary is deliberate.
 

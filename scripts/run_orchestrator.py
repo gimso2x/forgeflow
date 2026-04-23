@@ -139,28 +139,15 @@ def main() -> int:
                 policy=policy,
                 route_name=args.route,
                 current_stage=args.current_stage,
+                execute_immediately=args.execute,
+                adapter_target=args.adapter,
+                role=args.role,
+                artifacts_to_stream=args.artifacts,
+                use_real=args.real,
             )
             payload = {"next_stage": transition.next_stage}
-            if args.execute:
-                role = args.role or _role_for_stage(transition.next_stage)
-                result = execute_stage(
-                    task_dir=task_dir,
-                    task_id=json.loads((task_dir / "run-state.json").read_text(encoding="utf-8")).get("task_id", "unknown"),
-                    stage=transition.next_stage,
-                    route=args.route,
-                    role=role,
-                    adapter_target=args.adapter,
-                    artifacts_to_stream=args.artifacts,
-                    use_real=args.real,
-                )
-                if result.status == "success" and result.raw_output:
-                    (task_dir / f"{transition.next_stage}-output.md").write_text(result.raw_output, encoding="utf-8")
-                payload["execution"] = _execution_payload(
-                    stage=transition.next_stage,
-                    role=role,
-                    adapter=args.adapter,
-                    result=result,
-                )
+            if transition.execution is not None:
+                payload["execution"] = transition.execution
             _print_payload(payload)
         elif args.command == "retry":
             _print_payload(retry_stage(task_dir=task_dir, stage_name=args.stage, max_retries=args.max_retries))

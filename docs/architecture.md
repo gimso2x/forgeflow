@@ -53,7 +53,11 @@ ForgeFlow artifact-first delivery harness.
 
 ### C. Ledger / run-state
 책임:
-- 현재 stage, gate, retry, blocker, evidence ref 기록
+- 현재 stage와 approval flag 유지
+- small route에서는 gate/retry/evidence ref 기록
+- medium/large route에서는 `plan-ledger`가 stage 완료/gate/retry/current-task truth를 담당
+- `advance --execute`는 실행 성공 후에만 다음 stage pointer를 확정
+- `step-back`은 되감는 stage에 연결된 review approval/evidence만 제거하고 보존 대상은 남김
 - append-only decision 흔적 유지
 - finalize 전 상태 판정 근거 제공
 

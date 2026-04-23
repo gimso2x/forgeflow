@@ -22,6 +22,20 @@ class TransitionResult:
     execution: dict[str, Any] | None = None
 
 
+def _execution_payload(*, stage: str, role: str, adapter: str, result: Any) -> dict[str, Any]:
+    payload = {
+        "stage": stage,
+        "role": role,
+        "adapter": adapter,
+        "status": result.status,
+        "artifacts_produced": result.artifacts_produced,
+        "token_usage": result.token_usage,
+    }
+    if result.error:
+        payload["error"] = result.error
+    return payload
+
+
 SCHEMA_BY_ARTIFACT = {
     "brief": "brief",
     "plan": "plan",
@@ -227,6 +241,16 @@ def _current_plan_task(plan_ledger: dict[str, Any] | None) -> dict[str, Any] | N
     raise RuntimeViolation(f"plan-ledger.json current_task_id {current_task_id} is not present in tasks[]")
 
 
+def _canonical_current_task_id(run_state: dict[str, Any], plan_ledger: dict[str, Any] | None) -> str:
+    ledger_task_id = (plan_ledger or {}).get("current_task_id")
+    if isinstance(ledger_task_id, str) and ledger_task_id:
+        return ledger_task_id
+    run_state_task_id = run_state.get("current_task_id")
+    if isinstance(run_state_task_id, str) and run_state_task_id:
+        return run_state_task_id
+    return ""
+
+
 def _append_evidence_ref(task: dict[str, Any], evidence_ref: str) -> None:
     evidence_refs = task.setdefault("evidence_refs", [])
     if evidence_ref not in evidence_refs:
@@ -293,6 +317,78 @@ def _finalize_plan_ledger_task(plan_ledger: dict[str, Any] | None) -> None:
         return
     task["status"] = "done"
     task["attempt_count"] = max(1, int(task.get("attempt_count", 0)))
+
+
+def _rewind_plan_ledger_progress(
+    plan_ledger: dict[str, Any] | None,
+    *,
+    route: list[str],
+    resume_stage: str,
+    stage_gate_map: dict[str, str],
+) -> None:
+    progress = _plan_ledger_progress(plan_ledger)
+    task = _current_plan_task(plan_ledger)
+    if progress is None or task is None:
+        return
+
+    resume_index = route.index(resume_stage)
+    preserved_stages = route[:resume_index]
+    removed_stages = route[resume_index:]
+    preserved_gates = [
+        gate_name
+        for gate_name in (stage_gate_map.get(stage_name) for stage_name in preserved_stages)
+        if gate_name is not None
+    ]
+    removed_gate_refs = {
+        _gate_evidence_ref(stage_name, gate_name)
+        for stage_name in removed_stages
+        for gate_name in [stage_gate_map.get(stage_name)]
+        if gate_name is not None
+    }
+    removed_review_prefixes: set[str] = set()
+    if "spec-review" in removed_stages:
+        removed_review_prefixes.update(
+            {
+                "review-report-spec.json#verdict:",
+                "review-report.json#verdict:",
+            }
+        )
+    if "quality-review" in removed_stages:
+        removed_review_prefixes.update(
+            {
+                "review-report-quality.json#verdict:",
+                "review-report.json#verdict:",
+            }
+        )
+    if "long-run" in removed_stages:
+        removed_review_prefixes.add("eval-record.json#verdict:")
+
+    progress["completed_stages"] = [stage_name for stage_name in progress.get("completed_stages", []) if stage_name in preserved_stages]
+    progress["completed_gates"] = [gate_name for gate_name in progress.get("completed_gates", []) if gate_name in preserved_gates]
+    task["status"] = "in_progress"
+    task["evidence_refs"] = [
+        evidence_ref
+        for evidence_ref in task.get("evidence_refs", [])
+        if evidence_ref not in removed_gate_refs
+        and not any(evidence_ref.startswith(prefix) for prefix in removed_review_prefixes)
+    ]
+    if any(stage_name in {"spec-review", "quality-review", "long-run"} for stage_name in removed_stages):
+        progress.pop("last_review_verdict", None)
+
+
+
+def _reset_review_flags(run_state: dict[str, Any]) -> None:
+    run_state["spec_review_approved"] = False
+    run_state["quality_review_approved"] = False
+
+
+
+def _clear_rewind_review_flags(run_state: dict[str, Any], *, removed_stages: list[str]) -> None:
+    if "spec-review" in removed_stages:
+        run_state["spec_review_approved"] = False
+    if any(stage_name in {"quality-review", "long-run"} for stage_name in removed_stages):
+        run_state["quality_review_approved"] = False
+
 
 
 def _write_plan_ledger_if_present(task_dir: Path, plan_ledger: dict[str, Any] | None) -> None:
@@ -404,7 +500,7 @@ def _default_checkpoint(*, task_dir: Path, route_name: str, run_state: dict[str,
         "open_blockers": [],
         "updated_at": datetime.now(UTC).replace(microsecond=0).strftime("%Y-%m-%dT%H:%M:%SZ"),
     }
-    current_task_id = run_state.get("current_task_id") or (plan_ledger or {}).get("current_task_id")
+    current_task_id = _canonical_current_task_id(run_state, plan_ledger)
     if current_task_id:
         checkpoint["current_task_id"] = current_task_id
     latest_review_ref = _latest_review_ref(task_dir)
@@ -442,7 +538,7 @@ def _sync_checkpoint(
     payload["plan_ref"] = "plan.json" if _artifact_path(task_dir, "plan").exists() else payload.get("plan_ref", "brief.json")
     payload["plan_ledger_ref"] = "plan-ledger.json" if plan_ledger is not None else payload.get("plan_ledger_ref", "run-state.json")
     payload["run_state_ref"] = "run-state.json"
-    current_task_id = run_state.get("current_task_id") or (plan_ledger or {}).get("current_task_id")
+    current_task_id = _canonical_current_task_id(run_state, plan_ledger)
     if current_task_id:
         payload["current_task_id"] = current_task_id
     else:
@@ -479,7 +575,7 @@ def _default_session_state(
         "next_action": checkpoint["next_action"],
         "updated_at": checkpoint["updated_at"],
     }
-    current_task_id = run_state.get("current_task_id") or (plan_ledger or {}).get("current_task_id")
+    current_task_id = _canonical_current_task_id(run_state, plan_ledger)
     if current_task_id is not None:
         payload["current_task_id"] = current_task_id
     latest_review_ref = checkpoint.get("latest_review_ref")
@@ -514,7 +610,7 @@ def _sync_session_state(
     payload["latest_checkpoint_ref"] = "checkpoint.json"
     payload["next_action"] = checkpoint["next_action"]
     payload["updated_at"] = checkpoint["updated_at"]
-    current_task_id = run_state.get("current_task_id") or (plan_ledger or {}).get("current_task_id")
+    current_task_id = _canonical_current_task_id(run_state, plan_ledger)
     if current_task_id is not None:
         payload["current_task_id"] = current_task_id
     else:
@@ -606,6 +702,7 @@ def _append_decision(decision_log: dict[str, Any], *, actor: str, category: str,
 
 
 def _sync_review_flags(task_dir: Path, run_state: dict[str, Any], *, canonical_task_id: str) -> None:
+    _reset_review_flags(run_state)
     for artifact_name in ["review-report", "review-report-spec", "review-report-quality"]:
         review_path = _artifact_path(task_dir, artifact_name)
         if not review_path.exists():
@@ -945,7 +1042,7 @@ def resume_task(task_dir: Path, policy: RuntimePolicy, route_name: str | None = 
         "task_id": canonical_task_id,
         "route": inferred_route,
         "current_stage": run_state["current_stage"],
-        "current_task_id": run_state.get("current_task_id", ""),
+        "current_task_id": _canonical_current_task_id(run_state, plan_ledger),
         "next_action": checkpoint["next_action"],
         "latest_checkpoint_ref": session_state["latest_checkpoint_ref"],
         "run_state_ref": session_state["run_state_ref"],
@@ -972,7 +1069,7 @@ def status_summary(task_dir: Path, policy: RuntimePolicy, route_name: str | None
         "task_id": canonical_task_id,
         "route": resumed["route"],
         "current_stage": run_state["current_stage"],
-        "current_task_id": run_state.get("current_task_id", ""),
+        "current_task_id": _canonical_current_task_id(run_state, plan_ledger),
         "open_blockers": checkpoint.get("open_blockers", []),
         "required_gates": required_gates,
         "latest_review_verdict": _latest_review_verdict(task_dir, canonical_task_id=canonical_task_id),
@@ -992,10 +1089,16 @@ def advance_to_next_stage(
     policy: RuntimePolicy,
     route_name: str,
     current_stage: str,
+    *,
+    execute_immediately: bool = False,
+    adapter_target: str = "claude",
+    role: str | None = None,
+    artifacts_to_stream: list[str] | None = None,
+    use_real: bool = False,
 ) -> TransitionResult:
     route = _resolve_route(policy, route_name)
     canonical_task_id = _canonical_task_id(task_dir)
-    plan_ledger = _load_plan_ledger(task_dir, canonical_task_id=canonical_task_id)
+    plan_ledger = _require_plan_ledger_for_route(task_dir, route_name, canonical_task_id=canonical_task_id)
     run_state_path = _artifact_path(task_dir, "run-state")
     run_state = _load_validated_artifact(task_dir, "run-state", expected_task_id=canonical_task_id) if run_state_path.exists() else None
     checkpoint = _load_checkpoint(task_dir, canonical_task_id=canonical_task_id)
@@ -1027,6 +1130,16 @@ def advance_to_next_stage(
     if run_state is None:
         run_state = _default_run_state(task_dir)
 
+    if checkpoint is not None:
+        _validate_checkpoint(
+            task_dir,
+            checkpoint,
+            route_name=route_name,
+            canonical_task_id=canonical_task_id,
+            run_state=run_state,
+            plan_ledger=plan_ledger,
+        )
+
     if next_stage == "finalize":
         required_flags = _required_finalize_flags(policy, route_name)
         missing_flags = [flag for flag in required_flags if not run_state.get(flag, False)]
@@ -1035,11 +1148,52 @@ def advance_to_next_stage(
                 f"finalize requires run-state approval flags: {', '.join(missing_flags)}"
             )
 
+    staged_run_state = dict(run_state)
     _sync_plan_ledger_gate(plan_ledger, stage_name=current_stage, gate_name=policy.stage_gate_map.get(current_stage))
-    run_state["current_stage"] = next_stage
-    run_state["status"] = "in_progress"
+    staged_run_state["current_stage"] = next_stage
+    staged_run_state["status"] = "in_progress"
     if plan_ledger is not None and plan_ledger.get("current_task_id"):
-        run_state["current_task_id"] = plan_ledger["current_task_id"]
+        staged_run_state["current_task_id"] = plan_ledger["current_task_id"]
+
+    execution_payload: dict[str, Any] | None = None
+    if execute_immediately:
+        from forgeflow_runtime.engine import execute_stage
+
+        default_role_map = {
+            "clarify": "coordinator",
+            "plan": "planner",
+            "execute": "worker",
+            "spec-review": "spec-reviewer",
+            "quality-review": "quality-reviewer",
+            "finalize": "coordinator",
+            "long-run": "worker",
+        }
+        execution_role = role or default_role_map.get(next_stage)
+        if not execution_role:
+            raise RuntimeViolation(f"no default role mapping for stage: {next_stage}")
+        result = execute_stage(
+            task_dir=task_dir,
+            task_id=staged_run_state.get("task_id", canonical_task_id),
+            stage=next_stage,
+            route=route_name,
+            role=execution_role,
+            adapter_target=adapter_target,
+            artifacts_to_stream=artifacts_to_stream,
+            use_real=use_real,
+        )
+        if result.status != "success":
+            reason = result.error or f"stage execution returned status={result.status}"
+            raise RuntimeViolation(f"automatic execution failed for {next_stage}: {reason}")
+        if result.raw_output:
+            (task_dir / f"{next_stage}-output.md").write_text(result.raw_output, encoding="utf-8")
+        execution_payload = _execution_payload(
+            stage=next_stage,
+            role=execution_role,
+            adapter=adapter_target,
+            result=result,
+        )
+
+    run_state = staged_run_state
     _write_validated_artifact(task_dir, "run-state", run_state)
     _write_plan_ledger_if_present(task_dir, plan_ledger)
     checkpoint = _sync_checkpoint(
@@ -1059,7 +1213,7 @@ def advance_to_next_stage(
         session_state=session_state,
     )
 
-    return TransitionResult(next_stage=next_stage)
+    return TransitionResult(next_stage=next_stage, execution=execution_payload)
 
 
 def run_route(task_dir: Path, policy: RuntimePolicy, route_name: str) -> dict[str, Any]:
@@ -1264,6 +1418,7 @@ def step_back(task_dir: Path, policy: RuntimePolicy, route_name: str, current_st
         raise RuntimeViolation(f"cannot step back before first stage of route {route_name}")
 
     previous_stage = route[index - 1]
+    removed_stages = route[index:]
     canonical_task_id = _canonical_task_id(task_dir)
     run_state = _ensure_run_state(task_dir, canonical_task_id=canonical_task_id)
     decision_log = _ensure_decision_log(task_dir, canonical_task_id=canonical_task_id)
@@ -1272,6 +1427,13 @@ def step_back(task_dir: Path, policy: RuntimePolicy, route_name: str, current_st
     plan_ledger = _load_plan_ledger(task_dir, canonical_task_id=canonical_task_id)
     if plan_ledger is not None and plan_ledger.get("current_task_id"):
         run_state["current_task_id"] = plan_ledger["current_task_id"]
+    _rewind_plan_ledger_progress(
+        plan_ledger,
+        route=route,
+        resume_stage=previous_stage,
+        stage_gate_map=policy.stage_gate_map,
+    )
+    _clear_rewind_review_flags(run_state, removed_stages=removed_stages)
     run_state["current_stage"] = previous_stage
     run_state["status"] = "in_progress"
     _append_decision(
@@ -1283,6 +1445,7 @@ def step_back(task_dir: Path, policy: RuntimePolicy, route_name: str, current_st
     )
     _write_validated_artifact(task_dir, "run-state", run_state)
     _write_validated_artifact(task_dir, "decision-log", decision_log)
+    _write_plan_ledger_if_present(task_dir, plan_ledger)
     checkpoint = _sync_checkpoint(
         task_dir,
         route_name=route_name,

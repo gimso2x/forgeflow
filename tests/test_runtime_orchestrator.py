@@ -18,6 +18,7 @@ from forgeflow_runtime.orchestrator import (
     status_summary,
     step_back,
 )
+from forgeflow_runtime.generator import GenerationError
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -93,6 +94,7 @@ def test_load_runtime_policy_and_resolve_small_route() -> None:
 def test_advance_blocks_missing_entry_artifacts(tmp_path: Path) -> None:
     policy = load_runtime_policy(ROOT)
     task_dir = _make_task_dir(tmp_path)
+    _write_medium_plan_artifacts(task_dir, route_name="large_high_risk")
     (task_dir / "run-state.json").unlink()
 
     with pytest.raises(RuntimeViolation, match="missing required artifacts for spec-review: run-state"):
@@ -122,6 +124,34 @@ def test_run_route_requires_plan_ledger_for_medium_route(tmp_path: Path) -> None
 
     with pytest.raises(RuntimeViolation, match="medium route requires plan-ledger.json"):
         run_route(task_dir=task_dir, policy=policy, route_name="medium")
+
+
+def test_advance_requires_plan_ledger_for_medium_route(tmp_path: Path) -> None:
+    policy = load_runtime_policy(ROOT)
+    task_dir = _make_task_dir(tmp_path)
+    _write_json(
+        task_dir / "plan.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "steps": [
+                {
+                    "id": "step-1",
+                    "objective": "update workflow docs",
+                    "dependencies": [],
+                    "expected_output": "workflow docs reflect medium route behavior",
+                    "verification": "pytest tests/test_runtime_orchestrator.py -q",
+                    "rollback_note": "remove incomplete workflow edits if validation fails",
+                }
+            ],
+        },
+    )
+    run_state = json.loads((task_dir / "run-state.json").read_text(encoding="utf-8"))
+    run_state["current_stage"] = "plan"
+    _write_json(task_dir / "run-state.json", run_state)
+
+    with pytest.raises(RuntimeViolation, match="medium route requires plan-ledger.json"):
+        advance_to_next_stage(task_dir=task_dir, policy=policy, route_name="medium", current_stage="plan")
 
 
 def _write_medium_plan_artifacts(task_dir: Path, *, route_name: str = "medium") -> None:
@@ -242,6 +272,57 @@ def test_advance_updates_plan_ledger_gate_evidence(tmp_path: Path) -> None:
     assert persisted_plan_ledger["completed_gates"] == ["plan_executable"]
     assert "run-state.json#gate:plan_executable" in persisted_plan_ledger["tasks"][0]["evidence_refs"]
     assert persisted_run_state["completed_gates"] == ["clarification_complete"]
+
+
+def test_advance_can_execute_next_stage_immediately(tmp_path: Path) -> None:
+    policy = load_runtime_policy(ROOT)
+    task_dir = _make_task_dir(tmp_path)
+    _write_medium_plan_artifacts(task_dir)
+    run_state = json.loads((task_dir / "run-state.json").read_text(encoding="utf-8"))
+    run_state["current_stage"] = "plan"
+    _write_json(task_dir / "run-state.json", run_state)
+
+    result = advance_to_next_stage(
+        task_dir=task_dir,
+        policy=policy,
+        route_name="medium",
+        current_stage="plan",
+        execute_immediately=True,
+        adapter_target="codex",
+    )
+
+    assert result.next_stage == "execute"
+    assert result.execution is not None
+    assert result.execution["stage"] == "execute"
+    assert result.execution["adapter"] == "codex"
+    assert result.execution["status"] == "success"
+    assert (task_dir / "execute-output.md").exists()
+    assert "stub-codex-output" in (task_dir / "execute-output.md").read_text(encoding="utf-8")
+
+
+def test_advance_execute_failure_keeps_previous_stage_state(tmp_path: Path) -> None:
+    policy = load_runtime_policy(ROOT)
+    task_dir = _make_task_dir(tmp_path)
+    _write_medium_plan_artifacts(task_dir)
+    run_state = json.loads((task_dir / "run-state.json").read_text(encoding="utf-8"))
+    run_state["current_stage"] = "plan"
+    _write_json(task_dir / "run-state.json", run_state)
+
+    with pytest.raises(GenerationError, match="unknown role: nonexistent-role"):
+        advance_to_next_stage(
+            task_dir=task_dir,
+            policy=policy,
+            route_name="medium",
+            current_stage="plan",
+            execute_immediately=True,
+            role="nonexistent-role",
+        )
+
+    persisted_run_state = json.loads((task_dir / "run-state.json").read_text(encoding="utf-8"))
+    assert persisted_run_state["current_stage"] == "plan"
+    persisted_plan_ledger = json.loads((task_dir / "plan-ledger.json").read_text(encoding="utf-8"))
+    assert persisted_plan_ledger["completed_stages"] == []
+    assert not (task_dir / "execute-output.md").exists()
 
 
 def test_advance_rejects_mismatched_run_state_stage(tmp_path: Path) -> None:
@@ -1164,6 +1245,194 @@ def test_step_back_rewinds_to_previous_stage(tmp_path: Path) -> None:
     assert checkpoint["next_action"] == "Resume at quality-review after reloading canonical artifacts."
 
 
+def test_step_back_rewinds_plan_ledger_progress_for_medium_route(tmp_path: Path) -> None:
+    policy = load_runtime_policy(ROOT)
+    task_dir = _make_task_dir(tmp_path)
+    _write_medium_plan_artifacts(task_dir)
+    _write_json(
+        task_dir / "run-state.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "current_stage": "quality-review",
+            "status": "in_progress",
+            "completed_gates": ["clarification_complete"],
+            "failed_gates": [],
+            "retries": {},
+            "current_task_id": "task-1",
+            "spec_review_approved": False,
+            "quality_review_approved": False,
+        },
+    )
+    _write_json(
+        task_dir / "plan-ledger.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "route": "medium",
+            "completed_stages": ["clarify", "plan", "execute"],
+            "completed_gates": ["clarification_complete", "plan_executable", "execution_evidenced"],
+            "retries": {},
+            "current_task_id": "task-1",
+            "tasks": [
+                {
+                    "id": "task-1",
+                    "title": "update workflow docs",
+                    "depends_on": [],
+                    "files": ["docs/workflow.md"],
+                    "parallel_safe": False,
+                    "status": "in_progress",
+                    "required_gates": ["machine", "validator"],
+                    "evidence_refs": [
+                        "run-state.json#gate:plan_executable",
+                        "run-state.json#gate:execution_evidenced",
+                    ],
+                    "attempt_count": 0,
+                }
+            ],
+        },
+    )
+    _write_json(
+        task_dir / "checkpoint.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "route": "medium",
+            "current_stage": "quality-review",
+            "current_task_id": "task-1",
+            "plan_ref": "plan.json",
+            "plan_ledger_ref": "plan-ledger.json",
+            "run_state_ref": "run-state.json",
+            "latest_review_ref": "review-report.json",
+            "next_action": "Resume at finalize after review approval.",
+            "open_blockers": [],
+            "updated_at": "2026-04-22T00:00:00Z",
+        },
+    )
+    _write_json(
+        task_dir / "session-state.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "route": "medium",
+            "current_stage": "quality-review",
+            "current_task_id": "task-1",
+            "plan_ref": "plan.json",
+            "plan_ledger_ref": "plan-ledger.json",
+            "run_state_ref": "run-state.json",
+            "latest_checkpoint_ref": "checkpoint.json",
+            "latest_review_ref": "review-report.json",
+            "next_action": "Resume at finalize after review approval.",
+            "updated_at": "2026-04-22T00:00:00Z",
+        },
+    )
+    _write_json(
+        task_dir / "review-report.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "review_type": "quality",
+            "verdict": "approved",
+            "findings": ["looks fine"],
+            "approved_by": "quality-reviewer",
+            "next_action": "finalize 가능",
+        },
+    )
+
+    state = step_back(task_dir=task_dir, policy=policy, route_name="medium", current_stage="quality-review")
+
+    assert state["current_stage"] == "execute"
+    persisted_plan_ledger = json.loads((task_dir / "plan-ledger.json").read_text(encoding="utf-8"))
+    assert persisted_plan_ledger["completed_stages"] == ["clarify", "plan"]
+    assert persisted_plan_ledger["completed_gates"] == ["clarification_complete", "plan_executable"]
+    assert persisted_plan_ledger["tasks"][0]["evidence_refs"] == ["run-state.json#gate:plan_executable"]
+
+    result = run_route(task_dir=task_dir, policy=policy, route_name="medium")
+
+    assert result["current_stage"] == "finalize"
+    decision_log = json.loads((task_dir / "decision-log.json").read_text(encoding="utf-8"))
+    decisions = [entry["decision"] for entry in decision_log["entries"]]
+    assert "step back: quality-review -> execute" in decisions
+    assert decisions[-4:] == [
+        "route resumed: medium from execute",
+        "stage entered: execute",
+        "stage entered: quality-review",
+        "stage entered: finalize",
+    ]
+
+
+def test_step_back_large_route_preserves_spec_evidence_and_clears_quality_flag(tmp_path: Path) -> None:
+    policy = load_runtime_policy(ROOT)
+    task_dir = _make_task_dir(tmp_path)
+    _write_medium_plan_artifacts(task_dir, route_name="large_high_risk")
+    _write_json(
+        task_dir / "run-state.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "current_stage": "long-run",
+            "status": "in_progress",
+            "completed_gates": ["clarification_complete"],
+            "failed_gates": [],
+            "retries": {},
+            "current_task_id": "task-1",
+            "spec_review_approved": True,
+            "quality_review_approved": True,
+        },
+    )
+    _write_json(
+        task_dir / "plan-ledger.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "route": "large_high_risk",
+            "completed_stages": ["clarify", "plan", "execute", "spec-review", "quality-review", "finalize"],
+            "completed_gates": [
+                "clarification_complete",
+                "plan_executable",
+                "execution_evidenced",
+                "spec_review_passed",
+                "quality_review_passed",
+                "ready_to_finalize",
+            ],
+            "retries": {},
+            "current_task_id": "task-1",
+            "last_review_verdict": "approved",
+            "tasks": [
+                {
+                    "id": "task-1",
+                    "title": "update workflow docs",
+                    "depends_on": [],
+                    "files": ["docs/workflow.md"],
+                    "parallel_safe": False,
+                    "status": "in_progress",
+                    "required_gates": ["machine", "validator"],
+                    "evidence_refs": [
+                        "run-state.json#gate:plan_executable",
+                        "run-state.json#gate:execution_evidenced",
+                        "review-report-spec.json#verdict:approved",
+                        "review-report-quality.json#verdict:approved",
+                        "run-state.json#gate:quality_review_passed",
+                        "run-state.json#gate:ready_to_finalize",
+                        "eval-record.json#verdict:approved",
+                    ],
+                    "attempt_count": 1,
+                }
+            ],
+        },
+    )
+
+    state = step_back(task_dir=task_dir, policy=policy, route_name="large_high_risk", current_stage="long-run")
+
+    assert state["current_stage"] == "finalize"
+    assert state["spec_review_approved"] is True
+    assert state["quality_review_approved"] is False
+    persisted_plan_ledger = json.loads((task_dir / "plan-ledger.json").read_text(encoding="utf-8"))
+    assert "review-report-spec.json#verdict:approved" in persisted_plan_ledger["tasks"][0]["evidence_refs"]
+    assert "review-report-quality.json#verdict:approved" in persisted_plan_ledger["tasks"][0]["evidence_refs"]
+    assert "eval-record.json#verdict:approved" not in persisted_plan_ledger["tasks"][0]["evidence_refs"]
+
+
 def test_escalate_route_switches_to_large_high_risk(tmp_path: Path) -> None:
     task_dir = _make_task_dir(tmp_path)
 
@@ -1328,6 +1597,146 @@ def test_status_summary_reports_current_truth(tmp_path: Path) -> None:
     assert result["next_action"] == "execute로 진행"
 
 
+def test_resume_task_prefers_plan_ledger_current_task_for_medium_route(tmp_path: Path) -> None:
+    policy = load_runtime_policy(ROOT)
+    task_dir = _make_task_dir(tmp_path)
+    _write_medium_plan_artifacts(task_dir)
+    _write_json(
+        task_dir / "run-state.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "current_stage": "execute",
+            "status": "in_progress",
+            "completed_gates": ["clarification_complete"],
+            "failed_gates": [],
+            "retries": {},
+            "current_task_id": "stale-task-id",
+            "spec_review_approved": False,
+            "quality_review_approved": False,
+        },
+    )
+    _write_json(
+        task_dir / "checkpoint.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "route": "medium",
+            "current_stage": "execute",
+            "current_task_id": "task-1",
+            "plan_ref": "plan.json",
+            "plan_ledger_ref": "plan-ledger.json",
+            "run_state_ref": "run-state.json",
+            "next_action": "quality-review로 진행",
+            "open_blockers": [],
+            "updated_at": "2026-04-22T00:05:00Z"
+        },
+    )
+    _write_json(
+        task_dir / "session-state.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "route": "medium",
+            "current_stage": "execute",
+            "current_task_id": "task-1",
+            "plan_ref": "plan.json",
+            "plan_ledger_ref": "plan-ledger.json",
+            "run_state_ref": "run-state.json",
+            "latest_checkpoint_ref": "checkpoint.json",
+            "next_action": "quality-review로 진행",
+            "updated_at": "2026-04-22T00:05:00Z"
+        },
+    )
+
+    result = resume_task(task_dir=task_dir, policy=policy, route_name="medium")
+
+    assert result["current_task_id"] == "task-1"
+
+
+def test_status_summary_prefers_plan_ledger_current_task_for_medium_route(tmp_path: Path) -> None:
+    policy = load_runtime_policy(ROOT)
+    task_dir = _make_task_dir(tmp_path)
+    _write_medium_plan_artifacts(task_dir)
+    _write_json(
+        task_dir / "run-state.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "current_stage": "execute",
+            "status": "in_progress",
+            "completed_gates": ["clarification_complete"],
+            "failed_gates": [],
+            "retries": {},
+            "current_task_id": "stale-task-id",
+            "spec_review_approved": False,
+            "quality_review_approved": False,
+        },
+    )
+    _write_json(
+        task_dir / "plan-ledger.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "route": "medium",
+            "completed_stages": ["clarify", "plan"],
+            "completed_gates": ["clarification_complete", "plan_executable"],
+            "retries": {"execute": 1},
+            "current_task_id": "task-1",
+            "tasks": [
+                {
+                    "id": "task-1",
+                    "title": "update workflow docs",
+                    "depends_on": [],
+                    "files": ["docs/workflow.md"],
+                    "parallel_safe": False,
+                    "status": "in_progress",
+                    "required_gates": ["machine", "validator"],
+                    "evidence_refs": ["run-state.json#gate:plan_executable"],
+                    "attempt_count": 1,
+                }
+            ],
+        },
+    )
+    _write_json(
+        task_dir / "checkpoint.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "route": "medium",
+            "current_stage": "execute",
+            "current_task_id": "task-1",
+            "plan_ref": "plan.json",
+            "plan_ledger_ref": "plan-ledger.json",
+            "run_state_ref": "run-state.json",
+            "next_action": "quality-review로 진행",
+            "open_blockers": ["need execution evidence"],
+            "updated_at": "2026-04-22T00:05:00Z"
+        },
+    )
+    _write_json(
+        task_dir / "session-state.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "route": "medium",
+            "current_stage": "execute",
+            "current_task_id": "task-1",
+            "plan_ref": "plan.json",
+            "plan_ledger_ref": "plan-ledger.json",
+            "run_state_ref": "run-state.json",
+            "latest_checkpoint_ref": "checkpoint.json",
+            "next_action": "quality-review로 진행",
+            "updated_at": "2026-04-22T00:05:00Z"
+        },
+    )
+
+    result = status_summary(task_dir=task_dir, policy=policy, route_name="medium")
+
+    assert result["current_task_id"] == "task-1"
+    assert result["required_gates"] == ["execution_evidenced", "quality_review_passed", "ready_to_finalize"]
+
+
 def _run_orchestrator_cli(*args: str) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
         [sys.executable, "scripts/run_orchestrator.py", *args],
@@ -1481,6 +1890,95 @@ def test_cli_execute_reports_non_runtime_failures_cleanly(tmp_path: Path) -> Non
     assert result.returncode == 1
     assert result.stdout == ""
     assert result.stderr.startswith("ERROR: unknown role: nonexistent-role")
+
+
+def test_cli_advance_execute_failure_keeps_previous_stage_state(tmp_path: Path) -> None:
+    task_dir = tmp_path / "cli-medium-failure"
+
+    start_result = _run_orchestrator_cli("start", "--task-dir", str(task_dir), "--route", "medium")
+    assert start_result.returncode == 0
+
+    advance_result = _run_orchestrator_cli(
+        "advance",
+        "--task-dir",
+        str(task_dir),
+        "--route",
+        "medium",
+        "--current-stage",
+        "clarify",
+        "--execute",
+        "--role",
+        "nonexistent-role",
+    )
+    assert advance_result.returncode == 1
+    assert "ERROR: unknown role: nonexistent-role" in advance_result.stderr
+
+    run_state = json.loads((task_dir / "run-state.json").read_text(encoding="utf-8"))
+    assert run_state["current_stage"] == "clarify"
+    checkpoint = json.loads((task_dir / "checkpoint.json").read_text(encoding="utf-8"))
+    assert checkpoint["current_stage"] == "clarify"
+    assert not (task_dir / "plan-output.md").exists()
+
+
+def test_cli_medium_route_execute_flow_is_automated_end_to_end(tmp_path: Path) -> None:
+    task_dir = tmp_path / "cli-medium-flow"
+
+    start_result = _run_orchestrator_cli("start", "--task-dir", str(task_dir), "--route", "medium")
+    assert start_result.returncode == 0
+
+    advance_plan = _run_orchestrator_cli(
+        "advance",
+        "--task-dir",
+        str(task_dir),
+        "--route",
+        "medium",
+        "--current-stage",
+        "clarify",
+        "--execute",
+        "--adapter",
+        "codex",
+    )
+    assert advance_plan.returncode == 0
+    advance_plan_payload = json.loads(advance_plan.stdout)
+    assert advance_plan_payload["next_stage"] == "plan"
+    assert advance_plan_payload["execution"]["stage"] == "plan"
+    assert (task_dir / "plan-output.md").exists()
+
+    status_after_plan = _run_orchestrator_cli("status", "--task-dir", str(task_dir), "--route", "medium")
+    assert status_after_plan.returncode == 0
+    assert json.loads(status_after_plan.stdout)["current_stage"] == "plan"
+
+    advance_execute = _run_orchestrator_cli(
+        "advance",
+        "--task-dir",
+        str(task_dir),
+        "--route",
+        "medium",
+        "--current-stage",
+        "plan",
+        "--execute",
+        "--adapter",
+        "cursor",
+    )
+    assert advance_execute.returncode == 0
+    advance_execute_payload = json.loads(advance_execute.stdout)
+    assert advance_execute_payload["next_stage"] == "execute"
+    assert advance_execute_payload["execution"]["stage"] == "execute"
+    assert advance_execute_payload["execution"]["adapter"] == "cursor"
+    assert (task_dir / "execute-output.md").exists()
+
+    status_after_execute = _run_orchestrator_cli("status", "--task-dir", str(task_dir), "--route", "medium")
+    assert status_after_execute.returncode == 0
+    status_payload = json.loads(status_after_execute.stdout)
+    assert status_payload["current_stage"] == "execute"
+    assert status_payload["current_task_id"] == "task-1"
+    assert status_payload["required_gates"] == ["execution_evidenced", "quality_review_passed", "ready_to_finalize"]
+
+    resume_result = _run_orchestrator_cli("resume", "--task-dir", str(task_dir), "--route", "medium")
+    assert resume_result.returncode == 0
+    resume_payload = json.loads(resume_result.stdout)
+    assert resume_payload["current_stage"] == "execute"
+    assert resume_payload["current_task_id"] == "task-1"
 
 
 def test_readme_examples_describe_manual_execution_flow() -> None:
