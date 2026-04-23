@@ -119,6 +119,29 @@ def test_review_report_schema_requires_next_action_for_non_approved_verdict() ->
     assert any(err.validator == "required" and "next_action" in err.message for err in errors)
 
 
+def test_review_report_schema_accepts_safe_flag_and_open_blockers() -> None:
+    schema = json.loads((ROOT / "schemas" / "review-report.schema.json").read_text(encoding="utf-8"))
+    validator = Draft202012Validator(schema, format_checker=FormatChecker())
+
+    errors = sorted(
+        validator.iter_errors(
+            {
+                "schema_version": "0.1",
+                "task_id": "task-001",
+                "review_type": "quality",
+                "verdict": "changes_requested",
+                "findings": ["verification gap remains"],
+                "open_blockers": ["integration test evidence missing"],
+                "safe_for_next_stage": False,
+                "next_action": "execute stage evidence를 보강",
+            }
+        ),
+        key=lambda err: list(err.path),
+    )
+
+    assert not errors
+
+
 def test_plan_ledger_schema_requires_evidence_for_done_tasks() -> None:
     schema = json.loads((ROOT / "schemas" / "plan-ledger.schema.json").read_text(encoding="utf-8"))
     validator = Draft202012Validator(schema, format_checker=FormatChecker())
@@ -230,6 +253,7 @@ def test_validate_sample_artifacts_tracks_positive_and_negative_fixtures() -> No
         ("decision-log-invalid-entry.sample.json", "timestamp"),
         ("review-report-approved-missing-approved-by.sample.json", "approved_by"),
         ("review-report-blocked-missing-next-action.sample.json", "next_action"),
+        ("review-report-open-blockers-wrong-type.sample.json", "open_blockers"),
         ("plan-ledger-done-without-evidence.sample.json", "evidence_refs"),
         ("checkpoint-invalid-updated-at.sample.json", "updated_at"),
         ("session-state-missing-ref.sample.json", "plan_ref"),
