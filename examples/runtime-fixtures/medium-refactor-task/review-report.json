@@ -1,0 +1,11 @@
+{
+  "schema_version": "0.1",
+  "task_id": "task-medium-001",
+  "review_type": "quality",
+  "verdict": "approved",
+  "findings": [
+    "quality checks passed for medium route fixture"
+  ],
+  "approved_by": "quality-reviewer",
+  "next_action": "finalize 가능"
+}

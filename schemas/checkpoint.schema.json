@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Checkpoint",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "task_id",
+    "route",
+    "current_stage",
+    "plan_ref",
+    "plan_ledger_ref",
+    "run_state_ref",
+    "next_action",
+    "open_blockers",
+    "updated_at"
+  ],
+  "properties": {
+    "schema_version": {"type": "string", "const": "0.1"},
+    "task_id": {"type": "string", "minLength": 1},
+    "route": {
+      "type": "string",
+      "enum": ["small", "medium", "large_high_risk"]
+    },
+    "current_stage": {
+      "type": "string",
+      "enum": ["clarify", "plan", "execute", "spec-review", "quality-review", "finalize", "long-run"]
+    },
+    "current_task_id": {"type": "string", "minLength": 1},
+    "plan_ref": {"type": "string", "minLength": 1},
+    "plan_ledger_ref": {"type": "string", "minLength": 1},
+    "run_state_ref": {"type": "string", "minLength": 1},
+    "latest_review_ref": {"type": "string", "minLength": 1},
+    "next_action": {"type": "string", "minLength": 1},
+    "open_blockers": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1},
+      "uniqueItems": true
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
+    }
+  }
+}

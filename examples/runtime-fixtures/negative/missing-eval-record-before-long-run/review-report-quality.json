@@ -1,0 +1,11 @@
+{
+  "schema_version": "0.1",
+  "task_id": "task-neg-003",
+  "review_type": "quality",
+  "verdict": "approved",
+  "findings": [
+    "quality review intentionally passes"
+  ],
+  "approved_by": "quality-reviewer",
+  "next_action": "finalize 가능"
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": "0.1",
+  "task_id": "task-invalid-decision-log-001",
+  "entries": [
+    {
+      "timestamp": "not-a-timestamp",
+      "actor": "mystery-agent",
+      "category": "scope",
+      "decision": "keep going",
+      "rationale": "because"
+    }
+  ]
+}

@@ -16,12 +16,20 @@
   "properties": {
     "schema_version": {"type": "string"},
     "task_id": {"type": "string"},
-    "current_stage": {"type": "string"},
-    "status": {"enum": ["not_started", "in_progress", "blocked", "completed", "failed"]},
+    "current_stage": {
+      "type": "string",
+      "enum": ["clarify", "plan", "execute", "spec-review", "quality-review", "finalize", "long-run"]
+    },
+    "status": {"enum": ["not_started", "in_progress", "completed", "blocked"]},
     "completed_gates": {"type": "array", "items": {"type": "string"}},
     "failed_gates": {"type": "array", "items": {"type": "string"}},
-    "retries": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}},
+    "retries": {
+      "type": "object",
+      "propertyNames": {"enum": ["clarify", "plan", "execute", "spec-review", "quality-review", "finalize", "long-run"]},
+      "additionalProperties": {"type": "integer", "minimum": 0}
+    },
     "evidence_refs": {"type": "array", "items": {"type": "string"}},
+    "current_task_id": {"type": "string"},
     "spec_review_approved": {"type": "boolean"},
     "quality_review_approved": {"type": "boolean"},
     "final_status": {"enum": ["success", "partial", "failed", "cancelled"]}

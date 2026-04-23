@@ -9,6 +9,16 @@ supports_roles:
   - spec-reviewer
   - quality-reviewer
 supports_generated_files: true
+generated_filename: CODEX.md
+recommended_location: ./CODEX.md
+surface_style: root-instruction-file
+handoff_format: artifacts-plus-git-diff
+installation_steps:
+  - Copy the generated adapter to ./CODEX.md at the repo root.
+  - Preserve the canonical review order even when Codex returns git-oriented summaries.
+session_persistence: root instruction file persists across repo sessions until regenerated
+workspace_boundary: repo root instruction file steers CLI work while emphasizing git-visible workspace changes
+review_delivery: git-diff-centric summary plus artifact files checked in the repo
 tooling_constraints:
   - git-oriented runtime assumptions may exist
   - generated artifacts must not redefine canonical semantics

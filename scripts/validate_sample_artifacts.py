@@ -4,86 +4,77 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from jsonschema import Draft202012Validator, FormatChecker
+
 ROOT = Path(__file__).resolve().parents[1]
-SAMPLES = {
-    'examples/artifacts/brief.sample.json': 'schemas/brief.schema.json',
-    'examples/artifacts/plan.sample.json': 'schemas/plan.schema.json',
-    'examples/artifacts/decision-log.sample.json': 'schemas/decision-log.schema.json',
-    'examples/artifacts/run-state.sample.json': 'schemas/run-state.schema.json',
-    'examples/artifacts/review-report-spec.sample.json': 'schemas/review-report.schema.json',
-    'examples/artifacts/review-report-quality.sample.json': 'schemas/review-report.schema.json',
-    'examples/artifacts/eval-record.sample.json': 'schemas/eval-record.schema.json',
+POSITIVE_SAMPLES = {
+    "examples/artifacts/brief.sample.json": ROOT / "schemas/brief.schema.json",
+    "examples/artifacts/plan.sample.json": ROOT / "schemas/plan.schema.json",
+    "examples/artifacts/plan-ledger.sample.json": ROOT / "schemas/plan-ledger.schema.json",
+    "examples/artifacts/decision-log.sample.json": ROOT / "schemas/decision-log.schema.json",
+    "examples/artifacts/run-state.sample.json": ROOT / "schemas/run-state.schema.json",
+    "examples/artifacts/review-report-spec.sample.json": ROOT / "schemas/review-report.schema.json",
+    "examples/artifacts/review-report-quality.sample.json": ROOT / "schemas/review-report.schema.json",
+    "examples/artifacts/eval-record.sample.json": ROOT / "schemas/eval-record.schema.json",
+    "examples/artifacts/checkpoint.sample.json": ROOT / "schemas/checkpoint.schema.json",
 }
+NEGATIVE_SAMPLES = {
+    "run-state-invalid-stage.sample.json": ROOT / "schemas/run-state.schema.json",
+    "decision-log-invalid-entry.sample.json": ROOT / "schemas/decision-log.schema.json",
+    "review-report-approved-missing-approved-by.sample.json": ROOT / "schemas/review-report.schema.json",
+    "review-report-blocked-missing-next-action.sample.json": ROOT / "schemas/review-report.schema.json",
+    "plan-ledger-done-without-evidence.sample.json": ROOT / "schemas/plan-ledger.schema.json",
+    "checkpoint-invalid-updated-at.sample.json": ROOT / "schemas/checkpoint.schema.json",
+}
+FORMAT_CHECKER = FormatChecker()
 
 
-def validate_value(value, schema, path: str, errors: list[str]):
-    schema_type = schema.get('type')
-    if schema_type == 'object':
-        if not isinstance(value, dict):
-            errors.append(f'{path}: expected object')
-            return
-        required = schema.get('required', [])
-        for key in required:
-            if key not in value:
-                errors.append(f'{path}: missing required key {key}')
-        props = schema.get('properties', {})
-        if schema.get('additionalProperties') is False:
-            unknown = [key for key in value if key not in props]
-            for key in unknown:
-                errors.append(f'{path}: unknown key {key}')
-        for key, subschema in props.items():
-            if key in value:
-                validate_value(value[key], subschema, f'{path}.{key}', errors)
-    elif schema_type == 'array':
-        if not isinstance(value, list):
-            errors.append(f'{path}: expected array')
-            return
-        item_schema = schema.get('items', {})
-        for idx, item in enumerate(value):
-            validate_value(item, item_schema, f'{path}[{idx}]', errors)
-    elif schema_type == 'string':
-        if not isinstance(value, str):
-            errors.append(f'{path}: expected string')
-            return
-        if 'enum' in schema and value not in schema['enum']:
-            errors.append(f'{path}: invalid enum value {value}')
-    elif schema_type == 'boolean':
-        if not isinstance(value, bool):
-            errors.append(f'{path}: expected boolean')
-    elif schema_type == 'integer':
-        if not isinstance(value, int):
-            errors.append(f'{path}: expected integer')
-            return
-        minimum = schema.get('minimum')
-        if minimum is not None and value < minimum:
-            errors.append(f'{path}: expected integer >= {minimum}')
-    else:
-        if 'enum' in schema and value not in schema['enum']:
-            errors.append(f'{path}: invalid enum value {value}')
-        if 'additionalProperties' in schema and isinstance(value, dict):
-            sub = schema['additionalProperties']
-            for key, val in value.items():
-                validate_value(val, sub, f'{path}.{key}', errors)
+def _load_json(path: Path) -> dict:
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _format_error(error) -> str:
+    location = ".".join(str(part) for part in error.path)
+    return f"{location or '<root>'}: {error.message}"
+
+
+def validate_json_file(*, fixture_path: Path, schema_path: Path) -> list[str]:
+    validator = Draft202012Validator(_load_json(schema_path), format_checker=FORMAT_CHECKER)
+    errors = sorted(validator.iter_errors(_load_json(fixture_path)), key=lambda err: list(err.path))
+    return [_format_error(error) for error in errors]
 
 
 def main() -> int:
-    errors = []
-    for sample_rel, schema_rel in SAMPLES.items():
+    errors: list[str] = []
+    checked_positive: list[str] = []
+    checked_negative: list[str] = []
+
+    for sample_rel, schema_path in POSITIVE_SAMPLES.items():
         sample_path = ROOT / sample_rel
-        schema_path = ROOT / schema_rel
-        sample = json.loads(sample_path.read_text(encoding='utf-8'))
-        schema = json.loads(schema_path.read_text(encoding='utf-8'))
-        validate_value(sample, schema, sample_rel, errors)
+        sample_errors = validate_json_file(fixture_path=sample_path, schema_path=schema_path)
+        if sample_errors:
+            errors.extend(f"{sample_rel}: {err}" for err in sample_errors)
+        checked_positive.append(sample_rel)
+
+    invalid_root = ROOT / "examples" / "artifacts" / "invalid"
+    for fixture_name, schema_path in NEGATIVE_SAMPLES.items():
+        fixture_path = invalid_root / fixture_name
+        sample_errors = validate_json_file(fixture_path=fixture_path, schema_path=schema_path)
+        if not sample_errors:
+            errors.append(f"examples/artifacts/invalid/{fixture_name}: expected validation failure")
+        checked_negative.append(fixture_name)
+
     if errors:
-        print('SAMPLE ARTIFACT VALIDATION: FAIL')
+        print("SAMPLE ARTIFACT VALIDATION: FAIL")
         for err in errors:
-            print(f'- {err}')
+            print(f"- {err}")
         return 1
-    print('SAMPLE ARTIFACT VALIDATION: PASS')
-    for sample_rel in SAMPLES:
-        print(f'- checked {sample_rel}')
+
+    print("SAMPLE ARTIFACT VALIDATION: PASS")
+    print(f"- positive fixtures checked: {len(checked_positive)}")
+    print(f"- negative fixtures rejected: {len(checked_negative)}")
     return 0
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     raise SystemExit(main())

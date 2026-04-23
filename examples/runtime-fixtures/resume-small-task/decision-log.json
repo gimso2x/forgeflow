@@ -1,0 +1,14 @@
+{
+  "schema_version": "0.1",
+  "task_id": "resume-small-001",
+  "entries": [
+    {
+      "timestamp": "2026-04-22T00:00:00Z",
+      "actor": "orchestrator",
+      "category": "stage-transition",
+      "decision": "stage entered: execute",
+      "rationale": "checkpoint created during an earlier run",
+      "affected_artifacts": ["run-state", "decision-log"]
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "schema_version": "0.1",
+  "task_id": "mixed-task-log-001",
+  "current_stage": "clarify",
+  "status": "in_progress",
+  "completed_gates": [
+    "clarification_complete"
+  ],
+  "failed_gates": [],
+  "retries": {},
+  "evidence_refs": [],
+  "spec_review_approved": false,
+  "quality_review_approved": false
+}

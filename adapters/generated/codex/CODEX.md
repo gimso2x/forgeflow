@@ -11,6 +11,24 @@ Do not edit manually. Update canonical docs/policy/prompts and rerun `scripts/ge
 - supports_roles: coordinator, planner, worker, spec-reviewer, quality-reviewer
 - supports_generated_files: True
 
+## Installation guidance
+- generated_filename: CODEX.md
+- recommended_location: ./CODEX.md
+- Copy this generated adapter into `./CODEX.md` when wiring ForgeFlow into codex.
+
+## Installation steps
+1. Copy the generated adapter to ./CODEX.md at the repo root.
+2. Preserve the canonical review order even when Codex returns git-oriented summaries.
+
+## Target operating notes
+- surface_style: root-instruction-file
+- handoff_format: artifacts-plus-git-diff
+
+## Runtime realism contract
+- session_persistence: root instruction file persists across repo sessions until regenerated
+- workspace_boundary: repo root instruction file steers CLI work while emphasizing git-visible workspace changes
+- review_delivery: git-diff-centric summary plus artifact files checked in the repo
+
 ## Non-negotiable rules
 - Do not change canonical stage semantics.
 - Do not bypass artifact gates.

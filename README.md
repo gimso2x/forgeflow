@@ -42,15 +42,31 @@ ForgeFlow tries not to do that.
 - `prompts/canonical/` — canonical role prompts
 - `adapters/targets/` — target manifests
 - `adapters/generated/` — generated runtime surfaces
+- `runtime/` — scaffold-level runtime surfaces for orchestrator, ledger, gates, recovery
+- `forgeflow_runtime/` — executable Python runtime implementation used by the local CLI
+- `memory/` — inspectable local memory scaffold for reusable patterns and decisions
 - `examples/artifacts/` — sample artifact fixtures
 - `scripts/` — validation and generation utilities
 
 ## Quick start
 ```bash
 make validate
+make adherence-evals
 make generate
 make regen
+make runtime-sample
 ```
+
+## Runtime sample
+```bash
+python3 scripts/run_orchestrator.py run --task-dir examples/runtime-fixtures/small-doc-task --route small
+python3 scripts/run_orchestrator.py advance --task-dir examples/runtime-fixtures/small-doc-task --route small --current-stage clarify
+python3 scripts/run_orchestrator.py retry --task-dir examples/runtime-fixtures/small-doc-task --stage execute --max-retries 2
+python3 scripts/run_orchestrator.py step-back --task-dir examples/runtime-fixtures/small-doc-task --route small --current-stage quality-review
+python3 scripts/run_orchestrator.py escalate --task-dir examples/runtime-fixtures/small-doc-task --from-route small
+```
+
+이 CLI는 local artifact 디렉터리를 기준으로 route 실행과 recovery helper를 노출한다. 정책 위반이나 잘못된 route가 들어오면 traceback 대신 `ERROR:` 형식의 명시적 runtime 오류를 반환한다.
 
 ## Current status
 This repo is a **P0 seed**.
@@ -59,11 +75,14 @@ It already includes:
 - canonical policy files
 - JSON schemas for core artifacts
 - generated adapters for Claude / Codex / Cursor
+- target-specific installation guidance captured in manifest metadata and rendered into generated adapters
 - validation scripts
 - sample artifact fixtures
 
-It does **not** yet include a full runtime orchestrator.
-That is deliberate.
+It now includes a **minimal local runtime orchestrator CLI** for artifact-directory execution plus the explicit `runtime/` and `memory/` scaffold surfaces promised by the design docs.
+The local runtime can also resume from a validated `run-state.json` checkpoint instead of replaying already-completed stages.
+It still does **not** include provider-specific integrations or a full hosted runtime.
+That boundary is deliberate.
 
 ## Design lineage
 ForgeFlow borrows its best bones from four places:
@@ -81,7 +100,8 @@ This runs:
 - structure validation
 - policy validation
 - generated adapter validation
-- sample artifact validation
+- JSON Schema sample artifact validation for positive and negative fixtures
+- executable adherence evals across small/medium/large and negative runtime fixtures
 
 ## Naming
 The name is **ForgeFlow** because the point is to forge messy agent work into a flow with gates, evidence, and review.

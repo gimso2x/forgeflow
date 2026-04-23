@@ -1,0 +1,11 @@
+{
+  "schema_version": "0.1",
+  "task_id": "future-gate-drift-001",
+  "current_stage": "execute",
+  "status": "in_progress",
+  "completed_gates": ["clarification_complete", "quality_review_passed"],
+  "failed_gates": [],
+  "retries": {},
+  "spec_review_approved": false,
+  "quality_review_approved": false
+}

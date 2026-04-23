@@ -11,6 +11,24 @@ Do not edit manually. Update canonical docs/policy/prompts and rerun `scripts/ge
 - supports_roles: coordinator, planner, worker, spec-reviewer, quality-reviewer
 - supports_generated_files: True
 
+## Installation guidance
+- generated_filename: CLAUDE.md
+- recommended_location: ./CLAUDE.md
+- Copy this generated adapter into `./CLAUDE.md` when wiring ForgeFlow into claude.
+
+## Installation steps
+1. Copy the generated adapter to ./CLAUDE.md at the repo root.
+2. Keep Claude-specific helper notes in surrounding docs, not by changing ForgeFlow semantics.
+
+## Target operating notes
+- surface_style: root-instruction-file
+- handoff_format: artifacts-plus-terminal-summary
+
+## Runtime realism contract
+- session_persistence: root instruction file persists across repo sessions until regenerated
+- workspace_boundary: repo root instruction file shapes CLI runs but artifacts still live in the project workspace
+- review_delivery: terminal-oriented summary plus artifact files checked in the repo
+
 ## Non-negotiable rules
 - Do not change canonical stage semantics.
 - Do not bypass artifact gates.

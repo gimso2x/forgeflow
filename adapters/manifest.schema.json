@@ -9,7 +9,15 @@
     "output_mode",
     "supports_roles",
     "supports_generated_files",
-    "tooling_constraints"
+    "tooling_constraints",
+    "generated_filename",
+    "recommended_location",
+    "surface_style",
+    "handoff_format",
+    "installation_steps",
+    "session_persistence",
+    "workspace_boundary",
+    "review_delivery"
   ],
   "properties": {
     "name": {"type": "string"},
@@ -18,7 +26,29 @@
     "output_mode": {"type": "string"},
     "supports_roles": {"type": "array", "items": {"type": "string"}},
     "supports_generated_files": {"type": "boolean"},
-    "tooling_constraints": {"type": "array", "items": {"type": "string"}}
+    "tooling_constraints": {"type": "array", "items": {"type": "string"}},
+    "generated_filename": {"type": "string", "pattern": "^[A-Z0-9_.-]+\\.md$"},
+    "recommended_location": {"type": "string", "minLength": 1},
+    "surface_style": {
+      "type": "string",
+      "enum": ["root-instruction-file", "cursor-rules-markdown"]
+    },
+    "handoff_format": {
+      "type": "string",
+      "enum": [
+        "artifacts-plus-terminal-summary",
+        "artifacts-plus-git-diff",
+        "artifacts-plus-chat-summary"
+      ]
+    },
+    "installation_steps": {
+      "type": "array",
+      "minItems": 2,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "session_persistence": {"type": "string", "minLength": 1},
+    "workspace_boundary": {"type": "string", "minLength": 1},
+    "review_delivery": {"type": "string", "minLength": 1}
   },
   "additionalProperties": false
 }

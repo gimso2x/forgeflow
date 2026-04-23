@@ -1,0 +1,11 @@
+{
+  "schema_version": "0.1",
+  "task_id": "future-gate-drift-001",
+  "review_type": "quality",
+  "verdict": "approved",
+  "findings": [
+    "fixture only"
+  ],
+  "approved_by": "quality-reviewer",
+  "next_action": "finalize 가능"
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": "0.1",
+  "task_id": "other-task-review-999",
+  "review_type": "quality",
+  "verdict": "approved",
+  "findings": [
+    "This review artifact belongs to a different task and must be rejected."
+  ],
+  "approved_by": "quality-reviewer",
+  "next_action": "finalize 가능"
+}

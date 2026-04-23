@@ -1,0 +1,16 @@
+{
+  "schema_version": "0.1",
+  "task_id": "task-neg-002",
+  "objective": "Fail advance into spec-review without run-state",
+  "in_scope": [
+    "runtime"
+  ],
+  "out_of_scope": [],
+  "constraints": [
+    "negative fixture"
+  ],
+  "acceptance_criteria": [
+    "advance is rejected"
+  ],
+  "risk_level": "high"
+}

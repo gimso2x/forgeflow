@@ -1,0 +1,10 @@
+{
+  "schema_version": "0.1",
+  "task_id": "task-neg-001",
+  "review_type": "quality",
+  "verdict": "changes_requested",
+  "findings": [
+    "approval intentionally withheld"
+  ],
+  "next_action": "증거를 보강하고 재검토"
+}

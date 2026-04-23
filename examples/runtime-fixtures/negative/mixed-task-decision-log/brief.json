@@ -1,0 +1,18 @@
+{
+  "schema_version": "0.1",
+  "task_id": "mixed-task-log-001",
+  "objective": "Reject a decision log from a different task during resume/retry flows.",
+  "in_scope": [
+    "bounded retry runtime checks"
+  ],
+  "out_of_scope": [
+    "provider integration"
+  ],
+  "constraints": [
+    "artifact-directory execution only"
+  ],
+  "acceptance_criteria": [
+    "recovery helpers reject mismatched decision-log task ids"
+  ],
+  "risk_level": "low"
+}

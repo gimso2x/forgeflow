@@ -1,0 +1,12 @@
+{
+  "schema_version": "0.1",
+  "task_id": "task-neg-003",
+  "steps": [
+    {
+      "id": "step-1",
+      "objective": "Attempt large route",
+      "expected_output": "blocked before long-run",
+      "verification": "runtime violation"
+    }
+  ]
+}

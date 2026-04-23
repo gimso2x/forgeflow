@@ -1,0 +1,9 @@
+{
+  "schema_version": "0.1",
+  "task_id": "task-invalid-review-001",
+  "review_type": "quality",
+  "verdict": "approved",
+  "findings": ["looks fine"],
+  "next_action": "finalize 가능",
+  "evidence_refs": ["docs/workflow.md"]
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": "0.1",
+  "task_id": "task-invalid-checkpoint-001",
+  "route": "medium",
+  "current_stage": "execute",
+  "plan_ref": "examples/artifacts/plan.sample.json",
+  "plan_ledger_ref": "examples/artifacts/plan-ledger.sample.json",
+  "run_state_ref": "examples/artifacts/run-state.sample.json",
+  "next_action": "Resume immediately",
+  "open_blockers": [],
+  "updated_at": "not-a-timestamp"
+}

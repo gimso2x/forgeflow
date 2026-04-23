@@ -1,0 +1,11 @@
+{
+  "schema_version": "0.1",
+  "task_id": "task-runtime-small-001",
+  "review_type": "quality",
+  "verdict": "approved",
+  "findings": [
+    "Local fixture proves the route can complete without provider integrations."
+  ],
+  "approved_by": "quality-reviewer",
+  "next_action": "finalize 가능"
+}

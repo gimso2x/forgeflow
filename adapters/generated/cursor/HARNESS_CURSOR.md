@@ -11,6 +11,24 @@ Do not edit manually. Update canonical docs/policy/prompts and rerun `scripts/ge
 - supports_roles: planner, worker, spec-reviewer, quality-reviewer
 - supports_generated_files: True
 
+## Installation guidance
+- generated_filename: HARNESS_CURSOR.md
+- recommended_location: .cursor/rules/forgeflow.mdc
+- Copy this generated adapter into `.cursor/rules/forgeflow.mdc` when wiring ForgeFlow into cursor.
+
+## Installation steps
+1. Place the generated content in .cursor/rules/forgeflow.mdc.
+2. Keep ForgeFlow workflow semantics in this rule file and avoid per-chat rewrites.
+
+## Target operating notes
+- surface_style: cursor-rules-markdown
+- handoff_format: artifacts-plus-chat-summary
+
+## Runtime realism contract
+- session_persistence: rule file persists across chat sessions until regenerated
+- workspace_boundary: project rules live under .cursor/rules and guide editor-native runs
+- review_delivery: chat summary plus artifact file updates inside the workspace
+
 ## Non-negotiable rules
 - Do not change canonical stage semantics.
 - Do not bypass artifact gates.

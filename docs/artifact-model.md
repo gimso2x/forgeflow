@@ -37,7 +37,7 @@ artifact는 stage 간 handoff 계약이며, resume과 review의 최소 단위다
 
 ## 2. `plan`
 역할:
-- medium 이상 작업의 실행 계약서
+- medium 이상 작업의 사람용 실행 계약서
 
 담아야 할 것:
 - ordered steps
@@ -48,11 +48,37 @@ artifact는 stage 간 handoff 계약이며, resume과 review의 최소 단위다
 
 핵심 규칙:
 - vague checklist 금지
-- 단계별 evidence가 있어야 함
+- 단계별 evidence 기대치를 설명해야 함
+- runtime truth를 markdown 문장으로 대신하지 않는다
 
 ---
 
-## 3. `decision-log`
+## 3. `plan-ledger`
+역할:
+- multi-step work의 machine-readable execution truth
+
+담아야 할 것:
+- route
+- current_task_id
+- task별 status
+- depends_on
+- files
+- required_gates
+- evidence_refs
+- attempt_count
+- blocked_reason
+- contracts_ref
+- last_review_verdict
+
+핵심 규칙:
+- `plan`과 책임을 섞지 않는다
+- `done` task는 required gate/evidence 없이 끝난 척 못 한다
+- `blocked` task는 blocked_reason이 필요하다
+- medium 이상 작업에서 runtime은 ledger를 기준으로 상태를 판정한다
+
+---
+
+## 4. `decision-log`
 역할:
 - execution 중 나온 중요한 판단의 append-only 기록
 
@@ -67,12 +93,13 @@ artifact는 stage 간 handoff 계약이며, resume과 review의 최소 단위다
 핵심 규칙:
 - 이미 끝난 결정을 슬쩍 덮어쓰지 않는다.
 - 변경은 새 항목으로 남긴다.
+- timestamp/actor/category는 느슨한 자유서술이 아니라 schema로 제한한다.
 
 ---
 
-## 4. `run-state`
+## 5. `run-state`
 역할:
-- 현재 진행 상태와 gate 통과 여부를 추적하는 ledger
+- 현재 진행 상태와 gate 통과 여부를 추적하는 route-level ledger
 
 담아야 할 것:
 - current_stage
@@ -88,11 +115,12 @@ artifact는 stage 간 handoff 계약이며, resume과 review의 최소 단위다
 핵심 규칙:
 - monotonic progression 우선
 - rollback은 기록된 예외로만 허용
+- `current_stage`와 gate 이름은 canonical stage machine enum 밖으로 벗어나면 안 된다
 - finalize는 spec/quality 승인 플래그 없이 통과할 수 없다
 
 ---
 
-## 5. `review-report`
+## 6. `review-report`
 역할:
 - spec 또는 quality review의 판정 결과
 
@@ -112,7 +140,7 @@ artifact는 stage 간 handoff 계약이며, resume과 review의 최소 단위다
 
 ---
 
-## 6. `eval-record`
+## 7. `eval-record`
 역할:
 - long-run 단계에서 남기는 평가 결과
 

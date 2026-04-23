@@ -44,6 +44,11 @@ adapter가 바꾸면 안 되는 것:
 - `output_mode`
 - `supports_roles`
 - `supports_generated_files`
+- `generated_filename`
+- `recommended_location`
+- `surface_style`
+- `handoff_format`
+- `installation_steps`
 - `tooling_constraints`
 
 ---
@@ -58,8 +63,11 @@ P0 기준 generated 산출물:
 - `generated/cursor/HARNESS_CURSOR.md`
 
 주의:
-- Cursor용 `.mdc` 또는 `rules/` 레이아웃은 P1 이후 선택지다.
-- 현재는 canonical semantics를 보존하는 단일 generated markdown surface를 사용한다.
+- generated output은 install path / surface style / handoff format까지 target별로 드러내야 한다.
+- generated output은 manifest의 installation_steps를 그대로 포함해서 실제 배치 순서를 보여줘야 한다.
+- Cursor용 `.mdc` 또는 `rules/` 레이아웃은 generated markdown 안에서 명시적으로 안내한다.
+- canonical semantics를 보존하는 범위에서만 target-aware formatting을 허용한다.
+- `adapters/generated/` 아래에 추적되는 파일은 manifest가 가리키는 현재 generated 산출물만 허용한다. 보조 메모나 수동 산출물은 다른 경로에 둔다.
 
 ---
 

@@ -1,0 +1,16 @@
+{
+  "schema_version": "0.1",
+  "task_id": "task-neg-003",
+  "objective": "Fail large route before long-run when eval record is missing",
+  "in_scope": [
+    "runtime"
+  ],
+  "out_of_scope": [],
+  "constraints": [
+    "negative fixture"
+  ],
+  "acceptance_criteria": [
+    "long-run entry is rejected"
+  ],
+  "risk_level": "high"
+}

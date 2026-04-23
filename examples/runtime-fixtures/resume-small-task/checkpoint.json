@@ -1,0 +1,13 @@
+{
+  "schema_version": "0.1",
+  "task_id": "resume-small-001",
+  "route": "small",
+  "current_stage": "execute",
+  "plan_ref": "brief.json",
+  "plan_ledger_ref": "run-state.json",
+  "run_state_ref": "run-state.json",
+  "latest_review_ref": "review-report.json",
+  "next_action": "quality-review를 검증하고 finalize로 진행",
+  "open_blockers": [],
+  "updated_at": "2026-04-22T00:05:00Z"
+}

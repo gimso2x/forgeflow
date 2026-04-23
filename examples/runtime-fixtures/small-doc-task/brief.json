@@ -1,0 +1,21 @@
+{
+  "schema_version": "0.1",
+  "task_id": "task-runtime-small-001",
+  "objective": "Run the minimal small-route orchestrator fixture.",
+  "in_scope": [
+    "local stage-machine execution",
+    "deterministic run-state updates"
+  ],
+  "out_of_scope": [
+    "provider integration",
+    "adapter generation changes"
+  ],
+  "constraints": [
+    "artifact-directory execution only"
+  ],
+  "acceptance_criteria": [
+    "route completes to finalize",
+    "run-state and decision-log are written"
+  ],
+  "risk_level": "low"
+}
