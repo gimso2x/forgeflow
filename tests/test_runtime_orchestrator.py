@@ -471,6 +471,48 @@ def test_run_route_resumes_from_existing_checkpoint(tmp_path: Path) -> None:
     assert checkpoint["open_blockers"] == []
 
 
+def test_run_route_rejects_approved_review_with_open_blockers(tmp_path: Path) -> None:
+    policy = load_runtime_policy(ROOT)
+    task_dir = _make_task_dir(tmp_path)
+    _write_json(
+        task_dir / "review-report.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "review_type": "quality",
+            "verdict": "approved",
+            "findings": ["looks fine"],
+            "approved_by": "quality-reviewer",
+            "open_blockers": ["integration evidence missing"],
+            "next_action": "finalize 가능",
+        },
+    )
+
+    with pytest.raises(RuntimeViolation, match="approved review-report.json cannot declare open_blockers"):
+        run_route(task_dir=task_dir, policy=policy, route_name="small")
+
+
+def test_run_route_rejects_approved_quality_review_marked_unsafe(tmp_path: Path) -> None:
+    policy = load_runtime_policy(ROOT)
+    task_dir = _make_task_dir(tmp_path)
+    _write_json(
+        task_dir / "review-report.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "review_type": "quality",
+            "verdict": "approved",
+            "findings": ["looks fine"],
+            "approved_by": "quality-reviewer",
+            "safe_for_next_stage": False,
+            "next_action": "finalize 보류",
+        },
+    )
+
+    with pytest.raises(RuntimeViolation, match="quality review-report.json approved verdict cannot set safe_for_next_stage=false"):
+        run_route(task_dir=task_dir, policy=policy, route_name="small")
+
+
 def test_run_route_rejects_mismatched_checkpoint_route(tmp_path: Path) -> None:
     policy = load_runtime_policy(ROOT)
     task_dir = _make_task_dir(tmp_path)
@@ -506,6 +548,109 @@ def test_run_route_rejects_mismatched_checkpoint_route(tmp_path: Path) -> None:
         run_route(task_dir=task_dir, policy=policy, route_name="small")
 
 
+def test_resume_rejects_medium_session_state_with_wrong_plan_ledger_ref(tmp_path: Path) -> None:
+    policy = load_runtime_policy(ROOT)
+    task_dir = _make_task_dir(tmp_path)
+    _write_medium_plan_artifacts(task_dir, route_name="medium")
+    _write_json(
+        task_dir / "checkpoint.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "route": "medium",
+            "current_stage": "clarify",
+            "plan_ref": "plan.json",
+            "plan_ledger_ref": "plan-ledger.json",
+            "run_state_ref": "run-state.json",
+            "next_action": "execute로 진행",
+            "open_blockers": [],
+            "updated_at": "2026-04-22T00:05:00Z"
+        },
+    )
+    _write_json(
+        task_dir / "session-state.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "route": "medium",
+            "current_stage": "clarify",
+            "plan_ref": "plan.json",
+            "plan_ledger_ref": "run-state.json",
+            "run_state_ref": "run-state.json",
+            "latest_checkpoint_ref": "checkpoint.json",
+            "next_action": "execute로 진행",
+            "updated_at": "2026-04-22T00:05:00Z"
+        },
+    )
+
+    with pytest.raises(RuntimeViolation, match="session-state.json plan_ledger_ref run-state.json must point to plan-ledger.json for route medium"):
+        resume_task(task_dir=task_dir, policy=policy, route_name="medium")
+
+
+def test_resume_rejects_stale_session_state_latest_review_ref(tmp_path: Path) -> None:
+    policy = load_runtime_policy(ROOT)
+    task_dir = _make_task_dir(tmp_path)
+    _write_json(
+        task_dir / "review-report-spec.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "review_type": "spec",
+            "verdict": "approved",
+            "findings": ["spec ok"],
+            "approved_by": "spec-reviewer",
+            "next_action": "quality-review로 진행",
+        },
+    )
+    _write_json(
+        task_dir / "review-report-quality.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "review_type": "quality",
+            "verdict": "approved",
+            "findings": ["quality ok"],
+            "approved_by": "quality-reviewer",
+            "next_action": "finalize 가능",
+        },
+    )
+    _write_json(
+        task_dir / "checkpoint.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "route": "small",
+            "current_stage": "clarify",
+            "plan_ref": "brief.json",
+            "plan_ledger_ref": "run-state.json",
+            "run_state_ref": "run-state.json",
+            "latest_review_ref": "review-report-quality.json",
+            "next_action": "execute로 진행",
+            "open_blockers": [],
+            "updated_at": "2026-04-22T00:05:00Z"
+        },
+    )
+    _write_json(
+        task_dir / "session-state.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "route": "small",
+            "current_stage": "clarify",
+            "plan_ref": "brief.json",
+            "plan_ledger_ref": "run-state.json",
+            "run_state_ref": "run-state.json",
+            "latest_checkpoint_ref": "checkpoint.json",
+            "latest_review_ref": "review-report-spec.json",
+            "next_action": "execute로 진행",
+            "updated_at": "2026-04-22T00:05:00Z"
+        },
+    )
+
+    with pytest.raises(RuntimeViolation, match="session-state.json latest_review_ref review-report-spec.json does not match canonical latest review review-report-quality.json"):
+        resume_task(task_dir=task_dir, policy=policy, route_name="small")
+
+
 def test_run_route_rejects_checkpoint_gate_drift(tmp_path: Path) -> None:
     policy = load_runtime_policy(ROOT)
     task_dir = _make_task_dir(tmp_path)
@@ -539,6 +684,34 @@ def test_run_route_rejects_checkpoint_gate_drift(tmp_path: Path) -> None:
 
     with pytest.raises(RuntimeViolation, match="run-state checkpoint is missing completed gates before execute: clarification_complete"):
         run_route(task_dir=task_dir, policy=policy, route_name="small")
+
+
+def test_run_route_rejects_medium_plan_ledger_out_of_order_completed_stages(tmp_path: Path) -> None:
+    policy = load_runtime_policy(ROOT)
+    task_dir = _make_task_dir(tmp_path)
+    _write_medium_plan_artifacts(task_dir, route_name="medium")
+    run_state = json.loads((task_dir / "run-state.json").read_text(encoding="utf-8"))
+    run_state["current_stage"] = "execute"
+    _write_json(task_dir / "run-state.json", run_state)
+    plan_ledger = json.loads((task_dir / "plan-ledger.json").read_text(encoding="utf-8"))
+    plan_ledger["completed_stages"] = ["clarify", "plan", "quality-review"]
+    plan_ledger["completed_gates"] = ["clarification_complete", "plan_executable"]
+    _write_json(task_dir / "plan-ledger.json", plan_ledger)
+    _write_json(
+        task_dir / "review-report.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "review_type": "quality",
+            "verdict": "approved",
+            "findings": ["looks fine"],
+            "approved_by": "quality-reviewer",
+            "next_action": "finalize 가능",
+        },
+    )
+
+    with pytest.raises(RuntimeViolation, match="plan-ledger checkpoint has out-of-sequence completed stages at execute: quality-review"):
+        run_route(task_dir=task_dir, policy=policy, route_name="medium")
 
 
 def test_run_route_rejects_future_gate_checkpoint_drift(tmp_path: Path) -> None:

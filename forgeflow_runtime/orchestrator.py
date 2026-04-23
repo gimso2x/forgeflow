@@ -410,6 +410,74 @@ def _load_session_state(task_dir: Path, *, canonical_task_id: str) -> dict[str, 
     return _load_validated_artifact(task_dir, "session-state", expected_task_id=canonical_task_id)
 
 
+def _validate_review_semantics(payload: dict[str, Any], *, source_name: str) -> None:
+    verdict = payload.get("verdict")
+    review_type = payload.get("review_type")
+    open_blockers = payload.get("open_blockers", [])
+    if open_blockers is None:
+        open_blockers = []
+    if verdict == "approved" and open_blockers:
+        raise RuntimeViolation(f"approved {source_name} cannot declare open_blockers")
+    if review_type == "quality" and verdict == "approved" and payload.get("safe_for_next_stage") is False:
+        raise RuntimeViolation(f"quality {source_name} approved verdict cannot set safe_for_next_stage=false")
+
+
+def _expected_plan_ledger_ref(*, route_name: str, plan_ledger: dict[str, Any] | None) -> str:
+    if route_name == "small" or plan_ledger is None:
+        return "run-state.json"
+    return "plan-ledger.json"
+
+
+def _validate_session_state(
+    task_dir: Path,
+    session_state: dict[str, Any],
+    *,
+    route_name: str,
+    run_state: dict[str, Any],
+    plan_ledger: dict[str, Any] | None,
+) -> None:
+    for field_name in ["plan_ref", "plan_ledger_ref", "run_state_ref", "latest_checkpoint_ref"]:
+        ref = session_state.get(field_name)
+        if not isinstance(ref, str) or not ref:
+            raise RuntimeViolation(f"session-state.json {field_name} is required")
+        resolved = _checkpoint_ref_path(task_dir, ref)
+        if not resolved.exists():
+            raise RuntimeViolation(f"session-state.json {field_name} {ref} does not exist")
+    if session_state.get("latest_checkpoint_ref") != "checkpoint.json":
+        raise RuntimeViolation(
+            f"session-state.json latest_checkpoint_ref {session_state.get('latest_checkpoint_ref')} must point to checkpoint.json"
+        )
+    if session_state.get("run_state_ref") != "run-state.json":
+        raise RuntimeViolation(
+            f"session-state.json run_state_ref {session_state.get('run_state_ref')} must point to run-state.json"
+        )
+    if session_state.get("route") != route_name:
+        raise RuntimeViolation(
+            f"session-state.json route {session_state.get('route')} does not match canonical route {route_name}"
+        )
+    if session_state.get("current_stage") != run_state.get("current_stage"):
+        raise RuntimeViolation(
+            f"session-state.json current_stage {session_state.get('current_stage')} does not match run-state current_stage {run_state.get('current_stage')}"
+        )
+    expected_plan_ledger_ref = _expected_plan_ledger_ref(route_name=route_name, plan_ledger=plan_ledger)
+    if session_state.get("plan_ledger_ref") != expected_plan_ledger_ref:
+        raise RuntimeViolation(
+            f"session-state.json plan_ledger_ref {session_state.get('plan_ledger_ref')} must point to {expected_plan_ledger_ref} for route {route_name}"
+        )
+    latest_review_ref = session_state.get("latest_review_ref")
+    if latest_review_ref is not None:
+        if not isinstance(latest_review_ref, str) or not latest_review_ref:
+            raise RuntimeViolation("session-state.json latest_review_ref must be a non-empty string when present")
+        resolved = _checkpoint_ref_path(task_dir, latest_review_ref)
+        if not resolved.exists():
+            raise RuntimeViolation(f"session-state.json latest_review_ref {latest_review_ref} does not exist")
+        canonical_latest_review_ref = _latest_review_ref(task_dir)
+        if latest_review_ref != canonical_latest_review_ref:
+            raise RuntimeViolation(
+                f"session-state.json latest_review_ref {latest_review_ref} does not match canonical latest review {canonical_latest_review_ref}"
+            )
+
+
 def _checkpoint_ref_path(task_dir: Path, ref: str) -> Path:
     ref_path = Path(ref)
     if ref_path.is_absolute():
@@ -483,6 +551,7 @@ def _latest_review_verdict(task_dir: Path, *, canonical_task_id: str) -> str | N
         return None
     artifact_name = latest_review_ref.removesuffix(".json")
     review = _load_validated_artifact(task_dir, artifact_name, expected_task_id=canonical_task_id)
+    _validate_review_semantics(review, source_name=latest_review_ref)
     verdict = review.get("verdict")
     return verdict if isinstance(verdict, str) and verdict else None
 
@@ -708,6 +777,7 @@ def _sync_review_flags(task_dir: Path, run_state: dict[str, Any], *, canonical_t
         if not review_path.exists():
             continue
         review = _load_validated_artifact(task_dir, artifact_name, expected_task_id=canonical_task_id)
+        _validate_review_semantics(review, source_name=review_path.name)
         if review.get("review_type") == "spec" and review.get("verdict") == "approved":
             run_state["spec_review_approved"] = True
         if review.get("review_type") == "quality" and review.get("verdict") == "approved":
@@ -758,14 +828,23 @@ def _resume_start_index(
     source_name = "plan-ledger" if plan_ledger is not None else "run-state"
     progress_source = _plan_ledger_progress(plan_ledger) if plan_ledger is not None else run_state
     completed_gates = progress_source.get("completed_gates", [])
+    completed_stages = progress_source.get("completed_stages", [])
 
     if current_stage not in route:
         raise RuntimeViolation(f"run-state checkpoint stage {current_stage} is not part of route")
     if not isinstance(completed_gates, list):
         source_name = "plan-ledger" if plan_ledger is not None else "run-state"
         raise RuntimeViolation(f"{source_name} checkpoint completed_gates must be a list")
+    if not isinstance(completed_stages, list):
+        raise RuntimeViolation(f"{source_name} checkpoint completed_stages must be a list")
 
     current_index = route.index(current_stage)
+    allowed_stages = set(route[: current_index + 1])
+    unexpected_stages = [stage_name for stage_name in completed_stages if stage_name not in allowed_stages]
+    if unexpected_stages:
+        raise RuntimeViolation(
+            f"{source_name} checkpoint has out-of-sequence completed stages at {current_stage}: {', '.join(unexpected_stages)}"
+        )
     expected_prefix = _expected_gates_before_stage(route, current_stage, stage_gate_map=stage_gate_map)
     missing_prefix = [gate for gate in expected_prefix if gate not in completed_gates]
     if missing_prefix:
@@ -818,6 +897,7 @@ def _matching_review_payload(
         if not review_path.exists():
             continue
         payload = _load_validated_artifact(task_dir, artifact_name, expected_task_id=canonical_task_id)
+        _validate_review_semantics(payload, source_name=review_path.name)
         if payload.get("review_type") == expected_review_type and payload.get("verdict") == expected_verdict:
             return payload
     return None
@@ -1015,29 +1095,13 @@ def resume_task(task_dir: Path, policy: RuntimePolicy, route_name: str | None = 
         run_state=run_state,
         plan_ledger=plan_ledger,
     )
-    for field_name in ["plan_ref", "plan_ledger_ref", "run_state_ref", "latest_checkpoint_ref"]:
-        ref = session_state.get(field_name)
-        if not isinstance(ref, str) or not ref:
-            raise RuntimeViolation(f"session-state.json {field_name} is required")
-        resolved = _checkpoint_ref_path(task_dir, ref)
-        if not resolved.exists():
-            raise RuntimeViolation(f"session-state.json {field_name} {ref} does not exist")
-    if session_state.get("latest_checkpoint_ref") != "checkpoint.json":
-        raise RuntimeViolation(
-            f"session-state.json latest_checkpoint_ref {session_state.get('latest_checkpoint_ref')} must point to checkpoint.json"
-        )
-    if session_state.get("run_state_ref") != "run-state.json":
-        raise RuntimeViolation(
-            f"session-state.json run_state_ref {session_state.get('run_state_ref')} must point to run-state.json"
-        )
-    if session_state.get("route") != inferred_route:
-        raise RuntimeViolation(
-            f"session-state.json route {session_state.get('route')} does not match canonical route {inferred_route}"
-        )
-    if session_state.get("current_stage") != run_state.get("current_stage"):
-        raise RuntimeViolation(
-            f"session-state.json current_stage {session_state.get('current_stage')} does not match run-state current_stage {run_state.get('current_stage')}"
-        )
+    _validate_session_state(
+        task_dir,
+        session_state,
+        route_name=inferred_route,
+        run_state=run_state,
+        plan_ledger=plan_ledger,
+    )
     return {
         "task_id": canonical_task_id,
         "route": inferred_route,

@@ -1,0 +1,10 @@
+{
+  "schema_version": "0.1",
+  "task_id": "task-invalid-review-003",
+  "review_type": "quality",
+  "verdict": "changes_requested",
+  "findings": ["verification gap remains"],
+  "open_blockers": "integration test evidence missing",
+  "safe_for_next_stage": false,
+  "next_action": "execute stage evidence를 보강"
+}
