@@ -55,6 +55,13 @@ STAGE_ROLE_MAP: dict[str, str] = {
     "long-run": "worker",
 }
 
+ROUTE_ORDER: list[str] = ["small", "medium", "large_high_risk"]
+RISK_TO_ROUTE: dict[str, str] = {
+    "low": "small",
+    "medium": "medium",
+    "high": "large_high_risk",
+}
+
 
 def _role_for_stage(stage: str) -> str:
     role = STAGE_ROLE_MAP.get(stage)
@@ -63,29 +70,81 @@ def _role_for_stage(stage: str) -> str:
     return role
 
 
+def _route_rank(route_name: str) -> int:
+    if route_name not in ROUTE_ORDER:
+        raise RuntimeViolation(f"unknown route: {route_name}")
+    return ROUTE_ORDER.index(route_name)
+
+
+def _auto_route_for_task_dir(task_dir: Path) -> str:
+    for artifact_name in ["session-state.json", "checkpoint.json", "plan-ledger.json"]:
+        path = task_dir / artifact_name
+        if not path.exists():
+            continue
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        route_name = payload.get("route")
+        if isinstance(route_name, str) and route_name:
+            return route_name
+
+    brief_path = task_dir / "brief.json"
+    if brief_path.exists():
+        brief = json.loads(brief_path.read_text(encoding="utf-8"))
+        risk_level = brief.get("risk_level")
+        if isinstance(risk_level, str) and risk_level in RISK_TO_ROUTE:
+            return RISK_TO_ROUTE[risk_level]
+
+    return "small"
+
+
+def _effective_route(*, task_dir: Path, explicit_route: str | None, min_route: str | None) -> str:
+    route_name = explicit_route or _auto_route_for_task_dir(task_dir)
+    if min_route is None:
+        return route_name
+    return ROUTE_ORDER[max(_route_rank(route_name), _route_rank(min_route))]
+
+
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="ForgeFlow minimal stage-machine orchestrator")
+    parser = argparse.ArgumentParser(
+        description=(
+            "ForgeFlow stage-machine orchestrator. Preferred entry is clarify-first; direct start/run is a fallback "
+            "operator path that can auto-detect a route when no state exists."
+        )
+    )
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    start_parser = subparsers.add_parser("start", help="initialize a new task directory with route-owned artifacts")
-    start_parser.add_argument("--task-dir", required=True)
-    start_parser.add_argument("--route", required=True)
+    route_help = "explicit route override; omit to reuse persisted route or auto-detect from brief/checkpoint state"
+    min_route_help = "minimum allowed route when auto-detecting or reusing state; never lowers an explicit or persisted route"
 
-    run_parser = subparsers.add_parser("run", help="run an entire route end-to-end")
+    start_parser = subparsers.add_parser(
+        "start",
+        help="initialize task artifacts; fallback path when operator starts outside clarify",
+    )
+    start_parser.add_argument("--task-dir", required=True)
+    start_parser.add_argument("--route", help=route_help)
+    start_parser.add_argument("--min-route", choices=ROUTE_ORDER, help=min_route_help)
+
+    run_parser = subparsers.add_parser(
+        "run",
+        help="run a route end-to-end; fallback path can auto-route when no prior state exists",
+    )
     run_parser.add_argument("--task-dir", required=True)
-    run_parser.add_argument("--route", required=True)
+    run_parser.add_argument("--route", help=route_help)
+    run_parser.add_argument("--min-route", choices=ROUTE_ORDER, help=min_route_help)
 
     resume_parser = subparsers.add_parser("resume", help="reload task state from session-state and checkpoint artifacts")
     resume_parser.add_argument("--task-dir", required=True)
-    resume_parser.add_argument("--route", required=True)
+    resume_parser.add_argument("--route", help=route_help)
+    resume_parser.add_argument("--min-route", choices=ROUTE_ORDER, help=min_route_help)
 
     status_parser = subparsers.add_parser("status", help="show current task status from canonical artifacts")
     status_parser.add_argument("--task-dir", required=True)
-    status_parser.add_argument("--route", required=True)
+    status_parser.add_argument("--route", help=route_help)
+    status_parser.add_argument("--min-route", choices=ROUTE_ORDER, help=min_route_help)
 
     advance_parser = subparsers.add_parser("advance", help="advance one stage forward")
     advance_parser.add_argument("--task-dir", required=True)
-    advance_parser.add_argument("--route", required=True)
+    advance_parser.add_argument("--route", help=route_help)
+    advance_parser.add_argument("--min-route", choices=ROUTE_ORDER, help=min_route_help)
     advance_parser.add_argument("--current-stage", required=True)
     advance_parser.add_argument("--execute", action="store_true", help="execute the next stage immediately after advancing")
     advance_parser.add_argument("--adapter", choices=["claude", "codex", "cursor"], default="claude")
@@ -100,7 +159,8 @@ def build_parser() -> argparse.ArgumentParser:
 
     step_back_parser = subparsers.add_parser("step-back", help="rewind to the previous stage")
     step_back_parser.add_argument("--task-dir", required=True)
-    step_back_parser.add_argument("--route", required=True)
+    step_back_parser.add_argument("--route", help=route_help)
+    step_back_parser.add_argument("--min-route", choices=ROUTE_ORDER, help=min_route_help)
     step_back_parser.add_argument("--current-stage", required=True)
 
     escalate_parser = subparsers.add_parser("escalate", help="escalate a route to large_high_risk")
@@ -109,7 +169,8 @@ def build_parser() -> argparse.ArgumentParser:
 
     exec_parser = subparsers.add_parser("execute", help="execute the current stage via an LLM adapter")
     exec_parser.add_argument("--task-dir", required=True)
-    exec_parser.add_argument("--route", required=True)
+    exec_parser.add_argument("--route", help=route_help)
+    exec_parser.add_argument("--min-route", choices=ROUTE_ORDER, help=min_route_help)
     exec_parser.add_argument("--adapter", choices=["claude", "codex", "cursor"], default="claude")
     exec_parser.add_argument("--role", default=None, help="override role (auto-detected from stage if omitted)")
     exec_parser.add_argument("--artifacts", nargs="+", default=None, help="artifact names to stream")
@@ -125,19 +186,24 @@ def main() -> int:
     policy = load_runtime_policy(ROOT)
 
     try:
+        route_name = _effective_route(
+            task_dir=task_dir,
+            explicit_route=getattr(args, "route", None),
+            min_route=getattr(args, "min_route", None),
+        )
         if args.command == "start":
-            _print_payload(start_task(task_dir=task_dir, policy=policy, route_name=args.route))
+            _print_payload(start_task(task_dir=task_dir, policy=policy, route_name=route_name))
         elif args.command == "run":
-            _print_payload(run_route(task_dir=task_dir, policy=policy, route_name=args.route))
+            _print_payload(run_route(task_dir=task_dir, policy=policy, route_name=route_name))
         elif args.command == "resume":
-            _print_payload(resume_task(task_dir=task_dir, policy=policy, route_name=args.route))
+            _print_payload(resume_task(task_dir=task_dir, policy=policy, route_name=route_name))
         elif args.command == "status":
-            _print_payload(status_summary(task_dir=task_dir, policy=policy, route_name=args.route))
+            _print_payload(status_summary(task_dir=task_dir, policy=policy, route_name=route_name))
         elif args.command == "advance":
             transition = advance_to_next_stage(
                 task_dir=task_dir,
                 policy=policy,
-                route_name=args.route,
+                route_name=route_name,
                 current_stage=args.current_stage,
                 execute_immediately=args.execute,
                 adapter_target=args.adapter,
@@ -153,7 +219,7 @@ def main() -> int:
             _print_payload(retry_stage(task_dir=task_dir, stage_name=args.stage, max_retries=args.max_retries))
         elif args.command == "step-back":
             _print_payload(
-                step_back(task_dir=task_dir, policy=policy, route_name=args.route, current_stage=args.current_stage)
+                step_back(task_dir=task_dir, policy=policy, route_name=route_name, current_stage=args.current_stage)
             )
         elif args.command == "escalate":
             _print_payload(escalate_route(task_dir=task_dir, from_route=args.from_route))
@@ -172,7 +238,7 @@ def main() -> int:
                 task_dir=task_dir,
                 task_id=run_state.get("task_id", "unknown"),
                 stage=current_stage,
-                route=args.route,
+                route=route_name,
                 role=role,
                 adapter_target=args.adapter,
                 artifacts_to_stream=args.artifacts,

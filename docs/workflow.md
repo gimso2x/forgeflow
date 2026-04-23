@@ -140,6 +140,10 @@
 
 ## 2. Complexity routing
 
+기본 경로는 `clarify-first`다. 즉, 정상 진입은 항상 `clarify`에서 시작하고 여기서 brief와 route를 정한다.
+
+다만 operator가 아무 state 없이 runtime `start`/`run`에 바로 들어오면 fallback auto routing이 route를 고를 수 있다. 이 경우에도 선택된 route의 첫 stage는 여전히 `clarify`이며, auto routing은 정본 workflow를 대체하지 않는다.
+
 ### small
 `clarify -> execute -> quality-review -> finalize`
 
