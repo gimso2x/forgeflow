@@ -65,6 +65,26 @@ def validate_policy_root(root: Path) -> list[str]:
     if workflow_stages != stage_keys:
         errors.append(f"stage mismatch: workflow={workflow_stages} stages={stage_keys}")
 
+    stage_policy = policy_docs["stages"]["stages"]
+    required_stage_non_negotiables = {
+        "clarify": ["brief", "route"],
+        "plan": ["expected output", "verification"],
+        "execute": ["decision-log", "run-state"],
+        "spec-review": ["acceptance criteria", "worker self-report"],
+        "quality-review": ["maintainability", "run-state.quality_review_approved"],
+        "finalize": ["review approvals", "artifacts"],
+        "long-run": ["eval-record", "reusable learning"],
+    }
+    for stage_name, required_terms in required_stage_non_negotiables.items():
+        non_negotiables = stage_policy.get(stage_name, {}).get("non_negotiables", [])
+        if len(non_negotiables) < 3:
+            errors.append(f"{stage_name} missing at least three non_negotiables")
+            continue
+        joined = "\n".join(non_negotiables)
+        for term in required_terms:
+            if term not in joined:
+                errors.append(f"{stage_name} non_negotiables missing required term: {term}")
+
     order = policy_docs["workflow"]["review_order"]
     if order != ["spec-review", "quality-review"]:
         errors.append(f"invalid review order: {order}")
@@ -105,6 +125,11 @@ def validate_policy_root(root: Path) -> list[str]:
         errors.append("review-model missing quality-review high-risk guard")
     if "run-state.spec_review_approved" not in review_text:
         errors.append("review-model missing run-state approval flag guidance")
+
+    long_run_text = (root / "docs" / "long-run-model.md").read_text(encoding="utf-8")
+    for required in ["eval-record.json", "worth_long_run_capture", "No evidence, no memory", "do not retain"]:
+        if required not in long_run_text:
+            errors.append(f"long-run-model missing required guidance: {required}")
 
     gates = policy_docs["gates"]["gates"]
     if gates.get("spec_review_passed", {}).get("review_type") != "spec":

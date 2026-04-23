@@ -4,27 +4,55 @@ stages:
     artifact_out: [brief]
     required_for_entry: []
     gate: clarification_complete
+    non_negotiables:
+      - no execution before ambiguity is resolved or explicitly bounded
+      - brief must name objective, scope, constraints, acceptance criteria, and risk level
+      - route selection must happen from evidence, not agent confidence
   plan:
     artifact_out: [plan]
     required_for_entry: [brief]
     gate: plan_executable
+    non_negotiables:
+      - plan must be executable by another agent without hidden chat context
+      - every step must include expected output and verification
+      - risky or multi-file work must identify rollback or recovery notes
   execute:
     artifact_out: [decision-log, run-state]
     required_for_entry: [brief]
     gate: execution_evidenced
+    non_negotiables:
+      - implementation must stay inside approved brief and plan scope
+      - important choices and deviations must be written to decision-log
+      - run-state must reflect current stage, gates, retries, and review approval flags
   spec-review:
     artifact_out: [review-report]
     required_for_entry: [brief, run-state]
     gate: spec_review_passed
+    non_negotiables:
+      - reviewer must judge acceptance criteria against artifacts and evidence
+      - worker self-report is not evidence
+      - rejected or blocked spec-review must stop quality-review and finalize
   quality-review:
     artifact_out: [review-report]
     required_for_entry: [run-state]
     gate: quality_review_passed
+    non_negotiables:
+      - reviewer must judge maintainability, verification quality, and residual risk
+      - spec misses must not be laundered as quality concerns
+      - approval must set run-state.quality_review_approved before finalize
   finalize:
     artifact_out: [run-state]
     required_for_entry: [run-state, review-report]
     gate: ready_to_finalize
+    non_negotiables:
+      - no finalize before required review approvals and evidence exist
+      - unresolved risks must be recorded instead of hidden
+      - final state must be reproducible from artifacts, not chat history
   long-run:
     artifact_out: [eval-record]
     required_for_entry: [run-state, review-report]
     gate: worth_long_run_capture
+    non_negotiables:
+      - capture only reusable learning, evaluation, or durable failure pattern
+      - do not persist session chatter or one-off task progress as memory
+      - eval-record must explain why the learning is worth retaining

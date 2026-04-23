@@ -9,6 +9,25 @@
 
 ## 1. Stage overview
 
+## Request journey
+
+### Canonical path
+`user request -> clarify -> route selection -> stage execution -> review -> finalize`
+
+- 정상 진입은 항상 `clarify`부터 시작한다
+- `clarify`가 brief를 만들고 route를 정한다
+- route가 정해지면 해당 complexity path를 따른다
+
+### Operator fallback path
+`operator start/run -> persisted state reuse or auto-route -> same canonical stages`
+
+- direct CLI 진입은 operator convenience surface다
+- state가 있으면 그걸 재사용한다
+- state가 없을 때만 auto routing을 쓴다
+- 이 fallback도 canonical stage semantics를 바꾸지는 못한다
+
+---
+
 ### 1) `clarify`
 목표:
 - 요청을 실행 가능한 단위로 정리한다.
@@ -170,6 +189,46 @@
 ---
 
 ## 3. Non-negotiable rules
+Stage 규칙은 `policy/canonical/stages.yaml`의 `non_negotiables`가 정본이다. 이 섹션은 사람이 읽는 해설이고, `make validate`가 각 stage의 핵심 용어와 최소 개수를 검사한다.
+
+### Stage-level non-negotiables
+
+#### `clarify`
+- ambiguity를 해결하거나 명시적으로 bounded 처리하기 전 실행 금지
+- `brief`는 objective, scope, constraints, acceptance criteria, risk level을 가져야 함
+- route는 agent 자신감이 아니라 evidence 기준으로 선택
+
+#### `plan`
+- 다른 agent가 hidden chat context 없이 실행할 수 있어야 함
+- 모든 step은 expected output과 verification을 가져야 함
+- risky/multi-file 작업은 rollback 또는 recovery note를 포함
+
+#### `execute`
+- approved brief/plan 범위를 벗어나면 안 됨
+- 중요한 판단과 deviation은 `decision-log`에 기록
+- `run-state`는 current stage, gates, retries, review approval flags를 반영
+
+#### `spec-review`
+- reviewer는 acceptance criteria를 artifact/evidence와 대조해야 함
+- worker self-report는 evidence가 아님
+- rejected/blocked spec-review면 quality-review와 finalize 금지
+
+#### `quality-review`
+- maintainability, verification quality, residual risk를 판단
+- spec miss를 quality issue로 세탁 금지
+- finalize 전 `run-state.quality_review_approved`가 필요
+
+#### `finalize`
+- required review approvals와 evidence 없이 finalize 금지
+- unresolved risk는 숨기지 않고 기록
+- final state는 chat history가 아니라 artifacts로 재현 가능해야 함
+
+#### `long-run`
+- reusable learning, evaluation, durable failure pattern만 축적
+- session chatter나 one-off task progress를 memory로 저장 금지
+- `eval-record`는 왜 보존 가치가 있는지 설명해야 함
+
+### Global rules
 1. artifact 없는 stage 전환 금지
 2. worker와 reviewer 분리
 3. spec-review 실패 시 quality-review 금지

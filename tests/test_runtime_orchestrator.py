@@ -1941,6 +1941,16 @@ def _run_orchestrator_cli(*args: str) -> subprocess.CompletedProcess[str]:
     )
 
 
+def test_cli_help_includes_operator_shell_examples() -> None:
+    result = _run_orchestrator_cli("--help")
+
+    assert result.returncode == 0
+    assert "Operator shell examples:" in result.stdout
+    assert "python3 scripts/run_runtime_sample.py --fixture-dir examples/runtime-fixtures/small-doc-task --route small" in result.stdout
+    assert "clarify-first is canonical" in result.stdout
+    assert "Manual commands mutate the target task-dir" in result.stdout
+
+
 def test_cli_run_executes_sample_fixture(tmp_path: Path) -> None:
     task_dir = tmp_path / "cli-task"
     task_dir.mkdir()
@@ -2227,7 +2237,11 @@ def test_cli_medium_route_execute_flow_is_automated_end_to_end(tmp_path: Path) -
 def test_readme_examples_describe_manual_execution_flow() -> None:
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
 
+    assert "## Quickstart" in readme
+    assert "make validate" in readme
+    assert "python3 scripts/run_orchestrator.py --help" in readme
     assert "scripts/run_runtime_sample.py --fixture-dir" in readme
+    assert "Manual `run_orchestrator.py` commands mutate their target `--task-dir`" in readme
     assert "scripts/run_orchestrator.py execute --task-dir" in readme
     assert "advance --execute" in readme
     assert "## Using ForgeFlow in Codex" in readme

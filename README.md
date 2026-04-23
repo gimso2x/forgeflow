@@ -27,12 +27,39 @@ ForgeFlow의 정본 시작점은 항상 `clarify`다.
 
 아무 state도 없는데 operator가 `start`/`run`으로 바로 진입하는 경우는 예외다. 이때만 runtime이 fallback으로 auto routing을 적용할 수 있다. 다만 이건 convenience layer일 뿐이고, workflow 의미론의 본체는 여전히 `clarify-first`다.
 
+## Request journey
+대충 이렇게 흘러간다.
+
+### Canonical path
+`user request -> clarify -> route selection -> execute path -> review path -> finalize`
+
+- `clarify`가 brief와 route를 만든다
+- route가 정해지면 해당 complexity path를 따른다
+- review는 항상 execution 뒤에 붙고, 필요한 gate를 통과해야 finalize할 수 있다
+
+### Operator fallback path
+`operator start/run -> persisted state reuse or auto-route -> same canonical stages`
+
+- direct CLI 진입은 우회 경로다
+- state가 있으면 기존 route/state를 재사용한다
+- state가 없으면 brief/checkpoint 기준으로 auto routing을 시도한다
+- 그래도 실제 stage 진행 순서는 canonical policy를 벗어나지 않는다
+
 ## Complexity routing
 fallback auto routing이 route를 고르면 canonical policy는 아래 순서를 따른다.
 
 - **small** → `clarify -> execute -> quality-review -> finalize`
 - **medium** → `clarify -> plan -> execute -> quality-review -> finalize`
 - **large/high-risk** → `clarify -> plan -> execute -> spec-review -> quality-review -> finalize -> long-run`
+
+## Review model
+ForgeFlow는 review를 형식적인 승인 단계로 취급하지 않는다. `spec-review`와 `quality-review`는 서로 다른 질문을 던지고, worker 자기보고는 승인 근거로 취급하지 않는다.
+
+- overview: `docs/review-model.md`
+- workflow semantics: `docs/workflow.md`
+- long-run retention: `docs/long-run-model.md`
+- review-summary decision: `docs/review-summary-decision.md`
+- machine contracts: `schemas/review-report.schema.json`
 
 ## Why this exists
 Most agent repos do at least one of these badly:
@@ -56,31 +83,65 @@ ForgeFlow tries not to do that.
 - `examples/artifacts/` — sample artifact fixtures
 - `scripts/` — validation and generation utilities
 
-## Quick start
+## Quickstart
+
+Start here if you just cloned the repo and want to know whether it works.
+
+### 1. Validate the harness
+
 ```bash
 make validate
-make adherence-evals
-make generate
-make regen
-make runtime-sample
 ```
 
-## Runtime sample
-권장 경로는 `clarify`부터 brief와 route를 만든 뒤 진행하는 것이다. 아래 CLI 예시는 local runtime을 직접 만질 때 쓰는 operator surface다.
+Expected result: structure, policy, generated adapters, sample artifacts, and adherence evals all pass.
+
+### 2. Inspect the operator shell
+
+```bash
+python3 scripts/run_orchestrator.py --help
+```
+
+This shows the local CLI surface for `start`, `run`, `status`, `resume`, `advance`, `retry`, `step-back`, `escalate`, and `execute`.
+
+### 3. Run the safe sample
 
 ```bash
 python3 scripts/run_runtime_sample.py --fixture-dir examples/runtime-fixtures/small-doc-task --route small
-python3 scripts/run_orchestrator.py run --task-dir examples/runtime-fixtures/small-doc-task
-python3 scripts/run_orchestrator.py run --task-dir examples/runtime-fixtures/small-doc-task --min-route medium
-python3 scripts/run_orchestrator.py execute --task-dir examples/runtime-fixtures/small-doc-task --route small --adapter codex
-python3 scripts/run_orchestrator.py advance --task-dir examples/runtime-fixtures/small-doc-task --route small --current-stage clarify
-python3 scripts/run_orchestrator.py advance --task-dir examples/runtime-fixtures/small-doc-task --route small --current-stage clarify --execute --adapter cursor
-python3 scripts/run_orchestrator.py retry --task-dir examples/runtime-fixtures/small-doc-task --stage execute --max-retries 2
-python3 scripts/run_orchestrator.py step-back --task-dir examples/runtime-fixtures/small-doc-task --route small --current-stage quality-review
-python3 scripts/run_orchestrator.py escalate --task-dir examples/runtime-fixtures/small-doc-task --from-route small
 ```
 
-`run_runtime_sample.py`는 fixture를 임시 workspace로 복사한 뒤 실행해서 샘플 명령만으로 tracked runtime fixture가 dirty 상태가 되지 않게 막는다. 실행 결과에는 원본 fixture 경로만 다시 싣고, 임시 workspace 경로는 노출하지 않는다. manual `execute`/`advance`/`retry` 예시는 여전히 원본 task-dir를 직접 대상으로 삼지만, `run` 샘플은 disposable copy에서만 돈다.
+This copies the fixture to a disposable workspace before running, so tracked sample artifacts stay clean.
+
+### 4. Inspect the fixture state
+
+```bash
+python3 scripts/run_orchestrator.py status --task-dir examples/runtime-fixtures/small-doc-task
+```
+
+Manual `run_orchestrator.py` commands mutate their target `--task-dir`; use `run_runtime_sample.py` for demos unless mutation is intentional.
+
+### 5. Use an adapter in another project
+
+```bash
+cp adapters/generated/codex/CODEX.md /path/to/your-project/CODEX.md
+cp adapters/generated/claude/CLAUDE.md /path/to/your-project/CLAUDE.md
+```
+
+Generated adapters carry ForgeFlow semantics into a host agent. Do not hand-edit generated adapter files; change canonical policy/docs/prompts and regenerate instead.
+
+
+## Operator shell
+권장 경로는 `clarify`부터 brief와 route를 만든 뒤 진행하는 것이다. local runtime을 직접 만지는 표면은 operator fallback일 뿐이다.
+
+```bash
+python3 scripts/run_orchestrator.py --help
+python3 scripts/run_runtime_sample.py --fixture-dir examples/runtime-fixtures/small-doc-task --route small
+python3 scripts/run_orchestrator.py status --task-dir examples/runtime-fixtures/small-doc-task
+python3 scripts/run_orchestrator.py execute --task-dir examples/runtime-fixtures/small-doc-task --route small --adapter codex
+python3 scripts/run_orchestrator.py run --task-dir examples/runtime-fixtures/small-doc-task --min-route medium
+python3 scripts/run_orchestrator.py advance --task-dir examples/runtime-fixtures/small-doc-task --route small --current-stage clarify --execute --adapter cursor
+```
+
+Full operator examples live in `docs/operator-shell.md`. `run_runtime_sample.py`는 fixture를 임시 workspace로 복사한 뒤 실행해서 샘플 명령만으로 tracked runtime fixture가 dirty 상태가 되지 않게 막는다. manual `run_orchestrator.py` 명령은 대상 `--task-dir`를 실제로 변경하므로 demo에는 disposable sample runner를 쓰는 게 맞다.
 
 이 CLI는 local artifact 디렉터리를 기준으로 route 실행과 recovery helper를 노출한다. `run`은 artifact/gate 기준으로 route 상태를 진행하는 orchestration 명령이다. `run`/`start`는 operator fallback surface라서, route를 명시하지 않으면 persisted state를 재사용하거나 brief/checkpoint 기준으로 auto routing을 시도한다. 그래도 workflow의 정본은 여전히 `clarify-first`다. `execute`는 현재 stage를 어댑터로 실행한다. `advance --execute`는 다음 stage로 넘긴 뒤 바로 실행까지 붙이되, 실행이 실패하면 stage pointer를 커밋하지 않는다. medium/large route에서는 `advance`/`run` 모두 `plan-ledger.json`이 있어야 하고, `step-back`은 되감는 stage에 해당하는 review approval/evidence만 지운다. 정책 위반이나 잘못된 route가 들어오면 traceback 대신 `ERROR:` 형식의 명시적 runtime 오류를 반환한다.
 

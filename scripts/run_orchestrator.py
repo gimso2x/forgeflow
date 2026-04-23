@@ -108,7 +108,30 @@ def build_parser() -> argparse.ArgumentParser:
         description=(
             "ForgeFlow stage-machine orchestrator. Preferred entry is clarify-first; direct start/run is a fallback "
             "operator path that can auto-detect a route when no state exists."
-        )
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""Operator shell examples:
+  # Safe sample: copies the fixture to a disposable workspace before running.
+  python3 scripts/run_runtime_sample.py --fixture-dir examples/runtime-fixtures/small-doc-task --route small
+
+  # Fallback entry: start/run can reuse persisted route or auto-route from brief/checkpoint state.
+  python3 scripts/run_orchestrator.py start --task-dir examples/runtime-fixtures/small-doc-task
+  python3 scripts/run_orchestrator.py run --task-dir examples/runtime-fixtures/small-doc-task --min-route medium
+
+  # Manual stage control: execute current stage, advance, retry, rewind, or escalate.
+  python3 scripts/run_orchestrator.py status --task-dir examples/runtime-fixtures/small-doc-task
+  python3 scripts/run_orchestrator.py execute --task-dir examples/runtime-fixtures/small-doc-task --route small --adapter codex
+  python3 scripts/run_orchestrator.py advance --task-dir examples/runtime-fixtures/small-doc-task --route small --current-stage clarify --execute --adapter cursor
+  python3 scripts/run_orchestrator.py retry --task-dir examples/runtime-fixtures/small-doc-task --stage execute --max-retries 2
+  python3 scripts/run_orchestrator.py step-back --task-dir examples/runtime-fixtures/small-doc-task --route small --current-stage quality-review
+  python3 scripts/run_orchestrator.py escalate --task-dir examples/runtime-fixtures/small-doc-task --from-route small
+
+Notes:
+  - clarify-first is canonical; direct start/run is only an operator fallback surface.
+  - --route is an explicit override. Without it, the CLI reuses persisted state or auto-detects from artifacts.
+  - --min-route can raise the route floor but must not lower an explicit or persisted route.
+  - Manual commands mutate the target task-dir. Use run_runtime_sample.py for disposable fixture runs.
+""",
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
 
