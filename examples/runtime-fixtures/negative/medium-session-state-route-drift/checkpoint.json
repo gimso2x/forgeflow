@@ -1,0 +1,13 @@
+{
+  "schema_version": "0.1",
+  "task_id": "task-medium-001",
+  "route": "medium",
+  "current_stage": "plan",
+  "current_task_id": "task-2",
+  "plan_ref": "plan.json",
+  "plan_ledger_ref": "plan-ledger.json",
+  "run_state_ref": "run-state.json",
+  "next_action": "Resume medium planning from canonical artifacts.",
+  "open_blockers": [],
+  "updated_at": "2026-04-23T07:15:00Z"
+}

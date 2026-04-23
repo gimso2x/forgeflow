@@ -1,0 +1,19 @@
+{
+  "schema_version": "0.1",
+  "task_id": "task-medium-001",
+  "objective": "Run a medium route fixture",
+  "in_scope": [
+    "runtime",
+    "tests"
+  ],
+  "out_of_scope": [
+    "provider integrations"
+  ],
+  "constraints": [
+    "local fixture only"
+  ],
+  "acceptance_criteria": [
+    "medium route completes"
+  ],
+  "risk_level": "medium"
+}

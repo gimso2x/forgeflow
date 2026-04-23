@@ -1,0 +1,12 @@
+{
+  "schema_version": "0.1",
+  "task_id": "task-medium-001",
+  "current_stage": "plan",
+  "status": "in_progress",
+  "completed_gates": ["clarification_complete"],
+  "failed_gates": [],
+  "retries": {},
+  "current_task_id": "task-2",
+  "spec_review_approved": false,
+  "quality_review_approved": false
+}

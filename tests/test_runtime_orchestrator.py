@@ -2657,3 +2657,4 @@ def test_adherence_eval_cli_runs_valid_and_negative_fixtures() -> None:
     assert "medium-ledger-gate-drift" in result.stdout
     assert "large-spec-quality-mismatch" in result.stdout
     assert "large-session-state-stale-review-ref" in result.stdout
+    assert "medium-session-state-route-drift" in result.stdout

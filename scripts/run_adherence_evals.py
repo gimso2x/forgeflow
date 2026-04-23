@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from forgeflow_runtime.orchestrator import RuntimeViolation, advance_to_next_stage, load_runtime_policy, run_route
+from forgeflow_runtime.orchestrator import RuntimeViolation, advance_to_next_stage, load_runtime_policy, resume_task, run_route
 
 
 def _copy_fixture(source: Path, workspace: Path) -> Path:
@@ -31,6 +31,17 @@ def _negative_run_case(name: str, fixture_dir: Path, route_name: str, expected_e
     task_dir = _copy_fixture(fixture_dir, workspace)
     try:
         run_route(task_dir=task_dir, policy=load_runtime_policy(ROOT), route_name=route_name)
+    except RuntimeViolation as exc:
+        if expected_error not in str(exc):
+            raise AssertionError(f'{name}: expected error containing {expected_error!r}, got {exc!r}') from exc
+        return f'PASS {name}: blocked with {exc}'
+    raise AssertionError(f'{name}: expected RuntimeViolation')
+
+
+def _negative_resume_case(name: str, fixture_dir: Path, route_name: str, expected_error: str, workspace: Path) -> str:
+    task_dir = _copy_fixture(fixture_dir, workspace)
+    try:
+        resume_task(task_dir=task_dir, policy=load_runtime_policy(ROOT), route_name=route_name)
     except RuntimeViolation as exc:
         if expected_error not in str(exc):
             raise AssertionError(f'{name}: expected error containing {expected_error!r}, got {exc!r}') from exc
@@ -85,6 +96,7 @@ def main() -> int:
             scenarios.append(_negative_run_case('future-gate-checkpoint-drift', negative_root / 'future-gate-checkpoint-drift', 'small', 'run-state checkpoint has out-of-sequence completed gates at execute: quality_review_passed', workspace))
             scenarios.append(_negative_run_case('completed-checkpoint-drift', negative_root / 'completed-checkpoint-drift', 'small', 'completed run-state checkpoint must already be at terminal stage finalize', workspace))
             scenarios.append(_negative_run_case('medium-ledger-gate-drift', negative_root / 'medium-ledger-gate-drift', 'medium', 'plan-ledger checkpoint has out-of-sequence completed gates at clarify: quality_review_passed', workspace))
+            scenarios.append(_negative_resume_case('medium-session-state-route-drift', negative_root / 'medium-session-state-route-drift', 'medium', 'session-state.json route small does not match canonical route medium', workspace))
             scenarios.append(_negative_run_case('large-spec-quality-mismatch', negative_root / 'large-spec-quality-mismatch', 'large_high_risk', 'spec-review requires approved spec review-report artifact', workspace))
             scenarios.append(_negative_run_case('large-session-state-stale-review-ref', negative_root / 'large-session-state-stale-review-ref', 'large_high_risk', 'checkpoint.json latest_review_ref review-report-stale.json does not exist', workspace))
     except Exception as exc:

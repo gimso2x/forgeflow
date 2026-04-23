@@ -1,0 +1,33 @@
+{
+  "schema_version": "0.1",
+  "task_id": "task-medium-001",
+  "route": "medium",
+  "current_task_id": "task-2",
+  "completed_stages": ["clarify"],
+  "completed_gates": ["clarification_complete"],
+  "retries": {},
+  "tasks": [
+    {
+      "id": "task-1",
+      "title": "Prepare refactor plan",
+      "depends_on": [],
+      "files": ["plan.json"],
+      "parallel_safe": true,
+      "status": "done",
+      "required_gates": ["validator"],
+      "evidence_refs": ["plan.json"],
+      "attempt_count": 0
+    },
+    {
+      "id": "task-2",
+      "title": "Execute bounded refactor",
+      "depends_on": ["task-1"],
+      "files": ["decision-log.json", "run-state.json"],
+      "parallel_safe": false,
+      "status": "in_progress",
+      "required_gates": ["machine", "validator"],
+      "evidence_refs": [],
+      "attempt_count": 1
+    }
+  ]
+}

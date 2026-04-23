@@ -26,6 +26,7 @@ make adherence-evals
 - `negative/future-gate-checkpoint-drift`에서 미래 gate가 미리 찍힌 checkpoint resume 거부
 - `negative/completed-checkpoint-drift`에서 terminal stage에 있지 않은 completed checkpoint 거부
 - `negative/medium-ledger-gate-drift`에서 medium route plan-ledger의 미래 gate drift 거부
+- `negative/medium-session-state-route-drift`에서 medium route의 stale session-state route drift 거부
 - `negative/large-spec-quality-mismatch`에서 quality artifact가 spec-review를 대체하지 못함을 검증
 - `negative/large-session-state-stale-review-ref`에서 stale latest_review_ref가 있는 large route resume 거부
 
