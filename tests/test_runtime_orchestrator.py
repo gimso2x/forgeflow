@@ -1993,6 +1993,12 @@ def test_readme_examples_describe_manual_execution_flow() -> None:
     assert "## Using ForgeFlow in Claude Code" in readme
     assert "cp adapters/generated/claude/CLAUDE.md ./CLAUDE.md" in readme
     assert "claude -p" in readme
+    assert "## Claude Code prompt templates" in readme
+    assert "### Small task template" in readme
+    assert "### Medium task template" in readme
+    assert "### Large / high-risk task template" in readme
+    assert "State the route you are using" in readme
+    assert "Do not merge spec-review and quality-review" in readme
     assert "run`은 artifact/gate 기준으로 route 상태를 진행" in readme
     assert "execute`는 현재 stage를 어댑터로 실행" in readme
 

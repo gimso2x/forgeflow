@@ -110,6 +110,81 @@ script -qc "claude -p 'Reply with exactly: CLAUDE_OK'" /dev/null
 
 이 저장소에서 실제로 검증할 때는, generated adapter를 temp git repo에 복사한 뒤 한 줄짜리 확인 프롬프트를 던져서 Codex/Claude가 instruction file을 읽는지 먼저 보는 게 제일 덜 멍청하다.
 
+## Claude Code prompt templates
+아래는 그냥 복붙해서 시작하면 된다. 핵심은 항상 `Read CLAUDE.md first`로 시작하고, route/stage/artifact/gate를 명시하는 것이다.
+
+### Small task template
+```bash
+claude -p '
+Read CLAUDE.md first.
+
+Task:
+- <what to change>
+- <scope boundary>
+
+Follow ForgeFlow.
+Treat this as a small route task.
+State the route you are using.
+Briefly clarify the task.
+Then execute.
+Do not treat your own summary as sufficient evidence for finalize.
+List what evidence or artifacts justify quality-review and finalize.
+'
+```
+
+### Medium task template
+```bash
+claude -p '
+Read CLAUDE.md first.
+
+Task:
+- <what to build or change>
+- <constraints>
+- <acceptance criteria>
+
+Follow ForgeFlow.
+Treat this as a medium route task.
+State the route you are using.
+Start with clarify, then produce a plan.
+The plan must include explicit steps, expected outputs, and verification.
+Do not jump straight into implementation.
+After the plan, describe what artifacts must exist before execute and finalize.
+'
+```
+
+### Large / high-risk task template
+```bash
+claude -p '
+Read CLAUDE.md first.
+
+Task:
+- <high-risk change>
+- <constraints>
+- <acceptance criteria>
+- <risk notes>
+
+Follow ForgeFlow.
+Treat this as a large/high-risk route task.
+State the route you are using.
+Start with clarify, then plan, then execute.
+Do not merge spec-review and quality-review.
+Do not claim finalize unless the required review artifacts and evidence exist.
+Call out residual risk explicitly before long-run or finalize.
+'
+```
+
+복붙 후 바로 바꿔야 하는 자리:
+- `<what to change>` / `<what to build or change>` / `<high-risk change>`
+- `<scope boundary>`
+- `<constraints>`
+- `<acceptance criteria>`
+- `<risk notes>`
+
+추천 습관:
+- 작은 작업도 Claude가 먼저 route를 말하게 한다.
+- medium 이상은 plan 없이 바로 코딩시키지 않는다.
+- high-risk 작업은 review artifact와 residual risk를 꼭 따로 적게 한다.
+
 ## Current status
 This repo is a **P0 seed**.
 It already includes:
