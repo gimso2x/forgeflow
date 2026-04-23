@@ -963,6 +963,10 @@ def advance_to_next_stage(
     session_state = _load_session_state(task_dir, canonical_task_id=canonical_task_id)
     if current_stage not in route:
         raise RuntimeViolation(f"stage {current_stage} is not part of route {route_name}")
+    if run_state is not None and run_state.get("current_stage") != current_stage:
+        raise RuntimeViolation(
+            f"requested current_stage {current_stage} does not match persisted run-state stage {run_state.get('current_stage')}"
+        )
 
     current_index = route.index(current_stage)
     if current_index + 1 >= len(route):

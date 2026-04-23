@@ -68,7 +68,7 @@ python3 scripts/run_orchestrator.py step-back --task-dir examples/runtime-fixtur
 python3 scripts/run_orchestrator.py escalate --task-dir examples/runtime-fixtures/small-doc-task --from-route small
 ```
 
-이 CLI는 local artifact 디렉터리를 기준으로 route 실행과 recovery helper를 노출한다. `execute`는 현재 stage를 어댑터로 실행하고, `advance --execute`는 다음 stage로 넘긴 뒤 바로 실행까지 붙인다. 정책 위반이나 잘못된 route가 들어오면 traceback 대신 `ERROR:` 형식의 명시적 runtime 오류를 반환한다.
+이 CLI는 local artifact 디렉터리를 기준으로 route 실행과 recovery helper를 노출한다. `run`은 artifact/gate 기준으로 route 상태를 진행하는 orchestration 명령이고, `execute`는 현재 stage를 어댑터로 실행한다. `advance --execute`는 다음 stage로 넘긴 뒤 바로 실행까지 붙인다. 정책 위반이나 잘못된 route가 들어오면 traceback 대신 `ERROR:` 형식의 명시적 runtime 오류를 반환한다.
 
 ## Current status
 This repo is a **P0 seed**.

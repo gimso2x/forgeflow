@@ -23,6 +23,8 @@ from forgeflow_runtime.orchestrator import (  # noqa: E402
     step_back,
 )
 from forgeflow_runtime.engine import execute_stage  # noqa: E402
+from forgeflow_runtime.executor import ExecutorError  # noqa: E402
+from forgeflow_runtime.generator import GenerationError  # noqa: E402
 
 
 def _execution_payload(*, stage: str, role: str, adapter: str, result) -> dict:
@@ -202,6 +204,9 @@ def main() -> int:
         else:
             parser.error(f"unknown command: {args.command}")
     except RuntimeViolation as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 1
+    except (GenerationError, ExecutorError) as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 1
 

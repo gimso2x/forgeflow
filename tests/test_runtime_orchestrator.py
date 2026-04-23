@@ -213,6 +213,9 @@ def test_advance_updates_plan_ledger_gate_evidence(tmp_path: Path) -> None:
     policy = load_runtime_policy(ROOT)
     task_dir = _make_task_dir(tmp_path)
     _write_medium_plan_artifacts(task_dir)
+    run_state = json.loads((task_dir / "run-state.json").read_text(encoding="utf-8"))
+    run_state["current_stage"] = "plan"
+    _write_json(task_dir / "run-state.json", run_state)
 
     result = advance_to_next_stage(task_dir=task_dir, policy=policy, route_name="medium", current_stage="plan")
 
@@ -222,9 +225,24 @@ def test_advance_updates_plan_ledger_gate_evidence(tmp_path: Path) -> None:
     assert "run-state.json#gate:plan_executable" in persisted_plan_ledger["tasks"][0]["evidence_refs"]
 
 
+def test_advance_rejects_mismatched_run_state_stage(tmp_path: Path) -> None:
+    policy = load_runtime_policy(ROOT)
+    task_dir = _make_task_dir(tmp_path)
+
+    run_state = json.loads((task_dir / "run-state.json").read_text(encoding="utf-8"))
+    run_state["current_stage"] = "execute"
+    _write_json(task_dir / "run-state.json", run_state)
+
+    with pytest.raises(RuntimeViolation, match="requested current_stage clarify does not match persisted run-state stage execute"):
+        advance_to_next_stage(task_dir=task_dir, policy=policy, route_name="small", current_stage="clarify")
+
+
 def test_finalize_blocks_missing_review_flags(tmp_path: Path) -> None:
     policy = load_runtime_policy(ROOT)
     task_dir = _make_task_dir(tmp_path)
+    run_state = json.loads((task_dir / "run-state.json").read_text(encoding="utf-8"))
+    run_state["current_stage"] = "quality-review"
+    _write_json(task_dir / "run-state.json", run_state)
     _write_json(
         task_dir / "review-report.json",
         {
@@ -1426,6 +1444,33 @@ def test_cli_advance_with_execute_runs_next_stage_and_updates_run_state(tmp_path
     run_state = json.loads((task_dir / "run-state.json").read_text(encoding="utf-8"))
     assert run_state["current_stage"] == "execute"
     assert (task_dir / "execute-output.md").exists()
+
+
+def test_cli_execute_reports_non_runtime_failures_cleanly(tmp_path: Path) -> None:
+    task_dir = _make_task_dir(tmp_path)
+
+    result = _run_orchestrator_cli(
+        "execute",
+        "--task-dir",
+        str(task_dir),
+        "--route",
+        "small",
+        "--role",
+        "nonexistent-role",
+    )
+
+    assert result.returncode == 1
+    assert result.stdout == ""
+    assert result.stderr.startswith("ERROR: unknown role: nonexistent-role")
+
+
+def test_readme_examples_describe_manual_execution_flow() -> None:
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+
+    assert "scripts/run_orchestrator.py execute --task-dir" in readme
+    assert "advance --execute" in readme
+    assert "run`은 artifact/gate 기준으로 route 상태를 진행" in readme
+    assert "execute`는 현재 stage를 어댑터로 실행" in readme
 
 
 def test_cli_reports_runtime_violations_without_tracebacks(tmp_path: Path) -> None:
