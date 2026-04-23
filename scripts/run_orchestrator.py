@@ -14,6 +14,7 @@ from forgeflow_runtime.orchestrator import (  # noqa: E402
     RuntimeViolation,
     advance_to_next_stage,
     escalate_route,
+    init_task,
     load_runtime_policy,
     resume_task,
     retry_stage,
@@ -114,6 +115,9 @@ def build_parser() -> argparse.ArgumentParser:
   # Safe sample: copies the fixture to a disposable workspace before running.
   python3 scripts/run_runtime_sample.py --fixture-dir examples/runtime-fixtures/small-doc-task --route small
 
+  # Bootstrap a real task from explicit operator inputs.
+  python3 scripts/run_orchestrator.py init --task-dir work/my-task --task-id my-task-001 --objective "Update README quickstart" --risk low
+
   # Fallback entry: start/run can reuse persisted route or auto-route from brief/checkpoint state.
   python3 scripts/run_orchestrator.py start --task-dir examples/runtime-fixtures/small-doc-task
   python3 scripts/run_orchestrator.py run --task-dir examples/runtime-fixtures/small-doc-task --min-route medium
@@ -145,6 +149,15 @@ Notes:
     start_parser.add_argument("--task-dir", required=True)
     start_parser.add_argument("--route", help=route_help)
     start_parser.add_argument("--min-route", choices=ROUTE_ORDER, help=min_route_help)
+
+    init_parser = subparsers.add_parser(
+        "init",
+        help="bootstrap a new task from explicit operator inputs without overwriting existing artifacts",
+    )
+    init_parser.add_argument("--task-dir", required=True)
+    init_parser.add_argument("--task-id", required=True)
+    init_parser.add_argument("--objective", required=True)
+    init_parser.add_argument("--risk", choices=["low", "medium", "high"], required=True)
 
     run_parser = subparsers.add_parser(
         "run",
@@ -216,6 +229,16 @@ def main() -> int:
         )
         if args.command == "start":
             _print_payload(start_task(task_dir=task_dir, policy=policy, route_name=route_name))
+        elif args.command == "init":
+            _print_payload(
+                init_task(
+                    task_dir=task_dir,
+                    policy=policy,
+                    task_id=args.task_id,
+                    objective=args.objective,
+                    risk_level=args.risk,
+                )
+            )
         elif args.command == "run":
             _print_payload(run_route(task_dir=task_dir, policy=policy, route_name=route_name))
         elif args.command == "resume":

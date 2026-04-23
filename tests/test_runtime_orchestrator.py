@@ -1951,6 +1951,68 @@ def test_cli_help_includes_operator_shell_examples() -> None:
     assert "Manual commands mutate the target task-dir" in result.stdout
 
 
+def test_cli_init_bootstraps_task_from_operator_inputs(tmp_path: Path) -> None:
+    task_dir = tmp_path / "my-task"
+
+    result = _run_orchestrator_cli(
+        "init",
+        "--task-dir",
+        str(task_dir),
+        "--task-id",
+        "my-task-001",
+        "--objective",
+        "Update README quickstart",
+        "--risk",
+        "low",
+    )
+
+    assert result.returncode == 0
+    payload = json.loads(result.stdout)
+    assert payload["task_id"] == "my-task-001"
+    assert payload["route"] == "small"
+    assert payload["created"] == ["brief.json", "run-state.json", "checkpoint.json", "session-state.json"]
+    assert payload["next_action"] == "run status or execute the clarify stage"
+
+    brief = json.loads((task_dir / "brief.json").read_text(encoding="utf-8"))
+    assert brief["task_id"] == "my-task-001"
+    assert brief["objective"] == "Update README quickstart"
+    assert brief["risk_level"] == "low"
+
+    run_state = json.loads((task_dir / "run-state.json").read_text(encoding="utf-8"))
+    assert run_state["task_id"] == "my-task-001"
+    assert run_state["current_stage"] == "clarify"
+    assert run_state["status"] == "not_started"
+
+    status_result = _run_orchestrator_cli("status", "--task-dir", str(task_dir))
+    assert status_result.returncode == 0
+    status_payload = json.loads(status_result.stdout)
+    assert status_payload["task_id"] == "my-task-001"
+    assert status_payload["route"] == "small"
+    assert status_payload["current_stage"] == "clarify"
+
+
+def test_cli_init_refuses_to_overwrite_existing_artifacts(tmp_path: Path) -> None:
+    task_dir = tmp_path / "existing-task"
+    task_dir.mkdir()
+    (task_dir / "brief.json").write_text("{}", encoding="utf-8")
+
+    result = _run_orchestrator_cli(
+        "init",
+        "--task-dir",
+        str(task_dir),
+        "--task-id",
+        "existing-001",
+        "--objective",
+        "Do not overwrite me",
+        "--risk",
+        "low",
+    )
+
+    assert result.returncode == 1
+    assert result.stdout == ""
+    assert result.stderr.startswith("ERROR: init refuses to overwrite existing task artifacts")
+
+
 def test_cli_run_executes_sample_fixture(tmp_path: Path) -> None:
     task_dir = tmp_path / "cli-task"
     task_dir.mkdir()
@@ -2240,6 +2302,7 @@ def test_readme_examples_describe_manual_execution_flow() -> None:
     assert "## Quickstart" in readme
     assert "make validate" in readme
     assert "python3 scripts/run_orchestrator.py --help" in readme
+    assert "scripts/run_orchestrator.py init" in readme
     assert "scripts/run_runtime_sample.py --fixture-dir" in readme
     assert "Manual `run_orchestrator.py` commands mutate their target `--task-dir`" in readme
     assert "scripts/run_orchestrator.py execute --task-dir" in readme

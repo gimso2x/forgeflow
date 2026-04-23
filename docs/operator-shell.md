@@ -7,6 +7,7 @@ ForgeFlow의 정본 흐름은 `clarify-first`다. operator shell은 그 정본�
 Use the operator shell when you need to:
 
 - inspect persisted task state
+- bootstrap a new task from explicit operator inputs
 - run a route against local artifacts
 - execute or advance one stage manually
 - retry a failed stage within budget
@@ -46,6 +47,13 @@ python3 scripts/run_orchestrator.py execute --help
 ## Common commands
 
 ```bash
+# Bootstrap a real task from explicit inputs.
+python3 scripts/run_orchestrator.py init \
+  --task-dir work/my-task \
+  --task-id my-task-001 \
+  --objective "Update README quickstart" \
+  --risk low
+
 # Inspect current artifacts and stage pointer.
 python3 scripts/run_orchestrator.py status \
   --task-dir examples/runtime-fixtures/small-doc-task

@@ -989,6 +989,81 @@ def _bootstrap_plan_ledger(task_id: str, route_name: str) -> dict[str, Any]:
     }
 
 
+def _initial_run_state(task_id: str, route: list[str], plan_ledger: dict[str, Any] | None = None) -> dict[str, Any]:
+    return {
+        "schema_version": "0.1",
+        "task_id": task_id,
+        "current_stage": route[0],
+        "status": "not_started",
+        "completed_gates": [],
+        "failed_gates": [],
+        "retries": {},
+        "evidence_refs": [],
+        "current_task_id": (plan_ledger or {}).get("current_task_id", ""),
+        "spec_review_approved": False,
+        "quality_review_approved": False,
+    }
+
+
+def init_task(
+    task_dir: Path,
+    policy: RuntimePolicy,
+    *,
+    task_id: str,
+    objective: str,
+    risk_level: str,
+) -> dict[str, Any]:
+    if risk_level not in {"low", "medium", "high"}:
+        raise RuntimeViolation(f"unknown risk level: {risk_level}")
+    route_name = {"low": "small", "medium": "medium", "high": "large_high_risk"}[risk_level]
+    route = _resolve_route(policy, route_name)
+    if task_dir.exists():
+        existing_artifacts = [path.name for path in task_dir.iterdir() if path.is_file()]
+        if existing_artifacts:
+            raise RuntimeViolation("init refuses to overwrite existing task artifacts")
+    task_dir.mkdir(parents=True, exist_ok=True)
+
+    brief_payload = {
+        "schema_version": "0.1",
+        "task_id": task_id,
+        "objective": objective,
+        "in_scope": [objective],
+        "out_of_scope": [],
+        "constraints": ["initialized from operator CLI"],
+        "acceptance_criteria": ["task artifacts are initialized and schema-valid"],
+        "risk_level": risk_level,
+    }
+    _write_validated_artifact(task_dir, "brief", brief_payload)
+
+    run_state = _initial_run_state(task_id, route)
+    _write_validated_artifact(task_dir, "run-state", run_state)
+
+    checkpoint = _sync_checkpoint(
+        task_dir,
+        route_name=route_name,
+        route=route,
+        run_state=run_state,
+        plan_ledger=None,
+        checkpoint=None,
+    )
+    _sync_session_state(
+        task_dir,
+        route_name=route_name,
+        run_state=run_state,
+        checkpoint=checkpoint,
+        plan_ledger=None,
+        session_state=None,
+    )
+
+    return {
+        "task_id": task_id,
+        "task_dir": str(task_dir),
+        "route": route_name,
+        "created": ["brief.json", "run-state.json", "checkpoint.json", "session-state.json"],
+        "next_action": "run status or execute the clarify stage",
+    }
+
+
 def start_task(task_dir: Path, policy: RuntimePolicy, route_name: str) -> dict[str, Any]:
     route = _resolve_route(policy, route_name)
     if task_dir.exists():

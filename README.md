@@ -111,7 +111,19 @@ python3 scripts/run_runtime_sample.py --fixture-dir examples/runtime-fixtures/sm
 
 This copies the fixture to a disposable workspace before running, so tracked sample artifacts stay clean.
 
-### 4. Inspect the fixture state
+### 4. Start your own task
+
+```bash
+python3 scripts/run_orchestrator.py init \
+  --task-dir work/my-task \
+  --task-id my-task-001 \
+  --objective "Update README quickstart" \
+  --risk low
+```
+
+This creates schema-valid starter artifacts and leaves the task at `clarify`.
+
+### 5. Inspect the fixture state
 
 ```bash
 python3 scripts/run_orchestrator.py status --task-dir examples/runtime-fixtures/small-doc-task
@@ -119,7 +131,7 @@ python3 scripts/run_orchestrator.py status --task-dir examples/runtime-fixtures/
 
 Manual `run_orchestrator.py` commands mutate their target `--task-dir`; use `run_runtime_sample.py` for demos unless mutation is intentional.
 
-### 5. Use an adapter in another project
+### 6. Use an adapter in another project
 
 ```bash
 cp adapters/generated/codex/CODEX.md /path/to/your-project/CODEX.md
