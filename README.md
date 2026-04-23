@@ -158,13 +158,14 @@ python3 scripts/run_orchestrator.py --help
 python3 scripts/run_runtime_sample.py --fixture-dir examples/runtime-fixtures/small-doc-task --route small
 python3 scripts/run_orchestrator.py status --task-dir examples/runtime-fixtures/small-doc-task
 python3 scripts/run_orchestrator.py execute --task-dir examples/runtime-fixtures/small-doc-task --route small --adapter codex
+python3 scripts/run_orchestrator.py execute --task-dir examples/runtime-fixtures/small-doc-task --route small --adapter claude --real
 python3 scripts/run_orchestrator.py run --task-dir examples/runtime-fixtures/small-doc-task --min-route medium
 python3 scripts/run_orchestrator.py advance --task-dir examples/runtime-fixtures/small-doc-task --route small --current-stage clarify --execute --adapter cursor
 ```
 
 Full operator examples live in `docs/operator-shell.md`. `run_runtime_sample.py`는 fixture를 임시 workspace로 복사한 뒤 실행해서 샘플 명령만으로 tracked runtime fixture가 dirty 상태가 되지 않게 막는다. manual `run_orchestrator.py` 명령은 대상 `--task-dir`를 실제로 변경하므로 demo에는 disposable sample runner를 쓰는 게 맞다.
 
-이 CLI는 local artifact 디렉터리를 기준으로 route 실행과 recovery helper를 노출한다. `run`은 artifact/gate 기준으로 route 상태를 진행하는 orchestration 명령이다. `run`/`start`는 operator fallback surface라서, route를 명시하지 않으면 persisted state를 재사용하거나 brief/checkpoint 기준으로 auto routing을 시도한다. 그래도 workflow의 정본은 여전히 `clarify-first`다. `execute`는 현재 stage를 어댑터로 실행한다. `advance --execute`는 다음 stage로 넘긴 뒤 바로 실행까지 붙이되, 실행이 실패하면 stage pointer를 커밋하지 않는다. medium/large route에서는 `advance`/`run` 모두 `plan-ledger.json`이 있어야 하고, `step-back`은 되감는 stage에 해당하는 review approval/evidence만 지운다. 정책 위반이나 잘못된 route가 들어오면 traceback 대신 `ERROR:` 형식의 명시적 runtime 오류를 반환한다.
+이 CLI는 local artifact 디렉터리를 기준으로 route 실행과 recovery helper를 노출한다. `run`은 artifact/gate 기준으로 route 상태를 진행하는 orchestration 명령이다. `run`/`start`는 operator fallback surface라서, route를 명시하지 않으면 persisted state를 재사용하거나 brief/checkpoint 기준으로 auto routing을 시도한다. 그래도 workflow의 정본은 여전히 `clarify-first`다. `execute`는 현재 stage를 어댑터로 실행한다. 기본 실행은 안전한 stub이고, 실제 CLI 호출은 `--real`을 붙인 경우에만 탄다. 결과 payload의 `execution_mode`로 `stub`/`real`을 확인해야 한다. `advance --execute`는 다음 stage로 넘긴 뒤 바로 실행까지 붙이되, 실행이 실패하면 stage pointer를 커밋하지 않는다. medium/large route에서는 `advance`/`run` 모두 `plan-ledger.json`이 있어야 하고, `step-back`은 되감는 stage에 해당하는 review approval/evidence만 지운다. 정책 위반이나 잘못된 route가 들어오면 traceback 대신 `ERROR:` 형식의 명시적 runtime 오류를 반환한다.
 
 ## Using ForgeFlow in Codex
 Codex에서는 repo 루트의 `CODEX.md`가 지속 표면이다. generated adapter를 그대로 복사해서 쓰고, 프로젝트별 보조 규칙은 별도 문서에 두는 게 맞다. generated 파일을 손으로 덕지덕지 고치기 시작하면 다음 regenerate 때 다시 개판 난다.
@@ -178,7 +179,7 @@ codex exec "Use ForgeFlow rules. Inspect examples/runtime-fixtures/small-doc-tas
 권장 흐름:
 - ForgeFlow semantics는 `CODEX.md`에서 고정한다.
 - 실제 작업 지시는 issue/brief/plan artifact와 함께 Codex prompt로 넘긴다.
-- route 실행 검증은 `python3 scripts/run_orchestrator.py ... --adapter codex`로 따로 확인한다.
+- route 실행 검증은 `python3 scripts/run_orchestrator.py ... --adapter codex`로 따로 확인한다. 실제 Codex CLI를 호출하려면 `--real`을 붙이고, payload의 `execution_mode`가 `real`인지 본다.
 
 ## Using ForgeFlow in Claude Code
 Claude Code에서는 repo 루트의 `CLAUDE.md`가 지속 표면이다. 이것도 똑같이 generated adapter를 복사해서 쓴다. Claude용 팁을 추가하고 싶으면 README나 별도 docs에 쓰지, canonical semantics를 `CLAUDE.md`에서 멋대로 바꾸면 안 된다.
@@ -192,7 +193,7 @@ claude -p "Use ForgeFlow rules. Inspect examples/runtime-fixtures/small-doc-task
 권장 흐름:
 - Claude는 `CLAUDE.md`로 stage/gate semantics를 읽는다.
 - 실제 구현 요청은 brief와 artifact 경로를 함께 준다.
-- local runtime 쪽 동작은 `python3 scripts/run_orchestrator.py ... --adapter claude`처럼 adapter 이름을 명시해서 검증한다.
+- local runtime 쪽 동작은 `python3 scripts/run_orchestrator.py ... --adapter claude`처럼 adapter 이름을 명시해서 검증한다. 실제 Claude Code를 호출하려면 `--real`을 붙이고, payload의 `execution_mode`가 `real`인지 본다.
 
 ## Real CLI smoke tests on this repo
 아래 정도는 최소한 직접 돌려보고 "된다"고 말할 수 있다.
@@ -200,6 +201,8 @@ claude -p "Use ForgeFlow rules. Inspect examples/runtime-fixtures/small-doc-task
 ```bash
 codex login status
 script -qc "claude -p 'Reply with exactly: CLAUDE_OK'" /dev/null
+python3 scripts/run_orchestrator.py execute --task-dir examples/runtime-fixtures/small-doc-task --route small --adapter codex --real
+python3 scripts/run_orchestrator.py execute --task-dir examples/runtime-fixtures/small-doc-task --route small --adapter claude --real
 ```
 
 이 저장소에서 실제로 검증할 때는, generated adapter를 temp git repo에 복사한 뒤 한 줄짜리 확인 프롬프트를 던져서 Codex/Claude가 instruction file을 읽는지 먼저 보는 게 제일 덜 멍청하다.

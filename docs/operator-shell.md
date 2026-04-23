@@ -71,10 +71,21 @@ python3 scripts/run_orchestrator.py run \
   --min-route medium
 
 # Execute the current stage with a selected adapter.
+# Default execution is a safe stub; the JSON payload should report
+# "execution_mode": "stub".
 python3 scripts/run_orchestrator.py execute \
   --task-dir examples/runtime-fixtures/small-doc-task \
   --route small \
   --adapter codex
+
+# Opt into the real provider CLI explicitly. This requires the selected
+# binary and auth to be available on PATH, and the JSON payload should report
+# "execution_mode": "real".
+python3 scripts/run_orchestrator.py execute \
+  --task-dir examples/runtime-fixtures/small-doc-task \
+  --route small \
+  --adapter claude \
+  --real
 
 # Advance from clarify and immediately execute the next stage.
 python3 scripts/run_orchestrator.py advance \
