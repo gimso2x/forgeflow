@@ -489,7 +489,7 @@ def test_run_route_rejects_approved_review_with_open_blockers(tmp_path: Path) ->
         },
     )
 
-    with pytest.raises(RuntimeViolation, match="approved review-report.json cannot declare open_blockers"):
+    with pytest.raises(RuntimeViolation, match="review-report.json failed schema validation: open_blockers"):
         run_route(task_dir=task_dir, policy=policy, route_name="small")
 
 
@@ -510,7 +510,7 @@ def test_run_route_rejects_approved_quality_review_marked_unsafe(tmp_path: Path)
         },
     )
 
-    with pytest.raises(RuntimeViolation, match="approved review-report.json cannot set safe_for_next_stage=false"):
+    with pytest.raises(RuntimeViolation, match="review-report.json failed schema validation: safe_for_next_stage"):
         run_route(task_dir=task_dir, policy=policy, route_name="small")
 
 
@@ -531,7 +531,7 @@ def test_run_route_rejects_approved_spec_review_marked_unsafe(tmp_path: Path) ->
         },
     )
 
-    with pytest.raises(RuntimeViolation, match="approved review-report.json cannot set safe_for_next_stage=false"):
+    with pytest.raises(RuntimeViolation, match="review-report.json failed schema validation: safe_for_next_stage"):
         run_route(task_dir=task_dir, policy=policy, route_name="small")
 
 

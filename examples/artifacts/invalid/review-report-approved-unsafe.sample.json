@@ -1,0 +1,11 @@
+{
+  "schema_version": "0.1",
+  "task_id": "task-invalid-review-005",
+  "review_type": "quality",
+  "verdict": "approved",
+  "findings": ["approved but explicitly unsafe for the next stage"],
+  "approved_by": "quality-reviewer",
+  "open_blockers": [],
+  "safe_for_next_stage": false,
+  "next_action": "finalize 보류"
+}

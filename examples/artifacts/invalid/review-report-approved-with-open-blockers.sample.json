@@ -1,0 +1,11 @@
+{
+  "schema_version": "0.1",
+  "task_id": "task-invalid-review-004",
+  "review_type": "quality",
+  "verdict": "approved",
+  "findings": ["approved despite an unresolved blocker"],
+  "approved_by": "quality-reviewer",
+  "open_blockers": ["integration evidence missing"],
+  "safe_for_next_stage": true,
+  "next_action": "finalize 가능"
+}

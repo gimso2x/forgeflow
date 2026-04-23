@@ -38,7 +38,13 @@
         "properties": {"verdict": {"const": "approved"}},
         "required": ["verdict"]
       },
-      "then": {"required": ["approved_by", "next_action"]}
+      "then": {
+        "required": ["approved_by", "next_action"],
+        "properties": {
+          "open_blockers": {"maxItems": 0},
+          "safe_for_next_stage": {"const": true}
+        }
+      }
     },
     {
       "if": {

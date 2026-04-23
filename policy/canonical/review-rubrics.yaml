@@ -9,6 +9,7 @@ spec_review:
     - missing acceptance coverage
     - unapproved scope drift
     - evidence-free completion claim
+    - approved verdict with open_blockers or safe_for_next_stage=false
 quality_review:
   questions:
     - Is the result simple enough?
@@ -19,3 +20,4 @@ quality_review:
     - avoidable complexity
     - weak verification
     - hidden residual risk
+    - approved verdict with open_blockers or safe_for_next_stage=false

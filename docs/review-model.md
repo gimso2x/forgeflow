@@ -167,6 +167,7 @@ review가 실패하면 다음 stage로 못 간다.
 - spec-review 승인 전 finalize 금지
 - quality-review 승인 전 high-risk finalize 금지
 - `run-state.spec_review_approved`, `run-state.quality_review_approved` 같은 승인 flag가 안 섰으면 필요한 finalize gate를 통과할 수 없다
+- `verdict=approved`인 review-report는 `open_blockers=[]`이고, `safe_for_next_stage`가 있으면 반드시 `true`여야 한다. blocker가 있거나 `safe_for_next_stage=false`면 schema/runtime 양쪽에서 승인으로 취급하지 않는다.
 - unresolved risk가 있으면 숨기지 않고 남겨야 함
 - finalize는 종료 처리이지, 면죄부가 아니다
 
