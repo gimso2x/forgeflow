@@ -17,6 +17,7 @@ POSITIVE_SAMPLES = {
     "examples/artifacts/review-report-quality.sample.json": ROOT / "schemas/review-report.schema.json",
     "examples/artifacts/eval-record.sample.json": ROOT / "schemas/eval-record.schema.json",
     "examples/artifacts/checkpoint.sample.json": ROOT / "schemas/checkpoint.schema.json",
+    "examples/artifacts/session-state.sample.json": ROOT / "schemas/session-state.schema.json",
 }
 NEGATIVE_SAMPLES = {
     "run-state-invalid-stage.sample.json": ROOT / "schemas/run-state.schema.json",
@@ -25,6 +26,7 @@ NEGATIVE_SAMPLES = {
     "review-report-blocked-missing-next-action.sample.json": ROOT / "schemas/review-report.schema.json",
     "plan-ledger-done-without-evidence.sample.json": ROOT / "schemas/plan-ledger.schema.json",
     "checkpoint-invalid-updated-at.sample.json": ROOT / "schemas/checkpoint.schema.json",
+    "session-state-missing-ref.sample.json": ROOT / "schemas/session-state.schema.json",
 }
 FORMAT_CHECKER = FormatChecker()
 

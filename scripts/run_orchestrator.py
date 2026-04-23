@@ -15,8 +15,11 @@ from forgeflow_runtime.orchestrator import (  # noqa: E402
     advance_to_next_stage,
     escalate_route,
     load_runtime_policy,
+    resume_task,
     retry_stage,
     run_route,
+    start_task,
+    status_summary,
     step_back,
 )
 
@@ -29,9 +32,21 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="ForgeFlow minimal stage-machine orchestrator")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
+    start_parser = subparsers.add_parser("start", help="initialize a new task directory with route-owned artifacts")
+    start_parser.add_argument("--task-dir", required=True)
+    start_parser.add_argument("--route", required=True)
+
     run_parser = subparsers.add_parser("run", help="run an entire route end-to-end")
     run_parser.add_argument("--task-dir", required=True)
     run_parser.add_argument("--route", required=True)
+
+    resume_parser = subparsers.add_parser("resume", help="reload task state from session-state and checkpoint artifacts")
+    resume_parser.add_argument("--task-dir", required=True)
+    resume_parser.add_argument("--route", required=True)
+
+    status_parser = subparsers.add_parser("status", help="show current task status from canonical artifacts")
+    status_parser.add_argument("--task-dir", required=True)
+    status_parser.add_argument("--route", required=True)
 
     advance_parser = subparsers.add_parser("advance", help="advance one stage forward")
     advance_parser.add_argument("--task-dir", required=True)
@@ -62,8 +77,14 @@ def main() -> int:
     policy = load_runtime_policy(ROOT)
 
     try:
-        if args.command == "run":
+        if args.command == "start":
+            _print_payload(start_task(task_dir=task_dir, policy=policy, route_name=args.route))
+        elif args.command == "run":
             _print_payload(run_route(task_dir=task_dir, policy=policy, route_name=args.route))
+        elif args.command == "resume":
+            _print_payload(resume_task(task_dir=task_dir, policy=policy, route_name=args.route))
+        elif args.command == "status":
+            _print_payload(status_summary(task_dir=task_dir, policy=policy, route_name=args.route))
         elif args.command == "advance":
             _print_payload(
                 {"next_stage": advance_to_next_stage(task_dir=task_dir, policy=policy, route_name=args.route, current_stage=args.current_stage).next_stage}

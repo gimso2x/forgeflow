@@ -1,0 +1,14 @@
+{
+  "schema_version": "0.1",
+  "task_id": "task-sample-ledger-001",
+  "route": "medium",
+  "current_stage": "execute",
+  "current_task_id": "task-2",
+  "plan_ref": "examples/artifacts/plan.sample.json",
+  "plan_ledger_ref": "examples/artifacts/plan-ledger.sample.json",
+  "run_state_ref": "examples/artifacts/run-state.sample.json",
+  "latest_checkpoint_ref": "examples/artifacts/checkpoint.sample.json",
+  "latest_review_ref": "examples/artifacts/review-report-spec.sample.json",
+  "next_action": "Finish the remaining implementation plan details and rerun validator gate.",
+  "updated_at": "2026-04-23T01:15:00Z"
+}

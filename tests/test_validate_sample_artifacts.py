@@ -178,6 +178,32 @@ def test_checkpoint_schema_requires_valid_timestamp() -> None:
     assert any(list(err.path) == ["updated_at"] for err in errors)
 
 
+def test_session_state_schema_requires_core_refs() -> None:
+    schema = json.loads((ROOT / "schemas" / "session-state.schema.json").read_text(encoding="utf-8"))
+    validator = Draft202012Validator(schema, format_checker=FormatChecker())
+
+    errors = sorted(
+        validator.iter_errors(
+            {
+                "schema_version": "0.1",
+                "task_id": "task-001",
+                "route": "medium",
+                "current_stage": "execute",
+                "current_task_id": "task-1",
+                "run_state_ref": "run-state.json",
+                "latest_checkpoint_ref": "checkpoint.json",
+                "next_action": "resume",
+                "updated_at": "2026-04-23T00:00:00Z",
+            }
+        ),
+        key=lambda err: list(err.path),
+    )
+
+    assert errors
+    assert any(err.validator == "required" and "plan_ref" in err.message for err in errors)
+    assert any(err.validator == "required" and "plan_ledger_ref" in err.message for err in errors)
+
+
 def test_validate_sample_artifacts_tracks_positive_and_negative_fixtures() -> None:
     validate_samples = _load_validate_samples_module()
 
@@ -206,6 +232,7 @@ def test_validate_sample_artifacts_tracks_positive_and_negative_fixtures() -> No
         ("review-report-blocked-missing-next-action.sample.json", "next_action"),
         ("plan-ledger-done-without-evidence.sample.json", "evidence_refs"),
         ("checkpoint-invalid-updated-at.sample.json", "updated_at"),
+        ("session-state-missing-ref.sample.json", "plan_ref"),
     ],
 )
 def test_negative_fixtures_fail_for_expected_reason(fixture_name: str, expected_fragment: str) -> None:
