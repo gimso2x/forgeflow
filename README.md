@@ -13,6 +13,8 @@ It is a repo seed for running work through explicit stages, artifacts, gates, an
 - keeps small tasks light and high-risk tasks strict
 
 ## Core workflow
+ForgeFlow의 정본 시작점은 항상 `clarify`다.
+
 1. `clarify`
 2. `plan`
 3. `execute`
@@ -21,7 +23,13 @@ It is a repo seed for running work through explicit stages, artifacts, gates, an
 6. `finalize`
 7. `long-run`
 
+`clarify`는 요청을 실행 가능한 brief로 정리하고, 필요한 route를 결정하는 기본 입구다. 사용자가 정상 경로로 들어오면 여기서 시작하는 게 맞다.
+
+아무 state도 없는데 operator가 `start`/`run`으로 바로 진입하는 경우는 예외다. 이때만 runtime이 fallback으로 auto routing을 적용할 수 있다. 다만 이건 convenience layer일 뿐이고, workflow 의미론의 본체는 여전히 `clarify-first`다.
+
 ## Complexity routing
+fallback auto routing이 route를 고르면 canonical policy는 아래 순서를 따른다.
+
 - **small** → `clarify -> execute -> quality-review -> finalize`
 - **medium** → `clarify -> plan -> execute -> quality-review -> finalize`
 - **large/high-risk** → `clarify -> plan -> execute -> spec-review -> quality-review -> finalize -> long-run`
@@ -58,8 +66,12 @@ make runtime-sample
 ```
 
 ## Runtime sample
+권장 경로는 `clarify`부터 brief와 route를 만든 뒤 진행하는 것이다. 아래 CLI 예시는 local runtime을 직접 만질 때 쓰는 operator surface다.
+
 ```bash
 python3 scripts/run_runtime_sample.py --fixture-dir examples/runtime-fixtures/small-doc-task --route small
+python3 scripts/run_orchestrator.py run --task-dir examples/runtime-fixtures/small-doc-task
+python3 scripts/run_orchestrator.py run --task-dir examples/runtime-fixtures/small-doc-task --min-route medium
 python3 scripts/run_orchestrator.py execute --task-dir examples/runtime-fixtures/small-doc-task --route small --adapter codex
 python3 scripts/run_orchestrator.py advance --task-dir examples/runtime-fixtures/small-doc-task --route small --current-stage clarify
 python3 scripts/run_orchestrator.py advance --task-dir examples/runtime-fixtures/small-doc-task --route small --current-stage clarify --execute --adapter cursor
@@ -70,7 +82,7 @@ python3 scripts/run_orchestrator.py escalate --task-dir examples/runtime-fixture
 
 `run_runtime_sample.py`는 fixture를 임시 workspace로 복사한 뒤 실행해서 샘플 명령만으로 tracked runtime fixture가 dirty 상태가 되지 않게 막는다. 실행 결과에는 원본 fixture 경로만 다시 싣고, 임시 workspace 경로는 노출하지 않는다. manual `execute`/`advance`/`retry` 예시는 여전히 원본 task-dir를 직접 대상으로 삼지만, `run` 샘플은 disposable copy에서만 돈다.
 
-이 CLI는 local artifact 디렉터리를 기준으로 route 실행과 recovery helper를 노출한다. `run`은 artifact/gate 기준으로 route 상태를 진행하는 orchestration 명령이고, `execute`는 현재 stage를 어댑터로 실행한다. `advance --execute`는 다음 stage로 넘긴 뒤 바로 실행까지 붙이되, 실행이 실패하면 stage pointer를 커밋하지 않는다. medium/large route에서는 `advance`/`run` 모두 `plan-ledger.json`이 있어야 하고, `step-back`은 되감는 stage에 해당하는 review approval/evidence만 지운다. 정책 위반이나 잘못된 route가 들어오면 traceback 대신 `ERROR:` 형식의 명시적 runtime 오류를 반환한다.
+이 CLI는 local artifact 디렉터리를 기준으로 route 실행과 recovery helper를 노출한다. `run`은 artifact/gate 기준으로 route 상태를 진행하는 orchestration 명령이다. `run`/`start`는 operator fallback surface라서, route를 명시하지 않으면 persisted state를 재사용하거나 brief/checkpoint 기준으로 auto routing을 시도한다. 그래도 workflow의 정본은 여전히 `clarify-first`다. `execute`는 현재 stage를 어댑터로 실행한다. `advance --execute`는 다음 stage로 넘긴 뒤 바로 실행까지 붙이되, 실행이 실패하면 stage pointer를 커밋하지 않는다. medium/large route에서는 `advance`/`run` 모두 `plan-ledger.json`이 있어야 하고, `step-back`은 되감는 stage에 해당하는 review approval/evidence만 지운다. 정책 위반이나 잘못된 route가 들어오면 traceback 대신 `ERROR:` 형식의 명시적 runtime 오류를 반환한다.
 
 ## Using ForgeFlow in Codex
 Codex에서는 repo 루트의 `CODEX.md`가 지속 표면이다. generated adapter를 그대로 복사해서 쓰고, 프로젝트별 보조 규칙은 별도 문서에 두는 게 맞다. generated 파일을 손으로 덕지덕지 고치기 시작하면 다음 regenerate 때 다시 개판 난다.

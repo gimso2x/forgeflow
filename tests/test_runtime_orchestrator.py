@@ -1993,6 +1993,55 @@ def test_cli_supports_start_resume_and_status(tmp_path: Path) -> None:
     assert json.loads(resume_result.stdout)["route"] == "medium"
 
 
+def test_cli_start_supports_min_route_override_without_explicit_route(tmp_path: Path) -> None:
+    task_dir = tmp_path / "cli-min-route-start"
+
+    start_result = _run_orchestrator_cli("start", "--task-dir", str(task_dir), "--min-route", "medium")
+
+    assert start_result.returncode == 0
+    payload = json.loads(start_result.stdout)
+    assert payload["route"] == "medium"
+
+
+def test_cli_run_auto_detects_small_route_and_min_route_can_raise_it(tmp_path: Path) -> None:
+    task_dir = tmp_path / "cli-auto-route"
+    task_dir.mkdir()
+    _write_json(
+        task_dir / "brief.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-auto-001",
+            "objective": "Auto route selection",
+            "in_scope": ["runtime"],
+            "out_of_scope": [],
+            "constraints": ["local only"],
+            "acceptance_criteria": ["auto route works"],
+            "risk_level": "low",
+        },
+    )
+    _write_json(
+        task_dir / "review-report.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-auto-001",
+            "review_type": "quality",
+            "verdict": "approved",
+            "findings": ["cli looks fine"],
+            "approved_by": "quality-reviewer",
+            "next_action": "finalize 가능",
+        },
+    )
+
+    auto_result = _run_orchestrator_cli("run", "--task-dir", str(task_dir))
+    assert auto_result.returncode == 0
+    checkpoint = json.loads((task_dir / "checkpoint.json").read_text(encoding="utf-8"))
+    assert checkpoint["route"] == "small"
+
+    raised_result = _run_orchestrator_cli("run", "--task-dir", str(task_dir), "--min-route", "medium")
+    assert raised_result.returncode == 1
+    assert "medium route requires plan-ledger.json" in raised_result.stderr
+
+
 def test_cli_supports_recovery_commands(tmp_path: Path) -> None:
     task_dir = _make_task_dir(tmp_path)
 
