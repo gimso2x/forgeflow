@@ -412,14 +412,13 @@ def _load_session_state(task_dir: Path, *, canonical_task_id: str) -> dict[str, 
 
 def _validate_review_semantics(payload: dict[str, Any], *, source_name: str) -> None:
     verdict = payload.get("verdict")
-    review_type = payload.get("review_type")
     open_blockers = payload.get("open_blockers", [])
     if open_blockers is None:
         open_blockers = []
     if verdict == "approved" and open_blockers:
         raise RuntimeViolation(f"approved {source_name} cannot declare open_blockers")
-    if review_type == "quality" and verdict == "approved" and payload.get("safe_for_next_stage") is False:
-        raise RuntimeViolation(f"quality {source_name} approved verdict cannot set safe_for_next_stage=false")
+    if verdict == "approved" and payload.get("safe_for_next_stage") is False:
+        raise RuntimeViolation(f"approved {source_name} cannot set safe_for_next_stage=false")
 
 
 def _expected_plan_ledger_ref(*, route_name: str, plan_ledger: dict[str, Any] | None) -> str:
