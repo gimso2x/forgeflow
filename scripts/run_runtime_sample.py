@@ -20,7 +20,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--fixture-dir",
         default=str(DEFAULT_FIXTURE),
-        help="fixture task directory to copy before running the sample",
+        help="fixture task directory to copy before running the sample (must be a directory)",
     )
     parser.add_argument("--route", default="small", help="route name to execute")
     return parser
@@ -31,6 +31,9 @@ def main() -> int:
     fixture_dir = Path(args.fixture_dir).resolve()
     if not fixture_dir.exists():
         print(f"ERROR: fixture directory not found: {fixture_dir}", file=sys.stderr)
+        return 1
+    if not fixture_dir.is_dir():
+        print(f"ERROR: fixture directory is not a directory: {fixture_dir}", file=sys.stderr)
         return 1
 
     with tempfile.TemporaryDirectory(prefix="forgeflow-runtime-sample-") as td:

@@ -1994,8 +1994,9 @@ def test_readme_examples_describe_manual_execution_flow() -> None:
 def test_runtime_sample_cli_uses_disposable_fixture_copy() -> None:
     fixture_dir = ROOT / "examples" / "runtime-fixtures" / "small-doc-task"
     tracked_files = {
-        rel: (fixture_dir / rel).read_text(encoding="utf-8")
-        for rel in ["checkpoint.json", "decision-log.json", "session-state.json"]
+        path.relative_to(fixture_dir): path.read_text(encoding="utf-8")
+        for path in fixture_dir.rglob("*")
+        if path.is_file()
     }
 
     result = subprocess.run(
@@ -2022,6 +2023,30 @@ def test_runtime_sample_cli_uses_disposable_fixture_copy() -> None:
 
     for rel, original in tracked_files.items():
         assert (fixture_dir / rel).read_text(encoding="utf-8") == original
+
+
+def test_runtime_sample_cli_rejects_non_directory_fixture(tmp_path: Path) -> None:
+    file_path = tmp_path / "not-a-dir.json"
+    file_path.write_text("{}", encoding="utf-8")
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            "scripts/run_runtime_sample.py",
+            "--fixture-dir",
+            str(file_path),
+            "--route",
+            "small",
+        ],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 1
+    assert result.stdout == ""
+    assert result.stderr.startswith("ERROR: fixture directory is not a directory:")
 
 
 def test_cli_reports_runtime_violations_without_tracebacks(tmp_path: Path) -> None:
