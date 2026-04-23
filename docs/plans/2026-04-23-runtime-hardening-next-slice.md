@@ -49,7 +49,7 @@ Catch semantic drift inside the runtime itself instead of relying on docs/tests 
    - `review_type=spec` cannot satisfy quality-review gate
    - `review_type=quality` cannot satisfy spec-review gate
    - `verdict=approved` with unresolved blockers should fail runtime validation once blockers are modeled explicitly in the artifact contract
-   - `safe_for_next_stage=false` must block finalize/next-stage progress once that field exists in the review-report contract
+   - any `verdict=approved` review artifact must not set `safe_for_next_stage=false`; that flag is a generic progression blocker, not a quality-review-only escape hatch
 
 3. **Plan-ledger consistency checks**
    - completed stages must respect route order

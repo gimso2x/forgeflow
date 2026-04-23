@@ -270,7 +270,7 @@ Quality review must distinguish:
 ### Verification
 - `python3 scripts/validate_sample_artifacts.py`
 - negative samples fail for malformed severity structure
-- runtime/finalize respects `safe_for_next_stage`
+- runtime/finalize treats `safe_for_next_stage` as a generic approved-review progression guard, not a quality-only flag
 
 ### Why this matters
 Superpowers got one thing very right: review should be skeptical.

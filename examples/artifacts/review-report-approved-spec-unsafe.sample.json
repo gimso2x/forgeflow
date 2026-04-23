@@ -1,0 +1,12 @@
+{
+  "schema_version": "0.1",
+  "task_id": "task-001",
+  "review_type": "spec",
+  "verdict": "approved",
+  "findings": [
+    "spec is approved but still marked unsafe for the next stage"
+  ],
+  "approved_by": "spec-reviewer",
+  "safe_for_next_stage": false,
+  "next_action": "quality-review 보류"
+}

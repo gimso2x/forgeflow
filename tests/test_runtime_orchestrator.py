@@ -509,7 +509,28 @@ def test_run_route_rejects_approved_quality_review_marked_unsafe(tmp_path: Path)
         },
     )
 
-    with pytest.raises(RuntimeViolation, match="quality review-report.json approved verdict cannot set safe_for_next_stage=false"):
+    with pytest.raises(RuntimeViolation, match="approved review-report.json cannot set safe_for_next_stage=false"):
+        run_route(task_dir=task_dir, policy=policy, route_name="small")
+
+
+def test_run_route_rejects_approved_spec_review_marked_unsafe(tmp_path: Path) -> None:
+    policy = load_runtime_policy(ROOT)
+    task_dir = _make_task_dir(tmp_path)
+    _write_json(
+        task_dir / "review-report.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "review_type": "spec",
+            "verdict": "approved",
+            "findings": ["spec is approved but rollout is still unsafe"],
+            "approved_by": "spec-reviewer",
+            "safe_for_next_stage": False,
+            "next_action": "quality-review 보류",
+        },
+    )
+
+    with pytest.raises(RuntimeViolation, match="approved review-report.json cannot set safe_for_next_stage=false"):
         run_route(task_dir=task_dir, policy=policy, route_name="small")
 
 
