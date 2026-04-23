@@ -72,6 +72,44 @@ python3 scripts/run_orchestrator.py escalate --task-dir examples/runtime-fixture
 
 이 CLI는 local artifact 디렉터리를 기준으로 route 실행과 recovery helper를 노출한다. `run`은 artifact/gate 기준으로 route 상태를 진행하는 orchestration 명령이고, `execute`는 현재 stage를 어댑터로 실행한다. `advance --execute`는 다음 stage로 넘긴 뒤 바로 실행까지 붙이되, 실행이 실패하면 stage pointer를 커밋하지 않는다. medium/large route에서는 `advance`/`run` 모두 `plan-ledger.json`이 있어야 하고, `step-back`은 되감는 stage에 해당하는 review approval/evidence만 지운다. 정책 위반이나 잘못된 route가 들어오면 traceback 대신 `ERROR:` 형식의 명시적 runtime 오류를 반환한다.
 
+## Using ForgeFlow in Codex
+Codex에서는 repo 루트의 `CODEX.md`가 지속 표면이다. generated adapter를 그대로 복사해서 쓰고, 프로젝트별 보조 규칙은 별도 문서에 두는 게 맞다. generated 파일을 손으로 덕지덕지 고치기 시작하면 다음 regenerate 때 다시 개판 난다.
+
+```bash
+cp adapters/generated/codex/CODEX.md ./CODEX.md
+codex exec "Read CODEX.md first, then summarize the ForgeFlow stage order in one sentence."
+codex exec "Use ForgeFlow rules. Inspect examples/runtime-fixtures/small-doc-task and explain which artifacts gate finalize."
+```
+
+권장 흐름:
+- ForgeFlow semantics는 `CODEX.md`에서 고정한다.
+- 실제 작업 지시는 issue/brief/plan artifact와 함께 Codex prompt로 넘긴다.
+- route 실행 검증은 `python3 scripts/run_orchestrator.py ... --adapter codex`로 따로 확인한다.
+
+## Using ForgeFlow in Claude Code
+Claude Code에서는 repo 루트의 `CLAUDE.md`가 지속 표면이다. 이것도 똑같이 generated adapter를 복사해서 쓴다. Claude용 팁을 추가하고 싶으면 README나 별도 docs에 쓰지, canonical semantics를 `CLAUDE.md`에서 멋대로 바꾸면 안 된다.
+
+```bash
+cp adapters/generated/claude/CLAUDE.md ./CLAUDE.md
+claude -p "Read CLAUDE.md first, then reply with the ForgeFlow review order."
+claude -p "Use ForgeFlow rules. Inspect examples/runtime-fixtures/small-doc-task and explain why worker self-report is not enough for finalize."
+```
+
+권장 흐름:
+- Claude는 `CLAUDE.md`로 stage/gate semantics를 읽는다.
+- 실제 구현 요청은 brief와 artifact 경로를 함께 준다.
+- local runtime 쪽 동작은 `python3 scripts/run_orchestrator.py ... --adapter claude`처럼 adapter 이름을 명시해서 검증한다.
+
+## Real CLI smoke tests on this repo
+아래 정도는 최소한 직접 돌려보고 "된다"고 말할 수 있다.
+
+```bash
+codex login status
+script -qc "claude -p 'Reply with exactly: CLAUDE_OK'" /dev/null
+```
+
+이 저장소에서 실제로 검증할 때는, generated adapter를 temp git repo에 복사한 뒤 한 줄짜리 확인 프롬프트를 던져서 Codex/Claude가 instruction file을 읽는지 먼저 보는 게 제일 덜 멍청하다.
+
 ## Current status
 This repo is a **P0 seed**.
 It already includes:

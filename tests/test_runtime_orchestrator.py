@@ -1987,6 +1987,12 @@ def test_readme_examples_describe_manual_execution_flow() -> None:
     assert "scripts/run_runtime_sample.py --fixture-dir" in readme
     assert "scripts/run_orchestrator.py execute --task-dir" in readme
     assert "advance --execute" in readme
+    assert "## Using ForgeFlow in Codex" in readme
+    assert "cp adapters/generated/codex/CODEX.md ./CODEX.md" in readme
+    assert "codex exec" in readme
+    assert "## Using ForgeFlow in Claude Code" in readme
+    assert "cp adapters/generated/claude/CLAUDE.md ./CLAUDE.md" in readme
+    assert "claude -p" in readme
     assert "run`은 artifact/gate 기준으로 route 상태를 진행" in readme
     assert "execute`는 현재 stage를 어댑터로 실행" in readme
 
