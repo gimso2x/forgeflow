@@ -1,0 +1,20 @@
+{
+  "name": "forgeflow",
+  "owner": {
+    "name": "gimso2x",
+    "url": "https://github.com/gimso2x"
+  },
+  "metadata": {
+    "description": "Artifact-first delivery harness for AI coding agents with explicit stages, gates, evidence, and independent review",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "forgeflow",
+      "source": "./",
+      "description": "Run agent work through clarify, plan, execute, review, and finalize with artifact-backed state instead of chat-memory vibes.",
+      "category": "engineering",
+      "tags": ["ai-agents", "workflow", "harness", "review", "artifacts", "claude-code", "codex"]
+    }
+  ]
+}

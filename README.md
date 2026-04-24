@@ -12,6 +12,50 @@ It is a repo seed for running work through explicit stages, artifacts, gates, an
 - isolates runtime differences behind generated adapters
 - keeps small tasks light and high-risk tasks strict
 
+## How it works
+
+ForgeFlow는 `engineering-discipline`의 좋은 뼈대 — clarification, complexity routing, worker/validator split — 를 가져오되, 여기에 **artifact contract + executable runtime + generated adapters**를 붙인 쪽입니다.
+
+```text
+user request
+    |
+clarify ─── request -> brief + route
+    |
+    |── small
+    |     |
+    |     execute ─── worker output + evidence
+    |        |
+    |     quality-review ─── independent review, no self-approval
+    |        |
+    |     finalize
+    |
+    |── medium
+    |     |
+    |     plan ─── explicit steps + expected artifacts
+    |        |
+    |     execute ─── worker output + evidence
+    |        |
+    |     quality-review ─── independent review
+    |        |
+    |     finalize
+    |
+    |── large / high-risk
+          |
+          plan ─── richer plan + risk surface
+             |
+          execute
+             |
+          spec-review ─── did we build the right thing?
+             |
+          quality-review ─── did we build it well enough?
+             |
+          finalize
+             |
+          long-run ─── checkpointed retention path
+```
+
+You do not need to memorize this. The point is that every stage leaves files behind: `brief.json`, `run-state.json`, `plan-ledger.json`, `review-report.json`, and friends. Chat memory is not the source of truth. Good. Chat memory lies.
+
 ## Core workflow
 ForgeFlow의 정본 시작점은 항상 `clarify`다.
 
@@ -82,6 +126,41 @@ ForgeFlow tries not to do that.
 - `memory/` — inspectable local memory scaffold for reusable patterns and decisions
 - `examples/artifacts/` — sample artifact fixtures
 - `scripts/` — validation and generation utilities
+
+## Installation
+
+전체 설치 가이드는 [`INSTALL.md`](INSTALL.md)에 있습니다.
+
+### Claude Code plugin
+
+```text
+/plugin install github:gimso2x/forgeflow
+```
+
+마켓플레이스에 등록한 뒤에는:
+
+```text
+/plugin marketplace add gimso2x/forgeflow
+/plugin install forgeflow
+```
+
+### Manual adapter install
+
+플러그인 대신 프로젝트에 adapter 파일만 복사해도 됩니다.
+
+```bash
+cp adapters/generated/claude/CLAUDE.md /path/to/your-project/CLAUDE.md
+cp adapters/generated/codex/CODEX.md /path/to/your-project/CODEX.md
+cp adapters/generated/cursor/HARNESS_CURSOR.md /path/to/your-project/HARNESS_CURSOR.md
+```
+
+### Local runtime install
+
+```bash
+make setup
+make check-env
+make validate
+```
 
 ## Quickstart
 
