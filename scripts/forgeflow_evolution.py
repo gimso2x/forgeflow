@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from forgeflow_runtime.evolution import adopt_example_rule, audit_events, doctor_evolution_state, dry_run_rule, effectiveness_review, execute_rule, inspect_evolution_policy, list_rules, promotion_gate, promotion_plan, proposal_approve, proposal_approvals, proposal_review, restore_rule, retire_rule, write_promotion_plan
+from forgeflow_runtime.evolution import adopt_example_rule, audit_events, doctor_evolution_state, dry_run_rule, effectiveness_review, execute_rule, inspect_evolution_policy, list_rules, promotion_decision, promotion_gate, promotion_plan, proposal_approve, proposal_approvals, proposal_review, restore_rule, retire_rule, write_promotion_plan
 
 
 def _target_root(args: argparse.Namespace) -> Path:
@@ -291,6 +291,34 @@ def cmd_promotion_gate(args: argparse.Namespace) -> int:
     return 0 if result["ready_for_policy_gate"] else 1
 
 
+def cmd_promotion_decision(args: argparse.Namespace) -> int:
+    try:
+        result = promotion_decision(
+            _target_root(args),
+            Path(args.proposal),
+            decision=args.decision,
+            decider=args.decider,
+            reason=args.reason,
+            write=args.write,
+        )
+    except ValueError as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 1
+    if args.json:
+        print(json.dumps(result, ensure_ascii=False, indent=2))
+        return 0
+    verb = "recorded" if result["written"] else "checked"
+    print(f"Evolution promotion decision {verb}: {result['decision_path']}")
+    print(f"- proposal: {result['proposal_path']}")
+    print(f"- rule: {result['rule_id']}")
+    print(f"- decision: {result['decision']}")
+    print(f"- decider: {result['decider']}")
+    print(f"- written: {str(result['written']).lower()}")
+    print(f"- would promote: {str(result['would_promote']).lower()}")
+    print(f"- would mutate rules: {str(result['would_mutate_rules']).lower()}")
+    return 0
+
+
 def cmd_proposal_approve(args: argparse.Namespace) -> int:
     try:
         result = proposal_approve(
@@ -426,6 +454,14 @@ def build_parser() -> argparse.ArgumentParser:
     promotion_gate_cmd.add_argument("--proposal", required=True)
     promotion_gate_cmd.add_argument("--json", action="store_true")
     promotion_gate_cmd.set_defaults(func=cmd_promotion_gate)
+    promotion_decision_cmd = sub.add_parser("promotion-decision", help="append a human policy-gate decision without promoting")
+    promotion_decision_cmd.add_argument("--proposal", required=True)
+    promotion_decision_cmd.add_argument("--decision", required=True)
+    promotion_decision_cmd.add_argument("--decider", required=True)
+    promotion_decision_cmd.add_argument("--reason", required=True)
+    promotion_decision_cmd.add_argument("--write", action="store_true")
+    promotion_decision_cmd.add_argument("--json", action="store_true")
+    promotion_decision_cmd.set_defaults(func=cmd_promotion_decision)
     proposal_approve_cmd = sub.add_parser("proposal-approve", help="append an approval record for a valid promotion proposal")
     proposal_approve_cmd.add_argument("--proposal", required=True)
     proposal_approve_cmd.add_argument("--approval", required=True)

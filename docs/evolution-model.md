@@ -105,6 +105,7 @@ proposal-review -> read-only validation of a persisted proposal
 proposal-approve -> append-only human approval ledger; no promotion or rule mutation
 proposal-approvals -> read-only approval ledger status and remaining approvals
 promotion-gate -> read-only gate readiness check; no promotion or rule mutation
+promotion-decision -> append-only human policy-gate decision; still no promotion
 audit         -> show recent project-local lifecycle/execution events
 ```
 
@@ -294,3 +295,23 @@ would_mutate_rules=false
 ```
 
 `approval_records_complete` requires non-empty `approver` and `reason` on approval records. `risk_flags_acknowledged` requires the promotion proposal to carry `promotion_requires_separate_policy_gate`. If anything is missing, the command exits non-zero with issue codes. Even when it passes, it is still a gate report, not promotion. The door is visible; the handle is still not installed.
+
+`promotion-decision` records the human decision to approve the policy gate after `promotion-gate` passes:
+
+```bash
+python3 scripts/forgeflow_evolution.py promotion-decision \
+  --proposal .forgeflow/evolution/proposals/<timestamp>-no-env-commit-promotion-plan.json \
+  --decision approve_policy_gate \
+  --decider "kim" \
+  --reason "promotion gate reviewed" \
+  --write \
+  --json
+```
+
+Decision records are append-only JSONL files under:
+
+```text
+.forgeflow/evolution/promotion-decisions/<proposal-id>.jsonl
+```
+
+The command accepts only `approve_policy_gate`, requires non-empty `decider` and `reason`, and rejects proposals whose `promotion-gate` is not ready. `--write` is required to persist the record; without it the command returns the would-be decision path but writes nothing. It still reports `would_promote=false` and `would_mutate_rules=false`. This is the person saying “open the policy gate next,” not the system promoting anything.

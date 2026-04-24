@@ -5,7 +5,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from forgeflow_runtime.evolution import adopt_example_rule, doctor_evolution_state, effectiveness_review, promotion_plan, proposal_approve, proposal_approvals, promotion_gate, proposal_review, write_promotion_plan, dry_run_rule, execute_rule, inspect_evolution_policy, list_rules
+from forgeflow_runtime.evolution import adopt_example_rule, doctor_evolution_state, effectiveness_review, promotion_plan, proposal_approve, proposal_approvals, promotion_decision, promotion_gate, proposal_review, write_promotion_plan, dry_run_rule, execute_rule, inspect_evolution_policy, list_rules
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -1468,3 +1468,175 @@ def test_promotion_gate_cli_human_output_says_read_only_and_no_promotion(tmp_pat
     assert "read-only: true" in result.stdout
     assert "would promote: false" in result.stdout
     assert "ready for policy gate: false" in result.stdout
+
+
+
+def _gate_passing_proposal(tmp_path: Path) -> dict:
+    written = _written_candidate_proposal(tmp_path)
+    proposal_path = Path(written["proposal_path"])
+    proposal_approve(tmp_path, proposal_path, approval="maintainer_approval", approver="kim", reason="maintainer reviewed")
+    proposal_approve(tmp_path, proposal_path, approval="project_owner_approval", approver="kim", reason="owner reviewed")
+    return written
+
+
+def test_promotion_decision_writes_append_only_decision_without_promotion(tmp_path: Path) -> None:
+    written = _gate_passing_proposal(tmp_path)
+    before_events = _audit_events(tmp_path)
+
+    result = promotion_decision(
+        tmp_path,
+        Path(written["proposal_path"]),
+        decision="approve_policy_gate",
+        decider="kim",
+        reason="promotion gate reviewed",
+        write=True,
+    )
+
+    assert result["decision"] == "approve_policy_gate"
+    assert result["decider"] == "kim"
+    assert result["would_promote"] is False
+    assert result["would_mutate_rules"] is False
+    assert result["written"] is True
+    decision_path = Path(result["decision_path"])
+    records = [json.loads(line) for line in decision_path.read_text(encoding="utf-8").splitlines()]
+    assert len(records) == 1
+    assert records[0]["decision"] == "approve_policy_gate"
+    assert records[0]["reason"] == "promotion gate reviewed"
+    assert _audit_events(tmp_path) == before_events
+
+
+def test_promotion_decision_rejects_gate_failing_proposal(tmp_path: Path) -> None:
+    written = _written_candidate_proposal(tmp_path)
+
+    try:
+        promotion_decision(
+            tmp_path,
+            Path(written["proposal_path"]),
+            decision="approve_policy_gate",
+            decider="kim",
+            reason="not enough approvals",
+            write=True,
+        )
+    except ValueError as exc:
+        assert "promotion gate is not ready" in str(exc)
+    else:  # pragma: no cover
+        raise AssertionError("expected ValueError")
+
+
+def test_promotion_decision_rejects_missing_decider_or_reason(tmp_path: Path) -> None:
+    written = _gate_passing_proposal(tmp_path)
+    for decider, reason in [("", "reviewed"), ("kim", "")]:
+        try:
+            promotion_decision(
+                tmp_path,
+                Path(written["proposal_path"]),
+                decision="approve_policy_gate",
+                decider=decider,
+                reason=reason,
+                write=True,
+            )
+        except ValueError as exc:
+            assert "decider and reason must be non-empty" in str(exc)
+        else:  # pragma: no cover
+            raise AssertionError("expected ValueError")
+
+
+def test_promotion_decision_rejects_unknown_decision(tmp_path: Path) -> None:
+    written = _gate_passing_proposal(tmp_path)
+    try:
+        promotion_decision(
+            tmp_path,
+            Path(written["proposal_path"]),
+            decision="just_ship_it",
+            decider="kim",
+            reason="bad idea",
+            write=True,
+        )
+    except ValueError as exc:
+        assert "unsupported promotion decision" in str(exc)
+    else:  # pragma: no cover
+        raise AssertionError("expected ValueError")
+
+
+def test_promotion_decision_requires_write_flag_for_recording(tmp_path: Path) -> None:
+    written = _gate_passing_proposal(tmp_path)
+
+    result = promotion_decision(
+        tmp_path,
+        Path(written["proposal_path"]),
+        decision="approve_policy_gate",
+        decider="kim",
+        reason="dry check",
+        write=False,
+    )
+
+    assert result["written"] is False
+    assert Path(result["decision_path"]).exists() is False
+    assert result["would_promote"] is False
+
+
+def test_promotion_decision_cli_outputs_json_contract(tmp_path: Path) -> None:
+    written = _gate_passing_proposal(tmp_path)
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            "scripts/forgeflow_evolution.py",
+            "--root",
+            str(tmp_path),
+            "promotion-decision",
+            "--proposal",
+            written["proposal_path"],
+            "--decision",
+            "approve_policy_gate",
+            "--decider",
+            "kim",
+            "--reason",
+            "promotion gate reviewed",
+            "--write",
+            "--json",
+        ],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
+    payload = json.loads(result.stdout)
+    assert payload["written"] is True
+    assert payload["would_promote"] is False
+    assert payload["would_mutate_rules"] is False
+    assert Path(payload["decision_path"]).is_file()
+
+
+def test_promotion_decision_cli_human_output_says_no_promotion_no_mutation(tmp_path: Path) -> None:
+    written = _gate_passing_proposal(tmp_path)
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            "scripts/forgeflow_evolution.py",
+            "--root",
+            str(tmp_path),
+            "promotion-decision",
+            "--proposal",
+            written["proposal_path"],
+            "--decision",
+            "approve_policy_gate",
+            "--decider",
+            "kim",
+            "--reason",
+            "promotion gate reviewed",
+            "--write",
+        ],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert "Evolution promotion decision recorded:" in result.stdout
+    assert "would promote: false" in result.stdout
+    assert "would mutate rules: false" in result.stdout

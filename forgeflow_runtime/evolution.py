@@ -18,6 +18,7 @@ PROJECT_RULE_DIR = Path(".forgeflow") / "evolution" / "rules"
 RETIRED_RULE_DIR = Path(".forgeflow") / "evolution" / "retired-rules"
 PROPOSAL_DIR = Path(".forgeflow") / "evolution" / "proposals"
 PROPOSAL_APPROVAL_DIR = Path(".forgeflow") / "evolution" / "proposal-approvals"
+PROMOTION_DECISION_DIR = Path(".forgeflow") / "evolution" / "promotion-decisions"
 AUDIT_LOG_PATH = Path(".forgeflow") / "evolution" / "audit-log.jsonl"
 HARD_GATE_REQUIRES = {
     "project_local_enablement",
@@ -422,6 +423,61 @@ def promotion_gate(root: Path, proposal_path: Path) -> dict[str, Any]:
         "would_promote": False,
         "would_mutate_rules": False,
         "issues": issues,
+    }
+
+
+
+
+def _promotion_decision_path(root: Path, proposal_path: Path) -> Path:
+    safe_id = "".join(char if char.isalnum() or char in {"-", "_"} else "-" for char in proposal_path.stem).strip("-") or "proposal"
+    return root / PROMOTION_DECISION_DIR / f"{safe_id}.jsonl"
+
+
+def promotion_decision(root: Path, proposal_path: Path, *, decision: str, decider: str, reason: str, write: bool = False) -> dict[str, Any]:
+    """Record a human policy-gate decision without promoting or mutating rules."""
+
+    root = root.resolve()
+    proposal_path = proposal_path.resolve()
+    decision = decision.strip()
+    decider = decider.strip()
+    reason = reason.strip()
+    if decision != "approve_policy_gate":
+        raise ValueError(f"unsupported promotion decision: {decision}")
+    if not decider or not reason:
+        raise ValueError("decider and reason must be non-empty")
+    gate = promotion_gate(root, proposal_path)
+    if not gate["ready_for_policy_gate"]:
+        issue_codes = ", ".join(issue["code"] for issue in gate["issues"])
+        raise ValueError(f"promotion gate is not ready: {issue_codes}")
+
+    decision_path = _promotion_decision_path(root, proposal_path)
+    record = {
+        "schema_version": 1,
+        "timestamp": _utc_timestamp(),
+        "proposal_path": str(proposal_path),
+        "rule_id": gate["rule_id"],
+        "decision": decision,
+        "decider": decider,
+        "reason": reason,
+        "gate_ready": True,
+        "would_promote": False,
+        "would_mutate_rules": False,
+    }
+    if write:
+        decision_path.parent.mkdir(parents=True, exist_ok=True)
+        with decision_path.open("a", encoding="utf-8") as handle:
+            handle.write(json.dumps(record, ensure_ascii=False, sort_keys=True) + "\n")
+    return {
+        "proposal_path": str(proposal_path),
+        "decision_path": str(decision_path),
+        "rule_id": gate["rule_id"],
+        "decision": decision,
+        "decider": decider,
+        "reason": reason,
+        "written": write,
+        "would_promote": False,
+        "would_mutate_rules": False,
+        "gate": gate,
     }
 
 
