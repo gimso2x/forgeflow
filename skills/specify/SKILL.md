@@ -40,6 +40,16 @@ When artifacts such as `brief.json`, `plan.json`, or `review-report.json` are me
 
 If writing is allowed, write only under the current project workspace or the explicit task directory named by the user. Never write inside the plugin installation directory, marketplace cache, or `skills/<skill>/`.
 
+
+## Strict response constraints
+
+When the user asks for an exact count, exact format, or "only" output, that instruction overrides the normal artifact template. Return exactly what was requested and nothing extra.
+
+Bad: adding verdicts, JSON artifacts, rationale sections, or extra warnings after the requested list.
+Good: if asked for exactly two checks, return exactly two checks.
+
+When the user says "do not run commands", do not propose command execution as if it happened. You may name a manual check, but label it as manual inspection, not a command result.
+
 ## Procedure
 
 1. Read the brief and identify missing decisions.
