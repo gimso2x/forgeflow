@@ -21,6 +21,19 @@ session_persistence: root instruction file persists across repo sessions until r
 workspace_boundary: repo root instruction file shapes CLI runs but artifacts still live in the project workspace
 review_delivery: terminal-oriented summary plus artifact files checked in the repo
 recovery_delivery_note: Claude may deliver recovery through optional adapter hooks plus generated instructions.
+team_execution:
+  supports_subagents: true
+  supports_agent_teams: true
+  preferred_review_pattern: producer-reviewer
+  supported_patterns:
+    - producer-reviewer
+    - fan-out-fan-in
+    - expert-pool
+  guidance:
+    - Subagents are an execution mechanism, not a ForgeFlow workflow primitive.
+    - Subagents may produce evidence, but artifacts remain the source of truth.
+    - Use isolated reviewer context for quality-review when available.
+    - Use fan-out/fan-in only for large/high-risk discovery or review.
 tooling_constraints:
   - prompt surface may be CLAUDE.md style
   - generated artifacts must not redefine canonical semantics

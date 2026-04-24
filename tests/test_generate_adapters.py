@@ -140,3 +140,56 @@ def test_build_content_includes_target_specific_install_and_handoff_sections() -
     assert "- workspace_boundary: project rules live under .cursor/rules and guide editor-native runs" in content
     assert "- review_delivery: chat summary plus artifact file updates inside the workspace" in content
     assert "Copy this generated adapter into `.cursor/rules/forgeflow.mdc`" in content
+
+
+def test_build_content_renders_claude_team_execution_guidance_only_when_manifest_opts_in() -> None:
+    generate_adapters = _load_generate_adapters_module()
+    base_manifest = {
+        "name": "claude",
+        "runtime_type": "cli-agent",
+        "input_mode": "prompt-and-files",
+        "output_mode": "markdown-and-files",
+        "supports_roles": ["coordinator", "planner", "worker", "spec-reviewer", "quality-reviewer"],
+        "supports_generated_files": True,
+        "tooling_constraints": ["generated artifacts must not redefine canonical semantics"],
+        "installation_steps": [
+            "Copy the generated adapter to ./CLAUDE.md at the repo root.",
+            "Keep Claude-specific helper notes in surrounding docs, not by changing ForgeFlow semantics.",
+        ],
+        "generated_filename": "CLAUDE.md",
+        "recommended_location": "./CLAUDE.md",
+        "surface_style": "root-instruction-file",
+        "handoff_format": "artifacts-plus-terminal-summary",
+        "session_persistence": "root instruction file persists across repo sessions until regenerated",
+        "workspace_boundary": "repo root instruction file shapes CLI runs but artifacts still live in the project workspace",
+        "review_delivery": "terminal-oriented summary plus artifact files checked in the repo",
+        "recovery_delivery_note": "Claude may deliver recovery through optional adapter hooks plus generated instructions.",
+    }
+    manifest = {
+        **base_manifest,
+        "team_execution": {
+            "supports_subagents": True,
+            "supports_agent_teams": True,
+            "preferred_review_pattern": "producer-reviewer",
+            "supported_patterns": ["producer-reviewer", "fan-out-fan-in", "expert-pool"],
+            "guidance": [
+                "Subagents are an execution mechanism, not a ForgeFlow workflow primitive.",
+                "Subagents may produce evidence, but artifacts remain the source of truth.",
+            ],
+        },
+    }
+
+    content = generate_adapters.build_content("claude", manifest)
+
+    assert "## Claude team execution guidance" in content
+    assert "- supports_subagents: True" in content
+    assert "- supports_agent_teams: True" in content
+    assert "- preferred_review_pattern: producer-reviewer" in content
+    assert "- producer-reviewer" in content
+    assert "- fan-out-fan-in" in content
+    assert "- expert-pool" in content
+    assert "Subagents are an execution mechanism, not a ForgeFlow workflow primitive." in content
+    assert "Subagents may produce evidence, but artifacts remain the source of truth." in content
+
+    adapter_neutral_content = generate_adapters.build_content("codex", {**base_manifest, "name": "codex"})
+    assert "## Claude team execution guidance" not in adapter_neutral_content

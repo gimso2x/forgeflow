@@ -189,6 +189,26 @@ patterns:
     adapter_delivery: Adapters may express this as phase-specific instructions while keeping canonical gates intact.
 ```
 
+## Claude team execution guidance
+
+- This section is adapter-specific. It does not change canonical ForgeFlow semantics.
+- supports_subagents: True
+- supports_agent_teams: True
+- preferred_review_pattern: producer-reviewer
+
+### Supported Claude team patterns
+- producer-reviewer
+- fan-out-fan-in
+- expert-pool
+
+### Boundary rules
+- Subagents are an execution mechanism, not a ForgeFlow workflow primitive.
+- Subagents may produce evidence, but artifacts remain the source of truth.
+- Use isolated reviewer context for quality-review when available.
+- Use fan-out/fan-in only for large/high-risk discovery or review.
+- Subagents and agent teams must not bypass artifact contracts, gates, or review ordering.
+- Merge subagent outputs into ForgeFlow artifacts such as `plan-ledger.json`, `run-state.json`, `review-report.json`, and `eval-record.json`.
+
 ## Canonical workflow snapshot
 ```yaml
 version: 0.1

@@ -66,6 +66,35 @@ def file_for_target(name: str, manifest: dict[str, object] | None = None) -> str
     return mapping.get(name, f'{name.upper()}.md')
 
 
+def build_team_execution_guidance(team_execution: object) -> list[str]:
+    if not isinstance(team_execution, dict):
+        return []
+    supported_patterns = team_execution.get('supported_patterns', [])
+    guidance = team_execution.get('guidance', [])
+    lines = [
+        '## Claude team execution guidance',
+        '',
+        '- This section is adapter-specific. It does not change canonical ForgeFlow semantics.',
+        f'- supports_subagents: {team_execution.get("supports_subagents")}',
+        f'- supports_agent_teams: {team_execution.get("supports_agent_teams")}',
+        f'- preferred_review_pattern: {team_execution.get("preferred_review_pattern")}',
+        '',
+        '### Supported Claude team patterns',
+    ]
+    lines.extend(f'- {pattern}' for pattern in supported_patterns)
+    lines.extend([
+        '',
+        '### Boundary rules',
+    ])
+    lines.extend(f'- {item}' for item in guidance)
+    lines.extend([
+        '- Subagents and agent teams must not bypass artifact contracts, gates, or review ordering.',
+        '- Merge subagent outputs into ForgeFlow artifacts such as `plan-ledger.json`, `run-state.json`, `review-report.json`, and `eval-record.json`.',
+        '',
+    ])
+    return lines
+
+
 def build_content(target: str, manifest: dict[str, object]) -> str:
     workflow = (POLICY_DIR / 'workflow.yaml').read_text(encoding='utf-8').strip()
     recovery = (POLICY_DIR / 'recovery.yaml').read_text(encoding='utf-8').strip()
@@ -87,6 +116,7 @@ def build_content(target: str, manifest: dict[str, object]) -> str:
     workspace_boundary = manifest.get('workspace_boundary')
     review_delivery = manifest.get('review_delivery')
     delivery_note = manifest.get('recovery_delivery_note')
+    team_guidance = build_team_execution_guidance(manifest.get('team_execution'))
     parts = [
         f'# {target.capitalize()} ForgeFlow Adapter',
         '',
@@ -139,6 +169,7 @@ def build_content(target: str, manifest: dict[str, object]) -> str:
         team_patterns,
         '```',
         '',
+        *team_guidance,
         '## Canonical workflow snapshot',
         '```yaml',
         workflow,

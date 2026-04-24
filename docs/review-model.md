@@ -159,6 +159,22 @@ review가 실패하면 다음 stage로 못 간다.
 
 ---
 
+## Claude adapter의 subagent/team 사용 경계
+
+Claude Code처럼 subagent나 agent team을 지원하는 runtime에서는 review를 더 잘 분리할 수 있다. 다만 이건 ForgeFlow workflow primitive가 아니라 adapter 실행 방식이다.
+
+허용되는 사용:
+- `producer-reviewer`: worker와 reviewer context를 분리해 self-approval을 줄인다.
+- `fan-out-fan-in`: large/high-risk 작업에서 repo surface, test/CI, risk surface를 병렬 조사한 뒤 coordinator가 artifact로 병합한다.
+- `expert-pool`: security/docs/frontend/test 같은 전문 reviewer를 상황별로 고른다.
+
+경계 규칙:
+- subagent output은 evidence 후보일 뿐이고, canonical truth는 `plan-ledger.json`, `run-state.json`, `review-report.json`, `eval-record.json` 같은 artifact다.
+- subagent나 agent team은 artifact gate, review 순서, schema validation을 우회할 수 없다.
+- worker 자기보고만 reviewer에게 넘기면 안 된다. reviewer는 diff, artifacts, evidence refs를 직접 확인해야 한다.
+
+---
+
 ## finalize와 review의 관계
 
 `finalize`는 review를 대체하지 않는다.
