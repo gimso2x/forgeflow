@@ -111,10 +111,15 @@ def test_readme_monitoring_summary_uses_repo_managed_make_target() -> None:
 
     assert "monitor-summary:" in makefile
     assert "$(VENV_PYTHON) scripts/forgeflow_monitor.py --tasks .forgeflow/tasks --recent 10 --format md" in makefile
+    assert "monitor-summary-json:" in makefile
+    assert "$(VENV_PYTHON) scripts/forgeflow_monitor.py --tasks .forgeflow/tasks --recent 10 --format json" in makefile
     assert "make setup" in monitor_section
     assert "make check-env" in monitor_section
-    assert "make monitor-summary" in monitor_section
+    monitor_lines = monitor_section.splitlines()
+    assert "make monitor-summary" in monitor_lines
+    assert "make monitor-summary-json" in monitor_lines
     assert monitor_section.index("make setup") < monitor_section.index("make check-env") < monitor_section.index("make monitor-summary")
+    assert monitor_section.index("make check-env") < monitor_section.index("make monitor-summary-json")
     assert "python3 scripts/forgeflow_monitor.py" not in monitor_section
 
 

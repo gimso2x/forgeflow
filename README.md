@@ -135,9 +135,10 @@ ForgeFlow task artifacts are local files, so the first observability layer is ju
 make setup
 make check-env
 make monitor-summary
+make monitor-summary-json
 ```
 
-`make monitor-summary` runs the monitor with the repo-managed Python environment against `.forgeflow/tasks`, showing the recent task summary in Markdown. It reads `run-state.json`, `review-report.json`, `eval-record.json`, and `decision-log.json` when present, then reports task counts, blocked/error counts, review rejects, artifact parse errors, and repeated failure messages. It does not mutate artifacts, call an LLM, run tests, send notifications, or start a dashboard. Good. Dashboards reproduce when fed after midnight.
+`make monitor-summary` runs the monitor with the repo-managed Python environment against `.forgeflow/tasks`, showing the recent task summary in Markdown. `make monitor-summary-json` uses the same read-only monitor and repo-managed environment for automation-friendly JSON output. Both targets read `run-state.json`, `review-report.json`, `eval-record.json`, and `decision-log.json` when present, then report task counts, blocked/error counts, review rejects, artifact parse errors, and repeated failure messages. They do not mutate artifacts, call an LLM, run tests, send notifications, or start a dashboard. Good. Dashboards reproduce when fed after midnight.
 
 ### Local runtime install
 
