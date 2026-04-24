@@ -206,3 +206,62 @@ def test_team_init_document_exposes_prompt_and_review_contract(tmp_path):
     assert "## Failure handling" in text
     assert "## Recommended first run" in text
     assert "/forgeflow:clarify" in text
+
+
+
+def test_claude_installer_can_install_basic_safety_hook_bundle(tmp_path):
+    target = tmp_path / "app"
+    write_package(target, {"build": "next build"})
+
+    result = run_installer(
+        GENERIC_INSTALLER,
+        target,
+        "--adapter",
+        "claude",
+        "--profile",
+        "nextjs",
+        "--hook-bundles",
+        "basic-safety",
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert (target / ".claude/hooks/forgeflow/basic_safety_guard.py").exists()
+    settings = json.loads((target / ".claude/settings.json").read_text(encoding="utf-8"))
+    pretool = settings["hooks"]["PreToolUse"][0]
+    assert pretool["matcher"] == "Bash"
+    assert "basic_safety_guard.py" in pretool["hooks"][0]["command"]
+
+    init = (target / "docs/forgeflow-team-init.md").read_text(encoding="utf-8")
+    assert "## Installed hook/safety bundles" in init
+    assert "basic-safety" in init
+    assert "project-local opt-in" in init
+
+
+def test_hook_bundles_are_claude_only(tmp_path):
+    target = tmp_path / "app"
+    write_package(target, {"build": "next build"})
+
+    result = run_installer(
+        GENERIC_INSTALLER,
+        target,
+        "--adapter",
+        "codex",
+        "--profile",
+        "nextjs",
+        "--hook-bundles",
+        "basic-safety",
+    )
+
+    assert result.returncode != 0
+    assert "Claude adapter only" in result.stderr
+
+
+def test_installer_does_not_install_hooks_by_default(tmp_path):
+    target = tmp_path / "app"
+    write_package(target, {"build": "next build"})
+
+    result = run_installer(GENERIC_INSTALLER, target, "--adapter", "claude", "--profile", "nextjs")
+
+    assert result.returncode == 0, result.stderr
+    assert not (target / ".claude/settings.json").exists()
+    assert not (target / ".claude/hooks/forgeflow/basic_safety_guard.py").exists()
