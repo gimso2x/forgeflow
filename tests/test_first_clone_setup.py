@@ -33,6 +33,7 @@ def test_readme_quickstart_starts_with_first_clone_setup() -> None:
     assert "### 1. Set up dependencies" in readme
     assert "make setup" in readme
     assert "make check-env" in readme
+    assert readme.index("## Installation") < readme.index("## What ForgeFlow does")
     assert readme.index("make setup") < readme.index("make validate")
     assert "No hidden local environment is assumed" in readme
 

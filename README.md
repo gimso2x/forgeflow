@@ -5,6 +5,67 @@ ForgeFlow is an artifact-first delivery harness for AI coding agents.
 It is **not** an agent OS and it is **not** a prompt zoo.
 It is a repo seed for running work through explicit stages, artifacts, gates, and independent review.
 
+## Installation
+
+전체 설치 가이드는 [`INSTALL.md`](INSTALL.md)에 있습니다.
+
+### Claude Code plugin
+
+Claude Code는 GitHub repo를 직접 `plugin install` 하는 게 아니라, 먼저 marketplace로 추가한 뒤 그 안의 plugin을 설치합니다.
+
+```text
+/plugin marketplace add https://github.com/gimso2x/forgeflow
+/plugin install forgeflow
+```
+
+설치 후:
+
+```text
+/forgeflow:clarify <하고 싶은 작업>
+/forgeflow:plan
+/forgeflow:run
+/forgeflow:review
+/forgeflow:ship
+```
+
+`/forgeflow`는 전체 설명용 입구입니다. 실제 workflow는 `/forgeflow:clarify`부터 타세요. 짧은 `/review`, `/ship`은 다른 Claude plugin과 충돌할 수 있어 운영용으로 권장하지 않습니다.
+
+CLI에서 검증/설치할 때는 같은 동작을 이렇게 실행할 수 있습니다.
+
+```bash
+claude plugin marketplace add https://github.com/gimso2x/forgeflow
+claude plugin install forgeflow
+```
+
+이미 설치한 사용자가 최신 버전으로 올릴 때는 marketplace cache와 plugin을 둘 다 갱신합니다.
+
+```bash
+claude plugin marketplace update forgeflow
+claude plugin update forgeflow@forgeflow
+claude plugin list
+```
+
+`plugin update`가 "already at the latest version"이라고 나오는데 새 slash skill이 반영되지 않으면, repo의 `.claude-plugin/plugin.json` version이 올라갔는지 확인하세요. Claude Code는 plugin version 기준으로 update를 판단합니다.
+
+### Manual adapter install
+
+플러그인 대신 프로젝트에 adapter 파일만 복사해도 됩니다.
+
+```bash
+cp adapters/generated/claude/CLAUDE.md /path/to/your-project/CLAUDE.md
+cp adapters/generated/codex/CODEX.md /path/to/your-project/CODEX.md
+cp adapters/generated/cursor/HARNESS_CURSOR.md /path/to/your-project/HARNESS_CURSOR.md
+```
+
+### Local runtime install
+
+```bash
+make setup
+make check-env
+make validate
+```
+
+
 ## What ForgeFlow does
 - models work as a stage machine
 - keeps state in artifacts instead of chat memory
@@ -129,66 +190,6 @@ ForgeFlow tries not to do that.
 - `memory/` — inspectable local memory scaffold for reusable patterns and decisions
 - `examples/artifacts/` — sample artifact fixtures
 - `scripts/` — validation and generation utilities
-
-## Installation
-
-전체 설치 가이드는 [`INSTALL.md`](INSTALL.md)에 있습니다.
-
-### Claude Code plugin
-
-Claude Code는 GitHub repo를 직접 `plugin install` 하는 게 아니라, 먼저 marketplace로 추가한 뒤 그 안의 plugin을 설치합니다.
-
-```text
-/plugin marketplace add https://github.com/gimso2x/forgeflow
-/plugin install forgeflow
-```
-
-설치 후:
-
-```text
-/forgeflow:clarify <하고 싶은 작업>
-/forgeflow:plan
-/forgeflow:run
-/forgeflow:review
-/forgeflow:ship
-```
-
-`/forgeflow`는 전체 설명용 입구입니다. 실제 workflow는 `/forgeflow:clarify`부터 타세요. 짧은 `/review`, `/ship`은 다른 Claude plugin과 충돌할 수 있어 운영용으로 권장하지 않습니다.
-
-CLI에서 검증/설치할 때는 같은 동작을 이렇게 실행할 수 있습니다.
-
-```bash
-claude plugin marketplace add https://github.com/gimso2x/forgeflow
-claude plugin install forgeflow
-```
-
-이미 설치한 사용자가 최신 버전으로 올릴 때는 marketplace cache와 plugin을 둘 다 갱신합니다.
-
-```bash
-claude plugin marketplace update forgeflow
-claude plugin update forgeflow@forgeflow
-claude plugin list
-```
-
-`plugin update`가 "already at the latest version"이라고 나오는데 새 slash skill이 반영되지 않으면, repo의 `.claude-plugin/plugin.json` version이 올라갔는지 확인하세요. Claude Code는 plugin version 기준으로 update를 판단합니다.
-
-### Manual adapter install
-
-플러그인 대신 프로젝트에 adapter 파일만 복사해도 됩니다.
-
-```bash
-cp adapters/generated/claude/CLAUDE.md /path/to/your-project/CLAUDE.md
-cp adapters/generated/codex/CODEX.md /path/to/your-project/CODEX.md
-cp adapters/generated/cursor/HARNESS_CURSOR.md /path/to/your-project/HARNESS_CURSOR.md
-```
-
-### Local runtime install
-
-```bash
-make setup
-make check-env
-make validate
-```
 
 ## Quickstart
 
