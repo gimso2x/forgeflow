@@ -12,6 +12,7 @@ EVOLUTION_EXAMPLES = [
     "generated-adapter-drift-rule.json",
     "no-env-commit-rule.json",
 ]
+PROJECT_RULE_DIR = Path(".forgeflow") / "evolution" / "rules"
 
 
 def _load_yaml(path: Path) -> dict[str, Any]:
@@ -36,13 +37,61 @@ def _example_summary(rule: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def _load_rule_by_id(root: Path, rule_id: str) -> dict[str, Any]:
+def _rule_summary(rule: dict[str, Any], *, source: str, path: Path) -> dict[str, Any]:
+    summary = _example_summary(rule)
+    summary["source"] = source
+    summary["path"] = str(path)
+    return summary
+
+
+def _load_example_rules(root: Path) -> list[tuple[dict[str, Any], Path]]:
+    rules: list[tuple[dict[str, Any], Path]] = []
     for example_name in EVOLUTION_EXAMPLES:
-        rule = _load_json(root / "examples" / "evolution" / example_name)
+        path = root / "examples" / "evolution" / example_name
+        rules.append((_load_json(path), path))
+    return rules
+
+
+def _load_project_rules(root: Path) -> list[tuple[dict[str, Any], Path]]:
+    rules_dir = root / PROJECT_RULE_DIR
+    if not rules_dir.is_dir():
+        return []
+    return [(_load_json(path), path) for path in sorted(rules_dir.glob("*.json"))]
+
+
+def list_rules(root: Path, *, include_examples: bool = False, fallback_root: Path | None = None) -> dict[str, Any]:
+    root = root.resolve()
+    examples_root = (fallback_root or root).resolve()
+    project_rules = [_rule_summary(rule, source="project", path=path) for rule, path in _load_project_rules(root)]
+    example_rules = (
+        [_rule_summary(rule, source="example", path=path) for rule, path in _load_example_rules(examples_root)]
+        if include_examples
+        else []
+    )
+    return {
+        "project_rule_dir": str(root / PROJECT_RULE_DIR),
+        "project_rules": project_rules,
+        "example_rules": example_rules,
+    }
+
+
+def _load_rule_by_id(root: Path, rule_id: str, *, allow_examples: bool, fallback_root: Path | None = None) -> tuple[dict[str, Any], str, Path]:
+    for rule, path in _load_project_rules(root):
         if rule.get("id") == rule_id:
-            return rule
-    known = ", ".join(_load_json(root / "examples" / "evolution" / name).get("id", name) for name in EVOLUTION_EXAMPLES)
-    raise ValueError(f"unknown evolution rule {rule_id!r}; known rules: {known}")
+            return rule, "project", path
+    if allow_examples:
+        examples_root = (fallback_root or root).resolve()
+        for rule, path in _load_example_rules(examples_root):
+            if rule.get("id") == rule_id:
+                return rule, "example", path
+    known_project = [rule.get("id", path.name) for rule, path in _load_project_rules(root)]
+    if allow_examples:
+        examples_root = (fallback_root or root).resolve()
+        known_examples = [rule.get("id", path.name) for rule, path in _load_example_rules(examples_root)]
+        known = ", ".join(known_project + known_examples)
+        raise ValueError(f"unknown evolution rule {rule_id!r}; known rules: {known}")
+    known = ", ".join(known_project) or "<none>"
+    raise ValueError(f"evolution rule {rule_id!r} not found in project-local registry {root / PROJECT_RULE_DIR}; known project rules: {known}")
 
 
 def _safety_checks(rule: dict[str, Any]) -> dict[str, bool]:
@@ -60,16 +109,18 @@ def _safety_checks(rule: dict[str, Any]) -> dict[str, bool]:
     }
 
 
-def dry_run_rule(root: Path, rule_id: str) -> dict[str, Any]:
-    """Describe a project-local rule without executing its command."""
+def dry_run_rule(root: Path, rule_id: str, *, allow_examples: bool = True, fallback_root: Path | None = None) -> dict[str, Any]:
+    """Describe a rule without executing its command."""
 
     root = root.resolve()
-    rule = _load_rule_by_id(root, rule_id)
+    rule, source, path = _load_rule_by_id(root, rule_id, allow_examples=allow_examples, fallback_root=fallback_root)
     check = rule.get("check", {})
     enforcement = rule.get("enforcement", {})
     safety_checks = _safety_checks(rule)
     return {
         "rule_id": rule.get("id"),
+        "source": source,
+        "path": str(path),
         "title": rule.get("title"),
         "scope": rule.get("scope"),
         "lifecycle": rule.get("lifecycle"),
@@ -92,7 +143,7 @@ def execute_rule(root: Path, rule_id: str) -> dict[str, Any]:
     """
 
     root = root.resolve()
-    dry_run = dry_run_rule(root, rule_id)
+    dry_run = dry_run_rule(root, rule_id, allow_examples=False)
     if not dry_run["safe_to_execute_later"]:
         return {
             **dry_run,

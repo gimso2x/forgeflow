@@ -10,11 +10,15 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from forgeflow_runtime.evolution import dry_run_rule, execute_rule, inspect_evolution_policy
+from forgeflow_runtime.evolution import dry_run_rule, execute_rule, inspect_evolution_policy, list_rules
+
+
+def _target_root(args: argparse.Namespace) -> Path:
+    return Path(args.root).resolve()
 
 
 def cmd_inspect(args: argparse.Namespace) -> int:
-    report = inspect_evolution_policy(ROOT)
+    report = inspect_evolution_policy(_target_root(args))
     if args.json:
         print(json.dumps(report, ensure_ascii=False, indent=2))
         return 0
@@ -34,9 +38,28 @@ def cmd_inspect(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_list(args: argparse.Namespace) -> int:
+    registry = list_rules(_target_root(args), include_examples=args.include_examples, fallback_root=ROOT)
+    if args.json:
+        print(json.dumps(registry, ensure_ascii=False, indent=2))
+        return 0
+    print(f"Project rule dir: {registry['project_rule_dir']}")
+    print("Project rules:")
+    if registry["project_rules"]:
+        for rule in registry["project_rules"]:
+            print(f"- {rule['id']} ({rule['mode']}, source={rule['source']})")
+    else:
+        print("- <none>")
+    if args.include_examples:
+        print("Example rules:")
+        for rule in registry["example_rules"]:
+            print(f"- {rule['id']} ({rule['mode']}, source={rule['source']})")
+    return 0
+
+
 def cmd_dry_run(args: argparse.Namespace) -> int:
     try:
-        result = dry_run_rule(ROOT, args.rule)
+        result = dry_run_rule(_target_root(args), args.rule, fallback_root=ROOT)
     except ValueError as exc:
         print(f"Error: {exc}", file=sys.stderr)
         return 1
@@ -62,7 +85,7 @@ def cmd_execute(args: argparse.Namespace) -> int:
         print("Error: execute requires --i-understand-project-local-hard-rule", file=sys.stderr)
         return 2
     try:
-        result = execute_rule(ROOT, args.rule)
+        result = execute_rule(_target_root(args), args.rule)
     except ValueError as exc:
         print(f"Error: {exc}", file=sys.stderr)
         return 1
@@ -85,10 +108,15 @@ def cmd_execute(args: argparse.Namespace) -> int:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="ForgeFlow evolution policy helper")
+    parser.add_argument("--root", default=str(ROOT), help="project root; defaults to the ForgeFlow checkout")
     sub = parser.add_subparsers(dest="command", required=True)
     inspect = sub.add_parser("inspect", help="read-only evolution policy summary")
     inspect.add_argument("--json", action="store_true")
     inspect.set_defaults(func=cmd_inspect)
+    list_cmd = sub.add_parser("list", help="list project-local rules and optionally examples")
+    list_cmd.add_argument("--include-examples", action="store_true")
+    list_cmd.add_argument("--json", action="store_true")
+    list_cmd.set_defaults(func=cmd_list)
     dry_run = sub.add_parser("dry-run", help="show a project rule command without executing it")
     dry_run.add_argument("--rule", required=True)
     dry_run.add_argument("--json", action="store_true")

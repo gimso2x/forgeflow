@@ -5,7 +5,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from forgeflow_runtime.evolution import dry_run_rule, execute_rule, inspect_evolution_policy
+from forgeflow_runtime.evolution import dry_run_rule, execute_rule, inspect_evolution_policy, list_rules
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -119,10 +119,16 @@ def test_forgeflow_evolution_dry_run_human_output_says_no_command_execution() ->
     assert "safe to execute later: true" in result.stdout
 
 
-def test_execute_rule_runs_safe_project_rule_when_explicitly_allowed() -> None:
-    result = execute_rule(ROOT, "no-env-commit")
+def test_execute_rule_runs_safe_project_rule_when_explicitly_allowed(tmp_path: Path) -> None:
+    project_rule_dir = tmp_path / ".forgeflow" / "evolution" / "rules"
+    project_rule_dir.mkdir(parents=True)
+    source = ROOT / "examples" / "evolution" / "no-env-commit-rule.json"
+    (project_rule_dir / "no-env-commit-rule.json").write_text(source.read_text(encoding="utf-8"), encoding="utf-8")
+
+    result = execute_rule(tmp_path, "no-env-commit")
 
     assert result["rule_id"] == "no-env-commit"
+    assert result["source"] == "project"
     assert result["executed"] is True
     assert result["exit_code"] == 0
     assert result["expected_exit_code"] == 0
@@ -144,11 +150,18 @@ def test_forgeflow_evolution_execute_requires_explicit_danger_flag() -> None:
     assert "requires --i-understand-project-local-hard-rule" in result.stderr
 
 
-def test_forgeflow_evolution_execute_cli_outputs_json_after_gated_run() -> None:
+def test_forgeflow_evolution_execute_cli_outputs_json_after_gated_run(tmp_path: Path) -> None:
+    project_rule_dir = tmp_path / ".forgeflow" / "evolution" / "rules"
+    project_rule_dir.mkdir(parents=True)
+    source = ROOT / "examples" / "evolution" / "no-env-commit-rule.json"
+    (project_rule_dir / "no-env-commit-rule.json").write_text(source.read_text(encoding="utf-8"), encoding="utf-8")
+
     result = subprocess.run(
         [
             sys.executable,
             "scripts/forgeflow_evolution.py",
+            "--root",
+            str(tmp_path),
             "execute",
             "--rule",
             "no-env-commit",
@@ -167,3 +180,65 @@ def test_forgeflow_evolution_execute_cli_outputs_json_after_gated_run() -> None:
     assert payload["executed"] is True
     assert payload["passed"] is True
     assert payload["exit_code"] == 0
+
+
+def test_list_rules_separates_examples_from_project_local_rules(tmp_path: Path) -> None:
+    project_rule_dir = tmp_path / ".forgeflow" / "evolution" / "rules"
+    project_rule_dir.mkdir(parents=True)
+    source = ROOT / "examples" / "evolution" / "no-env-commit-rule.json"
+    (project_rule_dir / "no-env-commit-rule.json").write_text(source.read_text(encoding="utf-8"), encoding="utf-8")
+
+    registry = list_rules(tmp_path, include_examples=True, fallback_root=ROOT)
+
+    assert [rule["id"] for rule in registry["project_rules"]] == ["no-env-commit"]
+    assert all(rule["source"] == "project" for rule in registry["project_rules"])
+    assert "generated-adapter-drift" in [rule["id"] for rule in registry["example_rules"]]
+    assert all(rule["source"] == "example" for rule in registry["example_rules"])
+
+
+def test_execute_rejects_example_rule_unless_copied_to_project_registry() -> None:
+    result = subprocess.run(
+        [
+            sys.executable,
+            "scripts/forgeflow_evolution.py",
+            "execute",
+            "--rule",
+            "no-env-commit",
+            "--i-understand-project-local-hard-rule",
+        ],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    assert result.returncode == 1
+    assert "not found in project-local registry" in result.stderr
+
+
+def test_dry_run_can_read_examples_but_marks_source_example() -> None:
+    result = dry_run_rule(ROOT, "generated-adapter-drift")
+
+    assert result["source"] == "example"
+    assert result["would_execute"] is False
+
+
+def test_forgeflow_evolution_list_cli_shows_project_and_example_sources(tmp_path: Path) -> None:
+    project_rule_dir = tmp_path / ".forgeflow" / "evolution" / "rules"
+    project_rule_dir.mkdir(parents=True)
+    source = ROOT / "examples" / "evolution" / "no-env-commit-rule.json"
+    (project_rule_dir / "no-env-commit-rule.json").write_text(source.read_text(encoding="utf-8"), encoding="utf-8")
+
+    result = subprocess.run(
+        [sys.executable, "scripts/forgeflow_evolution.py", "--root", str(tmp_path), "list", "--include-examples", "--json"],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
+    payload = json.loads(result.stdout)
+    assert payload["project_rules"][0]["id"] == "no-env-commit"
+    assert payload["project_rules"][0]["source"] == "project"
+    assert payload["example_rules"][0]["source"] == "example"
