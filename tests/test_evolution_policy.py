@@ -5,7 +5,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from forgeflow_runtime.evolution import adopt_example_rule, doctor_evolution_state, effectiveness_review, promotion_plan, proposal_approve, proposal_approvals, promotion_decision, promotion_gate, promote_rule, promote_stub, promotion_ready, proposal_review, write_promotion_plan, dry_run_rule, execute_rule, inspect_evolution_policy, list_rules
+from forgeflow_runtime.evolution import adopt_example_rule, doctor_evolution_state, effectiveness_review, promotion_plan, proposal_approve, proposal_approvals, promotion_decision, promotion_gate, list_promotions, promote_rule, promote_stub, promotion_ready, proposal_review, write_promotion_plan, dry_run_rule, execute_rule, inspect_evolution_policy, list_rules
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -1932,3 +1932,63 @@ def test_promote_rule_refuses_duplicate_promotion_marker(tmp_path: Path) -> None
     events = _audit_events(tmp_path)
     assert events[-1]["event"] == "promote_blocked"
     assert "promotion_marker_already_exists" in events[-1]["failed_readiness_checks"]
+
+
+
+def test_list_promotions_reports_written_markers(tmp_path: Path) -> None:
+    written = _promotion_decided_proposal(tmp_path)
+    promoted = promote_rule(tmp_path, Path(written["proposal_path"]))
+
+    result = list_promotions(tmp_path)
+
+    assert result["promotion_dir"].endswith(".forgeflow/evolution/promoted-rules")
+    assert result["count"] == 1
+    marker = result["promotions"][0]
+    assert marker["rule_id"] == "no-env-commit"
+    assert marker["promotion_status"] == "promoted"
+    assert marker["promotion_path"] == promoted["promotion_path"]
+    assert marker["proposal_path"] == written["proposal_path"]
+    assert marker["active_rule_path"].endswith("no-env-commit-rule.json")
+    assert marker["mutation_mode"] == "promotion_marker"
+
+
+def test_list_promotions_cli_json_and_human_output(tmp_path: Path) -> None:
+    written = _promotion_decided_proposal(tmp_path)
+    promoted = promote_rule(tmp_path, Path(written["proposal_path"]))
+
+    json_result = subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "scripts" / "forgeflow_evolution.py"),
+            "--root",
+            str(tmp_path),
+            "promotions",
+            "--json",
+        ],
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    assert json_result.returncode == 0, json_result.stderr
+    payload = json.loads(json_result.stdout)
+    assert payload["count"] == 1
+    assert payload["promotions"][0]["promotion_path"] == promoted["promotion_path"]
+
+    human_result = subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "scripts" / "forgeflow_evolution.py"),
+            "--root",
+            str(tmp_path),
+            "promotions",
+        ],
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    assert human_result.returncode == 0, human_result.stderr
+    assert "Evolution promotions:" in human_result.stdout
+    assert "no-env-commit promoted" in human_result.stdout
+    assert promoted["promotion_path"] in human_result.stdout

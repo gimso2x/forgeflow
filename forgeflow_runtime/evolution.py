@@ -636,6 +636,36 @@ def promote_rule(root: Path, proposal_path: Path) -> dict[str, Any]:
     }
 
 
+
+def list_promotions(root: Path) -> dict[str, Any]:
+    """Read promotion marker snapshots written by promote_rule."""
+
+    root = root.resolve()
+    promotion_dir = root / PROMOTED_RULE_DIR
+    promotions: list[dict[str, Any]] = []
+    if promotion_dir.is_dir():
+        for path in sorted(promotion_dir.glob("*.json")):
+            marker = _load_json(path)
+            promotions.append(
+                {
+                    "promotion_path": str(path),
+                    "rule_id": marker.get("rule_id"),
+                    "promotion_status": marker.get("promotion_status"),
+                    "timestamp": marker.get("timestamp"),
+                    "proposal_path": marker.get("proposal_path"),
+                    "active_rule_path": marker.get("active_rule_path"),
+                    "decision_path": marker.get("decision_path"),
+                    "approval_path": marker.get("approval_path"),
+                    "mutation_mode": marker.get("mutation_mode"),
+                }
+            )
+    return {
+        "promotion_dir": str(promotion_dir),
+        "count": len(promotions),
+        "promotions": promotions,
+    }
+
+
 def promote_stub(root: Path, proposal_path: Path) -> dict[str, Any]:
     """Backward-compatible alias for the first safe promote implementation."""
 

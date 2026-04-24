@@ -108,6 +108,7 @@ promotion-gate -> read-only gate readiness check; no promotion or rule mutation
 promotion-decision -> append-only human policy-gate decision; still no promotion
 promotion-ready -> read-only final readiness check for future promote
 promote       -> acknowledged promotion finalization; writes promotion marker and audit
+promotions    -> read-only list of finalized promotion markers
 audit         -> show recent project-local lifecycle/execution events
 ```
 
@@ -363,4 +364,4 @@ would_mutate_rules=true for successful marker writes
 promoted=true for successful marker writes
 ```
 
-Without `--i-understand-this-mutates-project-policy`, the CLI exits `2` and does not write audit noise. After acknowledgement, readiness failure is auditable as `promote_blocked`. Successful promotion writes a marker snapshot under `.forgeflow/evolution/promoted-rules/`; it refuses to overwrite an existing marker and records that as `promote_blocked` with `promotion_marker_already_exists`. It does not rewrite the active rule JSON, so rollback remains deleting the marker plus normal lifecycle commands.
+Without `--i-understand-this-mutates-project-policy`, the CLI exits `2` and does not write audit noise. After acknowledgement, readiness failure is auditable as `promote_blocked`. Successful promotion writes a marker snapshot under `.forgeflow/evolution/promoted-rules/`; it refuses to overwrite an existing marker and records that as `promote_blocked` with `promotion_marker_already_exists`. It does not rewrite the active rule JSON, so rollback remains deleting the marker plus normal lifecycle commands. `promotions` lists the marker snapshots so operators can see what has actually crossed the finalization boundary without spelunking through audit JSONL.

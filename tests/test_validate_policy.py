@@ -277,6 +277,7 @@ def test_evolution_model_doc_captures_global_advisory_project_enforcement_contra
     assert "failed_readiness_checks" in text
     assert ".forgeflow/evolution/promoted-rules" in text
     assert "promotion_marker_already_exists" in text
+    assert "promotions" in text
     assert "mutation_mode=promotion_marker" in text
     assert "--i-understand-this-mutates-project-policy" in text
     assert ".forgeflow/evolution/proposal-approvals" in text
