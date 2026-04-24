@@ -141,6 +141,8 @@ P0에 들어가는 self-evolution의 정본은 `policy/canonical/evolution.yaml`
 
 첫 runtime surface는 `scripts/forgeflow_evolution.py inspect`다. 이 명령은 policy와 examples를 읽어서 `global advisory only`, `project HARD examples valid`, `runtime enforcement: not enabled`를 보고할 뿐 rule command를 실행하지 않는다. 자가진화는 읽기 전용 관측면부터 시작하고, 차단기는 프로젝트 채택 이후에만 붙인다.
 
+두 번째 surface는 `scripts/forgeflow_evolution.py dry-run --rule <id>`다. 이것도 아직 command를 실행하지 않는다. rule id, check command, HARD mode, safety checks를 보여주고 `would_execute=false`를 고정한다. 즉 “실행 가능성 검토”와 “실제 실행” 사이에 일부러 벽을 세운다.
+
 ---
 
 ## 7. What success looks like

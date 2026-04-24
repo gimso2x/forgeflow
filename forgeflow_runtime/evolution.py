@@ -35,6 +35,54 @@ def _example_summary(rule: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _load_rule_by_id(root: Path, rule_id: str) -> dict[str, Any]:
+    for example_name in EVOLUTION_EXAMPLES:
+        rule = _load_json(root / "examples" / "evolution" / example_name)
+        if rule.get("id") == rule_id:
+            return rule
+    known = ", ".join(_load_json(root / "examples" / "evolution" / name).get("id", name) for name in EVOLUTION_EXAMPLES)
+    raise ValueError(f"unknown evolution rule {rule_id!r}; known rules: {known}")
+
+
+def _safety_checks(rule: dict[str, Any]) -> dict[str, bool]:
+    enforcement = rule.get("enforcement", {})
+    serialized = json.dumps(rule)
+    evidence = rule.get("hard_gate_evidence", {})
+    return {
+        "scope_project": rule.get("scope") == "project",
+        "adopted_hard": rule.get("lifecycle") == "adopted_hard",
+        "hard_exit_2": enforcement.get("mode") == "hard_exit_2",
+        "deterministic": enforcement.get("deterministic") is True,
+        "global_export_disabled": rule.get("global_export", {}).get("allowed") is False,
+        "hard_gate_evidence_present": bool(evidence) and all(evidence.values()),
+        "raw_evidence_absent": "raw_prompt" not in serialized and "raw_frustration" not in serialized,
+    }
+
+
+def dry_run_rule(root: Path, rule_id: str) -> dict[str, Any]:
+    """Describe a project-local rule without executing its command."""
+
+    root = root.resolve()
+    rule = _load_rule_by_id(root, rule_id)
+    check = rule.get("check", {})
+    enforcement = rule.get("enforcement", {})
+    safety_checks = _safety_checks(rule)
+    return {
+        "rule_id": rule.get("id"),
+        "title": rule.get("title"),
+        "scope": rule.get("scope"),
+        "lifecycle": rule.get("lifecycle"),
+        "check_kind": check.get("kind"),
+        "command": check.get("command"),
+        "expected_exit_code": check.get("expected_exit_code"),
+        "mode": enforcement.get("mode"),
+        "message": enforcement.get("message"),
+        "would_execute": False,
+        "safe_to_execute_later": all(safety_checks.values()),
+        "safety_checks": safety_checks,
+    }
+
+
 def inspect_evolution_policy(root: Path) -> dict[str, Any]:
     """Return a read-only summary of the canonical evolution policy.
 

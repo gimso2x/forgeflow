@@ -5,7 +5,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from forgeflow_runtime.evolution import inspect_evolution_policy
+from forgeflow_runtime.evolution import dry_run_rule, inspect_evolution_policy
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -59,3 +59,61 @@ def test_forgeflow_evolution_inspect_cli_human_output_names_safety_contract() ->
     assert "global advisory only" in result.stdout
     assert "project HARD examples valid" in result.stdout
     assert "runtime enforcement: not enabled" in result.stdout
+
+
+def test_dry_run_rule_reports_command_without_executing_it() -> None:
+    result = dry_run_rule(ROOT, "generated-adapter-drift")
+
+    assert result["rule_id"] == "generated-adapter-drift"
+    assert result["would_execute"] is False
+    assert result["safe_to_execute_later"] is True
+    assert result["mode"] == "hard_exit_2"
+    assert "python3 scripts/generate_adapters.py" in result["command"]
+    assert result["safety_checks"]["scope_project"] is True
+    assert result["safety_checks"]["deterministic"] is True
+    assert result["safety_checks"]["global_export_disabled"] is True
+
+
+def test_dry_run_rule_rejects_unknown_rule_id() -> None:
+    result = subprocess.run(
+        [sys.executable, "scripts/forgeflow_evolution.py", "dry-run", "--rule", "missing-rule"],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    assert result.returncode == 1
+    assert "unknown evolution rule" in result.stderr
+
+
+def test_forgeflow_evolution_dry_run_cli_outputs_json_without_execution() -> None:
+    result = subprocess.run(
+        [sys.executable, "scripts/forgeflow_evolution.py", "dry-run", "--rule", "no-env-commit", "--json"],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
+    payload = json.loads(result.stdout)
+    assert payload["rule_id"] == "no-env-commit"
+    assert payload["would_execute"] is False
+    assert payload["safe_to_execute_later"] is True
+    assert payload["safety_checks"]["raw_evidence_absent"] is True
+
+
+def test_forgeflow_evolution_dry_run_human_output_says_no_command_execution() -> None:
+    result = subprocess.run(
+        [sys.executable, "scripts/forgeflow_evolution.py", "dry-run", "--rule", "generated-adapter-drift"],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert "would execute: false" in result.stdout
+    assert "command not executed" in result.stdout
+    assert "safe to execute later: true" in result.stdout
