@@ -19,6 +19,7 @@ Do not edit manually. Update canonical docs/policy/prompts and rerun `scripts/ge
 ## Installation steps
 1. Place the generated content in .cursor/rules/forgeflow.mdc.
 2. Keep ForgeFlow workflow semantics in this rule file and avoid per-chat rewrites.
+3. Treat Cursor recovery guidance as editor-rule UX, not as hook support.
 
 ## Target operating notes
 - surface_style: cursor-rules-markdown
@@ -38,6 +39,12 @@ Do not edit manually. Update canonical docs/policy/prompts and rerun `scripts/ge
 ## Tooling constraints
 - rules surface may require .mdc or cursor-specific placement
 - generated artifacts must not redefine canonical semantics
+- Cursor recovery guidance
+- After a failed edit or apply, re-read the target file and inspect the diff before retrying
+- For large files or noisy editor context, use targeted search or chunked reads
+- After three repeated failures, stop and change strategy before continuing
+- Chat summaries must not replace required ForgeFlow artifacts
+- Cursor fast/apply shortcuts must not bypass review gates
 
 ## Canonical workflow snapshot
 ```yaml
