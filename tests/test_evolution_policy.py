@@ -368,3 +368,58 @@ def test_adopt_example_ignores_project_rules_in_fallback_root(tmp_path: Path) ->
 
     assert result["adopted"] is True
     assert "/examples/evolution/" in result["source"]
+
+
+def _audit_events(root: Path) -> list[dict]:
+    audit_path = root / ".forgeflow" / "evolution" / "audit-log.jsonl"
+    return [json.loads(line) for line in audit_path.read_text(encoding="utf-8").splitlines()]
+
+
+def test_adopt_example_rule_records_project_local_audit_event(tmp_path: Path) -> None:
+    result = adopt_example_rule(tmp_path, "no-env-commit", fallback_root=ROOT)
+
+    events = _audit_events(tmp_path)
+    assert len(events) == 1
+    event = events[0]
+    assert event["event"] == "adopt"
+    assert event["rule_id"] == "no-env-commit"
+    assert event["source"] == result["source"]
+    assert event["destination"] == result["destination"]
+    assert event["passed"] is True
+    assert event["timestamp"].endswith("Z")
+    assert event["schema_version"] == 1
+
+
+def test_execute_rule_records_audit_event_for_passed_rule(tmp_path: Path) -> None:
+    subprocess.run(["git", "init"], cwd=tmp_path, check=True, capture_output=True)
+    adopt_example_rule(tmp_path, "no-env-commit", fallback_root=ROOT)
+
+    execute = execute_rule(tmp_path, "no-env-commit")
+
+    events = _audit_events(tmp_path)
+    assert [event["event"] for event in events] == ["adopt", "execute"]
+    event = events[-1]
+    assert event["rule_id"] == "no-env-commit"
+    assert event["passed"] is True
+    assert event["executed"] is True
+    assert event["exit_code"] == execute["exit_code"]
+    assert event["expected_exit_code"] == 0
+    assert event["timestamp"].endswith("Z")
+
+
+def test_execute_rule_records_audit_event_when_safety_checks_block_execution(tmp_path: Path) -> None:
+    rule = _valid_rule()
+    rule["check"] = {"kind": "command", "command": "touch SHOULD_NOT_EXIST", "expected_exit_code": 0}
+    _write_project_rule(tmp_path, rule)
+
+    execute = execute_rule(tmp_path, "no-env-commit")
+
+    events = _audit_events(tmp_path)
+    assert len(events) == 1
+    event = events[0]
+    assert event["event"] == "execute"
+    assert event["rule_id"] == "no-env-commit"
+    assert event["passed"] is False
+    assert event["executed"] is False
+    assert event["failed_safety_checks"] == ["check_shape", "approved_command"]
+    assert execute["executed"] is False

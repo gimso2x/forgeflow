@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import subprocess
 import sys
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -14,6 +15,7 @@ EVOLUTION_EXAMPLES = [
     "no-env-commit-rule.json",
 ]
 PROJECT_RULE_DIR = Path(".forgeflow") / "evolution" / "rules"
+AUDIT_LOG_PATH = Path(".forgeflow") / "evolution" / "audit-log.jsonl"
 HARD_GATE_REQUIRES = {
     "project_local_enablement",
     "soft_soak_period",
@@ -35,6 +37,22 @@ def _load_yaml(path: Path) -> dict[str, Any]:
 
 def _load_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _utc_timestamp() -> str:
+    return datetime.now(UTC).isoformat(timespec="seconds").replace("+00:00", "Z")
+
+
+def _append_audit_event(root: Path, event: dict[str, Any]) -> None:
+    audit_path = root / AUDIT_LOG_PATH
+    audit_path.parent.mkdir(parents=True, exist_ok=True)
+    payload = {"schema_version": 1, "timestamp": _utc_timestamp(), **event}
+    with audit_path.open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps(payload, ensure_ascii=False, sort_keys=True) + "\n")
+
+
+def _failed_safety_checks(safety_checks: dict[str, bool]) -> list[str]:
+    return [name for name, passed in safety_checks.items() if not passed]
 
 
 def _example_summary(rule: dict[str, Any]) -> dict[str, Any]:
@@ -194,13 +212,25 @@ def adopt_example_rule(root: Path, rule_id: str, *, fallback_root: Path | None =
     if destination.exists():
         raise FileExistsError(f"project-local evolution rule already exists: {destination}")
     destination.write_text(json.dumps(rule, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    return {
+    result = {
         "adopted": True,
         "rule_id": rule.get("id"),
         "source": str(source_path),
         "destination": str(destination),
         "safety_checks": safety_checks,
     }
+    _append_audit_event(
+        root,
+        {
+            "event": "adopt",
+            "rule_id": result["rule_id"],
+            "source": result["source"],
+            "destination": result["destination"],
+            "passed": True,
+            "safety_checks": safety_checks,
+        },
+    )
+    return result
 
 
 def _run_approved_command(command_id: str, root: Path) -> subprocess.CompletedProcess[str]:
@@ -274,7 +304,7 @@ def execute_rule(root: Path, rule_id: str) -> dict[str, Any]:
     root = root.resolve()
     dry_run = dry_run_rule(root, rule_id, allow_examples=False)
     if not dry_run["safe_to_execute_later"]:
-        return {
+        result = {
             **dry_run,
             "executed": False,
             "passed": False,
@@ -282,6 +312,21 @@ def execute_rule(root: Path, rule_id: str) -> dict[str, Any]:
             "stdout": "",
             "stderr": "rule failed safety checks; command not executed",
         }
+        _append_audit_event(
+            root,
+            {
+                "event": "execute",
+                "rule_id": dry_run["rule_id"],
+                "source": dry_run["source"],
+                "path": dry_run["path"],
+                "executed": False,
+                "passed": False,
+                "exit_code": None,
+                "expected_exit_code": dry_run["expected_exit_code"],
+                "failed_safety_checks": _failed_safety_checks(dry_run["safety_checks"]),
+            },
+        )
+        return result
 
     try:
         completed = _run_approved_command(str(dry_run["command_id"]), root)
@@ -296,7 +341,7 @@ def execute_rule(root: Path, rule_id: str) -> dict[str, Any]:
             "stderr": f"evolution rule timed out after {COMMAND_TIMEOUT_SECONDS}s",
         }
     expected_exit_code = dry_run["expected_exit_code"]
-    return {
+    result = {
         **dry_run,
         "would_execute": True,
         "executed": True,
@@ -306,6 +351,21 @@ def execute_rule(root: Path, rule_id: str) -> dict[str, Any]:
         "stdout": completed.stdout,
         "stderr": completed.stderr,
     }
+    _append_audit_event(
+        root,
+        {
+            "event": "execute",
+            "rule_id": dry_run["rule_id"],
+            "source": dry_run["source"],
+            "path": dry_run["path"],
+            "executed": True,
+            "passed": result["passed"],
+            "exit_code": result["exit_code"],
+            "expected_exit_code": expected_exit_code,
+            "failed_safety_checks": [],
+        },
+    )
+    return result
 
 
 def inspect_evolution_policy(root: Path) -> dict[str, Any]:
