@@ -49,7 +49,7 @@ monitor-summary:
 	$(VENV_PYTHON) scripts/forgeflow_monitor.py --tasks .forgeflow/tasks --recent 10 --format md
 
 monitor-summary-json:
-	$(VENV_PYTHON) scripts/forgeflow_monitor.py --tasks .forgeflow/tasks --recent 10 --format json
+	@$(VENV_PYTHON) scripts/forgeflow_monitor.py --tasks .forgeflow/tasks --recent 10 --format json
 
 orchestrator-help:
 	$(VENV_PYTHON) scripts/run_orchestrator.py --help
