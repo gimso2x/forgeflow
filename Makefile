@@ -26,6 +26,7 @@ validate:
 	$(PYTHON) scripts/validate_claude_hooks.py
 	$(PYTHON) scripts/smoke_plan_cli.py
 	pytest tests/test_evolution_policy.py -q
+	pytest tests/test_forgeflow_ux_contract.py -q
 	pytest tests/test_forgeflow_learn.py -q
 	pytest tests/test_claude_recovery_hooks.py -q
 	pytest tests/test_codex_recovery_guidance.py -q

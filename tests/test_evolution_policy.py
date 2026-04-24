@@ -3,6 +3,9 @@ from __future__ import annotations
 import json
 import subprocess
 import sys
+
+import pytest
+import forgeflow_runtime.evolution as evolution_runtime
 from pathlib import Path
 
 from forgeflow_runtime.evolution import adopt_example_rule, doctor_evolution_state, effectiveness_review, promotion_plan, proposal_approve, proposal_approvals, promotion_decision, promotion_gate, list_promotions, promote_rule, promote_stub, promotion_ready, proposal_review, write_promotion_plan, dry_run_rule, execute_rule, inspect_evolution_policy, list_rules
@@ -1992,3 +1995,35 @@ def test_list_promotions_cli_json_and_human_output(tmp_path: Path) -> None:
     assert "Evolution promotions:" in human_result.stdout
     assert "no-env-commit promoted" in human_result.stdout
     assert promoted["promotion_path"] in human_result.stdout
+
+
+
+def test_generated_adapter_drift_command_uses_non_mutating_check() -> None:
+    script = (ROOT / "scripts" / "generate_adapters.py").read_text(encoding="utf-8")
+    runtime = (ROOT / "forgeflow_runtime" / "evolution.py").read_text(encoding="utf-8")
+
+    assert "--check" in script
+    assert "out_file.write_text" in script
+    assert "if args.check" in script
+    assert '[sys.executable, "scripts/generate_adapters.py", "--check"]' in runtime
+
+
+
+def test_execute_rule_timeout_appends_audit_event(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    adopt_example_rule(tmp_path, "no-env-commit", fallback_root=ROOT)
+
+    def timeout_command(command_id: str, root: Path):
+        raise subprocess.TimeoutExpired(cmd=["forgeflow-approved-command", command_id], timeout=30, output="partial")
+
+    monkeypatch.setattr(evolution_runtime, "_run_approved_command", timeout_command)
+
+    result = execute_rule(tmp_path, "no-env-commit")
+
+    assert result["passed"] is False
+    assert result["executed"] is True
+    events = _audit_events(tmp_path)
+    assert events[-1]["event"] == "execute"
+    assert events[-1]["rule_id"] == "no-env-commit"
+    assert events[-1]["passed"] is False
+    assert events[-1]["exit_code"] is None
+    assert events[-1]["timeout"] is True

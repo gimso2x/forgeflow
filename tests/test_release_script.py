@@ -1,3 +1,4 @@
+import importlib.util
 import json
 import subprocess
 import sys
@@ -69,3 +70,30 @@ def test_release_script_can_update_versions_only_and_write_release_notes(tmp_pat
         MARKETPLACE.write_text(original_marketplace)
         CODEX.write_text(original_codex)
         CURSOR.write_text(original_cursor)
+
+
+
+def test_release_script_rejects_preexisting_staged_changes(tmp_path):
+    marker = ROOT / "release-unrelated-staged.tmp"
+    try:
+        marker.write_text("do not ship me", encoding="utf-8")
+        subprocess.run(["git", "add", str(marker.relative_to(ROOT))], cwd=ROOT, check=True)
+
+        result = run_release("0.1.14", "--skip-checks", "--no-tag")
+
+        assert result.returncode != 0
+        assert "pre-existing staged changes" in result.stderr
+    finally:
+        subprocess.run(["git", "reset", "--", str(marker.relative_to(ROOT))], cwd=ROOT, check=False, capture_output=True)
+        marker.unlink(missing_ok=True)
+
+
+def test_release_script_stages_relative_notes_out_path(tmp_path):
+    spec = importlib.util.spec_from_file_location("release_script", SCRIPT)
+    assert spec and spec.loader
+    release_script = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(release_script)
+
+    paths = release_script.release_files_to_stage(Path("release-notes-test.md"))
+
+    assert "release-notes-test.md" in paths

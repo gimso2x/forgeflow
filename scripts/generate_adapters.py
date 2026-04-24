@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import argparse
 import json
 from pathlib import Path
 
@@ -183,8 +184,16 @@ def build_content(target: str, manifest: dict[str, object]) -> str:
     return '\n'.join(parts)
 
 
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Generate ForgeFlow adapter files.")
+    parser.add_argument("--check", action="store_true", help="verify generated adapter files are current without writing them")
+    return parser.parse_args()
+
+
 def main() -> int:
+    args = parse_args()
     generated = []
+    drift = []
     for manifest_path in sorted(TARGETS_DIR.glob('*/manifest.yaml')):
         manifest = load_manifest(manifest_path)
         validate_manifest(manifest, manifest_path)
@@ -192,8 +201,23 @@ def main() -> int:
         out_dir = GENERATED_DIR / target
         out_dir.mkdir(parents=True, exist_ok=True)
         out_file = out_dir / file_for_target(target, manifest)
-        out_file.write_text(build_content(target, manifest), encoding='utf-8')
+        content = build_content(target, manifest)
+        if args.check:
+            if not out_file.exists() or out_file.read_text(encoding='utf-8') != content:
+                drift.append(str(out_file.relative_to(ROOT)))
+        else:
+            out_file.write_text(content, encoding='utf-8')
         generated.append(str(out_file.relative_to(ROOT)))
+    if args.check:
+        if drift:
+            print('ADAPTER GENERATION CHECK: FAIL')
+            for path in drift:
+                print(f'- stale {path}')
+            return 1
+        print('ADAPTER GENERATION CHECK: PASS')
+        for path in generated:
+            print(f'- current {path}')
+        return 0
     print('ADAPTER GENERATION: PASS')
     for path in generated:
         print(f'- wrote {path}')

@@ -991,7 +991,7 @@ def _run_approved_command(command_id: str, root: Path) -> subprocess.CompletedPr
         )
     if command_id == "generated-adapter-drift":
         generate = subprocess.run(
-            [sys.executable, "scripts/generate_adapters.py"],
+            [sys.executable, "scripts/generate_adapters.py", "--check"],
             cwd=root,
             text=True,
             capture_output=True,
@@ -1054,15 +1054,32 @@ def execute_rule(root: Path, rule_id: str) -> dict[str, Any]:
     try:
         completed = _run_approved_command(str(dry_run["command_id"]), root)
     except subprocess.TimeoutExpired as exc:
-        return {
+        result = {
             **dry_run,
             "would_execute": True,
             "executed": True,
             "passed": False,
             "exit_code": None,
+            "expected_exit_code": dry_run["expected_exit_code"],
             "stdout": exc.stdout or "",
             "stderr": f"evolution rule timed out after {COMMAND_TIMEOUT_SECONDS}s",
         }
+        _append_audit_event(
+            root,
+            {
+                "event": "execute",
+                "rule_id": dry_run["rule_id"],
+                "source": dry_run["source"],
+                "path": dry_run["path"],
+                "executed": True,
+                "passed": False,
+                "exit_code": None,
+                "expected_exit_code": dry_run["expected_exit_code"],
+                "failed_safety_checks": [],
+                "timeout": True,
+            },
+        )
+        return result
     expected_exit_code = dry_run["expected_exit_code"]
     result = {
         **dry_run,

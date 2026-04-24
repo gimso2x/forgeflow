@@ -44,3 +44,8 @@ def test_docs_explain_users_should_not_operate_each_stage_manually() -> None:
     assert "agent-owned decomposition" in readme
     assert "사용자가 매번 workflow 운영자가 될 필요는 없습니다" in install
     assert "agent가 intake→plan→run을 자연스럽게 이어받는 쪽이 정본 UX입니다" in install
+
+
+def test_make_validate_runs_ux_contract_tests() -> None:
+    makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
+    assert "tests/test_forgeflow_ux_contract.py" in makefile

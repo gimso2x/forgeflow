@@ -80,6 +80,31 @@ def run(command: list[str]) -> None:
     subprocess.run(command, cwd=ROOT, check=True)
 
 
+def relative_to_root(path: Path) -> Path:
+    resolved = (ROOT / path).resolve() if not path.is_absolute() else path.resolve()
+    try:
+        return resolved.relative_to(ROOT)
+    except ValueError as exc:
+        raise ValueError(f"release file must be inside repository: {path}") from exc
+
+
+def release_files_to_stage(notes_out: Path | None = None) -> list[str]:
+    paths = [
+        PLUGIN_JSON.relative_to(ROOT),
+        CODEX_PLUGIN_JSON.relative_to(ROOT),
+        CURSOR_PLUGIN_JSON.relative_to(ROOT),
+        MARKETPLACE_JSON.relative_to(ROOT),
+    ]
+    if notes_out is not None:
+        paths.append(relative_to_root(notes_out))
+    return [str(path) for path in paths]
+
+
+def staged_paths() -> list[str]:
+    result = subprocess.run(["git", "diff", "--cached", "--name-only"], cwd=ROOT, text=True, capture_output=True, check=True)
+    return [line for line in result.stdout.splitlines() if line.strip()]
+
+
 def release_plan(version: str) -> str:
     tag = f"v{version}"
     return "\n".join(
@@ -110,6 +135,14 @@ def main() -> int:
         if args.notes_out:
             print(f"Dry-run: would write release notes to {args.notes_out}")
         return 0
+    if not args.no_commit and not args.write_only:
+        staged = staged_paths()
+        if staged:
+            print(
+                "ERROR: pre-existing staged changes would be included in the release commit: " + ", ".join(staged),
+                file=sys.stderr,
+            )
+            return 2
 
     update_versions(args.version)
     if args.notes_out:
@@ -126,16 +159,7 @@ def main() -> int:
 
     tag = f"v{args.version}"
     if not args.no_commit:
-        run([
-            "git",
-            "add",
-            str(PLUGIN_JSON.relative_to(ROOT)),
-            str(CODEX_PLUGIN_JSON.relative_to(ROOT)),
-            str(CURSOR_PLUGIN_JSON.relative_to(ROOT)),
-            str(MARKETPLACE_JSON.relative_to(ROOT)),
-        ])
-        if args.notes_out and args.notes_out.is_relative_to(ROOT):
-            run(["git", "add", str(args.notes_out.relative_to(ROOT))])
+        run(["git", "add", *release_files_to_stage(args.notes_out)])
         run(["git", "commit", "-m", f"chore: release {tag}"])
 
     if not args.no_tag:
