@@ -64,7 +64,7 @@ Verification checklist:
 - `make smoke-claude-plugin`
 
 Release commands:
-- `git commit -am "chore: release {tag}"`
+- `git add <release files> && git commit -m "chore: release {tag}"`
 - `git tag -a {tag} -m "{tag}"`
 - `git push origin main {tag}`
 """

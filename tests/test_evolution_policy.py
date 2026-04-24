@@ -424,7 +424,7 @@ def test_execute_rule_records_audit_event_when_safety_checks_block_execution(tmp
     assert event["rule_id"] == "no-env-commit"
     assert event["passed"] is False
     assert event["executed"] is False
-    assert event["failed_safety_checks"] == ["check_shape", "approved_command"]
+    assert event["failed_safety_checks"] == ["check_shape", "approved_command", "approved_command_contract"]
     assert execute["executed"] is False
 
 
@@ -652,7 +652,7 @@ def test_doctor_detects_unsafe_active_rule_and_duplicate_retired_rule(tmp_path: 
     issue_codes = [issue["code"] for issue in report["issues"]]
     assert "unsafe_active_rule" in issue_codes
     assert "duplicate_active_retired_rule" in issue_codes
-    assert report["active_rules"][0]["failed_safety_checks"] == ["approved_command"]
+    assert report["active_rules"][0]["failed_safety_checks"] == ["approved_command", "approved_command_contract"]
 
 
 def test_doctor_detects_broken_audit_jsonl(tmp_path: Path) -> None:
@@ -2027,3 +2027,24 @@ def test_execute_rule_timeout_appends_audit_event(tmp_path: Path, monkeypatch: p
     assert events[-1]["passed"] is False
     assert events[-1]["exit_code"] is None
     assert events[-1]["timeout"] is True
+
+
+
+def test_dry_run_rule_rejects_project_rule_with_mismatched_command_contract(tmp_path: Path) -> None:
+    project_rule_dir = tmp_path / ".forgeflow" / "evolution" / "rules"
+    project_rule_dir.mkdir(parents=True)
+    rule = json.loads((ROOT / "examples" / "evolution" / "no-env-commit-rule.json").read_text(encoding="utf-8"))
+    rule["check"]["command"] = "echo totally different preview"
+    (project_rule_dir / "no-env-commit-rule.json").write_text(json.dumps(rule), encoding="utf-8")
+
+    result = dry_run_rule(tmp_path, "no-env-commit", allow_examples=False)
+
+    assert result["safe_to_execute_later"] is False
+    assert result["safety_checks"]["approved_command"] is True
+    assert result["safety_checks"]["approved_command_contract"] is False
+
+
+def test_generated_adapter_drift_example_previews_non_mutating_check_command() -> None:
+    rule = json.loads((ROOT / "examples" / "evolution" / "generated-adapter-drift-rule.json").read_text(encoding="utf-8"))
+
+    assert rule["check"]["command"] == "python3 scripts/generate_adapters.py --check"

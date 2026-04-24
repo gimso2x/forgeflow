@@ -31,7 +31,11 @@ HARD_GATE_REQUIRES = {
     "eval_record",
     "audit_trail",
 }
-APPROVED_COMMAND_IDS = {"generated-adapter-drift", "no-env-commit"}
+APPROVED_COMMANDS = {
+    "generated-adapter-drift": "python3 scripts/generate_adapters.py --check",
+    "no-env-commit": "git rev-parse --is-inside-work-tree >/dev/null 2>&1 && git diff --cached --name-only | python3 -c \"import sys; bad=[p for p in sys.stdin.read().splitlines() if p in {'.env', '.env.local'} or p.endswith('/.env') or p.endswith('/.env.local')]; sys.exit(1 if bad else 0)\"",
+}
+APPROVED_COMMAND_IDS = set(APPROVED_COMMANDS)
 COMMAND_TIMEOUT_SECONDS = 30
 
 
@@ -775,6 +779,7 @@ def _safety_checks(rule: dict[str, Any]) -> dict[str, bool]:
         and isinstance(check.get("command"), str)
         and isinstance(check.get("expected_exit_code"), int),
         "approved_command": check.get("command_id") in APPROVED_COMMAND_IDS,
+        "approved_command_contract": check.get("command") == APPROVED_COMMANDS.get(check.get("command_id")),
     }
 
 

@@ -36,6 +36,7 @@ def test_release_script_dry_run_prints_ordered_checks_without_mutating_versions(
     assert "5. run make smoke-claude-plugin" in result.stdout
     assert "6. create git commit: chore: release v0.1.14" in result.stdout
     assert "7. create annotated tag: v0.1.14" in result.stdout
+    assert "git commit -am" not in SCRIPT.read_text(encoding="utf-8")
     assert json.loads(PLUGIN.read_text()) == before_plugin
     assert json.loads(MARKETPLACE.read_text()) == before_marketplace
 
