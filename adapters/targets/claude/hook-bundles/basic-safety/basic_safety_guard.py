@@ -10,6 +10,7 @@ import sys
 DANGEROUS_PATTERNS = [
     (re.compile(r"\brm\s+[^\n;]*-[^\n;]*[rR][^\n;]*[fF]|\brm\s+[^\n;]*-[^\n;]*[fF][^\n;]*[rR]"), "recursive force removal"),
     (re.compile(r"\bgit\s+reset\s+--hard\b"), "hard git reset"),
+    (re.compile(r"\bgit\s+clean\b[^\n;]*\s-[^\n;]*[dD][^\n;]*[fF]|\bgit\s+clean\b[^\n;]*\s-[^\n;]*[fF][^\n;]*[dD]"), "destructive git clean"),
     (re.compile(r"\bgit\s+push\b[^\n;]*\s--force(?:-with-lease)?\b"), "force push"),
     (re.compile(r"\bDROP\s+TABLE\b", re.IGNORECASE), "destructive SQL"),
 ]
