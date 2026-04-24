@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from forgeflow_runtime.evolution import adopt_example_rule, dry_run_rule, execute_rule, inspect_evolution_policy, list_rules
+from forgeflow_runtime.evolution import adopt_example_rule, audit_events, dry_run_rule, execute_rule, inspect_evolution_policy, list_rules
 
 
 def _target_root(args: argparse.Namespace) -> Path:
@@ -121,6 +121,27 @@ def cmd_execute(args: argparse.Namespace) -> int:
     return 0 if result.get("passed") else 2
 
 
+def cmd_audit(args: argparse.Namespace) -> int:
+    try:
+        result = audit_events(_target_root(args), limit=args.limit)
+    except ValueError as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 1
+    if args.json:
+        print(json.dumps(result, ensure_ascii=False, indent=2))
+        return 0
+    print(f"Evolution audit log: {result['audit_log']}")
+    if not result["events"]:
+        print("- <none>")
+        return 0
+    for event in result["events"]:
+        status = "passed" if event.get("passed") else "failed"
+        executed = event.get("executed")
+        executed_text = "" if executed is None else f" executed={str(executed).lower()}"
+        print(f"- {event.get('timestamp')} {event.get('event')} {event.get('rule_id')} {status}{executed_text}")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="ForgeFlow evolution policy helper")
     parser.add_argument("--root", default=str(ROOT), help="project root; defaults to the ForgeFlow checkout")
@@ -145,6 +166,10 @@ def build_parser() -> argparse.ArgumentParser:
     execute.add_argument("--i-understand-project-local-hard-rule", action="store_true")
     execute.add_argument("--json", action="store_true")
     execute.set_defaults(func=cmd_execute)
+    audit = sub.add_parser("audit", help="show recent project-local evolution audit events")
+    audit.add_argument("--limit", type=int, default=20)
+    audit.add_argument("--json", action="store_true")
+    audit.set_defaults(func=cmd_audit)
     return parser
 
 

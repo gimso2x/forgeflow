@@ -51,6 +51,19 @@ def _append_audit_event(root: Path, event: dict[str, Any]) -> None:
         handle.write(json.dumps(payload, ensure_ascii=False, sort_keys=True) + "\n")
 
 
+def audit_events(root: Path, *, limit: int = 20) -> dict[str, Any]:
+    root = root.resolve()
+    audit_path = root / AUDIT_LOG_PATH
+    if limit < 1:
+        raise ValueError("audit limit must be >= 1")
+    if not audit_path.is_file():
+        events: list[dict[str, Any]] = []
+    else:
+        lines = [line for line in audit_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+        events = [json.loads(line) for line in lines[-limit:]]
+    return {"audit_log": str(audit_path), "events": events}
+
+
 def _failed_safety_checks(safety_checks: dict[str, bool]) -> list[str]:
     return [name for name, passed in safety_checks.items() if not passed]
 

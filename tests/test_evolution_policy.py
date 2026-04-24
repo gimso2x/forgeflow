@@ -423,3 +423,52 @@ def test_execute_rule_records_audit_event_when_safety_checks_block_execution(tmp
     assert event["executed"] is False
     assert event["failed_safety_checks"] == ["check_shape", "approved_command"]
     assert execute["executed"] is False
+
+
+def test_audit_events_returns_recent_events_limited_newest_last(tmp_path: Path) -> None:
+    subprocess.run(["git", "init"], cwd=tmp_path, check=True, capture_output=True)
+    adopt_example_rule(tmp_path, "no-env-commit", fallback_root=ROOT)
+    execute_rule(tmp_path, "no-env-commit")
+
+    from forgeflow_runtime.evolution import audit_events
+
+    result = audit_events(tmp_path, limit=1)
+    events = result["events"]
+
+    assert len(events) == 1
+    assert events[0]["event"] == "execute"
+    assert events[0]["rule_id"] == "no-env-commit"
+
+
+def test_audit_cli_outputs_json_events(tmp_path: Path) -> None:
+    subprocess.run(["git", "init"], cwd=tmp_path, check=True, capture_output=True)
+    adopt_example_rule(tmp_path, "no-env-commit", fallback_root=ROOT)
+    execute_rule(tmp_path, "no-env-commit")
+
+    result = subprocess.run(
+        [sys.executable, "scripts/forgeflow_evolution.py", "--root", str(tmp_path), "audit", "--limit", "1", "--json"],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
+    payload = json.loads(result.stdout)
+    assert payload["audit_log"].endswith(".forgeflow/evolution/audit-log.jsonl")
+    assert len(payload["events"]) == 1
+    assert payload["events"][0]["event"] == "execute"
+
+
+def test_audit_cli_human_output_handles_empty_log(tmp_path: Path) -> None:
+    result = subprocess.run(
+        [sys.executable, "scripts/forgeflow_evolution.py", "--root", str(tmp_path), "audit"],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert "Evolution audit log:" in result.stdout
+    assert "- <none>" in result.stdout
