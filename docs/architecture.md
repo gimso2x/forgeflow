@@ -143,6 +143,8 @@ P0에 들어가는 self-evolution의 정본은 `policy/canonical/evolution.yaml`
 
 두 번째 surface는 `scripts/forgeflow_evolution.py dry-run --rule <id>`다. 이것도 아직 command를 실행하지 않는다. rule id, check command, HARD mode, safety checks를 보여주고 `would_execute=false`를 고정한다. 즉 “실행 가능성 검토”와 “실제 실행” 사이에 일부러 벽을 세운다.
 
+세 번째 surface는 gated `scripts/forgeflow_evolution.py execute --rule <id> --i-understand-project-local-hard-rule`다. 이 명시 플래그 없이는 exit 2로 실패한다. 실행 전에도 project scope, adopted HARD, deterministic, global export disabled, raw evidence absent 같은 safety checks가 통과해야 한다. 이 단계도 전역 rule 실행이나 cross-project 차단은 허용하지 않는다.
+
 ---
 
 ## 7. What success looks like

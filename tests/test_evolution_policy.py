@@ -5,7 +5,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from forgeflow_runtime.evolution import dry_run_rule, inspect_evolution_policy
+from forgeflow_runtime.evolution import dry_run_rule, execute_rule, inspect_evolution_policy
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -117,3 +117,53 @@ def test_forgeflow_evolution_dry_run_human_output_says_no_command_execution() ->
     assert "would execute: false" in result.stdout
     assert "command not executed" in result.stdout
     assert "safe to execute later: true" in result.stdout
+
+
+def test_execute_rule_runs_safe_project_rule_when_explicitly_allowed() -> None:
+    result = execute_rule(ROOT, "no-env-commit")
+
+    assert result["rule_id"] == "no-env-commit"
+    assert result["executed"] is True
+    assert result["exit_code"] == 0
+    assert result["expected_exit_code"] == 0
+    assert result["passed"] is True
+    assert result["would_execute"] is True
+    assert result["safety_checks"]["scope_project"] is True
+
+
+def test_forgeflow_evolution_execute_requires_explicit_danger_flag() -> None:
+    result = subprocess.run(
+        [sys.executable, "scripts/forgeflow_evolution.py", "execute", "--rule", "no-env-commit"],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    assert result.returncode == 2
+    assert "requires --i-understand-project-local-hard-rule" in result.stderr
+
+
+def test_forgeflow_evolution_execute_cli_outputs_json_after_gated_run() -> None:
+    result = subprocess.run(
+        [
+            sys.executable,
+            "scripts/forgeflow_evolution.py",
+            "execute",
+            "--rule",
+            "no-env-commit",
+            "--i-understand-project-local-hard-rule",
+            "--json",
+        ],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
+    payload = json.loads(result.stdout)
+    assert payload["rule_id"] == "no-env-commit"
+    assert payload["executed"] is True
+    assert payload["passed"] is True
+    assert payload["exit_code"] == 0

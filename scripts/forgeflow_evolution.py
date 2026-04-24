@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from forgeflow_runtime.evolution import dry_run_rule, inspect_evolution_policy
+from forgeflow_runtime.evolution import dry_run_rule, execute_rule, inspect_evolution_policy
 
 
 def cmd_inspect(args: argparse.Namespace) -> int:
@@ -57,6 +57,32 @@ def cmd_dry_run(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_execute(args: argparse.Namespace) -> int:
+    if not args.i_understand_project_local_hard_rule:
+        print("Error: execute requires --i-understand-project-local-hard-rule", file=sys.stderr)
+        return 2
+    try:
+        result = execute_rule(ROOT, args.rule)
+    except ValueError as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 1
+    if args.json:
+        print(json.dumps(result, ensure_ascii=False, indent=2))
+        return 0 if result.get("passed") else 2
+
+    print(f"ForgeFlow evolution execute: {result['rule_id']}")
+    print(f"- executed: {str(result['executed']).lower()}")
+    print(f"- exit code: {result['exit_code']} expected={result['expected_exit_code']}")
+    print(f"- passed: {str(result['passed']).lower()}")
+    if result.get("stdout"):
+        print("- stdout:")
+        print(result["stdout"].rstrip())
+    if result.get("stderr"):
+        print("- stderr:")
+        print(result["stderr"].rstrip())
+    return 0 if result.get("passed") else 2
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="ForgeFlow evolution policy helper")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -67,6 +93,11 @@ def build_parser() -> argparse.ArgumentParser:
     dry_run.add_argument("--rule", required=True)
     dry_run.add_argument("--json", action="store_true")
     dry_run.set_defaults(func=cmd_dry_run)
+    execute = sub.add_parser("execute", help="execute a project-local rule after explicit acknowledgement")
+    execute.add_argument("--rule", required=True)
+    execute.add_argument("--i-understand-project-local-hard-rule", action="store_true")
+    execute.add_argument("--json", action="store_true")
+    execute.set_defaults(func=cmd_execute)
     return parser
 
 

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import subprocess
 from pathlib import Path
 from typing import Any
 
@@ -80,6 +81,46 @@ def dry_run_rule(root: Path, rule_id: str) -> dict[str, Any]:
         "would_execute": False,
         "safe_to_execute_later": all(safety_checks.values()),
         "safety_checks": safety_checks,
+    }
+
+
+def execute_rule(root: Path, rule_id: str) -> dict[str, Any]:
+    """Execute a safety-validated project-local rule command.
+
+    Commands come from versioned project-local evolution examples, not user input.
+    The CLI still requires an explicit acknowledgement flag before calling this.
+    """
+
+    root = root.resolve()
+    dry_run = dry_run_rule(root, rule_id)
+    if not dry_run["safe_to_execute_later"]:
+        return {
+            **dry_run,
+            "executed": False,
+            "passed": False,
+            "exit_code": None,
+            "stdout": "",
+            "stderr": "rule failed safety checks; command not executed",
+        }
+
+    completed = subprocess.run(
+        dry_run["command"],
+        cwd=root,
+        shell=True,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    expected_exit_code = dry_run["expected_exit_code"]
+    return {
+        **dry_run,
+        "would_execute": True,
+        "executed": True,
+        "exit_code": completed.returncode,
+        "expected_exit_code": expected_exit_code,
+        "passed": completed.returncode == expected_exit_code,
+        "stdout": completed.stdout,
+        "stderr": completed.stderr,
     }
 
 
