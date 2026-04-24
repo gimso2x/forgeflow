@@ -32,6 +32,7 @@ validate:
 	pytest tests/test_shared_recovery_contract.py -q
 	pytest tests/test_team_pattern_contract.py -q
 	pytest tests/test_claude_agent_preset_install.py -q
+	pytest tests/test_first_clone_setup.py -q
 
 runtime-sample:
 	$(PYTHON) scripts/run_runtime_sample.py --fixture-dir examples/runtime-fixtures/small-doc-task --route small

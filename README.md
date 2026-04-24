@@ -57,6 +57,25 @@ cp adapters/generated/codex/CODEX.md /path/to/your-project/CODEX.md
 cp adapters/generated/cursor/HARNESS_CURSOR.md /path/to/your-project/HARNESS_CURSOR.md
 ```
 
+### Claude project team presets
+
+If you want project-local Claude subagents for a Next.js app, install the fixed ForgeFlow presets instead of asking Claude to invent `.claude/agents` files.
+
+```bash
+python3 scripts/install_claude_agent_presets.py --target /path/to/your-project --profile nextjs
+```
+
+This creates:
+
+```text
+/path/to/your-project/.claude/agents/forgeflow-coordinator.md
+/path/to/your-project/.claude/agents/forgeflow-nextjs-worker.md
+/path/to/your-project/.claude/agents/forgeflow-quality-reviewer.md
+/path/to/your-project/docs/forgeflow-team-init.md
+```
+
+The installer refuses `~/.claude` and direct `.claude/agents` targets. Team presets belong to the project, not your global Claude config. The installer reads `package.json` and documents only scripts that actually exist.
+
 ### Local runtime install
 
 ```bash
