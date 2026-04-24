@@ -3,7 +3,7 @@ VENV ?= .venv
 VENV_PYTHON := $(VENV)/bin/python
 VENV_PIP := $(VENV)/bin/pip
 
-.PHONY: setup check-env validate generate regen clean validate-samples runtime-sample adherence-evals
+.PHONY: setup check-env validate generate regen clean validate-samples runtime-sample adherence-evals smoke-claude-plugin
 
 setup:
 	$(PYTHON) -m venv $(VENV)
@@ -25,6 +25,9 @@ runtime-sample:
 
 adherence-evals:
 	$(PYTHON) scripts/run_adherence_evals.py
+
+smoke-claude-plugin:
+	$(PYTHON) scripts/smoke_claude_plugin.py
 
 generate:
 	$(PYTHON) scripts/generate_adapters.py

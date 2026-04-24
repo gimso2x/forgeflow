@@ -201,7 +201,17 @@ make validate
 
 Expected result: structure, policy, generated adapters, sample artifacts, and adherence evals all pass.
 
-### 3. Inspect the operator shell
+### 3. Smoke-test the installed Claude plugin
+
+If Claude Code and the ForgeFlow plugin are installed, run the live slash-skill smoke test:
+
+```bash
+make smoke-claude-plugin
+```
+
+This calls `/forgeflow:<stage>` through Claude Code, checks `permission_denials == []`, rejects exact-count preambles/code fences, validates write-mode `plan.json` and `review-report.json` against schema, and fails if the repo dirty state changes. This is intentionally not part of `make validate` because it spends Claude quota and requires a logged-in Claude CLI.
+
+### 4. Inspect the operator shell
 
 ```bash
 python3 scripts/run_orchestrator.py --help
@@ -209,7 +219,7 @@ python3 scripts/run_orchestrator.py --help
 
 This shows the local CLI surface for `start`, `run`, `status`, `resume`, `advance`, `retry`, `step-back`, `escalate`, and `execute`.
 
-### 4. Run the safe sample
+### 5. Run the safe sample
 
 ```bash
 python3 scripts/run_runtime_sample.py --fixture-dir examples/runtime-fixtures/small-doc-task --route small
@@ -217,7 +227,7 @@ python3 scripts/run_runtime_sample.py --fixture-dir examples/runtime-fixtures/sm
 
 This copies the fixture to a disposable workspace before running, so tracked sample artifacts stay clean.
 
-### 5. Start your own task
+### 6. Start your own task
 
 ```bash
 python3 scripts/run_orchestrator.py init \
@@ -229,7 +239,7 @@ python3 scripts/run_orchestrator.py init \
 
 This creates schema-valid starter artifacts and leaves the task at `clarify`.
 
-### 6. Inspect the fixture state
+### 7. Inspect the fixture state
 
 ```bash
 python3 scripts/run_orchestrator.py status --task-dir examples/runtime-fixtures/small-doc-task
