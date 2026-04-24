@@ -2075,6 +2075,17 @@ def test_cli_help_includes_operator_shell_examples() -> None:
     assert "Manual commands mutate the target task-dir" in result.stdout
 
 
+def test_cli_help_keeps_fallback_start_run_warning_adjacent_to_examples() -> None:
+    result = _run_orchestrator_cli("--help")
+
+    assert result.returncode == 0
+    examples = result.stdout.split("Operator shell examples:", 1)[1].split("Notes:", 1)[0]
+    fallback_section = examples.split("# Fallback entries mutate task artifacts", 1)[1].split("# Manual stage control", 1)[0]
+    assert "python3 scripts/run_orchestrator.py start" in fallback_section
+    assert "python3 scripts/run_orchestrator.py run" in fallback_section
+    assert "can reuse persisted route" not in fallback_section
+
+
 def test_cli_init_bootstraps_task_from_operator_inputs(tmp_path: Path) -> None:
     task_dir = tmp_path / "my-task"
 

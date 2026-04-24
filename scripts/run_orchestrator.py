@@ -120,8 +120,11 @@ def build_parser() -> argparse.ArgumentParser:
   python3 scripts/run_orchestrator.py init --task-id my-task-001 --objective "Update README quickstart" --risk low
   python3 scripts/run_orchestrator.py init --task-dir work/my-task --task-id my-task-001 --objective "Update README quickstart" --risk low
 
-  # Fallback entry: start/run can reuse persisted route or auto-route from brief/checkpoint state.
+  # Fallback entries mutate task artifacts, so keep them explicit operator commands.
+  # Route omitted: persisted state or brief/checkpoint artifacts decide.
   python3 scripts/run_orchestrator.py start --task-dir examples/runtime-fixtures/small-doc-task
+  python3 scripts/run_orchestrator.py run --task-dir examples/runtime-fixtures/small-doc-task
+  # Raise the minimum route floor without lowering persisted or explicit route choice.
   python3 scripts/run_orchestrator.py run --task-dir examples/runtime-fixtures/small-doc-task --min-route medium
 
   # Manual stage control: execute current stage, advance, retry, rewind, or escalate.
