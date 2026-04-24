@@ -147,6 +147,8 @@ P0에 들어가는 self-evolution의 정본은 `policy/canonical/evolution.yaml`
 
 실행 대상은 `.forgeflow/evolution/rules/*.json`의 project-local registry로 제한한다. `examples/evolution/`은 샘플이며 `list --include-examples`와 `dry-run`에서는 볼 수 있지만, `execute`는 예시 파일을 직접 실행하지 않는다. 샘플을 실제 규칙으로 쓰려면 프로젝트가 명시적으로 `.forgeflow/evolution/rules/`에 복사/채택해야 한다.
 
+채택 surface는 `scripts/forgeflow_evolution.py adopt --example <id>`다. 이 명령은 example rule의 safety checks를 다시 확인하고, 기존 project-local rule이 있으면 덮어쓰지 않는다. adopt 이후에야 `list`에서 `source=project`로 보이고, gated execute 대상이 된다.
+
 ---
 
 ## 7. What success looks like

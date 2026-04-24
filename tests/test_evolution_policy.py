@@ -5,7 +5,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from forgeflow_runtime.evolution import dry_run_rule, execute_rule, inspect_evolution_policy, list_rules
+from forgeflow_runtime.evolution import adopt_example_rule, dry_run_rule, execute_rule, inspect_evolution_policy, list_rules
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -120,6 +120,7 @@ def test_forgeflow_evolution_dry_run_human_output_says_no_command_execution() ->
 
 
 def test_execute_rule_runs_safe_project_rule_when_explicitly_allowed(tmp_path: Path) -> None:
+    subprocess.run(["git", "init"], cwd=tmp_path, check=True, capture_output=True)
     project_rule_dir = tmp_path / ".forgeflow" / "evolution" / "rules"
     project_rule_dir.mkdir(parents=True)
     source = ROOT / "examples" / "evolution" / "no-env-commit-rule.json"
@@ -151,6 +152,7 @@ def test_forgeflow_evolution_execute_requires_explicit_danger_flag() -> None:
 
 
 def test_forgeflow_evolution_execute_cli_outputs_json_after_gated_run(tmp_path: Path) -> None:
+    subprocess.run(["git", "init"], cwd=tmp_path, check=True, capture_output=True)
     project_rule_dir = tmp_path / ".forgeflow" / "evolution" / "rules"
     project_rule_dir.mkdir(parents=True)
     source = ROOT / "examples" / "evolution" / "no-env-commit-rule.json"
@@ -242,3 +244,63 @@ def test_forgeflow_evolution_list_cli_shows_project_and_example_sources(tmp_path
     assert payload["project_rules"][0]["id"] == "no-env-commit"
     assert payload["project_rules"][0]["source"] == "project"
     assert payload["example_rules"][0]["source"] == "example"
+
+
+def test_adopt_example_rule_copies_safe_example_into_project_registry(tmp_path: Path) -> None:
+    result = adopt_example_rule(tmp_path, "no-env-commit", fallback_root=ROOT)
+
+    assert result["adopted"] is True
+    assert result["rule_id"] == "no-env-commit"
+    assert result["destination"].endswith(".forgeflow/evolution/rules/no-env-commit-rule.json")
+    assert Path(result["destination"]).is_file()
+    registry = list_rules(tmp_path)
+    assert [rule["id"] for rule in registry["project_rules"]] == ["no-env-commit"]
+
+
+def test_adopt_example_rule_refuses_to_overwrite_existing_project_rule(tmp_path: Path) -> None:
+    adopt_example_rule(tmp_path, "no-env-commit", fallback_root=ROOT)
+
+    try:
+        adopt_example_rule(tmp_path, "no-env-commit", fallback_root=ROOT)
+    except FileExistsError as exc:
+        assert "already exists" in str(exc)
+    else:
+        raise AssertionError("expected duplicate adoption to fail")
+
+
+def test_forgeflow_evolution_adopt_cli_then_execute_project_rule(tmp_path: Path) -> None:
+    subprocess.run(["git", "init"], cwd=tmp_path, check=True, capture_output=True)
+    adopt = subprocess.run(
+        [sys.executable, "scripts/forgeflow_evolution.py", "--root", str(tmp_path), "adopt", "--example", "no-env-commit", "--json"],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    assert adopt.returncode == 0, adopt.stderr
+    adopt_payload = json.loads(adopt.stdout)
+    assert adopt_payload["adopted"] is True
+
+    execute = subprocess.run(
+        [
+            sys.executable,
+            "scripts/forgeflow_evolution.py",
+            "--root",
+            str(tmp_path),
+            "execute",
+            "--rule",
+            "no-env-commit",
+            "--i-understand-project-local-hard-rule",
+            "--json",
+        ],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    assert execute.returncode == 0, execute.stderr
+    execute_payload = json.loads(execute.stdout)
+    assert execute_payload["source"] == "project"
+    assert execute_payload["passed"] is True

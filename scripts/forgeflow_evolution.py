@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from forgeflow_runtime.evolution import dry_run_rule, execute_rule, inspect_evolution_policy, list_rules
+from forgeflow_runtime.evolution import adopt_example_rule, dry_run_rule, execute_rule, inspect_evolution_policy, list_rules
 
 
 def _target_root(args: argparse.Namespace) -> Path:
@@ -54,6 +54,21 @@ def cmd_list(args: argparse.Namespace) -> int:
         print("Example rules:")
         for rule in registry["example_rules"]:
             print(f"- {rule['id']} ({rule['mode']}, source={rule['source']})")
+    return 0
+
+
+def cmd_adopt(args: argparse.Namespace) -> int:
+    try:
+        result = adopt_example_rule(_target_root(args), args.example, fallback_root=ROOT)
+    except (ValueError, FileExistsError) as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 1
+    if args.json:
+        print(json.dumps(result, ensure_ascii=False, indent=2))
+        return 0
+    print(f"Adopted evolution rule: {result['rule_id']}")
+    print(f"- source: {result['source']}")
+    print(f"- destination: {result['destination']}")
     return 0
 
 
@@ -117,6 +132,10 @@ def build_parser() -> argparse.ArgumentParser:
     list_cmd.add_argument("--include-examples", action="store_true")
     list_cmd.add_argument("--json", action="store_true")
     list_cmd.set_defaults(func=cmd_list)
+    adopt = sub.add_parser("adopt", help="copy a safe example rule into the project-local registry")
+    adopt.add_argument("--example", required=True)
+    adopt.add_argument("--json", action="store_true")
+    adopt.set_defaults(func=cmd_adopt)
     dry_run = sub.add_parser("dry-run", help="show a project rule command without executing it")
     dry_run.add_argument("--rule", required=True)
     dry_run.add_argument("--json", action="store_true")

@@ -135,6 +135,42 @@ def dry_run_rule(root: Path, rule_id: str, *, allow_examples: bool = True, fallb
     }
 
 
+
+def _rule_filename(rule: dict[str, Any], source_path: Path) -> str:
+    rule_id = rule.get("id")
+    if isinstance(rule_id, str) and rule_id:
+        return f"{rule_id}-rule.json"
+    return source_path.name
+
+
+def adopt_example_rule(root: Path, rule_id: str, *, fallback_root: Path | None = None) -> dict[str, Any]:
+    """Copy a safe example rule into the project-local registry without overwriting."""
+
+    root = root.resolve()
+    examples_root = (fallback_root or root).resolve()
+    rule, source, source_path = _load_rule_by_id(examples_root, rule_id, allow_examples=True)
+    if source != "example":
+        raise ValueError(f"rule {rule_id!r} is already project-local; adopt expects an example rule")
+    safety_checks = _safety_checks(rule)
+    if not all(safety_checks.values()):
+        failed = ", ".join(name for name, passed in safety_checks.items() if not passed)
+        raise ValueError(f"example rule {rule_id!r} failed safety checks: {failed}")
+
+    destination_dir = root / PROJECT_RULE_DIR
+    destination_dir.mkdir(parents=True, exist_ok=True)
+    destination = destination_dir / _rule_filename(rule, source_path)
+    if destination.exists():
+        raise FileExistsError(f"project-local evolution rule already exists: {destination}")
+    destination.write_text(json.dumps(rule, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    return {
+        "adopted": True,
+        "rule_id": rule.get("id"),
+        "source": str(source_path),
+        "destination": str(destination),
+        "safety_checks": safety_checks,
+    }
+
+
 def execute_rule(root: Path, rule_id: str) -> dict[str, Any]:
     """Execute a safety-validated project-local rule command.
 
