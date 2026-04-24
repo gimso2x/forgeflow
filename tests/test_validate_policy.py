@@ -265,6 +265,9 @@ def test_evolution_model_doc_captures_global_advisory_project_enforcement_contra
     assert "proposal-approve" in text
     assert "proposal-approvals" in text
     assert "ready_for_policy_gate" in text
+    assert "promotion-gate" in text
+    assert "approval_records_complete" in text
+    assert "risk_flags_acknowledged" in text
     assert ".forgeflow/evolution/proposal-approvals" in text
     assert "would_promote=false" in text
     assert "would_mutate_rules=false" in text

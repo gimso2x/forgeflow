@@ -104,6 +104,7 @@ promotion-plan -> read-only promotion proposal with evidence, approvals, and ris
 proposal-review -> read-only validation of a persisted proposal
 proposal-approve -> append-only human approval ledger; no promotion or rule mutation
 proposal-approvals -> read-only approval ledger status and remaining approvals
+promotion-gate -> read-only gate readiness check; no promotion or rule mutation
 audit         -> show recent project-local lifecycle/execution events
 ```
 
@@ -271,3 +272,25 @@ would_mutate_rules=false
 ```
 
 `ready_for_policy_gate=true` only means the approval paperwork is complete enough for a separate policy gate discussion. It still does not promote, edit rules, or bless automatic SOFT→HARD promotion. A green clipboard is not a deploy key.
+
+`promotion-gate` combines proposal review and approval-ledger status into one read-only gate report:
+
+```bash
+python3 scripts/forgeflow_evolution.py promotion-gate \
+  --proposal .forgeflow/evolution/proposals/<timestamp>-no-env-commit-promotion-plan.json \
+  --json
+```
+
+It checks:
+
+```text
+proposal_valid
+all_required_approvals_present
+approval_records_complete
+risk_flags_acknowledged
+ready_for_policy_gate
+would_promote=false
+would_mutate_rules=false
+```
+
+`approval_records_complete` requires non-empty `approver` and `reason` on approval records. `risk_flags_acknowledged` requires the promotion proposal to carry `promotion_requires_separate_policy_gate`. If anything is missing, the command exits non-zero with issue codes. Even when it passes, it is still a gate report, not promotion. The door is visible; the handle is still not installed.

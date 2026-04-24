@@ -343,6 +343,88 @@ def proposal_approvals(root: Path, proposal_path: Path) -> dict[str, Any]:
     }
 
 
+
+
+def promotion_gate(root: Path, proposal_path: Path) -> dict[str, Any]:
+    """Read-only promotion gate check. This never promotes or mutates rules."""
+
+    root = root.resolve()
+    proposal_path = proposal_path.resolve()
+    issues: list[dict[str, Any]] = []
+
+    try:
+        approvals = proposal_approvals(root, proposal_path)
+        review = approvals["review"]
+    except ValueError as exc:
+        try:
+            review = proposal_review(root, proposal_path)
+            proposal_valid = review["valid"]
+            review_issues = review.get("issues", [])
+        except ValueError as review_exc:
+            proposal_valid = False
+            review_issues = [{"severity": "error", "code": "proposal_review_error", "message": str(review_exc)}]
+            review = {"valid": False, "issues": review_issues, "rule_id": None}
+        issues.append({"severity": "error", "code": "proposal_review_failed", "message": str(exc), "review_issues": review_issues})
+        return {
+            "proposal_path": str(proposal_path),
+            "rule_id": review.get("rule_id"),
+            "read_only": True,
+            "proposal_valid": proposal_valid,
+            "all_required_approvals_present": False,
+            "approval_records_complete": False,
+            "risk_flags_acknowledged": False,
+            "required_approvals": [],
+            "recorded_approvals": [],
+            "missing_approvals": [],
+            "duplicates": [],
+            "ready_for_policy_gate": False,
+            "would_promote": False,
+            "would_mutate_rules": False,
+            "issues": issues,
+        }
+
+    proposal = _load_json(proposal_path)
+    risk_flags = proposal.get("risk_flags")
+    risk_flags_acknowledged = isinstance(risk_flags, list) and "promotion_requires_separate_policy_gate" in risk_flags
+    if not risk_flags_acknowledged:
+        issues.append({"severity": "error", "code": "risk_flags_not_acknowledged"})
+
+    all_required = approvals["missing_approvals"] == [] and bool(approvals["required_approvals"])
+    if not all_required:
+        issues.append({"severity": "error", "code": "missing_required_approvals", "missing": approvals["missing_approvals"]})
+
+    incomplete_records = []
+    required_set = set(approvals["required_approvals"])
+    for index, record in enumerate(approvals["records"]):
+        if record.get("approval") not in required_set:
+            continue
+        if not str(record.get("approver", "")).strip() or not str(record.get("reason", "")).strip():
+            incomplete_records.append({"index": index, "approval": record.get("approval")})
+    approval_records_complete = not incomplete_records
+    if incomplete_records:
+        issues.append({"severity": "error", "code": "incomplete_approval_record", "records": incomplete_records})
+
+    ready = review["valid"] and all_required and approval_records_complete and risk_flags_acknowledged
+    return {
+        "proposal_path": str(proposal_path),
+        "approval_path": approvals["approval_path"],
+        "rule_id": review["rule_id"],
+        "read_only": True,
+        "proposal_valid": review["valid"],
+        "all_required_approvals_present": all_required,
+        "approval_records_complete": approval_records_complete,
+        "risk_flags_acknowledged": risk_flags_acknowledged,
+        "required_approvals": approvals["required_approvals"],
+        "recorded_approvals": approvals["recorded_approvals"],
+        "missing_approvals": approvals["missing_approvals"],
+        "duplicates": approvals["duplicates"],
+        "ready_for_policy_gate": ready,
+        "would_promote": False,
+        "would_mutate_rules": False,
+        "issues": issues,
+    }
+
+
 def _failed_safety_checks(safety_checks: dict[str, bool]) -> list[str]:
     return [name for name, passed in safety_checks.items() if not passed]
 
