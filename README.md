@@ -102,6 +102,23 @@ This creates adapter-local presets plus a generated team-init note:
 
 The installer refuses global config targets such as `~/.claude`, `~/.codex`, `~/.cursor`, direct `.claude/agents`, direct `.codex/forgeflow`, and direct `.cursor/rules`. Team presets belong to the project, not your global agent config. The installer reads `package.json` and documents only scripts that actually exist.
 
+For first-time project onboarding, add starter docs:
+
+```bash
+python3 scripts/install_agent_presets.py --adapter claude --target /path/to/your-project --profile nextjs --with-starter-docs
+```
+
+This creates missing starter templates without overwriting existing project docs:
+
+```text
+/path/to/your-project/docs/PRD.md
+/path/to/your-project/docs/ARCHITECTURE.md
+/path/to/your-project/docs/ADR.md
+/path/to/your-project/docs/UI_GUIDE.md
+```
+
+`docs/forgeflow-team-init.md` becomes the quick onboarding note: installed presets, created starter docs, active role prompts, review contract, failure handling, package scripts, and the recommended `/forgeflow:clarify` first run. This intentionally does **not** install `stepN.md`, auto-commit, auto-push, or a second runtime. Those patterns are useful demos in other harnesses, but ForgeFlow keeps the canonical path artifact-first.
+
 ### Local runtime install
 
 ```bash
