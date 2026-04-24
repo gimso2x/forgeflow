@@ -29,14 +29,19 @@ Fix a bug using reproduce-first, 4-phase root cause analysis. Never guess.
 
 1. **REPRODUCE:** Create the smallest possible reproduction.
    - If you can't reproduce it, you can't fix it.
-2. **HYPOTHESIZE:** List all possible causes. Order by likelihood.
-3. **ISOLATE:** Test each hypothesis with the smallest possible experiment.
+2. **TRACE SOURCE:** Walk backward from the observed symptom to the original trigger.
+   - Inspect the immediate failing operation, then each caller and input source.
+   - Use stack trace instrumentation when the call chain is hidden.
+   - Use test bisection with `docs/debugging/find-polluter.sh` when state pollution appears only during a suite.
+   - Stop only when the source is identified or explicitly ruled out in `decision-log.json`.
+3. **HYPOTHESIZE:** List all possible causes. Order by likelihood.
+4. **ISOLATE:** Test each hypothesis with the smallest possible experiment.
    - Change one thing at a time.
    - Use logging, breakpoints, or binary search through code history.
-4. **VERIFY:** Apply the fix and confirm the reproduction now passes.
+5. **VERIFY:** Apply the fix and confirm the reproduction now passes.
    - Run the full test suite to check for regressions.
-5. **PREVENT:** Add a regression test that fails before the fix and passes after.
-6. **DOCUMENT:** Write a decision entry in `decision-log.json` with root cause, fix, and regression test location.
+6. **PREVENT:** Add a regression test that fails before the fix and passes after.
+7. **DOCUMENT:** Write a decision entry in `decision-log.json` with root cause, fix, and regression test location.
 
 ## Constraints
 
