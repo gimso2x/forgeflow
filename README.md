@@ -127,6 +127,17 @@ python3 scripts/install_agent_presets.py --adapter claude --target /path/to/your
 
 `basic-safety` installs `.claude/settings.json` and `.claude/hooks/forgeflow/basic_safety_guard.py` in the target project. It blocks obviously destructive Bash commands such as `rm -rf`, `git reset --hard`, `git push --force`, and `DROP TABLE`. This is a guardrail, not a sandbox. It is Claude-only for now, opt-in only, and the installer refuses to overwrite an existing `.claude/settings.json`.
 
+### Local monitoring summary
+
+ForgeFlow task artifacts are local files, so the first observability layer is just a read-only local summary:
+
+```bash
+python3 scripts/forgeflow_monitor.py --tasks .forgeflow/tasks --recent 10 --format md
+python3 scripts/forgeflow_monitor.py --tasks .forgeflow/tasks --recent 10 --format json
+```
+
+It reads `run-state.json`, `review-report.json`, `eval-record.json`, and `decision-log.json` when present, then reports task counts, blocked/error counts, review rejects, artifact parse errors, and repeated failure messages. It does not mutate artifacts, call an LLM, run tests, send notifications, or start a dashboard. Good. Dashboards reproduce when fed after midnight.
+
 ### Local runtime install
 
 ```bash
