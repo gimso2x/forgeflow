@@ -12,32 +12,32 @@ setup:
 	$(VENV_PYTHON) -m pip install -r requirements.txt
 
 check-env:
-	$(PYTHON) scripts/check_environment.py
+	$(VENV_PYTHON) scripts/check_environment.py
 
 validate:
-	$(PYTHON) scripts/validate_structure.py
-	$(PYTHON) scripts/validate_policy.py
-	$(PYTHON) scripts/validate_generated.py
-	$(PYTHON) scripts/validate_sample_artifacts.py
-	$(PYTHON) scripts/run_adherence_evals.py
-	$(PYTHON) scripts/validate_upstream_import.py
-	$(PYTHON) scripts/validate_hoyeon_import.py
-	$(PYTHON) scripts/validate_skill_contracts.py
-	$(PYTHON) scripts/validate_claude_hooks.py
-	$(PYTHON) scripts/smoke_plan_cli.py
-	pytest tests/test_evolution_policy.py -q
-	pytest tests/test_forgeflow_ux_contract.py -q
-	pytest tests/test_forgeflow_learn.py -q
-	pytest tests/test_claude_recovery_hooks.py -q
-	pytest tests/test_shared_recovery_contract.py -q
-	pytest tests/test_team_pattern_contract.py -q
-	pytest tests/test_agent_preset_install.py -q
-	pytest tests/test_claude_agent_preset_install.py -q
-	pytest tests/test_first_clone_setup.py -q
-	pytest tests/test_release_script.py -q
-	pytest tests/test_verify_skill_contract.py -q
-	pytest tests/test_finish_skill_contract.py -q
-	pytest tests/test_plugin_manifests.py -q
+	$(VENV_PYTHON) scripts/validate_structure.py
+	$(VENV_PYTHON) scripts/validate_policy.py
+	$(VENV_PYTHON) scripts/validate_generated.py
+	$(VENV_PYTHON) scripts/validate_sample_artifacts.py
+	$(VENV_PYTHON) scripts/run_adherence_evals.py
+	$(VENV_PYTHON) scripts/validate_upstream_import.py
+	$(VENV_PYTHON) scripts/validate_hoyeon_import.py
+	$(VENV_PYTHON) scripts/validate_skill_contracts.py
+	$(VENV_PYTHON) scripts/validate_claude_hooks.py
+	$(VENV_PYTHON) scripts/smoke_plan_cli.py
+	$(VENV_PYTHON) -m pytest tests/test_evolution_policy.py -q
+	$(VENV_PYTHON) -m pytest tests/test_forgeflow_ux_contract.py -q
+	$(VENV_PYTHON) -m pytest tests/test_forgeflow_learn.py -q
+	$(VENV_PYTHON) -m pytest tests/test_claude_recovery_hooks.py -q
+	$(VENV_PYTHON) -m pytest tests/test_shared_recovery_contract.py -q
+	$(VENV_PYTHON) -m pytest tests/test_team_pattern_contract.py -q
+	$(VENV_PYTHON) -m pytest tests/test_agent_preset_install.py -q
+	$(VENV_PYTHON) -m pytest tests/test_claude_agent_preset_install.py -q
+	$(VENV_PYTHON) -m pytest tests/test_first_clone_setup.py -q
+	$(VENV_PYTHON) -m pytest tests/test_release_script.py -q
+	$(VENV_PYTHON) -m pytest tests/test_verify_skill_contract.py -q
+	$(VENV_PYTHON) -m pytest tests/test_finish_skill_contract.py -q
+	$(VENV_PYTHON) -m pytest tests/test_plugin_manifests.py -q
 
 runtime-sample:
 	$(PYTHON) scripts/run_runtime_sample.py --fixture-dir examples/runtime-fixtures/small-doc-task --route small

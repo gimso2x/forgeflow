@@ -541,7 +541,11 @@ ForgeFlow borrows its best bones from four places:
 - `superpowers` — adversarial review, spec-review before quality-review
 
 ## Validation
+For a fresh clone, run the setup gate first so validation uses the repo-managed dependency set:
+
 ```bash
+make setup
+make check-env
 make validate
 ```
 

@@ -24,7 +24,9 @@ def test_makefile_exposes_idempotent_setup_and_environment_check() -> None:
     assert "$(PYTHON) -m venv $(VENV)" in makefile
     assert "$(VENV_PYTHON) -m pip install" in makefile
     assert "check-env" in makefile
-    assert "scripts/check_environment.py" in makefile
+    assert "$(VENV_PYTHON) scripts/check_environment.py" in makefile
+    assert "$(VENV_PYTHON) scripts/validate_structure.py" in makefile
+    assert "$(VENV_PYTHON) -m pytest tests/test_first_clone_setup.py -q" in makefile
 
 
 def test_readme_quickstart_starts_with_first_clone_setup() -> None:
@@ -56,6 +58,28 @@ def test_readme_update_path_keeps_make_commands_in_checkout_context() -> None:
     assert update_section.index("make -C /path/to/forgeflow setup") < update_section.index("make -C /path/to/forgeflow check-env") < update_section.index("make -C /path/to/forgeflow validate")
     assert "current shell location" in update_section
     assert "new release adds dependencies" in update_section
+
+
+def test_readme_validation_section_points_fresh_clones_to_setup_gate() -> None:
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    validation_section = readme.split("## Validation", 1)[1].split("## Naming", 1)[0]
+
+    assert "make validate" in validation_section
+    assert "fresh clone" in validation_section
+    assert "make setup" in validation_section
+    assert "make check-env" in validation_section
+    assert validation_section.index("make setup") < validation_section.index("make check-env") < validation_section.index("make validate")
+
+
+def test_ci_validation_job_creates_venv_before_make_validate() -> None:
+    workflow = (ROOT / ".github/workflows/validate.yml").read_text(encoding="utf-8")
+    repo_validation_job = workflow.split("  repo-validation:", 1)[1].split("  generated-drift:", 1)[0]
+
+    assert "make setup" in repo_validation_job
+    assert "make check-env" in repo_validation_job
+    assert "make validate" in repo_validation_job
+    assert repo_validation_job.index("make setup") < repo_validation_job.index("make check-env") < repo_validation_job.index("make validate")
+    assert ".venv/bin/python -m pytest -q" in repo_validation_job
 
 
 def test_readme_documents_project_team_preset_installer() -> None:

@@ -18,15 +18,16 @@ jobs:
           python-version: '3.11'
 
       - name: Install Python dependencies
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install -r requirements.txt
+        run: make setup
+
+      - name: Check ForgeFlow environment
+        run: make check-env
 
       - name: Run full repo validation
         run: make validate
 
       - name: Run full pytest suite
-        run: python -m pytest -q
+        run: .venv/bin/python -m pytest -q
 
   generated-drift:
     runs-on: ubuntu-latest
