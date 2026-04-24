@@ -139,6 +139,8 @@ P0에 들어가는 self-evolution의 정본은 `policy/canonical/evolution.yaml`
 
 `examples/evolution/`은 이 경계를 깨지 않는 deterministic HARD rule 샘플만 담는다. 예시는 `scope=project`, `lifecycle=adopted_hard`, `enforcement.mode=hard_exit_2`, `global_export.allowed=false`, 그리고 모든 `hard_gate_requires` 증거를 갖춰야 하며 `scripts/validate_policy.py`가 이를 검증한다.
 
+첫 runtime surface는 `scripts/forgeflow_evolution.py inspect`다. 이 명령은 policy와 examples를 읽어서 `global advisory only`, `project HARD examples valid`, `runtime enforcement: not enabled`를 보고할 뿐 rule command를 실행하지 않는다. 자가진화는 읽기 전용 관측면부터 시작하고, 차단기는 프로젝트 채택 이후에만 붙인다.
+
 ---
 
 ## 7. What success looks like

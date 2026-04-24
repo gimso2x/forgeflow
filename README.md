@@ -233,6 +233,7 @@ ForgeFlow tries not to do that.
 - `docs/` — human-readable design docs
 - `policy/canonical/` — workflow semantics, gates, review order, routing, global-advisory/project-enforced self-evolution policy
 - `examples/evolution/` — deterministic project-local HARD rule examples; validated against the canonical evolution policy
+- `scripts/forgeflow_evolution.py inspect` — read-only evolution policy/runtime-safety summary; no enforcement side effects
 - `schemas/` — artifact contracts
 - `prompts/canonical/` — canonical role prompts
 - `adapters/targets/` — target manifests

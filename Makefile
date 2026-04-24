@@ -3,7 +3,7 @@ VENV ?= .venv
 VENV_PYTHON := $(VENV)/bin/python
 VENV_PIP := $(VENV)/bin/pip
 
-.PHONY: setup check-env validate generate regen clean validate-samples runtime-sample adherence-evals smoke-claude-plugin validate-upstream-import validate-hoyeon-import validate-skill-contracts validate-claude-hooks plan-cli-smoke learn-smoke claude-hook-smoke codex-recovery-smoke cursor-recovery-smoke shared-recovery-smoke team-pattern-smoke agent-preset-smoke claude-agent-preset-smoke release-script-smoke verify-skill-smoke finish-skill-smoke plugin-manifest-smoke
+.PHONY: setup check-env validate generate regen clean validate-samples runtime-sample adherence-evals smoke-claude-plugin validate-upstream-import validate-hoyeon-import validate-skill-contracts validate-claude-hooks plan-cli-smoke evolution-policy-smoke learn-smoke claude-hook-smoke codex-recovery-smoke cursor-recovery-smoke shared-recovery-smoke team-pattern-smoke agent-preset-smoke claude-agent-preset-smoke release-script-smoke verify-skill-smoke finish-skill-smoke plugin-manifest-smoke
 
 setup:
 	$(PYTHON) scripts/check_environment.py --require-venv-support --skip-modules
@@ -25,6 +25,7 @@ validate:
 	$(PYTHON) scripts/validate_skill_contracts.py
 	$(PYTHON) scripts/validate_claude_hooks.py
 	$(PYTHON) scripts/smoke_plan_cli.py
+	pytest tests/test_evolution_policy.py -q
 	pytest tests/test_forgeflow_learn.py -q
 	pytest tests/test_claude_recovery_hooks.py -q
 	pytest tests/test_codex_recovery_guidance.py -q
@@ -59,6 +60,9 @@ validate-claude-hooks:
 
 plan-cli-smoke:
 	$(PYTHON) scripts/smoke_plan_cli.py
+
+evolution-policy-smoke:
+	pytest tests/test_evolution_policy.py -q
 
 learn-smoke:
 	pytest tests/test_forgeflow_learn.py -q
