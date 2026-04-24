@@ -4,6 +4,7 @@ from __future__ import annotations
 import json
 import shutil
 import subprocess
+import sys
 import tempfile
 from pathlib import Path
 
@@ -14,7 +15,7 @@ CONTRACTS = ROOT / 'examples/artifacts/contracts.md'
 
 
 def run(*args: str, cwd: Path) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(['python3', str(CLI), *args], cwd=cwd, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
+    return subprocess.run([sys.executable, str(CLI), *args], cwd=cwd, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
 
 
 def assert_ok(result: subprocess.CompletedProcess[str], label: str) -> None:

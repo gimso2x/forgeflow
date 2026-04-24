@@ -132,11 +132,13 @@ python3 scripts/install_agent_presets.py --adapter claude --target /path/to/your
 ForgeFlow task artifacts are local files, so the first observability layer is just a read-only local summary:
 
 ```bash
-python3 scripts/forgeflow_monitor.py --tasks .forgeflow/tasks --recent 10 --format md
-python3 scripts/forgeflow_monitor.py --tasks .forgeflow/tasks --recent 10 --format json
+make setup
+make check-env
+make monitor-summary
+make monitor-summary-json
 ```
 
-It reads `run-state.json`, `review-report.json`, `eval-record.json`, and `decision-log.json` when present, then reports task counts, blocked/error counts, review rejects, artifact parse errors, and repeated failure messages. It does not mutate artifacts, call an LLM, run tests, send notifications, or start a dashboard. Good. Dashboards reproduce when fed after midnight.
+`make monitor-summary` runs the monitor with the repo-managed Python environment against `.forgeflow/tasks`, showing the recent task summary in Markdown. `make monitor-summary-json` uses the same read-only monitor and repo-managed environment for automation-friendly JSON output. Both targets read `run-state.json`, `review-report.json`, `eval-record.json`, and `decision-log.json` when present, then report task counts, blocked/error counts, review rejects, artifact parse errors, and repeated failure messages. They do not mutate artifacts, call an LLM, run tests, send notifications, or start a dashboard. Good. Dashboards reproduce when fed after midnight.
 
 ### Local runtime install
 
@@ -146,6 +148,16 @@ make check-env
 make validate
 ```
 
+### Updating an existing checkout
+
+```bash
+git -C /path/to/forgeflow pull
+make -C /path/to/forgeflow setup
+make -C /path/to/forgeflow check-env
+make -C /path/to/forgeflow validate
+```
+
+Use `make -C /path/to/forgeflow ...` so dependency refresh and validation run inside the ForgeFlow checkout regardless of the current shell location. Re-run `setup` before `check-env` and `validate` so a new release adds dependencies without leaving the local runtime stale.
 
 ## What ForgeFlow does
 - models work as a stage machine
@@ -314,18 +326,22 @@ This calls `/forgeflow:<stage>` through Claude Code, checks `permission_denials 
 ### 4. Inspect the operator shell
 
 ```bash
-python3 scripts/run_orchestrator.py --help
+make setup
+make check-env
+make orchestrator-help
 ```
 
-This shows the local CLI surface for `start`, `run`, `status`, `resume`, `advance`, `retry`, `step-back`, `escalate`, and `execute`.
+`make orchestrator-help` shows the local CLI surface for `start`, `run`, `status`, `resume`, `advance`, `retry`, `step-back`, `escalate`, and `execute` through the repo-managed Python environment.
 
 ### 5. Run the safe sample
 
 ```bash
-python3 scripts/run_runtime_sample.py --fixture-dir examples/runtime-fixtures/small-doc-task --route small
+make setup
+make check-env
+make runtime-sample
 ```
 
-This copies the fixture to a disposable workspace before running, so tracked sample artifacts stay clean.
+`make runtime-sample` uses the repo-managed Python environment to copy the fixture to a disposable workspace before running, so tracked sample artifacts stay clean.
 
 ### 6. Start your own task
 
@@ -360,12 +376,14 @@ This creates schema-valid starter artifacts and leaves the task at `clarify`.
 ### 7. Inspect the fixture state
 
 ```bash
-python3 scripts/run_orchestrator.py status --task-dir examples/runtime-fixtures/small-doc-task
+make setup
+make check-env
+make orchestrator-status
 ```
 
-Manual `run_orchestrator.py` commands mutate their target `--task-dir`; use `run_runtime_sample.py` for demos unless mutation is intentional.
+Read-only status inspection is repo-managed through `make orchestrator-status`. Other manual `run_orchestrator.py` commands mutate their target `--task-dir`; use `run_runtime_sample.py` for demos unless mutation is intentional.
 
-### 7. Use an adapter in another project
+### 8. Use an adapter in another project
 
 ```bash
 cp adapters/generated/codex/CODEX.md /path/to/your-project/CODEX.md
@@ -379,9 +397,11 @@ Generated adapters carry ForgeFlow semantics into a host agent. Do not hand-edit
 권장 경로는 `clarify`부터 brief와 route를 만든 뒤 진행하는 것이다. local runtime을 직접 만지는 표면은 operator fallback일 뿐이다.
 
 ```bash
-python3 scripts/run_orchestrator.py --help
-python3 scripts/run_runtime_sample.py --fixture-dir examples/runtime-fixtures/small-doc-task --route small
-python3 scripts/run_orchestrator.py status --task-dir examples/runtime-fixtures/small-doc-task
+make setup
+make check-env
+make orchestrator-help
+make runtime-sample
+make orchestrator-status
 python3 scripts/run_orchestrator.py execute --task-dir examples/runtime-fixtures/small-doc-task --route small --adapter codex
 python3 scripts/run_orchestrator.py execute --task-dir examples/runtime-fixtures/small-doc-task --route small --adapter claude --real
 python3 scripts/run_orchestrator.py run --task-dir examples/runtime-fixtures/small-doc-task --min-route medium
@@ -531,7 +551,11 @@ ForgeFlow borrows its best bones from four places:
 - `superpowers` — adversarial review, spec-review before quality-review
 
 ## Validation
+For a fresh clone, run the setup gate first so validation uses the repo-managed dependency set:
+
 ```bash
+make setup
+make check-env
 make validate
 ```
 

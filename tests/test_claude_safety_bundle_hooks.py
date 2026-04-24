@@ -24,6 +24,15 @@ def test_basic_safety_hook_blocks_destructive_bash_command():
     assert "FORGEFLOW BASIC SAFETY" in result.stderr
 
 
+def test_basic_safety_hook_blocks_git_clean_with_actionable_recovery_wording():
+    for command in ("git clean -fd .", "git clean -df ."):
+        result = run_hook({"tool_name": "Bash", "tool_input": {"command": command}})
+
+        assert result.returncode == 2
+        assert "destructive git clean" in result.stderr
+        assert "reviewing scope and dirty working tree state" in result.stderr
+
+
 def test_basic_safety_hook_allows_normal_bash_command():
     result = run_hook({"tool_name": "Bash", "tool_input": {"command": "npm run test"}})
 

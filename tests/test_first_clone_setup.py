@@ -24,7 +24,31 @@ def test_makefile_exposes_idempotent_setup_and_environment_check() -> None:
     assert "$(PYTHON) -m venv $(VENV)" in makefile
     assert "$(VENV_PYTHON) -m pip install" in makefile
     assert "check-env" in makefile
-    assert "scripts/check_environment.py" in makefile
+    assert "$(VENV_PYTHON) scripts/check_environment.py" in makefile
+    assert "$(VENV_PYTHON) scripts/validate_structure.py" in makefile
+    assert "$(VENV_PYTHON) -m pytest tests/test_first_clone_setup.py -q" in makefile
+
+
+def test_makefile_smoke_targets_use_repo_managed_python_environment() -> None:
+    makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
+    smoke_section = makefile.split("plan-cli-smoke:", 1)[1].split("generate:", 1)[0]
+
+    assert "\tpytest " not in smoke_section
+    assert "\t$(PYTHON) scripts/" not in smoke_section
+    assert smoke_section.count("$(VENV_PYTHON) -m pytest") >= 10
+    assert "$(VENV_PYTHON) scripts/smoke_plan_cli.py" in smoke_section
+    assert "$(VENV_PYTHON) scripts/smoke_claude_plugin.py" in smoke_section
+
+
+def test_makefile_non_setup_helper_targets_use_repo_managed_python_environment() -> None:
+    makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
+    helper_section = makefile.split("runtime-sample:", 1)[1].split("clean:", 1)[0]
+
+    assert "\t$(PYTHON) scripts/" not in helper_section
+    assert "$(VENV_PYTHON) scripts/run_runtime_sample.py" in helper_section
+    assert "$(VENV_PYTHON) scripts/run_adherence_evals.py" in helper_section
+    assert "$(VENV_PYTHON) scripts/generate_adapters.py" in helper_section
+    assert "$(VENV_PYTHON) scripts/validate_sample_artifacts.py" in helper_section
 
 
 def test_readme_quickstart_starts_with_first_clone_setup() -> None:
@@ -36,6 +60,216 @@ def test_readme_quickstart_starts_with_first_clone_setup() -> None:
     assert readme.index("## Installation") < readme.index("## What ForgeFlow does")
     assert readme.index("make setup") < readme.index("make validate")
     assert "No hidden local environment is assumed" in readme
+
+
+def test_install_update_path_rechecks_first_clone_dependencies_before_validation() -> None:
+    install = (ROOT / "INSTALL.md").read_text(encoding="utf-8")
+    update_section = install.split("## 업데이트", 1)[1]
+
+    assert "git -C /path/to/forgeflow pull" in update_section
+    assert update_section.index("make -C /path/to/forgeflow setup") < update_section.index("make -C /path/to/forgeflow check-env") < update_section.index("make -C /path/to/forgeflow validate")
+    assert "현재 shell 위치와 무관하게" in update_section
+    assert "새 dependency가 추가된 release" in update_section
+
+
+def test_readme_update_path_keeps_make_commands_in_checkout_context() -> None:
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    update_section = readme.split("### Updating an existing checkout", 1)[1].split("## What ForgeFlow does", 1)[0]
+
+    assert "git -C /path/to/forgeflow pull" in update_section
+    assert update_section.index("make -C /path/to/forgeflow setup") < update_section.index("make -C /path/to/forgeflow check-env") < update_section.index("make -C /path/to/forgeflow validate")
+    assert "current shell location" in update_section
+    assert "new release adds dependencies" in update_section
+
+
+def test_readme_validation_section_points_fresh_clones_to_setup_gate() -> None:
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    validation_section = readme.split("## Validation", 1)[1].split("## Naming", 1)[0]
+
+    assert "make validate" in validation_section
+    assert "fresh clone" in validation_section
+    assert "make setup" in validation_section
+    assert "make check-env" in validation_section
+    assert validation_section.index("make setup") < validation_section.index("make check-env") < validation_section.index("make validate")
+
+
+def test_adherence_eval_docs_use_make_target_after_environment_setup() -> None:
+    readme = (ROOT / "evals/adherence/README.md").read_text(encoding="utf-8")
+    command_block = readme.split("실행 명령:", 1)[1].split("현재 executable 체크:", 1)[0]
+
+    assert "make setup" in command_block
+    assert "make check-env" in command_block
+    assert "make adherence-evals" in command_block
+    assert command_block.index("make setup") < command_block.index("make check-env") < command_block.index("make adherence-evals")
+    assert "python3 scripts/run_adherence_evals.py" not in command_block
+
+
+def test_readme_monitoring_summary_uses_repo_managed_make_target() -> None:
+    makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    monitor_section = readme.split("### Local monitoring summary", 1)[1].split("### Local runtime install", 1)[0]
+
+    assert "monitor-summary:" in makefile
+    assert "$(VENV_PYTHON) scripts/forgeflow_monitor.py --tasks .forgeflow/tasks --recent 10 --format md" in makefile
+    assert "monitor-summary-json:" in makefile
+    assert "$(VENV_PYTHON) scripts/forgeflow_monitor.py --tasks .forgeflow/tasks --recent 10 --format json" in makefile
+    assert "make setup" in monitor_section
+    assert "make check-env" in monitor_section
+    monitor_lines = monitor_section.splitlines()
+    assert "make monitor-summary" in monitor_lines
+    assert "make monitor-summary-json" in monitor_lines
+    assert monitor_section.index("make setup") < monitor_section.index("make check-env") < monitor_section.index("make monitor-summary")
+    assert monitor_section.index("make check-env") < monitor_section.index("make monitor-summary-json")
+    assert "python3 scripts/forgeflow_monitor.py" not in monitor_section
+
+
+def test_readme_safe_sample_uses_repo_managed_runtime_target() -> None:
+    makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    sample_section = readme.split("### 5. Run the safe sample", 1)[1].split("### 6. Start your own task", 1)[0]
+
+    assert "runtime-sample:" in makefile
+    assert "$(VENV_PYTHON) scripts/run_runtime_sample.py --fixture-dir examples/runtime-fixtures/small-doc-task --route small" in makefile
+    assert "make setup" in sample_section
+    assert "make check-env" in sample_section
+    assert "make runtime-sample" in sample_section.splitlines()
+    assert sample_section.index("make setup") < sample_section.index("make check-env") < sample_section.index("make runtime-sample")
+    assert "python3 scripts/run_runtime_sample.py" not in sample_section
+
+
+def test_readme_operator_shell_uses_repo_managed_runtime_sample_target() -> None:
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    operator_section = readme.split("## Operator shell", 1)[1].split("## Using ForgeFlow in Codex", 1)[0]
+
+    assert "make setup" in operator_section
+    assert "make check-env" in operator_section
+    assert "make runtime-sample" in operator_section.splitlines()
+    assert operator_section.index("make setup") < operator_section.index("make check-env") < operator_section.index("make runtime-sample")
+    assert "python3 scripts/run_runtime_sample.py" not in operator_section
+
+
+def test_readme_uses_repo_managed_orchestrator_help_target_for_read_only_help() -> None:
+    makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    quickstart_help = readme.split("### 4. Inspect the operator shell", 1)[1].split("### 5. Run the safe sample", 1)[0]
+    operator_section = readme.split("## Operator shell", 1)[1].split("## Using ForgeFlow in Codex", 1)[0]
+
+    assert "orchestrator-help:" in makefile
+    assert "$(VENV_PYTHON) scripts/run_orchestrator.py --help" in makefile
+    assert "make setup" in quickstart_help
+    assert "make check-env" in quickstart_help
+    assert "make orchestrator-help" in quickstart_help.splitlines()
+    assert quickstart_help.index("make setup") < quickstart_help.index("make check-env") < quickstart_help.index("make orchestrator-help")
+    assert "make orchestrator-help" in operator_section.splitlines()
+    assert operator_section.index("make setup") < operator_section.index("make check-env") < operator_section.index("make orchestrator-help")
+    assert "python3 scripts/run_orchestrator.py --help" not in quickstart_help
+    assert "python3 scripts/run_orchestrator.py --help" not in operator_section
+
+
+def test_readme_quickstart_numbered_steps_are_unique_and_sequential() -> None:
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    quickstart = readme.split("## Installation", 1)[1].split("## Operator shell", 1)[0]
+    step_numbers = [
+        line.split(".", 1)[0].removeprefix("### ")
+        for line in quickstart.splitlines()
+        if line.startswith("### ") and line.split(".", 1)[0].removeprefix("### ").isdigit()
+    ]
+
+    assert step_numbers == [str(index) for index in range(1, len(step_numbers) + 1)]
+
+
+def test_readme_uses_repo_managed_status_target_for_read_only_fixture_inspection() -> None:
+    makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    inspect_section = readme.split("### 7. Inspect the fixture state", 1)[1].split("### 8. Use an adapter", 1)[0]
+    operator_section = readme.split("## Operator shell", 1)[1].split("## Using ForgeFlow in Codex", 1)[0]
+
+    assert "orchestrator-status:" in makefile
+    assert "$(VENV_PYTHON) scripts/run_orchestrator.py status --task-dir examples/runtime-fixtures/small-doc-task" in makefile
+    assert "make setup" in inspect_section
+    assert "make check-env" in inspect_section
+    assert "make orchestrator-status" in inspect_section.splitlines()
+    assert inspect_section.index("make setup") < inspect_section.index("make check-env") < inspect_section.index("make orchestrator-status")
+    assert "make orchestrator-status" in operator_section.splitlines()
+    assert operator_section.index("make setup") < operator_section.index("make check-env") < operator_section.index("make orchestrator-status")
+    assert "python3 scripts/run_orchestrator.py status" not in inspect_section
+    assert "python3 scripts/run_orchestrator.py status" not in operator_section
+
+
+def test_operator_shell_doc_uses_repo_managed_runtime_sample_target() -> None:
+    makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
+    doc = (ROOT / "docs/operator-shell.md").read_text(encoding="utf-8")
+    sample_section = doc.split("## Safe sample command", 1)[1].split("## Canonical help", 1)[0]
+
+    assert "runtime-sample:" in makefile
+    assert "$(VENV_PYTHON) scripts/run_runtime_sample.py --fixture-dir examples/runtime-fixtures/small-doc-task --route small" in makefile
+    assert "make setup" in sample_section
+    assert "make check-env" in sample_section
+    assert "make runtime-sample" in sample_section.splitlines()
+    assert sample_section.index("make setup") < sample_section.index("make check-env") < sample_section.index("make runtime-sample")
+    assert "python3 scripts/run_runtime_sample.py" not in sample_section
+
+
+def test_operator_shell_doc_uses_repo_managed_orchestrator_help_target() -> None:
+    makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
+    doc = (ROOT / "docs/operator-shell.md").read_text(encoding="utf-8")
+    help_section = doc.split("## Canonical help", 1)[1].split("## Common commands", 1)[0]
+
+    assert "orchestrator-help:" in makefile
+    assert "$(VENV_PYTHON) scripts/run_orchestrator.py --help" in makefile
+    assert "$(VENV_PYTHON) scripts/run_orchestrator.py run --help" in makefile
+    assert "$(VENV_PYTHON) scripts/run_orchestrator.py advance --help" in makefile
+    assert "$(VENV_PYTHON) scripts/run_orchestrator.py execute --help" in makefile
+    assert "make setup" in help_section
+    assert "make check-env" in help_section
+    assert "make orchestrator-help" in help_section.splitlines()
+    assert help_section.index("make setup") < help_section.index("make check-env") < help_section.index("make orchestrator-help")
+    assert "python3 scripts/run_orchestrator.py" not in help_section
+
+
+def test_operator_shell_common_commands_use_repo_managed_status_target_for_read_only_status() -> None:
+    makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
+    doc = (ROOT / "docs/operator-shell.md").read_text(encoding="utf-8")
+    common_section = doc.split("## Common commands", 1)[1].split("## Route selection", 1)[0]
+
+    phony_line = next(line for line in makefile.splitlines() if line.startswith(".PHONY:"))
+    assert "orchestrator-status" in phony_line
+    assert "orchestrator-status:" in makefile
+    assert "$(VENV_PYTHON) scripts/run_orchestrator.py status --task-dir examples/runtime-fixtures/small-doc-task" in makefile
+    assert "make setup" in common_section
+    assert "make check-env" in common_section
+    assert "make orchestrator-status" in common_section.splitlines()
+    assert common_section.index("make setup") < common_section.index("make check-env") < common_section.index("make orchestrator-status")
+    assert "# Inspect current artifacts and stage pointer. This read-only path is repo-managed." in common_section
+    assert "# Fallback entries mutate task artifacts, so keep them explicit operator commands." in common_section
+    assert "python3 scripts/run_orchestrator.py status" not in common_section
+    assert "python3 scripts/run_orchestrator.py init" in common_section
+    assert "python3 scripts/run_orchestrator.py start" in common_section
+    assert "python3 scripts/run_orchestrator.py run" in common_section
+
+
+def test_monitoring_summary_plan_points_users_to_make_targets() -> None:
+    plan = (ROOT / "docs/plans/2026-04-24-forgeflow-monitor-summary.md").read_text(encoding="utf-8")
+    usage_section = plan.split("### Task 4: Document usage", 1)[1].split("### Task 5: Verify and commit", 1)[0]
+
+    assert "make setup" in usage_section
+    assert "make check-env" in usage_section
+    assert "make monitor-summary" in usage_section
+    assert "make monitor-summary-json" in usage_section
+    assert usage_section.index("make setup") < usage_section.index("make check-env") < usage_section.index("make monitor-summary")
+    assert usage_section.index("make check-env") < usage_section.index("make monitor-summary-json")
+    assert "python3 scripts/forgeflow_monitor.py" not in usage_section
+
+
+def test_ci_validation_job_creates_venv_before_make_validate() -> None:
+    workflow = (ROOT / ".github/workflows/validate.yml").read_text(encoding="utf-8")
+    repo_validation_job = workflow.split("  repo-validation:", 1)[1].split("  generated-drift:", 1)[0]
+
+    assert "make setup" in repo_validation_job
+    assert "make check-env" in repo_validation_job
+    assert "make validate" in repo_validation_job
+    assert repo_validation_job.index("make setup") < repo_validation_job.index("make check-env") < repo_validation_job.index("make validate")
+    assert ".venv/bin/python -m pytest -q" in repo_validation_job
 
 
 def test_readme_documents_project_team_preset_installer() -> None:

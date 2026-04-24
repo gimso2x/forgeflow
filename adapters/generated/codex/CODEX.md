@@ -40,11 +40,6 @@ Do not edit manually. Update canonical docs/policy/prompts and rerun `scripts/ge
 ## Tooling constraints
 - git-oriented runtime assumptions may exist
 - generated artifacts must not redefine canonical semantics
-- Codex recovery guidance
-- After an edit/write failure, re-read the target file before retrying
-- For large files or oversized output, use targeted search or chunked reads
-- After three repeated command or tool failures, stop and change strategy
-- Speed shortcuts such as /fast must not skip artifact gates
 
 ## Recovery contract
 - delivery_note: Codex delivers recovery through CODEX.md instruction guidance, not hooks.

@@ -108,13 +108,15 @@ pytest tests/test_forgeflow_monitor.py -q
 **Files:**
 - Modify: `README.md`
 
-Add a local monitoring section with:
+Add a local monitoring section with the current repo-managed entrypoints:
 ```bash
-python3 scripts/forgeflow_monitor.py --tasks .forgeflow/tasks --recent 10 --format md
-python3 scripts/forgeflow_monitor.py --tasks .forgeflow/tasks --recent 10 --format json
+make setup
+make check-env
+make monitor-summary
+make monitor-summary-json
 ```
 
-Explicitly say read-only/local-only and not a dashboard.
+Explicitly say the Make targets use the repo-managed Python environment, read local artifacts only, and are not a dashboard.
 
 ### Task 5: Verify and commit
 
