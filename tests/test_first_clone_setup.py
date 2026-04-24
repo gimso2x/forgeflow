@@ -148,10 +148,22 @@ def test_readme_operator_shell_uses_repo_managed_runtime_sample_target() -> None
     assert "python3 scripts/run_runtime_sample.py" not in operator_section
 
 
+def test_readme_quickstart_numbered_steps_are_unique_and_sequential() -> None:
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    quickstart = readme.split("## Installation", 1)[1].split("## Operator shell", 1)[0]
+    step_numbers = [
+        line.split(".", 1)[0].removeprefix("### ")
+        for line in quickstart.splitlines()
+        if line.startswith("### ") and line.split(".", 1)[0].removeprefix("### ").isdigit()
+    ]
+
+    assert step_numbers == [str(index) for index in range(1, len(step_numbers) + 1)]
+
+
 def test_readme_uses_repo_managed_status_target_for_read_only_fixture_inspection() -> None:
     makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
-    inspect_section = readme.split("### 7. Inspect the fixture state", 1)[1].split("### 7. Use an adapter", 1)[0]
+    inspect_section = readme.split("### 7. Inspect the fixture state", 1)[1].split("### 8. Use an adapter", 1)[0]
     operator_section = readme.split("## Operator shell", 1)[1].split("## Using ForgeFlow in Codex", 1)[0]
 
     assert "orchestrator-status:" in makefile

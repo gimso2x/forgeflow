@@ -381,7 +381,7 @@ make orchestrator-status
 
 Read-only status inspection is repo-managed through `make orchestrator-status`. Other manual `run_orchestrator.py` commands mutate their target `--task-dir`; use `run_runtime_sample.py` for demos unless mutation is intentional.
 
-### 7. Use an adapter in another project
+### 8. Use an adapter in another project
 
 ```bash
 cp adapters/generated/codex/CODEX.md /path/to/your-project/CODEX.md
