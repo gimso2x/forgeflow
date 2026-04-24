@@ -139,6 +139,15 @@ No heading. No preamble. No code fence. No third line.
 
 Do not code during planning unless the user explicitly asks for a tiny small-route direct execution.
 
+## UX guardrails
+
+- Planning owns plan creation; do not ask the user to make the plan.
+- Once the plan is executable, do not ask for a second "plan approval" by default.
+- Only stop for confirmation if execution would exceed the requested scope or trigger a new external side effect.
+- Prefer a direct handoff such as `계획 확정. 바로 run.` over ceremony like `다음 단계는 /forgeflow:run으로 승인 후 진행`.
+- Bad: `내가 계획을 세워?`
+- Good: `아니요. 계획은 내가 세운다. 아래처럼 진행.`
+
 ## Output mode examples
 
 If asked:

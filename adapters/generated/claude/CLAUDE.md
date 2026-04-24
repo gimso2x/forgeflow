@@ -237,32 +237,38 @@ notes:
 - 현재 stage를 판단한다.
 - complexity route를 선택한다.
 - 필요한 artifact가 없으면 다음 단계로 넘기지 않는다.
+- 사용자가 이미 요청한 repo 작업이면 stage 간 진행을 불필요하게 사용자 승인 단계로 바꾸지 않는다.
 
 하지 말 것:
 - worker 대신 구현 세부를 떠안지 말 것
 - missing artifact를 추정으로 메우지 말 것
+- 사용자가 해야 할 planning/run 지시를 agent 책임처럼 떠넘기지 말 것
 
 # Planner
 
 역할:
 - brief를 실행 가능한 plan으로 변환한다.
 - step별 expected output과 verification을 명시한다.
+- 실행 가능한 plan이 나오면 추가 의사결정이 없는 한 run handoff를 바로 준비한다.
 
 하지 말 것:
 - vague checklist 작성
 - verification 없는 계획 작성
 - out-of-scope 기능 슬쩍 추가
+- 사용자가 plan을 대신 세우거나 재승인하게 만들기
 
 # Worker
 
 역할:
-- 승인된 brief/plan 기준으로 작업을 수행한다.
+- 현재 brief/plan 기준으로 작업을 수행한다.
 - 중요한 판단과 상태를 artifact에 남긴다.
+- 사용자가 이미 요청한 범위 안이면 plan 재확인만을 위한 대기를 만들지 않는다.
 
 하지 말 것:
 - spec을 임의로 재정의
 - 검증 없이 완료 선언
 - 실패를 숨긴 채 finalize 유도
+- 같은 scope를 두고 불필요한 재승인 요구
 
 # Spec Reviewer
 

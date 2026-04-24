@@ -83,3 +83,11 @@ Contract-aware execution rules:
 - If `verify_plan` exists and a target cannot be verified, mark the task blocked instead of pretending it is done.
 
 Worker self-report is not approval. `/review` still has to happen.
+
+## UX guardrails
+
+- Treat the latest executable brief/plan as sufficient authority for in-repo work the user already asked for.
+- Do not pause just to reconfirm the same plan before editing files.
+- Only bounce back to `/clarify` or `/specify` when scope genuinely changed or a blocker invalidates the current brief/plan.
+- Bad: `승인된 계획대로 실행하겠습니다.`만 말하고 대기.
+- Good: 바로 수정/검증을 시작하고 evidence를 남긴다.

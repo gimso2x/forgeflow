@@ -63,16 +63,27 @@ When the user says "do not run commands", do not propose command execution as if
 
 ## Procedure
 
-1. Ask at most 3 clarifying questions. Ask 0 if the request is already clear.
-2. Inspect relevant repo context before inventing scope.
+1. Inspect relevant repo context before inventing scope.
+2. Ask at most 2 clarifying questions, and only for true blockers. Ask 0 if the request is already actionable.
 3. Score complexity:
    - 5-8: `small`
    - 9-12: `medium`
    - 13-15: `large_high_risk`
 4. State the route and why.
 5. Produce the brief in a structured form the next skill can consume.
+6. If the request is actionable, treat listed open questions as bounded assumptions and make the next stage obvious without asking the user to do your planning work.
 
 Do not implement here. Clarify is the intake gate, not the coding phase.
+
+## UX guardrails
+
+- Do repo inspection before saying the scope is unclear.
+- Do not manufacture open questions just to prolong intake.
+- Do not ask the user to write the plan for you.
+- Do not ask for permission to move from clarify to plan/run unless the next step would cause a new external side effect the user did not already request.
+- When the request is already sufficient, end with a short forward handoff like `route=medium. 바로 plan으로 간다.`
+- Bad: `다음 단계는 /forgeflow:plan입니다. 승인해 주세요.`
+- Good: `요구사항 충분. medium route. 이제 plan 작성.`
 
 ## Output mode examples
 

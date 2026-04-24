@@ -31,7 +31,7 @@ claude plugin list
 
 `plugin update`가 "already at the latest version"이라고 나오는데 새 slash skill이 반영되지 않으면, repo의 `.claude-plugin/plugin.json` version이 올라갔는지 확인하세요. Claude Code는 plugin version 기준으로 update를 판단합니다.
 
-설치 후 새 Claude Code 세션을 열고 단계별 slash skill로 진행하세요.
+설치 후 새 Claude Code 세션을 열고 slash skill을 사용하세요. 기본 입구는 `/forgeflow:clarify`지만, agent가 자연스럽게 다음 stage를 이어 받아야지 사용자가 매번 workflow 운영자가 될 필요는 없습니다.
 
 ```text
 /forgeflow:clarify <하고 싶은 작업>
@@ -51,7 +51,7 @@ claude plugin list
 /forgeflow:plan
 ```
 
-`/forgeflow`는 전체 workflow 설명/입구입니다. 실제 작업 진행은 `/forgeflow:clarify`부터 시작하는 게 맞습니다.
+`/forgeflow`는 전체 workflow 설명/입구입니다. 실제 작업 진행은 보통 `/forgeflow:clarify`부터 시작하지만, 그 다음 `/forgeflow:plan`/`run`을 쓰는 이유를 agent가 정리해 줘야지 사용자에게 계획 작성이나 재승인을 떠넘기면 안 됩니다. 사용자는 task를 요청하고, agent가 intake→plan→run을 자연스럽게 이어받는 쪽이 정본 UX입니다.
 
 ## 수동 Claude Code 설치
 
