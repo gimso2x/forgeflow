@@ -57,24 +57,41 @@ cp adapters/generated/codex/CODEX.md /path/to/your-project/CODEX.md
 cp adapters/generated/cursor/HARNESS_CURSOR.md /path/to/your-project/HARNESS_CURSOR.md
 ```
 
-### Claude project team presets
+### Project team presets
 
-If you want project-local Claude subagents for a Next.js app, install the fixed ForgeFlow presets instead of asking Claude to invent `.claude/agents` files.
+If you want project-local AI-agent presets for a Next.js app, install the fixed ForgeFlow presets instead of asking the model to invent config files.
+
+Claude:
+
+```bash
+python3 scripts/install_agent_presets.py --adapter claude --target /path/to/your-project --profile nextjs
+```
+
+Codex:
+
+```bash
+python3 scripts/install_agent_presets.py --adapter codex --target /path/to/your-project --profile nextjs
+```
+
+The legacy Claude wrapper still works:
 
 ```bash
 python3 scripts/install_claude_agent_presets.py --target /path/to/your-project --profile nextjs
 ```
 
-This creates:
+This creates adapter-local presets plus a generated team-init note:
 
 ```text
 /path/to/your-project/.claude/agents/forgeflow-coordinator.md
 /path/to/your-project/.claude/agents/forgeflow-nextjs-worker.md
 /path/to/your-project/.claude/agents/forgeflow-quality-reviewer.md
+/path/to/your-project/.codex/forgeflow/forgeflow-coordinator.md
+/path/to/your-project/.codex/forgeflow/forgeflow-nextjs-worker.md
+/path/to/your-project/.codex/forgeflow/forgeflow-quality-reviewer.md
 /path/to/your-project/docs/forgeflow-team-init.md
 ```
 
-The installer refuses `~/.claude` and direct `.claude/agents` targets. Team presets belong to the project, not your global Claude config. The installer reads `package.json` and documents only scripts that actually exist.
+The installer refuses global config targets such as `~/.claude`, `~/.codex`, direct `.claude/agents`, and direct `.codex/forgeflow`. Team presets belong to the project, not your global agent config. The installer reads `package.json` and documents only scripts that actually exist.
 
 ### Local runtime install
 

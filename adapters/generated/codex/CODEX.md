@@ -20,6 +20,7 @@ Do not edit manually. Update canonical docs/policy/prompts and rerun `scripts/ge
 1. Copy the generated adapter to ./CODEX.md at the repo root.
 2. Preserve the canonical review order even when Codex returns git-oriented summaries.
 3. Treat Codex recovery guidance as instruction-file UX, not as hook support.
+4. For project-local presets, run `python3 scripts/install_agent_presets.py --adapter codex --target /path/to/project --profile nextjs`.
 
 ## Target operating notes
 - surface_style: root-instruction-file

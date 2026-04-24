@@ -3,7 +3,7 @@ VENV ?= .venv
 VENV_PYTHON := $(VENV)/bin/python
 VENV_PIP := $(VENV)/bin/pip
 
-.PHONY: setup check-env validate generate regen clean validate-samples runtime-sample adherence-evals smoke-claude-plugin validate-upstream-import validate-hoyeon-import validate-skill-contracts validate-claude-hooks plan-cli-smoke learn-smoke claude-hook-smoke codex-recovery-smoke cursor-recovery-smoke shared-recovery-smoke team-pattern-smoke claude-agent-preset-smoke
+.PHONY: setup check-env validate generate regen clean validate-samples runtime-sample adherence-evals smoke-claude-plugin validate-upstream-import validate-hoyeon-import validate-skill-contracts validate-claude-hooks plan-cli-smoke learn-smoke claude-hook-smoke codex-recovery-smoke cursor-recovery-smoke shared-recovery-smoke team-pattern-smoke agent-preset-smoke claude-agent-preset-smoke
 
 setup:
 	$(PYTHON) scripts/check_environment.py --require-venv-support --skip-modules
@@ -31,6 +31,7 @@ validate:
 	pytest tests/test_cursor_recovery_guidance.py -q
 	pytest tests/test_shared_recovery_contract.py -q
 	pytest tests/test_team_pattern_contract.py -q
+	pytest tests/test_agent_preset_install.py -q
 	pytest tests/test_claude_agent_preset_install.py -q
 	pytest tests/test_first_clone_setup.py -q
 
@@ -72,6 +73,9 @@ shared-recovery-smoke:
 
 team-pattern-smoke:
 	pytest tests/test_team_pattern_contract.py -q
+
+agent-preset-smoke:
+	pytest tests/test_agent_preset_install.py -q
 
 claude-agent-preset-smoke:
 	pytest tests/test_claude_agent_preset_install.py -q

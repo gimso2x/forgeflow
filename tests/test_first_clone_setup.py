@@ -38,16 +38,17 @@ def test_readme_quickstart_starts_with_first_clone_setup() -> None:
     assert "No hidden local environment is assumed" in readme
 
 
-def test_readme_documents_claude_team_preset_installer() -> None:
+def test_readme_documents_project_team_preset_installer() -> None:
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
 
-    assert "### Claude project team presets" in readme
+    assert "### Project team presets" in readme
+    assert "python3 scripts/install_agent_presets.py --adapter claude --target /path/to/your-project --profile nextjs" in readme
+    assert "python3 scripts/install_agent_presets.py --adapter codex --target /path/to/your-project --profile nextjs" in readme
     assert "python3 scripts/install_claude_agent_presets.py --target /path/to/your-project --profile nextjs" in readme
     assert ".claude/agents/forgeflow-coordinator.md" in readme
-    assert ".claude/agents/forgeflow-nextjs-worker.md" in readme
-    assert ".claude/agents/forgeflow-quality-reviewer.md" in readme
+    assert ".codex/forgeflow/forgeflow-coordinator.md" in readme
     assert "The installer reads `package.json` and documents only scripts that actually exist." in readme
-    assert readme.index("### Manual adapter install") < readme.index("### Claude project team presets") < readme.index("### Local runtime install")
+    assert readme.index("### Manual adapter install") < readme.index("### Project team presets") < readme.index("### Local runtime install")
 
 
 def test_environment_check_reports_missing_dependency_actionably() -> None:
