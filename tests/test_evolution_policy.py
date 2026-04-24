@@ -2048,3 +2048,13 @@ def test_generated_adapter_drift_example_previews_non_mutating_check_command() -
     rule = json.loads((ROOT / "examples" / "evolution" / "generated-adapter-drift-rule.json").read_text(encoding="utf-8"))
 
     assert rule["check"]["command"] == "python3 scripts/generate_adapters.py --check"
+
+
+
+def test_generated_adapter_drift_execute_has_no_hidden_git_diff_contract() -> None:
+    runtime = (ROOT / "forgeflow_runtime" / "evolution.py").read_text(encoding="utf-8")
+    block = runtime.split('if command_id == "generated-adapter-drift":', 1)[1].split('raise ValueError', 1)[0]
+
+    assert '[sys.executable, "scripts/generate_adapters.py", "--check"]' in block
+    assert 'git", "diff"' not in block
+    assert 'adapters/generated' not in block

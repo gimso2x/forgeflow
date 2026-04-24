@@ -1003,21 +1003,11 @@ def _run_approved_command(command_id: str, root: Path) -> subprocess.CompletedPr
             check=False,
             timeout=COMMAND_TIMEOUT_SECONDS,
         )
-        if generate.returncode != 0:
-            return generate
-        diff = subprocess.run(
-            ["git", "diff", "--exit-code", "adapters/generated"],
-            cwd=root,
-            text=True,
-            capture_output=True,
-            check=False,
-            timeout=COMMAND_TIMEOUT_SECONDS,
-        )
         return subprocess.CompletedProcess(
             args=["forgeflow-approved-command", command_id],
-            returncode=diff.returncode,
-            stdout=generate.stdout + diff.stdout,
-            stderr=generate.stderr + diff.stderr,
+            returncode=generate.returncode,
+            stdout=generate.stdout,
+            stderr=generate.stderr,
         )
     raise ValueError(f"unapproved evolution command id: {command_id}")
 
