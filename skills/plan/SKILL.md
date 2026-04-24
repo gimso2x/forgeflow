@@ -35,9 +35,15 @@ Use this skill to turn a ForgeFlow brief or requirements document into an execut
 - Medium/large routes have enough detail for `/run` without guessing
 - No placeholder tasks remain
 
-## Artifact path rule
+## File write and output discipline
 
-Artifact names in this skill are workflow contracts. Do not write files inside the plugin installation directory or `skills/<skill>/` directory. If the user asks you to create files, write them in the current project workspace or an explicit task directory. If no writable task directory is clear, return the artifact content in the response instead of guessing a path.
+Default to **response-only mode**. Do not call Write/Edit or create artifact files unless the user explicitly asks you to write files or provides a clear writable task directory.
+
+If the user says "do not write files", "return only", "dry run", "just list", or asks for a label/summary only, obey that output constraint exactly and do not attempt any filesystem mutation.
+
+When artifacts such as `brief.json`, `plan.json`, or `review-report.json` are mentioned without an explicit writable path, return their content in the chat response as fenced text or concise structured bullets. Do not guess a path in the repository root.
+
+If writing is allowed, write only under the current project workspace or the explicit task directory named by the user. Never write inside the plugin installation directory, marketplace cache, or `skills/<skill>/`.
 
 ## Procedure
 
@@ -49,3 +55,21 @@ Artifact names in this skill are workflow contracts. Do not write files inside t
 6. Hand off to `/run`.
 
 Do not code during planning unless the user explicitly asks for a tiny small-route direct execution.
+
+## Output mode examples
+
+If asked:
+
+```text
+/plan For route small, list exactly two plan steps. Do not write files.
+```
+
+Return exactly the requested steps in the response. Do **not** create `plan.json`.
+
+If asked:
+
+```text
+/plan Write plan.json under work/my-task
+```
+
+Then and only then write `work/my-task/plan.json`.
