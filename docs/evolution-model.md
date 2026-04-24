@@ -107,7 +107,7 @@ proposal-approvals -> read-only approval ledger status and remaining approvals
 promotion-gate -> read-only gate readiness check; no promotion or rule mutation
 promotion-decision -> append-only human policy-gate decision; still no promotion
 promotion-ready -> read-only final readiness check for future promote
-promote       -> stub-first acknowledged promote surface; audits attempt but mutates no rules
+promote       -> acknowledged promotion finalization; writes promotion marker and audit
 audit         -> show recent project-local lifecycle/execution events
 ```
 
@@ -340,7 +340,7 @@ would_mutate_rules=false
 
 `ready_for_promote=true` means the proposal, approval ledger, policy-gate decision, and active project-local rule still line up. It still does not promote anything. This command is the dashboard the future dangerous button must call, not the dangerous button itself.
 
-`promote` exists as a stub-first dangerous surface with a long acknowledgement flag:
+`promote` finalizes a ready promotion with a long acknowledgement flag:
 
 ```bash
 python3 scripts/forgeflow_evolution.py promote \
@@ -349,17 +349,18 @@ python3 scripts/forgeflow_evolution.py promote \
   --json
 ```
 
-The first version deliberately does not mutate rules. It calls `promotion-ready`, requires the ugly acknowledgement flag, and appends project-local audit events for both ready and blocked acknowledged attempts:
+The implementation deliberately avoids editing the active rule file. It calls `promotion-ready`, requires the ugly acknowledgement flag, writes an immutable promotion marker for ready proposals, and appends project-local audit events for both ready and blocked acknowledged attempts:
 
 ```text
-event=promote_stub | promote_blocked
+event=promote | promote_blocked
+promotion_path=.forgeflow/evolution/promoted-rules/<proposal-id>.json
 failed_readiness_checks=<issue codes for blocked attempts>
 proposal_path=<proposal>
 decision_path=<decision ledger>
 approval_path=<approval ledger>
-mutation_mode=stub
-would_mutate_rules=false
-promoted=false
+mutation_mode=promotion_marker
+would_mutate_rules=true for successful marker writes
+promoted=true for successful marker writes
 ```
 
-Without `--i-understand-this-mutates-project-policy`, the CLI exits `2` and does not write audit noise. After acknowledgement, readiness failure is auditable as `promote_blocked`. The name is scary on purpose: this is where a future mutating implementation will live, so the safety rail must exist before the blade does.
+Without `--i-understand-this-mutates-project-policy`, the CLI exits `2` and does not write audit noise. After acknowledgement, readiness failure is auditable as `promote_blocked`. Successful promotion writes a marker snapshot under `.forgeflow/evolution/promoted-rules/`; it refuses to overwrite an existing marker and records that as `promote_blocked` with `promotion_marker_already_exists`. It does not rewrite the active rule JSON, so rollback remains deleting the marker plus normal lifecycle commands.

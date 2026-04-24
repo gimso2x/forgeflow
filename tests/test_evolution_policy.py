@@ -5,7 +5,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from forgeflow_runtime.evolution import adopt_example_rule, doctor_evolution_state, effectiveness_review, promotion_plan, proposal_approve, proposal_approvals, promotion_decision, promotion_gate, promote_stub, promotion_ready, proposal_review, write_promotion_plan, dry_run_rule, execute_rule, inspect_evolution_policy, list_rules
+from forgeflow_runtime.evolution import adopt_example_rule, doctor_evolution_state, effectiveness_review, promotion_plan, proposal_approve, proposal_approvals, promotion_decision, promotion_gate, promote_rule, promote_stub, promotion_ready, proposal_review, write_promotion_plan, dry_run_rule, execute_rule, inspect_evolution_policy, list_rules
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -1754,31 +1754,37 @@ def test_promotion_ready_cli_human_output_says_no_promotion_and_readiness(tmp_pa
 
 
 
-def test_promote_stub_requires_ready_proposal_and_appends_audit_without_rule_mutation(tmp_path: Path) -> None:
+def test_promote_rule_requires_ready_proposal_and_writes_promotion_marker(tmp_path: Path) -> None:
     written = _promotion_decided_proposal(tmp_path)
     active_rule = tmp_path / ".forgeflow" / "evolution" / "rules" / "no-env-commit-rule.json"
     before_rule = active_rule.read_text(encoding="utf-8")
     before_events = _audit_events(tmp_path)
 
-    result = promote_stub(tmp_path, Path(written["proposal_path"]))
+    result = promote_rule(tmp_path, Path(written["proposal_path"]))
 
-    assert result["mutation_mode"] == "stub"
-    assert result["would_mutate_rules"] is False
-    assert result["promoted"] is False
+    assert result["mutation_mode"] == "promotion_marker"
+    assert result["would_mutate_rules"] is True
+    assert result["promoted"] is True
     assert result["ready"]["ready_for_promote"] is True
     assert active_rule.read_text(encoding="utf-8") == before_rule
+    promotion_path = Path(result["promotion_path"])
+    assert promotion_path.is_file()
+    marker = json.loads(promotion_path.read_text(encoding="utf-8"))
+    assert marker["rule_id"] == "no-env-commit"
+    assert marker["promotion_status"] == "promoted"
+    assert marker["active_rule_snapshot"]["id"] == "no-env-commit"
     events = _audit_events(tmp_path)
     assert len(events) == len(before_events) + 1
-    assert events[-1]["event"] == "promote_stub"
+    assert events[-1]["event"] == "promote"
     assert events[-1]["rule_id"] == "no-env-commit"
-    assert events[-1]["mutation_mode"] == "stub"
+    assert events[-1]["mutation_mode"] == "promotion_marker"
 
 
-def test_promote_stub_rejects_not_ready_proposal(tmp_path: Path) -> None:
+def test_promote_rule_rejects_not_ready_proposal_and_audits_blocked(tmp_path: Path) -> None:
     written = _gate_passing_proposal(tmp_path)
 
     try:
-        promote_stub(tmp_path, Path(written["proposal_path"]))
+        promote_rule(tmp_path, Path(written["proposal_path"]))
     except ValueError as exc:
         assert "promotion is not ready" in str(exc)
     else:  # pragma: no cover
@@ -1823,9 +1829,10 @@ def test_promote_cli_json_contract_is_stub_and_no_rule_mutation(tmp_path: Path) 
 
     assert result.returncode == 0, result.stderr
     payload = json.loads(result.stdout)
-    assert payload["mutation_mode"] == "stub"
-    assert payload["would_mutate_rules"] is False
-    assert payload["promoted"] is False
+    assert payload["mutation_mode"] == "promotion_marker"
+    assert payload["would_mutate_rules"] is True
+    assert payload["promoted"] is True
+    assert Path(payload["promotion_path"]).is_file()
 
 
 def test_promote_cli_human_output_says_stub_and_no_mutation(tmp_path: Path) -> None:
@@ -1849,19 +1856,19 @@ def test_promote_cli_human_output_says_stub_and_no_mutation(tmp_path: Path) -> N
     )
 
     assert result.returncode == 0, result.stderr
-    assert "Evolution promote stub:" in result.stdout
-    assert "mutation mode: stub" in result.stdout
-    assert "would mutate rules: false" in result.stdout
-    assert "promoted: false" in result.stdout
+    assert "Evolution promote:" in result.stdout
+    assert "mutation mode: promotion_marker" in result.stdout
+    assert "would mutate rules: true" in result.stdout
+    assert "promoted: true" in result.stdout
 
 
 
-def test_promote_stub_appends_blocked_audit_for_not_ready_proposal(tmp_path: Path) -> None:
+def test_promote_rule_appends_blocked_audit_for_not_ready_proposal(tmp_path: Path) -> None:
     written = _gate_passing_proposal(tmp_path)
     before_events = _audit_events(tmp_path)
 
     try:
-        promote_stub(tmp_path, Path(written["proposal_path"]))
+        promote_rule(tmp_path, Path(written["proposal_path"]))
     except ValueError as exc:
         assert "promotion is not ready" in str(exc)
     else:  # pragma: no cover
@@ -1872,7 +1879,7 @@ def test_promote_stub_appends_blocked_audit_for_not_ready_proposal(tmp_path: Pat
     blocked = events[-1]
     assert blocked["event"] == "promote_blocked"
     assert blocked["rule_id"] == "no-env-commit"
-    assert blocked["mutation_mode"] == "stub"
+    assert blocked["mutation_mode"] == "promotion_marker"
     assert blocked["promoted"] is False
     assert "missing_approve_policy_gate_decision" in blocked["failed_readiness_checks"]
     assert blocked["proposal_path"] == written["proposal_path"]
@@ -1906,3 +1913,22 @@ def test_promote_cli_acknowledged_not_ready_appends_blocked_audit(tmp_path: Path
     events = _audit_events(tmp_path)
     assert events[-1]["event"] == "promote_blocked"
     assert events[-1]["promoted"] is False
+
+
+
+def test_promote_rule_refuses_duplicate_promotion_marker(tmp_path: Path) -> None:
+    written = _promotion_decided_proposal(tmp_path)
+    first = promote_rule(tmp_path, Path(written["proposal_path"]))
+
+    try:
+        promote_rule(tmp_path, Path(written["proposal_path"]))
+    except FileExistsError as exc:
+        assert "promotion marker already exists" in str(exc)
+    else:  # pragma: no cover
+        raise AssertionError("expected FileExistsError")
+
+    marker = Path(first["promotion_path"])
+    assert marker.is_file()
+    events = _audit_events(tmp_path)
+    assert events[-1]["event"] == "promote_blocked"
+    assert "promotion_marker_already_exists" in events[-1]["failed_readiness_checks"]

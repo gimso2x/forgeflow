@@ -19,6 +19,7 @@ RETIRED_RULE_DIR = Path(".forgeflow") / "evolution" / "retired-rules"
 PROPOSAL_DIR = Path(".forgeflow") / "evolution" / "proposals"
 PROPOSAL_APPROVAL_DIR = Path(".forgeflow") / "evolution" / "proposal-approvals"
 PROMOTION_DECISION_DIR = Path(".forgeflow") / "evolution" / "promotion-decisions"
+PROMOTED_RULE_DIR = Path(".forgeflow") / "evolution" / "promoted-rules"
 AUDIT_LOG_PATH = Path(".forgeflow") / "evolution" / "audit-log.jsonl"
 HARD_GATE_REQUIRES = {
     "project_local_enablement",
@@ -540,48 +541,105 @@ def promotion_ready(root: Path, proposal_path: Path) -> dict[str, Any]:
 
 
 
-def promote_stub(root: Path, proposal_path: Path) -> dict[str, Any]:
-    """Stub-first promote surface: verify readiness and audit the attempt, but mutate no rules."""
+def _promotion_marker_path(root: Path, proposal_path: Path) -> Path:
+    safe_id = "".join(char if char.isalnum() or char in {"-", "_"} else "-" for char in proposal_path.stem).strip("-") or "proposal"
+    return root / PROMOTED_RULE_DIR / f"{safe_id}.json"
+
+
+def _active_rule_by_id(root: Path, rule_id: str) -> tuple[dict[str, Any], Path]:
+    for rule, path in _load_project_rules(root):
+        if rule.get("id") == rule_id:
+            return rule, path
+    raise ValueError(f"active project-local rule not found: {rule_id}")
+
+
+def _append_promote_blocked_audit(root: Path, proposal_path: Path, ready: dict[str, Any]) -> None:
+    failed_checks = [issue["code"] for issue in ready["issues"]]
+    blocked_event = {
+        "event": "promote_blocked",
+        "rule_id": ready["rule_id"],
+        "proposal_path": str(proposal_path),
+        "decision_path": ready["decision_path"],
+        "approval_path": ready.get("gate", {}).get("approval_path"),
+        "mutation_mode": "promotion_marker",
+        "would_mutate_rules": False,
+        "promoted": False,
+        "passed": False,
+        "failed_readiness_checks": failed_checks,
+    }
+    _append_audit_event(root, blocked_event)
+
+
+def promote_rule(root: Path, proposal_path: Path) -> dict[str, Any]:
+    """Finalize promotion by writing an immutable promotion marker, not editing the active rule."""
 
     root = root.resolve()
     proposal_path = proposal_path.resolve()
     ready = promotion_ready(root, proposal_path)
     if not ready["ready_for_promote"]:
-        failed_checks = [issue["code"] for issue in ready["issues"]]
-        issue_codes = ", ".join(failed_checks)
+        _append_promote_blocked_audit(root, proposal_path, ready)
+        issue_codes = ", ".join(issue["code"] for issue in ready["issues"])
+        raise ValueError(f"promotion is not ready: {issue_codes}")
+
+    rule, rule_path = _active_rule_by_id(root, ready["rule_id"])
+    marker_path = _promotion_marker_path(root, proposal_path)
+    if marker_path.exists():
         blocked_event = {
             "event": "promote_blocked",
             "rule_id": ready["rule_id"],
             "proposal_path": str(proposal_path),
             "decision_path": ready["decision_path"],
             "approval_path": ready.get("gate", {}).get("approval_path"),
-            "mutation_mode": "stub",
+            "promotion_path": str(marker_path),
+            "mutation_mode": "promotion_marker",
             "would_mutate_rules": False,
             "promoted": False,
             "passed": False,
-            "failed_readiness_checks": failed_checks,
+            "failed_readiness_checks": ["promotion_marker_already_exists"],
         }
         _append_audit_event(root, blocked_event)
-        raise ValueError(f"promotion is not ready: {issue_codes}")
-    event = {
-        "event": "promote_stub",
+        raise FileExistsError(f"promotion marker already exists: {marker_path}")
+    marker_path.parent.mkdir(parents=True, exist_ok=True)
+    marker = {
+        "schema_version": 1,
+        "timestamp": _utc_timestamp(),
+        "promotion_status": "promoted",
         "rule_id": ready["rule_id"],
         "proposal_path": str(proposal_path),
-        "mutation_mode": "stub",
-        "would_mutate_rules": False,
-        "promoted": False,
+        "active_rule_path": str(rule_path),
+        "decision_path": ready["decision_path"],
+        "approval_path": ready.get("gate", {}).get("approval_path"),
+        "mutation_mode": "promotion_marker",
+        "active_rule_snapshot": rule,
+    }
+    marker_path.write_text(json.dumps(marker, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    event = {
+        "event": "promote",
+        "rule_id": ready["rule_id"],
+        "proposal_path": str(proposal_path),
+        "promotion_path": str(marker_path),
+        "mutation_mode": "promotion_marker",
+        "would_mutate_rules": True,
+        "promoted": True,
         "passed": True,
     }
     _append_audit_event(root, event)
     return {
         "proposal_path": str(proposal_path),
+        "promotion_path": str(marker_path),
         "rule_id": ready["rule_id"],
-        "mutation_mode": "stub",
-        "would_mutate_rules": False,
-        "promoted": False,
+        "mutation_mode": "promotion_marker",
+        "would_mutate_rules": True,
+        "promoted": True,
         "audit_event": event,
         "ready": ready,
     }
+
+
+def promote_stub(root: Path, proposal_path: Path) -> dict[str, Any]:
+    """Backward-compatible alias for the first safe promote implementation."""
+
+    return promote_rule(root, proposal_path)
 
 
 def _failed_safety_checks(safety_checks: dict[str, bool]) -> list[str]:
