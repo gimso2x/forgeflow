@@ -14,6 +14,8 @@ ROOT = Path(__file__).resolve().parents[1]
 SUPPORTED_PROFILES = {"nextjs"}
 STARTER_DOCS_ROOT = ROOT / "templates/starter-docs"
 STARTER_DOC_NAMES = ("PRD.md", "ARCHITECTURE.md", "ADR.md", "UI_GUIDE.md")
+SUPPORTED_HOOK_BUNDLES = {"basic-safety"}
+HOOK_BUNDLE_ROOT = ROOT / "adapters/targets/claude/hook-bundles"
 
 
 @dataclass(frozen=True)
@@ -150,6 +152,42 @@ def copy_starter_docs(target: Path) -> list[Path]:
     return created
 
 
+def parse_hook_bundles(raw: str | None) -> list[str]:
+    if not raw:
+        return []
+    bundles = [item.strip() for item in raw.split(",") if item.strip()]
+    unknown = sorted(set(bundles) - SUPPORTED_HOOK_BUNDLES)
+    if unknown:
+        raise ValueError(f"Unsupported hook bundle(s): {', '.join(unknown)}")
+    return bundles
+
+
+def install_hook_bundles(target: Path, adapter: str, bundles: list[str]) -> list[str]:
+    if not bundles:
+        return []
+    if adapter != "claude":
+        raise ValueError("Hook bundles are Claude adapter only for now; Codex and Cursor receive safety intent through presets/rules.")
+
+    installed: list[str] = []
+    for bundle in bundles:
+        if bundle == "basic-safety":
+            src_dir = HOOK_BUNDLE_ROOT / bundle
+            hook_src = src_dir / "basic_safety_guard.py"
+            settings_src = src_dir / "settings.json"
+            if not hook_src.exists() or not settings_src.exists():
+                raise FileNotFoundError(f"Missing hook bundle template: {src_dir}")
+            hook_dst_dir = target / ".claude" / "hooks" / "forgeflow"
+            hook_dst_dir.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(hook_src, hook_dst_dir / hook_src.name)
+            settings_dst = target / ".claude" / "settings.json"
+            if settings_dst.exists():
+                raise ValueError("Refusing to overwrite existing .claude/settings.json; install hook bundles manually or remove the file first.")
+            settings_dst.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(settings_src, settings_dst)
+            installed.append(bundle)
+    return installed
+
+
 def verification_lines(scripts: dict[str, str]) -> list[str]:
     preferred = ["dev", "build", "lint", "test"]
     lines = []
@@ -169,6 +207,7 @@ def write_doc(
     scripts: dict[str, str],
     spec: AdapterSpec,
     starter_docs: list[Path],
+    hook_bundles: list[str],
 ) -> Path:
     doc = target / "docs" / "forgeflow-team-init.md"
     doc.parent.mkdir(parents=True, exist_ok=True)
@@ -176,6 +215,9 @@ def write_doc(
     starter_lines = [f"- `{path.relative_to(target)}`" for path in starter_docs]
     if not starter_lines:
         starter_lines = ["- No starter docs were created in this run. Existing project docs are preserved."]
+    hook_lines = [f"- `{bundle}` — project-local opt-in Claude safety bundle." for bundle in hook_bundles]
+    if not hook_lines:
+        hook_lines = ["- No hook/safety bundles installed. Hooks are opt-in and project-local only."]
     content = "\n".join(
         [
             f"# {spec.title}",
@@ -211,6 +253,12 @@ def write_doc(
             "- If scope changes, return to `/forgeflow:clarify` instead of silently expanding the task.",
             "- If review rejects the change, update the plan/evidence before another completion claim.",
             "",
+            "## Installed hook/safety bundles",
+            "",
+            *hook_lines,
+            "",
+            "These guardrails are convenience checks, not a complete sandbox or permission model.",
+            "",
             "## Safety boundary",
             "",
             f"These presets are installed under this project only. Do not create or update `{Path.home() / spec.global_config_names[0]}` for project team setup.",
@@ -238,17 +286,26 @@ def write_doc(
     return doc
 
 
-def install(target_arg: str, adapter: str, profile: str, *, with_starter_docs: bool = False) -> tuple[Path, list[Path], Path, list[Path]]:
+def install(
+    target_arg: str,
+    adapter: str,
+    profile: str,
+    *,
+    with_starter_docs: bool = False,
+    hook_bundles: list[str] | None = None,
+) -> tuple[Path, list[Path], Path, list[Path], list[str]]:
     if adapter not in ADAPTERS:
         raise ValueError(f"Unsupported adapter: {adapter}")
     spec = ADAPTERS[adapter]
     target = safe_target_root(target_arg, spec)
     target.mkdir(parents=True, exist_ok=True)
     scripts = load_package_scripts(target)
+    bundles = hook_bundles or []
     copied = copy_presets(target, profile, spec)
     starter_docs = copy_starter_docs(target) if with_starter_docs else []
-    doc = write_doc(target, profile, adapter, copied, scripts, spec, starter_docs)
-    return target, copied, doc, starter_docs
+    installed_bundles = install_hook_bundles(target, adapter, bundles)
+    doc = write_doc(target, profile, adapter, copied, scripts, spec, starter_docs, installed_bundles)
+    return target, copied, doc, starter_docs, installed_bundles
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -261,14 +318,21 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Create missing docs/PRD.md, ARCHITECTURE.md, ADR.md, and UI_GUIDE.md starter templates",
     )
+    parser.add_argument(
+        "--hook-bundles",
+        default="",
+        help="Comma-separated project-local hook bundles to install. Currently supports Claude-only: basic-safety",
+    )
     args = parser.parse_args(argv)
 
     try:
-        target, copied, doc, starter_docs = install(
+        bundles = parse_hook_bundles(args.hook_bundles)
+        target, copied, doc, starter_docs, installed_bundles = install(
             args.target,
             args.adapter,
             args.profile,
             with_starter_docs=args.with_starter_docs,
+            hook_bundles=bundles,
         )
     except Exception as exc:  # noqa: BLE001 - CLI reports concise failure
         return die(str(exc))
@@ -276,6 +340,8 @@ def main(argv: list[str] | None = None) -> int:
     print(f"Installed {len(copied)} {args.adapter} presets into {target / ADAPTERS[args.adapter].install_subdir}")
     if args.with_starter_docs:
         print(f"Created {len(starter_docs)} starter docs under {target / 'docs'}")
+    if installed_bundles:
+        print(f"Installed hook bundles: {', '.join(installed_bundles)}")
     print(f"Wrote {doc}")
     return 0
 

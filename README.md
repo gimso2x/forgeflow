@@ -119,6 +119,14 @@ This creates missing starter templates without overwriting existing project docs
 
 `docs/forgeflow-team-init.md` becomes the quick onboarding note: installed presets, created starter docs, active role prompts, review contract, failure handling, package scripts, and the recommended `/forgeflow:clarify` first run. This intentionally does **not** install `stepN.md`, auto-commit, auto-push, or a second runtime. Those patterns are useful demos in other harnesses, but ForgeFlow keeps the canonical path artifact-first.
 
+Claude projects can opt into a tiny project-local safety bundle:
+
+```bash
+python3 scripts/install_agent_presets.py --adapter claude --target /path/to/your-project --profile nextjs --hook-bundles basic-safety
+```
+
+`basic-safety` installs `.claude/settings.json` and `.claude/hooks/forgeflow/basic_safety_guard.py` in the target project. It blocks obviously destructive Bash commands such as `rm -rf`, `git reset --hard`, `git push --force`, and `DROP TABLE`. This is a guardrail, not a sandbox. It is Claude-only for now, opt-in only, and the installer refuses to overwrite an existing `.claude/settings.json`.
+
 ### Local runtime install
 
 ```bash
