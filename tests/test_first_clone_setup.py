@@ -193,8 +193,11 @@ def test_operator_shell_common_commands_use_repo_managed_status_target_for_read_
     assert "make orchestrator-status" in common_section.splitlines()
     assert common_section.index("make setup") < common_section.index("make check-env") < common_section.index("make orchestrator-status")
     assert "# Inspect current artifacts and stage pointer. This read-only path is repo-managed." in common_section
+    assert "# Fallback entries mutate task artifacts, so keep them explicit operator commands." in common_section
     assert "python3 scripts/run_orchestrator.py status" not in common_section
     assert "python3 scripts/run_orchestrator.py init" in common_section
+    assert "python3 scripts/run_orchestrator.py start" in common_section
+    assert "python3 scripts/run_orchestrator.py run" in common_section
 
 
 def test_monitoring_summary_plan_points_users_to_make_targets() -> None:

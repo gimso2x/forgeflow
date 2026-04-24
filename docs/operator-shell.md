@@ -61,7 +61,8 @@ make setup
 make check-env
 make orchestrator-status
 
-# Fallback entry: route omitted, so persisted state or brief/checkpoint artifacts decide.
+# Fallback entries mutate task artifacts, so keep them explicit operator commands.
+# Route omitted: persisted state or brief/checkpoint artifacts decide.
 python3 scripts/run_orchestrator.py start \
   --task-dir examples/runtime-fixtures/small-doc-task
 
