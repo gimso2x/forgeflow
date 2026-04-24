@@ -92,7 +92,12 @@ def check_generated_outputs(root: Path) -> list[str]:
         text=True,
     )
     untracked_paths = [line.strip() for line in untracked.stdout.splitlines() if line.strip()]
-    if untracked_paths:
+    if untracked.returncode != 0:
+        untracked_error = (untracked.stdout or untracked.stderr).strip()
+        if not untracked_error:
+            untracked_error = 'git ls-files reported untracked generated files lookup failure'
+        errors.extend(['generator untracked-file lookup failed', untracked_error])
+    elif untracked_paths:
         drift_messages.append('untracked files:\n' + '\n'.join(untracked_paths))
 
     tracked = subprocess.run(

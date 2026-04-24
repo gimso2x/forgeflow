@@ -326,6 +326,27 @@ tooling_constraints:
     assert errors == ["stale generated file tracked outside canonical manifest set: adapters/generated/retired/LEGACY.md"]
 
 
+def test_validate_generated_reports_untracked_file_lookup_failure(monkeypatch) -> None:
+    validate_generated = _load_validate_generated_module()
+
+    def fake_run(command, cwd=None, capture_output=None, text=None):
+        if command[:2] == [sys.executable, str(ROOT / "scripts" / "generate_adapters.py")]:
+            return subprocess.CompletedProcess(command, 0, stdout="ADAPTER GENERATION: PASS\n", stderr="")
+        if command[:3] == ["git", "diff", "--exit-code"]:
+            return subprocess.CompletedProcess(command, 0, stdout="", stderr="")
+        if command[:3] == ["git", "ls-files", "--others"]:
+            return subprocess.CompletedProcess(command, 128, stdout="", stderr="fatal: not a git repository")
+        if command == ["git", "ls-files", "--", "adapters/generated"]:
+            return subprocess.CompletedProcess(command, 0, stdout="", stderr="")
+        raise AssertionError(f"unexpected command: {command}")
+
+    monkeypatch.setattr(validate_generated.subprocess, "run", fake_run)
+
+    errors = validate_generated.check_generated_outputs(ROOT)
+
+    assert errors == ["generator untracked-file lookup failed", "fatal: not a git repository"]
+
+
 def test_validate_generated_reports_tracked_file_lookup_failure(monkeypatch) -> None:
     validate_generated = _load_validate_generated_module()
 
