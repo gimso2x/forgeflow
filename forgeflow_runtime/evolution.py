@@ -225,18 +225,23 @@ def retire_rule(root: Path, rule_id: str, *, reason: str) -> dict[str, Any]:
         "destination": str(destination),
         "reason": reason,
     }
-    _append_audit_event(
-        root,
-        {
-            "event": "retire",
-            "rule_id": result["rule_id"],
-            "source": source,
-            "source_path": result["source_path"],
-            "destination": result["destination"],
-            "reason": reason,
-            "passed": True,
-        },
-    )
+    try:
+        _append_audit_event(
+            root,
+            {
+                "event": "retire",
+                "rule_id": result["rule_id"],
+                "source": source,
+                "source_path": result["source_path"],
+                "destination": result["destination"],
+                "reason": reason,
+                "passed": True,
+            },
+        )
+    except Exception:
+        if destination.exists() and not source_path.exists():
+            destination.replace(source_path)
+        raise
     return result
 
 

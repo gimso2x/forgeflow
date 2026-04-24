@@ -517,3 +517,40 @@ def test_retire_cli_outputs_json_and_prevents_later_execute(tmp_path: Path) -> N
     )
     assert execute.returncode == 1
     assert "not found in project-local registry" in execute.stderr
+
+
+def test_retire_cli_missing_rule_returns_clean_error(tmp_path: Path) -> None:
+    result = subprocess.run(
+        [sys.executable, "scripts/forgeflow_evolution.py", "--root", str(tmp_path), "retire", "--rule", "missing", "--reason", "not needed"],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    assert result.returncode == 1
+    assert "Error:" in result.stderr
+    assert "not found in project-local registry" in result.stderr
+    assert "Traceback" not in result.stderr
+
+
+def test_retire_rule_rolls_back_move_when_audit_write_fails(tmp_path: Path, monkeypatch) -> None:
+    adopt = adopt_example_rule(tmp_path, "no-env-commit", fallback_root=ROOT)
+
+    from forgeflow_runtime import evolution
+
+    def fail_audit(root: Path, event: dict) -> None:
+        raise OSError("audit disk full")
+
+    monkeypatch.setattr(evolution, "_append_audit_event", fail_audit)
+
+    try:
+        evolution.retire_rule(tmp_path, "no-env-commit", reason="test rollback")
+    except OSError as exc:
+        assert "audit disk full" in str(exc)
+    else:
+        raise AssertionError("expected audit failure")
+
+    assert Path(adopt["destination"]).is_file()
+    registry = list_rules(tmp_path)
+    assert [rule["id"] for rule in registry["project_rules"]] == ["no-env-commit"]
