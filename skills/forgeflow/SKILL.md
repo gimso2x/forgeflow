@@ -44,6 +44,10 @@ medium: clarify -> plan -> execute -> quality-review -> finalize
 large_high_risk: clarify -> plan -> execute -> spec-review -> quality-review -> finalize -> long-run
 ```
 
+## Artifact path rule
+
+Artifact names in this skill are workflow contracts. Do not write files inside the plugin installation directory or `skills/<skill>/` directory. If the user asks you to create files, write them in the current project workspace or an explicit task directory. If no writable task directory is clear, return the artifact content in the response instead of guessing a path.
+
 ## Rules
 
 1. Start with clarify unless the user provides a complete brief.

@@ -21,13 +21,25 @@ claude plugin marketplace add https://github.com/gimso2x/forgeflow
 claude plugin install forgeflow
 ```
 
-설치 후 새 Claude Code 세션을 열고 다음처럼 시작하세요.
+설치 후 새 Claude Code 세션을 열고 단계별 slash skill로 진행하세요.
 
 ```text
-Use ForgeFlow. Clarify this request first, choose the route, then execute only after the required artifacts are clear.
-
-Task: <하고 싶은 작업>
+/clarify <하고 싶은 작업>
+/plan
+/run
+/review
+/ship
 ```
+
+요구사항을 먼저 더 단단히 뽑아야 하는 작업이면 `/clarify` 다음에 `/specify`를 끼웁니다.
+
+```text
+/clarify <하고 싶은 작업>
+/specify
+/plan
+```
+
+`/forgeflow`는 전체 workflow 설명/입구입니다. 실제 작업 진행은 `/clarify`부터 시작하는 게 맞습니다.
 
 ## 수동 Claude Code 설치
 
