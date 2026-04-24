@@ -19,7 +19,8 @@ Do not edit manually. Update canonical docs/policy/prompts and rerun `scripts/ge
 ## Installation steps
 1. Copy the generated adapter to ./CLAUDE.md at the repo root.
 2. Optionally install adapters/targets/claude/hooks/ as Claude plugin hooks for recovery guidance.
-3. Keep Claude-specific helper notes in surrounding docs, not by changing ForgeFlow semantics.
+3. For project-local team presets, run `python3 scripts/install_claude_agent_presets.py --target /path/to/project --profile nextjs` instead of asking Claude to invent `.claude/agents` files.
+4. Keep Claude-specific helper notes in surrounding docs, not by changing ForgeFlow semantics.
 
 ## Target operating notes
 - surface_style: root-instruction-file

@@ -16,6 +16,7 @@ handoff_format: artifacts-plus-terminal-summary
 installation_steps:
   - Copy the generated adapter to ./CLAUDE.md at the repo root.
   - Optionally install adapters/targets/claude/hooks/ as Claude plugin hooks for recovery guidance.
+  - For project-local team presets, run `python3 scripts/install_claude_agent_presets.py --target /path/to/project --profile nextjs` instead of asking Claude to invent `.claude/agents` files.
   - Keep Claude-specific helper notes in surrounding docs, not by changing ForgeFlow semantics.
 session_persistence: root instruction file persists across repo sessions until regenerated
 workspace_boundary: repo root instruction file shapes CLI runs but artifacts still live in the project workspace
