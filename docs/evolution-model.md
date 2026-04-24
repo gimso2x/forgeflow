@@ -98,8 +98,9 @@ dry-run  -> show command and safety checks without executing
 execute  -> run only project-local adopted rules with explicit acknowledgement
 retire   -> move a project-local rule into .forgeflow/evolution/retired-rules with a reason
 restore  -> move a retired rule back into .forgeflow/evolution/rules with a reason
-doctor   -> read-only health check for active/retired rules and audit JSONL
-audit    -> show recent project-local lifecycle/execution events
+doctor        -> read-only health check for active/retired rules and audit JSONL
+effectiveness -> read-only audit-backed rule effectiveness review
+audit         -> show recent project-local lifecycle/execution events
 ```
 
 Execute requires the long flag:
@@ -165,3 +166,23 @@ python3 scripts/forgeflow_evolution.py doctor --json
 ```
 
 It checks active rules, retired rules, duplicate active/retired IDs, audit-log JSONL parsing, and required audit event fields. The closed-loop surfaces stay deliberately constrained: reactive fix learning is advisory metadata only, proactive feedback learning keeps raw text disabled, and meta effectiveness review is audit-backed only.
+
+`effectiveness` reads audit history for one rule and returns a recommendation without mutating anything:
+
+```bash
+python3 scripts/forgeflow_evolution.py effectiveness \
+  --rule no-env-commit \
+  --since-days 30 \
+  --json
+```
+
+Recommendations are intentionally non-binding:
+
+```text
+0 failures with executions -> effective_candidate
+1 failure              -> watch_candidate
+2+ failures            -> promotion_candidate
+no executions          -> insufficient_data
+```
+
+Even `promotion_candidate` keeps `would_promote=false` and `would_mutate=false`. Automatic SOFT→HARD promotion needs a separate policy gate; otherwise the loop starts sharpening knives in the dark.

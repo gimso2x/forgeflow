@@ -52,17 +52,75 @@ def _append_audit_event(root: Path, event: dict[str, Any]) -> None:
         handle.write(json.dumps(payload, ensure_ascii=False, sort_keys=True) + "\n")
 
 
+def _read_audit_events(root: Path) -> list[dict[str, Any]]:
+    audit_path = root / AUDIT_LOG_PATH
+    if not audit_path.is_file():
+        return []
+    lines = [line for line in audit_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+    return [json.loads(line) for line in lines]
+
+
 def audit_events(root: Path, *, limit: int = 20) -> dict[str, Any]:
     root = root.resolve()
     audit_path = root / AUDIT_LOG_PATH
     if limit < 1:
         raise ValueError("audit limit must be >= 1")
-    if not audit_path.is_file():
-        events: list[dict[str, Any]] = []
-    else:
-        lines = [line for line in audit_path.read_text(encoding="utf-8").splitlines() if line.strip()]
-        events = [json.loads(line) for line in lines[-limit:]]
+    events = _read_audit_events(root)[-limit:]
     return {"audit_log": str(audit_path), "events": events}
+
+
+def effectiveness_review(root: Path, rule_id: str, *, since_days: int = 30) -> dict[str, Any]:
+    """Read-only audit-backed effectiveness review for one rule.
+
+    This intentionally recommends but never promotes, edits, retires, restores, or
+    executes anything. Promotion without a separate policy gate is governance fan
+    fiction wearing a hard hat.
+    """
+
+    root = root.resolve()
+    if since_days < 1:
+        raise ValueError("since_days must be >= 1")
+    cutoff = datetime.now(UTC).timestamp() - since_days * 86400
+    matching_events = []
+    for event in _read_audit_events(root):
+        if event.get("rule_id") != rule_id or event.get("event") != "execute":
+            continue
+        timestamp = event.get("timestamp")
+        if isinstance(timestamp, str):
+            try:
+                event_time = datetime.fromisoformat(timestamp.replace("Z", "+00:00")).timestamp()
+            except ValueError:
+                event_time = cutoff
+            if event_time < cutoff:
+                continue
+        matching_events.append(event)
+    executions = len(matching_events)
+    failures = sum(1 for event in matching_events if event.get("passed") is False)
+    blocked = sum(1 for event in matching_events if event.get("executed") is False)
+    passes = sum(1 for event in matching_events if event.get("passed") is True)
+    if failures >= 2:
+        recommendation = "promotion_candidate"
+    elif failures == 1:
+        recommendation = "watch_candidate"
+    elif executions > 0:
+        recommendation = "effective_candidate"
+    else:
+        recommendation = "insufficient_data"
+    return {
+        "rule_id": rule_id,
+        "read_only": True,
+        "window_days": since_days,
+        "metrics": {
+            "executions": executions,
+            "passes": passes,
+            "failures": failures,
+            "blocked_executions": blocked,
+        },
+        "recommendation": recommendation,
+        "would_promote": False,
+        "would_mutate": False,
+        "audit_backed_only": True,
+    }
 
 
 def _failed_safety_checks(safety_checks: dict[str, bool]) -> list[str]:

@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from forgeflow_runtime.evolution import adopt_example_rule, audit_events, doctor_evolution_state, dry_run_rule, execute_rule, inspect_evolution_policy, list_rules, restore_rule, retire_rule
+from forgeflow_runtime.evolution import adopt_example_rule, audit_events, doctor_evolution_state, dry_run_rule, effectiveness_review, execute_rule, inspect_evolution_policy, list_rules, restore_rule, retire_rule
 
 
 def _target_root(args: argparse.Namespace) -> Path:
@@ -182,6 +182,27 @@ def cmd_doctor(args: argparse.Namespace) -> int:
     return 0 if report["ok"] else 1
 
 
+def cmd_effectiveness(args: argparse.Namespace) -> int:
+    try:
+        result = effectiveness_review(_target_root(args), args.rule, since_days=args.since_days)
+    except ValueError as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 1
+    if args.json:
+        print(json.dumps(result, ensure_ascii=False, indent=2))
+        return 0
+    print(f"Evolution effectiveness: {result['rule_id']}")
+    print(f"- read-only: {str(result['read_only']).lower()}")
+    print(f"- window days: {result['window_days']}")
+    print(f"- executions: {result['metrics']['executions']}")
+    print(f"- passes: {result['metrics']['passes']}")
+    print(f"- failures: {result['metrics']['failures']}")
+    print(f"- recommendation: {result['recommendation']}")
+    print(f"- would promote: {str(result['would_promote']).lower()}")
+    print(f"- would mutate: {str(result['would_mutate']).lower()}")
+    return 0
+
+
 def cmd_audit(args: argparse.Namespace) -> int:
     try:
         result = audit_events(_target_root(args), limit=args.limit)
@@ -240,6 +261,11 @@ def build_parser() -> argparse.ArgumentParser:
     doctor = sub.add_parser("doctor", help="read-only project-local evolution health check")
     doctor.add_argument("--json", action="store_true")
     doctor.set_defaults(func=cmd_doctor)
+    effectiveness = sub.add_parser("effectiveness", help="read-only audit-backed rule effectiveness review")
+    effectiveness.add_argument("--rule", required=True)
+    effectiveness.add_argument("--since-days", type=int, default=30)
+    effectiveness.add_argument("--json", action="store_true")
+    effectiveness.set_defaults(func=cmd_effectiveness)
     audit = sub.add_parser("audit", help="show recent project-local evolution audit events")
     audit.add_argument("--limit", type=int, default=20)
     audit.add_argument("--json", action="store_true")
