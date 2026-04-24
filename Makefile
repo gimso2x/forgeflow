@@ -3,7 +3,7 @@ VENV ?= .venv
 VENV_PYTHON := $(VENV)/bin/python
 VENV_PIP := $(VENV)/bin/pip
 
-.PHONY: setup check-env validate generate regen clean validate-samples runtime-sample adherence-evals smoke-claude-plugin validate-upstream-import validate-hoyeon-import validate-skill-contracts plan-cli-smoke learn-smoke
+.PHONY: setup check-env validate generate regen clean validate-samples runtime-sample adherence-evals smoke-claude-plugin validate-upstream-import validate-hoyeon-import validate-skill-contracts validate-claude-hooks plan-cli-smoke learn-smoke claude-hook-smoke
 
 setup:
 	$(PYTHON) -m venv $(VENV)
@@ -22,8 +22,10 @@ validate:
 	$(PYTHON) scripts/validate_upstream_import.py
 	$(PYTHON) scripts/validate_hoyeon_import.py
 	$(PYTHON) scripts/validate_skill_contracts.py
+	$(PYTHON) scripts/validate_claude_hooks.py
 	$(PYTHON) scripts/smoke_plan_cli.py
 	pytest tests/test_forgeflow_learn.py -q
+	pytest tests/test_claude_recovery_hooks.py -q
 
 runtime-sample:
 	$(PYTHON) scripts/run_runtime_sample.py --fixture-dir examples/runtime-fixtures/small-doc-task --route small
@@ -40,11 +42,17 @@ validate-hoyeon-import:
 validate-skill-contracts:
 	$(PYTHON) scripts/validate_skill_contracts.py
 
+validate-claude-hooks:
+	$(PYTHON) scripts/validate_claude_hooks.py
+
 plan-cli-smoke:
 	$(PYTHON) scripts/smoke_plan_cli.py
 
 learn-smoke:
 	pytest tests/test_forgeflow_learn.py -q
+
+claude-hook-smoke:
+	pytest tests/test_claude_recovery_hooks.py -q
 
 smoke-claude-plugin:
 	$(PYTHON) scripts/smoke_claude_plugin.py

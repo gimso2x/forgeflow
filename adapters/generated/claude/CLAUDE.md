@@ -18,7 +18,8 @@ Do not edit manually. Update canonical docs/policy/prompts and rerun `scripts/ge
 
 ## Installation steps
 1. Copy the generated adapter to ./CLAUDE.md at the repo root.
-2. Keep Claude-specific helper notes in surrounding docs, not by changing ForgeFlow semantics.
+2. Optionally install adapters/targets/claude/hooks/ as Claude plugin hooks for recovery guidance.
+3. Keep Claude-specific helper notes in surrounding docs, not by changing ForgeFlow semantics.
 
 ## Target operating notes
 - surface_style: root-instruction-file
@@ -38,6 +39,8 @@ Do not edit manually. Update canonical docs/policy/prompts and rerun `scripts/ge
 ## Tooling constraints
 - prompt surface may be CLAUDE.md style
 - generated artifacts must not redefine canonical semantics
+- optional recovery hooks are Claude adapter UX helpers only
+- hook manifest lives at adapters/targets/claude/hooks/hooks.json
 
 ## Canonical workflow snapshot
 ```yaml
