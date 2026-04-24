@@ -29,6 +29,17 @@ def test_makefile_exposes_idempotent_setup_and_environment_check() -> None:
     assert "$(VENV_PYTHON) -m pytest tests/test_first_clone_setup.py -q" in makefile
 
 
+def test_makefile_smoke_targets_use_repo_managed_python_environment() -> None:
+    makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
+    smoke_section = makefile.split("plan-cli-smoke:", 1)[1].split("generate:", 1)[0]
+
+    assert "\tpytest " not in smoke_section
+    assert "\t$(PYTHON) scripts/" not in smoke_section
+    assert smoke_section.count("$(VENV_PYTHON) -m pytest") >= 10
+    assert "$(VENV_PYTHON) scripts/smoke_plan_cli.py" in smoke_section
+    assert "$(VENV_PYTHON) scripts/smoke_claude_plugin.py" in smoke_section
+
+
 def test_readme_quickstart_starts_with_first_clone_setup() -> None:
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
 

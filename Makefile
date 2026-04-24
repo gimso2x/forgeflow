@@ -58,43 +58,43 @@ validate-claude-hooks:
 	$(PYTHON) scripts/validate_claude_hooks.py
 
 plan-cli-smoke:
-	$(PYTHON) scripts/smoke_plan_cli.py
+	$(VENV_PYTHON) scripts/smoke_plan_cli.py
 
 evolution-policy-smoke:
-	pytest tests/test_evolution_policy.py -q
+	$(VENV_PYTHON) -m pytest tests/test_evolution_policy.py -q
 
 learn-smoke:
-	pytest tests/test_forgeflow_learn.py -q
+	$(VENV_PYTHON) -m pytest tests/test_forgeflow_learn.py -q
 
 claude-hook-smoke:
-	pytest tests/test_claude_recovery_hooks.py -q
+	$(VENV_PYTHON) -m pytest tests/test_claude_recovery_hooks.py -q
 
 shared-recovery-smoke:
-	pytest tests/test_shared_recovery_contract.py -q
+	$(VENV_PYTHON) -m pytest tests/test_shared_recovery_contract.py -q
 
 team-pattern-smoke:
-	pytest tests/test_team_pattern_contract.py -q
+	$(VENV_PYTHON) -m pytest tests/test_team_pattern_contract.py -q
 
 agent-preset-smoke:
-	pytest tests/test_agent_preset_install.py -q
+	$(VENV_PYTHON) -m pytest tests/test_agent_preset_install.py -q
 
 claude-agent-preset-smoke:
-	pytest tests/test_claude_agent_preset_install.py -q
+	$(VENV_PYTHON) -m pytest tests/test_claude_agent_preset_install.py -q
 
 release-script-smoke:
-	pytest tests/test_release_script.py -q
+	$(VENV_PYTHON) -m pytest tests/test_release_script.py -q
 
 verify-skill-smoke:
-	pytest tests/test_verify_skill_contract.py -q
+	$(VENV_PYTHON) -m pytest tests/test_verify_skill_contract.py -q
 
 finish-skill-smoke:
-	pytest tests/test_finish_skill_contract.py -q
+	$(VENV_PYTHON) -m pytest tests/test_finish_skill_contract.py -q
 
 plugin-manifest-smoke:
-	pytest tests/test_plugin_manifests.py -q
+	$(VENV_PYTHON) -m pytest tests/test_plugin_manifests.py -q
 
 smoke-claude-plugin:
-	$(PYTHON) scripts/smoke_claude_plugin.py
+	$(VENV_PYTHON) scripts/smoke_claude_plugin.py
 
 generate:
 	$(PYTHON) scripts/generate_adapters.py
