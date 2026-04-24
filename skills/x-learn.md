@@ -23,43 +23,65 @@ Capture typed learnings from every execution so that future sessions compound kn
 | Artifact | Source |
 |----------|--------|
 | `decision-log.json` | Session decisions and outcomes |
-| `review-report.json` | Review findings |
-| Source files | Final codebase state |
+| `review-report.json` | Review findings with problem/cause/recommendation/evidence |
+| `eval-record.json` | Verification and long-run capture evidence |
+| PR comments/reviews | Optional external review feedback when provided |
+| Source files | Final codebase state for evidence anchors only |
 
 ## Output Artifacts
 
 | Artifact | Schema | Description |
 |----------|--------|-------------|
-| `memory/learnings.json` | JSON lines | Typed knowledge entries with BM25 indexing. |
+| `memory/learnings.jsonl` | JSON lines | Typed knowledge entries with duplicate-safe stable IDs. |
+
+## JSONL Entry Shape
+
+```json
+{
+  "id": "learn-<sha16>",
+  "timestamp": "2026-04-24T09:55:00Z",
+  "source": {"task_id": "task-001", "artifact": "review-report.json"},
+  "type": "review-finding|decision|issue|verification",
+  "problem": "What went wrong or what was hard?",
+  "cause": "Root cause or reason.",
+  "rule": "What to do next time.",
+  "evidence": ["file.py:42"],
+  "tags": ["testing", "schema"]
+}
+```
 
 ## Execution
 
-1. **Extract learnings.** For each significant event (bug, workaround, convention discovery, failed approach), create an entry:
-   ```json
-   {
-     "timestamp": "2026-04-23T09:55:00Z",
-     "task_id": "task-001",
-     "type": "bug|workaround|convention|failure|success",
-     "problem": "What went wrong or what was hard?",
-     "cause": "Root cause or reason.",
-     "rule": "What to do next time.",
-     "tags": ["react", "testing", "performance"]
-   }
+1. **Collect evidence.** Read decision, review, eval, and optional PR/comment artifacts. Do not scrape raw chat logs.
+2. **Extract durable lessons only.** A lesson must have `problem`, `cause`, `rule`, and concrete `evidence`.
+3. **Classify.** Use the narrowest useful type:
+   - `review-finding`: reviewer found a reusable implementation risk
+   - `decision`: a tradeoff choice should guide similar future work
+   - `issue`: an encountered failure has a known prevention rule
+   - `verification`: a verification pattern is worth repeating
+4. **Filter junk.** Reject temporary progress, raw dumps, secrets, credentials, and vague rules.
+5. **De-duplicate.** Stable ID is derived from `type|problem|cause|rule|evidence`; existing IDs are skipped.
+6. **Append JSONL.** Use:
+   ```bash
+   python3 scripts/forgeflow_learn.py extract <task_dir> --output memory/learnings.jsonl
+   python3 scripts/forgeflow_learn.py validate memory/learnings.jsonl
    ```
-2. **Append to `memory/learnings.json`.**
-3. **Index.** If `memory/index/` exists, update the BM25 index.
+7. **Index.** If `memory/index/` exists, update the BM25 index.
 
 ## Constraints
 
-- Every learning must have a `rule`. If you can't formulate a rule, it's not a learning yet.
-- Tags must be from a controlled vocabulary or domain-specific. No generic tags like "code" or "fix".
-- Past learnings are surfaced automatically during `clarify` and `specify` via BM25 search on the current goal.
+- Every learning must have a future-facing `rule`. If you can't formulate a rule, it's not a learning yet.
+- Every learning must include evidence anchors; unsupported advice is just vibes in a trench coat.
+- Tags must be specific enough to retrieve later. Avoid generic tags like "code" or "fix".
+- Do not store secrets, raw tool output, copied stack traces, or session-only TODO progress.
+- Past learnings are surfaced during `clarify` and `specify` via search on the current goal.
 
 ## Exit Condition
 
-- `learnings.json` has a new entry with timestamp and category.
+- `memory/learnings.jsonl` has zero or more new de-duplicated entries.
+- `forgeflow_learn.py validate` passes for the target JSONL file.
 
 ## Notes
 
 - This is hoyeon's learning/memory layer extracted into a cross-cutting skill.
-- `learnings.json` is the closest thing forgeflow has to long-term memory.
+- `learnings.jsonl` is the closest thing forgeflow has to long-term memory.
