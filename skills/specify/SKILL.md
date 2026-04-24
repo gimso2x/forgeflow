@@ -52,6 +52,8 @@ When the user says "do not run commands", do not propose command execution as if
 
 If the user asks to list questions, list them in the response. Do **not** call AskUserQuestion or any interactive question tool unless the user explicitly asks for an interactive clarification flow.
 
+For exact-count question prompts, start directly with `1.`. Do not explain that you will generate questions, do not mention the skill/procedure, and do not add any preamble before the numbered list.
+
 Example exact-count response must be plain text lines, not a fenced block:
 
 1. What badge status should the README show?
