@@ -123,6 +123,19 @@ def test_readme_monitoring_summary_uses_repo_managed_make_target() -> None:
     assert "python3 scripts/forgeflow_monitor.py" not in monitor_section
 
 
+def test_monitoring_summary_plan_points_users_to_make_targets() -> None:
+    plan = (ROOT / "docs/plans/2026-04-24-forgeflow-monitor-summary.md").read_text(encoding="utf-8")
+    usage_section = plan.split("### Task 4: Document usage", 1)[1].split("### Task 5: Verify and commit", 1)[0]
+
+    assert "make setup" in usage_section
+    assert "make check-env" in usage_section
+    assert "make monitor-summary" in usage_section
+    assert "make monitor-summary-json" in usage_section
+    assert usage_section.index("make setup") < usage_section.index("make check-env") < usage_section.index("make monitor-summary")
+    assert usage_section.index("make check-env") < usage_section.index("make monitor-summary-json")
+    assert "python3 scripts/forgeflow_monitor.py" not in usage_section
+
+
 def test_ci_validation_job_creates_venv_before_make_validate() -> None:
     workflow = (ROOT / ".github/workflows/validate.yml").read_text(encoding="utf-8")
     repo_validation_job = workflow.split("  repo-validation:", 1)[1].split("  generated-drift:", 1)[0]
