@@ -334,10 +334,12 @@ This shows the local CLI surface for `start`, `run`, `status`, `resume`, `advanc
 ### 5. Run the safe sample
 
 ```bash
-python3 scripts/run_runtime_sample.py --fixture-dir examples/runtime-fixtures/small-doc-task --route small
+make setup
+make check-env
+make runtime-sample
 ```
 
-This copies the fixture to a disposable workspace before running, so tracked sample artifacts stay clean.
+`make runtime-sample` uses the repo-managed Python environment to copy the fixture to a disposable workspace before running, so tracked sample artifacts stay clean.
 
 ### 6. Start your own task
 
