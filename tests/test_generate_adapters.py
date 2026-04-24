@@ -53,9 +53,10 @@ def test_validate_manifest_rejects_missing_runtime_realism_fields() -> None:
             "Copy the generated adapter to ./CLAUDE.md at the repo root.",
             "Keep Claude-specific helper notes in surrounding docs, not by changing ForgeFlow semantics.",
         ],
+        "recovery_delivery_note": "Claude may deliver recovery through optional adapter hooks plus generated instructions.",
     }
 
-    with pytest.raises(ValueError, match="missing required keys \['session_persistence', 'workspace_boundary', 'review_delivery'\]"):
+    with pytest.raises(ValueError, match=r"missing required keys \['session_persistence', 'workspace_boundary', 'review_delivery'\]"):
         generate_adapters.validate_manifest(manifest, ROOT / "adapters" / "targets" / "claude" / "manifest.yaml")
 
 
@@ -79,9 +80,10 @@ def test_validate_manifest_rejects_missing_installation_steps() -> None:
         "session_persistence": "rule-file persists across chat sessions until regenerated",
         "workspace_boundary": "project rules live under .cursor/rules and guide editor-native runs",
         "review_delivery": "chat summary plus artifact file updates inside the workspace",
+        "recovery_delivery_note": "Cursor delivers recovery through .cursor/rules guidance, not hooks.",
     }
 
-    with pytest.raises(ValueError, match="missing required keys \['installation_steps'\]"):
+    with pytest.raises(ValueError, match=r"missing required keys \['installation_steps'\]"):
         generate_adapters.validate_manifest(manifest, ROOT / "adapters" / "targets" / "cursor" / "manifest.yaml")
 
 
@@ -119,6 +121,7 @@ def test_build_content_includes_target_specific_install_and_handoff_sections() -
         "session_persistence": "rule-file persists across chat sessions until regenerated",
         "workspace_boundary": "project rules live under .cursor/rules and guide editor-native runs",
         "review_delivery": "chat summary plus artifact file updates inside the workspace",
+        "recovery_delivery_note": "Cursor delivers recovery through .cursor/rules guidance, not hooks.",
     }
 
     content = generate_adapters.build_content("cursor", manifest)
