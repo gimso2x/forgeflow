@@ -472,3 +472,48 @@ def test_audit_cli_human_output_handles_empty_log(tmp_path: Path) -> None:
     assert result.returncode == 0, result.stderr
     assert "Evolution audit log:" in result.stdout
     assert "- <none>" in result.stdout
+
+
+def test_retire_project_rule_moves_rule_out_of_active_registry_and_records_audit(tmp_path: Path) -> None:
+    adopt = adopt_example_rule(tmp_path, "no-env-commit", fallback_root=ROOT)
+
+    from forgeflow_runtime.evolution import retire_rule
+
+    result = retire_rule(tmp_path, "no-env-commit", reason="false positive in this project")
+
+    assert result["retired"] is True
+    assert result["rule_id"] == "no-env-commit"
+    assert not Path(adopt["destination"]).exists()
+    assert Path(result["destination"]).is_file()
+    registry = list_rules(tmp_path)
+    assert registry["project_rules"] == []
+    events = _audit_events(tmp_path)
+    assert events[-1]["event"] == "retire"
+    assert events[-1]["rule_id"] == "no-env-commit"
+    assert events[-1]["reason"] == "false positive in this project"
+
+
+def test_retire_cli_outputs_json_and_prevents_later_execute(tmp_path: Path) -> None:
+    subprocess.run(["git", "init"], cwd=tmp_path, check=True, capture_output=True)
+    adopt_example_rule(tmp_path, "no-env-commit", fallback_root=ROOT)
+
+    retire = subprocess.run(
+        [sys.executable, "scripts/forgeflow_evolution.py", "--root", str(tmp_path), "retire", "--rule", "no-env-commit", "--reason", "too noisy", "--json"],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    assert retire.returncode == 0, retire.stderr
+    payload = json.loads(retire.stdout)
+    assert payload["retired"] is True
+    execute = subprocess.run(
+        [sys.executable, "scripts/forgeflow_evolution.py", "--root", str(tmp_path), "execute", "--rule", "no-env-commit", "--i-understand-project-local-hard-rule"],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    assert execute.returncode == 1
+    assert "not found in project-local registry" in execute.stderr

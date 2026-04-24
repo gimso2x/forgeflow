@@ -15,6 +15,7 @@ EVOLUTION_EXAMPLES = [
     "no-env-commit-rule.json",
 ]
 PROJECT_RULE_DIR = Path(".forgeflow") / "evolution" / "rules"
+RETIRED_RULE_DIR = Path(".forgeflow") / "evolution" / "retired-rules"
 AUDIT_LOG_PATH = Path(".forgeflow") / "evolution" / "audit-log.jsonl"
 HARD_GATE_REQUIRES = {
     "project_local_enablement",
@@ -203,6 +204,40 @@ def _rule_filename(rule: dict[str, Any], source_path: Path) -> str:
     if isinstance(rule_id, str) and rule_id:
         return f"{rule_id}-rule.json"
     return source_path.name
+
+
+def retire_rule(root: Path, rule_id: str, *, reason: str) -> dict[str, Any]:
+    root = root.resolve()
+    if not reason.strip():
+        raise ValueError("retire reason must be non-empty")
+    rule, source, source_path = _load_rule_by_id(root, rule_id, allow_examples=False)
+    destination_dir = root / RETIRED_RULE_DIR
+    destination_dir.mkdir(parents=True, exist_ok=True)
+    destination = destination_dir / source_path.name
+    if destination.exists():
+        raise FileExistsError(f"retired evolution rule already exists: {destination}")
+    source_path.replace(destination)
+    result = {
+        "retired": True,
+        "rule_id": rule.get("id"),
+        "source": source,
+        "source_path": str(source_path),
+        "destination": str(destination),
+        "reason": reason,
+    }
+    _append_audit_event(
+        root,
+        {
+            "event": "retire",
+            "rule_id": result["rule_id"],
+            "source": source,
+            "source_path": result["source_path"],
+            "destination": result["destination"],
+            "reason": reason,
+            "passed": True,
+        },
+    )
+    return result
 
 
 def adopt_example_rule(root: Path, rule_id: str, *, fallback_root: Path | None = None) -> dict[str, Any]:
