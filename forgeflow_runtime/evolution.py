@@ -484,6 +484,140 @@ def execute_rule(root: Path, rule_id: str) -> dict[str, Any]:
     return result
 
 
+def _load_retired_rules(root: Path) -> list[tuple[dict[str, Any], Path]]:
+    retired_dir = root / RETIRED_RULE_DIR
+    if not retired_dir.is_dir():
+        return []
+    return [(_load_json(path), path) for path in sorted(retired_dir.glob("*.json"))]
+
+
+def _audit_required_field_issues(event: dict[str, Any], *, line_number: int) -> list[dict[str, Any]]:
+    required = {"schema_version", "timestamp", "event", "rule_id", "passed"}
+    missing = sorted(name for name in required if name not in event)
+    if not missing:
+        return []
+    return [
+        {
+            "severity": "error",
+            "code": "audit_event_missing_fields",
+            "line": line_number,
+            "missing_fields": missing,
+        }
+    ]
+
+
+def doctor_evolution_state(root: Path) -> dict[str, Any]:
+    """Read-only health check for the project-local evolution lifecycle.
+
+    Inspired by the closed-loop model: reactive fix learning, proactive feedback
+    learning, and meta effectiveness review are useful only when the local rule
+    registry and audit trail are parseable, safety-checked, and project-scoped.
+    """
+
+    root = root.resolve()
+    issues: list[dict[str, Any]] = []
+    active_rules: list[dict[str, Any]] = []
+    retired_rules: list[dict[str, Any]] = []
+
+    active_ids: set[str] = set()
+    retired_ids: set[str] = set()
+
+    for loader, bucket, ids, source, issue_code in [
+        (_load_project_rules, active_rules, active_ids, "active", "unsafe_active_rule"),
+        (_load_retired_rules, retired_rules, retired_ids, "retired", "unsafe_retired_rule"),
+    ]:
+        try:
+            loaded = loader(root)
+        except json.JSONDecodeError as exc:
+            issues.append(
+                {
+                    "severity": "error",
+                    "code": f"invalid_{source}_rule_json",
+                    "message": str(exc),
+                }
+            )
+            loaded = []
+        for rule, path in loaded:
+            rule_id = rule.get("id") or path.stem
+            safety_checks = _safety_checks(rule)
+            failed = _failed_safety_checks(safety_checks)
+            ids.add(str(rule_id))
+            bucket.append(
+                {
+                    "id": rule_id,
+                    "path": str(path),
+                    "safe_to_execute": not failed,
+                    "safety_checks": safety_checks,
+                    "failed_safety_checks": failed,
+                }
+            )
+            if failed:
+                issues.append(
+                    {
+                        "severity": "error" if source == "active" else "warning",
+                        "code": issue_code,
+                        "rule_id": rule_id,
+                        "path": str(path),
+                        "failed_safety_checks": failed,
+                    }
+                )
+
+    for duplicate in sorted(active_ids & retired_ids):
+        issues.append(
+            {
+                "severity": "error",
+                "code": "duplicate_active_retired_rule",
+                "rule_id": duplicate,
+            }
+        )
+
+    audit_path = root / AUDIT_LOG_PATH
+    audit_events_count = 0
+    last_event: dict[str, Any] | None = None
+    if audit_path.is_file():
+        for line_number, line in enumerate(audit_path.read_text(encoding="utf-8").splitlines(), start=1):
+            if not line.strip():
+                continue
+            try:
+                event = json.loads(line)
+            except json.JSONDecodeError as exc:
+                issues.append(
+                    {
+                        "severity": "error",
+                        "code": "invalid_audit_json",
+                        "line": line_number,
+                        "message": str(exc),
+                    }
+                )
+                continue
+            audit_events_count += 1
+            last_event = event
+            issues.extend(_audit_required_field_issues(event, line_number=line_number))
+
+    return {
+        "ok": not any(issue.get("severity") == "error" for issue in issues),
+        "root": str(root),
+        "summary": {
+            "active_rules": len(active_rules),
+            "retired_rules": len(retired_rules),
+            "audit_events": audit_events_count,
+            "last_event": last_event,
+            "unsafe_active_rules": sum(1 for rule in active_rules if not rule["safe_to_execute"]),
+            "unsafe_retired_rules": sum(1 for rule in retired_rules if not rule["safe_to_execute"]),
+            "restore_candidates": len(retired_rules),
+        },
+        "active_rules": active_rules,
+        "retired_rules": retired_rules,
+        "audit_log": str(audit_path),
+        "closed_loop_surfaces": {
+            "reactive_fix_learning": "advisory_metadata_only",
+            "proactive_feedback_learning": "raw_text_disabled",
+            "meta_effectiveness_review": "audit_backed_only",
+        },
+        "issues": issues,
+    }
+
+
 def inspect_evolution_policy(root: Path) -> dict[str, Any]:
     """Return a read-only summary of the canonical evolution policy.
 

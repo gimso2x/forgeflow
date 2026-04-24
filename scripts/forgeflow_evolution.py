@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from forgeflow_runtime.evolution import adopt_example_rule, audit_events, dry_run_rule, execute_rule, inspect_evolution_policy, list_rules, restore_rule, retire_rule
+from forgeflow_runtime.evolution import adopt_example_rule, audit_events, doctor_evolution_state, dry_run_rule, execute_rule, inspect_evolution_policy, list_rules, restore_rule, retire_rule
 
 
 def _target_root(args: argparse.Namespace) -> Path:
@@ -153,6 +153,35 @@ def cmd_restore(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_doctor(args: argparse.Namespace) -> int:
+    report = doctor_evolution_state(_target_root(args))
+    if args.json:
+        print(json.dumps(report, ensure_ascii=False, indent=2))
+        return 0 if report["ok"] else 1
+    print(f"Evolution doctor: {'ok' if report['ok'] else 'issues found'}")
+    print(f"- root: {report['root']}")
+    print(f"- active rules: {report['summary']['active_rules']}")
+    print(f"- retired rules: {report['summary']['retired_rules']}")
+    print(f"- audit events: {report['summary']['audit_events']}")
+    print(f"- unsafe active rules: {report['summary']['unsafe_active_rules']}")
+    print(f"- restore candidates: {report['summary']['restore_candidates']}")
+    print("- closed-loop surfaces:")
+    surfaces = report["closed_loop_surfaces"]
+    print(f"  - reactive fix learning: {surfaces['reactive_fix_learning'].replace('_', ' ')}")
+    print(f"  - proactive feedback learning: {surfaces['proactive_feedback_learning'].replace('_', ' ')}")
+    meta_text = surfaces['meta_effectiveness_review'].replace('audit_backed', 'audit-backed').replace('_', ' ')
+    print(f"  - meta effectiveness review: {meta_text}")
+    if report["issues"]:
+        print("- issues:")
+        for issue in report["issues"]:
+            rule_text = f" rule={issue['rule_id']}" if issue.get("rule_id") else ""
+            line_text = f" line={issue['line']}" if issue.get("line") else ""
+            print(f"  - {issue['severity']} {issue['code']}{rule_text}{line_text}")
+    else:
+        print("- issues: <none>")
+    return 0 if report["ok"] else 1
+
+
 def cmd_audit(args: argparse.Namespace) -> int:
     try:
         result = audit_events(_target_root(args), limit=args.limit)
@@ -208,6 +237,9 @@ def build_parser() -> argparse.ArgumentParser:
     restore.add_argument("--reason", required=True)
     restore.add_argument("--json", action="store_true")
     restore.set_defaults(func=cmd_restore)
+    doctor = sub.add_parser("doctor", help="read-only project-local evolution health check")
+    doctor.add_argument("--json", action="store_true")
+    doctor.set_defaults(func=cmd_doctor)
     audit = sub.add_parser("audit", help="show recent project-local evolution audit events")
     audit.add_argument("--limit", type=int, default=20)
     audit.add_argument("--json", action="store_true")

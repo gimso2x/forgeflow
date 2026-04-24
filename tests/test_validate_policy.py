@@ -256,6 +256,7 @@ def test_evolution_model_doc_captures_global_advisory_project_enforcement_contra
     assert ".forgeflow/evolution/retired-rules" in text
     assert "retire" in text
     assert "restore" in text
+    assert "doctor --json" in text
     assert "audit --limit" in text
     assert "--i-understand-project-local-hard-rule" in text
 

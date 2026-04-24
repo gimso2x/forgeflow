@@ -98,6 +98,7 @@ dry-run  -> show command and safety checks without executing
 execute  -> run only project-local adopted rules with explicit acknowledgement
 retire   -> move a project-local rule into .forgeflow/evolution/retired-rules with a reason
 restore  -> move a retired rule back into .forgeflow/evolution/rules with a reason
+doctor   -> read-only health check for active/retired rules and audit JSONL
 audit    -> show recent project-local lifecycle/execution events
 ```
 
@@ -156,3 +157,11 @@ The audit log records adopt, execute, retire, and restore events:
 ```bash
 python3 scripts/forgeflow_evolution.py audit --limit 20
 ```
+
+`doctor` is the read-only rot detector for the closed loop:
+
+```bash
+python3 scripts/forgeflow_evolution.py doctor --json
+```
+
+It checks active rules, retired rules, duplicate active/retired IDs, audit-log JSONL parsing, and required audit event fields. The closed-loop surfaces stay deliberately constrained: reactive fix learning is advisory metadata only, proactive feedback learning keeps raw text disabled, and meta effectiveness review is audit-backed only.
