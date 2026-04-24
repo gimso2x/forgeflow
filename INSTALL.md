@@ -24,22 +24,24 @@ claude plugin install forgeflow
 설치 후 새 Claude Code 세션을 열고 단계별 slash skill로 진행하세요.
 
 ```text
-/clarify <하고 싶은 작업>
-/plan
-/run
-/review
-/ship
+/forgeflow:clarify <하고 싶은 작업>
+/forgeflow:plan
+/forgeflow:run
+/forgeflow:review
+/forgeflow:ship
 ```
 
-요구사항을 먼저 더 단단히 뽑아야 하는 작업이면 `/clarify` 다음에 `/specify`를 끼웁니다.
+짧은 이름(`/clarify`, `/plan`, `/review`, `/ship`)도 동작할 수 있지만, 다른 Claude plugin/gstack skill과 충돌할 수 있습니다. 운영에서는 **항상 `/forgeflow:<stage>` 네임스페이스 형식**을 권장합니다. 특히 `/review`와 `/ship`은 충돌 가능성이 높습니다.
+
+요구사항을 먼저 더 단단히 뽑아야 하는 작업이면 `/forgeflow:clarify` 다음에 `/forgeflow:specify`를 끼웁니다.
 
 ```text
-/clarify <하고 싶은 작업>
-/specify
-/plan
+/forgeflow:clarify <하고 싶은 작업>
+/forgeflow:specify
+/forgeflow:plan
 ```
 
-`/forgeflow`는 전체 workflow 설명/입구입니다. 실제 작업 진행은 `/clarify`부터 시작하는 게 맞습니다.
+`/forgeflow`는 전체 workflow 설명/입구입니다. 실제 작업 진행은 `/forgeflow:clarify`부터 시작하는 게 맞습니다.
 
 ## 수동 Claude Code 설치
 
