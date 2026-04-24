@@ -22,6 +22,17 @@ def test_validate_policy_passes_repo_policy() -> None:
     assert errors == []
 
 
+def test_repo_policy_defines_self_evolution_ssot() -> None:
+    validate_policy = _load_validate_policy_module()
+
+    evolution = validate_policy._load_yaml(ROOT / "policy" / "canonical" / "evolution.yaml")
+
+    assert evolution["scope"] == "project-local"
+    assert evolution["default_artifact_root"] == ".forgeflow/evolution"
+    assert "global_user_scope" in evolution["forbidden_targets"]
+    assert evolution["authority"] == ["eval-record", "decision-log", "review-report", "run-state"]
+
+
 def test_validate_policy_rejects_structurally_invalid_yaml_fixture(tmp_path: Path) -> None:
     validate_policy = _load_validate_policy_module()
     fixture_root = tmp_path / "fixture"
@@ -107,6 +118,21 @@ routes:
 """,
         encoding="utf-8",
     )
+    (policy_dir / "evolution.yaml").write_text(
+        """version: 0.1
+scope: project-local
+default_artifact_root: .forgeflow/evolution
+authority: [eval-record, decision-log, review-report, run-state]
+triggers: [repeated failure pattern with evidence]
+non_negotiables:
+  - self-evolution must be proposed from project-local artifacts, not chat vibes
+  - no global user-scope writes by default
+  - every proposed harness change needs verification evidence before adoption
+forbidden_targets: [global_user_scope]
+outputs: [evolution-proposal, verification-evidence, decision-log]
+""",
+        encoding="utf-8",
+    )
     (docs_dir / "review-model.md").write_text(
         "spec-review 승인 전 finalize 금지\nquality-review 승인 전 high-risk finalize 금지\nrun-state.spec_review_approved\n",
         encoding="utf-8",
@@ -117,7 +143,7 @@ routes:
             '{"type":"object","required":["schema_version","task_id"]}', encoding="utf-8"
         )
 
-    for policy_schema_name in ["workflow", "stages", "gates", "complexity-routing"]:
+    for policy_schema_name in ["workflow", "stages", "gates", "complexity-routing", "evolution"]:
         (policy_schema_dir / f"{policy_schema_name}.schema.json").write_text(
             (ROOT / "schemas" / "policy" / f"{policy_schema_name}.schema.json").read_text(encoding="utf-8"),
             encoding="utf-8",

@@ -1,0 +1,25 @@
+version: 0.1
+scope: project-local
+default_artifact_root: .forgeflow/evolution
+authority:
+  - eval-record
+  - decision-log
+  - review-report
+  - run-state
+triggers:
+  - repeated failure pattern with evidence
+  - review finding that implies reusable harness improvement
+  - eval-record marked worth_long_run_capture
+non_negotiables:
+  - self-evolution must be proposed from project-local artifacts, not chat vibes
+  - no global user-scope writes by default
+  - every proposed harness change needs verification evidence before adoption
+  - generated adapters must be regenerated from canonical sources, not hand-edited
+forbidden_targets:
+  - global_user_scope
+  - home_directory_memory
+  - unreviewed_generated_adapter_edits
+outputs:
+  - evolution-proposal
+  - verification-evidence
+  - decision-log

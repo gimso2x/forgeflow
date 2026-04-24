@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "scope",
+    "default_artifact_root",
+    "authority",
+    "triggers",
+    "non_negotiables",
+    "forbidden_targets",
+    "outputs"
+  ],
+  "properties": {
+    "version": {"type": ["string", "number"]},
+    "scope": {"const": "project-local"},
+    "default_artifact_root": {"const": ".forgeflow/evolution"},
+    "authority": {
+      "type": "array",
+      "minItems": 4,
+      "uniqueItems": true,
+      "items": {"enum": ["eval-record", "decision-log", "review-report", "run-state"]}
+    },
+    "triggers": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "non_negotiables": {
+      "type": "array",
+      "minItems": 3,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "forbidden_targets": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "outputs": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    }
+  }
+}

@@ -132,8 +132,10 @@ P0에서 일부러 안 넣는 것:
 - plugin marketplace
 - persona zoo
 - giant command taxonomy
-- auto-self-evolution loop
+- autonomous auto-apply loop
 - cross-project magical memory
+
+P0에 들어가는 self-evolution의 정본은 `policy/canonical/evolution.yaml`이다. 단, 의미는 **프로젝트 로컬 artifact 기반 개선 제안/검증 정책**이지, 전역 사용자 메모리에 알아서 쓰거나 generated adapter를 손으로 고치는 자동 마법이 아니다.
 
 ---
 

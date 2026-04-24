@@ -45,6 +45,7 @@ def validate_policy_root(root: Path) -> list[str]:
         "stages": _load_yaml(canonical_dir / "stages.yaml"),
         "gates": _load_yaml(canonical_dir / "gates.yaml"),
         "complexity-routing": _load_yaml(canonical_dir / "complexity-routing.yaml"),
+        "evolution": _load_yaml(canonical_dir / "evolution.yaml"),
     }
 
     policy_schema_dir = root / "schemas" / "policy"
@@ -126,6 +127,16 @@ def validate_policy_root(root: Path) -> list[str]:
     if "run-state.spec_review_approved" not in review_text:
         errors.append("review-model missing run-state approval flag guidance")
 
+    evolution = policy_docs["evolution"]
+    if evolution.get("scope") != "project-local":
+        errors.append("evolution scope must be project-local")
+    if evolution.get("default_artifact_root") != ".forgeflow/evolution":
+        errors.append("evolution default_artifact_root must be .forgeflow/evolution")
+    if "global_user_scope" not in evolution.get("forbidden_targets", []):
+        errors.append("evolution must forbid global_user_scope by default")
+    if evolution.get("authority") != ["eval-record", "decision-log", "review-report", "run-state"]:
+        errors.append("evolution authority must be artifact-first")
+
     long_run_text = (root / "docs" / "long-run-model.md").read_text(encoding="utf-8")
     for required in ["eval-record.json", "worth_long_run_capture", "No evidence, no memory", "do not retain"]:
         if required not in long_run_text:
@@ -156,6 +167,7 @@ def main() -> int:
     print(f"- review order: {_load_yaml(ROOT / 'policy' / 'canonical' / 'workflow.yaml')['review_order']}")
     print(f"- routes checked: {routes}")
     print("- review gate semantics: bound to review_type and run-state flags")
+    print("- self-evolution: project-local artifact-first policy")
     return 0
 
 
