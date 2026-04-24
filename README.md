@@ -146,6 +146,16 @@ make check-env
 make validate
 ```
 
+### Updating an existing checkout
+
+```bash
+git -C /path/to/forgeflow pull
+make -C /path/to/forgeflow setup
+make -C /path/to/forgeflow check-env
+make -C /path/to/forgeflow validate
+```
+
+Use `make -C /path/to/forgeflow ...` so dependency refresh and validation run inside the ForgeFlow checkout regardless of the current shell location. Re-run `setup` before `check-env` and `validate` so a new release adds dependencies without leaving the local runtime stale.
 
 ## What ForgeFlow does
 - models work as a stage machine

@@ -1,9 +1,10 @@
 # ForgeFlow AutoResearch Hypotheses
 
 ## Pending
-- [AUTO-007] Inspect update/release documentation for command-context consistency and add one narrow doc contract if another copy-paste path can drift.
+- [AUTO-008] Inspect README/INSTALL validation snippets for remaining duplicate command-order assumptions and centralize or test one adjacent drift-prone contract if found.
 
 ## Completed
+- [EXP-007] KEEP 2026-04-25: [AUTO-007] Inspect update/release documentation for command-context consistency and add one narrow doc contract if another copy-paste path can drift.
 - [EXP-006] KEEP 2026-04-25: [AUTO-006] Inspect release/first-clone setup docs against scripts and add a regression if setup commands can drift.
 - [EXP-005] KEEP 2026-04-25: [AUTO-005] Look for duplicated test fixture/assertion scaffolding in recent ForgeFlow tests and centralize only if it removes real drift risk without hiding intent.
 - [EXP-004] KEEP 2026-04-25: [AUTO-004] Review Claude hook recovery outputs for actionable wording consistency and add focused smoke coverage for any missing failure class.

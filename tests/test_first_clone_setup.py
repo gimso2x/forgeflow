@@ -48,6 +48,16 @@ def test_install_update_path_rechecks_first_clone_dependencies_before_validation
     assert "새 dependency가 추가된 release" in update_section
 
 
+def test_readme_update_path_keeps_make_commands_in_checkout_context() -> None:
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    update_section = readme.split("### Updating an existing checkout", 1)[1].split("## What ForgeFlow does", 1)[0]
+
+    assert "git -C /path/to/forgeflow pull" in update_section
+    assert update_section.index("make -C /path/to/forgeflow setup") < update_section.index("make -C /path/to/forgeflow check-env") < update_section.index("make -C /path/to/forgeflow validate")
+    assert "current shell location" in update_section
+    assert "new release adds dependencies" in update_section
+
+
 def test_readme_documents_project_team_preset_installer() -> None:
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
 
