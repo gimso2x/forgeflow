@@ -38,6 +38,16 @@ def test_readme_quickstart_starts_with_first_clone_setup() -> None:
     assert "No hidden local environment is assumed" in readme
 
 
+def test_install_update_path_rechecks_first_clone_dependencies_before_validation() -> None:
+    install = (ROOT / "INSTALL.md").read_text(encoding="utf-8")
+    update_section = install.split("## 업데이트", 1)[1]
+
+    assert "git -C /path/to/forgeflow pull" in update_section
+    assert update_section.index("make -C /path/to/forgeflow setup") < update_section.index("make -C /path/to/forgeflow check-env") < update_section.index("make -C /path/to/forgeflow validate")
+    assert "현재 shell 위치와 무관하게" in update_section
+    assert "새 dependency가 추가된 release" in update_section
+
+
 def test_readme_documents_project_team_preset_installer() -> None:
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
 

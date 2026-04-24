@@ -174,9 +174,13 @@ python3 scripts/run_orchestrator.py execute \
 
 ```bash
 git -C /path/to/forgeflow pull
-make validate
+make -C /path/to/forgeflow setup
+make -C /path/to/forgeflow check-env
+make -C /path/to/forgeflow validate
 ```
 
+현재 shell 위치와 무관하게 ForgeFlow checkout 안에서 실행되도록 `make -C /path/to/forgeflow ...`를 사용합니다.
+새 dependency가 추가된 release도 놓치지 않도록 `make setup`으로 `.venv`를 갱신한 뒤 `make check-env`와 `make validate`를 실행합니다.
 수동 adapter 복사 방식이면 pull 후 다시 복사하세요.
 
 ```bash
