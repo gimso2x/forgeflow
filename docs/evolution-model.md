@@ -101,6 +101,8 @@ restore  -> move a retired rule back into .forgeflow/evolution/rules with a reas
 doctor        -> read-only health check for active/retired rules and audit JSONL
 effectiveness -> read-only audit-backed rule effectiveness review
 promotion-plan -> read-only promotion proposal with evidence, approvals, and risk flags
+proposal-review -> read-only validation of a persisted proposal
+proposal-approve -> append-only human approval ledger; no promotion or rule mutation
 audit         -> show recent project-local lifecycle/execution events
 ```
 
@@ -227,3 +229,22 @@ python3 scripts/forgeflow_evolution.py proposal-review \
 ```
 
 It checks that the proposal is valid JSON, still says `would_mutate=false` and `would_promote=false`, has `recommendation=promotion_candidate`, includes required human approvals and risk flags, has enough evidence summary, and still maps to an active project-local rule. Failed review returns a clean error status with issue codes; it does not append audit events or change rules.
+
+`proposal-approve` records one required human approval for a proposal that still passes `proposal-review`:
+
+```bash
+python3 scripts/forgeflow_evolution.py proposal-approve \
+  --proposal .forgeflow/evolution/proposals/<timestamp>-no-env-commit-promotion-plan.json \
+  --approval maintainer_approval \
+  --approver "kim" \
+  --reason "reviewed evidence" \
+  --json
+```
+
+Approval records are append-only JSONL files under:
+
+```text
+.forgeflow/evolution/proposal-approvals/<proposal-id>.jsonl
+```
+
+The command requires a non-empty approver and reason, accepts only approvals listed in `required_human_approvals`, and rejects proposals that fail review. Repeated approvals are allowed as explicit duplicate records because append-only ledgers should not silently rewrite history. It still reports `would_promote=false` and `would_mutate_rules=false`; this is a paper trail, not a launch button.

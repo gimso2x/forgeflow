@@ -17,6 +17,7 @@ EVOLUTION_EXAMPLES = [
 PROJECT_RULE_DIR = Path(".forgeflow") / "evolution" / "rules"
 RETIRED_RULE_DIR = Path(".forgeflow") / "evolution" / "retired-rules"
 PROPOSAL_DIR = Path(".forgeflow") / "evolution" / "proposals"
+PROPOSAL_APPROVAL_DIR = Path(".forgeflow") / "evolution" / "proposal-approvals"
 AUDIT_LOG_PATH = Path(".forgeflow") / "evolution" / "audit-log.jsonl"
 HARD_GATE_REQUIRES = {
     "project_local_enablement",
@@ -230,6 +231,72 @@ def proposal_review(root: Path, proposal_path: Path) -> dict[str, Any]:
         "valid": not issues,
         "active_rule_exists": active_rule_exists,
         "issues": issues,
+    }
+
+
+def _proposal_approval_path(root: Path, proposal_path: Path) -> Path:
+    safe_id = "".join(char if char.isalnum() or char in {"-", "_"} else "-" for char in proposal_path.stem).strip("-") or "proposal"
+    return root / PROPOSAL_APPROVAL_DIR / f"{safe_id}.jsonl"
+
+
+def _read_proposal_approval_records(path: Path) -> list[dict[str, Any]]:
+    if not path.is_file():
+        return []
+    return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
+
+
+def proposal_approve(root: Path, proposal_path: Path, *, approval: str, approver: str, reason: str) -> dict[str, Any]:
+    """Append an approval record for a valid persisted proposal without promoting."""
+
+    root = root.resolve()
+    proposal_path = proposal_path.resolve()
+    approval = approval.strip()
+    approver = approver.strip()
+    reason = reason.strip()
+    if not approver or not reason:
+        raise ValueError("approver and reason must be non-empty")
+    if not approval:
+        raise ValueError("approval must be non-empty")
+
+    review = proposal_review(root, proposal_path)
+    if not review["valid"]:
+        issue_codes = ", ".join(issue["code"] for issue in review["issues"])
+        raise ValueError(f"proposal review failed: {issue_codes}")
+
+    proposal = _load_json(proposal_path)
+    required_approvals = proposal.get("required_human_approvals")
+    if not isinstance(required_approvals, list) or approval not in required_approvals:
+        raise ValueError(f"approval is not required by proposal: {approval}")
+
+    approvals_path = _proposal_approval_path(root, proposal_path)
+    approvals_path.parent.mkdir(parents=True, exist_ok=True)
+    existing = _read_proposal_approval_records(approvals_path)
+    duplicate = any(record.get("approval") == approval and record.get("approver") == approver for record in existing)
+    record = {
+        "schema_version": 1,
+        "timestamp": _utc_timestamp(),
+        "proposal_path": str(proposal_path),
+        "rule_id": review["rule_id"],
+        "approval": approval,
+        "approver": approver,
+        "reason": reason,
+        "duplicate": duplicate,
+        "would_promote": False,
+        "would_mutate_rules": False,
+    }
+    with approvals_path.open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps(record, ensure_ascii=False, sort_keys=True) + "\n")
+    return {
+        "proposal_path": str(proposal_path),
+        "approval_path": str(approvals_path),
+        "rule_id": review["rule_id"],
+        "approval": approval,
+        "approver": approver,
+        "reason": reason,
+        "duplicate": duplicate,
+        "would_promote": False,
+        "would_mutate_rules": False,
+        "review": review,
     }
 
 

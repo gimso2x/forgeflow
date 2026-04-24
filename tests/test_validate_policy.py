@@ -262,7 +262,10 @@ def test_evolution_model_doc_captures_global_advisory_project_enforcement_contra
     assert ".forgeflow/evolution/proposals" in text
     assert "--write" in text
     assert "proposal-review" in text
+    assert "proposal-approve" in text
+    assert ".forgeflow/evolution/proposal-approvals" in text
     assert "would_promote=false" in text
+    assert "would_mutate_rules=false" in text
     assert "required_human_approvals" in text
     assert "would_mutate=false" in text
     assert "audit --limit" in text

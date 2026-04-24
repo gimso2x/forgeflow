@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from forgeflow_runtime.evolution import adopt_example_rule, audit_events, doctor_evolution_state, dry_run_rule, effectiveness_review, execute_rule, inspect_evolution_policy, list_rules, promotion_plan, proposal_review, restore_rule, retire_rule, write_promotion_plan
+from forgeflow_runtime.evolution import adopt_example_rule, audit_events, doctor_evolution_state, dry_run_rule, effectiveness_review, execute_rule, inspect_evolution_policy, list_rules, promotion_plan, proposal_approve, proposal_review, restore_rule, retire_rule, write_promotion_plan
 
 
 def _target_root(args: argparse.Namespace) -> Path:
@@ -263,6 +263,32 @@ def cmd_proposal_review(args: argparse.Namespace) -> int:
     return 0 if result["valid"] else 1
 
 
+def cmd_proposal_approve(args: argparse.Namespace) -> int:
+    try:
+        result = proposal_approve(
+            _target_root(args),
+            Path(args.proposal),
+            approval=args.approval,
+            approver=args.approver,
+            reason=args.reason,
+        )
+    except ValueError as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 1
+    if args.json:
+        print(json.dumps(result, ensure_ascii=False, indent=2))
+        return 0
+    print(f"Evolution proposal approval recorded: {result['approval_path']}")
+    print(f"- proposal: {result['proposal_path']}")
+    print(f"- rule: {result['rule_id']}")
+    print(f"- approval: {result['approval']}")
+    print(f"- approver: {result['approver']}")
+    print(f"- duplicate: {str(result['duplicate']).lower()}")
+    print(f"- would promote: {str(result['would_promote']).lower()}")
+    print(f"- would mutate rules: {str(result['would_mutate_rules']).lower()}")
+    return 0
+
+
 def cmd_audit(args: argparse.Namespace) -> int:
     try:
         result = audit_events(_target_root(args), limit=args.limit)
@@ -336,6 +362,13 @@ def build_parser() -> argparse.ArgumentParser:
     proposal_review_cmd.add_argument("--proposal", required=True)
     proposal_review_cmd.add_argument("--json", action="store_true")
     proposal_review_cmd.set_defaults(func=cmd_proposal_review)
+    proposal_approve_cmd = sub.add_parser("proposal-approve", help="append an approval record for a valid promotion proposal")
+    proposal_approve_cmd.add_argument("--proposal", required=True)
+    proposal_approve_cmd.add_argument("--approval", required=True)
+    proposal_approve_cmd.add_argument("--approver", required=True)
+    proposal_approve_cmd.add_argument("--reason", required=True)
+    proposal_approve_cmd.add_argument("--json", action="store_true")
+    proposal_approve_cmd.set_defaults(func=cmd_proposal_approve)
     audit = sub.add_parser("audit", help="show recent project-local evolution audit events")
     audit.add_argument("--limit", type=int, default=20)
     audit.add_argument("--json", action="store_true")
