@@ -374,10 +374,12 @@ This creates schema-valid starter artifacts and leaves the task at `clarify`.
 ### 7. Inspect the fixture state
 
 ```bash
-python3 scripts/run_orchestrator.py status --task-dir examples/runtime-fixtures/small-doc-task
+make setup
+make check-env
+make orchestrator-status
 ```
 
-Manual `run_orchestrator.py` commands mutate their target `--task-dir`; use `run_runtime_sample.py` for demos unless mutation is intentional.
+Read-only status inspection is repo-managed through `make orchestrator-status`. Other manual `run_orchestrator.py` commands mutate their target `--task-dir`; use `run_runtime_sample.py` for demos unless mutation is intentional.
 
 ### 7. Use an adapter in another project
 
@@ -397,7 +399,7 @@ python3 scripts/run_orchestrator.py --help
 make setup
 make check-env
 make runtime-sample
-python3 scripts/run_orchestrator.py status --task-dir examples/runtime-fixtures/small-doc-task
+make orchestrator-status
 python3 scripts/run_orchestrator.py execute --task-dir examples/runtime-fixtures/small-doc-task --route small --adapter codex
 python3 scripts/run_orchestrator.py execute --task-dir examples/runtime-fixtures/small-doc-task --route small --adapter claude --real
 python3 scripts/run_orchestrator.py run --task-dir examples/runtime-fixtures/small-doc-task --min-route medium

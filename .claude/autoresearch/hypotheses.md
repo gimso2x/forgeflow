@@ -1,10 +1,10 @@
 # ForgeFlow AutoResearch Hypotheses
 
 ## Pending
-- [AUTO-023] Inspect README operator shell sections adjacent to direct run_orchestrator.py status examples and add one narrow docs/test alignment only if current first-clone guidance still bypasses the repo-managed orchestrator-status target.
-
+- [AUTO-024] Inspect README quickstart/operator shell adjacent numbering around repeated `### 7` sections and add one narrow docs/test alignment only if the duplicate numbering can confuse first-clone flow without touching runtime behavior.
 
 ## Completed
+- [EXP-023] KEEP 2026-04-25: [AUTO-023] Inspect README operator shell sections adjacent to direct run_orchestrator.py status examples and add one narrow docs/test alignment only if current first-clone guidance still bypasses the repo-managed orchestrator-status target.
 - [EXP-022] KEEP 2026-04-25: [AUTO-022] Inspect scripts/run_orchestrator.py top-level help Manual stage control examples for read-only status drift versus repo-managed status target, and add one narrow help regression only if it improves fresh-clone operator guidance without hiding mutating commands.
 - [EXP-021] KEEP 2026-04-25: [AUTO-021] Inspect scripts/run_orchestrator.py top-level help examples for stale fallback entry wording adjacent to start/run, and add one narrow doc/help regression only if it reduces operator confusion without hiding mutating commands.
 - [EXP-020] KEEP 2026-04-25: [AUTO-020] Inspect docs/operator-shell.md Common commands for the next read-only or low-risk inspect command adjacent to status, and add a repo-managed Make target or explicit setup guidance only if it reduces fresh-clone Python drift without masking mutating operations.

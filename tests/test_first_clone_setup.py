@@ -148,6 +148,24 @@ def test_readme_operator_shell_uses_repo_managed_runtime_sample_target() -> None
     assert "python3 scripts/run_runtime_sample.py" not in operator_section
 
 
+def test_readme_uses_repo_managed_status_target_for_read_only_fixture_inspection() -> None:
+    makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    inspect_section = readme.split("### 7. Inspect the fixture state", 1)[1].split("### 7. Use an adapter", 1)[0]
+    operator_section = readme.split("## Operator shell", 1)[1].split("## Using ForgeFlow in Codex", 1)[0]
+
+    assert "orchestrator-status:" in makefile
+    assert "$(VENV_PYTHON) scripts/run_orchestrator.py status --task-dir examples/runtime-fixtures/small-doc-task" in makefile
+    assert "make setup" in inspect_section
+    assert "make check-env" in inspect_section
+    assert "make orchestrator-status" in inspect_section.splitlines()
+    assert inspect_section.index("make setup") < inspect_section.index("make check-env") < inspect_section.index("make orchestrator-status")
+    assert "make orchestrator-status" in operator_section.splitlines()
+    assert operator_section.index("make setup") < operator_section.index("make check-env") < operator_section.index("make orchestrator-status")
+    assert "python3 scripts/run_orchestrator.py status" not in inspect_section
+    assert "python3 scripts/run_orchestrator.py status" not in operator_section
+
+
 def test_operator_shell_doc_uses_repo_managed_runtime_sample_target() -> None:
     makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
     doc = (ROOT / "docs/operator-shell.md").read_text(encoding="utf-8")
