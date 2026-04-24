@@ -2600,9 +2600,9 @@ def test_readme_examples_describe_manual_execution_flow() -> None:
 
     assert "## Quickstart" in readme
     assert "make validate" in readme
-    assert "python3 scripts/run_orchestrator.py --help" in readme
+    assert "make orchestrator-help" in readme
+    assert "make runtime-sample" in readme
     assert "scripts/run_orchestrator.py init" in readme
-    assert "scripts/run_runtime_sample.py --fixture-dir" in readme
     assert "Manual `run_orchestrator.py` commands mutate their target `--task-dir`" in readme
     assert "scripts/run_orchestrator.py execute --task-dir" in readme
     assert "advance --execute" in readme
