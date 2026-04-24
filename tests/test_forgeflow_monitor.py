@@ -109,6 +109,29 @@ def test_monitor_tolerates_missing_and_malformed_artifacts(tmp_path):
     assert payload["summary"]["artifact_errors"] == 1
 
 
+def test_monitor_summarizes_partial_review_artifacts_without_run_state(tmp_path):
+    tasks = tmp_path / ".forgeflow" / "tasks"
+    write_json(
+        tasks / "review-only-task" / "review-report.json",
+        {
+            "approved": False,
+            "findings": [{"summary": "quality gate evidence missing"}],
+        },
+    )
+
+    result = run_monitor("--tasks", str(tasks), "--format", "json")
+
+    assert result.returncode == 0, result.stderr
+    payload = json.loads(result.stdout)
+    assert payload["summary"]["total_tasks"] == 1
+    assert payload["summary"]["unknown"] == 1
+    assert payload["summary"]["review_rejected"] == 1
+    assert payload["summary"]["artifact_errors"] == 0
+    assert payload["tasks"][0]["task_id"] == "review-only-task"
+    assert payload["tasks"][0]["review_status"] == "rejected"
+    assert payload["top_failure_patterns"] == [{"message": "quality gate evidence missing", "count": 1}]
+
+
 def test_monitor_missing_tasks_root_returns_empty_summary(tmp_path):
     result = run_monitor("--tasks", str(tmp_path / "missing"), "--format", "json")
 
