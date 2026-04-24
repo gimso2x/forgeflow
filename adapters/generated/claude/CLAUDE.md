@@ -58,6 +58,137 @@ notes:
   - Adapter-specific delivery mechanisms may differ, but the shared rules must remain consistent.
 ```
 
+## Team pattern guidance
+Use these patterns to choose orchestration shape; do not treat them as target-specific runtime primitives.
+```yaml
+version: 0.1
+title: ForgeFlow Team Pattern Contract
+purpose: Adapter-neutral orchestration shape guidance for selecting how work should be decomposed, coordinated, reviewed, and resumed.
+patterns:
+  pipeline:
+    summary: Sequential dependent stages where each output becomes the next input.
+    when_to_use:
+      - Work has clear stage dependencies.
+      - Later steps need approved artifacts from earlier steps.
+      - Integration risk is lower than ordering risk.
+    avoid_when:
+      - Most subtasks can proceed independently.
+      - A slow early stage would block useful parallel work.
+    parallelism: low
+    coordination_cost: low
+    required_artifacts:
+      - phase output per stage
+      - handoff note between adjacent stages
+      - plan-ledger entry for each completed stage
+    recommended_review_gate: quality-review
+    adapter_delivery: Adapters may express this as sequential instructions, chained tasks, or stage-by-stage prompts.
+  fanout_fanin:
+    summary: Parallel independent work streams that converge into one synthesized artifact.
+    when_to_use:
+      - Multiple perspectives can inspect the same input independently.
+      - Research, review, or migration slices can run without blocking each other.
+      - The final answer benefits from disagreement and source comparison.
+    avoid_when:
+      - Work streams mutate the same files without a clear merge plan.
+      - Subtasks need constant real-time negotiation.
+    parallelism: high
+    coordination_cost: medium
+    required_artifacts:
+      - per-worker artifact
+      - synthesis artifact with source attribution
+      - conflict log for disagreements or incompatible outputs
+    recommended_review_gate: quality-review
+    adapter_delivery: Adapters may use parallel agents, background tasks, or explicit independent work packets followed by synthesis.
+  expert_pool:
+    summary: Route to one or more specialists based on the task shape instead of invoking everyone.
+    when_to_use:
+      - Inputs vary by domain or failure mode.
+      - Only a subset of specialists is relevant for a given task.
+      - Cost and context discipline matter more than broad coverage.
+    avoid_when:
+      - Every specialist must inspect the same artifact for assurance.
+      - Routing criteria are unknown or unstable.
+    parallelism: selective
+    coordination_cost: low
+    required_artifacts:
+      - routing decision with selected expert and reason
+      - selected expert output
+      - skipped expert rationale when risk is non-obvious
+    recommended_review_gate: quality-review
+    adapter_delivery: Adapters may express this as routing guidance, role selection, or conditional delegation.
+  producer_reviewer:
+    summary: One role creates or changes an artifact; another independently reviews it before approval.
+    when_to_use:
+      - Quality bar is explicit and reviewable.
+      - The producer is likely to miss its own mistakes.
+      - Rework loops are acceptable and bounded.
+    avoid_when:
+      - There is no objective review criterion.
+      - The loop can continue indefinitely without a retry cap.
+    parallelism: medium
+    coordination_cost: medium
+    required_artifacts:
+      - produced artifact
+      - review report with pass/fail evidence
+      - bounded rework log when changes are requested
+    recommended_review_gate: spec-review + quality-review
+    adapter_delivery: Adapters may use separate reviewer prompts, review files, or role-specific review gates.
+  supervisor:
+    summary: A coordinator tracks dynamic work, assigns chunks, monitors progress, and handles blocked workers.
+    when_to_use:
+      - Work volume or chunk boundaries are discovered at runtime.
+      - Workers can become blocked and need reassignment.
+      - Progress tracking matters as much as raw execution.
+    avoid_when:
+      - A static plan is enough.
+      - The coordinator would become a bottleneck for tiny tasks.
+    parallelism: dynamic
+    coordination_cost: high
+    required_artifacts:
+      - task inventory
+      - assignment ledger
+      - progress and blocker log
+      - final synthesis or completion report
+    recommended_review_gate: quality-review
+    adapter_delivery: Adapters may express this as a coordinator role, task board, or explicit assignment ledger.
+  hierarchical_delegation:
+    summary: Decompose a large problem into bounded subdomains with local leads and leaf workers.
+    when_to_use:
+      - The problem naturally splits into nested domains.
+      - Each domain needs local planning before execution.
+      - Context would overflow a flat team.
+    avoid_when:
+      - More than two levels would hide evidence or create latency.
+      - Leaf work can be coordinated with a flat fanout instead.
+    parallelism: high
+    coordination_cost: very high
+    required_artifacts:
+      - hierarchy map
+      - subdomain plans
+      - leaf artifacts
+      - rollup summaries with evidence links
+    recommended_review_gate: spec-review + quality-review
+    adapter_delivery: Adapters may flatten this into staged delegations when nested teams are unavailable.
+  hybrid:
+    summary: Combine patterns phase-by-phase while preserving artifact handoffs and review gates.
+    when_to_use:
+      - Different phases need different coordination shapes.
+      - A task starts with exploration, moves to production, then needs independent review.
+      - Runtime conditions require switching modes without discarding artifacts.
+    avoid_when:
+      - A single simpler pattern covers the work.
+      - The hybrid plan lacks explicit phase boundaries.
+    parallelism: variable
+    coordination_cost: high
+    required_artifacts:
+      - phase pattern map
+      - artifact handoff map
+      - mode-switch rationale
+      - review gate placement per phase
+    recommended_review_gate: incremental quality-review
+    adapter_delivery: Adapters may express this as phase-specific instructions while keeping canonical gates intact.
+```
+
 ## Canonical workflow snapshot
 ```yaml
 version: 0.1

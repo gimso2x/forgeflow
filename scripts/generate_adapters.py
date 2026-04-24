@@ -96,6 +96,7 @@ def file_for_target(name: str, manifest: dict[str, object] | None = None) -> str
 def build_content(target: str, manifest: dict[str, object]) -> str:
     workflow = (POLICY_DIR / 'workflow.yaml').read_text(encoding='utf-8').strip()
     recovery = (POLICY_DIR / 'recovery.yaml').read_text(encoding='utf-8').strip()
+    team_patterns = (POLICY_DIR / 'team-patterns.yaml').read_text(encoding='utf-8').strip()
     supported_roles = manifest.get('supports_roles', [])
     role_files = [ROLE_FILE_MAP[role] for role in supported_roles]
     roles_blob = '\n\n'.join((PROMPTS_DIR / name).read_text(encoding='utf-8').strip() for name in role_files)
@@ -157,6 +158,12 @@ def build_content(target: str, manifest: dict[str, object]) -> str:
         f'- delivery_note: {delivery_note}',
         '```yaml',
         recovery,
+        '```',
+        '',
+        '## Team pattern guidance',
+        'Use these patterns to choose orchestration shape; do not treat them as target-specific runtime primitives.',
+        '```yaml',
+        team_patterns,
         '```',
         '',
         '## Canonical workflow snapshot',
