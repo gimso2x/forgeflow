@@ -37,11 +37,16 @@ Remove LLM-specific code smells. Corrective cleanup after any significant genera
 
 ## Execution
 
-1. Scan changed files for smells.
-2. Fix one smell category at a time.
-3. Run tests after each category.
-4. If tests break, revert and skip that category.
-5. Write a summary to `decision-log.json`.
+1. Identify the changed files first. Prefer `git diff`; if unavailable, use the run artifact's changed-file list.
+2. Review only changed files. Do not clean unrelated code "while here".
+3. Scan changed files through three lenses:
+   - **Reuse:** replace duplicated helpers or reimplemented standard-library behavior with existing utilities.
+   - **Quality:** remove unnecessary abstractions, parameter sprawl, leaky boundaries, magic strings, and obvious comments.
+   - **Efficiency:** flag repeated work, missed independent concurrency, hot-path bloat, and unbounded resource growth without inventing premature optimization.
+4. Fix one smell category at a time.
+5. Run tests after each category.
+6. If tests break, revert and skip that category.
+7. Write a summary to `decision-log.json`.
 
 ## Constraints
 
