@@ -88,8 +88,13 @@ No heading. No preamble. No code fence. No third line.
 1. Review from artifacts and code, not worker vibes.
 2. Check scope coverage and acceptance criteria.
 3. Run or inspect verification only if the user allowed command execution.
-4. Classify findings: critical, major, minor, info.
-5. Return a clear verdict unless the user asked for a narrower output.
+4. For quality review, apply discipline heuristics without creating a separate stage:
+   - Was the change the smallest safe change that satisfies the request?
+   - Did the implementation follow existing codebase patterns instead of inventing a new local religion?
+   - Were assumptions about types, APIs, behavior, and test coverage verified against actual files?
+   - If performance was touched, was the bottleneck measured before and after the change?
+5. Classify findings: critical, major, minor, info.
+6. Return a clear verdict unless the user asked for a narrower output.
 
 Do not merge spec-review and quality-review for large/high-risk work.
 
