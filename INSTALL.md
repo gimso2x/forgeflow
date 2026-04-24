@@ -118,6 +118,21 @@ python3 scripts/run_runtime_sample.py \
 
 ```bash
 python3 scripts/run_orchestrator.py init \
+  --task-id my-task-001 \
+  --objective "Update README quickstart" \
+  --risk low
+```
+
+기본 저장 위치는 현재 프로젝트의 `.forgeflow/tasks/<task-id>`입니다.
+
+```text
+./.forgeflow/tasks/my-task-001/
+```
+
+원하는 위치가 따로 있을 때만 `--task-dir`를 명시합니다.
+
+```bash
+python3 scripts/run_orchestrator.py init \
   --task-dir work/my-task \
   --task-id my-task-001 \
   --objective "Update README quickstart" \

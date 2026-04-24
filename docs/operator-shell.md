@@ -47,7 +47,13 @@ python3 scripts/run_orchestrator.py execute --help
 ## Common commands
 
 ```bash
-# Bootstrap a real task from explicit inputs.
+# Bootstrap a real task from explicit inputs. Defaults to ./.forgeflow/tasks/<task-id>.
+python3 scripts/run_orchestrator.py init \
+  --task-id my-task-001 \
+  --objective "Update README quickstart" \
+  --risk low
+
+# Override the artifact directory only when you really want a custom location.
 python3 scripts/run_orchestrator.py init \
   --task-dir work/my-task \
   --task-id my-task-001 \

@@ -2047,13 +2047,17 @@ def test_status_summary_prefers_plan_ledger_current_task_for_medium_route(tmp_pa
     assert result["required_gates"] == ["execution_evidenced", "quality_review_passed", "ready_to_finalize"]
 
 
-def _run_orchestrator_cli(*args: str, env: dict[str, str] | None = None) -> subprocess.CompletedProcess[str]:
+def _run_orchestrator_cli(
+    *args: str,
+    env: dict[str, str] | None = None,
+    cwd: Path | None = None,
+) -> subprocess.CompletedProcess[str]:
     effective_env = os.environ.copy()
     if env:
         effective_env.update(env)
     return subprocess.run(
-        [sys.executable, "scripts/run_orchestrator.py", *args],
-        cwd=ROOT,
+        [sys.executable, str(ROOT / "scripts" / "run_orchestrator.py"), *args],
+        cwd=cwd or ROOT,
         capture_output=True,
         text=True,
         check=False,
@@ -2109,6 +2113,30 @@ def test_cli_init_bootstraps_task_from_operator_inputs(tmp_path: Path) -> None:
     assert status_payload["task_id"] == "my-task-001"
     assert status_payload["route"] == "small"
     assert status_payload["current_stage"] == "clarify"
+
+
+def test_cli_init_without_task_dir_writes_under_current_project_forgeflow_tasks(tmp_path: Path) -> None:
+    project_dir = tmp_path / "target-project"
+    project_dir.mkdir()
+
+    result = _run_orchestrator_cli(
+        "init",
+        "--task-id",
+        "readme-quickstart-001",
+        "--objective",
+        "Update README quickstart",
+        "--risk",
+        "low",
+        cwd=project_dir,
+    )
+
+    assert result.returncode == 0, result.stderr
+    expected_task_dir = project_dir / ".forgeflow" / "tasks" / "readme-quickstart-001"
+    payload = json.loads(result.stdout)
+    assert Path(payload["task_dir"]) == expected_task_dir
+    assert (expected_task_dir / "brief.json").exists()
+    assert (expected_task_dir / "run-state.json").exists()
+    assert not (ROOT / ".forgeflow" / "tasks" / "readme-quickstart-001").exists()
 
 
 def test_cli_init_refuses_to_overwrite_existing_artifacts(tmp_path: Path) -> None:

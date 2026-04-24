@@ -116,7 +116,8 @@ def build_parser() -> argparse.ArgumentParser:
   # Safe sample: copies the fixture to a disposable workspace before running.
   python3 scripts/run_runtime_sample.py --fixture-dir examples/runtime-fixtures/small-doc-task --route small
 
-  # Bootstrap a real task from explicit operator inputs.
+  # Bootstrap a real task from explicit operator inputs. Without --task-dir, writes under the current project.
+  python3 scripts/run_orchestrator.py init --task-id my-task-001 --objective "Update README quickstart" --risk low
   python3 scripts/run_orchestrator.py init --task-dir work/my-task --task-id my-task-001 --objective "Update README quickstart" --risk low
 
   # Fallback entry: start/run can reuse persisted route or auto-route from brief/checkpoint state.
@@ -155,7 +156,7 @@ Notes:
         "init",
         help="bootstrap a new task from explicit operator inputs without overwriting existing artifacts",
     )
-    init_parser.add_argument("--task-dir", required=True)
+    init_parser.add_argument("--task-dir", help="task artifact directory; defaults to ./.forgeflow/tasks/<task-id>")
     init_parser.add_argument("--task-id", required=True)
     init_parser.add_argument("--objective", required=True)
     init_parser.add_argument("--risk", choices=["low", "medium", "high"], required=True)
@@ -216,10 +217,20 @@ Notes:
     return parser
 
 
+def _default_task_dir_for_init(task_id: str) -> Path:
+    return (Path.cwd() / ".forgeflow" / "tasks" / task_id).resolve()
+
+
 def main() -> int:
     parser = build_parser()
     args = parser.parse_args()
-    task_dir = Path(getattr(args, "task_dir")).resolve()
+    task_dir_arg = getattr(args, "task_dir", None)
+    if task_dir_arg:
+        task_dir = Path(task_dir_arg).resolve()
+    elif args.command == "init":
+        task_dir = _default_task_dir_for_init(args.task_id)
+    else:
+        parser.error("--task-dir is required for this command")
     policy = load_runtime_policy(ROOT)
 
     try:

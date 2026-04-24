@@ -293,6 +293,24 @@ This copies the fixture to a disposable workspace before running, so tracked sam
 
 ```bash
 python3 scripts/run_orchestrator.py init \
+  --task-id my-task-001 \
+  --objective "Update README quickstart" \
+  --risk low
+```
+
+By default this writes task artifacts under the **current project**:
+
+```text
+./.forgeflow/tasks/my-task-001/brief.json
+./.forgeflow/tasks/my-task-001/run-state.json
+./.forgeflow/tasks/my-task-001/checkpoint.json
+./.forgeflow/tasks/my-task-001/session-state.json
+```
+
+Use `--task-dir` only when you intentionally want a custom artifact directory:
+
+```bash
+python3 scripts/run_orchestrator.py init \
   --task-dir work/my-task \
   --task-id my-task-001 \
   --objective "Update README quickstart" \
