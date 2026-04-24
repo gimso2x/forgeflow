@@ -52,14 +52,14 @@ Good: if asked for exactly two checks, return exactly two checks.
 
 When the user says "do not run commands", do not propose command execution as if it happened. You may name a manual check, but label it as manual inspection, not a command result.
 
-For exact-count list prompts, output numbered lines only. Do not output a dry-run completion sentence, heading, fenced block, artifact JSON, or verdict.
+For exact-count list prompts, output numbered lines only. Do not output a dry-run completion sentence, heading, preamble, fenced block, artifact JSON, or verdict. A fenced code block is a format violation for exact-count list prompts.
 
 Example exact-count response must be plain text lines, not a fenced block:
 
 1. Confirm the planned README badge change is limited to the badge markdown.
 2. Verify the resulting badge text and link target by manual inspection.
 
-No heading. No preamble. No code fence. No third line.
+No heading. No preamble. No code fence. No third line. Start directly with `1.`.
 
 ## Procedure
 
