@@ -7,17 +7,18 @@ ForgeFlow는 두 가지 방식으로 쓸 수 있습니다.
 
 ## Claude Code 플러그인
 
-GitHub 저장소에서 직접 설치할 수 있습니다.
+Claude Code는 GitHub repo를 직접 `plugin install` 하는 게 아니라, 먼저 marketplace로 추가한 뒤 그 안의 plugin을 설치합니다.
 
 ```text
-/plugin install github:gimso2x/forgeflow
+/plugin marketplace add https://github.com/gimso2x/forgeflow
+/plugin install forgeflow
 ```
 
-마켓플레이스에 등록한 뒤에는 아래 흐름도 가능합니다.
+터미널에서 검증/설치할 때는 같은 동작을 이렇게 실행할 수 있습니다.
 
-```text
-/plugin marketplace add gimso2x/forgeflow
-/plugin install forgeflow
+```bash
+claude plugin marketplace add https://github.com/gimso2x/forgeflow
+claude plugin install forgeflow
 ```
 
 설치 후 새 Claude Code 세션을 열고 다음처럼 시작하세요.
