@@ -37,6 +37,49 @@ def _validate_yaml_schema(schema_path: Path, document: Any, source_name: str) ->
     return [f"{source_name} failed schema validation: {_format_jsonschema_errors(errors)}"]
 
 
+def _validate_evolution_examples(root: Path, evolution: dict[str, Any]) -> list[str]:
+    errors: list[str] = []
+    example_dir = root / "examples" / "evolution"
+    example_names = [
+        "generated-adapter-drift-rule.json",
+        "no-env-commit-rule.json",
+    ]
+    hard_gate_requires = set(evolution["scopes"]["project"].get("hard_gate_requires", []))
+    for example_name in example_names:
+        example_path = example_dir / example_name
+        rel_path = example_path.relative_to(root)
+        if not example_path.is_file():
+            errors.append(f"evolution example missing: {rel_path}")
+            continue
+        try:
+            rule = json.loads(example_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            errors.append(f"{rel_path} invalid JSON: {exc}")
+            continue
+
+        if rule.get("scope") != "project":
+            errors.append(f"{rel_path} must be project scoped")
+        if rule.get("lifecycle") != "adopted_hard":
+            errors.append(f"{rel_path} must demonstrate adopted_hard lifecycle")
+        enforcement = rule.get("enforcement", {})
+        if enforcement.get("mode") != "hard_exit_2":
+            errors.append(f"{rel_path} must demonstrate hard_exit_2 enforcement")
+        if enforcement.get("deterministic") is not True:
+            errors.append(f"{rel_path} must be deterministic")
+        if rule.get("global_export", {}).get("allowed") is not False:
+            errors.append(f"{rel_path} must not globally export raw rule data by default")
+        evidence = rule.get("hard_gate_evidence", {})
+        if set(evidence.keys()) != hard_gate_requires:
+            errors.append(f"{rel_path} hard_gate_evidence must match project hard_gate_requires")
+        if not all(evidence.values()):
+            errors.append(f"{rel_path} hard_gate_evidence values must be non-empty")
+        serialized = json.dumps(rule)
+        for forbidden in ["raw_prompt", "raw_frustration"]:
+            if forbidden in serialized:
+                errors.append(f"{rel_path} must not include {forbidden}")
+    return errors
+
+
 def validate_policy_root(root: Path) -> list[str]:
     errors: list[str] = []
     canonical_dir = root / "policy" / "canonical"
@@ -150,6 +193,7 @@ def validate_policy_root(root: Path) -> list[str]:
     for required in ["confidence", "why_matched", "scope", "source_count"]:
         if required not in retrieval.get("requires", []):
             errors.append(f"evolution retrieval missing required field: {required}")
+    errors.extend(_validate_evolution_examples(root, evolution))
 
     long_run_text = (root / "docs" / "long-run-model.md").read_text(encoding="utf-8")
     for required in ["eval-record.json", "worth_long_run_capture", "No evidence, no memory", "do not retain"]:

@@ -137,6 +137,8 @@ P0에서 일부러 안 넣는 것:
 
 P0에 들어가는 self-evolution의 정본은 `policy/canonical/evolution.yaml`이다. 의미는 **전역 메타데이터 학습 + 프로젝트 로컬 채택/차단**이다. 전역은 `/forgeflow:clarify`와 `/forgeflow:plan`에 참고 신호를 줄 수 있지만 기본 차단 권한은 없다. raw evidence는 프로젝트 로컬에 남기고, HARD `exit 2`는 프로젝트가 채택한 규칙만 수행한다.
 
+`examples/evolution/`은 이 경계를 깨지 않는 deterministic HARD rule 샘플만 담는다. 예시는 `scope=project`, `lifecycle=adopted_hard`, `enforcement.mode=hard_exit_2`, `global_export.allowed=false`, 그리고 모든 `hard_gate_requires` 증거를 갖춰야 하며 `scripts/validate_policy.py`가 이를 검증한다.
+
 ---
 
 ## 7. What success looks like

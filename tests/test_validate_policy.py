@@ -1,4 +1,5 @@
 import importlib.util
+import json
 from pathlib import Path
 
 
@@ -46,6 +47,30 @@ def test_repo_policy_defines_global_advisory_project_enforcement_evolution_ssot(
     assert "project_local_enablement" in evolution["scopes"]["project"]["hard_gate_requires"]
     assert "independent_recurrence_or_audited_maintainer_enablement" in evolution["scopes"]["project"]["hard_gate_requires"]
     assert "low_false_positive_rate" in evolution["scopes"]["project"]["hard_gate_requires"]
+
+
+def test_local_hard_rule_examples_are_project_scoped_deterministic_and_auditable() -> None:
+    validate_policy = _load_validate_policy_module()
+    example_dir = ROOT / "examples" / "evolution"
+    example_names = [
+        "generated-adapter-drift-rule.json",
+        "no-env-commit-rule.json",
+    ]
+    policy = validate_policy._load_yaml(ROOT / "policy" / "canonical" / "evolution.yaml")
+    hard_gate_requires = set(policy["scopes"]["project"]["hard_gate_requires"])
+
+    for example_name in example_names:
+        rule = json.loads((example_dir / example_name).read_text(encoding="utf-8"))
+        assert rule["scope"] == "project"
+        assert rule["lifecycle"] == "adopted_hard"
+        assert rule["enforcement"]["mode"] == "hard_exit_2"
+        assert rule["enforcement"]["deterministic"] is True
+        assert rule["global_export"]["allowed"] is False
+        assert set(rule["hard_gate_evidence"].keys()) == hard_gate_requires
+        assert all(rule["hard_gate_evidence"].values())
+        serialized = json.dumps(rule)
+        assert "raw_prompt" not in serialized
+        assert "raw_frustration" not in serialized
 
 
 def test_validate_policy_rejects_global_review_advice_boundary_violation(tmp_path: Path) -> None:

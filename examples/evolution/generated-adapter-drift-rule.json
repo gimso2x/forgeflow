@@ -1,0 +1,37 @@
+{
+  "id": "generated-adapter-drift",
+  "title": "Reject hand-edited generated adapter artifacts",
+  "scope": "project",
+  "lifecycle": "adopted_hard",
+  "source_signal": "review_finding",
+  "summary": "Generated adapter outputs must match canonical sources after regeneration.",
+  "check": {
+    "kind": "command",
+    "command": "python3 scripts/generate_adapters.py && git diff --exit-code adapters/generated",
+    "expected_exit_code": 0
+  },
+  "enforcement": {
+    "mode": "hard_exit_2",
+    "deterministic": true,
+    "message": "Generated adapters drifted. Regenerate from canonical sources instead of hand-editing generated files."
+  },
+  "hard_gate_evidence": {
+    "project_local_enablement": "Enabled by this project's policy after repeated adapter drift fixes.",
+    "soft_soak_period": "Ran as a warning-only check before HARD adoption.",
+    "independent_recurrence_or_audited_maintainer_enablement": "Confirmed by maintainer audit of generated adapter drift incidents.",
+    "deterministic_check": "Regeneration followed by git diff is deterministic for tracked generated adapter outputs.",
+    "low_false_positive_rate": "Only fires when regenerated output differs from committed generated artifacts.",
+    "rollback_available": "Disable this project-local rule or regenerate adapters and revert generated drift.",
+    "eval_record": "Project eval record links the original drift finding and passing regeneration check.",
+    "audit_trail": "Decision log records promotion from soft to adopted_hard."
+  },
+  "global_export": {
+    "allowed": false,
+    "metadata_only_if_redacted": [
+      "rule_id",
+      "source_signal",
+      "check.kind",
+      "confidence"
+    ]
+  }
+}

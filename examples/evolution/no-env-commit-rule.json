@@ -1,0 +1,37 @@
+{
+  "id": "no-env-commit",
+  "title": "Reject committed local environment files",
+  "scope": "project",
+  "lifecycle": "adopted_hard",
+  "source_signal": "fix_commit",
+  "summary": "Local secrets and machine-specific environment files must not be committed.",
+  "check": {
+    "kind": "command",
+    "command": "git diff --cached --name-only | python3 -c \"import sys; bad=[p for p in sys.stdin.read().splitlines() if p in {'.env', '.env.local'} or p.endswith('/.env') or p.endswith('/.env.local')]; sys.exit(1 if bad else 0)\"",
+    "expected_exit_code": 0
+  },
+  "enforcement": {
+    "mode": "hard_exit_2",
+    "deterministic": true,
+    "message": "Local .env files are staged. Unstage them and commit a documented example file instead."
+  },
+  "hard_gate_evidence": {
+    "project_local_enablement": "Enabled by this project's policy because secret-like env files are never valid release artifacts.",
+    "soft_soak_period": "Ran as a warning-only pre-commit check before HARD adoption.",
+    "independent_recurrence_or_audited_maintainer_enablement": "Confirmed by maintainer audit of environment-file leak risk.",
+    "deterministic_check": "The staged path list is deterministic for a given index state.",
+    "low_false_positive_rate": "Only blocks exact local env filenames, not documented example files.",
+    "rollback_available": "Disable this project-local rule or unstage the env file and commit .env.example instead.",
+    "eval_record": "Project eval record links the env-file risk and passing staged-file check.",
+    "audit_trail": "Decision log records promotion from soft to adopted_hard."
+  },
+  "global_export": {
+    "allowed": false,
+    "metadata_only_if_redacted": [
+      "rule_id",
+      "source_signal",
+      "check.kind",
+      "confidence"
+    ]
+  }
+}
