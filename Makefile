@@ -3,7 +3,7 @@ VENV ?= .venv
 VENV_PYTHON := $(VENV)/bin/python
 VENV_PIP := $(VENV)/bin/pip
 
-.PHONY: setup check-env validate generate regen clean validate-samples runtime-sample adherence-evals smoke-claude-plugin validate-upstream-import validate-hoyeon-import plan-cli-smoke
+.PHONY: setup check-env validate generate regen clean validate-samples runtime-sample adherence-evals smoke-claude-plugin validate-upstream-import validate-hoyeon-import validate-skill-contracts plan-cli-smoke
 
 setup:
 	$(PYTHON) -m venv $(VENV)
@@ -21,6 +21,7 @@ validate:
 	$(PYTHON) scripts/run_adherence_evals.py
 	$(PYTHON) scripts/validate_upstream_import.py
 	$(PYTHON) scripts/validate_hoyeon_import.py
+	$(PYTHON) scripts/validate_skill_contracts.py
 	$(PYTHON) scripts/smoke_plan_cli.py
 
 runtime-sample:
@@ -34,6 +35,9 @@ validate-upstream-import:
 
 validate-hoyeon-import:
 	$(PYTHON) scripts/validate_hoyeon_import.py
+
+validate-skill-contracts:
+	$(PYTHON) scripts/validate_skill_contracts.py
 
 plan-cli-smoke:
 	$(PYTHON) scripts/smoke_plan_cli.py
