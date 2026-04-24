@@ -1,25 +1,56 @@
-version: 0.1
-scope: project-local
-default_artifact_root: .forgeflow/evolution
-authority:
-  - eval-record
-  - decision-log
-  - review-report
-  - run-state
-triggers:
-  - repeated failure pattern with evidence
-  - review finding that implies reusable harness improvement
-  - eval-record marked worth_long_run_capture
+version: 0.2
+scopes:
+  global:
+    artifact_root: ${FORGEFLOW_EVOLUTION_HOME:-~/.forgeflow/evolution}
+    activation: explicit_opt_in
+    permissions:
+      - learn_metadata_patterns
+      - advise_clarify
+      - advise_plan
+    forbidden:
+      - raw_prompt_storage_by_default
+      - raw_frustration_text_by_default
+      - hard_enforcement_by_default
+      - cross_project_exit_2
+  project:
+    artifact_root: .forgeflow/evolution
+    permissions:
+      - adopt_rules
+      - verify_rules
+      - enforce_adopted_hard_rules
+      - store_raw_evidence
+    hard_gate_requires:
+      - project_local_enablement
+      - soft_soak_period
+      - independent_recurrence_or_audited_maintainer_enablement
+      - deterministic_check
+      - low_false_positive_rate
+      - rollback_available
+      - eval_record
+      - audit_trail
+rule_lifecycle:
+  - candidate
+  - soft
+  - hard_candidate
+  - adopted_hard
+  - retired
+signal_sources:
+  - fix_commit
+  - review_finding
+  - eval_failure
+  - repeated_tool_failure
+  - user_frustration_label
+  - manual_operator_note
+retrieval_contract:
+  max_patterns: 3
+  requires:
+    - confidence
+    - why_matched
+    - scope
+    - source_count
 non_negotiables:
-  - self-evolution must be proposed from project-local artifacts, not chat vibes
-  - no global user-scope writes by default
-  - every proposed harness change needs verification evidence before adoption
-  - generated adapters must be regenerated from canonical sources, not hand-edited
-forbidden_targets:
-  - global_user_scope
-  - home_directory_memory
-  - unreviewed_generated_adapter_edits
-outputs:
-  - evolution-proposal
-  - verification-evidence
-  - decision-log
+  - global learns metadata and advises but must not block by default
+  - raw evidence stays project-local unless explicitly redacted and exported
+  - project-local adoption is required before HARD enforcement
+  - user frustration is a signal label, not standalone evidence or raw global text
+  - generated adapters are regenerated from canonical sources, not hand-edited

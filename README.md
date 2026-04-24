@@ -231,7 +231,7 @@ ForgeFlow tries not to do that.
 
 ## Repo map
 - `docs/` — human-readable design docs
-- `policy/canonical/` — workflow semantics, gates, review order, routing, project-local self-evolution policy
+- `policy/canonical/` — workflow semantics, gates, review order, routing, global-advisory/project-enforced self-evolution policy
 - `schemas/` — artifact contracts
 - `prompts/canonical/` — canonical role prompts
 - `adapters/targets/` — target manifests

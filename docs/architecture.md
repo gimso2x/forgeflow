@@ -135,7 +135,7 @@ P0에서 일부러 안 넣는 것:
 - autonomous auto-apply loop
 - cross-project magical memory
 
-P0에 들어가는 self-evolution의 정본은 `policy/canonical/evolution.yaml`이다. 단, 의미는 **프로젝트 로컬 artifact 기반 개선 제안/검증 정책**이지, 전역 사용자 메모리에 알아서 쓰거나 generated adapter를 손으로 고치는 자동 마법이 아니다.
+P0에 들어가는 self-evolution의 정본은 `policy/canonical/evolution.yaml`이다. 의미는 **전역 메타데이터 학습 + 프로젝트 로컬 채택/차단**이다. 전역은 `/forgeflow:clarify`와 `/forgeflow:plan`에 참고 신호를 줄 수 있지만 기본 차단 권한은 없다. raw evidence는 프로젝트 로컬에 남기고, HARD `exit 2`는 프로젝트가 채택한 규칙만 수행한다.
 
 ---
 

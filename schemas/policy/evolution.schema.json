@@ -4,44 +4,91 @@
   "additionalProperties": false,
   "required": [
     "version",
-    "scope",
-    "default_artifact_root",
-    "authority",
-    "triggers",
-    "non_negotiables",
-    "forbidden_targets",
-    "outputs"
+    "scopes",
+    "rule_lifecycle",
+    "signal_sources",
+    "retrieval_contract",
+    "non_negotiables"
   ],
   "properties": {
     "version": {"type": ["string", "number"]},
-    "scope": {"const": "project-local"},
-    "default_artifact_root": {"const": ".forgeflow/evolution"},
-    "authority": {
-      "type": "array",
-      "minItems": 4,
-      "uniqueItems": true,
-      "items": {"enum": ["eval-record", "decision-log", "review-report", "run-state"]}
+    "scopes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["global", "project"],
+      "properties": {
+        "global": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["artifact_root", "activation", "permissions", "forbidden"],
+          "properties": {
+            "artifact_root": {"const": "${FORGEFLOW_EVOLUTION_HOME:-~/.forgeflow/evolution}"},
+            "activation": {"const": "explicit_opt_in"},
+            "permissions": {
+              "type": "array",
+              "minItems": 3,
+              "uniqueItems": true,
+              "items": {"enum": ["learn_metadata_patterns", "advise_clarify", "advise_plan"]}
+            },
+            "forbidden": {
+              "type": "array",
+              "minItems": 4,
+              "uniqueItems": true,
+              "items": {"enum": ["raw_prompt_storage_by_default", "raw_frustration_text_by_default", "hard_enforcement_by_default", "cross_project_exit_2"]}
+            }
+          }
+        },
+        "project": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["artifact_root", "permissions", "hard_gate_requires"],
+          "properties": {
+            "artifact_root": {"const": ".forgeflow/evolution"},
+            "permissions": {
+              "type": "array",
+              "minItems": 4,
+              "uniqueItems": true,
+              "items": {"enum": ["adopt_rules", "verify_rules", "enforce_adopted_hard_rules", "store_raw_evidence"]}
+            },
+            "hard_gate_requires": {
+              "type": "array",
+              "minItems": 8,
+              "uniqueItems": true,
+              "items": {"enum": ["project_local_enablement", "soft_soak_period", "independent_recurrence_or_audited_maintainer_enablement", "deterministic_check", "low_false_positive_rate", "rollback_available", "eval_record", "audit_trail"]}
+            }
+          }
+        }
+      }
     },
-    "triggers": {
+    "rule_lifecycle": {
+      "type": "array",
+      "minItems": 5,
+      "uniqueItems": true,
+      "items": {"enum": ["candidate", "soft", "hard_candidate", "adopted_hard", "retired"]}
+    },
+    "signal_sources": {
       "type": "array",
       "minItems": 1,
-      "items": {"type": "string", "minLength": 1}
+      "uniqueItems": true,
+      "items": {"enum": ["fix_commit", "review_finding", "eval_failure", "repeated_tool_failure", "user_frustration_label", "manual_operator_note"]}
+    },
+    "retrieval_contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["max_patterns", "requires"],
+      "properties": {
+        "max_patterns": {"const": 3},
+        "requires": {
+          "type": "array",
+          "minItems": 4,
+          "uniqueItems": true,
+          "items": {"enum": ["confidence", "why_matched", "scope", "source_count"]}
+        }
+      }
     },
     "non_negotiables": {
       "type": "array",
-      "minItems": 3,
-      "items": {"type": "string", "minLength": 1}
-    },
-    "forbidden_targets": {
-      "type": "array",
-      "minItems": 1,
-      "uniqueItems": true,
-      "items": {"type": "string", "minLength": 1}
-    },
-    "outputs": {
-      "type": "array",
-      "minItems": 1,
-      "uniqueItems": true,
+      "minItems": 5,
       "items": {"type": "string", "minLength": 1}
     }
   }

@@ -128,14 +128,28 @@ def validate_policy_root(root: Path) -> list[str]:
         errors.append("review-model missing run-state approval flag guidance")
 
     evolution = policy_docs["evolution"]
-    if evolution.get("scope") != "project-local":
-        errors.append("evolution scope must be project-local")
-    if evolution.get("default_artifact_root") != ".forgeflow/evolution":
-        errors.append("evolution default_artifact_root must be .forgeflow/evolution")
-    if "global_user_scope" not in evolution.get("forbidden_targets", []):
-        errors.append("evolution must forbid global_user_scope by default")
-    if evolution.get("authority") != ["eval-record", "decision-log", "review-report", "run-state"]:
-        errors.append("evolution authority must be artifact-first")
+    global_scope = evolution["scopes"]["global"]
+    project_scope = evolution["scopes"]["project"]
+    if global_scope.get("activation") != "explicit_opt_in":
+        errors.append("evolution global scope must be explicit opt-in")
+    if "advise_review" in global_scope.get("permissions", []):
+        errors.append("evolution global scope must not advise review gates")
+    for forbidden in ["raw_prompt_storage_by_default", "raw_frustration_text_by_default", "hard_enforcement_by_default", "cross_project_exit_2"]:
+        if forbidden not in global_scope.get("forbidden", []):
+            errors.append(f"evolution global scope missing forbidden guard: {forbidden}")
+    if project_scope.get("artifact_root") != ".forgeflow/evolution":
+        errors.append("evolution project artifact_root must be .forgeflow/evolution")
+    for required in ["project_local_enablement", "soft_soak_period", "independent_recurrence_or_audited_maintainer_enablement", "deterministic_check", "low_false_positive_rate", "rollback_available", "eval_record", "audit_trail"]:
+        if required not in project_scope.get("hard_gate_requires", []):
+            errors.append(f"evolution hard gate missing requirement: {required}")
+    if evolution.get("rule_lifecycle") != ["candidate", "soft", "hard_candidate", "adopted_hard", "retired"]:
+        errors.append("evolution rule_lifecycle must stay v1-minimal")
+    retrieval = evolution.get("retrieval_contract", {})
+    if retrieval.get("max_patterns") != 3:
+        errors.append("evolution retrieval must cap global patterns at 3")
+    for required in ["confidence", "why_matched", "scope", "source_count"]:
+        if required not in retrieval.get("requires", []):
+            errors.append(f"evolution retrieval missing required field: {required}")
 
     long_run_text = (root / "docs" / "long-run-model.md").read_text(encoding="utf-8")
     for required in ["eval-record.json", "worth_long_run_capture", "No evidence, no memory", "do not retain"]:
@@ -167,7 +181,7 @@ def main() -> int:
     print(f"- review order: {_load_yaml(ROOT / 'policy' / 'canonical' / 'workflow.yaml')['review_order']}")
     print(f"- routes checked: {routes}")
     print("- review gate semantics: bound to review_type and run-state flags")
-    print("- self-evolution: project-local artifact-first policy")
+    print("- self-evolution: global advisory, project-local enforcement")
     return 0
 
 
