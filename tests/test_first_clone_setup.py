@@ -40,6 +40,17 @@ def test_makefile_smoke_targets_use_repo_managed_python_environment() -> None:
     assert "$(VENV_PYTHON) scripts/smoke_claude_plugin.py" in smoke_section
 
 
+def test_makefile_non_setup_helper_targets_use_repo_managed_python_environment() -> None:
+    makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
+    helper_section = makefile.split("runtime-sample:", 1)[1].split("clean:", 1)[0]
+
+    assert "\t$(PYTHON) scripts/" not in helper_section
+    assert "$(VENV_PYTHON) scripts/run_runtime_sample.py" in helper_section
+    assert "$(VENV_PYTHON) scripts/run_adherence_evals.py" in helper_section
+    assert "$(VENV_PYTHON) scripts/generate_adapters.py" in helper_section
+    assert "$(VENV_PYTHON) scripts/validate_sample_artifacts.py" in helper_section
+
+
 def test_readme_quickstart_starts_with_first_clone_setup() -> None:
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
 
