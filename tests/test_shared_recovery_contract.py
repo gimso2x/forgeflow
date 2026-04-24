@@ -47,3 +47,14 @@ def test_adapter_delivery_notes_stay_target_specific():
         generated = GENERATED[target].read_text(encoding="utf-8")
         assert note in manifest
         assert note in generated
+
+
+def test_tooling_constraints_do_not_duplicate_recovery_contract_sections():
+    for target, path in MANIFESTS.items():
+        text = path.read_text(encoding="utf-8")
+        tooling_block = text.split("tooling_constraints:", 1)[1]
+        generated = GENERATED[target].read_text(encoding="utf-8")
+        assert f"{target.title()} recovery guidance" not in tooling_block
+        for rule in REQUIRED_RULES:
+            assert rule not in tooling_block, f"{target} duplicates canonical recovery rule: {rule}"
+            assert generated.count(rule) == 1, f"{target} should render canonical recovery rule exactly once: {rule}"
