@@ -1,9 +1,10 @@
 # ForgeFlow AutoResearch Hypotheses
 
 ## Pending
-- [AUTO-009] Audit auxiliary Makefile smoke targets that still use ambient python/pytest and add one narrow contract or alignment only if it reduces validation drift without broadening scope.
+- [AUTO-010] Inspect remaining non-smoke Makefile helper targets for ambient Python drift and add one narrow contract or alignment only if it affects fresh-clone validation consistency.
 
 ## Completed
+- [EXP-009] KEEP 2026-04-25: [AUTO-009] Audit auxiliary Makefile smoke targets that still use ambient python/pytest and add one narrow contract or alignment only if it reduces validation drift without broadening scope.
 - [EXP-008] KEEP 2026-04-25: [AUTO-008] Inspect README/INSTALL validation snippets for remaining duplicate command-order assumptions and centralize or test one adjacent drift-prone contract if found.
 - [EXP-007] KEEP 2026-04-25: [AUTO-007] Inspect update/release documentation for command-context consistency and add one narrow doc contract if another copy-paste path can drift.
 - [EXP-006] KEEP 2026-04-25: [AUTO-006] Inspect release/first-clone setup docs against scripts and add a regression if setup commands can drift.
