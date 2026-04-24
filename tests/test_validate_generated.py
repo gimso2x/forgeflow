@@ -161,14 +161,14 @@ supports_generated_files: true
 generated_filename: {filename}
 recommended_location: {location}
 surface_style: {surface}
-    handoff_format: {handoff}
-    session_persistence: {'rule file persists across chat sessions until regenerated' if target == 'cursor' else 'root instruction file persists across repo sessions until regenerated'}
-    workspace_boundary: {'project rules live under .cursor/rules and guide editor-native runs' if target == 'cursor' else ('repo root instruction file shapes CLI runs but artifacts still live in the project workspace' if target == 'claude' else 'repo root instruction file steers CLI work while emphasizing git-visible workspace changes')}
-    review_delivery: {'chat summary plus artifact file updates inside the workspace' if target == 'cursor' else ('terminal-oriented summary plus artifact files checked in the repo' if target == 'claude' else 'git-diff-centric summary plus artifact files checked in the repo')}
-    installation_steps:
-      - {install_1[3:]}
-      - {install_2[3:]}
-    tooling_constraints:
+handoff_format: {handoff}
+session_persistence: {'rule file persists across chat sessions until regenerated' if target == 'cursor' else 'root instruction file persists across repo sessions until regenerated'}
+workspace_boundary: {'project rules live under .cursor/rules and guide editor-native runs' if target == 'cursor' else ('repo root instruction file shapes CLI runs but artifacts still live in the project workspace' if target == 'claude' else 'repo root instruction file steers CLI work while emphasizing git-visible workspace changes')}
+review_delivery: {'chat summary plus artifact file updates inside the workspace' if target == 'cursor' else ('terminal-oriented summary plus artifact files checked in the repo' if target == 'claude' else 'git-diff-centric summary plus artifact files checked in the repo')}
+installation_steps:
+  - {install_1[3:]}
+  - {install_2[3:]}
+tooling_constraints:
 
 """,
             encoding="utf-8",
@@ -290,14 +290,14 @@ supports_generated_files: true
 generated_filename: {filename}
 recommended_location: {location}
 surface_style: {surface}
-    handoff_format: {handoff}
-    session_persistence: {'rule file persists across chat sessions until regenerated' if target == 'cursor' else 'root instruction file persists across repo sessions until regenerated'}
-    workspace_boundary: {'project rules live under .cursor/rules and guide editor-native runs' if target == 'cursor' else ('repo root instruction file shapes CLI runs but artifacts still live in the project workspace' if target == 'claude' else 'repo root instruction file steers CLI work while emphasizing git-visible workspace changes')}
-    review_delivery: {'chat summary plus artifact file updates inside the workspace' if target == 'cursor' else ('terminal-oriented summary plus artifact files checked in the repo' if target == 'claude' else 'git-diff-centric summary plus artifact files checked in the repo')}
-    installation_steps:
-      - {install_1[3:]}
-      - {install_2[3:]}
-    tooling_constraints:
+handoff_format: {handoff}
+session_persistence: {'rule file persists across chat sessions until regenerated' if target == 'cursor' else 'root instruction file persists across repo sessions until regenerated'}
+workspace_boundary: {'project rules live under .cursor/rules and guide editor-native runs' if target == 'cursor' else ('repo root instruction file shapes CLI runs but artifacts still live in the project workspace' if target == 'claude' else 'repo root instruction file steers CLI work while emphasizing git-visible workspace changes')}
+review_delivery: {'chat summary plus artifact file updates inside the workspace' if target == 'cursor' else ('terminal-oriented summary plus artifact files checked in the repo' if target == 'claude' else 'git-diff-centric summary plus artifact files checked in the repo')}
+installation_steps:
+  - {install_1[3:]}
+  - {install_2[3:]}
+tooling_constraints:
 
 """,
             encoding="utf-8",

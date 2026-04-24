@@ -2,15 +2,49 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "EvalRecord",
   "type": "object",
-  "required": ["schema_version", "task_id", "outcome", "what_worked", "what_failed"],
+  "required": [
+    "schema_version",
+    "task_id",
+    "outcome",
+    "what_worked",
+    "what_failed"
+  ],
   "properties": {
-    "schema_version": {"type": "string"},
-    "task_id": {"type": "string"},
-    "outcome": {"enum": ["success", "partial", "failed"]},
-    "what_worked": {"type": "array", "items": {"type": "string"}},
-    "what_failed": {"type": "array", "items": {"type": "string"}},
-    "reusable_rule_candidates": {"type": "array", "items": {"type": "string"}},
-    "follow_up_worth": {"type": "boolean"}
+    "schema_version": {
+      "type": "string",
+      "const": "0.1"
+    },
+    "task_id": {
+      "type": "string"
+    },
+    "outcome": {
+      "enum": [
+        "success",
+        "partial",
+        "failed"
+      ]
+    },
+    "what_worked": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "what_failed": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "reusable_rule_candidates": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "follow_up_worth": {
+      "type": "boolean"
+    }
   },
   "additionalProperties": false
 }

@@ -18,10 +18,15 @@ jobs:
           python-version: '3.11'
 
       - name: Install Python dependencies
-        run: python -m pip install --upgrade pip jsonschema pyyaml
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
 
       - name: Run full repo validation
         run: make validate
+
+      - name: Run full pytest suite
+        run: python -m pytest -q
 
   generated-drift:
     runs-on: ubuntu-latest
@@ -35,7 +40,9 @@ jobs:
           python-version: '3.11'
 
       - name: Install Python dependencies
-        run: python -m pip install --upgrade pip jsonschema pyyaml
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
 
       - name: Regenerate adapters and fail on drift
         run: python3 scripts/validate_generated.py

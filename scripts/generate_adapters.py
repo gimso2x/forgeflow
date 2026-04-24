@@ -4,6 +4,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import yaml
 from jsonschema import Draft202012Validator
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -24,37 +25,9 @@ ROLE_FILE_MAP = {
 
 
 def load_manifest(path: Path) -> dict[str, object]:
-    data: dict[str, object] = {}
-    current_list: list[str] | None = None
-    for raw in path.read_text(encoding='utf-8').splitlines():
-        line = raw.rstrip()
-        if not line:
-            continue
-        stripped = line.strip()
-        if stripped.startswith('#'):
-            continue
-        if stripped.startswith('- '):
-            if current_list is None:
-                raise ValueError(f'list item without key in {path}')
-            current_list.append(stripped[2:].strip())
-            continue
-        if ':' not in stripped:
-            raise ValueError(f'invalid manifest line in {path}: {stripped}')
-        key, value = stripped.split(':', 1)
-        key = key.strip()
-        value = value.strip()
-        if value == '':
-            current_list = []
-            data[key] = current_list
-        elif value.lower() == 'true':
-            data[key] = True
-            current_list = None
-        elif value.lower() == 'false':
-            data[key] = False
-            current_list = None
-        else:
-            data[key] = value
-            current_list = None
+    data = yaml.safe_load(path.read_text(encoding='utf-8'))
+    if not isinstance(data, dict):
+        raise ValueError(f'{path}: manifest must be a YAML mapping')
     return data
 
 

@@ -35,7 +35,7 @@ When writing `plan.json`, it **must** conform to `schemas/plan.schema.json` exac
 
 ```json
 {
-  "schema_version": "1.0",
+  "schema_version": "0.1",
   "task_id": "readme-badge-task",
   "steps": [
     {

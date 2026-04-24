@@ -35,7 +35,7 @@ When writing `review-report.json`, it **must** conform to `schemas/review-report
 
 ```json
 {
-  "schema_version": "1.0",
+  "schema_version": "0.1",
   "task_id": "readme-badge-task",
   "review_type": "quality",
   "verdict": "approved",

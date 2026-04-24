@@ -6,6 +6,7 @@ VENV_PIP := $(VENV)/bin/pip
 .PHONY: setup check-env validate generate regen clean validate-samples runtime-sample adherence-evals smoke-claude-plugin validate-upstream-import validate-hoyeon-import validate-skill-contracts validate-claude-hooks plan-cli-smoke learn-smoke claude-hook-smoke codex-recovery-smoke cursor-recovery-smoke shared-recovery-smoke team-pattern-smoke
 
 setup:
+	$(PYTHON) scripts/check_environment.py --skip-modules
 	$(PYTHON) -m venv $(VENV)
 	$(VENV_PYTHON) -m pip install --upgrade pip
 	$(VENV_PYTHON) -m pip install -r requirements.txt

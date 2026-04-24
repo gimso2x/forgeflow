@@ -16,23 +16,61 @@
     "updated_at"
   ],
   "properties": {
-    "schema_version": {"type": "string", "const": "0.1"},
-    "task_id": {"type": "string", "minLength": 1},
+    "schema_version": {
+      "type": "string",
+      "const": "0.1"
+    },
+    "task_id": {
+      "type": "string",
+      "minLength": 1
+    },
     "route": {
       "type": "string",
-      "enum": ["small", "medium", "large_high_risk"]
+      "enum": [
+        "small",
+        "medium",
+        "large_high_risk"
+      ]
     },
     "current_stage": {
       "type": "string",
-      "enum": ["clarify", "plan", "execute", "spec-review", "quality-review", "finalize", "long-run"]
+      "enum": [
+        "clarify",
+        "plan",
+        "execute",
+        "spec-review",
+        "quality-review",
+        "finalize",
+        "long-run"
+      ]
     },
-    "current_task_id": {"type": "string"},
-    "plan_ref": {"type": "string", "minLength": 1},
-    "plan_ledger_ref": {"type": "string", "minLength": 1},
-    "run_state_ref": {"type": "string", "minLength": 1},
-    "latest_checkpoint_ref": {"type": "string", "minLength": 1},
-    "latest_review_ref": {"type": "string", "minLength": 1},
-    "next_action": {"type": "string", "minLength": 1},
+    "current_task_id": {
+      "type": "string"
+    },
+    "plan_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "plan_ledger_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "run_state_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "latest_checkpoint_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "latest_review_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "next_action": {
+      "type": "string",
+      "minLength": 1
+    },
     "updated_at": {
       "type": "string",
       "format": "date-time",

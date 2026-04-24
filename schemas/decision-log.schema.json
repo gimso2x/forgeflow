@@ -2,22 +2,72 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "DecisionLog",
   "type": "object",
-  "required": ["schema_version", "task_id", "entries"],
+  "required": [
+    "schema_version",
+    "task_id",
+    "entries"
+  ],
   "properties": {
-    "schema_version": {"type": "string"},
-    "task_id": {"type": "string"},
+    "schema_version": {
+      "type": "string",
+      "const": "0.1"
+    },
+    "task_id": {
+      "type": "string"
+    },
     "entries": {
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["timestamp", "actor", "category", "decision", "rationale"],
+        "required": [
+          "timestamp",
+          "actor",
+          "category",
+          "decision",
+          "rationale"
+        ],
         "properties": {
-          "timestamp": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$"},
-          "actor": {"enum": ["coordinator", "planner", "worker", "spec-reviewer", "quality-reviewer", "orchestrator", "operator"]},
-          "category": {"enum": ["scope", "plan", "execution", "review", "recovery", "routing", "stage-transition", "consistency"]},
-          "decision": {"type": "string", "minLength": 1},
-          "rationale": {"type": "string", "minLength": 1},
-          "affected_artifacts": {"type": "array", "items": {"type": "string"}}
+          "timestamp": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$"
+          },
+          "actor": {
+            "enum": [
+              "coordinator",
+              "planner",
+              "worker",
+              "spec-reviewer",
+              "quality-reviewer",
+              "orchestrator",
+              "operator"
+            ]
+          },
+          "category": {
+            "enum": [
+              "scope",
+              "plan",
+              "execution",
+              "review",
+              "recovery",
+              "routing",
+              "stage-transition",
+              "consistency"
+            ]
+          },
+          "decision": {
+            "type": "string",
+            "minLength": 1
+          },
+          "rationale": {
+            "type": "string",
+            "minLength": 1
+          },
+          "affected_artifacts": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
         },
         "additionalProperties": false
       }

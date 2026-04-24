@@ -13,16 +13,59 @@
     "risk_level"
   ],
   "properties": {
-    "schema_version": {"type": "string"},
-    "task_id": {"type": "string"},
-    "objective": {"type": "string"},
-    "in_scope": {"type": "array", "items": {"type": "string"}},
-    "out_of_scope": {"type": "array", "items": {"type": "string"}},
-    "constraints": {"type": "array", "items": {"type": "string"}},
-    "acceptance_criteria": {"type": "array", "items": {"type": "string"}},
-    "risk_level": {"enum": ["low", "medium", "high"]},
-    "assumptions": {"type": "array", "items": {"type": "string"}},
-    "open_questions": {"type": "array", "items": {"type": "string"}}
+    "schema_version": {
+      "type": "string",
+      "const": "0.1"
+    },
+    "task_id": {
+      "type": "string"
+    },
+    "objective": {
+      "type": "string"
+    },
+    "in_scope": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "out_of_scope": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "constraints": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "acceptance_criteria": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "risk_level": {
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "assumptions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "open_questions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
   },
   "additionalProperties": false
 }

@@ -162,11 +162,11 @@ def main() -> int:
         write_cases = [
             (
                 "plan_write",
-                f"/forgeflow:plan Write plan.json under {task_dir} for a README badge task. Keep it minimal. Do not modify repository files outside that task directory.",
+                f"/forgeflow:plan Write plan.json under {task_dir} for a README badge task. Keep it minimal. Use schema_version exactly 0.1. Do not modify repository files outside that task directory.",
             ),
             (
                 "review_write",
-                f"/forgeflow:review Write review-report.json under {task_dir} for a hypothetical README badge diff. Keep it minimal. Do not modify repository files outside that task directory.",
+                f"/forgeflow:review Write review-report.json under {task_dir} for a hypothetical README badge diff. Keep it minimal. Use schema_version exactly 0.1. Do not modify repository files outside that task directory.",
             ),
         ]
         for name, prompt in write_cases:

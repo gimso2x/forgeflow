@@ -5,6 +5,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import yaml
+
 ROOT = Path(__file__).resolve().parents[1]
 REQUIRED_GENERATED = {
     'claude': 'CLAUDE.md',
@@ -29,47 +31,30 @@ ROLE_TITLES = {
 }
 
 
+def load_manifest(path: Path) -> dict[str, object]:
+    data = yaml.safe_load(path.read_text(encoding='utf-8'))
+    if not isinstance(data, dict):
+        raise ValueError(f'{path}: manifest must be a YAML mapping')
+    return data
+
+
 def load_manifest_roles(path: Path) -> list[str]:
-    roles = []
-    capture = False
-    for raw in path.read_text(encoding='utf-8').splitlines():
-        stripped = raw.strip()
-        if stripped == 'supports_roles:':
-            capture = True
-            continue
-        if capture:
-            if stripped.startswith('- '):
-                roles.append(stripped[2:].strip())
-            elif stripped:
-                break
-    return roles
+    roles = load_manifest(path).get('supports_roles', [])
+    if not isinstance(roles, list):
+        return []
+    return [str(role) for role in roles]
 
 
 def load_manifest_value(path: Path, key: str) -> str | None:
-    prefix = f'{key}:'
-    for raw in path.read_text(encoding='utf-8').splitlines():
-        stripped = raw.strip()
-        if stripped.startswith(prefix):
-            return stripped[len(prefix):].strip()
-    return None
+    value = load_manifest(path).get(key)
+    return str(value) if value is not None else None
 
 
 def load_manifest_list(path: Path, key: str) -> list[str]:
-    values = []
-    capture = False
-    prefix = f'{key}:'
-    for raw in path.read_text(encoding='utf-8').splitlines():
-        stripped = raw.strip()
-        if stripped == prefix:
-            capture = True
-            continue
-        if capture:
-            if stripped.startswith('- '):
-                values.append(stripped[2:].strip())
-                continue
-            if stripped:
-                break
-    return values
+    values = load_manifest(path).get(key, [])
+    if not isinstance(values, list):
+        return []
+    return [str(value) for value in values]
 
 
 def check_generated_outputs(root: Path) -> list[str]:

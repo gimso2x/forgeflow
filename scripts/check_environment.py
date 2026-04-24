@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import importlib.util
 import sys
+import venv
 from dataclasses import dataclass
 
 
@@ -30,6 +31,11 @@ def _parse_args() -> argparse.Namespace:
         default=[],
         help="Extra import module to check; useful for smoke-testing error output.",
     )
+    parser.add_argument(
+        "--skip-modules",
+        action="store_true",
+        help="Only check Python venv/ensurepip support; used before make setup installs dependencies.",
+    )
     return parser.parse_args()
 
 
@@ -37,10 +43,21 @@ def _missing_modules(modules: list[RequiredModule]) -> list[RequiredModule]:
     return [module for module in modules if importlib.util.find_spec(module.import_name) is None]
 
 
+def _venv_available() -> bool:
+    return getattr(venv, "EnvBuilder", None) is not None and importlib.util.find_spec("ensurepip") is not None
+
+
 def main() -> int:
     args = _parse_args()
+    if not _venv_available():
+        print("ENVIRONMENT CHECK: FAIL")
+        print("Python venv/ensurepip support is unavailable.")
+        print("On Ubuntu/Debian, run: sudo apt-get install python3-venv")
+        print("Then retry: make setup")
+        return 1
+
     modules = [*DEFAULT_MODULES, *(RequiredModule(name, name) for name in args.module)]
-    missing = _missing_modules(modules)
+    missing = [] if args.skip_modules else _missing_modules(modules)
 
     if missing:
         print("ENVIRONMENT CHECK: FAIL")
@@ -51,7 +68,10 @@ def main() -> int:
         return 1
 
     print("ENVIRONMENT CHECK: PASS")
-    print("Python dependencies available: " + ", ".join(module.package_name for module in modules))
+    if args.skip_modules:
+        print("Python venv/ensurepip support available")
+    else:
+        print("Python dependencies available: " + ", ".join(module.package_name for module in modules))
     return 0
 
 
