@@ -5,7 +5,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from forgeflow_runtime.evolution import adopt_example_rule, doctor_evolution_state, effectiveness_review, promotion_plan, dry_run_rule, execute_rule, inspect_evolution_policy, list_rules
+from forgeflow_runtime.evolution import adopt_example_rule, doctor_evolution_state, effectiveness_review, promotion_plan, write_promotion_plan, dry_run_rule, execute_rule, inspect_evolution_policy, list_rules
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -883,3 +883,61 @@ def test_promotion_plan_cli_human_output_says_no_mutation(tmp_path: Path) -> Non
     assert "read-only: true" in result.stdout
     assert "would mutate: false" in result.stdout
     assert "required approvals:" in result.stdout
+
+
+def test_write_promotion_plan_persists_proposal_without_audit_or_rule_mutation(tmp_path: Path) -> None:
+    adopt = adopt_example_rule(tmp_path, "no-env-commit", fallback_root=ROOT)
+    before_events = _audit_events(tmp_path)
+    _append_failed_execute_events(tmp_path, "no-env-commit", 2)
+    events_after_failures = _audit_events(tmp_path)
+
+    result = write_promotion_plan(tmp_path, "no-env-commit", since_days=30)
+
+    proposal_path = Path(result["proposal_path"])
+    assert proposal_path.is_file()
+    assert proposal_path.parent == tmp_path / ".forgeflow" / "evolution" / "proposals"
+    assert proposal_path.name.endswith("-no-env-commit-promotion-plan.json")
+    payload = json.loads(proposal_path.read_text(encoding="utf-8"))
+    assert payload["recommendation"] == "promotion_candidate"
+    assert payload["would_mutate"] is False
+    assert payload["proposal_written"] is True
+    assert Path(adopt["destination"]).is_file()
+    assert _audit_events(tmp_path) == events_after_failures
+    assert len(events_after_failures) == len(before_events) + 2
+
+
+def test_promotion_plan_cli_write_outputs_path_and_keeps_json_contract(tmp_path: Path) -> None:
+    adopt_example_rule(tmp_path, "no-env-commit", fallback_root=ROOT)
+    _append_failed_execute_events(tmp_path, "no-env-commit", 2)
+
+    result = subprocess.run(
+        [sys.executable, "scripts/forgeflow_evolution.py", "--root", str(tmp_path), "promotion-plan", "--rule", "no-env-commit", "--since-days", "30", "--write", "--json"],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
+    payload = json.loads(result.stdout)
+    assert payload["proposal_written"] is True
+    assert payload["proposal_path"].endswith("-no-env-commit-promotion-plan.json")
+    assert Path(payload["proposal_path"]).is_file()
+    assert payload["would_mutate"] is False
+
+
+def test_promotion_plan_cli_write_human_output_names_written_file(tmp_path: Path) -> None:
+    adopt_example_rule(tmp_path, "no-env-commit", fallback_root=ROOT)
+    _append_failed_execute_events(tmp_path, "no-env-commit", 2)
+
+    result = subprocess.run(
+        [sys.executable, "scripts/forgeflow_evolution.py", "--root", str(tmp_path), "promotion-plan", "--rule", "no-env-commit", "--write"],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert "proposal written:" in result.stdout
+    assert ".forgeflow/evolution/proposals/" in result.stdout

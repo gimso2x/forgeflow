@@ -259,6 +259,8 @@ def test_evolution_model_doc_captures_global_advisory_project_enforcement_contra
     assert "doctor --json" in text
     assert "effectiveness" in text
     assert "promotion-plan" in text
+    assert ".forgeflow/evolution/proposals" in text
+    assert "--write" in text
     assert "required_human_approvals" in text
     assert "would_mutate=false" in text
     assert "audit --limit" in text

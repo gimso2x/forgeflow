@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from forgeflow_runtime.evolution import adopt_example_rule, audit_events, doctor_evolution_state, dry_run_rule, effectiveness_review, execute_rule, inspect_evolution_policy, list_rules, promotion_plan, restore_rule, retire_rule
+from forgeflow_runtime.evolution import adopt_example_rule, audit_events, doctor_evolution_state, dry_run_rule, effectiveness_review, execute_rule, inspect_evolution_policy, list_rules, promotion_plan, restore_rule, retire_rule, write_promotion_plan
 
 
 def _target_root(args: argparse.Namespace) -> Path:
@@ -205,7 +205,10 @@ def cmd_effectiveness(args: argparse.Namespace) -> int:
 
 def cmd_promotion_plan(args: argparse.Namespace) -> int:
     try:
-        result = promotion_plan(_target_root(args), args.rule, since_days=args.since_days)
+        if args.write:
+            result = write_promotion_plan(_target_root(args), args.rule, since_days=args.since_days)
+        else:
+            result = promotion_plan(_target_root(args), args.rule, since_days=args.since_days)
     except ValueError as exc:
         print(f"Error: {exc}", file=sys.stderr)
         return 1
@@ -231,6 +234,8 @@ def cmd_promotion_plan(args: argparse.Namespace) -> int:
         print("  - <none>")
     if result.get("suggested_next_command"):
         print(f"- suggested next command: {result['suggested_next_command']}")
+    if result.get("proposal_written"):
+        print(f"- proposal written: {result['proposal_path']}")
     return 0
 
 
@@ -300,6 +305,7 @@ def build_parser() -> argparse.ArgumentParser:
     promotion = sub.add_parser("promotion-plan", help="read-only promotion planning from effectiveness evidence")
     promotion.add_argument("--rule", required=True)
     promotion.add_argument("--since-days", type=int, default=30)
+    promotion.add_argument("--write", action="store_true")
     promotion.add_argument("--json", action="store_true")
     promotion.set_defaults(func=cmd_promotion_plan)
     audit = sub.add_parser("audit", help="show recent project-local evolution audit events")

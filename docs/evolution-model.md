@@ -194,8 +194,17 @@ Even `promotion_candidate` keeps `would_promote=false` and `would_mutate=false`.
 python3 scripts/forgeflow_evolution.py promotion-plan \
   --rule no-env-commit \
   --since-days 30 \
+  --write \
   --json
 ```
+
+`--write` saves the proposal under:
+
+```text
+.forgeflow/evolution/proposals/<timestamp>-<rule>-promotion-plan.json
+```
+
+This still does not append audit events or mutate rule registries. It only makes the proposal durable for later review.
 
 The plan contains:
 

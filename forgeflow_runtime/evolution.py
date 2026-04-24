@@ -16,6 +16,7 @@ EVOLUTION_EXAMPLES = [
 ]
 PROJECT_RULE_DIR = Path(".forgeflow") / "evolution" / "rules"
 RETIRED_RULE_DIR = Path(".forgeflow") / "evolution" / "retired-rules"
+PROPOSAL_DIR = Path(".forgeflow") / "evolution" / "proposals"
 AUDIT_LOG_PATH = Path(".forgeflow") / "evolution" / "audit-log.jsonl"
 HARD_GATE_REQUIRES = {
     "project_local_enablement",
@@ -157,6 +158,25 @@ def promotion_plan(root: Path, rule_id: str, *, since_days: int = 30) -> dict[st
         "risk_flags": risk_flags,
         "suggested_next_command": suggested_next_command,
     }
+
+
+def write_promotion_plan(root: Path, rule_id: str, *, since_days: int = 30) -> dict[str, Any]:
+    """Persist a promotion proposal without changing rules or audit logs."""
+
+    root = root.resolve()
+    plan = promotion_plan(root, rule_id, since_days=since_days)
+    proposals_dir = root / PROPOSAL_DIR
+    proposals_dir.mkdir(parents=True, exist_ok=True)
+    safe_rule_id = "".join(char if char.isalnum() or char in {"-", "_"} else "-" for char in rule_id).strip("-") or "rule"
+    timestamp = _utc_timestamp().replace(":", "").replace("-", "")
+    proposal_path = proposals_dir / f"{timestamp}-{safe_rule_id}-promotion-plan.json"
+    payload = {
+        **plan,
+        "proposal_written": True,
+        "proposal_path": str(proposal_path),
+    }
+    proposal_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    return payload
 
 
 def _failed_safety_checks(safety_checks: dict[str, bool]) -> list[str]:
