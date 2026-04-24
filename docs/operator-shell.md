@@ -28,21 +28,17 @@ make runtime-sample
 
 ## Canonical help
 
-The CLI itself carries the short operator cheatsheet:
+The CLI itself carries the short operator cheatsheet. Run it through the repo-managed environment:
 
 ```bash
-python3 scripts/run_orchestrator.py --help
+make setup
+make check-env
+make orchestrator-help
 ```
 
 Review rollup note: there is intentionally no `review-summary` command yet. Use `status` plus the review artifacts; the decision rationale lives in `docs/review-summary-decision.md`.
 
-For command-specific arguments:
-
-```bash
-python3 scripts/run_orchestrator.py run --help
-python3 scripts/run_orchestrator.py advance --help
-python3 scripts/run_orchestrator.py execute --help
-```
+The `orchestrator-help` target prints the top-level help plus command-specific arguments for `run`, `advance`, and `execute`.
 
 ## Common commands
 

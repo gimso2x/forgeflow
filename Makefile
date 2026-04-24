@@ -3,7 +3,7 @@ VENV ?= .venv
 VENV_PYTHON := $(VENV)/bin/python
 VENV_PIP := $(VENV)/bin/pip
 
-.PHONY: setup check-env validate generate regen clean validate-samples runtime-sample adherence-evals monitor-summary monitor-summary-json smoke-claude-plugin validate-upstream-import validate-hoyeon-import validate-skill-contracts validate-claude-hooks plan-cli-smoke evolution-policy-smoke learn-smoke claude-hook-smoke shared-recovery-smoke team-pattern-smoke agent-preset-smoke claude-agent-preset-smoke release-script-smoke verify-skill-smoke finish-skill-smoke plugin-manifest-smoke
+.PHONY: setup check-env validate generate regen clean validate-samples runtime-sample adherence-evals monitor-summary monitor-summary-json orchestrator-help smoke-claude-plugin validate-upstream-import validate-hoyeon-import validate-skill-contracts validate-claude-hooks plan-cli-smoke evolution-policy-smoke learn-smoke claude-hook-smoke shared-recovery-smoke team-pattern-smoke agent-preset-smoke claude-agent-preset-smoke release-script-smoke verify-skill-smoke finish-skill-smoke plugin-manifest-smoke
 
 setup:
 	$(PYTHON) scripts/check_environment.py --require-venv-support --skip-modules
@@ -50,6 +50,12 @@ monitor-summary:
 
 monitor-summary-json:
 	$(VENV_PYTHON) scripts/forgeflow_monitor.py --tasks .forgeflow/tasks --recent 10 --format json
+
+orchestrator-help:
+	$(VENV_PYTHON) scripts/run_orchestrator.py --help
+	$(VENV_PYTHON) scripts/run_orchestrator.py run --help
+	$(VENV_PYTHON) scripts/run_orchestrator.py advance --help
+	$(VENV_PYTHON) scripts/run_orchestrator.py execute --help
 
 validate-upstream-import:
 	$(VENV_PYTHON) scripts/validate_upstream_import.py

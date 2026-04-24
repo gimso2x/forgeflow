@@ -162,6 +162,23 @@ def test_operator_shell_doc_uses_repo_managed_runtime_sample_target() -> None:
     assert "python3 scripts/run_runtime_sample.py" not in sample_section
 
 
+def test_operator_shell_doc_uses_repo_managed_orchestrator_help_target() -> None:
+    makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
+    doc = (ROOT / "docs/operator-shell.md").read_text(encoding="utf-8")
+    help_section = doc.split("## Canonical help", 1)[1].split("## Common commands", 1)[0]
+
+    assert "orchestrator-help:" in makefile
+    assert "$(VENV_PYTHON) scripts/run_orchestrator.py --help" in makefile
+    assert "$(VENV_PYTHON) scripts/run_orchestrator.py run --help" in makefile
+    assert "$(VENV_PYTHON) scripts/run_orchestrator.py advance --help" in makefile
+    assert "$(VENV_PYTHON) scripts/run_orchestrator.py execute --help" in makefile
+    assert "make setup" in help_section
+    assert "make check-env" in help_section
+    assert "make orchestrator-help" in help_section.splitlines()
+    assert help_section.index("make setup") < help_section.index("make check-env") < help_section.index("make orchestrator-help")
+    assert "python3 scripts/run_orchestrator.py" not in help_section
+
+
 def test_monitoring_summary_plan_points_users_to_make_targets() -> None:
     plan = (ROOT / "docs/plans/2026-04-24-forgeflow-monitor-summary.md").read_text(encoding="utf-8")
     usage_section = plan.split("### Task 4: Document usage", 1)[1].split("### Task 5: Verify and commit", 1)[0]

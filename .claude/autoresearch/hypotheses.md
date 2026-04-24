@@ -1,9 +1,10 @@
 # ForgeFlow AutoResearch Hypotheses
 
 ## Pending
-- [AUTO-018] Inspect docs/operator-shell.md Canonical help section for direct orchestrator help commands that could benefit from a repo-managed Make target or explicit venv/setup guidance, and add one narrow docs/test guard only if current operator guidance is affected.
+- [AUTO-019] Inspect docs/operator-shell.md Common commands section for read-only direct orchestrator status/help commands that could use a repo-managed Make target without hiding intentional mutating examples, and add one narrow docs/test guard only if current operator guidance is affected.
 
 ## Completed
+- [EXP-018] KEEP 2026-04-25: [AUTO-018] Inspect docs/operator-shell.md Canonical help section for direct orchestrator help commands that could benefit from a repo-managed Make target or explicit venv/setup guidance, and add one narrow docs/test guard only if current operator guidance is affected.
 - [EXP-017] KEEP 2026-04-24: [AUTO-017] Inspect docs/operator-shell.md for a direct runtime sample command that duplicates the repo-managed Make target, and align one narrow docs/test guard only if it affects current operator guidance.
 - [EXP-016] KEEP 2026-04-24: [AUTO-016] Inspect the adjacent README operator shell command block for direct runtime script invocations that already have repo-managed Make targets, and add one narrow docs/test alignment only if it reduces first-clone environment drift without hiding intentional mutating commands.
 - [EXP-015] KEEP 2026-04-25: [AUTO-015] Inspect README runtime command examples adjacent to monitoring summary for whether a repo-managed make target would reduce first-clone Python drift, and add one narrow guard only if the current user flow is affected.
@@ -21,6 +22,5 @@
 - [EXP-003] KEEP 2026-04-25: [AUTO-003] Inspect validation scripts for missing generated/artifact drift checks and add one narrow contract test if a real gap exists.
 - [EXP-002] KEEP 2026-04-25: [AUTO-002] Audit adapter generated docs for stale safety/recovery wording and add a doc/test guard if drift exists.
 - [EXP-001] KEEP 2026-04-25: [AUTO-001] Add a focused regression around monitor summary handling of partially present artifacts if coverage gap remains after inspecting tests.
-
 
 ## Discarded
