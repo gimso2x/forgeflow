@@ -3,7 +3,7 @@ VENV ?= .venv
 VENV_PYTHON := $(VENV)/bin/python
 VENV_PIP := $(VENV)/bin/pip
 
-.PHONY: setup check-env validate generate regen clean validate-samples runtime-sample adherence-evals smoke-claude-plugin validate-upstream-import
+.PHONY: setup check-env validate generate regen clean validate-samples runtime-sample adherence-evals smoke-claude-plugin validate-upstream-import validate-hoyeon-import
 
 setup:
 	$(PYTHON) -m venv $(VENV)
@@ -20,6 +20,7 @@ validate:
 	$(PYTHON) scripts/validate_sample_artifacts.py
 	$(PYTHON) scripts/run_adherence_evals.py
 	$(PYTHON) scripts/validate_upstream_import.py
+	$(PYTHON) scripts/validate_hoyeon_import.py
 
 runtime-sample:
 	$(PYTHON) scripts/run_runtime_sample.py --fixture-dir examples/runtime-fixtures/small-doc-task --route small
@@ -29,6 +30,9 @@ adherence-evals:
 
 validate-upstream-import:
 	$(PYTHON) scripts/validate_upstream_import.py
+
+validate-hoyeon-import:
+	$(PYTHON) scripts/validate_hoyeon_import.py
 
 smoke-claude-plugin:
 	$(PYTHON) scripts/smoke_claude_plugin.py
