@@ -230,7 +230,7 @@ Most agent repos do at least one of these badly:
 ForgeFlow tries not to do that.
 
 ## Repo map
-- `docs/` — human-readable design docs
+- `docs/` — human-readable design docs, including `docs/evolution-model.md` for the global advisory/project-local enforcement contract
 - `policy/canonical/` — workflow semantics, gates, review order, routing, global-advisory/project-enforced self-evolution policy
 - `examples/evolution/` — deterministic project-local HARD rule examples; validated against the canonical evolution policy
 - `scripts/forgeflow_evolution.py inspect` / `list` / `adopt` / `dry-run --rule <id>` / gated `execute --rule <id>` — evolution policy/runtime-safety summaries plus explicitly acknowledged project-local rule execution

@@ -244,3 +244,14 @@ non_negotiables:
     errors = validate_policy.validate_policy_root(fixture_root)
 
     assert any("gates.yaml failed schema validation" in error for error in errors)
+
+
+def test_evolution_model_doc_captures_global_advisory_project_enforcement_contract() -> None:
+    text = (ROOT / "docs" / "evolution-model.md").read_text(encoding="utf-8")
+
+    assert "global advisory only" in text
+    assert "project-local enforcement" in text
+    assert "raw evidence stays project-local" in text
+    assert "max_patterns: 3" in text
+    assert ".forgeflow/evolution/rules" in text
+    assert "--i-understand-project-local-hard-rule" in text
