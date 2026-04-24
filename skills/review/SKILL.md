@@ -27,6 +27,25 @@ Use this skill to review completed ForgeFlow work independently.
   - evidence references
   - `safe_for_next_stage`
 
+When writing `review-report.json`, it **must** conform to `schemas/review-report.schema.json` exactly:
+
+```json
+{
+  "schema_version": "1.0",
+  "task_id": "readme-badge-task",
+  "review_type": "quality",
+  "verdict": "approved",
+  "findings": ["No blockers found in the hypothetical README badge diff."],
+  "approved_by": "forgeflow-review",
+  "next_action": "Proceed to /ship.",
+  "safe_for_next_stage": true,
+  "open_blockers": [],
+  "evidence_refs": ["hypothetical README badge diff"]
+}
+```
+
+Do not add non-schema fields such as `findings_by_severity`, `blocker_list`, or `evidence_references`. Use verdict values exactly: `approved`, `changes_requested`, or `blocked`; never `passed`.
+
 ## Exit Condition
 
 - Requirements/acceptance criteria are checked against actual files

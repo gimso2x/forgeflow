@@ -27,6 +27,27 @@ Use this skill to turn a ForgeFlow brief or requirements document into an execut
   - risk notes
 - `plan-ledger.json` starter shape for medium/large routes when useful
 
+When writing `plan.json`, it **must** conform to `schemas/plan.schema.json` exactly:
+
+```json
+{
+  "schema_version": "1.0",
+  "task_id": "readme-badge-task",
+  "steps": [
+    {
+      "id": "step-1",
+      "objective": "Identify the README badge location and desired badge text.",
+      "dependencies": [],
+      "expected_output": "Badge location and target badge content are known.",
+      "verification": "Manual inspection of README badge location and requested badge content.",
+      "rollback_note": "No repository files changed during planning."
+    }
+  ]
+}
+```
+
+Do not add non-schema fields such as `route`, `tasks`, `files_to_change`, `acceptance_criteria`, `verification_commands`, or `route_selection_rationale` to `plan.json`.
+
 ## Exit Condition
 
 - Every task has exact file paths or a justified discovery step
