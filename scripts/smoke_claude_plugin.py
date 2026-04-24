@@ -19,32 +19,32 @@ ANSI_RE = re.compile(r"\x1b\[[0-9;?]*[A-Za-z]")
 DRY_RUN_CASES = [
     (
         "clarify_exact",
-        "/forgeflow:clarify Dry run only. Return only the selected route label for: fix one README typo. Do not write files. Do not run commands.",
+        "/forgeflow:clarify Dry run only. Return only one selected route label for: fix one README typo. Valid labels: small, medium, large_high_risk. Do not write files. Do not run commands.",
         "label",
     ),
     (
         "specify_exact",
-        "/forgeflow:specify Dry run only. List exactly two spec questions for a README badge task. Do not write files. Do not run commands.",
+        "/forgeflow:specify Dry run only. Return exactly two numbered lines and nothing else. List two spec questions for a README badge task. Do not write files. Do not run commands.",
         "two_lines",
     ),
     (
         "plan_exact",
-        "/forgeflow:plan Dry run only. List exactly two plan steps for a README badge task. Do not write files. Do not run commands.",
+        "/forgeflow:plan Dry run only. Return exactly two numbered lines and nothing else. List two plan steps for a README badge task. Do not write files. Do not run commands.",
         "two_lines",
     ),
     (
         "run_exact",
-        "/forgeflow:run Dry run only. List exactly two execution checks for a README badge task. Do not write files. Do not run commands.",
+        "/forgeflow:run Dry run only. Return exactly two numbered lines and nothing else. List two execution checks for a README badge task. Do not write files. Do not run commands.",
         "two_lines",
     ),
     (
         "review_exact",
-        "/forgeflow:review Dry run only. For a README badge diff, list exactly two review checks. Do not write files. Do not run commands.",
+        "/forgeflow:review Dry run only. Return exactly two numbered lines and nothing else. For a README badge diff, list two review checks. Do not write files. Do not run commands.",
         "two_lines",
     ),
     (
         "ship_exact",
-        "/forgeflow:ship Dry run only. List exactly two ship checks for a README badge task. Do not write files. Do not run commands.",
+        "/forgeflow:ship Dry run only. Return exactly two numbered lines and nothing else. List two ship checks for a README badge task. Do not write files. Do not run commands.",
         "two_lines",
     ),
 ]
