@@ -95,6 +95,7 @@ def file_for_target(name: str, manifest: dict[str, object] | None = None) -> str
 
 def build_content(target: str, manifest: dict[str, object]) -> str:
     workflow = (POLICY_DIR / 'workflow.yaml').read_text(encoding='utf-8').strip()
+    recovery = (POLICY_DIR / 'recovery.yaml').read_text(encoding='utf-8').strip()
     supported_roles = manifest.get('supports_roles', [])
     role_files = [ROLE_FILE_MAP[role] for role in supported_roles]
     roles_blob = '\n\n'.join((PROMPTS_DIR / name).read_text(encoding='utf-8').strip() for name in role_files)
@@ -111,6 +112,7 @@ def build_content(target: str, manifest: dict[str, object]) -> str:
     session_persistence = manifest.get('session_persistence')
     workspace_boundary = manifest.get('workspace_boundary')
     review_delivery = manifest.get('review_delivery')
+    delivery_note = manifest.get('recovery_delivery_note')
     parts = [
         f'# {target.capitalize()} ForgeFlow Adapter',
         '',
@@ -150,6 +152,12 @@ def build_content(target: str, manifest: dict[str, object]) -> str:
         '',
         '## Tooling constraints',
         constraints,
+        '',
+        '## Recovery contract',
+        f'- delivery_note: {delivery_note}',
+        '```yaml',
+        recovery,
+        '```',
         '',
         '## Canonical workflow snapshot',
         '```yaml',

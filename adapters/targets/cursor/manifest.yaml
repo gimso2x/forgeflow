@@ -19,6 +19,7 @@ installation_steps:
 session_persistence: rule file persists across chat sessions until regenerated
 workspace_boundary: project rules live under .cursor/rules and guide editor-native runs
 review_delivery: chat summary plus artifact file updates inside the workspace
+recovery_delivery_note: Cursor delivers recovery through .cursor/rules guidance, not hooks.
 tooling_constraints:
   - rules surface may require .mdc or cursor-specific placement
   - generated artifacts must not redefine canonical semantics

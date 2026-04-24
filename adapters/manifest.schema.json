@@ -17,7 +17,8 @@
     "installation_steps",
     "session_persistence",
     "workspace_boundary",
-    "review_delivery"
+    "review_delivery",
+    "recovery_delivery_note"
   ],
   "properties": {
     "name": {"type": "string"},
@@ -48,7 +49,8 @@
     },
     "session_persistence": {"type": "string", "minLength": 1},
     "workspace_boundary": {"type": "string", "minLength": 1},
-    "review_delivery": {"type": "string", "minLength": 1}
+    "review_delivery": {"type": "string", "minLength": 1},
+    "recovery_delivery_note": {"type": "string", "minLength": 1}
   },
   "additionalProperties": false
 }

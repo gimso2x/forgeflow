@@ -46,6 +46,22 @@ Do not edit manually. Update canonical docs/policy/prompts and rerun `scripts/ge
 - Chat summaries must not replace required ForgeFlow artifacts
 - Cursor fast/apply shortcuts must not bypass review gates
 
+## Recovery contract
+- delivery_note: Cursor delivers recovery through .cursor/rules guidance, not hooks.
+```yaml
+title: ForgeFlow Recovery Contract
+version: 0.1
+rules:
+  - After an edit/write/apply failure, re-read the target file before retrying.
+  - For large files, noisy context, or oversized output, use targeted search or chunked reads.
+  - After three repeated failures, stop and change strategy before continuing.
+  - Fast/apply shortcuts must not skip artifact gates or review gates.
+  - Chat, terminal, or worker summaries must not replace required ForgeFlow artifacts.
+notes:
+  - Recovery guidance changes agent behavior only; it does not change canonical stage semantics.
+  - Adapter-specific delivery mechanisms may differ, but the shared rules must remain consistent.
+```
+
 ## Canonical workflow snapshot
 ```yaml
 version: 0.1

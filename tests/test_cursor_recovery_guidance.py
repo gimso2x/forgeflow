@@ -3,24 +3,23 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "adapters/targets/cursor/manifest.yaml"
 GENERATED = ROOT / "adapters/generated/cursor/HARNESS_CURSOR.md"
-
-REQUIRED_PHRASES = [
-    "Cursor recovery guidance",
-    "After a failed edit or apply, re-read the target file and inspect the diff before retrying",
-    "For large files or noisy editor context, use targeted search or chunked reads",
-    "After three repeated failures, stop and change strategy before continuing",
-    "Chat summaries must not replace required ForgeFlow artifacts",
-    "Cursor fast/apply shortcuts must not bypass review gates",
-]
+CONTRACT = ROOT / "policy/canonical/recovery.yaml"
+DELIVERY_NOTE = "Cursor delivers recovery through .cursor/rules guidance, not hooks."
 
 
-def test_cursor_manifest_contains_recovery_guidance_contract():
+def shared_rules() -> list[str]:
+    text = CONTRACT.read_text(encoding="utf-8")
+    return [line.removeprefix("  - ") for line in text.splitlines() if line.startswith("  - ")]
+
+
+def test_cursor_manifest_contains_adapter_specific_delivery_note():
     text = MANIFEST.read_text(encoding="utf-8")
-    for phrase in REQUIRED_PHRASES:
-        assert phrase in text
+    assert DELIVERY_NOTE in text
 
 
-def test_generated_cursor_adapter_includes_recovery_guidance_contract():
+def test_generated_cursor_adapter_includes_shared_recovery_contract_and_delivery_note():
     text = GENERATED.read_text(encoding="utf-8")
-    for phrase in REQUIRED_PHRASES:
-        assert phrase in text
+    assert "## Recovery contract" in text
+    assert DELIVERY_NOTE in text
+    for rule in shared_rules():
+        assert rule in text
