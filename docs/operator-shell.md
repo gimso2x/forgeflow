@@ -56,9 +56,10 @@ python3 scripts/run_orchestrator.py init \
   --objective "Update README quickstart" \
   --risk low
 
-# Inspect current artifacts and stage pointer.
-python3 scripts/run_orchestrator.py status \
-  --task-dir examples/runtime-fixtures/small-doc-task
+# Inspect current artifacts and stage pointer. This read-only path is repo-managed.
+make setup
+make check-env
+make orchestrator-status
 
 # Fallback entry: route omitted, so persisted state or brief/checkpoint artifacts decide.
 python3 scripts/run_orchestrator.py start \

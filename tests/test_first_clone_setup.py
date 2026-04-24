@@ -179,6 +179,24 @@ def test_operator_shell_doc_uses_repo_managed_orchestrator_help_target() -> None
     assert "python3 scripts/run_orchestrator.py" not in help_section
 
 
+def test_operator_shell_common_commands_use_repo_managed_status_target_for_read_only_status() -> None:
+    makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
+    doc = (ROOT / "docs/operator-shell.md").read_text(encoding="utf-8")
+    common_section = doc.split("## Common commands", 1)[1].split("## Route selection", 1)[0]
+
+    phony_line = next(line for line in makefile.splitlines() if line.startswith(".PHONY:"))
+    assert "orchestrator-status" in phony_line
+    assert "orchestrator-status:" in makefile
+    assert "$(VENV_PYTHON) scripts/run_orchestrator.py status --task-dir examples/runtime-fixtures/small-doc-task" in makefile
+    assert "make setup" in common_section
+    assert "make check-env" in common_section
+    assert "make orchestrator-status" in common_section.splitlines()
+    assert common_section.index("make setup") < common_section.index("make check-env") < common_section.index("make orchestrator-status")
+    assert "# Inspect current artifacts and stage pointer. This read-only path is repo-managed." in common_section
+    assert "python3 scripts/run_orchestrator.py status" not in common_section
+    assert "python3 scripts/run_orchestrator.py init" in common_section
+
+
 def test_monitoring_summary_plan_points_users_to_make_targets() -> None:
     plan = (ROOT / "docs/plans/2026-04-24-forgeflow-monitor-summary.md").read_text(encoding="utf-8")
     usage_section = plan.split("### Task 4: Document usage", 1)[1].split("### Task 5: Verify and commit", 1)[0]

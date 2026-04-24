@@ -1,9 +1,10 @@
 # ForgeFlow AutoResearch Hypotheses
 
 ## Pending
-- [AUTO-019] Inspect docs/operator-shell.md Common commands section for read-only direct orchestrator status/help commands that could use a repo-managed Make target without hiding intentional mutating examples, and add one narrow docs/test guard only if current operator guidance is affected.
+- [AUTO-020] Inspect docs/operator-shell.md Common commands for the next read-only or low-risk inspect command adjacent to status, and add a repo-managed Make target or explicit setup guidance only if it reduces fresh-clone Python drift without masking mutating operations.
 
 ## Completed
+- [EXP-019] KEEP 2026-04-25: [AUTO-019] Inspect docs/operator-shell.md Common commands section for read-only direct orchestrator status/help commands that could use a repo-managed Make target without hiding intentional mutating examples, and add one narrow docs/test guard only if current operator guidance is affected.
 - [EXP-018] KEEP 2026-04-25: [AUTO-018] Inspect docs/operator-shell.md Canonical help section for direct orchestrator help commands that could benefit from a repo-managed Make target or explicit venv/setup guidance, and add one narrow docs/test guard only if current operator guidance is affected.
 - [EXP-017] KEEP 2026-04-24: [AUTO-017] Inspect docs/operator-shell.md for a direct runtime sample command that duplicates the repo-managed Make target, and align one narrow docs/test guard only if it affects current operator guidance.
 - [EXP-016] KEEP 2026-04-24: [AUTO-016] Inspect the adjacent README operator shell command block for direct runtime script invocations that already have repo-managed Make targets, and add one narrow docs/test alignment only if it reduces first-clone environment drift without hiding intentional mutating commands.
