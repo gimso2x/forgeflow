@@ -100,6 +100,7 @@ retire   -> move a project-local rule into .forgeflow/evolution/retired-rules wi
 restore  -> move a retired rule back into .forgeflow/evolution/rules with a reason
 doctor        -> read-only health check for active/retired rules and audit JSONL
 effectiveness -> read-only audit-backed rule effectiveness review
+promotion-plan -> read-only promotion proposal with evidence, approvals, and risk flags
 audit         -> show recent project-local lifecycle/execution events
 ```
 
@@ -186,3 +187,24 @@ no executions          -> insufficient_data
 ```
 
 Even `promotion_candidate` keeps `would_promote=false` and `would_mutate=false`. Automatic SOFT→HARD promotion needs a separate policy gate; otherwise the loop starts sharpening knives in the dark.
+
+`promotion-plan` turns the same audit-backed evidence into a non-mutating operator proposal:
+
+```bash
+python3 scripts/forgeflow_evolution.py promotion-plan \
+  --rule no-env-commit \
+  --since-days 30 \
+  --json
+```
+
+The plan contains:
+
+```text
+recommendation
+required_human_approvals
+evidence_summary
+risk_flags
+suggested_next_command
+```
+
+For `promotion_candidate`, the required approvals are `maintainer_approval` and `project_owner_approval`, and the plan still reports `would_mutate=false`. It is a proposal, not a sneaky promote button with a moustache.

@@ -123,6 +123,42 @@ def effectiveness_review(root: Path, rule_id: str, *, since_days: int = 30) -> d
     }
 
 
+def promotion_plan(root: Path, rule_id: str, *, since_days: int = 30) -> dict[str, Any]:
+    """Build a non-mutating promotion plan from audit-backed effectiveness evidence."""
+
+    effectiveness = effectiveness_review(root, rule_id, since_days=since_days)
+    metrics = effectiveness["metrics"]
+    recommendation = effectiveness["recommendation"]
+    risk_flags: list[str] = []
+    required_approvals: list[str] = []
+    suggested_next_command: str | None = None
+    if recommendation == "promotion_candidate":
+        required_approvals = ["maintainer_approval", "project_owner_approval"]
+        risk_flags.append("promotion_requires_separate_policy_gate")
+        suggested_next_command = f"python3 scripts/forgeflow_evolution.py effectiveness --rule {rule_id} --since-days {since_days} --json"
+    elif recommendation == "watch_candidate":
+        risk_flags.append("single_failure_needs_observation")
+    elif recommendation == "insufficient_data":
+        risk_flags.append("insufficient_effectiveness_evidence")
+    return {
+        "rule_id": rule_id,
+        "read_only": True,
+        "would_mutate": False,
+        "would_promote": False,
+        "recommendation": recommendation,
+        "required_human_approvals": required_approvals,
+        "evidence_summary": {
+            "window_days": effectiveness["window_days"],
+            "executions": metrics["executions"],
+            "passes": metrics["passes"],
+            "failures": metrics["failures"],
+            "blocked_executions": metrics["blocked_executions"],
+        },
+        "risk_flags": risk_flags,
+        "suggested_next_command": suggested_next_command,
+    }
+
+
 def _failed_safety_checks(safety_checks: dict[str, bool]) -> list[str]:
     return [name for name, passed in safety_checks.items() if not passed]
 

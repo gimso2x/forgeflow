@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from forgeflow_runtime.evolution import adopt_example_rule, audit_events, doctor_evolution_state, dry_run_rule, effectiveness_review, execute_rule, inspect_evolution_policy, list_rules, restore_rule, retire_rule
+from forgeflow_runtime.evolution import adopt_example_rule, audit_events, doctor_evolution_state, dry_run_rule, effectiveness_review, execute_rule, inspect_evolution_policy, list_rules, promotion_plan, restore_rule, retire_rule
 
 
 def _target_root(args: argparse.Namespace) -> Path:
@@ -203,6 +203,37 @@ def cmd_effectiveness(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_promotion_plan(args: argparse.Namespace) -> int:
+    try:
+        result = promotion_plan(_target_root(args), args.rule, since_days=args.since_days)
+    except ValueError as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 1
+    if args.json:
+        print(json.dumps(result, ensure_ascii=False, indent=2))
+        return 0
+    print(f"Evolution promotion plan: {result['rule_id']}")
+    print(f"- read-only: {str(result['read_only']).lower()}")
+    print(f"- would mutate: {str(result['would_mutate']).lower()}")
+    print(f"- recommendation: {result['recommendation']}")
+    print(f"- failures: {result['evidence_summary']['failures']}")
+    print("- required approvals:")
+    if result["required_human_approvals"]:
+        for approval in result["required_human_approvals"]:
+            print(f"  - {approval}")
+    else:
+        print("  - <none>")
+    print("- risk flags:")
+    if result["risk_flags"]:
+        for flag in result["risk_flags"]:
+            print(f"  - {flag}")
+    else:
+        print("  - <none>")
+    if result.get("suggested_next_command"):
+        print(f"- suggested next command: {result['suggested_next_command']}")
+    return 0
+
+
 def cmd_audit(args: argparse.Namespace) -> int:
     try:
         result = audit_events(_target_root(args), limit=args.limit)
@@ -266,6 +297,11 @@ def build_parser() -> argparse.ArgumentParser:
     effectiveness.add_argument("--since-days", type=int, default=30)
     effectiveness.add_argument("--json", action="store_true")
     effectiveness.set_defaults(func=cmd_effectiveness)
+    promotion = sub.add_parser("promotion-plan", help="read-only promotion planning from effectiveness evidence")
+    promotion.add_argument("--rule", required=True)
+    promotion.add_argument("--since-days", type=int, default=30)
+    promotion.add_argument("--json", action="store_true")
+    promotion.set_defaults(func=cmd_promotion_plan)
     audit = sub.add_parser("audit", help="show recent project-local evolution audit events")
     audit.add_argument("--limit", type=int, default=20)
     audit.add_argument("--json", action="store_true")
