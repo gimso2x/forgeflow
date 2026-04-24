@@ -56,14 +56,12 @@ When the user says "do not run commands", do not propose command execution as if
 
 For exact-count list prompts, output numbered lines only. Do not output a preamble, heading, fenced block, command equivalent, git action, artifact JSON, or final verdict.
 
-Example exact-count response:
+Example exact-count response must be plain text lines, not a fenced block:
 
-```text
 1. Confirm the approved README badge change is the only intended ship item.
 2. Confirm the final handoff summary names the badge change and any residual risk.
-```
 
-No heading. No preamble. No third line.
+No heading. No preamble. No code fence. No third line.
 
 ## Procedure
 
