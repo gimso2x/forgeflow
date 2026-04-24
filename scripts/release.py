@@ -13,6 +13,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 PLUGIN_JSON = ROOT / ".claude-plugin" / "plugin.json"
 MARKETPLACE_JSON = ROOT / ".claude-plugin" / "marketplace.json"
+CODEX_PLUGIN_JSON = ROOT / ".codex-plugin" / "plugin.json"
+CURSOR_PLUGIN_JSON = ROOT / ".cursor-plugin" / "plugin.json"
+PLUGIN_VERSION_JSONS = [PLUGIN_JSON, CODEX_PLUGIN_JSON, CURSOR_PLUGIN_JSON]
 SEMVER_RE = re.compile(r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:[-+][0-9A-Za-z.-]+)?$")
 
 
@@ -42,11 +45,12 @@ def dump_json(path: Path, data: dict) -> None:
 
 
 def update_versions(version: str) -> None:
-    plugin = load_json(PLUGIN_JSON)
+    for path in PLUGIN_VERSION_JSONS:
+        plugin = load_json(path)
+        plugin["version"] = version
+        dump_json(path, plugin)
     marketplace = load_json(MARKETPLACE_JSON)
-    plugin["version"] = version
     marketplace.setdefault("metadata", {})["version"] = version
-    dump_json(PLUGIN_JSON, plugin)
     dump_json(MARKETPLACE_JSON, marketplace)
 
 
@@ -81,7 +85,7 @@ def release_plan(version: str) -> str:
     return "\n".join(
         [
             f"Release plan for {tag}",
-            f"1. update .claude-plugin/plugin.json version to {version}",
+            f"1. update plugin manifests version to {version}",
             f"2. update .claude-plugin/marketplace.json metadata.version to {version}",
             "3. run pytest -q",
             "4. run make validate",
@@ -122,7 +126,14 @@ def main() -> int:
 
     tag = f"v{args.version}"
     if not args.no_commit:
-        run(["git", "add", str(PLUGIN_JSON.relative_to(ROOT)), str(MARKETPLACE_JSON.relative_to(ROOT))])
+        run([
+            "git",
+            "add",
+            str(PLUGIN_JSON.relative_to(ROOT)),
+            str(CODEX_PLUGIN_JSON.relative_to(ROOT)),
+            str(CURSOR_PLUGIN_JSON.relative_to(ROOT)),
+            str(MARKETPLACE_JSON.relative_to(ROOT)),
+        ])
         if args.notes_out and args.notes_out.is_relative_to(ROOT):
             run(["git", "add", str(args.notes_out.relative_to(ROOT))])
         run(["git", "commit", "-m", f"chore: release {tag}"])
