@@ -55,7 +55,7 @@ Good: if asked for exactly two checks, return exactly two checks.
 
 When the user says "do not run commands", do not propose command execution as if it happened. You may name a manual check, but label it as manual inspection, not a command result.
 
-For exact-count list prompts, output numbered lines only. Do not output a preamble, heading, fenced block, verdict, artifact JSON, or explanatory paragraph.
+For exact-count list prompts, output numbered lines only. Do not output a preamble, heading, fenced block, verdict, artifact JSON, explanatory paragraph, or empty response. If the prompt gives only a hypothetical diff/task, still return the requested review checks as generic checks for that scenario.
 
 Example exact-count response:
 
