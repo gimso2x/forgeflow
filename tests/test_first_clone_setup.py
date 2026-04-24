@@ -148,6 +148,24 @@ def test_readme_operator_shell_uses_repo_managed_runtime_sample_target() -> None
     assert "python3 scripts/run_runtime_sample.py" not in operator_section
 
 
+def test_readme_uses_repo_managed_orchestrator_help_target_for_read_only_help() -> None:
+    makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    quickstart_help = readme.split("### 4. Inspect the operator shell", 1)[1].split("### 5. Run the safe sample", 1)[0]
+    operator_section = readme.split("## Operator shell", 1)[1].split("## Using ForgeFlow in Codex", 1)[0]
+
+    assert "orchestrator-help:" in makefile
+    assert "$(VENV_PYTHON) scripts/run_orchestrator.py --help" in makefile
+    assert "make setup" in quickstart_help
+    assert "make check-env" in quickstart_help
+    assert "make orchestrator-help" in quickstart_help.splitlines()
+    assert quickstart_help.index("make setup") < quickstart_help.index("make check-env") < quickstart_help.index("make orchestrator-help")
+    assert "make orchestrator-help" in operator_section.splitlines()
+    assert operator_section.index("make setup") < operator_section.index("make check-env") < operator_section.index("make orchestrator-help")
+    assert "python3 scripts/run_orchestrator.py --help" not in quickstart_help
+    assert "python3 scripts/run_orchestrator.py --help" not in operator_section
+
+
 def test_readme_quickstart_numbered_steps_are_unique_and_sequential() -> None:
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
     quickstart = readme.split("## Installation", 1)[1].split("## Operator shell", 1)[0]

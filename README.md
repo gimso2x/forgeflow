@@ -326,10 +326,12 @@ This calls `/forgeflow:<stage>` through Claude Code, checks `permission_denials 
 ### 4. Inspect the operator shell
 
 ```bash
-python3 scripts/run_orchestrator.py --help
+make setup
+make check-env
+make orchestrator-help
 ```
 
-This shows the local CLI surface for `start`, `run`, `status`, `resume`, `advance`, `retry`, `step-back`, `escalate`, and `execute`.
+`make orchestrator-help` shows the local CLI surface for `start`, `run`, `status`, `resume`, `advance`, `retry`, `step-back`, `escalate`, and `execute` through the repo-managed Python environment.
 
 ### 5. Run the safe sample
 
@@ -395,9 +397,9 @@ Generated adapters carry ForgeFlow semantics into a host agent. Do not hand-edit
 권장 경로는 `clarify`부터 brief와 route를 만든 뒤 진행하는 것이다. local runtime을 직접 만지는 표면은 operator fallback일 뿐이다.
 
 ```bash
-python3 scripts/run_orchestrator.py --help
 make setup
 make check-env
+make orchestrator-help
 make runtime-sample
 make orchestrator-status
 python3 scripts/run_orchestrator.py execute --task-dir examples/runtime-fixtures/small-doc-task --route small --adapter codex
