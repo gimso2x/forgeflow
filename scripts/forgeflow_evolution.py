@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from forgeflow_runtime.evolution import adopt_example_rule, audit_events, doctor_evolution_state, dry_run_rule, effectiveness_review, execute_rule, inspect_evolution_policy, list_rules, promotion_plan, proposal_approve, proposal_review, restore_rule, retire_rule, write_promotion_plan
+from forgeflow_runtime.evolution import adopt_example_rule, audit_events, doctor_evolution_state, dry_run_rule, effectiveness_review, execute_rule, inspect_evolution_policy, list_rules, promotion_plan, proposal_approve, proposal_approvals, proposal_review, restore_rule, retire_rule, write_promotion_plan
 
 
 def _target_root(args: argparse.Namespace) -> Path:
@@ -289,6 +289,38 @@ def cmd_proposal_approve(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_proposal_approvals(args: argparse.Namespace) -> int:
+    try:
+        result = proposal_approvals(_target_root(args), Path(args.proposal))
+    except ValueError as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 1
+    if args.json:
+        print(json.dumps(result, ensure_ascii=False, indent=2))
+        return 0
+    print(f"Evolution proposal approvals: {result['proposal_path']}")
+    print(f"- rule: {result['rule_id']}")
+    print(f"- approval ledger: {result['approval_path']}")
+    print(f"- read-only: {str(result['read_only']).lower()}")
+    print(f"- would promote: {str(result['would_promote']).lower()}")
+    print(f"- would mutate rules: {str(result['would_mutate_rules']).lower()}")
+    print(f"- ready for policy gate: {str(result['ready_for_policy_gate']).lower()}")
+    print("- required approvals:")
+    for approval in result["required_approvals"] or ["<none>"]:
+        print(f"  - {approval}")
+    print("- recorded approvals:")
+    for approval in result["recorded_approvals"] or ["<none>"]:
+        print(f"  - {approval}")
+    print("- missing approvals:")
+    for approval in result["missing_approvals"] or ["<none>"]:
+        print(f"  - {approval}")
+    if result["duplicates"]:
+        print("- duplicate approvals:")
+        for approval in result["duplicates"]:
+            print(f"  - {approval}")
+    return 0
+
+
 def cmd_audit(args: argparse.Namespace) -> int:
     try:
         result = audit_events(_target_root(args), limit=args.limit)
@@ -369,6 +401,10 @@ def build_parser() -> argparse.ArgumentParser:
     proposal_approve_cmd.add_argument("--reason", required=True)
     proposal_approve_cmd.add_argument("--json", action="store_true")
     proposal_approve_cmd.set_defaults(func=cmd_proposal_approve)
+    proposal_approvals_cmd = sub.add_parser("proposal-approvals", help="read approval ledger status for a valid promotion proposal")
+    proposal_approvals_cmd.add_argument("--proposal", required=True)
+    proposal_approvals_cmd.add_argument("--json", action="store_true")
+    proposal_approvals_cmd.set_defaults(func=cmd_proposal_approvals)
     audit = sub.add_parser("audit", help="show recent project-local evolution audit events")
     audit.add_argument("--limit", type=int, default=20)
     audit.add_argument("--json", action="store_true")

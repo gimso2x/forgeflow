@@ -5,7 +5,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from forgeflow_runtime.evolution import adopt_example_rule, doctor_evolution_state, effectiveness_review, promotion_plan, proposal_approve, proposal_review, write_promotion_plan, dry_run_rule, execute_rule, inspect_evolution_policy, list_rules
+from forgeflow_runtime.evolution import adopt_example_rule, doctor_evolution_state, effectiveness_review, promotion_plan, proposal_approve, proposal_approvals, proposal_review, write_promotion_plan, dry_run_rule, execute_rule, inspect_evolution_policy, list_rules
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -1261,3 +1261,109 @@ def test_proposal_approve_cli_human_output_says_no_promotion(tmp_path: Path) -> 
     assert "Evolution proposal approval recorded:" in result.stdout
     assert "would promote: false" in result.stdout
     assert "would mutate rules: false" in result.stdout
+
+
+
+def test_proposal_approvals_reports_missing_and_recorded_approvals(tmp_path: Path) -> None:
+    written = _written_candidate_proposal(tmp_path)
+    proposal_path = Path(written["proposal_path"])
+    proposal_approve(
+        tmp_path,
+        proposal_path,
+        approval="maintainer_approval",
+        approver="kim",
+        reason="maintainer reviewed evidence",
+    )
+
+    result = proposal_approvals(tmp_path, proposal_path)
+
+    assert result["proposal_path"] == written["proposal_path"]
+    assert result["rule_id"] == "no-env-commit"
+    assert result["read_only"] is True
+    assert result["would_promote"] is False
+    assert result["would_mutate_rules"] is False
+    assert result["required_approvals"] == ["maintainer_approval", "project_owner_approval"]
+    assert result["recorded_approvals"] == ["maintainer_approval"]
+    assert result["missing_approvals"] == ["project_owner_approval"]
+    assert result["ready_for_policy_gate"] is False
+    assert len(result["records"]) == 1
+
+
+def test_proposal_approvals_ready_when_all_required_approvals_recorded(tmp_path: Path) -> None:
+    written = _written_candidate_proposal(tmp_path)
+    proposal_path = Path(written["proposal_path"])
+    proposal_approve(tmp_path, proposal_path, approval="maintainer_approval", approver="kim", reason="maintainer reviewed")
+    proposal_approve(tmp_path, proposal_path, approval="project_owner_approval", approver="kim", reason="owner reviewed")
+
+    result = proposal_approvals(tmp_path, proposal_path)
+
+    assert result["recorded_approvals"] == ["maintainer_approval", "project_owner_approval"]
+    assert result["missing_approvals"] == []
+    assert result["ready_for_policy_gate"] is True
+    assert result["would_promote"] is False
+
+
+def test_proposal_approvals_includes_duplicate_records_but_counts_unique_approvals(tmp_path: Path) -> None:
+    written = _written_candidate_proposal(tmp_path)
+    proposal_path = Path(written["proposal_path"])
+    proposal_approve(tmp_path, proposal_path, approval="maintainer_approval", approver="kim", reason="first")
+    proposal_approve(tmp_path, proposal_path, approval="maintainer_approval", approver="kim", reason="second")
+
+    result = proposal_approvals(tmp_path, proposal_path)
+
+    assert len(result["records"]) == 2
+    assert result["duplicates"] == ["maintainer_approval"]
+    assert result["recorded_approvals"] == ["maintainer_approval"]
+    assert result["missing_approvals"] == ["project_owner_approval"]
+
+
+def test_proposal_approvals_rejects_invalid_proposal(tmp_path: Path) -> None:
+    adopt_example_rule(tmp_path, "no-env-commit", fallback_root=ROOT)
+    written = write_promotion_plan(tmp_path, "no-env-commit", since_days=30)
+
+    try:
+        proposal_approvals(tmp_path, Path(written["proposal_path"]))
+    except ValueError as exc:
+        assert "proposal review failed" in str(exc)
+    else:  # pragma: no cover
+        raise AssertionError("expected ValueError")
+
+
+def test_proposal_approvals_cli_outputs_json_contract(tmp_path: Path) -> None:
+    written = _written_candidate_proposal(tmp_path)
+    proposal_path = Path(written["proposal_path"])
+    proposal_approve(tmp_path, proposal_path, approval="maintainer_approval", approver="kim", reason="maintainer reviewed")
+
+    result = subprocess.run(
+        [sys.executable, "scripts/forgeflow_evolution.py", "--root", str(tmp_path), "proposal-approvals", "--proposal", written["proposal_path"], "--json"],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
+    payload = json.loads(result.stdout)
+    assert payload["ready_for_policy_gate"] is False
+    assert payload["would_promote"] is False
+    assert payload["would_mutate_rules"] is False
+    assert payload["missing_approvals"] == ["project_owner_approval"]
+
+
+def test_proposal_approvals_cli_human_output_shows_missing_approvals(tmp_path: Path) -> None:
+    written = _written_candidate_proposal(tmp_path)
+
+    result = subprocess.run(
+        [sys.executable, "scripts/forgeflow_evolution.py", "--root", str(tmp_path), "proposal-approvals", "--proposal", written["proposal_path"]],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert "Evolution proposal approvals:" in result.stdout
+    assert "would promote: false" in result.stdout
+    assert "ready for policy gate: false" in result.stdout
+    assert "missing approvals:" in result.stdout
+    assert "maintainer_approval" in result.stdout

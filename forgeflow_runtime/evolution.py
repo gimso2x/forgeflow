@@ -300,6 +300,49 @@ def proposal_approve(root: Path, proposal_path: Path, *, approval: str, approver
     }
 
 
+
+
+def proposal_approvals(root: Path, proposal_path: Path) -> dict[str, Any]:
+    """Read approval ledger status for a valid proposal without promoting."""
+
+    root = root.resolve()
+    proposal_path = proposal_path.resolve()
+    review = proposal_review(root, proposal_path)
+    if not review["valid"]:
+        issue_codes = ", ".join(issue["code"] for issue in review["issues"])
+        raise ValueError(f"proposal review failed: {issue_codes}")
+    proposal = _load_json(proposal_path)
+    required = proposal.get("required_human_approvals")
+    if not isinstance(required, list):
+        required = []
+    approvals_path = _proposal_approval_path(root, proposal_path)
+    records = _read_proposal_approval_records(approvals_path)
+    recorded_set = {record.get("approval") for record in records if record.get("approval") in required}
+    recorded = [approval for approval in required if approval in recorded_set]
+    missing = [approval for approval in required if approval not in recorded_set]
+    duplicate_set = {
+        record.get("approval")
+        for record in records
+        if record.get("approval") in recorded_set and record.get("duplicate") is True
+    }
+    duplicates = [approval for approval in required if approval in duplicate_set]
+    return {
+        "proposal_path": str(proposal_path),
+        "approval_path": str(approvals_path),
+        "rule_id": review["rule_id"],
+        "read_only": True,
+        "would_promote": False,
+        "would_mutate_rules": False,
+        "required_approvals": required,
+        "recorded_approvals": recorded,
+        "missing_approvals": missing,
+        "duplicates": duplicates,
+        "ready_for_policy_gate": not missing and bool(required),
+        "records": records,
+        "review": review,
+    }
+
+
 def _failed_safety_checks(safety_checks: dict[str, bool]) -> list[str]:
     return [name for name, passed in safety_checks.items() if not passed]
 

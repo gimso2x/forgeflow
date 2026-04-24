@@ -103,6 +103,7 @@ effectiveness -> read-only audit-backed rule effectiveness review
 promotion-plan -> read-only promotion proposal with evidence, approvals, and risk flags
 proposal-review -> read-only validation of a persisted proposal
 proposal-approve -> append-only human approval ledger; no promotion or rule mutation
+proposal-approvals -> read-only approval ledger status and remaining approvals
 audit         -> show recent project-local lifecycle/execution events
 ```
 
@@ -248,3 +249,25 @@ Approval records are append-only JSONL files under:
 ```
 
 The command requires a non-empty approver and reason, accepts only approvals listed in `required_human_approvals`, and rejects proposals that fail review. Repeated approvals are allowed as explicit duplicate records because append-only ledgers should not silently rewrite history. It still reports `would_promote=false` and `would_mutate_rules=false`; this is a paper trail, not a launch button.
+
+`proposal-approvals` reads that ledger and reports whether all required approvals are present:
+
+```bash
+python3 scripts/forgeflow_evolution.py proposal-approvals \
+  --proposal .forgeflow/evolution/proposals/<timestamp>-no-env-commit-promotion-plan.json \
+  --json
+```
+
+It returns:
+
+```text
+required_approvals
+recorded_approvals
+missing_approvals
+duplicates
+ready_for_policy_gate
+would_promote=false
+would_mutate_rules=false
+```
+
+`ready_for_policy_gate=true` only means the approval paperwork is complete enough for a separate policy gate discussion. It still does not promote, edit rules, or bless automatic SOFT→HARD promotion. A green clipboard is not a deploy key.
