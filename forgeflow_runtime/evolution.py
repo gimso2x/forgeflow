@@ -547,7 +547,21 @@ def promote_stub(root: Path, proposal_path: Path) -> dict[str, Any]:
     proposal_path = proposal_path.resolve()
     ready = promotion_ready(root, proposal_path)
     if not ready["ready_for_promote"]:
-        issue_codes = ", ".join(issue["code"] for issue in ready["issues"])
+        failed_checks = [issue["code"] for issue in ready["issues"]]
+        issue_codes = ", ".join(failed_checks)
+        blocked_event = {
+            "event": "promote_blocked",
+            "rule_id": ready["rule_id"],
+            "proposal_path": str(proposal_path),
+            "decision_path": ready["decision_path"],
+            "approval_path": ready.get("gate", {}).get("approval_path"),
+            "mutation_mode": "stub",
+            "would_mutate_rules": False,
+            "promoted": False,
+            "passed": False,
+            "failed_readiness_checks": failed_checks,
+        }
+        _append_audit_event(root, blocked_event)
         raise ValueError(f"promotion is not ready: {issue_codes}")
     event = {
         "event": "promote_stub",

@@ -274,6 +274,8 @@ def test_evolution_model_doc_captures_global_advisory_project_enforcement_contra
     assert "ready_for_promote" in text
     assert "approve_policy_gate_decision_present" in text
     assert "promote_stub" in text
+    assert "promote_blocked" in text
+    assert "failed_readiness_checks" in text
     assert "mutation_mode=stub" in text
     assert "--i-understand-this-mutates-project-policy" in text
     assert ".forgeflow/evolution/proposal-approvals" in text

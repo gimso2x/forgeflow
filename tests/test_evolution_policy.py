@@ -1853,3 +1853,56 @@ def test_promote_cli_human_output_says_stub_and_no_mutation(tmp_path: Path) -> N
     assert "mutation mode: stub" in result.stdout
     assert "would mutate rules: false" in result.stdout
     assert "promoted: false" in result.stdout
+
+
+
+def test_promote_stub_appends_blocked_audit_for_not_ready_proposal(tmp_path: Path) -> None:
+    written = _gate_passing_proposal(tmp_path)
+    before_events = _audit_events(tmp_path)
+
+    try:
+        promote_stub(tmp_path, Path(written["proposal_path"]))
+    except ValueError as exc:
+        assert "promotion is not ready" in str(exc)
+    else:  # pragma: no cover
+        raise AssertionError("expected ValueError")
+
+    events = _audit_events(tmp_path)
+    assert len(events) == len(before_events) + 1
+    blocked = events[-1]
+    assert blocked["event"] == "promote_blocked"
+    assert blocked["rule_id"] == "no-env-commit"
+    assert blocked["mutation_mode"] == "stub"
+    assert blocked["promoted"] is False
+    assert "missing_approve_policy_gate_decision" in blocked["failed_readiness_checks"]
+    assert blocked["proposal_path"] == written["proposal_path"]
+    assert blocked["decision_path"].endswith(".jsonl")
+    assert blocked["approval_path"].endswith(".jsonl")
+
+
+def test_promote_cli_acknowledged_not_ready_appends_blocked_audit(tmp_path: Path) -> None:
+    written = _gate_passing_proposal(tmp_path)
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            "scripts/forgeflow_evolution.py",
+            "--root",
+            str(tmp_path),
+            "promote",
+            "--proposal",
+            written["proposal_path"],
+            "--i-understand-this-mutates-project-policy",
+            "--json",
+        ],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    assert result.returncode == 1
+    assert "Error:" in result.stderr
+    events = _audit_events(tmp_path)
+    assert events[-1]["event"] == "promote_blocked"
+    assert events[-1]["promoted"] is False

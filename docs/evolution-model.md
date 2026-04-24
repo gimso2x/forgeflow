@@ -349,13 +349,17 @@ python3 scripts/forgeflow_evolution.py promote \
   --json
 ```
 
-The first version deliberately does not mutate rules. It calls `promotion-ready`, refuses unready proposals, requires the ugly acknowledgement flag, and appends a project-local audit event:
+The first version deliberately does not mutate rules. It calls `promotion-ready`, requires the ugly acknowledgement flag, and appends project-local audit events for both ready and blocked acknowledged attempts:
 
 ```text
-event=promote_stub
+event=promote_stub | promote_blocked
+failed_readiness_checks=<issue codes for blocked attempts>
+proposal_path=<proposal>
+decision_path=<decision ledger>
+approval_path=<approval ledger>
 mutation_mode=stub
 would_mutate_rules=false
 promoted=false
 ```
 
-Without `--i-understand-this-mutates-project-policy`, the CLI exits `2`. The name is scary on purpose: this is where a future mutating implementation will live, so the safety rail must exist before the blade does.
+Without `--i-understand-this-mutates-project-policy`, the CLI exits `2` and does not write audit noise. After acknowledgement, readiness failure is auditable as `promote_blocked`. The name is scary on purpose: this is where a future mutating implementation will live, so the safety rail must exist before the blade does.
