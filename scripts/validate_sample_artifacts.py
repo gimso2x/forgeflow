@@ -31,6 +31,11 @@ NEGATIVE_SAMPLES = {
     "checkpoint-invalid-updated-at.sample.json": ROOT / "schemas/checkpoint.schema.json",
     "session-state-missing-ref.sample.json": ROOT / "schemas/session-state.schema.json",
 }
+NEGATIVE_SEMANTIC_PLAN_SAMPLES = {
+    "plan-missing-verify-target.sample.json": "fulfills 'missing-target' has no verify_plan target",
+    "plan-missing-contract-artifact.sample.json": "contracts artifact missing-contracts.md does not exist",
+    "plan-stale-journey-verify.sample.json": "verify_plan targets journey 'stale-journey' but no journey exists",
+}
 FORMAT_CHECKER = FormatChecker()
 
 
@@ -49,6 +54,46 @@ def validate_json_file(*, fixture_path: Path, schema_path: Path) -> list[str]:
     return [_format_error(error) for error in errors]
 
 
+def validate_plan_traceability(*, plan_path: Path) -> list[str]:
+    plan = _load_json(plan_path)
+    errors: list[str] = []
+    steps = plan.get("steps", [])
+    step_ids = {step.get("id") for step in steps}
+    verify_plan = plan.get("verify_plan", [])
+    verify_targets = {entry.get("target") for entry in verify_plan if entry.get("type") in {"sub_req", "step"}}
+    journey_verify_targets = {entry.get("target") for entry in verify_plan if entry.get("type") == "journey"}
+    journeys = plan.get("journeys", [])
+    journey_ids = {journey.get("id") for journey in journeys}
+
+    for step in steps:
+        step_id = step.get("id")
+        for dependency in step.get("dependencies", []) or []:
+            if dependency not in step_ids:
+                errors.append(f"step {step_id} depends on unknown step '{dependency}'")
+        for fulfilled in step.get("fulfills", []) or []:
+            if fulfilled not in verify_targets:
+                errors.append(f"step {step_id} fulfills '{fulfilled}' has no verify_plan target")
+
+    for journey in journeys:
+        journey_id = journey.get("id")
+        if journey_id not in journey_verify_targets:
+            errors.append(f"journey {journey_id} has no verify_plan journey target")
+        for composed in journey.get("composes", []) or []:
+            if composed not in verify_targets:
+                errors.append(f"journey {journey_id} composes '{composed}' has no verify_plan target")
+
+    for journey_target in journey_verify_targets:
+        if journey_target not in journey_ids:
+            errors.append(f"verify_plan targets journey '{journey_target}' but no journey exists")
+
+    contracts = plan.get("contracts") or {}
+    artifact = contracts.get("artifact")
+    if artifact is not None and not (plan_path.parent / artifact).is_file():
+        errors.append(f"contracts artifact {artifact} does not exist")
+
+    return errors
+
+
 def main() -> int:
     errors: list[str] = []
     checked_positive: list[str] = []
@@ -59,6 +104,10 @@ def main() -> int:
         sample_errors = validate_json_file(fixture_path=sample_path, schema_path=schema_path)
         if sample_errors:
             errors.extend(f"{sample_rel}: {err}" for err in sample_errors)
+        if schema_path.name == "plan.schema.json":
+            semantic_errors = validate_plan_traceability(plan_path=sample_path)
+            if semantic_errors:
+                errors.extend(f"{sample_rel}: {err}" for err in semantic_errors)
         checked_positive.append(sample_rel)
 
     invalid_root = ROOT / "examples" / "artifacts" / "invalid"
@@ -67,6 +116,20 @@ def main() -> int:
         sample_errors = validate_json_file(fixture_path=fixture_path, schema_path=schema_path)
         if not sample_errors:
             errors.append(f"examples/artifacts/invalid/{fixture_name}: expected validation failure")
+        checked_negative.append(fixture_name)
+
+    for fixture_name, expected_error in NEGATIVE_SEMANTIC_PLAN_SAMPLES.items():
+        fixture_path = invalid_root / fixture_name
+        schema_errors = validate_json_file(fixture_path=fixture_path, schema_path=ROOT / "schemas/plan.schema.json")
+        if schema_errors:
+            errors.extend(f"examples/artifacts/invalid/{fixture_name}: schema should pass before semantic check: {err}" for err in schema_errors)
+            checked_negative.append(fixture_name)
+            continue
+        semantic_errors = validate_plan_traceability(plan_path=fixture_path)
+        if not any(expected_error in err for err in semantic_errors):
+            errors.append(
+                f"examples/artifacts/invalid/{fixture_name}: expected semantic validation failure containing {expected_error!r}; got {semantic_errors!r}"
+            )
         checked_negative.append(fixture_name)
 
     if errors:
