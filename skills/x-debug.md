@@ -41,8 +41,19 @@ Fix a bug using reproduce-first, 4-phase root cause analysis. Never guess.
 ## Constraints
 
 - No fixes without reproduction.
+- No fixes at the symptom site until the original trigger has been traced or explicitly ruled out.
 - No multi-line changes in the isolate phase.
 - If the root cause is outside the codebase (dependency, environment), document it and escalate.
+
+## Reference Playbooks
+
+Use these when the failure mode matches. They are debugging references, not artifact contracts.
+
+- `docs/debugging/root-cause-tracing.md` — trace backward from symptom to original trigger.
+- `docs/debugging/condition-based-waiting.md` — replace blind sleeps with observable readiness checks.
+- `docs/debugging/condition-based-waiting-example.ts` — concrete TypeScript example for condition waits.
+- `docs/debugging/defense-in-depth.md` — layer checks so one missed assumption does not become a silent failure.
+- `docs/debugging/find-polluter.sh` — isolate test pollution by running candidate tests one by one.
 
 ## Exit Condition
 

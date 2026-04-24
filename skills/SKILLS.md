@@ -27,7 +27,7 @@ Skills are markdown documents that live in `skills/`. Each skill defines a bound
 |-------|---------|---------------|
 | [`x-tdd`](x-tdd.md) | RED-GREEN-REFACTOR enforcement. | superpowers |
 | [`x-qa`](x-qa.md) | Browser-based functional QA with regression test generation. | gstack |
-| [`x-debug`](x-debug.md) | Reproduce-first, 4-phase root cause analysis. | engineering-discipline |
+| [`x-debug`](x-debug.md) | Reproduce-first, root-cause tracing with reference playbooks. | engineering-discipline |
 | [`x-deslop`](x-deslop.md) | Remove LLM-specific code smells: over-commenting, unnecessary abstractions, filler. | engineering-discipline |
 | [`x-spec-review`](x-spec-review.md) | Verify correctness vs requirements **before** quality review. | superpowers |
 | [`x-resume`](x-resume.md) | Resume interrupted sessions from checkpoint. | engineering-discipline |
