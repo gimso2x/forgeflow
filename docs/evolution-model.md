@@ -96,6 +96,8 @@ list     -> show project registry and optional examples
 adopt    -> copy a safe example into .forgeflow/evolution/rules
 dry-run  -> show command and safety checks without executing
 execute  -> run only project-local adopted rules with explicit acknowledgement
+retire   -> move a project-local rule into .forgeflow/evolution/retired-rules with a reason
+audit    -> show recent project-local lifecycle/execution events
 ```
 
 Execute requires the long flag:
@@ -125,3 +127,23 @@ raw_evidence_absent
 ```
 
 If any check fails, the command is not executed.
+
+Retire requires an explicit reason:
+
+```bash
+python3 scripts/forgeflow_evolution.py retire \
+  --rule no-env-commit \
+  --reason "false positive for this project"
+```
+
+Retired rules move out of the active registry:
+
+```text
+.forgeflow/evolution/retired-rules/*.json
+```
+
+`execute` never reads retired rules. The audit log records adopt, execute, and retire events:
+
+```bash
+python3 scripts/forgeflow_evolution.py audit --limit 20
+```

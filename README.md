@@ -233,7 +233,7 @@ ForgeFlow tries not to do that.
 - `docs/` — human-readable design docs, including `docs/evolution-model.md` for the global advisory/project-local enforcement contract
 - `policy/canonical/` — workflow semantics, gates, review order, routing, global-advisory/project-enforced self-evolution policy
 - `examples/evolution/` — deterministic project-local HARD rule examples; validated against the canonical evolution policy
-- `scripts/forgeflow_evolution.py inspect` / `list` / `adopt` / `dry-run --rule <id>` / gated `execute --rule <id>` — evolution policy/runtime-safety summaries plus explicitly acknowledged project-local rule execution
+- `scripts/forgeflow_evolution.py inspect` / `list` / `adopt` / `dry-run --rule <id>` / gated `execute --rule <id>` / `retire --rule <id> --reason <why>` / `audit` — evolution policy/runtime-safety summaries, explicitly acknowledged project-local rule execution, lifecycle retirement, and audit inspection
 - `schemas/` — artifact contracts
 - `prompts/canonical/` — canonical role prompts
 - `adapters/targets/` — target manifests
