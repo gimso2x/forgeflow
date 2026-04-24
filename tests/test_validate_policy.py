@@ -270,6 +270,9 @@ def test_evolution_model_doc_captures_global_advisory_project_enforcement_contra
     assert "risk_flags_acknowledged" in text
     assert "promotion-decision" in text
     assert ".forgeflow/evolution/promotion-decisions" in text
+    assert "promotion-ready" in text
+    assert "ready_for_promote" in text
+    assert "approve_policy_gate_decision_present" in text
     assert ".forgeflow/evolution/proposal-approvals" in text
     assert "would_promote=false" in text
     assert "would_mutate_rules=false" in text

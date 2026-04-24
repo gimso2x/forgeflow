@@ -481,6 +481,63 @@ def promotion_decision(root: Path, proposal_path: Path, *, decision: str, decide
     }
 
 
+
+
+def _read_promotion_decision_records(path: Path) -> list[dict[str, Any]]:
+    if not path.is_file():
+        return []
+    return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
+
+
+def promotion_ready(root: Path, proposal_path: Path) -> dict[str, Any]:
+    """Read-only readiness check for a future mutating promote command."""
+
+    root = root.resolve()
+    proposal_path = proposal_path.resolve()
+    issues: list[dict[str, Any]] = []
+    gate = promotion_gate(root, proposal_path)
+    if not gate["ready_for_policy_gate"]:
+        issues.append({"severity": "error", "code": "promotion_gate_not_ready", "gate_issues": gate.get("issues", [])})
+
+    decision_path = _promotion_decision_path(root, proposal_path)
+    records = _read_promotion_decision_records(decision_path)
+    approving_records = [record for record in records if record.get("decision") == "approve_policy_gate"]
+    decision_present = bool(approving_records)
+    if not decision_present:
+        issues.append({"severity": "error", "code": "missing_approve_policy_gate_decision"})
+
+    incomplete_records = []
+    for index, record in enumerate(approving_records):
+        if not str(record.get("decider", "")).strip() or not str(record.get("reason", "")).strip():
+            incomplete_records.append({"index": index, "decision": record.get("decision")})
+    decision_records_complete = not incomplete_records
+    if incomplete_records:
+        issues.append({"severity": "error", "code": "incomplete_promotion_decision_record", "records": incomplete_records})
+
+    rule_id = gate.get("rule_id")
+    active_rule_exists = isinstance(rule_id, str) and _active_rule_exists(root, rule_id)
+    if not active_rule_exists:
+        issues.append({"severity": "error", "code": "active_rule_missing"})
+
+    ready = gate["ready_for_policy_gate"] and decision_present and decision_records_complete and active_rule_exists
+    return {
+        "proposal_path": str(proposal_path),
+        "decision_path": str(decision_path),
+        "rule_id": rule_id,
+        "read_only": True,
+        "promotion_gate_ready": gate["ready_for_policy_gate"],
+        "approve_policy_gate_decision_present": decision_present,
+        "decision_records_complete": decision_records_complete,
+        "active_rule_exists": active_rule_exists,
+        "ready_for_promote": ready,
+        "would_promote": False,
+        "would_mutate_rules": False,
+        "decision_records": records,
+        "gate": gate,
+        "issues": issues,
+    }
+
+
 def _failed_safety_checks(safety_checks: dict[str, bool]) -> list[str]:
     return [name for name, passed in safety_checks.items() if not passed]
 

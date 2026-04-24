@@ -106,6 +106,7 @@ proposal-approve -> append-only human approval ledger; no promotion or rule muta
 proposal-approvals -> read-only approval ledger status and remaining approvals
 promotion-gate -> read-only gate readiness check; no promotion or rule mutation
 promotion-decision -> append-only human policy-gate decision; still no promotion
+promotion-ready -> read-only final readiness check for future promote
 audit         -> show recent project-local lifecycle/execution events
 ```
 
@@ -315,3 +316,25 @@ Decision records are append-only JSONL files under:
 ```
 
 The command accepts only `approve_policy_gate`, requires non-empty `decider` and `reason`, and rejects proposals whose `promotion-gate` is not ready. `--write` is required to persist the record; without it the command returns the would-be decision path but writes nothing. It still reports `would_promote=false` and `would_mutate_rules=false`. This is the person saying “open the policy gate next,” not the system promoting anything.
+
+`promotion-ready` consolidates the preconditions a future mutating `promote` command must reuse:
+
+```bash
+python3 scripts/forgeflow_evolution.py promotion-ready \
+  --proposal .forgeflow/evolution/proposals/<timestamp>-no-env-commit-promotion-plan.json \
+  --json
+```
+
+It checks:
+
+```text
+promotion_gate_ready
+approve_policy_gate_decision_present
+decision_records_complete
+active_rule_exists
+ready_for_promote
+would_promote=false
+would_mutate_rules=false
+```
+
+`ready_for_promote=true` means the proposal, approval ledger, policy-gate decision, and active project-local rule still line up. It still does not promote anything. This command is the dashboard the future dangerous button must call, not the dangerous button itself.

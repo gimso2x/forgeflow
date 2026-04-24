@@ -5,7 +5,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from forgeflow_runtime.evolution import adopt_example_rule, doctor_evolution_state, effectiveness_review, promotion_plan, proposal_approve, proposal_approvals, promotion_decision, promotion_gate, proposal_review, write_promotion_plan, dry_run_rule, execute_rule, inspect_evolution_policy, list_rules
+from forgeflow_runtime.evolution import adopt_example_rule, doctor_evolution_state, effectiveness_review, promotion_plan, proposal_approve, proposal_approvals, promotion_decision, promotion_gate, promotion_ready, proposal_review, write_promotion_plan, dry_run_rule, execute_rule, inspect_evolution_policy, list_rules
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -1638,5 +1638,116 @@ def test_promotion_decision_cli_human_output_says_no_promotion_no_mutation(tmp_p
 
     assert result.returncode == 0, result.stderr
     assert "Evolution promotion decision recorded:" in result.stdout
+    assert "would promote: false" in result.stdout
+    assert "would mutate rules: false" in result.stdout
+
+
+
+def _promotion_decided_proposal(tmp_path: Path) -> dict:
+    written = _gate_passing_proposal(tmp_path)
+    promotion_decision(
+        tmp_path,
+        Path(written["proposal_path"]),
+        decision="approve_policy_gate",
+        decider="kim",
+        reason="promotion gate reviewed",
+        write=True,
+    )
+    return written
+
+
+def test_promotion_ready_true_when_gate_and_decision_records_are_complete(tmp_path: Path) -> None:
+    written = _promotion_decided_proposal(tmp_path)
+
+    result = promotion_ready(tmp_path, Path(written["proposal_path"]))
+
+    assert result["ready_for_promote"] is True
+    assert result["promotion_gate_ready"] is True
+    assert result["approve_policy_gate_decision_present"] is True
+    assert result["decision_records_complete"] is True
+    assert result["active_rule_exists"] is True
+    assert result["would_promote"] is False
+    assert result["would_mutate_rules"] is False
+    assert result["issues"] == []
+
+
+def test_promotion_ready_reports_missing_decision_record(tmp_path: Path) -> None:
+    written = _gate_passing_proposal(tmp_path)
+
+    result = promotion_ready(tmp_path, Path(written["proposal_path"]))
+
+    assert result["ready_for_promote"] is False
+    assert result["approve_policy_gate_decision_present"] is False
+    assert "missing_approve_policy_gate_decision" in [issue["code"] for issue in result["issues"]]
+
+
+def test_promotion_ready_detects_incomplete_decision_record(tmp_path: Path) -> None:
+    written = _promotion_decided_proposal(tmp_path)
+    ready = promotion_ready(tmp_path, Path(written["proposal_path"]))
+    records = [json.loads(line) for line in Path(ready["decision_path"]).read_text(encoding="utf-8").splitlines()]
+    records[0]["decider"] = ""
+    Path(ready["decision_path"]).write_text("\n".join(json.dumps(record) for record in records) + "\n", encoding="utf-8")
+
+    result = promotion_ready(tmp_path, Path(written["proposal_path"]))
+
+    assert result["ready_for_promote"] is False
+    assert result["decision_records_complete"] is False
+    assert "incomplete_promotion_decision_record" in [issue["code"] for issue in result["issues"]]
+
+
+def test_promotion_ready_detects_stale_missing_active_rule(tmp_path: Path) -> None:
+    written = _promotion_decided_proposal(tmp_path)
+    active_rule = tmp_path / ".forgeflow" / "evolution" / "rules" / "no-env-commit-rule.json"
+    active_rule.unlink()
+
+    result = promotion_ready(tmp_path, Path(written["proposal_path"]))
+
+    assert result["ready_for_promote"] is False
+    assert result["active_rule_exists"] is False
+    assert "active_rule_missing" in [issue["code"] for issue in result["issues"]]
+
+
+def test_promotion_ready_reports_gate_failure_for_invalid_proposal(tmp_path: Path) -> None:
+    written = _written_candidate_proposal(tmp_path)
+
+    result = promotion_ready(tmp_path, Path(written["proposal_path"]))
+
+    assert result["ready_for_promote"] is False
+    assert result["promotion_gate_ready"] is False
+    assert "promotion_gate_not_ready" in [issue["code"] for issue in result["issues"]]
+
+
+def test_promotion_ready_cli_outputs_json_contract(tmp_path: Path) -> None:
+    written = _promotion_decided_proposal(tmp_path)
+
+    result = subprocess.run(
+        [sys.executable, "scripts/forgeflow_evolution.py", "--root", str(tmp_path), "promotion-ready", "--proposal", written["proposal_path"], "--json"],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
+    payload = json.loads(result.stdout)
+    assert payload["ready_for_promote"] is True
+    assert payload["would_promote"] is False
+    assert payload["would_mutate_rules"] is False
+
+
+def test_promotion_ready_cli_human_output_says_no_promotion_and_readiness(tmp_path: Path) -> None:
+    written = _gate_passing_proposal(tmp_path)
+
+    result = subprocess.run(
+        [sys.executable, "scripts/forgeflow_evolution.py", "--root", str(tmp_path), "promotion-ready", "--proposal", written["proposal_path"]],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    assert result.returncode == 1
+    assert "Evolution promotion ready:" in result.stdout
+    assert "ready for promote: false" in result.stdout
     assert "would promote: false" in result.stdout
     assert "would mutate rules: false" in result.stdout

@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from forgeflow_runtime.evolution import adopt_example_rule, audit_events, doctor_evolution_state, dry_run_rule, effectiveness_review, execute_rule, inspect_evolution_policy, list_rules, promotion_decision, promotion_gate, promotion_plan, proposal_approve, proposal_approvals, proposal_review, restore_rule, retire_rule, write_promotion_plan
+from forgeflow_runtime.evolution import adopt_example_rule, audit_events, doctor_evolution_state, dry_run_rule, effectiveness_review, execute_rule, inspect_evolution_policy, list_rules, promotion_decision, promotion_gate, promotion_plan, promotion_ready, proposal_approve, proposal_approvals, proposal_review, restore_rule, retire_rule, write_promotion_plan
 
 
 def _target_root(args: argparse.Namespace) -> Path:
@@ -291,6 +291,34 @@ def cmd_promotion_gate(args: argparse.Namespace) -> int:
     return 0 if result["ready_for_policy_gate"] else 1
 
 
+def cmd_promotion_ready(args: argparse.Namespace) -> int:
+    try:
+        result = promotion_ready(_target_root(args), Path(args.proposal))
+    except ValueError as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 1
+    if args.json:
+        print(json.dumps(result, ensure_ascii=False, indent=2))
+        return 0 if result["ready_for_promote"] else 1
+    print(f"Evolution promotion ready: {result['proposal_path']}")
+    print(f"- rule: {result['rule_id']}")
+    print(f"- read-only: {str(result['read_only']).lower()}")
+    print(f"- promotion gate ready: {str(result['promotion_gate_ready']).lower()}")
+    print(f"- approve policy gate decision present: {str(result['approve_policy_gate_decision_present']).lower()}")
+    print(f"- decision records complete: {str(result['decision_records_complete']).lower()}")
+    print(f"- active rule exists: {str(result['active_rule_exists']).lower()}")
+    print(f"- ready for promote: {str(result['ready_for_promote']).lower()}")
+    print(f"- would promote: {str(result['would_promote']).lower()}")
+    print(f"- would mutate rules: {str(result['would_mutate_rules']).lower()}")
+    if result["issues"]:
+        print("- issues:")
+        for issue in result["issues"]:
+            print(f"  - {issue['severity']} {issue['code']}")
+    else:
+        print("- issues: <none>")
+    return 0 if result["ready_for_promote"] else 1
+
+
 def cmd_promotion_decision(args: argparse.Namespace) -> int:
     try:
         result = promotion_decision(
@@ -462,6 +490,10 @@ def build_parser() -> argparse.ArgumentParser:
     promotion_decision_cmd.add_argument("--write", action="store_true")
     promotion_decision_cmd.add_argument("--json", action="store_true")
     promotion_decision_cmd.set_defaults(func=cmd_promotion_decision)
+    promotion_ready_cmd = sub.add_parser("promotion-ready", help="read-only readiness check for a future promote command")
+    promotion_ready_cmd.add_argument("--proposal", required=True)
+    promotion_ready_cmd.add_argument("--json", action="store_true")
+    promotion_ready_cmd.set_defaults(func=cmd_promotion_ready)
     proposal_approve_cmd = sub.add_parser("proposal-approve", help="append an approval record for a valid promotion proposal")
     proposal_approve_cmd.add_argument("--proposal", required=True)
     proposal_approve_cmd.add_argument("--approval", required=True)
