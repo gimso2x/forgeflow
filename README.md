@@ -73,6 +73,12 @@ Codex:
 python3 scripts/install_agent_presets.py --adapter codex --target /path/to/your-project --profile nextjs
 ```
 
+Cursor:
+
+```bash
+python3 scripts/install_agent_presets.py --adapter cursor --target /path/to/your-project --profile nextjs
+```
+
 The legacy Claude wrapper still works:
 
 ```bash
@@ -88,10 +94,13 @@ This creates adapter-local presets plus a generated team-init note:
 /path/to/your-project/.codex/forgeflow/forgeflow-coordinator.md
 /path/to/your-project/.codex/forgeflow/forgeflow-nextjs-worker.md
 /path/to/your-project/.codex/forgeflow/forgeflow-quality-reviewer.md
+/path/to/your-project/.cursor/rules/forgeflow-coordinator.mdc
+/path/to/your-project/.cursor/rules/forgeflow-nextjs-worker.mdc
+/path/to/your-project/.cursor/rules/forgeflow-quality-reviewer.mdc
 /path/to/your-project/docs/forgeflow-team-init.md
 ```
 
-The installer refuses global config targets such as `~/.claude`, `~/.codex`, direct `.claude/agents`, and direct `.codex/forgeflow`. Team presets belong to the project, not your global agent config. The installer reads `package.json` and documents only scripts that actually exist.
+The installer refuses global config targets such as `~/.claude`, `~/.codex`, `~/.cursor`, direct `.claude/agents`, direct `.codex/forgeflow`, and direct `.cursor/rules`. Team presets belong to the project, not your global agent config. The installer reads `package.json` and documents only scripts that actually exist.
 
 ### Local runtime install
 

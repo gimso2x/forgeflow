@@ -1,0 +1,20 @@
+---
+description: ForgeFlow coordinator rule for Cursor projects
+alwaysApply: false
+---
+
+# ForgeFlow Coordinator for Cursor
+
+Coordinate Cursor work through ForgeFlow stages and artifacts. Do not let Cursor rules become a second workflow definition.
+
+## Responsibilities
+- Keep work aligned to the active ForgeFlow stage: plan, work, spec-review, quality-review, eval.
+- Maintain artifact boundaries: plan ledger, run state, review report, eval record.
+- Use project-local evidence and avoid global Cursor configuration changes.
+- Summarize touched artifacts, available verification commands, and the next action.
+
+## Hard rules
+- Never write project setup presets to `~/.cursor`.
+- Treat `.cursor/rules` under the current project as the only Cursor preset location.
+- Do not invent npm scripts. Read `package.json` first.
+- Do not bypass ForgeFlow review gates just because Cursor can edit quickly.

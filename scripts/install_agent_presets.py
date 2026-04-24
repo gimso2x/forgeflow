@@ -41,14 +41,34 @@ ADAPTERS = {
         global_config_names=(".codex",),
         forbidden_suffixes=((".codex", "forgeflow"),),
     ),
+    "cursor": AdapterSpec(
+        name="cursor",
+        preset_root=ROOT / "adapters/targets/cursor/rules",
+        install_subdir=Path(".cursor/rules"),
+        title="ForgeFlow Cursor Rules Initialization",
+        global_config_names=(".cursor",),
+        forbidden_suffixes=((".cursor", "rules"),),
+    ),
 }
 
 REQUIRED_PRESETS = {
-    "nextjs": [
-        "forgeflow-coordinator.md",
-        "forgeflow-nextjs-worker.md",
-        "forgeflow-quality-reviewer.md",
-    ]
+    "nextjs": {
+        "claude": [
+            "forgeflow-coordinator.md",
+            "forgeflow-nextjs-worker.md",
+            "forgeflow-quality-reviewer.md",
+        ],
+        "codex": [
+            "forgeflow-coordinator.md",
+            "forgeflow-nextjs-worker.md",
+            "forgeflow-quality-reviewer.md",
+        ],
+        "cursor": [
+            "forgeflow-coordinator.mdc",
+            "forgeflow-nextjs-worker.mdc",
+            "forgeflow-quality-reviewer.mdc",
+        ],
+    }
 }
 
 
@@ -83,7 +103,7 @@ def safe_target_root(raw_target: str, spec: AdapterSpec) -> Path:
             display = "/".join(suffix)
             if suffix == (".claude", "agents"):
                 raise ValueError("Refusing to install into a .claude/agents directory; pass the project root instead.")
-            noun = " directory" if suffix[-1] in {"agents", "forgeflow"} else ""
+            noun = " directory" if suffix[-1] in {"agents", "forgeflow", "rules"} else ""
             raise ValueError(
                 f"Refusing to install into {display}{noun}; pass the project root instead."
             )
@@ -102,7 +122,7 @@ def copy_presets(target: Path, profile: str, spec: AdapterSpec) -> list[Path]:
     install_dir = target / spec.install_subdir
     install_dir.mkdir(parents=True, exist_ok=True)
     copied: list[Path] = []
-    for name in REQUIRED_PRESETS[profile]:
+    for name in REQUIRED_PRESETS[profile][spec.name]:
         src = spec.preset_root / name
         if not src.exists():
             raise FileNotFoundError(f"Missing preset: {src}")

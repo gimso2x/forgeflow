@@ -8,6 +8,7 @@ GENERIC_INSTALLER = ROOT / "scripts/install_agent_presets.py"
 CLAUDE_WRAPPER = ROOT / "scripts/install_claude_agent_presets.py"
 GLOBAL_CLAUDE_AGENT = Path.home() / ".claude/agents/nextjs-team.json"
 GLOBAL_CODEX_PRESETS = Path.home() / ".codex/forgeflow-presets"
+GLOBAL_CURSOR_RULES = Path.home() / ".cursor/rules"
 
 
 def run_installer(installer: Path, target: Path, *extra: str) -> subprocess.CompletedProcess[str]:
@@ -65,17 +66,41 @@ def test_generic_installer_installs_codex_nextjs_presets_into_project_only(tmp_p
     assert "forgeflow-nextjs-worker.md" in text
 
 
+def test_generic_installer_installs_cursor_nextjs_rules_into_project_only(tmp_path):
+    target = tmp_path / "sample-next"
+    write_package(target, {"dev": "next dev", "build": "next build", "lint": "eslint"})
+    before_global_exists = GLOBAL_CURSOR_RULES.exists()
+
+    result = run_installer(GENERIC_INSTALLER, target, "--adapter", "cursor", "--profile", "nextjs")
+
+    assert result.returncode == 0, result.stderr
+    assert (target / ".cursor/rules/forgeflow-coordinator.mdc").exists()
+    assert (target / ".cursor/rules/forgeflow-nextjs-worker.mdc").exists()
+    assert (target / ".cursor/rules/forgeflow-quality-reviewer.mdc").exists()
+    assert not GLOBAL_CURSOR_RULES.exists() or before_global_exists
+
+    text = (target / "docs/forgeflow-team-init.md").read_text(encoding="utf-8")
+    assert "Adapter: `cursor`" in text
+    assert "npm run lint" in text
+    assert "npm run test" not in text
+    assert "forgeflow-nextjs-worker.mdc" in text
+
+
 def test_installer_rejects_adapter_config_directory_target(tmp_path):
     claude_target = tmp_path / ".claude/agents"
     codex_target = tmp_path / ".codex/forgeflow"
+    cursor_target = tmp_path / ".cursor/rules"
 
     claude_result = run_installer(GENERIC_INSTALLER, claude_target, "--adapter", "claude", "--profile", "nextjs")
     codex_result = run_installer(GENERIC_INSTALLER, codex_target, "--adapter", "codex", "--profile", "nextjs")
+    cursor_result = run_installer(GENERIC_INSTALLER, cursor_target, "--adapter", "cursor", "--profile", "nextjs")
 
     assert claude_result.returncode != 0
     assert "pass the project root instead" in claude_result.stderr
     assert codex_result.returncode != 0
     assert "pass the project root instead" in codex_result.stderr
+    assert cursor_result.returncode != 0
+    assert "pass the project root instead" in cursor_result.stderr
 
 
 def test_installer_documents_only_existing_package_scripts(tmp_path):
