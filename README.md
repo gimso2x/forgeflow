@@ -132,11 +132,12 @@ python3 scripts/install_agent_presets.py --adapter claude --target /path/to/your
 ForgeFlow task artifacts are local files, so the first observability layer is just a read-only local summary:
 
 ```bash
-python3 scripts/forgeflow_monitor.py --tasks .forgeflow/tasks --recent 10 --format md
-python3 scripts/forgeflow_monitor.py --tasks .forgeflow/tasks --recent 10 --format json
+make setup
+make check-env
+make monitor-summary
 ```
 
-It reads `run-state.json`, `review-report.json`, `eval-record.json`, and `decision-log.json` when present, then reports task counts, blocked/error counts, review rejects, artifact parse errors, and repeated failure messages. It does not mutate artifacts, call an LLM, run tests, send notifications, or start a dashboard. Good. Dashboards reproduce when fed after midnight.
+`make monitor-summary` runs the monitor with the repo-managed Python environment against `.forgeflow/tasks`, showing the recent task summary in Markdown. It reads `run-state.json`, `review-report.json`, `eval-record.json`, and `decision-log.json` when present, then reports task counts, blocked/error counts, review rejects, artifact parse errors, and repeated failure messages. It does not mutate artifacts, call an LLM, run tests, send notifications, or start a dashboard. Good. Dashboards reproduce when fed after midnight.
 
 ### Local runtime install
 

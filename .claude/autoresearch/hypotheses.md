@@ -1,9 +1,10 @@
 # ForgeFlow AutoResearch Hypotheses
 
 ## Pending
-- [AUTO-012] Inspect README quickstart standalone runtime/helper commands for remaining direct script invocations and add one narrow make-target or doc contract only if it reduces fresh-clone environment drift.
+- [AUTO-013] Inspect README/Makefile monitoring summary contract for whether JSON output needs a separate repo-managed target or doc note, and add one narrow guard only if current docs leave automation users on direct script invocation.
 
 ## Completed
+- [EXP-012] KEEP 2026-04-25: [AUTO-012] Inspect README quickstart standalone runtime/helper commands for remaining direct script invocations and add one narrow make-target or doc contract only if it reduces fresh-clone environment drift.
 - [EXP-011] KEEP 2026-04-25: [AUTO-011] Inspect standalone Makefile helper target documentation for setup/check-env prerequisites and add one narrow doc/test alignment only if direct helper usage can still drift.
 - [EXP-010] KEEP 2026-04-24: [AUTO-010] Inspect remaining non-smoke Makefile helper targets for ambient Python drift and add one narrow contract or alignment only if it affects fresh-clone validation consistency.
 - [EXP-009] KEEP 2026-04-25: [AUTO-009] Audit auxiliary Makefile smoke targets that still use ambient python/pytest and add one narrow contract or alignment only if it reduces validation drift without broadening scope.

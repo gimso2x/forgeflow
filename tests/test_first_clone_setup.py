@@ -104,6 +104,20 @@ def test_adherence_eval_docs_use_make_target_after_environment_setup() -> None:
     assert "python3 scripts/run_adherence_evals.py" not in command_block
 
 
+def test_readme_monitoring_summary_uses_repo_managed_make_target() -> None:
+    makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    monitor_section = readme.split("### Local monitoring summary", 1)[1].split("### Local runtime install", 1)[0]
+
+    assert "monitor-summary:" in makefile
+    assert "$(VENV_PYTHON) scripts/forgeflow_monitor.py --tasks .forgeflow/tasks --recent 10 --format md" in makefile
+    assert "make setup" in monitor_section
+    assert "make check-env" in monitor_section
+    assert "make monitor-summary" in monitor_section
+    assert monitor_section.index("make setup") < monitor_section.index("make check-env") < monitor_section.index("make monitor-summary")
+    assert "python3 scripts/forgeflow_monitor.py" not in monitor_section
+
+
 def test_ci_validation_job_creates_venv_before_make_validate() -> None:
     workflow = (ROOT / ".github/workflows/validate.yml").read_text(encoding="utf-8")
     repo_validation_job = workflow.split("  repo-validation:", 1)[1].split("  generated-drift:", 1)[0]
