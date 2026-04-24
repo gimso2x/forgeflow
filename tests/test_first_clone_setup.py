@@ -137,6 +137,17 @@ def test_readme_safe_sample_uses_repo_managed_runtime_target() -> None:
     assert "python3 scripts/run_runtime_sample.py" not in sample_section
 
 
+def test_readme_operator_shell_uses_repo_managed_runtime_sample_target() -> None:
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    operator_section = readme.split("## Operator shell", 1)[1].split("## Using ForgeFlow in Codex", 1)[0]
+
+    assert "make setup" in operator_section
+    assert "make check-env" in operator_section
+    assert "make runtime-sample" in operator_section.splitlines()
+    assert operator_section.index("make setup") < operator_section.index("make check-env") < operator_section.index("make runtime-sample")
+    assert "python3 scripts/run_runtime_sample.py" not in operator_section
+
+
 def test_monitoring_summary_plan_points_users_to_make_targets() -> None:
     plan = (ROOT / "docs/plans/2026-04-24-forgeflow-monitor-summary.md").read_text(encoding="utf-8")
     usage_section = plan.split("### Task 4: Document usage", 1)[1].split("### Task 5: Verify and commit", 1)[0]

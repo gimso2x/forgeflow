@@ -394,7 +394,9 @@ Generated adapters carry ForgeFlow semantics into a host agent. Do not hand-edit
 
 ```bash
 python3 scripts/run_orchestrator.py --help
-python3 scripts/run_runtime_sample.py --fixture-dir examples/runtime-fixtures/small-doc-task --route small
+make setup
+make check-env
+make runtime-sample
 python3 scripts/run_orchestrator.py status --task-dir examples/runtime-fixtures/small-doc-task
 python3 scripts/run_orchestrator.py execute --task-dir examples/runtime-fixtures/small-doc-task --route small --adapter codex
 python3 scripts/run_orchestrator.py execute --task-dir examples/runtime-fixtures/small-doc-task --route small --adapter claude --real
