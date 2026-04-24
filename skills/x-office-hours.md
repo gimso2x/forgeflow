@@ -1,3 +1,12 @@
+---
+name: x-office-hours
+description: x-office-hours cross-cutting ForgeFlow skill
+validate_prompt: |
+  Must reframe the problem before recommending implementation.
+  Must surface assumptions, constraints, and simpler alternatives.
+  Must not turn the discussion into code changes unless explicitly asked.
+---
+
 # Skill: x-office-hours
 
 ## Purpose

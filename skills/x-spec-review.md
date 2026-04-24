@@ -1,3 +1,12 @@
+---
+name: x-spec-review
+description: x-spec-review cross-cutting ForgeFlow skill
+validate_prompt: |
+  Must verify implemented behavior against requirements before quality preferences.
+  Must block approval when requirements, artifacts, or evidence are missing.
+  Must not conflate code style suggestions with spec compliance.
+---
+
 # Skill: x-spec-review
 
 ## Purpose

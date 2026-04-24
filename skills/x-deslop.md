@@ -1,3 +1,12 @@
+---
+name: x-deslop
+description: x-deslop cross-cutting ForgeFlow skill
+validate_prompt: |
+  Must review only changed files unless the user explicitly expands scope.
+  Must remove LLM-specific slop without changing intended behavior.
+  Must preserve tests and verification evidence for any cleanup edit.
+---
+
 # Skill: x-deslop
 
 ## Purpose

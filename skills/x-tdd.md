@@ -1,3 +1,12 @@
+---
+name: x-tdd
+description: x-tdd cross-cutting ForgeFlow skill
+validate_prompt: |
+  Must write or identify a failing test before production behavior changes.
+  Must verify the red and green phases with focused commands.
+  Must not keep production code that was written before the failing test.
+---
+
 # Skill: x-tdd
 
 ## Purpose

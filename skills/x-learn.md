@@ -1,3 +1,12 @@
+---
+name: x-learn
+description: x-learn cross-cutting ForgeFlow skill
+validate_prompt: |
+  Must capture durable, reusable learnings rather than temporary task progress.
+  Must include source evidence and avoid duplicate or low-value lessons.
+  Must not store secrets, raw dumps, or session-only TODO state as learnings.
+---
+
 # Skill: x-learn
 
 ## Purpose

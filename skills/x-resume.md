@@ -1,3 +1,12 @@
+---
+name: x-resume
+description: x-resume cross-cutting ForgeFlow skill
+validate_prompt: |
+  Must recover from explicit checkpoint, ledger, or task state artifacts.
+  Must verify route and task identity before resuming execution.
+  Must not invent missing state or continue if checkpoint evidence conflicts.
+---
+
 # Skill: x-resume
 
 ## Purpose

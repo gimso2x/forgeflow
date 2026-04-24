@@ -1,3 +1,12 @@
+---
+name: x-qa
+description: x-qa cross-cutting ForgeFlow skill
+validate_prompt: |
+  Must select an appropriate QA mode and scope before testing.
+  Must capture issues with reproducible evidence and severity.
+  Must distinguish report-only findings from fixes and never claim unrun verification.
+---
+
 # Skill: x-qa
 
 ## Purpose

@@ -1,3 +1,12 @@
+---
+name: x-debug
+description: x-debug cross-cutting ForgeFlow skill
+validate_prompt: |
+  Must reproduce the issue and trace root cause before proposing a fix.
+  Must not patch symptom sites until the original trigger is traced or explicitly ruled out.
+  Must report evidence, scope, fix, risk, and verification.
+---
+
 # Skill: x-debug
 
 ## Purpose
