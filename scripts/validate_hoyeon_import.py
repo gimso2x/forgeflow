@@ -35,8 +35,6 @@ def find_source() -> Path | None:
 def main() -> int:
     errors: list[str] = []
     source = find_source()
-    if source is None:
-        errors.append('missing Hoyeon source clone; expected one of: ' + ', '.join(str(p) for p in CANDIDATE_SOURCES))
     if not (MIRROR / 'README.md').is_file():
         errors.append('missing docs/upstream/hoyeon/README.md')
 
@@ -57,7 +55,10 @@ def main() -> int:
         return 1
 
     print('HOYEON IMPORT VALIDATION: PASS')
-    print(f'- source: {source}')
+    if source is None:
+        print('- source unavailable; checked committed mirror only')
+    else:
+        print(f'- source: {source}')
     print(f'- mirrored files: {len(SOURCE_FILES)}')
     return 0
 

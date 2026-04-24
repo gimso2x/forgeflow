@@ -34,7 +34,12 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--skip-modules",
         action="store_true",
-        help="Only check Python venv/ensurepip support; used before make setup installs dependencies.",
+        help="Only skip Python module checks; useful before make setup installs dependencies.",
+    )
+    parser.add_argument(
+        "--require-venv-support",
+        action="store_true",
+        help="Fail if venv/ensurepip is unavailable; used by setup preflight only.",
     )
     return parser.parse_args()
 
@@ -49,7 +54,7 @@ def _venv_available() -> bool:
 
 def main() -> int:
     args = _parse_args()
-    if not _venv_available():
+    if args.require_venv_support and not _venv_available():
         print("ENVIRONMENT CHECK: FAIL")
         print("Python venv/ensurepip support is unavailable.")
         print("On Ubuntu/Debian, run: sudo apt-get install python3-venv")
@@ -69,7 +74,7 @@ def main() -> int:
 
     print("ENVIRONMENT CHECK: PASS")
     if args.skip_modules:
-        print("Python venv/ensurepip support available")
+        print("Python module checks skipped")
     else:
         print("Python dependencies available: " + ", ".join(module.package_name for module in modules))
     return 0

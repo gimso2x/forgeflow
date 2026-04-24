@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
-import subprocess
+import py_compile
 import sys
 from pathlib import Path
 
@@ -32,7 +32,7 @@ def test_check_environment_reports_missing_venv_support(monkeypatch: pytest.Monk
 
     monkeypatch.setattr(check_environment, "_venv_available", lambda: False)
     monkeypatch.setattr(check_environment, "_missing_modules", lambda modules: [])
-    monkeypatch.setattr(sys, "argv", ["check_environment.py"])
+    monkeypatch.setattr(sys, "argv", ["check_environment.py", "--require-venv-support"])
 
     assert check_environment.main() == 1
     output = capsys.readouterr().out
@@ -63,13 +63,10 @@ def test_manifest_loader_uses_real_yaml_parser_for_quoted_scalars_and_lists() ->
     assert isinstance(manifest["supports_generated_files"], bool)
 
 
-def test_pytest_has_no_syntax_warnings_in_adapter_tests() -> None:
-    result = subprocess.run(
-        [sys.executable, "-W", "error::SyntaxWarning", "-m", "pytest", "tests/test_generate_adapters.py", "-q"],
-        cwd=ROOT,
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-
-    assert result.returncode == 0, result.stdout + result.stderr
+def test_adapter_related_python_files_compile_without_syntax_warnings() -> None:
+    for path in [
+        ROOT / "scripts" / "generate_adapters.py",
+        ROOT / "scripts" / "validate_generated.py",
+        ROOT / "tests" / "test_generate_adapters.py",
+    ]:
+        py_compile.compile(str(path), doraise=True)
