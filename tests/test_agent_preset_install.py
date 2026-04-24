@@ -126,3 +126,83 @@ def test_legacy_claude_installer_wrapper_still_works(tmp_path):
     assert result.returncode == 0, result.stderr
     assert (target / ".claude/agents/forgeflow-coordinator.md").exists()
     assert "Adapter: `claude`" in (target / "docs/forgeflow-team-init.md").read_text(encoding="utf-8")
+
+
+
+def test_installer_can_generate_starter_docs_without_placeholders(tmp_path):
+    target = tmp_path / "app"
+    write_package(target, {"dev": "next dev", "build": "next build", "lint": "eslint", "test": "vitest"})
+
+    result = run_installer(
+        GENERIC_INSTALLER,
+        target,
+        "--adapter",
+        "claude",
+        "--profile",
+        "nextjs",
+        "--with-starter-docs",
+    )
+
+    assert result.returncode == 0, result.stderr
+    for name in ["PRD.md", "ARCHITECTURE.md", "ADR.md", "UI_GUIDE.md"]:
+        doc = target / "docs" / name
+        assert doc.exists(), name
+        text = doc.read_text(encoding="utf-8")
+        assert "ForgeFlow" in text
+        assert "{{" not in text
+        assert "}}" not in text
+        assert "{프로젝트명}" not in text
+
+    init = (target / "docs/forgeflow-team-init.md").read_text(encoding="utf-8")
+    assert "## Starter docs" in init
+    assert "docs/PRD.md" in init
+    assert "docs/ARCHITECTURE.md" in init
+
+
+def test_installer_does_not_overwrite_existing_starter_docs(tmp_path):
+    target = tmp_path / "app"
+    write_package(target, {"build": "next build"})
+    existing = target / "docs" / "PRD.md"
+    existing.parent.mkdir(parents=True)
+    existing.write_text("# Existing product doc\nDo not overwrite this.", encoding="utf-8")
+
+    result = run_installer(
+        GENERIC_INSTALLER,
+        target,
+        "--adapter",
+        "codex",
+        "--profile",
+        "nextjs",
+        "--with-starter-docs",
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert existing.read_text(encoding="utf-8") == "# Existing product doc\nDo not overwrite this."
+    assert (target / "docs/ARCHITECTURE.md").exists()
+
+
+def test_team_init_document_exposes_prompt_and_review_contract(tmp_path):
+    target = tmp_path / "app"
+    write_package(target, {"build": "next build", "lint": "eslint", "test": "vitest run"})
+
+    result = run_installer(
+        GENERIC_INSTALLER,
+        target,
+        "--adapter",
+        "cursor",
+        "--profile",
+        "nextjs",
+        "--with-starter-docs",
+    )
+
+    assert result.returncode == 0, result.stderr
+    text = (target / "docs/forgeflow-team-init.md").read_text(encoding="utf-8")
+    assert "## Active role prompts" in text
+    assert "forgeflow-coordinator" in text
+    assert "forgeflow-nextjs-worker" in text
+    assert "forgeflow-quality-reviewer" in text
+    assert "## Review contract" in text
+    assert "independent quality review" in text
+    assert "## Failure handling" in text
+    assert "## Recommended first run" in text
+    assert "/forgeflow:clarify" in text

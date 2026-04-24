@@ -12,6 +12,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SUPPORTED_PROFILES = {"nextjs"}
+STARTER_DOCS_ROOT = ROOT / "templates/starter-docs"
+STARTER_DOC_NAMES = ("PRD.md", "ARCHITECTURE.md", "ADR.md", "UI_GUIDE.md")
 
 
 @dataclass(frozen=True)
@@ -132,6 +134,22 @@ def copy_presets(target: Path, profile: str, spec: AdapterSpec) -> list[Path]:
     return copied
 
 
+def copy_starter_docs(target: Path) -> list[Path]:
+    docs_dir = target / "docs"
+    docs_dir.mkdir(parents=True, exist_ok=True)
+    created: list[Path] = []
+    for name in STARTER_DOC_NAMES:
+        src = STARTER_DOCS_ROOT / name
+        if not src.exists():
+            raise FileNotFoundError(f"Missing starter doc template: {src}")
+        dst = docs_dir / name
+        if dst.exists():
+            continue
+        shutil.copyfile(src, dst)
+        created.append(dst)
+    return created
+
+
 def verification_lines(scripts: dict[str, str]) -> list[str]:
     preferred = ["dev", "build", "lint", "test"]
     lines = []
@@ -143,10 +161,21 @@ def verification_lines(scripts: dict[str, str]) -> list[str]:
     return lines
 
 
-def write_doc(target: Path, profile: str, adapter: str, copied: list[Path], scripts: dict[str, str], spec: AdapterSpec) -> Path:
+def write_doc(
+    target: Path,
+    profile: str,
+    adapter: str,
+    copied: list[Path],
+    scripts: dict[str, str],
+    spec: AdapterSpec,
+    starter_docs: list[Path],
+) -> Path:
     doc = target / "docs" / "forgeflow-team-init.md"
     doc.parent.mkdir(parents=True, exist_ok=True)
     preset_lines = [f"- `{path.relative_to(target)}`" for path in copied]
+    starter_lines = [f"- `{path.relative_to(target)}`" for path in starter_docs]
+    if not starter_lines:
+        starter_lines = ["- No starter docs were created in this run. Existing project docs are preserved."]
     content = "\n".join(
         [
             f"# {spec.title}",
@@ -157,6 +186,30 @@ def write_doc(target: Path, profile: str, adapter: str, copied: list[Path], scri
             "## Installed project-local ForgeFlow presets",
             "",
             *preset_lines,
+            "",
+            "## Starter docs",
+            "",
+            *starter_lines,
+            "",
+            "Use these as project-local inputs for ForgeFlow planning. They guide product, architecture, decisions, and UI expectations without replacing canonical artifacts like `brief.json`, `plan-ledger.json`, `run-state.json`, or `review-report.json`.",
+            "",
+            "## Active role prompts",
+            "",
+            "- `forgeflow-coordinator` — chooses stage, route, missing artifacts, and next handoff.",
+            "- `forgeflow-nextjs-worker` — performs scoped implementation and records evidence.",
+            "- `forgeflow-quality-reviewer` — performs independent quality review before completion claims.",
+            "",
+            "## Review contract",
+            "",
+            "- Do not claim done without fresh verification evidence.",
+            "- Require independent quality review for non-trivial implementation work.",
+            "- Reject changes that drift from PRD, Architecture, ADR, or ForgeFlow stage artifacts.",
+            "",
+            "## Failure handling",
+            "",
+            "- If verification fails, record the failing command and fix the smallest cause first.",
+            "- If scope changes, return to `/forgeflow:clarify` instead of silently expanding the task.",
+            "- If review rejects the change, update the plan/evidence before another completion claim.",
             "",
             "## Safety boundary",
             "",
@@ -172,13 +225,20 @@ def write_doc(target: Path, profile: str, adapter: str, copied: list[Path], scri
             "2. Use `forgeflow-nextjs-worker.md` for scoped Next.js implementation tasks.",
             "3. Use `forgeflow-quality-reviewer.md` before declaring the task complete.",
             "",
+            "## Recommended first run",
+            "",
+            "1. Fill or skim `docs/PRD.md`, `docs/ARCHITECTURE.md`, `docs/ADR.md`, and `docs/UI_GUIDE.md` when they exist.",
+            "2. Start with `/forgeflow:clarify <task>`.",
+            "3. Let the agent produce the plan and then run within the approved scope.",
+            "4. Run the available verification commands below and attach evidence to the final report.",
+            "",
         ]
     )
     doc.write_text(content, encoding="utf-8")
     return doc
 
 
-def install(target_arg: str, adapter: str, profile: str) -> tuple[Path, list[Path], Path]:
+def install(target_arg: str, adapter: str, profile: str, *, with_starter_docs: bool = False) -> tuple[Path, list[Path], Path, list[Path]]:
     if adapter not in ADAPTERS:
         raise ValueError(f"Unsupported adapter: {adapter}")
     spec = ADAPTERS[adapter]
@@ -186,8 +246,9 @@ def install(target_arg: str, adapter: str, profile: str) -> tuple[Path, list[Pat
     target.mkdir(parents=True, exist_ok=True)
     scripts = load_package_scripts(target)
     copied = copy_presets(target, profile, spec)
-    doc = write_doc(target, profile, adapter, copied, scripts, spec)
-    return target, copied, doc
+    starter_docs = copy_starter_docs(target) if with_starter_docs else []
+    doc = write_doc(target, profile, adapter, copied, scripts, spec, starter_docs)
+    return target, copied, doc, starter_docs
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -195,14 +256,26 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--adapter", choices=sorted(ADAPTERS), required=True)
     parser.add_argument("--target", required=True, help="Project root to install into")
     parser.add_argument("--profile", choices=sorted(SUPPORTED_PROFILES), default="nextjs")
+    parser.add_argument(
+        "--with-starter-docs",
+        action="store_true",
+        help="Create missing docs/PRD.md, ARCHITECTURE.md, ADR.md, and UI_GUIDE.md starter templates",
+    )
     args = parser.parse_args(argv)
 
     try:
-        target, copied, doc = install(args.target, args.adapter, args.profile)
+        target, copied, doc, starter_docs = install(
+            args.target,
+            args.adapter,
+            args.profile,
+            with_starter_docs=args.with_starter_docs,
+        )
     except Exception as exc:  # noqa: BLE001 - CLI reports concise failure
         return die(str(exc))
 
     print(f"Installed {len(copied)} {args.adapter} presets into {target / ADAPTERS[args.adapter].install_subdir}")
+    if args.with_starter_docs:
+        print(f"Created {len(starter_docs)} starter docs under {target / 'docs'}")
     print(f"Wrote {doc}")
     return 0
 

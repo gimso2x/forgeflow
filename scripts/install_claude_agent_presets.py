@@ -25,7 +25,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     try:
-        target, copied, doc = install(args.target, "claude", args.profile)
+        target, copied, doc, _starter_docs = install(args.target, "claude", args.profile)
     except Exception as exc:  # noqa: BLE001 - CLI reports concise failure
         return die(str(exc))
 
