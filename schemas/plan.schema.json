@@ -2,22 +2,155 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Plan",
   "type": "object",
-  "required": ["schema_version", "task_id", "steps"],
+  "required": [
+    "schema_version",
+    "task_id",
+    "steps"
+  ],
   "properties": {
-    "schema_version": {"type": "string"},
-    "task_id": {"type": "string"},
+    "schema_version": {
+      "type": "string"
+    },
+    "task_id": {
+      "type": "string"
+    },
     "steps": {
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["id", "objective", "expected_output", "verification"],
+        "required": [
+          "id",
+          "objective",
+          "expected_output",
+          "verification"
+        ],
         "properties": {
-          "id": {"type": "string"},
-          "objective": {"type": "string"},
-          "dependencies": {"type": "array", "items": {"type": "string"}},
-          "expected_output": {"type": "string"},
-          "verification": {"type": "string"},
-          "rollback_note": {"type": "string"}
+          "id": {
+            "type": "string"
+          },
+          "objective": {
+            "type": "string"
+          },
+          "dependencies": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "expected_output": {
+            "type": "string"
+          },
+          "verification": {
+            "type": "string"
+          },
+          "rollback_note": {
+            "type": "string"
+          },
+          "fulfills": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "in_progress",
+              "completed",
+              "failed",
+              "blocked"
+            ]
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "contracts": {
+      "type": "object",
+      "required": [
+        "artifact",
+        "interfaces",
+        "invariants"
+      ],
+      "properties": {
+        "artifact": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "interfaces": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "invariants": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "journeys": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "description",
+          "composes"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "composes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "verify_plan": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "target",
+          "type",
+          "gates"
+        ],
+        "properties": {
+          "target": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "sub_req",
+              "journey",
+              "step"
+            ]
+          },
+          "gates": {
+            "type": "array",
+            "items": {
+              "type": [
+                "string",
+                "integer"
+              ]
+            }
+          }
         },
         "additionalProperties": false
       }

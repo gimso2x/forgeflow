@@ -64,9 +64,18 @@ No heading. No preamble. No code fence. No third line. Start directly with `1.`.
 ## Procedure
 
 1. Confirm route and current stage.
-2. Execute only tasks that belong to the plan/scope.
-3. Run focused verification after each meaningful change.
-4. Update evidence/decision notes.
-5. Stop if requirements become ambiguous; return to `/clarify` or `/specify`.
+2. Read `contracts` metadata and sibling `contracts.md` before editing when present.
+3. Execute only tasks that belong to the plan/scope.
+4. Treat `fulfills`, `journeys`, and `verify_plan` as verification obligations, not decoration.
+5. Run focused verification after each meaningful change.
+6. Update evidence/decision notes.
+7. Stop if requirements become ambiguous; return to `/clarify` or `/specify`.
+
+Contract-aware execution rules:
+
+- Do not change an interface or invariant named in `contracts` unless the plan explicitly authorizes it.
+- For each step with `fulfills`, record evidence against those requirement/sub-requirement IDs.
+- For each journey in `journeys`, preserve end-to-end verification until `/review`; a passed unit test alone is not enough for a journey gate.
+- If `verify_plan` exists and a target cannot be verified, mark the task blocked instead of pretending it is done.
 
 Worker self-report is not approval. `/review` still has to happen.

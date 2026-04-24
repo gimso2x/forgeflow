@@ -48,12 +48,45 @@ When writing `plan.json`, it **must** conform to `schemas/plan.schema.json` exac
 
 Do not add non-schema fields such as `route`, `tasks`, `files_to_change`, `acceptance_criteria`, `verification_commands`, or `route_selection_rationale` to `plan.json`.
 
+## Contract-first traceability for medium/large or brownfield work
+
+For non-trivial work, plan the cross-module contract before task decomposition:
+
+1. Identify interfaces, invariants, data shapes, and compatibility constraints that parallel workers must not break.
+2. If any contract exists, write it into optional `contracts` metadata and/or a sibling `contracts.md` artifact.
+3. Add `fulfills` links on steps when requirements or sub-requirements are known.
+4. Add `verify_plan` entries for each fulfilled requirement/sub-requirement and each journey.
+5. Add `journeys` for multi-step user or system flows that require end-to-end verification.
+
+Optional contract-aware `plan.json` fields:
+
+```json
+{
+  "contracts": {
+    "artifact": "contracts.md",
+    "interfaces": ["StorageAPI accepts normalized records"],
+    "invariants": ["Existing public CLI flags remain backward compatible"]
+  },
+  "journeys": [
+    {"id": "J1", "description": "User completes the changed flow", "composes": ["R1.1", "R2.1"]}
+  ],
+  "verify_plan": [
+    {"target": "R1.1", "type": "sub_req", "gates": ["test", "review"]},
+    {"target": "J1", "type": "journey", "gates": ["e2e"]}
+  ]
+}
+```
+
+Small documentation-only tasks may omit these fields. If the fields are present, they must be internally consistent and pass sample artifact validation.
+
 ## Exit Condition
 
 - Every task has exact file paths or a justified discovery step
 - Every task has verification
 - Dependencies form a DAG
 - Medium/large routes have enough detail for `/run` without guessing
+- Contract metadata is present for cross-module work, or explicitly unnecessary
+- `fulfills`, `journeys`, and `verify_plan` links are consistent when present
 - No placeholder tasks remain
 
 ## File write and output discipline
