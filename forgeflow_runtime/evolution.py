@@ -538,6 +538,38 @@ def promotion_ready(root: Path, proposal_path: Path) -> dict[str, Any]:
     }
 
 
+
+
+def promote_stub(root: Path, proposal_path: Path) -> dict[str, Any]:
+    """Stub-first promote surface: verify readiness and audit the attempt, but mutate no rules."""
+
+    root = root.resolve()
+    proposal_path = proposal_path.resolve()
+    ready = promotion_ready(root, proposal_path)
+    if not ready["ready_for_promote"]:
+        issue_codes = ", ".join(issue["code"] for issue in ready["issues"])
+        raise ValueError(f"promotion is not ready: {issue_codes}")
+    event = {
+        "event": "promote_stub",
+        "rule_id": ready["rule_id"],
+        "proposal_path": str(proposal_path),
+        "mutation_mode": "stub",
+        "would_mutate_rules": False,
+        "promoted": False,
+        "passed": True,
+    }
+    _append_audit_event(root, event)
+    return {
+        "proposal_path": str(proposal_path),
+        "rule_id": ready["rule_id"],
+        "mutation_mode": "stub",
+        "would_mutate_rules": False,
+        "promoted": False,
+        "audit_event": event,
+        "ready": ready,
+    }
+
+
 def _failed_safety_checks(safety_checks: dict[str, bool]) -> list[str]:
     return [name for name, passed in safety_checks.items() if not passed]
 

@@ -5,7 +5,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from forgeflow_runtime.evolution import adopt_example_rule, doctor_evolution_state, effectiveness_review, promotion_plan, proposal_approve, proposal_approvals, promotion_decision, promotion_gate, promotion_ready, proposal_review, write_promotion_plan, dry_run_rule, execute_rule, inspect_evolution_policy, list_rules
+from forgeflow_runtime.evolution import adopt_example_rule, doctor_evolution_state, effectiveness_review, promotion_plan, proposal_approve, proposal_approvals, promotion_decision, promotion_gate, promote_stub, promotion_ready, proposal_review, write_promotion_plan, dry_run_rule, execute_rule, inspect_evolution_policy, list_rules
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -1751,3 +1751,105 @@ def test_promotion_ready_cli_human_output_says_no_promotion_and_readiness(tmp_pa
     assert "ready for promote: false" in result.stdout
     assert "would promote: false" in result.stdout
     assert "would mutate rules: false" in result.stdout
+
+
+
+def test_promote_stub_requires_ready_proposal_and_appends_audit_without_rule_mutation(tmp_path: Path) -> None:
+    written = _promotion_decided_proposal(tmp_path)
+    active_rule = tmp_path / ".forgeflow" / "evolution" / "rules" / "no-env-commit-rule.json"
+    before_rule = active_rule.read_text(encoding="utf-8")
+    before_events = _audit_events(tmp_path)
+
+    result = promote_stub(tmp_path, Path(written["proposal_path"]))
+
+    assert result["mutation_mode"] == "stub"
+    assert result["would_mutate_rules"] is False
+    assert result["promoted"] is False
+    assert result["ready"]["ready_for_promote"] is True
+    assert active_rule.read_text(encoding="utf-8") == before_rule
+    events = _audit_events(tmp_path)
+    assert len(events) == len(before_events) + 1
+    assert events[-1]["event"] == "promote_stub"
+    assert events[-1]["rule_id"] == "no-env-commit"
+    assert events[-1]["mutation_mode"] == "stub"
+
+
+def test_promote_stub_rejects_not_ready_proposal(tmp_path: Path) -> None:
+    written = _gate_passing_proposal(tmp_path)
+
+    try:
+        promote_stub(tmp_path, Path(written["proposal_path"]))
+    except ValueError as exc:
+        assert "promotion is not ready" in str(exc)
+    else:  # pragma: no cover
+        raise AssertionError("expected ValueError")
+
+
+def test_promote_cli_requires_long_acknowledgement_flag(tmp_path: Path) -> None:
+    written = _promotion_decided_proposal(tmp_path)
+
+    result = subprocess.run(
+        [sys.executable, "scripts/forgeflow_evolution.py", "--root", str(tmp_path), "promote", "--proposal", written["proposal_path"], "--json"],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    assert result.returncode == 2
+    assert "--i-understand-this-mutates-project-policy" in result.stderr
+
+
+def test_promote_cli_json_contract_is_stub_and_no_rule_mutation(tmp_path: Path) -> None:
+    written = _promotion_decided_proposal(tmp_path)
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            "scripts/forgeflow_evolution.py",
+            "--root",
+            str(tmp_path),
+            "promote",
+            "--proposal",
+            written["proposal_path"],
+            "--i-understand-this-mutates-project-policy",
+            "--json",
+        ],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
+    payload = json.loads(result.stdout)
+    assert payload["mutation_mode"] == "stub"
+    assert payload["would_mutate_rules"] is False
+    assert payload["promoted"] is False
+
+
+def test_promote_cli_human_output_says_stub_and_no_mutation(tmp_path: Path) -> None:
+    written = _promotion_decided_proposal(tmp_path)
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            "scripts/forgeflow_evolution.py",
+            "--root",
+            str(tmp_path),
+            "promote",
+            "--proposal",
+            written["proposal_path"],
+            "--i-understand-this-mutates-project-policy",
+        ],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert "Evolution promote stub:" in result.stdout
+    assert "mutation mode: stub" in result.stdout
+    assert "would mutate rules: false" in result.stdout
+    assert "promoted: false" in result.stdout

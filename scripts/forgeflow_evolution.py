@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from forgeflow_runtime.evolution import adopt_example_rule, audit_events, doctor_evolution_state, dry_run_rule, effectiveness_review, execute_rule, inspect_evolution_policy, list_rules, promotion_decision, promotion_gate, promotion_plan, promotion_ready, proposal_approve, proposal_approvals, proposal_review, restore_rule, retire_rule, write_promotion_plan
+from forgeflow_runtime.evolution import adopt_example_rule, audit_events, doctor_evolution_state, dry_run_rule, effectiveness_review, execute_rule, inspect_evolution_policy, list_rules, promote_stub, promotion_decision, promotion_gate, promotion_plan, promotion_ready, proposal_approve, proposal_approvals, proposal_review, restore_rule, retire_rule, write_promotion_plan
 
 
 def _target_root(args: argparse.Namespace) -> Path:
@@ -291,6 +291,27 @@ def cmd_promotion_gate(args: argparse.Namespace) -> int:
     return 0 if result["ready_for_policy_gate"] else 1
 
 
+def cmd_promote(args: argparse.Namespace) -> int:
+    if not args.i_understand_this_mutates_project_policy:
+        print("Error: promote requires --i-understand-this-mutates-project-policy", file=sys.stderr)
+        return 2
+    try:
+        result = promote_stub(_target_root(args), Path(args.proposal))
+    except ValueError as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 1
+    if args.json:
+        print(json.dumps(result, ensure_ascii=False, indent=2))
+        return 0
+    print(f"Evolution promote stub: {result['proposal_path']}")
+    print(f"- rule: {result['rule_id']}")
+    print(f"- mutation mode: {result['mutation_mode']}")
+    print(f"- would mutate rules: {str(result['would_mutate_rules']).lower()}")
+    print(f"- promoted: {str(result['promoted']).lower()}")
+    print("- audit event: promote_stub")
+    return 0
+
+
 def cmd_promotion_ready(args: argparse.Namespace) -> int:
     try:
         result = promotion_ready(_target_root(args), Path(args.proposal))
@@ -494,6 +515,11 @@ def build_parser() -> argparse.ArgumentParser:
     promotion_ready_cmd.add_argument("--proposal", required=True)
     promotion_ready_cmd.add_argument("--json", action="store_true")
     promotion_ready_cmd.set_defaults(func=cmd_promotion_ready)
+    promote_cmd = sub.add_parser("promote", help="stub-first promote surface; verifies readiness and audits, but mutates no rules")
+    promote_cmd.add_argument("--proposal", required=True)
+    promote_cmd.add_argument("--i-understand-this-mutates-project-policy", action="store_true")
+    promote_cmd.add_argument("--json", action="store_true")
+    promote_cmd.set_defaults(func=cmd_promote)
     proposal_approve_cmd = sub.add_parser("proposal-approve", help="append an approval record for a valid promotion proposal")
     proposal_approve_cmd.add_argument("--proposal", required=True)
     proposal_approve_cmd.add_argument("--approval", required=True)

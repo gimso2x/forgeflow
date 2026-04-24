@@ -107,6 +107,7 @@ proposal-approvals -> read-only approval ledger status and remaining approvals
 promotion-gate -> read-only gate readiness check; no promotion or rule mutation
 promotion-decision -> append-only human policy-gate decision; still no promotion
 promotion-ready -> read-only final readiness check for future promote
+promote       -> stub-first acknowledged promote surface; audits attempt but mutates no rules
 audit         -> show recent project-local lifecycle/execution events
 ```
 
@@ -338,3 +339,23 @@ would_mutate_rules=false
 ```
 
 `ready_for_promote=true` means the proposal, approval ledger, policy-gate decision, and active project-local rule still line up. It still does not promote anything. This command is the dashboard the future dangerous button must call, not the dangerous button itself.
+
+`promote` exists as a stub-first dangerous surface with a long acknowledgement flag:
+
+```bash
+python3 scripts/forgeflow_evolution.py promote \
+  --proposal .forgeflow/evolution/proposals/<timestamp>-no-env-commit-promotion-plan.json \
+  --i-understand-this-mutates-project-policy \
+  --json
+```
+
+The first version deliberately does not mutate rules. It calls `promotion-ready`, refuses unready proposals, requires the ugly acknowledgement flag, and appends a project-local audit event:
+
+```text
+event=promote_stub
+mutation_mode=stub
+would_mutate_rules=false
+promoted=false
+```
+
+Without `--i-understand-this-mutates-project-policy`, the CLI exits `2`. The name is scary on purpose: this is where a future mutating implementation will live, so the safety rail must exist before the blade does.
