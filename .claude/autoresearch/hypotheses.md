@@ -1,10 +1,11 @@
 # ForgeFlow AutoResearch Hypotheses
 
 ## Pending
-- [AUTO-022] Inspect scripts/run_orchestrator.py top-level help Manual stage control examples for read-only status drift versus repo-managed status target, and add one narrow help regression only if it improves fresh-clone operator guidance without hiding mutating commands.
+- [AUTO-023] Inspect README operator shell sections adjacent to direct run_orchestrator.py status examples and add one narrow docs/test alignment only if current first-clone guidance still bypasses the repo-managed orchestrator-status target.
 
 
 ## Completed
+- [EXP-022] KEEP 2026-04-25: [AUTO-022] Inspect scripts/run_orchestrator.py top-level help Manual stage control examples for read-only status drift versus repo-managed status target, and add one narrow help regression only if it improves fresh-clone operator guidance without hiding mutating commands.
 - [EXP-021] KEEP 2026-04-25: [AUTO-021] Inspect scripts/run_orchestrator.py top-level help examples for stale fallback entry wording adjacent to start/run, and add one narrow doc/help regression only if it reduces operator confusion without hiding mutating commands.
 - [EXP-020] KEEP 2026-04-25: [AUTO-020] Inspect docs/operator-shell.md Common commands for the next read-only or low-risk inspect command adjacent to status, and add a repo-managed Make target or explicit setup guidance only if it reduces fresh-clone Python drift without masking mutating operations.
 - [EXP-019] KEEP 2026-04-25: [AUTO-019] Inspect docs/operator-shell.md Common commands section for read-only direct orchestrator status/help commands that could use a repo-managed Make target without hiding intentional mutating examples, and add one narrow docs/test guard only if current operator guidance is affected.

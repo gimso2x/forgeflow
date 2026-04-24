@@ -2086,6 +2086,24 @@ def test_cli_help_keeps_fallback_start_run_warning_adjacent_to_examples() -> Non
     assert "can reuse persisted route" not in fallback_section
 
 
+def test_cli_help_separates_read_only_status_from_mutating_manual_stage_examples() -> None:
+    result = _run_orchestrator_cli("--help")
+
+    assert result.returncode == 0
+    examples = result.stdout.split("Operator shell examples:", 1)[1].split("Notes:", 1)[0]
+    manual_section = examples.split("# Manual stage control", 1)[1]
+    assert "# Read-only status path is repo-managed for first-clone shells." in manual_section
+    assert "make setup" in manual_section
+    assert "make check-env" in manual_section
+    assert "make orchestrator-status" in manual_section
+    assert manual_section.index("make setup") < manual_section.index("make check-env") < manual_section.index("make orchestrator-status")
+    assert "# Mutating manual stage commands stay explicit operator commands." in manual_section
+    mutating_section = manual_section.split("# Mutating manual stage commands stay explicit operator commands.", 1)[1]
+    assert "python3 scripts/run_orchestrator.py execute" in mutating_section
+    assert "python3 scripts/run_orchestrator.py advance" in mutating_section
+    assert "python3 scripts/run_orchestrator.py status" not in manual_section
+
+
 def test_cli_init_bootstraps_task_from_operator_inputs(tmp_path: Path) -> None:
     task_dir = tmp_path / "my-task"
 

@@ -127,8 +127,12 @@ def build_parser() -> argparse.ArgumentParser:
   # Raise the minimum route floor without lowering persisted or explicit route choice.
   python3 scripts/run_orchestrator.py run --task-dir examples/runtime-fixtures/small-doc-task --min-route medium
 
-  # Manual stage control: execute current stage, advance, retry, rewind, or escalate.
-  python3 scripts/run_orchestrator.py status --task-dir examples/runtime-fixtures/small-doc-task
+  # Manual stage control: inspect status, then execute current stage, advance, retry, rewind, or escalate.
+  # Read-only status path is repo-managed for first-clone shells.
+  make setup
+  make check-env
+  make orchestrator-status
+  # Mutating manual stage commands stay explicit operator commands.
   python3 scripts/run_orchestrator.py execute --task-dir examples/runtime-fixtures/small-doc-task --route small --adapter codex
   python3 scripts/run_orchestrator.py advance --task-dir examples/runtime-fixtures/small-doc-task --route small --current-stage clarify --execute --adapter cursor
   python3 scripts/run_orchestrator.py retry --task-dir examples/runtime-fixtures/small-doc-task --stage execute --max-retries 2
