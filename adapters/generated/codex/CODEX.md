@@ -19,6 +19,7 @@ Do not edit manually. Update canonical docs/policy/prompts and rerun `scripts/ge
 ## Installation steps
 1. Copy the generated adapter to ./CODEX.md at the repo root.
 2. Preserve the canonical review order even when Codex returns git-oriented summaries.
+3. Treat Codex recovery guidance as instruction-file UX, not as hook support.
 
 ## Target operating notes
 - surface_style: root-instruction-file
@@ -38,6 +39,11 @@ Do not edit manually. Update canonical docs/policy/prompts and rerun `scripts/ge
 ## Tooling constraints
 - git-oriented runtime assumptions may exist
 - generated artifacts must not redefine canonical semantics
+- Codex recovery guidance
+- After an edit/write failure, re-read the target file before retrying
+- For large files or oversized output, use targeted search or chunked reads
+- After three repeated command or tool failures, stop and change strategy
+- Speed shortcuts such as /fast must not skip artifact gates
 
 ## Canonical workflow snapshot
 ```yaml

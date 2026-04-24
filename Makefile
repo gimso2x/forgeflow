@@ -3,7 +3,7 @@ VENV ?= .venv
 VENV_PYTHON := $(VENV)/bin/python
 VENV_PIP := $(VENV)/bin/pip
 
-.PHONY: setup check-env validate generate regen clean validate-samples runtime-sample adherence-evals smoke-claude-plugin validate-upstream-import validate-hoyeon-import validate-skill-contracts validate-claude-hooks plan-cli-smoke learn-smoke claude-hook-smoke
+.PHONY: setup check-env validate generate regen clean validate-samples runtime-sample adherence-evals smoke-claude-plugin validate-upstream-import validate-hoyeon-import validate-skill-contracts validate-claude-hooks plan-cli-smoke learn-smoke claude-hook-smoke codex-recovery-smoke
 
 setup:
 	$(PYTHON) -m venv $(VENV)
@@ -26,6 +26,7 @@ validate:
 	$(PYTHON) scripts/smoke_plan_cli.py
 	pytest tests/test_forgeflow_learn.py -q
 	pytest tests/test_claude_recovery_hooks.py -q
+	pytest tests/test_codex_recovery_guidance.py -q
 
 runtime-sample:
 	$(PYTHON) scripts/run_runtime_sample.py --fixture-dir examples/runtime-fixtures/small-doc-task --route small
@@ -53,6 +54,9 @@ learn-smoke:
 
 claude-hook-smoke:
 	pytest tests/test_claude_recovery_hooks.py -q
+
+codex-recovery-smoke:
+	pytest tests/test_codex_recovery_guidance.py -q
 
 smoke-claude-plugin:
 	$(PYTHON) scripts/smoke_claude_plugin.py
