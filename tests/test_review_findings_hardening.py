@@ -41,7 +41,10 @@ def test_check_environment_reports_missing_venv_support(monkeypatch: pytest.Monk
 
 
 def test_all_artifact_schemas_pin_current_schema_version() -> None:
+    non_artifact_schemas = {"evolution-rule.schema.json"}
     for schema_path in (ROOT / "schemas").glob("*.schema.json"):
+        if schema_path.name in non_artifact_schemas:
+            continue
         schema = json.loads(schema_path.read_text(encoding="utf-8"))
         schema_version = schema["properties"]["schema_version"]
         assert schema_version.get("const") == "0.1", schema_path.name
