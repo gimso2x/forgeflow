@@ -11,6 +11,7 @@ CANONICAL_SKILLS = [
     'skills/run/SKILL.md',
     'skills/review/SKILL.md',
     'skills/ship/SKILL.md',
+    'skills/finish/SKILL.md',
     'skills/verify/SKILL.md',
     'skills/x-debug.md',
     'skills/x-deslop.md',
