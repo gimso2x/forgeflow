@@ -92,7 +92,13 @@ No heading. No preamble. No code fence. No third line.
 3. Decompose into small tasks with acceptance criteria.
 4. Mark dependency order and parallel safety.
 5. Identify risky tasks and required review evidence.
-6. Hand off to `/run`.
+6. For `large_high_risk` work, pressure-test milestone boundaries from five angles before execution:
+   - feasibility risks
+   - architecture/interface boundaries
+   - dependency ordering
+   - regression and recovery risks
+   - verification strategy
+7. Hand off to `/run`.
 
 Do not code during planning unless the user explicitly asks for a tiny small-route direct execution.
 
