@@ -2603,7 +2603,7 @@ def test_readme_examples_describe_manual_execution_flow() -> None:
     assert "make orchestrator-help" in readme
     assert "make runtime-sample" in readme
     assert "scripts/run_orchestrator.py init" in readme
-    assert "Manual `run_orchestrator.py` commands mutate their target `--task-dir`" in readme
+    assert "Other manual `run_orchestrator.py` commands mutate their target `--task-dir`" in readme
     assert "scripts/run_orchestrator.py execute --task-dir" in readme
     assert "advance --execute" in readme
     assert "## Using ForgeFlow in Codex" in readme
