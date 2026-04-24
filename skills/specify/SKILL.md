@@ -61,10 +61,45 @@ Example exact-count response must be plain text lines, not a fenced block:
 
 No heading. No preamble. No code fence. No tool call. No third line.
 
+## WHERE grounding
+
+Before deriving requirements for anything non-trivial, calibrate WHERE so the process is neither too heavy for toys nor too light for dangerous work.
+
+Capture these fields when the user has not already provided them:
+
+- `project_type`: user-facing app, API/service, dev tool/library, or infrastructure
+- `situation`: greenfield, brownfield extension, brownfield refactor, or hybrid
+- `ambition`: toy/experiment, feature/MVP, or product
+- `risk_modifiers`: sensitive data, external exposure, irreversible ops, high scale
+
+Risk escalation rules:
+
+| Modifier | Escalate |
+|---|---|
+| Sensitive data | security and data requirements must be deep |
+| External exposure | security and access requirements must be deep |
+| Irreversible ops | risk and compatibility requirements must be deep |
+| High scale | infrastructure and architecture requirements must be deep |
+
+Situation rules:
+
+- Greenfield: ask enough to define behavior and core architecture, but do not invent enterprise ceremony.
+- Brownfield extension: inspect existing code and docs before asking factual questions; ask about decisions and tradeoffs, not facts the repo can answer.
+- Brownfield refactor: compatibility, callers, migration path, and rollback are first-class requirements.
+- Hybrid: separate new-module behavior from integration constraints.
+
+Output discipline:
+
+- WHERE may appear as a short section in `requirements.md` when writing artifacts.
+- For exact-count, dry-run, or response-only prompts, do not force the WHERE interview. Obey the requested output exactly.
+- If WHERE exposes a small-but-dangerous task, record the risk explicitly instead of routing it as a casual small task.
+
 ## Procedure
 
 1. Read the brief and identify missing decisions.
-2. Ask forced-choice questions only when a decision changes implementation shape.
-3. Derive requirements downward: goal -> context -> decisions -> requirements -> sub-requirements.
-4. Keep requirements behavioral, not implementation-flavored.
-5. Hand off to `/plan`.
+2. Establish WHERE grounding unless the prompt is an exact-output dry run.
+3. For brownfield work, inspect repo facts before asking factual questions.
+4. Ask forced-choice questions only when a decision changes implementation shape.
+5. Derive requirements downward: goal -> WHERE/context -> decisions -> requirements -> sub-requirements.
+6. Keep requirements behavioral, not implementation-flavored.
+7. Hand off to `/plan`.
