@@ -97,6 +97,7 @@ adopt    -> copy a safe example into .forgeflow/evolution/rules
 dry-run  -> show command and safety checks without executing
 execute  -> run only project-local adopted rules with explicit acknowledgement
 retire   -> move a project-local rule into .forgeflow/evolution/retired-rules with a reason
+restore  -> move a retired rule back into .forgeflow/evolution/rules with a reason
 audit    -> show recent project-local lifecycle/execution events
 ```
 
@@ -142,7 +143,15 @@ Retired rules move out of the active registry:
 .forgeflow/evolution/retired-rules/*.json
 ```
 
-`execute` never reads retired rules. The audit log records adopt, execute, and retire events:
+`execute` never reads retired rules. Restore requires an explicit reason and re-runs safety checks before moving the rule back:
+
+```bash
+python3 scripts/forgeflow_evolution.py restore \
+  --rule no-env-commit \
+  --reason "false positive fixed"
+```
+
+The audit log records adopt, execute, retire, and restore events:
 
 ```bash
 python3 scripts/forgeflow_evolution.py audit --limit 20

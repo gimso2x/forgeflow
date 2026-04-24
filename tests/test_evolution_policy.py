@@ -554,3 +554,70 @@ def test_retire_rule_rolls_back_move_when_audit_write_fails(tmp_path: Path, monk
     assert Path(adopt["destination"]).is_file()
     registry = list_rules(tmp_path)
     assert [rule["id"] for rule in registry["project_rules"]] == ["no-env-commit"]
+
+
+def test_restore_retired_rule_moves_rule_back_to_active_registry_and_records_audit(tmp_path: Path) -> None:
+    adopt_example_rule(tmp_path, "no-env-commit", fallback_root=ROOT)
+    from forgeflow_runtime.evolution import restore_rule, retire_rule
+
+    retire_rule(tmp_path, "no-env-commit", reason="too noisy")
+    result = restore_rule(tmp_path, "no-env-commit", reason="false positive fixed")
+
+    assert result["restored"] is True
+    assert result["rule_id"] == "no-env-commit"
+    assert Path(result["destination"]).is_file()
+    registry = list_rules(tmp_path)
+    assert [rule["id"] for rule in registry["project_rules"]] == ["no-env-commit"]
+    events = _audit_events(tmp_path)
+    assert events[-1]["event"] == "restore"
+    assert events[-1]["reason"] == "false positive fixed"
+
+
+def test_restore_cli_outputs_json_and_allows_later_execute(tmp_path: Path) -> None:
+    subprocess.run(["git", "init"], cwd=tmp_path, check=True, capture_output=True)
+    adopt_example_rule(tmp_path, "no-env-commit", fallback_root=ROOT)
+    from forgeflow_runtime.evolution import retire_rule
+    retire_rule(tmp_path, "no-env-commit", reason="too noisy")
+
+    restore = subprocess.run(
+        [sys.executable, "scripts/forgeflow_evolution.py", "--root", str(tmp_path), "restore", "--rule", "no-env-commit", "--reason", "needed again", "--json"],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    assert restore.returncode == 0, restore.stderr
+    payload = json.loads(restore.stdout)
+    assert payload["restored"] is True
+    execute = subprocess.run(
+        [sys.executable, "scripts/forgeflow_evolution.py", "--root", str(tmp_path), "execute", "--rule", "no-env-commit", "--i-understand-project-local-hard-rule", "--json"],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    assert execute.returncode == 0, execute.stderr
+
+
+def test_restore_rule_rolls_back_move_when_audit_write_fails(tmp_path: Path, monkeypatch) -> None:
+    adopt_example_rule(tmp_path, "no-env-commit", fallback_root=ROOT)
+    from forgeflow_runtime import evolution
+    evolution.retire_rule(tmp_path, "no-env-commit", reason="too noisy")
+
+    retired = tmp_path / ".forgeflow" / "evolution" / "retired-rules" / "no-env-commit-rule.json"
+
+    def fail_audit(root: Path, event: dict) -> None:
+        raise OSError("audit disk full")
+
+    monkeypatch.setattr(evolution, "_append_audit_event", fail_audit)
+
+    try:
+        evolution.restore_rule(tmp_path, "no-env-commit", reason="test rollback")
+    except OSError as exc:
+        assert "audit disk full" in str(exc)
+    else:
+        raise AssertionError("expected audit failure")
+
+    assert retired.is_file()
+    assert list_rules(tmp_path)["project_rules"] == []

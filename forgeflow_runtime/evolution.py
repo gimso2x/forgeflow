@@ -206,6 +206,30 @@ def _rule_filename(rule: dict[str, Any], source_path: Path) -> str:
     return source_path.name
 
 
+def _load_retired_rule_by_id(root: Path, rule_id: str) -> tuple[dict[str, Any], Path]:
+    retired_dir = root / RETIRED_RULE_DIR
+    if retired_dir.is_dir():
+        for path in sorted(retired_dir.glob("*.json")):
+            rule = _load_json(path)
+            if rule.get("id") == rule_id:
+                return rule, path
+    known = []
+    if retired_dir.is_dir():
+        known = [(_load_json(path).get("id") or path.name) for path in sorted(retired_dir.glob("*.json"))]
+    known_text = ", ".join(known) or "<none>"
+    raise ValueError(f"evolution rule {rule_id!r} not found in retired registry {retired_dir}; known retired rules: {known_text}")
+
+
+def _move_with_audit_rollback(source_path: Path, destination: Path, audit_callback) -> None:
+    source_path.replace(destination)
+    try:
+        audit_callback()
+    except Exception:
+        if destination.exists() and not source_path.exists():
+            destination.replace(source_path)
+        raise
+
+
 def retire_rule(root: Path, rule_id: str, *, reason: str) -> dict[str, Any]:
     root = root.resolve()
     if not reason.strip():
@@ -216,7 +240,6 @@ def retire_rule(root: Path, rule_id: str, *, reason: str) -> dict[str, Any]:
     destination = destination_dir / source_path.name
     if destination.exists():
         raise FileExistsError(f"retired evolution rule already exists: {destination}")
-    source_path.replace(destination)
     result = {
         "retired": True,
         "rule_id": rule.get("id"),
@@ -225,7 +248,8 @@ def retire_rule(root: Path, rule_id: str, *, reason: str) -> dict[str, Any]:
         "destination": str(destination),
         "reason": reason,
     }
-    try:
+
+    def audit() -> None:
         _append_audit_event(
             root,
             {
@@ -238,10 +262,49 @@ def retire_rule(root: Path, rule_id: str, *, reason: str) -> dict[str, Any]:
                 "passed": True,
             },
         )
-    except Exception:
-        if destination.exists() and not source_path.exists():
-            destination.replace(source_path)
-        raise
+
+    _move_with_audit_rollback(source_path, destination, audit)
+    return result
+
+
+def restore_rule(root: Path, rule_id: str, *, reason: str) -> dict[str, Any]:
+    root = root.resolve()
+    if not reason.strip():
+        raise ValueError("restore reason must be non-empty")
+    rule, source_path = _load_retired_rule_by_id(root, rule_id)
+    destination_dir = root / PROJECT_RULE_DIR
+    destination_dir.mkdir(parents=True, exist_ok=True)
+    destination = destination_dir / source_path.name
+    if destination.exists():
+        raise FileExistsError(f"project-local evolution rule already exists: {destination}")
+    safety_checks = _safety_checks(rule)
+    if not all(safety_checks.values()):
+        failed = ", ".join(name for name, passed in safety_checks.items() if not passed)
+        raise ValueError(f"retired rule {rule_id!r} failed safety checks: {failed}")
+    result = {
+        "restored": True,
+        "rule_id": rule.get("id"),
+        "source_path": str(source_path),
+        "destination": str(destination),
+        "reason": reason,
+        "safety_checks": safety_checks,
+    }
+
+    def audit() -> None:
+        _append_audit_event(
+            root,
+            {
+                "event": "restore",
+                "rule_id": result["rule_id"],
+                "source_path": result["source_path"],
+                "destination": result["destination"],
+                "reason": reason,
+                "passed": True,
+                "safety_checks": safety_checks,
+            },
+        )
+
+    _move_with_audit_rollback(source_path, destination, audit)
     return result
 
 
