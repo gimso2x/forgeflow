@@ -52,14 +52,12 @@ When the user says "do not run commands", do not propose command execution as if
 
 If the user asks to list questions, list them in the response. Do **not** call AskUserQuestion or any interactive question tool unless the user explicitly asks for an interactive clarification flow.
 
-Example exact-count response:
+Example exact-count response must be plain text lines, not a fenced block:
 
-```text
 1. What badge status should the README show?
 2. What source of truth should update that badge?
-```
 
-No heading. No preamble. No tool call. No third line.
+No heading. No preamble. No code fence. No tool call. No third line.
 
 ## Procedure
 

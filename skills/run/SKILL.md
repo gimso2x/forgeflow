@@ -54,14 +54,12 @@ When the user says "do not run commands", do not propose command execution as if
 
 For exact-count list prompts, output numbered lines only. Do not output a dry-run completion sentence, heading, fenced block, artifact JSON, or verdict.
 
-Example exact-count response:
+Example exact-count response must be plain text lines, not a fenced block:
 
-```text
 1. Confirm the planned README badge change is limited to the badge markdown.
 2. Verify the resulting badge text and link target by manual inspection.
-```
 
-No heading. No preamble. No third line.
+No heading. No preamble. No code fence. No third line.
 
 ## Procedure
 
