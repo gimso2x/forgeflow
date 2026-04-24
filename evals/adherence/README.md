@@ -4,10 +4,12 @@
 
 실행 명령:
 ```bash
-python3 scripts/run_adherence_evals.py
-# 또는
+make setup
+make check-env
 make adherence-evals
 ```
+
+`make adherence-evals`는 repo-managed `.venv`의 Python으로 실행되므로, fresh clone에서는 먼저 `setup`과 `check-env`를 통과시킨 뒤 실행한다.
 
 현재 executable 체크:
 - `examples/runtime-fixtures/small-doc-task` small route happy path

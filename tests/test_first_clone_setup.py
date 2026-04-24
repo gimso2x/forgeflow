@@ -93,6 +93,17 @@ def test_readme_validation_section_points_fresh_clones_to_setup_gate() -> None:
     assert validation_section.index("make setup") < validation_section.index("make check-env") < validation_section.index("make validate")
 
 
+def test_adherence_eval_docs_use_make_target_after_environment_setup() -> None:
+    readme = (ROOT / "evals/adherence/README.md").read_text(encoding="utf-8")
+    command_block = readme.split("실행 명령:", 1)[1].split("현재 executable 체크:", 1)[0]
+
+    assert "make setup" in command_block
+    assert "make check-env" in command_block
+    assert "make adherence-evals" in command_block
+    assert command_block.index("make setup") < command_block.index("make check-env") < command_block.index("make adherence-evals")
+    assert "python3 scripts/run_adherence_evals.py" not in command_block
+
+
 def test_ci_validation_job_creates_venv_before_make_validate() -> None:
     workflow = (ROOT / ".github/workflows/validate.yml").read_text(encoding="utf-8")
     repo_validation_job = workflow.split("  repo-validation:", 1)[1].split("  generated-drift:", 1)[0]
