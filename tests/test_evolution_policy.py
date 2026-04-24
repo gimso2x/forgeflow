@@ -304,3 +304,67 @@ def test_forgeflow_evolution_adopt_cli_then_execute_project_rule(tmp_path: Path)
     execute_payload = json.loads(execute.stdout)
     assert execute_payload["source"] == "project"
     assert execute_payload["passed"] is True
+
+
+def _write_project_rule(tmp_path: Path, rule: dict) -> None:
+    project_rule_dir = tmp_path / ".forgeflow" / "evolution" / "rules"
+    project_rule_dir.mkdir(parents=True, exist_ok=True)
+    (project_rule_dir / f"{rule['id']}-rule.json").write_text(json.dumps(rule), encoding="utf-8")
+
+
+def _valid_rule() -> dict:
+    return json.loads((ROOT / "examples" / "evolution" / "no-env-commit-rule.json").read_text(encoding="utf-8"))
+
+
+def test_execute_rejects_project_rule_with_incomplete_hard_gate_evidence(tmp_path: Path) -> None:
+    rule = _valid_rule()
+    rule["hard_gate_evidence"].pop("audit_trail")
+    _write_project_rule(tmp_path, rule)
+
+    result = execute_rule(tmp_path, "no-env-commit")
+
+    assert result["executed"] is False
+    assert result["passed"] is False
+    assert result["safety_checks"]["hard_gate_evidence_complete"] is False
+
+
+def test_execute_rejects_unapproved_shell_command_even_with_valid_metadata(tmp_path: Path) -> None:
+    rule = _valid_rule()
+    rule["check"] = {"kind": "command", "command": "touch SHOULD_NOT_EXIST", "expected_exit_code": 0}
+    _write_project_rule(tmp_path, rule)
+
+    result = execute_rule(tmp_path, "no-env-commit")
+
+    assert result["executed"] is False
+    assert result["passed"] is False
+    assert result["safety_checks"]["approved_command"] is False
+    assert not (tmp_path / "SHOULD_NOT_EXIST").exists()
+
+
+def test_execute_rejects_wrong_check_shape(tmp_path: Path) -> None:
+    rule = _valid_rule()
+    rule["check"] = {"kind": "python", "command": "git status", "expected_exit_code": "0"}
+    _write_project_rule(tmp_path, rule)
+
+    result = execute_rule(tmp_path, "no-env-commit")
+
+    assert result["executed"] is False
+    assert result["safety_checks"]["check_shape"] is False
+
+
+def test_adopt_example_ignores_project_rules_in_fallback_root(tmp_path: Path) -> None:
+    fallback = tmp_path / "fallback"
+    target = tmp_path / "target"
+    fallback_project_rule_dir = fallback / ".forgeflow" / "evolution" / "rules"
+    fallback_project_rule_dir.mkdir(parents=True)
+    rule = _valid_rule()
+    (fallback_project_rule_dir / "no-env-commit-rule.json").write_text(json.dumps(rule), encoding="utf-8")
+    example_dir = fallback / "examples" / "evolution"
+    example_dir.mkdir(parents=True)
+    (example_dir / "no-env-commit-rule.json").write_text((ROOT / "examples" / "evolution" / "no-env-commit-rule.json").read_text(encoding="utf-8"), encoding="utf-8")
+    (example_dir / "generated-adapter-drift-rule.json").write_text((ROOT / "examples" / "evolution" / "generated-adapter-drift-rule.json").read_text(encoding="utf-8"), encoding="utf-8")
+
+    result = adopt_example_rule(target, "no-env-commit", fallback_root=fallback)
+
+    assert result["adopted"] is True
+    assert "/examples/evolution/" in result["source"]

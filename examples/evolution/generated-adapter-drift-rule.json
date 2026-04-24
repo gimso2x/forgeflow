@@ -7,6 +7,7 @@
   "summary": "Generated adapter outputs must match canonical sources after regeneration.",
   "check": {
     "kind": "command",
+    "command_id": "generated-adapter-drift",
     "command": "python3 scripts/generate_adapters.py && git diff --exit-code adapters/generated",
     "expected_exit_code": 0
   },
