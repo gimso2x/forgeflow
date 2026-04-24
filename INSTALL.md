@@ -21,6 +21,16 @@ claude plugin marketplace add https://github.com/gimso2x/forgeflow
 claude plugin install forgeflow
 ```
 
+이미 설치한 사용자가 최신 버전으로 올릴 때는 marketplace cache와 plugin을 둘 다 갱신합니다.
+
+```bash
+claude plugin marketplace update forgeflow
+claude plugin update forgeflow@forgeflow
+claude plugin list
+```
+
+`plugin update`가 "already at the latest version"이라고 나오는데 새 slash skill이 반영되지 않으면, repo의 `.claude-plugin/plugin.json` version이 올라갔는지 확인하세요. Claude Code는 plugin version 기준으로 update를 판단합니다.
+
 설치 후 새 Claude Code 세션을 열고 단계별 slash skill로 진행하세요.
 
 ```text
