@@ -179,6 +179,60 @@ def write_promotion_plan(root: Path, rule_id: str, *, since_days: int = 30) -> d
     return payload
 
 
+def _active_rule_exists(root: Path, rule_id: str) -> bool:
+    return any(rule.get("id") == rule_id for rule, _path in _load_project_rules(root))
+
+
+def proposal_review(root: Path, proposal_path: Path) -> dict[str, Any]:
+    """Read-only validation for a persisted promotion proposal."""
+
+    root = root.resolve()
+    proposal_path = proposal_path.resolve()
+    try:
+        proposal = _load_json(proposal_path)
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"proposal JSON is invalid: {exc}") from exc
+    if not isinstance(proposal, dict):
+        raise ValueError("proposal JSON must be an object")
+    rule_id = proposal.get("rule_id")
+    issues: list[dict[str, Any]] = []
+    def add_issue(code: str, severity: str = "error", **extra: Any) -> None:
+        issues.append({"severity": severity, "code": code, **extra})
+
+    if proposal.get("would_mutate") is not False:
+        add_issue("proposal_may_mutate")
+    if proposal.get("would_promote") is not False:
+        add_issue("proposal_may_promote")
+    if proposal.get("recommendation") != "promotion_candidate":
+        add_issue("not_promotion_candidate", recommendation=proposal.get("recommendation"))
+    approvals = proposal.get("required_human_approvals")
+    required = {"maintainer_approval", "project_owner_approval"}
+    if not isinstance(approvals, list):
+        add_issue("missing_required_approval", missing=sorted(required))
+    else:
+        missing = sorted(required - set(approvals))
+        if missing:
+            add_issue("missing_required_approval", missing=missing)
+    risk_flags = proposal.get("risk_flags")
+    if not isinstance(risk_flags, list) or "promotion_requires_separate_policy_gate" not in risk_flags:
+        add_issue("missing_risk_flag", required="promotion_requires_separate_policy_gate")
+    evidence = proposal.get("evidence_summary")
+    if not isinstance(evidence, dict) or int(evidence.get("failures", 0) or 0) < 2:
+        add_issue("insufficient_evidence_summary")
+    active_rule_exists = isinstance(rule_id, str) and _active_rule_exists(root, rule_id)
+    if not active_rule_exists:
+        add_issue("active_rule_missing")
+    return {
+        "proposal_path": str(proposal_path),
+        "rule_id": rule_id,
+        "read_only": True,
+        "would_mutate": False,
+        "valid": not issues,
+        "active_rule_exists": active_rule_exists,
+        "issues": issues,
+    }
+
+
 def _failed_safety_checks(safety_checks: dict[str, bool]) -> list[str]:
     return [name for name, passed in safety_checks.items() if not passed]
 

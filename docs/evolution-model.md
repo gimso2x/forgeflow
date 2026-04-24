@@ -217,3 +217,13 @@ suggested_next_command
 ```
 
 For `promotion_candidate`, the required approvals are `maintainer_approval` and `project_owner_approval`, and the plan still reports `would_mutate=false`. It is a proposal, not a sneaky promote button with a moustache.
+
+`proposal-review` validates a persisted proposal without mutating anything:
+
+```bash
+python3 scripts/forgeflow_evolution.py proposal-review \
+  --proposal .forgeflow/evolution/proposals/<timestamp>-no-env-commit-promotion-plan.json \
+  --json
+```
+
+It checks that the proposal is valid JSON, still says `would_mutate=false` and `would_promote=false`, has `recommendation=promotion_candidate`, includes required human approvals and risk flags, has enough evidence summary, and still maps to an active project-local rule. Failed review returns a clean error status with issue codes; it does not append audit events or change rules.
