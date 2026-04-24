@@ -57,12 +57,15 @@ def _rule_summary(rule: dict[str, Any], *, source: str, path: Path) -> dict[str,
     return summary
 
 
+def _evolution_example_paths(root: Path) -> list[Path]:
+    example_dir = root / "examples" / "evolution"
+    if not example_dir.is_dir():
+        return []
+    return sorted(example_dir.glob("*.json"))
+
+
 def _load_example_rules(root: Path) -> list[tuple[dict[str, Any], Path]]:
-    rules: list[tuple[dict[str, Any], Path]] = []
-    for example_name in EVOLUTION_EXAMPLES:
-        path = root / "examples" / "evolution" / example_name
-        rules.append((_load_json(path), path))
-    return rules
+    return [(_load_json(path), path) for path in _evolution_example_paths(root)]
 
 
 def _load_project_rules(root: Path) -> list[tuple[dict[str, Any], Path]]:
@@ -320,8 +323,7 @@ def inspect_evolution_policy(root: Path) -> dict[str, Any]:
 
     examples = []
     examples_valid = True
-    for example_name in EVOLUTION_EXAMPLES:
-        rule = _load_json(root / "examples" / "evolution" / example_name)
+    for rule, path in _load_example_rules(root):
         summary = _example_summary(rule)
         examples.append(summary)
         if not all(_safety_checks(rule).values()):

@@ -52,13 +52,12 @@ def test_repo_policy_defines_global_advisory_project_enforcement_evolution_ssot(
 def test_local_hard_rule_examples_are_project_scoped_deterministic_and_auditable() -> None:
     validate_policy = _load_validate_policy_module()
     example_dir = ROOT / "examples" / "evolution"
-    example_names = [
-        "generated-adapter-drift-rule.json",
-        "no-env-commit-rule.json",
-    ]
+    example_names = [path.name for path in validate_policy._evolution_example_paths(ROOT)]
     policy = validate_policy._load_yaml(ROOT / "policy" / "canonical" / "evolution.yaml")
     hard_gate_requires = set(policy["scopes"]["project"]["hard_gate_requires"])
 
+    assert "generated-adapter-drift-rule.json" in example_names
+    assert "no-env-commit-rule.json" in example_names
     for example_name in example_names:
         rule = json.loads((example_dir / example_name).read_text(encoding="utf-8"))
         assert rule["scope"] == "project"
@@ -255,3 +254,42 @@ def test_evolution_model_doc_captures_global_advisory_project_enforcement_contra
     assert "max_patterns: 3" in text
     assert ".forgeflow/evolution/rules" in text
     assert "--i-understand-project-local-hard-rule" in text
+
+
+def test_validate_policy_uses_schema_for_all_evolution_example_files(tmp_path: Path) -> None:
+    validate_policy = _load_validate_policy_module()
+    fixture_root = tmp_path / "fixture"
+    fixture_root.mkdir()
+    example_dir = fixture_root / "examples" / "evolution"
+    example_dir.mkdir(parents=True)
+    schemas_dir = fixture_root / "schemas"
+    schemas_dir.mkdir()
+    (schemas_dir / "evolution-rule.schema.json").write_text((ROOT / "schemas" / "evolution-rule.schema.json").read_text(encoding="utf-8"), encoding="utf-8")
+    rule = json.loads((ROOT / "examples" / "evolution" / "no-env-commit-rule.json").read_text(encoding="utf-8"))
+    rule.pop("check")
+    (example_dir / "new-broken-rule.json").write_text(json.dumps(rule), encoding="utf-8")
+    evolution = validate_policy._load_yaml(ROOT / "policy" / "canonical" / "evolution.yaml")
+
+    errors = validate_policy._validate_evolution_examples(fixture_root, evolution)
+
+    assert any("new-broken-rule.json failed schema validation" in error for error in errors)
+
+
+def test_validate_policy_auto_scans_new_evolution_example_files(tmp_path: Path) -> None:
+    validate_policy = _load_validate_policy_module()
+    fixture_root = tmp_path / "fixture"
+    fixture_root.mkdir()
+    example_dir = fixture_root / "examples" / "evolution"
+    example_dir.mkdir(parents=True)
+    schemas_dir = fixture_root / "schemas"
+    schemas_dir.mkdir()
+    (schemas_dir / "evolution-rule.schema.json").write_text((ROOT / "schemas" / "evolution-rule.schema.json").read_text(encoding="utf-8"), encoding="utf-8")
+    rule = json.loads((ROOT / "examples" / "evolution" / "no-env-commit-rule.json").read_text(encoding="utf-8"))
+    rule["id"] = "new-rule"
+    rule["check"]["command_id"] = "not-approved-yet"
+    (example_dir / "new-rule.json").write_text(json.dumps(rule), encoding="utf-8")
+    evolution = validate_policy._load_yaml(ROOT / "policy" / "canonical" / "evolution.yaml")
+
+    errors = validate_policy._validate_evolution_examples(fixture_root, evolution)
+
+    assert any("new-rule.json uses unapproved command_id" in error for error in errors)

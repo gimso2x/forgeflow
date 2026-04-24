@@ -8,6 +8,8 @@ from typing import Any
 import yaml
 from jsonschema import Draft202012Validator
 
+APPROVED_EVOLUTION_COMMAND_IDS = {"generated-adapter-drift", "no-env-commit"}
+
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -37,42 +39,41 @@ def _validate_yaml_schema(schema_path: Path, document: Any, source_name: str) ->
     return [f"{source_name} failed schema validation: {_format_jsonschema_errors(errors)}"]
 
 
+def _evolution_example_paths(root: Path) -> list[Path]:
+    example_dir = root / "examples" / "evolution"
+    if not example_dir.is_dir():
+        return []
+    return sorted(example_dir.glob("*.json"))
+
+
 def _validate_evolution_examples(root: Path, evolution: dict[str, Any]) -> list[str]:
     errors: list[str] = []
     example_dir = root / "examples" / "evolution"
-    example_names = [
-        "generated-adapter-drift-rule.json",
-        "no-env-commit-rule.json",
-    ]
+    example_paths = _evolution_example_paths(root)
+    if not example_paths:
+        return [f"evolution examples missing: {example_dir.relative_to(root)}"]
+    rule_schema_path = root / "schemas" / "evolution-rule.schema.json"
+    rule_schema = json.loads(rule_schema_path.read_text(encoding="utf-8"))
+    rule_validator = Draft202012Validator(rule_schema)
     hard_gate_requires = set(evolution["scopes"]["project"].get("hard_gate_requires", []))
-    for example_name in example_names:
-        example_path = example_dir / example_name
+    for example_path in example_paths:
         rel_path = example_path.relative_to(root)
-        if not example_path.is_file():
-            errors.append(f"evolution example missing: {rel_path}")
-            continue
         try:
             rule = json.loads(example_path.read_text(encoding="utf-8"))
         except json.JSONDecodeError as exc:
             errors.append(f"{rel_path} invalid JSON: {exc}")
             continue
 
-        if rule.get("scope") != "project":
-            errors.append(f"{rel_path} must be project scoped")
-        if rule.get("lifecycle") != "adopted_hard":
-            errors.append(f"{rel_path} must demonstrate adopted_hard lifecycle")
-        enforcement = rule.get("enforcement", {})
-        if enforcement.get("mode") != "hard_exit_2":
-            errors.append(f"{rel_path} must demonstrate hard_exit_2 enforcement")
-        if enforcement.get("deterministic") is not True:
-            errors.append(f"{rel_path} must be deterministic")
-        if rule.get("global_export", {}).get("allowed") is not False:
-            errors.append(f"{rel_path} must not globally export raw rule data by default")
+        schema_errors = sorted(rule_validator.iter_errors(rule), key=lambda err: list(err.path))
+        if schema_errors:
+            errors.append(f"{rel_path} failed schema validation: {_format_jsonschema_errors(schema_errors)}")
+            continue
+        command_id = rule["check"]["command_id"]
+        if command_id not in APPROVED_EVOLUTION_COMMAND_IDS:
+            errors.append(f"{rel_path} uses unapproved command_id: {command_id}")
         evidence = rule.get("hard_gate_evidence", {})
         if set(evidence.keys()) != hard_gate_requires:
             errors.append(f"{rel_path} hard_gate_evidence must match project hard_gate_requires")
-        if not all(evidence.values()):
-            errors.append(f"{rel_path} hard_gate_evidence values must be non-empty")
         serialized = json.dumps(rule)
         for forbidden in ["raw_prompt", "raw_frustration"]:
             if forbidden in serialized:

@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ForgeFlow Evolution Rule",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "title",
+    "scope",
+    "lifecycle",
+    "source_signal",
+    "summary",
+    "check",
+    "enforcement",
+    "hard_gate_evidence",
+    "global_export"
+  ],
+  "properties": {
+    "id": {"type": "string", "minLength": 1, "pattern": "^[a-z0-9][a-z0-9-]*$"},
+    "title": {"type": "string", "minLength": 1},
+    "scope": {"const": "project"},
+    "lifecycle": {"const": "adopted_hard"},
+    "source_signal": {
+      "type": "string",
+      "enum": ["fix_commit", "review_finding", "eval_failure", "repeated_tool_failure", "user_frustration_label", "manual_operator_note"]
+    },
+    "summary": {"type": "string", "minLength": 1},
+    "check": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "command_id", "command", "expected_exit_code"],
+      "properties": {
+        "kind": {"const": "command"},
+        "command_id": {"type": "string", "minLength": 1, "pattern": "^[a-z0-9][a-z0-9-]*$"},
+        "command": {"type": "string", "minLength": 1},
+        "expected_exit_code": {"type": "integer"}
+      }
+    },
+    "enforcement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "deterministic", "message"],
+      "properties": {
+        "mode": {"const": "hard_exit_2"},
+        "deterministic": {"const": true},
+        "message": {"type": "string", "minLength": 1}
+      }
+    },
+    "hard_gate_evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "project_local_enablement",
+        "soft_soak_period",
+        "independent_recurrence_or_audited_maintainer_enablement",
+        "deterministic_check",
+        "low_false_positive_rate",
+        "rollback_available",
+        "eval_record",
+        "audit_trail"
+      ],
+      "properties": {
+        "project_local_enablement": {"type": "string", "minLength": 1},
+        "soft_soak_period": {"type": "string", "minLength": 1},
+        "independent_recurrence_or_audited_maintainer_enablement": {"type": "string", "minLength": 1},
+        "deterministic_check": {"type": "string", "minLength": 1},
+        "low_false_positive_rate": {"type": "string", "minLength": 1},
+        "rollback_available": {"type": "string", "minLength": 1},
+        "eval_record": {"type": "string", "minLength": 1},
+        "audit_trail": {"type": "string", "minLength": 1}
+      }
+    },
+    "global_export": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["allowed", "metadata_only_if_redacted"],
+      "properties": {
+        "allowed": {"const": false},
+        "metadata_only_if_redacted": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1},
+          "uniqueItems": true
+        }
+      }
+    }
+  }
+}
