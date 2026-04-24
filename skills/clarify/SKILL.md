@@ -3,6 +3,10 @@ name: clarify
 description: Turn a vague request into a scoped ForgeFlow brief and route decision. Use first for new implementation/refactor/debug requests unless the user already provided a complete brief.
 version: 0.1.0
 author: gimso2x
+validate_prompt: |
+  Must preserve exact-output and dry-run constraints when requested.
+  Must return a clear route or brief artifact only when the prompt asks for it.
+  Must not write files unless the user provides an explicit writable task directory.
 ---
 
 # Clarify

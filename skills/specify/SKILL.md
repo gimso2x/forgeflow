@@ -3,6 +3,10 @@ name: specify
 description: Derive testable requirements from a ForgeFlow brief before planning. Use when scope needs formal requirements before execution.
 version: 0.1.0
 author: gimso2x
+validate_prompt: |
+  Must preserve exact-output and dry-run constraints when requested.
+  Must derive behavioral requirements and testable sub-requirements before planning.
+  Must include WHERE/risk grounding for non-trivial work when artifact writing is allowed.
 ---
 
 # Specify

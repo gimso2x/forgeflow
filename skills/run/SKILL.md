@@ -3,6 +3,10 @@ name: run
 description: Execute a ForgeFlow plan with verification and runtime evidence. Use for implementation after clarify/plan.
 version: 0.1.0
 author: gimso2x
+validate_prompt: |
+  Must preserve exact-output and dry-run constraints when requested.
+  Must execute only scoped plan tasks and respect contracts or verify_plan obligations when present.
+  Must not treat worker self-report as final approval; review remains required.
 ---
 
 # Run

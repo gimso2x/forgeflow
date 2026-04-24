@@ -3,6 +3,10 @@ name: plan
 description: Create an executable ForgeFlow plan with exact tasks, files, acceptance criteria, and verification steps.
 version: 0.1.0
 author: gimso2x
+validate_prompt: |
+  Must preserve exact-output and dry-run constraints when requested.
+  Must produce schema-valid plan.json when file writing is explicitly allowed.
+  Must keep contracts, fulfills, journeys, and verify_plan consistent when present.
 ---
 
 # Plan

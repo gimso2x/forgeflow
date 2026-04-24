@@ -3,6 +3,10 @@ name: ship
 description: Finalize ForgeFlow work after review: summarize, verify, prepare PR/commit handoff, and preserve evidence.
 version: 0.1.0
 author: gimso2x
+validate_prompt: |
+  Must preserve exact-output and dry-run constraints when requested.
+  Must confirm review approval, intended diff scope, and final verification before shipping.
+  Must not hide residual risks or unrelated dirty working tree changes.
 ---
 
 # Ship

@@ -3,6 +3,10 @@ name: review
 description: Perform independent ForgeFlow review against requirements, plan, and code. Use after /run before /ship.
 version: 0.1.0
 author: gimso2x
+validate_prompt: |
+  Must preserve exact-output and dry-run constraints when requested.
+  Must separate spec compliance findings from quality findings.
+  Must not approve work with unresolved blockers or missing verification evidence.
 ---
 
 # Review
