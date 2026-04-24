@@ -54,6 +54,17 @@ Good: if asked for exactly two checks, return exactly two checks.
 
 When the user says "do not run commands", do not propose command execution as if it happened. You may name a manual check, but label it as manual inspection, not a command result.
 
+For exact-count list prompts, output numbered lines only. Do not output a preamble, heading, fenced block, command equivalent, git action, artifact JSON, or final verdict.
+
+Example exact-count response:
+
+```text
+1. Confirm the approved README badge change is the only intended ship item.
+2. Confirm the final handoff summary names the badge change and any residual risk.
+```
+
+No heading. No preamble. No third line.
+
 ## Procedure
 
 1. Check git status and diff only if command execution is allowed.

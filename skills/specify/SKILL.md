@@ -50,6 +50,17 @@ Good: if asked for exactly two checks, return exactly two checks.
 
 When the user says "do not run commands", do not propose command execution as if it happened. You may name a manual check, but label it as manual inspection, not a command result.
 
+If the user asks to list questions, list them in the response. Do **not** call AskUserQuestion or any interactive question tool unless the user explicitly asks for an interactive clarification flow.
+
+Example exact-count response:
+
+```text
+1. What badge status should the README show?
+2. What source of truth should update that badge?
+```
+
+No heading. No preamble. No tool call. No third line.
+
 ## Procedure
 
 1. Read the brief and identify missing decisions.

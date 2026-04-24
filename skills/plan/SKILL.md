@@ -55,6 +55,17 @@ Good: if asked for exactly two checks, return exactly two checks.
 
 When the user says "do not run commands", do not propose command execution as if it happened. You may name a manual check, but label it as manual inspection, not a command result.
 
+For exact-count list prompts, output numbered lines only. Do not output an empty response, heading, fenced block, summary, artifact JSON, or verdict.
+
+Example exact-count response:
+
+```text
+1. Identify the README badge location and desired badge text.
+2. Update the badge markdown and verify the rendered preview manually.
+```
+
+No heading. No preamble. No third line.
+
 ## Procedure
 
 1. Read the brief/requirements fully.
