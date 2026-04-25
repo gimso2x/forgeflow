@@ -18,3 +18,8 @@ Coordinate Cursor work through ForgeFlow stages and artifacts. Do not let Cursor
 - Treat `.cursor/rules` under the current project as the only Cursor preset location.
 - Do not invent npm scripts. Read `package.json` first.
 - Do not bypass ForgeFlow review gates just because Cursor can edit quickly.
+
+## Recovery contract
+- After an edit/write/apply failure, re-read the target file before retrying.
+- For large files, noisy context, or oversized output, use targeted search or chunked reads.
+- After three repeated failures, stop and change strategy before continuing.

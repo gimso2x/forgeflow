@@ -54,7 +54,8 @@ def test_generic_installer_installs_codex_nextjs_presets_into_project_only(tmp_p
     result = run_installer(GENERIC_INSTALLER, target, "--adapter", "codex", "--profile", "nextjs")
 
     assert result.returncode == 0, result.stderr
-    assert (target / ".codex/forgeflow/forgeflow-coordinator.md").exists()
+    coordinator = target / ".codex/forgeflow/forgeflow-coordinator.md"
+    assert coordinator.exists()
     assert (target / ".codex/forgeflow/forgeflow-nextjs-worker.md").exists()
     assert (target / ".codex/forgeflow/forgeflow-quality-reviewer.md").exists()
     assert not GLOBAL_CODEX_PRESETS.exists() or before_global_exists
@@ -64,6 +65,7 @@ def test_generic_installer_installs_codex_nextjs_presets_into_project_only(tmp_p
     assert "npm run lint" in text
     assert "npm run test" not in text
     assert "forgeflow-nextjs-worker.md" in text
+    assert "After an edit/write/apply failure, re-read the target file before retrying." in coordinator.read_text(encoding="utf-8")
 
 
 def test_generic_installer_installs_cursor_nextjs_rules_into_project_only(tmp_path):
@@ -74,7 +76,8 @@ def test_generic_installer_installs_cursor_nextjs_rules_into_project_only(tmp_pa
     result = run_installer(GENERIC_INSTALLER, target, "--adapter", "cursor", "--profile", "nextjs")
 
     assert result.returncode == 0, result.stderr
-    assert (target / ".cursor/rules/forgeflow-coordinator.mdc").exists()
+    coordinator = target / ".cursor/rules/forgeflow-coordinator.mdc"
+    assert coordinator.exists()
     assert (target / ".cursor/rules/forgeflow-nextjs-worker.mdc").exists()
     assert (target / ".cursor/rules/forgeflow-quality-reviewer.mdc").exists()
     assert not GLOBAL_CURSOR_RULES.exists() or before_global_exists
@@ -84,6 +87,7 @@ def test_generic_installer_installs_cursor_nextjs_rules_into_project_only(tmp_pa
     assert "npm run lint" in text
     assert "npm run test" not in text
     assert "forgeflow-nextjs-worker.mdc" in text
+    assert "After an edit/write/apply failure, re-read the target file before retrying." in coordinator.read_text(encoding="utf-8")
 
 
 def test_installer_rejects_adapter_config_directory_target(tmp_path):
