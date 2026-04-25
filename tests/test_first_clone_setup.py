@@ -249,6 +249,21 @@ def test_operator_shell_common_commands_use_repo_managed_status_target_for_read_
     assert "python3 scripts/run_orchestrator.py run" in common_section
 
 
+def test_review_summary_decision_doc_uses_repo_managed_status_target() -> None:
+    makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
+    doc = (ROOT / "docs/review-summary-decision.md").read_text(encoding="utf-8")
+    current_surface_section = doc.split("## Why", 1)[1].split("## When to reconsider", 1)[0]
+
+    assert "orchestrator-status:" in makefile
+    assert "$(VENV_PYTHON) scripts/run_orchestrator.py status --task-dir examples/runtime-fixtures/small-doc-task" in makefile
+    assert "make setup" in current_surface_section
+    assert "make check-env" in current_surface_section
+    assert "make orchestrator-status" in current_surface_section.splitlines()
+    assert current_surface_section.index("make setup") < current_surface_section.index("make check-env") < current_surface_section.index("make orchestrator-status")
+    assert "For non-fixture task directories, operators can still run `status` directly" in current_surface_section
+    assert "python3 scripts/run_orchestrator.py status" not in current_surface_section
+
+
 def test_monitoring_summary_plan_points_users_to_make_targets() -> None:
     plan = (ROOT / "docs/plans/2026-04-24-forgeflow-monitor-summary.md").read_text(encoding="utf-8")
     usage_section = plan.split("### Task 4: Document usage", 1)[1].split("### Task 5: Verify and commit", 1)[0]

@@ -4,11 +4,15 @@ Decision: do not add a first-class `review-summary` command yet.
 
 ## Why
 
-The current operator surface already exposes the useful summary fields through:
+The current operator surface already exposes the useful summary fields through the repo-managed fixture status path:
 
 ```bash
-python3 scripts/run_orchestrator.py status --task-dir <task-dir>
+make setup
+make check-env
+make orchestrator-status
 ```
+
+For non-fixture task directories, operators can still run `status` directly against their chosen task dir when they intentionally step outside the first-clone sample path.
 
 `status` returns:
 
