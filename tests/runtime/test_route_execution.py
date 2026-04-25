@@ -7,7 +7,7 @@ from jsonschema import Draft202012Validator
 from forgeflow_runtime.orchestrator import RuntimeViolation, load_runtime_policy, run_route
 
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 
 
 def _write_json(path: Path, payload: dict) -> None:
