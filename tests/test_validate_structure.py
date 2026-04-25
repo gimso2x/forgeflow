@@ -48,6 +48,8 @@ def test_validate_structure_tracks_runtime_and_memory_scaffold() -> None:
     ]:
         assert rel in validate_structure.REQUIRED_FILES
 
+    assert "docs/contract-map.md" in validate_structure.REQUIRED_FILES
+
     result = subprocess.run(
         [sys.executable, "scripts/validate_structure.py"],
         cwd=ROOT,
@@ -72,3 +74,80 @@ def test_validate_workflow_installs_policy_validator_dependencies() -> None:
     assert "jsonschema" in requirements
     assert "pyyaml" in requirements
     assert "pytest" in requirements
+
+
+def test_contract_map_names_evolution_rule_contract_surface() -> None:
+    contract_map = (ROOT / "docs" / "contract-map.md").read_text(encoding="utf-8")
+
+    for required_text in [
+        "`examples/evolution/*`",
+        "`schemas/evolution-rule.schema.json`",
+        "python3 scripts/validate_policy.py",
+        "project-local evolution rule lifecycle",
+    ]:
+        assert required_text in contract_map
+
+
+def test_contract_map_names_generated_adapter_boundary() -> None:
+    contract_map = (ROOT / "docs" / "contract-map.md").read_text(encoding="utf-8")
+
+    for required_text in [
+        "generated adapter source/generated boundary",
+        "`adapters/targets/*`",
+        "`adapters/generated/*`",
+        "python3 scripts/generate_adapters.py",
+        "python3 scripts/validate_generated.py",
+    ]:
+        assert required_text in contract_map
+
+
+def test_contract_map_names_runtime_seam_boundaries() -> None:
+    contract_map = (ROOT / "docs" / "contract-map.md").read_text(encoding="utf-8")
+
+    for required_text in [
+        "Runtime seam boundaries",
+        "`forgeflow_runtime/gate_evaluation.py`",
+        "`forgeflow_runtime/resume_validation.py`",
+        "`forgeflow_runtime/artifact_validation.py`",
+        "`forgeflow_runtime/task_identity.py`",
+        "`forgeflow_runtime/plan_ledger.py`",
+        "python -m pytest tests/runtime -q",
+    ]:
+        assert required_text in contract_map
+
+
+def test_contract_map_names_schema_version_migration_seam() -> None:
+    contract_map = (ROOT / "docs" / "contract-map.md").read_text(encoding="utf-8")
+
+    for required_text in [
+        "`schemas/*.schema.json`",
+        "`forgeflow_runtime/schema_versions.py`",
+        "current supported artifact version",
+        "future migration hook seam",
+    ]:
+        assert required_text in contract_map
+
+
+def test_contract_map_names_evolution_runtime_seams() -> None:
+    contract_map = (ROOT / "docs" / "contract-map.md").read_text(encoding="utf-8")
+
+    for required_text in [
+        "Evolution runtime seam boundaries",
+        "`forgeflow_runtime/evolution_rules.py`",
+        "`forgeflow_runtime/evolution_lifecycle.py`",
+        "`forgeflow_runtime/evolution_execution.py`",
+        "`forgeflow_runtime/evolution_doctor.py`",
+        "`forgeflow_runtime/evolution_promotion_plans.py`",
+        "`forgeflow_runtime/evolution_proposals.py`",
+        "`forgeflow_runtime/evolution_promotion_gates.py`",
+        "`forgeflow_runtime/evolution_promotions.py`",
+        "approved command execution lives with rule execution",
+        "python -m pytest tests/evolution -q",
+    ]:
+        assert required_text in contract_map
+
+
+def test_make_validate_runs_runtime_seam_tests() -> None:
+    makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
+
+    assert "-m pytest tests/runtime -q" in makefile
