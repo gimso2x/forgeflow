@@ -1,19 +1,31 @@
 from __future__ import annotations
 
-import json
 from dataclasses import dataclass
-from datetime import UTC, datetime, timedelta
-from functools import lru_cache
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from jsonschema import Draft202012Validator
-
+from forgeflow_runtime.artifact_validation import (
+    REPO_ROOT,
+    SCHEMA_BY_ARTIFACT,
+    artifact_path as _artifact_path,
+    artifact_variants as _artifact_variants,
+    assert_task_id_matches as _assert_task_id_matches,
+    coerce_legacy_artifact_payload as _coerce_legacy_artifact_payload,
+    has_artifact as _has_artifact,
+    load_json as _load_json,
+    load_validated_artifact as _load_validated_artifact,
+    missing_artifacts as _missing_artifacts,
+    schema_name_for_artifact as _schema_name_for_artifact,
+    schema_validator as _schema_validator,
+    validate_artifact_payload as _validate_artifact_payload,
+    write_json as _write_json,
+    write_validated_artifact as _write_validated_artifact,
+)
+from forgeflow_runtime.errors import RuntimeViolation
+from forgeflow_runtime.gate_evaluation import gate_evidence_ref, record_completed_gate, required_finalize_flags
 from forgeflow_runtime.policy_loader import RuntimePolicy, load_runtime_policy
-
-
-class RuntimeViolation(Exception):
-    """Raised when a requested stage transition violates runtime policy."""
+from forgeflow_runtime.resume_validation import plan_ledger_progress, resume_start_index
 
 
 @dataclass(frozen=True)
@@ -36,144 +48,6 @@ def _execution_payload(*, stage: str, role: str, adapter: str, result: Any, use_
         payload["error"] = result.error
     return payload
 
-
-SCHEMA_BY_ARTIFACT = {
-    "brief": "brief",
-    "plan": "plan",
-    "plan-ledger": "plan-ledger",
-    "decision-log": "decision-log",
-    "run-state": "run-state",
-    "review-report": "review-report",
-    "review-report-spec": "review-report",
-    "review-report-quality": "review-report",
-    "eval-record": "eval-record",
-    "checkpoint": "checkpoint",
-    "session-state": "session-state",
-}
-
-REPO_ROOT = Path(__file__).resolve().parents[1]
-
-
-def _artifact_path(task_dir: Path, artifact_name: str) -> Path:
-    return task_dir / f"{artifact_name}.json"
-
-
-def _artifact_variants(artifact_name: str) -> list[str]:
-    if artifact_name == "review-report":
-        return ["review-report", "review-report-spec", "review-report-quality"]
-    return [artifact_name]
-
-
-def _has_artifact(task_dir: Path, artifact_name: str) -> bool:
-    return any(_artifact_path(task_dir, variant).exists() for variant in _artifact_variants(artifact_name))
-
-
-def _missing_artifacts(task_dir: Path, artifact_names: list[str]) -> list[str]:
-    return [name for name in artifact_names if not _has_artifact(task_dir, name)]
-
-
-def _load_json(path: Path) -> dict[str, Any]:
-    return json.loads(path.read_text(encoding="utf-8"))
-
-
-@lru_cache(maxsize=None)
-def _schema_validator(schema_name: str) -> Draft202012Validator:
-    schema_path = REPO_ROOT / "schemas" / f"{schema_name}.schema.json"
-    schema = json.loads(schema_path.read_text(encoding="utf-8"))
-    return Draft202012Validator(schema)
-
-
-def _schema_name_for_artifact(artifact_name: str) -> str | None:
-    return SCHEMA_BY_ARTIFACT.get(artifact_name)
-
-
-def _validate_artifact_payload(*, artifact_name: str, payload: dict[str, Any], source_name: str) -> None:
-    schema_name = _schema_name_for_artifact(artifact_name)
-    if schema_name is None:
-        return
-    errors = sorted(_schema_validator(schema_name).iter_errors(payload), key=lambda err: list(err.path))
-    if errors:
-        details = "; ".join(
-            f"{'/'.join(map(str, err.path)) or '<root>'}: {err.message}" for err in errors[:3]
-        )
-        raise RuntimeViolation(f"{source_name} failed schema validation: {details}")
-
-
-def _coerce_legacy_artifact_payload(artifact_name: str, payload: dict[str, Any]) -> dict[str, Any]:
-    if artifact_name != "decision-log":
-        return payload
-
-    entries = payload.get("entries")
-    if not isinstance(entries, list):
-        return payload
-
-    migrated_entries: list[dict[str, Any]] = []
-    migrated = False
-    base = datetime(1970, 1, 1, tzinfo=UTC)
-    for entry in entries:
-        if not isinstance(entry, dict):
-            return payload
-        timestamp = entry.get("timestamp")
-        if isinstance(timestamp, str) and timestamp.startswith("seq-"):
-            suffix = timestamp[4:]
-            if not suffix.isdigit():
-                return payload
-            sequence = int(suffix)
-            normalized = (base + timedelta(seconds=sequence)).strftime("%Y-%m-%dT%H:%M:%SZ")
-            migrated_entries.append({**entry, "timestamp": normalized})
-            migrated = True
-        else:
-            migrated_entries.append(entry)
-
-    if not migrated:
-        return payload
-    return {**payload, "entries": migrated_entries}
-
-
-def _assert_task_id_matches(path: Path, payload: dict[str, Any], expected_task_id: str | None) -> None:
-    if expected_task_id is None:
-        return
-    artifact_task_id = payload.get("task_id")
-    if artifact_task_id != expected_task_id:
-        raise RuntimeViolation(
-            f"{path.name} task_id {artifact_task_id} does not match canonical task_id {expected_task_id}"
-        )
-
-
-
-def _load_validated_artifact(
-    task_dir: Path,
-    artifact_name: str,
-    *,
-    expected_task_id: str | None = None,
-) -> dict[str, Any]:
-    path = _artifact_path(task_dir, artifact_name)
-    payload = _load_json(path)
-    try:
-        _validate_artifact_payload(artifact_name=artifact_name, payload=payload, source_name=path.name)
-        _assert_task_id_matches(path, payload, expected_task_id)
-        return payload
-    except RuntimeViolation:
-        coerced_payload = _coerce_legacy_artifact_payload(artifact_name, payload)
-        if coerced_payload == payload:
-            raise
-        _validate_artifact_payload(artifact_name=artifact_name, payload=coerced_payload, source_name=path.name)
-        _assert_task_id_matches(path, coerced_payload, expected_task_id)
-        _write_json(path, coerced_payload)
-        return coerced_payload
-
-
-def _write_json(path: Path, payload: dict[str, Any]) -> None:
-    path.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-
-
-def _write_validated_artifact(task_dir: Path, artifact_name: str, payload: dict[str, Any]) -> None:
-    _validate_artifact_payload(
-        artifact_name=artifact_name,
-        payload=payload,
-        source_name=_artifact_path(task_dir, artifact_name).name,
-    )
-    _write_json(_artifact_path(task_dir, artifact_name), payload)
 
 
 def _canonical_task_id(task_dir: Path) -> str:
@@ -258,22 +132,9 @@ def _append_evidence_ref(task: dict[str, Any], evidence_ref: str) -> None:
         evidence_refs.append(evidence_ref)
 
 
-def _gate_evidence_ref(stage_name: str, gate_name: str) -> str:
-    prefix = "run-state.json" if stage_name not in {"spec-review", "quality-review", "long-run"} else {
-        "spec-review": "review-report-spec.json",
-        "quality-review": "review-report.json",
-        "long-run": "eval-record.json",
-    }[stage_name]
-    return f"{prefix}#gate:{gate_name}"
-
 
 def _plan_ledger_progress(plan_ledger: dict[str, Any] | None) -> dict[str, Any] | None:
-    if plan_ledger is None:
-        return None
-    plan_ledger.setdefault("completed_stages", [])
-    plan_ledger.setdefault("completed_gates", [])
-    plan_ledger.setdefault("retries", {})
-    return plan_ledger
+    return plan_ledger_progress(plan_ledger)
 
 
 def _sync_plan_ledger_gate(plan_ledger: dict[str, Any] | None, *, stage_name: str, gate_name: str | None) -> None:
@@ -288,7 +149,7 @@ def _sync_plan_ledger_gate(plan_ledger: dict[str, Any] | None, *, stage_name: st
     completed_gates = plan_ledger.setdefault("completed_gates", [])
     if gate_name not in completed_gates:
         completed_gates.append(gate_name)
-    _append_evidence_ref(task, _gate_evidence_ref(stage_name, gate_name))
+    _append_evidence_ref(task, gate_evidence_ref(stage_name, gate_name))
 
 
 def _sync_plan_ledger_retry(plan_ledger: dict[str, Any] | None, *, stage_name: str) -> None:
@@ -341,7 +202,7 @@ def _rewind_plan_ledger_progress(
         if gate_name is not None
     ]
     removed_gate_refs = {
-        _gate_evidence_ref(stage_name, gate_name)
+        gate_evidence_ref(stage_name, gate_name)
         for stage_name in removed_stages
         for gate_name in [stage_gate_map.get(stage_name)]
         if gate_name is not None
@@ -800,12 +661,7 @@ def _sync_review_flags(task_dir: Path, run_state: dict[str, Any], *, canonical_t
 
 def _required_finalize_flags(policy: RuntimePolicy, route_name: str) -> list[str]:
     route = _resolve_route(policy, route_name)
-    required = list(policy.finalize_flags)
-    if "spec-review" not in route and "spec_review_approved" in required:
-        required.remove("spec_review_approved")
-    if "quality-review" not in route and "quality_review_approved" in required:
-        required.remove("quality_review_approved")
-    return required
+    return required_finalize_flags(route, list(policy.finalize_flags))
 
 
 def _record_gate(
@@ -815,88 +671,8 @@ def _record_gate(
     stage_gate_map: dict[str, str],
     plan_ledger: dict[str, Any] | None = None,
 ) -> None:
-    gate_name = stage_gate_map.get(stage_name)
-    if gate_name and plan_ledger is None and gate_name not in run_state["completed_gates"]:
-        run_state["completed_gates"].append(gate_name)
-
-
-def _expected_gates_before_stage(route: list[str], stage_name: str, *, stage_gate_map: dict[str, str]) -> list[str]:
-    stage_index = route.index(stage_name)
-    gates: list[str] = []
-    for prior_stage in route[:stage_index]:
-        gate_name = stage_gate_map.get(prior_stage)
-        if gate_name is not None:
-            gates.append(gate_name)
-    return gates
-
-
-def _resume_start_index(
-    run_state: dict[str, Any],
-    route: list[str],
-    *,
-    stage_gate_map: dict[str, str],
-    plan_ledger: dict[str, Any] | None = None,
-) -> int:
-    current_stage = run_state.get("current_stage")
-    status = run_state.get("status")
-    source_name = "plan-ledger" if plan_ledger is not None else "run-state"
-    progress_source = _plan_ledger_progress(plan_ledger) if plan_ledger is not None else run_state
-    completed_gates = progress_source.get("completed_gates", [])
-    completed_stages = progress_source.get("completed_stages", [])
-
-    if current_stage not in route:
-        raise RuntimeViolation(f"run-state checkpoint stage {current_stage} is not part of route")
-    if not isinstance(completed_gates, list):
-        source_name = "plan-ledger" if plan_ledger is not None else "run-state"
-        raise RuntimeViolation(f"{source_name} checkpoint completed_gates must be a list")
-    if not isinstance(completed_stages, list):
-        raise RuntimeViolation(f"{source_name} checkpoint completed_stages must be a list")
-
-    current_index = route.index(current_stage)
-    allowed_stages = set(route[: current_index + 1])
-    unexpected_stages = [stage_name for stage_name in completed_stages if stage_name not in allowed_stages]
-    if unexpected_stages:
-        raise RuntimeViolation(
-            f"{source_name} checkpoint has out-of-sequence completed stages at {current_stage}: {', '.join(unexpected_stages)}"
-        )
-    expected_prefix = _expected_gates_before_stage(route, current_stage, stage_gate_map=stage_gate_map)
-    missing_prefix = [gate for gate in expected_prefix if gate not in completed_gates]
-    if missing_prefix:
-        raise RuntimeViolation(
-            f"{source_name} checkpoint is missing completed gates before {current_stage}: {', '.join(missing_prefix)}"
-        )
-
-    current_gate = stage_gate_map.get(current_stage)
-    allowed_gates = set(expected_prefix)
-    if current_gate:
-        allowed_gates.add(current_gate)
-    unexpected_gates = [
-        gate for gate in completed_gates if gate in stage_gate_map.values() and gate not in allowed_gates
-    ]
-    if unexpected_gates:
-        raise RuntimeViolation(
-            f"{source_name} checkpoint has out-of-sequence completed gates at {current_stage}: {', '.join(unexpected_gates)}"
-        )
-
-    if status == "completed":
-        terminal_stage = route[-1]
-        if current_stage != terminal_stage:
-            raise RuntimeViolation(
-                f"completed {source_name} checkpoint must already be at terminal stage {terminal_stage}"
-            )
-        terminal_gate = stage_gate_map.get(terminal_stage)
-        if terminal_gate and terminal_gate not in completed_gates:
-            raise RuntimeViolation(
-                f"completed {source_name} checkpoint is missing terminal gate {terminal_gate}"
-            )
-        return len(route)
-
-    if current_gate and current_gate in completed_gates:
-        current_index += 1
-
-    if status in {"in_progress", "blocked", "not_started"}:
-        return current_index
-    raise RuntimeViolation(f"run-state checkpoint has unsupported status: {status}")
+    if plan_ledger is None:
+        record_completed_gate(run_state, stage_name, stage_gate_map=stage_gate_map)
 
 
 def _matching_review_payload(
@@ -1390,7 +1166,13 @@ def run_route(task_dir: Path, policy: RuntimePolicy, route_name: str) -> dict[st
             plan_ledger=plan_ledger,
         )
     resume_from_stage = run_state.get("current_stage")
-    start_index = _resume_start_index(run_state, route, stage_gate_map=policy.stage_gate_map, plan_ledger=plan_ledger)
+    start_index = resume_start_index(
+        run_state,
+        route,
+        stage_gate_map=policy.stage_gate_map,
+        violation_factory=RuntimeViolation,
+        plan_ledger=plan_ledger,
+    )
 
     if start_index >= len(route):
         _append_decision(
