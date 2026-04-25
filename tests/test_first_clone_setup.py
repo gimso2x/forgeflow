@@ -277,6 +277,23 @@ def test_monitoring_summary_plan_points_users_to_make_targets() -> None:
     assert "python3 scripts/forgeflow_monitor.py" not in usage_section
 
 
+def test_monitoring_summary_plan_json_test_command_uses_repo_managed_target() -> None:
+    makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
+    plan = (ROOT / "docs/plans/2026-04-24-forgeflow-monitor-summary.md").read_text(encoding="utf-8")
+    task_section = plan.split("### Task 1: Add failing tests for JSON summary", 1)[1].split(
+        "### Task 2: Add failing tests for Markdown and graceful fallback", 1
+    )[0]
+
+    assert "monitor-summary-json:" in makefile
+    assert "$(VENV_PYTHON) scripts/forgeflow_monitor.py --tasks .forgeflow/tasks --recent 10 --format json" in makefile
+    assert "make setup" in task_section
+    assert "make check-env" in task_section
+    command_lines = [line.strip() for line in task_section.splitlines()]
+    assert "make monitor-summary-json" in command_lines
+    assert task_section.index("make setup") < task_section.index("make check-env") < task_section.index("make monitor-summary-json")
+    assert "python3 scripts/forgeflow_monitor.py" not in task_section
+
+
 def test_engineering_discipline_plan_uses_repo_managed_help_target() -> None:
     makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
     plan = (ROOT / "docs/plans/2026-04-23-engineering-discipline-absorption-plan.md").read_text(encoding="utf-8")

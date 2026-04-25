@@ -48,9 +48,11 @@ Minimum useful fields:
    - completed task with approved review
    - blocked task with `blocked_reason`
    - rejected task with `review-report.json` containing findings
-2. Run:
+2. Run through the repo-managed target:
    ```bash
-   python3 scripts/forgeflow_monitor.py --tasks <tmp> --format json --recent 10
+   make setup
+   make check-env
+   make monitor-summary-json
    ```
 3. Assert JSON includes:
    - `summary.total_tasks == 3`
