@@ -38,6 +38,7 @@ REQUIRED_FILES = [
     'docs/adapter-model.md',
     'docs/recovery-policy.md',
     'docs/evolution-model.md',
+    'docs/contract-map.md',
     'docs/implementation-plan.md',
     'runtime/README.md',
     'runtime/orchestrator/README.md',

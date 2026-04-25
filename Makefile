@@ -26,6 +26,7 @@ validate:
 	$(VENV_PYTHON) scripts/validate_claude_hooks.py
 	$(VENV_PYTHON) scripts/smoke_plan_cli.py
 	$(VENV_PYTHON) -m pytest tests/evolution -q
+	$(VENV_PYTHON) -m pytest tests/runtime -q
 	$(VENV_PYTHON) -m pytest tests/test_forgeflow_ux_contract.py -q
 	$(VENV_PYTHON) -m pytest tests/test_forgeflow_learn.py -q
 	$(VENV_PYTHON) -m pytest tests/test_claude_recovery_hooks.py -q
