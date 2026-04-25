@@ -4,7 +4,14 @@ from pathlib import Path
 import pytest
 from jsonschema import Draft202012Validator
 
-from forgeflow_runtime.orchestrator import RuntimeViolation, load_runtime_policy, run_route
+from forgeflow_runtime.orchestrator import (
+    RuntimeViolation,
+    advance_to_next_stage,
+    load_runtime_policy,
+    resume_task,
+    run_route,
+    status_summary,
+)
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -333,3 +340,233 @@ def test_run_route_rejects_incomplete_completed_checkpoint(tmp_path: Path) -> No
 
     with pytest.raises(RuntimeViolation, match="completed run-state checkpoint must already be at terminal stage finalize"):
         run_route(task_dir=task_dir, policy=policy, route_name="small")
+
+
+def test_advance_rejects_mismatched_run_state_stage(tmp_path: Path) -> None:
+    policy = load_runtime_policy(ROOT)
+    task_dir = _make_task_dir(tmp_path)
+
+    run_state = json.loads((task_dir / "run-state.json").read_text(encoding="utf-8"))
+    run_state["current_stage"] = "execute"
+    _write_json(task_dir / "run-state.json", run_state)
+
+    with pytest.raises(RuntimeViolation, match="requested current_stage clarify does not match persisted run-state stage execute"):
+        advance_to_next_stage(task_dir=task_dir, policy=policy, route_name="small", current_stage="clarify")
+
+
+def test_resume_rejects_medium_session_state_with_wrong_plan_ledger_ref(tmp_path: Path) -> None:
+    policy = load_runtime_policy(ROOT)
+    task_dir = _make_task_dir(tmp_path)
+    _write_medium_plan_artifacts(task_dir, route_name="medium")
+    _write_json(
+        task_dir / "checkpoint.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "route": "medium",
+            "current_stage": "clarify",
+            "plan_ref": "plan.json",
+            "plan_ledger_ref": "plan-ledger.json",
+            "run_state_ref": "run-state.json",
+            "next_action": "execute로 진행",
+            "open_blockers": [],
+            "updated_at": "2026-04-22T00:05:00Z",
+        },
+    )
+    _write_json(
+        task_dir / "session-state.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "route": "medium",
+            "current_stage": "clarify",
+            "plan_ref": "plan.json",
+            "plan_ledger_ref": "run-state.json",
+            "run_state_ref": "run-state.json",
+            "latest_checkpoint_ref": "checkpoint.json",
+            "next_action": "execute로 진행",
+            "updated_at": "2026-04-22T00:05:00Z",
+        },
+    )
+
+    with pytest.raises(RuntimeViolation, match="session-state.json plan_ledger_ref run-state.json must point to plan-ledger.json for route medium"):
+        resume_task(task_dir=task_dir, policy=policy, route_name="medium")
+
+
+def test_resume_rejects_stale_session_state_latest_review_ref(tmp_path: Path) -> None:
+    policy = load_runtime_policy(ROOT)
+    task_dir = _make_task_dir(tmp_path)
+    _write_json(
+        task_dir / "review-report-spec.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "review_type": "spec",
+            "verdict": "approved",
+            "findings": ["spec ok"],
+            "approved_by": "spec-reviewer",
+            "next_action": "quality-review로 진행",
+        },
+    )
+    _write_json(
+        task_dir / "review-report-quality.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "review_type": "quality",
+            "verdict": "approved",
+            "findings": ["quality ok"],
+            "approved_by": "quality-reviewer",
+            "next_action": "finalize 가능",
+        },
+    )
+    _write_json(
+        task_dir / "checkpoint.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "route": "small",
+            "current_stage": "clarify",
+            "plan_ref": "brief.json",
+            "plan_ledger_ref": "run-state.json",
+            "run_state_ref": "run-state.json",
+            "latest_review_ref": "review-report-quality.json",
+            "next_action": "execute로 진행",
+            "open_blockers": [],
+            "updated_at": "2026-04-22T00:05:00Z",
+        },
+    )
+    _write_json(
+        task_dir / "session-state.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "route": "small",
+            "current_stage": "clarify",
+            "plan_ref": "brief.json",
+            "plan_ledger_ref": "run-state.json",
+            "run_state_ref": "run-state.json",
+            "latest_checkpoint_ref": "checkpoint.json",
+            "latest_review_ref": "review-report-spec.json",
+            "next_action": "execute로 진행",
+            "updated_at": "2026-04-22T00:05:00Z",
+        },
+    )
+
+    with pytest.raises(RuntimeViolation, match="session-state.json latest_review_ref review-report-spec.json does not match canonical latest review review-report-quality.json"):
+        resume_task(task_dir=task_dir, policy=policy, route_name="small")
+
+
+def test_status_rejects_session_state_route_drift(tmp_path: Path) -> None:
+    policy = load_runtime_policy(ROOT)
+    task_dir = _make_task_dir(tmp_path)
+    _write_json(
+        task_dir / "checkpoint.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "route": "small",
+            "current_stage": "clarify",
+            "plan_ref": "brief.json",
+            "plan_ledger_ref": "run-state.json",
+            "run_state_ref": "run-state.json",
+            "next_action": "execute로 진행",
+            "open_blockers": [],
+            "updated_at": "2026-04-22T00:05:00Z",
+        },
+    )
+    _write_json(
+        task_dir / "session-state.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "route": "medium",
+            "current_stage": "clarify",
+            "plan_ref": "brief.json",
+            "plan_ledger_ref": "run-state.json",
+            "run_state_ref": "run-state.json",
+            "latest_checkpoint_ref": "checkpoint.json",
+            "next_action": "execute로 진행",
+            "updated_at": "2026-04-22T00:05:00Z",
+        },
+    )
+
+    with pytest.raises(RuntimeViolation, match="session-state.json route medium does not match canonical route small"):
+        status_summary(task_dir=task_dir, policy=policy, route_name="small")
+
+
+def test_status_rejects_session_state_stage_drift(tmp_path: Path) -> None:
+    policy = load_runtime_policy(ROOT)
+    task_dir = _make_task_dir(tmp_path)
+    _write_json(
+        task_dir / "checkpoint.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "route": "small",
+            "current_stage": "clarify",
+            "plan_ref": "brief.json",
+            "plan_ledger_ref": "run-state.json",
+            "run_state_ref": "run-state.json",
+            "next_action": "execute로 진행",
+            "open_blockers": [],
+            "updated_at": "2026-04-22T00:05:00Z",
+        },
+    )
+    _write_json(
+        task_dir / "session-state.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "route": "small",
+            "current_stage": "execute",
+            "plan_ref": "brief.json",
+            "plan_ledger_ref": "run-state.json",
+            "run_state_ref": "run-state.json",
+            "latest_checkpoint_ref": "checkpoint.json",
+            "next_action": "execute로 진행",
+            "updated_at": "2026-04-22T00:05:00Z",
+        },
+    )
+
+    with pytest.raises(RuntimeViolation, match="session-state.json current_stage execute does not match run-state current_stage clarify"):
+        status_summary(task_dir=task_dir, policy=policy, route_name="small")
+
+
+def test_status_rejects_session_state_latest_review_ref_that_escapes_task_dir(tmp_path: Path) -> None:
+    policy = load_runtime_policy(ROOT)
+    task_dir = _make_task_dir(tmp_path)
+    _write_json(
+        task_dir / "checkpoint.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "route": "small",
+            "current_stage": "clarify",
+            "plan_ref": "brief.json",
+            "plan_ledger_ref": "run-state.json",
+            "run_state_ref": "run-state.json",
+            "next_action": "execute로 진행",
+            "open_blockers": [],
+            "updated_at": "2026-04-22T00:05:00Z",
+        },
+    )
+    _write_json(
+        task_dir / "session-state.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "route": "small",
+            "current_stage": "clarify",
+            "plan_ref": "brief.json",
+            "plan_ledger_ref": "run-state.json",
+            "run_state_ref": "run-state.json",
+            "latest_checkpoint_ref": "checkpoint.json",
+            "latest_review_ref": "../review-report.json",
+            "next_action": "execute로 진행",
+            "updated_at": "2026-04-22T00:05:00Z",
+        },
+    )
+
+    with pytest.raises(RuntimeViolation, match="session-state.json latest_review_ref ../review-report.json escapes task directory"):
+        status_summary(task_dir=task_dir, policy=policy, route_name="small")
