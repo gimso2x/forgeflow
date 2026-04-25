@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -270,6 +271,20 @@ def test_ci_validation_job_creates_venv_before_make_validate() -> None:
     assert "make validate" in repo_validation_job
     assert repo_validation_job.index("make setup") < repo_validation_job.index("make check-env") < repo_validation_job.index("make validate")
     assert ".venv/bin/python -m pytest -q" in repo_validation_job
+
+
+def test_ci_generated_drift_job_uses_repo_managed_venv_before_validation() -> None:
+    workflow = (ROOT / ".github/workflows/validate.yml").read_text(encoding="utf-8")
+    match = re.search(r"^  generated-drift:\n(?P<body>.*?)(?=^  [A-Za-z0-9_-]+:|\Z)", workflow, re.MULTILINE | re.DOTALL)
+    assert match is not None
+    generated_drift_job = match.group("body")
+
+    assert "make setup" in generated_drift_job
+    assert "make check-env" in generated_drift_job
+    assert ".venv/bin/python scripts/validate_generated.py" in generated_drift_job
+    assert "python -m pip install" not in generated_drift_job
+    assert "python3 scripts/validate_generated.py" not in generated_drift_job
+    assert generated_drift_job.index("make setup") < generated_drift_job.index("make check-env") < generated_drift_job.index(".venv/bin/python scripts/validate_generated.py")
 
 
 def test_readme_documents_project_team_preset_installer() -> None:
