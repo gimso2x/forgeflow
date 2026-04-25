@@ -4,6 +4,18 @@ from __future__ import annotations
 from typing import Any
 
 
+_STAGE_GATE_EVIDENCE_ARTIFACTS = {
+    "spec-review": "review-report-spec.json",
+    "quality-review": "review-report.json",
+    "long-run": "eval-record.json",
+}
+
+
+def gate_evidence_ref(stage_name: str, gate_name: str) -> str:
+    prefix = _STAGE_GATE_EVIDENCE_ARTIFACTS.get(stage_name, "run-state.json")
+    return f"{prefix}#gate:{gate_name}"
+
+
 def required_finalize_flags(route: list[str], finalize_flags: list[str]) -> list[str]:
     required = list(finalize_flags)
     if "spec-review" not in route and "spec_review_approved" in required:

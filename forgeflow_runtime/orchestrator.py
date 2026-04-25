@@ -9,7 +9,7 @@ from typing import Any
 
 from jsonschema import Draft202012Validator
 
-from forgeflow_runtime.gate_evaluation import record_completed_gate, required_finalize_flags
+from forgeflow_runtime.gate_evaluation import gate_evidence_ref, record_completed_gate, required_finalize_flags
 from forgeflow_runtime.policy_loader import RuntimePolicy, load_runtime_policy
 from forgeflow_runtime.resume_validation import plan_ledger_progress, resume_start_index
 
@@ -260,14 +260,6 @@ def _append_evidence_ref(task: dict[str, Any], evidence_ref: str) -> None:
         evidence_refs.append(evidence_ref)
 
 
-def _gate_evidence_ref(stage_name: str, gate_name: str) -> str:
-    prefix = "run-state.json" if stage_name not in {"spec-review", "quality-review", "long-run"} else {
-        "spec-review": "review-report-spec.json",
-        "quality-review": "review-report.json",
-        "long-run": "eval-record.json",
-    }[stage_name]
-    return f"{prefix}#gate:{gate_name}"
-
 
 def _plan_ledger_progress(plan_ledger: dict[str, Any] | None) -> dict[str, Any] | None:
     return plan_ledger_progress(plan_ledger)
@@ -285,7 +277,7 @@ def _sync_plan_ledger_gate(plan_ledger: dict[str, Any] | None, *, stage_name: st
     completed_gates = plan_ledger.setdefault("completed_gates", [])
     if gate_name not in completed_gates:
         completed_gates.append(gate_name)
-    _append_evidence_ref(task, _gate_evidence_ref(stage_name, gate_name))
+    _append_evidence_ref(task, gate_evidence_ref(stage_name, gate_name))
 
 
 def _sync_plan_ledger_retry(plan_ledger: dict[str, Any] | None, *, stage_name: str) -> None:
@@ -338,7 +330,7 @@ def _rewind_plan_ledger_progress(
         if gate_name is not None
     ]
     removed_gate_refs = {
-        _gate_evidence_ref(stage_name, gate_name)
+        gate_evidence_ref(stage_name, gate_name)
         for stage_name in removed_stages
         for gate_name in [stage_gate_map.get(stage_name)]
         if gate_name is not None
