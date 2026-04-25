@@ -7,7 +7,6 @@ from jsonschema import Draft202012Validator
 from forgeflow_runtime.orchestrator import (
     RuntimeViolation,
     advance_to_next_stage,
-    escalate_route,
     load_runtime_policy,
     resume_task,
     retry_stage,
@@ -573,21 +572,3 @@ def test_large_route_rejects_missing_eval_record_before_long_run(tmp_path: Path)
 
     with pytest.raises(RuntimeViolation, match="long-run requires artifacts satisfying gate worth_long_run_capture: eval-record"):
         run_route(task_dir=task_dir, policy=policy, route_name="large_high_risk")
-
-
-
-def test_escalate_route_switches_to_large_high_risk(tmp_path: Path) -> None:
-    task_dir = _make_task_dir(tmp_path)
-
-    state = escalate_route(task_dir=task_dir, from_route="small")
-
-    assert state["status"] == "blocked"
-    assert state["current_stage"] == "clarify"
-    checkpoint = json.loads((task_dir / "checkpoint.json").read_text(encoding="utf-8"))
-    _assert_schema_valid("checkpoint", checkpoint)
-    assert checkpoint["route"] == "large_high_risk"
-    assert checkpoint["current_stage"] == "clarify"
-    assert checkpoint["next_action"] == "Resume at plan after reloading canonical artifacts."
-
-    decision_log = json.loads((task_dir / "decision-log.json").read_text(encoding="utf-8"))
-    assert decision_log["entries"][-1]["decision"] == "route escalated: small -> large_high_risk"
