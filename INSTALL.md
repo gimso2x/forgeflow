@@ -109,9 +109,9 @@ make validate
 샘플 실행:
 
 ```bash
-python3 scripts/run_runtime_sample.py \
-  --fixture-dir examples/runtime-fixtures/small-doc-task \
-  --route small
+make setup
+make check-env
+make runtime-sample
 ```
 
 직접 task를 만들 때:

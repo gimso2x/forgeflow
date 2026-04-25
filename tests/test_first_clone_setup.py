@@ -73,6 +73,20 @@ def test_install_update_path_rechecks_first_clone_dependencies_before_validation
     assert "새 dependency가 추가된 release" in update_section
 
 
+def test_install_runtime_sample_uses_repo_managed_make_target() -> None:
+    makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
+    install = (ROOT / "INSTALL.md").read_text(encoding="utf-8")
+    sample_section = install.split("샘플 실행:", 1)[1].split("직접 task를 만들 때:", 1)[0]
+
+    assert "runtime-sample:" in makefile
+    assert "$(VENV_PYTHON) scripts/run_runtime_sample.py --fixture-dir examples/runtime-fixtures/small-doc-task --route small" in makefile
+    assert "make setup" in sample_section
+    assert "make check-env" in sample_section
+    assert "make runtime-sample" in sample_section.splitlines()
+    assert sample_section.index("make setup") < sample_section.index("make check-env") < sample_section.index("make runtime-sample")
+    assert "python3 scripts/run_runtime_sample.py" not in sample_section
+
+
 def test_readme_update_path_keeps_make_commands_in_checkout_context() -> None:
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
     update_section = readme.split("### Updating an existing checkout", 1)[1].split("## What ForgeFlow does", 1)[0]
