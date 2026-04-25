@@ -62,10 +62,13 @@ def test_validate_structure_tracks_runtime_and_memory_scaffold() -> None:
 
 def test_validate_workflow_installs_policy_validator_dependencies() -> None:
     workflow = (ROOT / ".github" / "workflows" / "validate.yml").read_text(encoding="utf-8").lower()
+    makefile = (ROOT / "Makefile").read_text(encoding="utf-8").lower()
 
     requirements = (ROOT / "requirements.txt").read_text(encoding="utf-8").lower()
 
-    assert "-r requirements.txt" in workflow
+    assert "run: make setup" in workflow
+    assert "run: make check-env" in workflow
+    assert "-r requirements.txt" in makefile
     assert "jsonschema" in requirements
     assert "pyyaml" in requirements
     assert "pytest" in requirements

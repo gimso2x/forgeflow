@@ -23,8 +23,9 @@ def _load_module(path: Path, name: str):
 def test_ci_installs_requirements_and_runs_full_pytest_suite() -> None:
     workflow = (ROOT / ".github" / "workflows" / "validate.yml").read_text(encoding="utf-8")
 
-    assert "python -m pip install -r requirements.txt" in workflow
-    assert "python -m pytest -q" in workflow
+    assert "run: make setup" in workflow
+    assert "run: make check-env" in workflow
+    assert "run: .venv/bin/python -m pytest -q" in workflow
 
 
 def test_check_environment_reports_missing_venv_support(monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]) -> None:

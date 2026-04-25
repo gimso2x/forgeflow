@@ -150,8 +150,7 @@ ForgeFlow has an explicit review model document that matches current policy/runt
 The runtime exists already. The shell story just needs to stop sounding accidental.
 
 **Verification:**
-- Run: `python3 scripts/run_orchestrator.py --help`
-- Run: `python3 scripts/run_orchestrator.py run --help`
+- Run: `make orchestrator-help`
 - Run: `pytest -q tests/test_runtime_orchestrator.py`
 
 **Exit Condition:**

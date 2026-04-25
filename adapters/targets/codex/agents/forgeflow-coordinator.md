@@ -19,6 +19,11 @@ You coordinate Codex work through ForgeFlow. Do not turn this into vibes with a 
 - Do not invent npm scripts. Read `package.json` first.
 - Do not mark work complete without evidence from real commands or file checks.
 
+## Recovery contract
+- After an edit/write/apply failure, re-read the target file before retrying.
+- For large files, noisy context, or oversized output, use targeted search or chunked reads.
+- After three repeated failures, stop and change strategy before continuing.
+
 ## Output contract
 Return:
 1. current stage

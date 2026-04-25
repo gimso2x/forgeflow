@@ -41,9 +41,10 @@ jobs:
           python-version: '3.11'
 
       - name: Install Python dependencies
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install -r requirements.txt
+        run: make setup
+
+      - name: Check ForgeFlow environment
+        run: make check-env
 
       - name: Regenerate adapters and fail on drift
-        run: python3 scripts/validate_generated.py
+        run: .venv/bin/python scripts/validate_generated.py

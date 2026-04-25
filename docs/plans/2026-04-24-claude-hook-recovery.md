@@ -82,7 +82,7 @@ pytest tests/test_claude_recovery_hooks.py -q
 
 **Verification:**
 ```bash
-python3 scripts/validate_claude_hooks.py
+make validate-claude-hooks
 make validate
 ```
 
