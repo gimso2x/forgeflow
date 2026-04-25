@@ -108,6 +108,21 @@ def test_scripts_readme_recommends_repo_managed_validate_target() -> None:
     assert "python3 scripts/generate_adapters.py" not in scripts_readme
 
 
+def test_scripts_readme_runtime_sample_uses_repo_managed_target() -> None:
+    makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
+    scripts_readme = (ROOT / "scripts/README.md").read_text(encoding="utf-8")
+    runtime_section = scripts_readme.split("## Runtime sample", 1)[1]
+
+    assert "runtime-sample:" in makefile
+    assert "$(VENV_PYTHON) scripts/run_runtime_sample.py --fixture-dir examples/runtime-fixtures/small-doc-task --route small" in makefile
+    assert "make setup" in runtime_section
+    assert "make check-env" in runtime_section
+    assert "make runtime-sample" in runtime_section.splitlines()
+    assert runtime_section.index("make setup") < runtime_section.index("make check-env") < runtime_section.index("make runtime-sample")
+    assert "--fixture-dir`는 task fixture 디렉터리를 가리켜야 하며, 파일 경로면 명시적 `ERROR:`로 실패한다." in runtime_section
+    assert "python3 scripts/run_runtime_sample.py" not in runtime_section
+
+
 def test_readme_update_path_keeps_make_commands_in_checkout_context() -> None:
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
     update_section = readme.split("### Updating an existing checkout", 1)[1].split("## What ForgeFlow does", 1)[0]
