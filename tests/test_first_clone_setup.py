@@ -277,6 +277,20 @@ def test_monitoring_summary_plan_points_users_to_make_targets() -> None:
     assert "python3 scripts/forgeflow_monitor.py" not in usage_section
 
 
+def test_engineering_discipline_plan_uses_repo_managed_help_target() -> None:
+    makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
+    plan = (ROOT / "docs/plans/2026-04-23-engineering-discipline-absorption-plan.md").read_text(encoding="utf-8")
+    task_section = plan.split("## P0-3: Tighten operator shell examples", 1)[1].split("# P1 Tasks", 1)[0]
+    verification_section = task_section.split("**Verification:**", 1)[1].split("**Exit Condition:**", 1)[0]
+
+    assert "orchestrator-help:" in makefile
+    assert "$(VENV_PYTHON) scripts/run_orchestrator.py --help" in makefile
+    assert "$(VENV_PYTHON) scripts/run_orchestrator.py run --help" in makefile
+    assert "- Run: `make orchestrator-help`" in verification_section.splitlines()
+    assert "python3 scripts/run_orchestrator.py --help" not in verification_section
+    assert "python3 scripts/run_orchestrator.py run --help" not in verification_section
+
+
 def test_ci_validation_job_creates_venv_before_make_validate() -> None:
     workflow = (ROOT / ".github/workflows/validate.yml").read_text(encoding="utf-8")
     repo_validation_job = workflow.split("  repo-validation:", 1)[1].split("  generated-drift:", 1)[0]
