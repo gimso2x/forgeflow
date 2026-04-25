@@ -87,6 +87,27 @@ def test_install_runtime_sample_uses_repo_managed_make_target() -> None:
     assert "python3 scripts/run_runtime_sample.py" not in sample_section
 
 
+def test_scripts_readme_recommends_repo_managed_validate_target() -> None:
+    makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
+    scripts_readme = (ROOT / "scripts/README.md").read_text(encoding="utf-8")
+    recommended_section = scripts_readme.split("## 권장 실행 순서", 1)[1].split("## Runtime sample", 1)[0]
+
+    assert "validate:" in makefile
+    assert "$(VENV_PYTHON) scripts/validate_structure.py" in makefile
+    assert "$(VENV_PYTHON) scripts/validate_policy.py" in makefile
+    assert "$(VENV_PYTHON) scripts/validate_generated.py" in makefile
+    assert "$(VENV_PYTHON) scripts/validate_sample_artifacts.py" in makefile
+    validate_generated = (ROOT / "scripts/validate_generated.py").read_text(encoding="utf-8")
+    assert "generate_adapters.py" in validate_generated
+    assert "regeneration left adapters/generated clean" in validate_generated
+    assert "make setup" in recommended_section
+    assert "make check-env" in recommended_section
+    assert "make validate" in recommended_section.splitlines()
+    assert recommended_section.index("make setup") < recommended_section.index("make check-env") < recommended_section.index("make validate")
+    assert "python3 scripts/validate_" not in scripts_readme
+    assert "python3 scripts/generate_adapters.py" not in scripts_readme
+
+
 def test_readme_update_path_keeps_make_commands_in_checkout_context() -> None:
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
     update_section = readme.split("### Updating an existing checkout", 1)[1].split("## What ForgeFlow does", 1)[0]

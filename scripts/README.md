@@ -12,11 +12,11 @@ P0에서 필요한 최소 자동화를 둔다.
 - `run_runtime_sample.py` : runtime sample을 disposable fixture copy에서 실행해서 tracked example이 더러워지지 않게 보호
 
 ## 권장 실행 순서
-1. `python3 scripts/validate_structure.py`
-2. `python3 scripts/validate_policy.py`
-3. `python3 scripts/generate_adapters.py`
-4. `python3 scripts/validate_generated.py`
-5. `python3 scripts/validate_sample_artifacts.py`
+make target이 repo-managed `.venv`를 사용하므로 fresh clone에서는 아래 순서로 실행한다.
+
+make setup
+make check-env
+make validate
 
 ## Runtime sample
 - `python3 scripts/run_runtime_sample.py --fixture-dir examples/runtime-fixtures/small-doc-task --route small`
