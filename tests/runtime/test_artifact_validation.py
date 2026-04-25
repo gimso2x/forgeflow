@@ -4,6 +4,7 @@ from pathlib import Path
 import pytest
 from jsonschema import Draft202012Validator
 
+from forgeflow_runtime.artifact_validation import load_validated_artifact
 from forgeflow_runtime.orchestrator import RuntimeViolation, load_runtime_policy, retry_stage, run_route
 
 
@@ -55,6 +56,16 @@ def _make_task_dir(tmp_path: Path) -> Path:
         },
     )
     return task_dir
+
+
+def test_load_validated_artifact_rejects_unknown_schema_version_with_clear_error(tmp_path: Path) -> None:
+    task_dir = _make_task_dir(tmp_path)
+    run_state = json.loads((task_dir / "run-state.json").read_text(encoding="utf-8"))
+    run_state["schema_version"] = "9.9"
+    _write_json(task_dir / "run-state.json", run_state)
+
+    with pytest.raises(RuntimeViolation, match="run-state.json uses unsupported schema_version 9.9"):
+        load_validated_artifact(task_dir, "run-state", expected_task_id="task-001")
 
 
 def test_run_route_rejects_schema_invalid_existing_run_state(tmp_path: Path) -> None:

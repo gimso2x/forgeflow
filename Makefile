@@ -25,7 +25,7 @@ validate:
 	$(VENV_PYTHON) scripts/validate_skill_contracts.py
 	$(VENV_PYTHON) scripts/validate_claude_hooks.py
 	$(VENV_PYTHON) scripts/smoke_plan_cli.py
-	$(VENV_PYTHON) -m pytest tests/test_evolution_policy.py -q
+	$(VENV_PYTHON) -m pytest tests/evolution -q
 	$(VENV_PYTHON) -m pytest tests/test_forgeflow_ux_contract.py -q
 	$(VENV_PYTHON) -m pytest tests/test_forgeflow_learn.py -q
 	$(VENV_PYTHON) -m pytest tests/test_claude_recovery_hooks.py -q
@@ -76,7 +76,7 @@ plan-cli-smoke:
 	$(VENV_PYTHON) scripts/smoke_plan_cli.py
 
 evolution-policy-smoke:
-	$(VENV_PYTHON) -m pytest tests/test_evolution_policy.py -q
+	$(VENV_PYTHON) -m pytest tests/evolution -q
 
 learn-smoke:
 	$(VENV_PYTHON) -m pytest tests/test_forgeflow_learn.py -q

@@ -4,7 +4,8 @@ from pathlib import Path
 import pytest
 from jsonschema import Draft202012Validator
 
-from forgeflow_runtime.orchestrator import RuntimeViolation, load_runtime_policy, start_task
+from forgeflow_runtime.orchestrator import RuntimeViolation, _canonical_task_id, load_runtime_policy, start_task
+from forgeflow_runtime.task_identity import canonical_task_id
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -55,6 +56,50 @@ def _make_task_dir(tmp_path: Path) -> Path:
         },
     )
     return task_dir
+
+
+def _brief(task_id: str) -> dict:
+    return {
+        "schema_version": "0.1",
+        "task_id": task_id,
+        "objective": "Resolve identity",
+        "in_scope": ["runtime"],
+        "out_of_scope": [],
+        "constraints": ["local only"],
+        "acceptance_criteria": ["task id is stable"],
+        "risk_level": "low",
+    }
+
+
+def _run_state(task_id: str) -> dict:
+    return {
+        "schema_version": "0.1",
+        "task_id": task_id,
+        "current_stage": "clarify",
+        "status": "in_progress",
+        "completed_gates": [],
+        "failed_gates": [],
+        "retries": {},
+        "current_task_id": "",
+        "spec_review_approved": False,
+        "quality_review_approved": False,
+    }
+
+
+def test_canonical_task_id_prefers_matching_brief_and_keeps_orchestrator_alias(tmp_path: Path) -> None:
+    _write_json(tmp_path / "brief.json", _brief("task-001"))
+    _write_json(tmp_path / "run-state.json", _run_state("task-001"))
+
+    assert canonical_task_id(tmp_path) == "task-001"
+    assert _canonical_task_id(tmp_path) == "task-001"
+
+
+def test_canonical_task_id_rejects_brief_run_state_mismatch(tmp_path: Path) -> None:
+    _write_json(tmp_path / "brief.json", _brief("task-001"))
+    _write_json(tmp_path / "run-state.json", _run_state("other-task"))
+
+    with pytest.raises(RuntimeViolation, match="run-state.json task_id other-task does not match canonical task_id task-001"):
+        canonical_task_id(tmp_path)
 
 
 def test_start_task_rejects_existing_artifacts(tmp_path: Path) -> None:

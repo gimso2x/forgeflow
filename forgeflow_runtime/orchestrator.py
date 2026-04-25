@@ -23,9 +23,22 @@ from forgeflow_runtime.artifact_validation import (
     write_validated_artifact as _write_validated_artifact,
 )
 from forgeflow_runtime.errors import RuntimeViolation
-from forgeflow_runtime.gate_evaluation import gate_evidence_ref, record_completed_gate, required_finalize_flags
+from forgeflow_runtime.gate_evaluation import enforce_stage_gate as _enforce_stage_gate
+from forgeflow_runtime.gate_evaluation import record_completed_gate, required_finalize_flags
+from forgeflow_runtime.plan_ledger import (
+    canonical_current_task_id as _canonical_current_task_id,
+    current_plan_task as _current_plan_task,
+    finalize_plan_ledger_task as _finalize_plan_ledger_task,
+    plan_ledger_progress as _plan_ledger_progress,
+    rewind_plan_ledger_progress as _rewind_plan_ledger_progress,
+    sync_plan_ledger_gate as _sync_plan_ledger_gate,
+    sync_plan_ledger_retry as _sync_plan_ledger_retry,
+    sync_plan_ledger_review as _sync_plan_ledger_review,
+)
 from forgeflow_runtime.policy_loader import RuntimePolicy, load_runtime_policy
-from forgeflow_runtime.resume_validation import plan_ledger_progress, resume_start_index
+from forgeflow_runtime.resume_validation import resume_start_index
+from forgeflow_runtime.task_identity import canonical_task_id as _canonical_task_id
+from forgeflow_runtime.task_identity import task_id as _task_id
 
 
 @dataclass(frozen=True)
@@ -47,38 +60,6 @@ def _execution_payload(*, stage: str, role: str, adapter: str, result: Any, use_
     if result.error:
         payload["error"] = result.error
     return payload
-
-
-
-def _canonical_task_id(task_dir: Path) -> str:
-    brief_payload: dict[str, Any] | None = None
-    run_state_payload: dict[str, Any] | None = None
-
-    brief_path = _artifact_path(task_dir, "brief")
-    if brief_path.exists():
-        brief_payload = _load_validated_artifact(task_dir, "brief")
-    run_state_path = _artifact_path(task_dir, "run-state")
-    if run_state_path.exists():
-        run_state_payload = _load_validated_artifact(task_dir, "run-state")
-
-    if brief_payload is not None and run_state_payload is not None:
-        brief_task_id = brief_payload["task_id"]
-        run_state_task_id = run_state_payload["task_id"]
-        if brief_task_id != run_state_task_id:
-            raise RuntimeViolation(
-                f"run-state.json task_id {run_state_task_id} does not match canonical task_id {brief_task_id}"
-            )
-        return brief_task_id
-    if brief_payload is not None:
-        return brief_payload["task_id"]
-    if run_state_payload is not None:
-        return run_state_payload["task_id"]
-    raise RuntimeViolation("task directory must contain brief.json or run-state.json")
-
-
-
-def _task_id(task_dir: Path) -> str:
-    return _canonical_task_id(task_dir)
 
 
 def _load_plan_ledger(task_dir: Path, *, canonical_task_id: str) -> dict[str, Any] | None:
@@ -104,138 +85,6 @@ def _require_plan_ledger_for_route(task_dir: Path, route_name: str, *, canonical
     return payload
 
 
-def _current_plan_task(plan_ledger: dict[str, Any] | None) -> dict[str, Any] | None:
-    if plan_ledger is None:
-        return None
-    current_task_id = plan_ledger.get("current_task_id")
-    if not current_task_id:
-        return None
-    for task in plan_ledger.get("tasks", []):
-        if task.get("id") == current_task_id:
-            return task
-    raise RuntimeViolation(f"plan-ledger.json current_task_id {current_task_id} is not present in tasks[]")
-
-
-def _canonical_current_task_id(run_state: dict[str, Any], plan_ledger: dict[str, Any] | None) -> str:
-    ledger_task_id = (plan_ledger or {}).get("current_task_id")
-    if isinstance(ledger_task_id, str) and ledger_task_id:
-        return ledger_task_id
-    run_state_task_id = run_state.get("current_task_id")
-    if isinstance(run_state_task_id, str) and run_state_task_id:
-        return run_state_task_id
-    return ""
-
-
-def _append_evidence_ref(task: dict[str, Any], evidence_ref: str) -> None:
-    evidence_refs = task.setdefault("evidence_refs", [])
-    if evidence_ref not in evidence_refs:
-        evidence_refs.append(evidence_ref)
-
-
-
-def _plan_ledger_progress(plan_ledger: dict[str, Any] | None) -> dict[str, Any] | None:
-    return plan_ledger_progress(plan_ledger)
-
-
-def _sync_plan_ledger_gate(plan_ledger: dict[str, Any] | None, *, stage_name: str, gate_name: str | None) -> None:
-    _plan_ledger_progress(plan_ledger)
-    task = _current_plan_task(plan_ledger)
-    if task is None or gate_name is None:
-        return
-    task["status"] = "in_progress"
-    completed_stages = plan_ledger.setdefault("completed_stages", [])
-    if stage_name not in completed_stages:
-        completed_stages.append(stage_name)
-    completed_gates = plan_ledger.setdefault("completed_gates", [])
-    if gate_name not in completed_gates:
-        completed_gates.append(gate_name)
-    _append_evidence_ref(task, gate_evidence_ref(stage_name, gate_name))
-
-
-def _sync_plan_ledger_retry(plan_ledger: dict[str, Any] | None, *, stage_name: str) -> None:
-    _plan_ledger_progress(plan_ledger)
-    task = _current_plan_task(plan_ledger)
-    if task is None:
-        return
-    task["status"] = "in_progress"
-    task["attempt_count"] = int(task.get("attempt_count", 0)) + 1
-    retries = plan_ledger.setdefault("retries", {})
-    retries[stage_name] = int(retries.get(stage_name, 0)) + 1
-
-
-def _sync_plan_ledger_review(plan_ledger: dict[str, Any] | None, *, review_artifact: str | None, verdict: str | None) -> None:
-    if plan_ledger is None or verdict is None:
-        return
-    plan_ledger["last_review_verdict"] = verdict
-    task = _current_plan_task(plan_ledger)
-    if task is None or review_artifact is None:
-        return
-    _append_evidence_ref(task, f"{review_artifact}#verdict:{verdict}")
-
-
-def _finalize_plan_ledger_task(plan_ledger: dict[str, Any] | None) -> None:
-    task = _current_plan_task(plan_ledger)
-    if task is None:
-        return
-    task["status"] = "done"
-    task["attempt_count"] = max(1, int(task.get("attempt_count", 0)))
-
-
-def _rewind_plan_ledger_progress(
-    plan_ledger: dict[str, Any] | None,
-    *,
-    route: list[str],
-    resume_stage: str,
-    stage_gate_map: dict[str, str],
-) -> None:
-    progress = _plan_ledger_progress(plan_ledger)
-    task = _current_plan_task(plan_ledger)
-    if progress is None or task is None:
-        return
-
-    resume_index = route.index(resume_stage)
-    preserved_stages = route[:resume_index]
-    removed_stages = route[resume_index:]
-    preserved_gates = [
-        gate_name
-        for gate_name in (stage_gate_map.get(stage_name) for stage_name in preserved_stages)
-        if gate_name is not None
-    ]
-    removed_gate_refs = {
-        gate_evidence_ref(stage_name, gate_name)
-        for stage_name in removed_stages
-        for gate_name in [stage_gate_map.get(stage_name)]
-        if gate_name is not None
-    }
-    removed_review_prefixes: set[str] = set()
-    if "spec-review" in removed_stages:
-        removed_review_prefixes.update(
-            {
-                "review-report-spec.json#verdict:",
-                "review-report.json#verdict:",
-            }
-        )
-    if "quality-review" in removed_stages:
-        removed_review_prefixes.update(
-            {
-                "review-report-quality.json#verdict:",
-                "review-report.json#verdict:",
-            }
-        )
-    if "long-run" in removed_stages:
-        removed_review_prefixes.add("eval-record.json#verdict:")
-
-    progress["completed_stages"] = [stage_name for stage_name in progress.get("completed_stages", []) if stage_name in preserved_stages]
-    progress["completed_gates"] = [gate_name for gate_name in progress.get("completed_gates", []) if gate_name in preserved_gates]
-    task["status"] = "in_progress"
-    task["evidence_refs"] = [
-        evidence_ref
-        for evidence_ref in task.get("evidence_refs", [])
-        if evidence_ref not in removed_gate_refs
-        and not any(evidence_ref.startswith(prefix) for prefix in removed_review_prefixes)
-    ]
-    if any(stage_name in {"spec-review", "quality-review", "long-run"} for stage_name in removed_stages):
-        progress.pop("last_review_verdict", None)
 
 
 
@@ -674,54 +523,6 @@ def _record_gate(
     if plan_ledger is None:
         record_completed_gate(run_state, stage_name, stage_gate_map=stage_gate_map)
 
-
-def _matching_review_payload(
-    task_dir: Path,
-    expected_review_type: str,
-    expected_verdict: str,
-    *,
-    canonical_task_id: str,
-) -> dict[str, Any] | None:
-    for artifact_name in ["review-report", "review-report-spec", "review-report-quality"]:
-        review_path = _artifact_path(task_dir, artifact_name)
-        if not review_path.exists():
-            continue
-        payload = _load_validated_artifact(task_dir, artifact_name, expected_task_id=canonical_task_id)
-        _validate_review_semantics(payload, source_name=review_path.name)
-        if payload.get("review_type") == expected_review_type and payload.get("verdict") == expected_verdict:
-            return payload
-    return None
-
-
-def _enforce_stage_gate(task_dir: Path, policy: RuntimePolicy, stage_name: str, *, canonical_task_id: str) -> None:
-    gate_name = policy.stage_gate_map.get(stage_name)
-    if gate_name is None:
-        return
-
-    missing_gate_artifacts = _missing_artifacts(task_dir, policy.gate_requirements.get(gate_name, []))
-    if missing_gate_artifacts:
-        raise RuntimeViolation(
-            f"{stage_name} requires artifacts satisfying gate {gate_name}: {', '.join(missing_gate_artifacts)}"
-        )
-
-    for required_artifact in policy.gate_requirements.get(gate_name, []):
-        for variant in _artifact_variants(required_artifact):
-            variant_path = _artifact_path(task_dir, variant)
-            if variant_path.exists():
-                _load_validated_artifact(task_dir, variant, expected_task_id=canonical_task_id)
-
-    gate_review = policy.gate_reviews.get(gate_name, {})
-    expected_review_type = gate_review.get("review_type")
-    expected_verdict = gate_review.get("verdict")
-    if expected_review_type and expected_verdict and _matching_review_payload(
-        task_dir,
-        expected_review_type,
-        expected_verdict,
-        canonical_task_id=canonical_task_id,
-    ) is None:
-        raise RuntimeViolation(
-            f"{stage_name} requires approved {expected_review_type} review-report artifact"
-        )
 
 
 def _bootstrap_brief(task_id: str, route_name: str) -> dict[str, Any]:
