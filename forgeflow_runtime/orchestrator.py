@@ -9,7 +9,7 @@ from typing import Any
 
 from jsonschema import Draft202012Validator
 
-from forgeflow_runtime.gate_evaluation import required_finalize_flags
+from forgeflow_runtime.gate_evaluation import record_completed_gate, required_finalize_flags
 from forgeflow_runtime.policy_loader import RuntimePolicy, load_runtime_policy
 from forgeflow_runtime.resume_validation import (
     expected_gates_before_stage,
@@ -811,9 +811,8 @@ def _record_gate(
     stage_gate_map: dict[str, str],
     plan_ledger: dict[str, Any] | None = None,
 ) -> None:
-    gate_name = stage_gate_map.get(stage_name)
-    if gate_name and plan_ledger is None and gate_name not in run_state["completed_gates"]:
-        run_state["completed_gates"].append(gate_name)
+    if plan_ledger is None:
+        record_completed_gate(run_state, stage_name, stage_gate_map=stage_gate_map)
 
 
 def _expected_gates_before_stage(route: list[str], stage_name: str, *, stage_gate_map: dict[str, str]) -> list[str]:
