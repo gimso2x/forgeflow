@@ -1,4 +1,8 @@
-from forgeflow_runtime.gate_evaluation import gate_evidence_ref, record_completed_gate, required_finalize_flags
+import pytest
+
+from forgeflow_runtime.errors import RuntimeViolation
+from forgeflow_runtime.gate_evaluation import enforce_stage_gate, gate_evidence_ref, record_completed_gate, required_finalize_flags
+from forgeflow_runtime.policy_loader import RuntimePolicy
 
 
 def test_required_finalize_flags_drops_spec_review_for_routes_without_spec_review() -> None:
@@ -47,3 +51,19 @@ def test_record_completed_gate_skips_stage_without_gate() -> None:
     record_completed_gate(run_state, "execute", stage_gate_map={"plan": "plan_approved"})
 
     assert run_state["completed_gates"] == []
+
+
+def test_enforce_stage_gate_reports_missing_gate_artifacts(tmp_path) -> None:
+    policy = RuntimePolicy(
+        workflow_stages=["plan"],
+        stage_requirements={},
+        stage_gate_map={"plan": "plan_approved"},
+        gate_requirements={"plan_approved": ["plan"]},
+        gate_reviews={},
+        routes={},
+        finalize_flags=[],
+        review_order=[],
+    )
+
+    with pytest.raises(RuntimeViolation, match="plan requires artifacts satisfying gate plan_approved: plan"):
+        enforce_stage_gate(tmp_path, policy, "plan", canonical_task_id="task-1")

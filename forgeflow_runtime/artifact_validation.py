@@ -9,6 +9,7 @@ from typing import Any
 from jsonschema import Draft202012Validator
 
 from forgeflow_runtime.errors import RuntimeViolation
+from forgeflow_runtime.schema_versions import assert_supported_artifact_schema_version
 
 
 SCHEMA_BY_ARTIFACT = {
@@ -65,6 +66,7 @@ def validate_artifact_payload(*, artifact_name: str, payload: dict[str, Any], so
     schema_name = schema_name_for_artifact(artifact_name)
     if schema_name is None:
         return
+    assert_supported_artifact_schema_version(payload=payload, source_name=source_name)
     errors = sorted(schema_validator(schema_name).iter_errors(payload), key=lambda err: list(err.path))
     if errors:
         details = "; ".join(
