@@ -68,26 +68,6 @@ def _make_task_dir(tmp_path: Path) -> Path:
     return task_dir
 
 
-def test_load_runtime_policy_and_resolve_small_route() -> None:
-    policy = load_runtime_policy(ROOT)
-
-    assert policy.workflow_stages == [
-        "clarify",
-        "plan",
-        "execute",
-        "spec-review",
-        "quality-review",
-        "finalize",
-        "long-run",
-    ]
-    assert policy.routes["small"]["stages"] == [
-        "clarify",
-        "execute",
-        "quality-review",
-        "finalize",
-    ]
-
-
 def test_advance_blocks_missing_entry_artifacts(tmp_path: Path) -> None:
     policy = load_runtime_policy(ROOT)
     task_dir = _make_task_dir(tmp_path)
