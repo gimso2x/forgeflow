@@ -110,6 +110,34 @@ def _write_medium_plan_artifacts(task_dir: Path, *, route_name: str = "medium") 
     )
 
 
+def test_run_route_rejects_medium_plan_ledger_out_of_order_completed_stages(tmp_path: Path) -> None:
+    policy = load_runtime_policy(ROOT)
+    task_dir = _make_task_dir(tmp_path)
+    _write_medium_plan_artifacts(task_dir, route_name="medium")
+    run_state = json.loads((task_dir / "run-state.json").read_text(encoding="utf-8"))
+    run_state["current_stage"] = "execute"
+    _write_json(task_dir / "run-state.json", run_state)
+    plan_ledger = json.loads((task_dir / "plan-ledger.json").read_text(encoding="utf-8"))
+    plan_ledger["completed_stages"] = ["clarify", "plan", "quality-review"]
+    plan_ledger["completed_gates"] = ["clarification_complete", "plan_executable"]
+    _write_json(task_dir / "plan-ledger.json", plan_ledger)
+    _write_json(
+        task_dir / "review-report.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "review_type": "quality",
+            "verdict": "approved",
+            "findings": ["looks fine"],
+            "approved_by": "quality-reviewer",
+            "next_action": "finalize 가능",
+        },
+    )
+
+    with pytest.raises(RuntimeViolation, match="plan-ledger checkpoint has out-of-sequence completed stages at execute: quality-review"):
+        run_route(task_dir=task_dir, policy=policy, route_name="medium")
+
+
 def test_run_route_resumes_from_existing_checkpoint(tmp_path: Path) -> None:
     policy = load_runtime_policy(ROOT)
     task_dir = _make_task_dir(tmp_path)
