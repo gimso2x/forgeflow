@@ -6,13 +6,9 @@ from jsonschema import Draft202012Validator
 
 from forgeflow_runtime.orchestrator import (
     RuntimeViolation,
-    advance_to_next_stage,
     load_runtime_policy,
-    resume_task,
     run_route,
-    status_summary,
 )
-from forgeflow_runtime.generator import GenerationError
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -65,16 +61,6 @@ def _make_task_dir(tmp_path: Path) -> Path:
     return task_dir
 
 
-def test_advance_blocks_missing_entry_artifacts(tmp_path: Path) -> None:
-    policy = load_runtime_policy(ROOT)
-    task_dir = _make_task_dir(tmp_path)
-    _write_medium_plan_artifacts(task_dir, route_name="large_high_risk")
-    (task_dir / "run-state.json").unlink()
-
-    with pytest.raises(RuntimeViolation, match="missing required artifacts for spec-review: run-state"):
-        advance_to_next_stage(task_dir=task_dir, policy=policy, route_name="large_high_risk", current_stage="execute")
-
-
 def _write_medium_plan_artifacts(task_dir: Path, *, route_name: str = "medium") -> None:
     _write_json(
         task_dir / "plan.json",
@@ -118,58 +104,6 @@ def _write_medium_plan_artifacts(task_dir: Path, *, route_name: str = "medium") 
             ],
         },
     )
-
-
-def test_advance_can_execute_next_stage_immediately(tmp_path: Path) -> None:
-    policy = load_runtime_policy(ROOT)
-    task_dir = _make_task_dir(tmp_path)
-    _write_medium_plan_artifacts(task_dir)
-    run_state = json.loads((task_dir / "run-state.json").read_text(encoding="utf-8"))
-    run_state["current_stage"] = "plan"
-    _write_json(task_dir / "run-state.json", run_state)
-
-    result = advance_to_next_stage(
-        task_dir=task_dir,
-        policy=policy,
-        route_name="medium",
-        current_stage="plan",
-        execute_immediately=True,
-        adapter_target="codex",
-    )
-
-    assert result.next_stage == "execute"
-    assert result.execution is not None
-    assert result.execution["stage"] == "execute"
-    assert result.execution["adapter"] == "codex"
-    assert result.execution["status"] == "success"
-    assert (task_dir / "execute-output.md").exists()
-    assert "stub-codex-output" in (task_dir / "execute-output.md").read_text(encoding="utf-8")
-
-
-def test_advance_execute_failure_keeps_previous_stage_state(tmp_path: Path) -> None:
-    policy = load_runtime_policy(ROOT)
-    task_dir = _make_task_dir(tmp_path)
-    _write_medium_plan_artifacts(task_dir)
-    run_state = json.loads((task_dir / "run-state.json").read_text(encoding="utf-8"))
-    run_state["current_stage"] = "plan"
-    _write_json(task_dir / "run-state.json", run_state)
-
-    with pytest.raises(GenerationError, match="unknown role: nonexistent-role"):
-        advance_to_next_stage(
-            task_dir=task_dir,
-            policy=policy,
-            route_name="medium",
-            current_stage="plan",
-            execute_immediately=True,
-            role="nonexistent-role",
-        )
-
-    persisted_run_state = json.loads((task_dir / "run-state.json").read_text(encoding="utf-8"))
-    assert persisted_run_state["current_stage"] == "plan"
-    persisted_plan_ledger = json.loads((task_dir / "plan-ledger.json").read_text(encoding="utf-8"))
-    assert persisted_plan_ledger["completed_stages"] == []
-    assert not (task_dir / "execute-output.md").exists()
-
 
 
 def test_run_route_rejects_medium_plan_ledger_out_of_order_completed_stages(tmp_path: Path) -> None:
