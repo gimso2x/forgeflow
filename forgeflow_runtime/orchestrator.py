@@ -9,6 +9,7 @@ from typing import Any
 
 from jsonschema import Draft202012Validator
 
+from forgeflow_runtime.gate_evaluation import required_finalize_flags
 from forgeflow_runtime.policy_loader import RuntimePolicy, load_runtime_policy
 from forgeflow_runtime.resume_validation import (
     expected_gates_before_stage,
@@ -800,12 +801,7 @@ def _sync_review_flags(task_dir: Path, run_state: dict[str, Any], *, canonical_t
 
 def _required_finalize_flags(policy: RuntimePolicy, route_name: str) -> list[str]:
     route = _resolve_route(policy, route_name)
-    required = list(policy.finalize_flags)
-    if "spec-review" not in route and "spec_review_approved" in required:
-        required.remove("spec_review_approved")
-    if "quality-review" not in route and "quality_review_approved" in required:
-        required.remove("quality_review_approved")
-    return required
+    return required_finalize_flags(route, list(policy.finalize_flags))
 
 
 def _record_gate(
