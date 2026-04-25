@@ -11,11 +11,7 @@ from jsonschema import Draft202012Validator
 
 from forgeflow_runtime.gate_evaluation import record_completed_gate, required_finalize_flags
 from forgeflow_runtime.policy_loader import RuntimePolicy, load_runtime_policy
-from forgeflow_runtime.resume_validation import (
-    expected_gates_before_stage,
-    plan_ledger_progress,
-    resume_start_index,
-)
+from forgeflow_runtime.resume_validation import plan_ledger_progress, resume_start_index
 
 
 class RuntimeViolation(Exception):
@@ -815,26 +811,6 @@ def _record_gate(
         record_completed_gate(run_state, stage_name, stage_gate_map=stage_gate_map)
 
 
-def _expected_gates_before_stage(route: list[str], stage_name: str, *, stage_gate_map: dict[str, str]) -> list[str]:
-    return expected_gates_before_stage(route, stage_name, stage_gate_map=stage_gate_map)
-
-
-def _resume_start_index(
-    run_state: dict[str, Any],
-    route: list[str],
-    *,
-    stage_gate_map: dict[str, str],
-    plan_ledger: dict[str, Any] | None = None,
-) -> int:
-    return resume_start_index(
-        run_state,
-        route,
-        stage_gate_map=stage_gate_map,
-        violation_factory=RuntimeViolation,
-        plan_ledger=plan_ledger,
-    )
-
-
 def _matching_review_payload(
     task_dir: Path,
     expected_review_type: str,
@@ -1326,7 +1302,13 @@ def run_route(task_dir: Path, policy: RuntimePolicy, route_name: str) -> dict[st
             plan_ledger=plan_ledger,
         )
     resume_from_stage = run_state.get("current_stage")
-    start_index = _resume_start_index(run_state, route, stage_gate_map=policy.stage_gate_map, plan_ledger=plan_ledger)
+    start_index = resume_start_index(
+        run_state,
+        route,
+        stage_gate_map=policy.stage_gate_map,
+        violation_factory=RuntimeViolation,
+        plan_ledger=plan_ledger,
+    )
 
     if start_index >= len(route):
         _append_decision(
