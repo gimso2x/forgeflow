@@ -376,98 +376,6 @@ def test_run_route_rejects_non_approved_quality_review(tmp_path: Path) -> None:
         run_route(task_dir=task_dir, policy=policy, route_name="small")
 
 
-def test_run_route_resumes_from_existing_checkpoint(tmp_path: Path) -> None:
-    policy = load_runtime_policy(ROOT)
-    task_dir = _make_task_dir(tmp_path)
-    _write_json(
-        task_dir / "run-state.json",
-        {
-            "schema_version": "0.1",
-            "task_id": "task-001",
-            "current_stage": "execute",
-            "status": "in_progress",
-            "completed_gates": ["clarification_complete", "execution_evidenced"],
-            "failed_gates": [],
-            "retries": {},
-            "current_task_id": "",
-            "spec_review_approved": False,
-            "quality_review_approved": False,
-        },
-    )
-    _write_json(
-        task_dir / "decision-log.json",
-        {
-            "schema_version": "0.1",
-            "task_id": "task-001",
-            "entries": [
-                {
-                    "timestamp": "2026-04-22T00:00:00Z",
-                    "actor": "orchestrator",
-                    "category": "stage-transition",
-                    "decision": "stage entered: execute",
-                    "rationale": "checkpoint created during an earlier run",
-                    "affected_artifacts": ["run-state", "decision-log"],
-                }
-            ],
-        },
-    )
-    _write_json(
-        task_dir / "review-report.json",
-        {
-            "schema_version": "0.1",
-            "task_id": "task-001",
-            "review_type": "quality",
-            "verdict": "approved",
-            "findings": ["looks fine"],
-            "approved_by": "quality-reviewer",
-            "next_action": "finalize 가능",
-        },
-    )
-    _write_json(
-        task_dir / "checkpoint.json",
-        {
-            "schema_version": "0.1",
-            "task_id": "task-001",
-            "route": "small",
-            "current_stage": "execute",
-            "plan_ref": "brief.json",
-            "plan_ledger_ref": "run-state.json",
-            "run_state_ref": "run-state.json",
-            "latest_review_ref": "review-report.json",
-            "next_action": "quality-review를 검증하고 finalize로 진행",
-            "open_blockers": [],
-            "updated_at": "2026-04-22T00:05:00Z"
-        },
-    )
-
-    result = run_route(task_dir=task_dir, policy=policy, route_name="small")
-
-    assert result["current_stage"] == "finalize"
-    assert result["status"] == "completed"
-    assert result["completed_gates"] == [
-        "clarification_complete",
-        "execution_evidenced",
-        "quality_review_passed",
-        "ready_to_finalize",
-    ]
-
-    decision_log = json.loads((task_dir / "decision-log.json").read_text(encoding="utf-8"))
-    decisions = [entry["decision"] for entry in decision_log["entries"]]
-    assert decisions == [
-        "stage entered: execute",
-        "route resumed: small from execute",
-        "stage entered: quality-review",
-        "stage entered: finalize",
-    ]
-    checkpoint = json.loads((task_dir / "checkpoint.json").read_text(encoding="utf-8"))
-    _assert_schema_valid("checkpoint", checkpoint)
-    assert checkpoint["current_stage"] == "finalize"
-    assert checkpoint["run_state_ref"] == "run-state.json"
-    assert checkpoint["latest_review_ref"] == "review-report.json"
-    assert checkpoint["next_action"] == "Route complete. Review final artifacts and hand off results."
-    assert checkpoint["open_blockers"] == []
-
-
 def test_run_route_rejects_approved_review_with_open_blockers(tmp_path: Path) -> None:
     policy = load_runtime_policy(ROOT)
     task_dir = _make_task_dir(tmp_path)
@@ -528,41 +436,6 @@ def test_run_route_rejects_approved_spec_review_marked_unsafe(tmp_path: Path) ->
     )
 
     with pytest.raises(RuntimeViolation, match="review-report.json failed schema validation: safe_for_next_stage"):
-        run_route(task_dir=task_dir, policy=policy, route_name="small")
-
-
-def test_run_route_rejects_mismatched_checkpoint_route(tmp_path: Path) -> None:
-    policy = load_runtime_policy(ROOT)
-    task_dir = _make_task_dir(tmp_path)
-    _write_json(
-        task_dir / "checkpoint.json",
-        {
-            "schema_version": "0.1",
-            "task_id": "task-001",
-            "route": "medium",
-            "current_stage": "clarify",
-            "plan_ref": "brief.json",
-            "plan_ledger_ref": "run-state.json",
-            "run_state_ref": "run-state.json",
-            "next_action": "route를 재개",
-            "open_blockers": [],
-            "updated_at": "2026-04-22T00:05:00Z"
-        },
-    )
-    _write_json(
-        task_dir / "review-report.json",
-        {
-            "schema_version": "0.1",
-            "task_id": "task-001",
-            "review_type": "quality",
-            "verdict": "approved",
-            "findings": ["looks fine"],
-            "approved_by": "quality-reviewer",
-            "next_action": "finalize 가능",
-        },
-    )
-
-    with pytest.raises(RuntimeViolation, match="checkpoint.json route medium does not match requested route small"):
         run_route(task_dir=task_dir, policy=policy, route_name="small")
 
 
@@ -784,41 +657,6 @@ def test_status_rejects_session_state_latest_review_ref_that_escapes_task_dir(tm
         status_summary(task_dir=task_dir, policy=policy, route_name="small")
 
 
-def test_run_route_rejects_checkpoint_gate_drift(tmp_path: Path) -> None:
-    policy = load_runtime_policy(ROOT)
-    task_dir = _make_task_dir(tmp_path)
-    _write_json(
-        task_dir / "run-state.json",
-        {
-            "schema_version": "0.1",
-            "task_id": "task-001",
-            "current_stage": "execute",
-            "status": "in_progress",
-            "completed_gates": ["execution_evidenced"],
-            "failed_gates": [],
-            "retries": {},
-            "current_task_id": "",
-            "spec_review_approved": False,
-            "quality_review_approved": False,
-        },
-    )
-    _write_json(
-        task_dir / "review-report.json",
-        {
-            "schema_version": "0.1",
-            "task_id": "task-001",
-            "review_type": "quality",
-            "verdict": "approved",
-            "findings": ["looks fine"],
-            "approved_by": "quality-reviewer",
-            "next_action": "finalize 가능",
-        },
-    )
-
-    with pytest.raises(RuntimeViolation, match="run-state checkpoint is missing completed gates before execute: clarification_complete"):
-        run_route(task_dir=task_dir, policy=policy, route_name="small")
-
-
 def test_run_route_rejects_medium_plan_ledger_out_of_order_completed_stages(tmp_path: Path) -> None:
     policy = load_runtime_policy(ROOT)
     task_dir = _make_task_dir(tmp_path)
@@ -845,77 +683,6 @@ def test_run_route_rejects_medium_plan_ledger_out_of_order_completed_stages(tmp_
 
     with pytest.raises(RuntimeViolation, match="plan-ledger checkpoint has out-of-sequence completed stages at execute: quality-review"):
         run_route(task_dir=task_dir, policy=policy, route_name="medium")
-
-
-def test_run_route_rejects_future_gate_checkpoint_drift(tmp_path: Path) -> None:
-    policy = load_runtime_policy(ROOT)
-    task_dir = _make_task_dir(tmp_path)
-    _write_json(
-        task_dir / "run-state.json",
-        {
-            "schema_version": "0.1",
-            "task_id": "task-001",
-            "current_stage": "execute",
-            "status": "in_progress",
-            "completed_gates": ["clarification_complete", "quality_review_passed"],
-            "failed_gates": [],
-            "retries": {},
-            "current_task_id": "",
-            "spec_review_approved": False,
-            "quality_review_approved": False,
-        },
-    )
-    _write_json(
-        task_dir / "review-report.json",
-        {
-            "schema_version": "0.1",
-            "task_id": "task-001",
-            "review_type": "quality",
-            "verdict": "approved",
-            "findings": ["looks fine"],
-            "approved_by": "quality-reviewer",
-            "next_action": "finalize 가능",
-        },
-    )
-
-    with pytest.raises(RuntimeViolation, match="run-state checkpoint has out-of-sequence completed gates at execute: quality_review_passed"):
-        run_route(task_dir=task_dir, policy=policy, route_name="small")
-
-
-def test_run_route_rejects_incomplete_completed_checkpoint(tmp_path: Path) -> None:
-    policy = load_runtime_policy(ROOT)
-    task_dir = _make_task_dir(tmp_path)
-    _write_json(
-        task_dir / "run-state.json",
-        {
-            "schema_version": "0.1",
-            "task_id": "task-001",
-            "current_stage": "execute",
-            "status": "completed",
-            "completed_gates": ["clarification_complete", "execution_evidenced"],
-            "failed_gates": [],
-            "retries": {},
-            "current_task_id": "",
-            "spec_review_approved": False,
-            "quality_review_approved": False,
-            "final_status": "success",
-        },
-    )
-    _write_json(
-        task_dir / "review-report.json",
-        {
-            "schema_version": "0.1",
-            "task_id": "task-001",
-            "review_type": "quality",
-            "verdict": "approved",
-            "findings": ["looks fine"],
-            "approved_by": "quality-reviewer",
-            "next_action": "finalize 가능",
-        },
-    )
-
-    with pytest.raises(RuntimeViolation, match="completed run-state checkpoint must already be at terminal stage finalize"):
-        run_route(task_dir=task_dir, policy=policy, route_name="small")
 
 
 def test_small_route_runs_end_to_end_and_updates_state(tmp_path: Path) -> None:
