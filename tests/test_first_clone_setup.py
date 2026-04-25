@@ -358,6 +358,20 @@ def test_engineering_discipline_plan_uses_repo_managed_help_target() -> None:
     assert "python3 scripts/run_orchestrator.py run --help" not in verification_section
 
 
+def test_claude_hook_recovery_plan_uses_repo_managed_validation_target() -> None:
+    makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
+    plan = (ROOT / "docs/plans/2026-04-24-claude-hook-recovery.md").read_text(encoding="utf-8")
+    verification_section = plan.split("**Verification:**", 1)[1].split("**Exit condition:**", 1)[0]
+
+    assert "validate-claude-hooks:" in makefile
+    assert "$(VENV_PYTHON) scripts/validate_claude_hooks.py" in makefile
+    verification_lines = verification_section.splitlines()
+    assert "make validate-claude-hooks" in verification_lines
+    assert "make validate" in verification_lines
+    assert verification_lines.index("make validate-claude-hooks") < verification_lines.index("make validate")
+    assert "python3 scripts/validate_claude_hooks.py" not in verification_section
+
+
 def test_ci_validation_job_creates_venv_before_make_validate() -> None:
     workflow = (ROOT / ".github/workflows/validate.yml").read_text(encoding="utf-8")
     repo_validation_job = workflow.split("  repo-validation:", 1)[1].split("  generated-drift:", 1)[0]
