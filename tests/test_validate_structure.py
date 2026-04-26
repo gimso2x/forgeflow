@@ -128,6 +128,18 @@ def test_contract_map_names_schema_version_migration_seam() -> None:
         assert required_text in contract_map
 
 
+def test_contract_map_names_script_runtime_boundary() -> None:
+    contract_map = (ROOT / "docs" / "contract-map.md").read_text(encoding="utf-8")
+
+    for required_text in [
+        "Script/runtime boundary",
+        "`scripts/*.py`",
+        "Thin command-line and validation entrypoints",
+        "reusable behavior lives in `forgeflow_runtime/`",
+    ]:
+        assert required_text in contract_map
+
+
 def test_contract_map_names_evolution_runtime_seams() -> None:
     contract_map = (ROOT / "docs" / "contract-map.md").read_text(encoding="utf-8")
 
