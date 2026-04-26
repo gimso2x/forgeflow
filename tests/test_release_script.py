@@ -20,6 +20,14 @@ def run_release(*args: str) -> subprocess.CompletedProcess[str]:
     )
 
 
+def load_release_script():
+    spec = importlib.util.spec_from_file_location("release_script", SCRIPT)
+    assert spec and spec.loader
+    release_script = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(release_script)
+    return release_script
+
+
 def test_release_script_dry_run_prints_ordered_checks_without_mutating_versions():
     before_plugin = json.loads(PLUGIN.read_text())
     before_marketplace = json.loads(MARKETPLACE.read_text())
@@ -71,10 +79,7 @@ def test_release_script_can_update_versions_only_and_write_release_notes(tmp_pat
 
 
 def test_release_script_declares_supported_plugin_manifests_once():
-    spec = importlib.util.spec_from_file_location("release_script", SCRIPT)
-    assert spec and spec.loader
-    release_script = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(release_script)
+    release_script = load_release_script()
 
     paths = [str(path.relative_to(ROOT)) for path in release_script.SUPPORTED_PLUGIN_MANIFESTS]
 
@@ -82,10 +87,7 @@ def test_release_script_declares_supported_plugin_manifests_once():
 
 
 def test_release_script_stages_only_supported_plugin_manifests():
-    spec = importlib.util.spec_from_file_location("release_script", SCRIPT)
-    assert spec and spec.loader
-    release_script = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(release_script)
+    release_script = load_release_script()
 
     paths = release_script.release_files_to_stage()
 
@@ -110,10 +112,7 @@ def test_release_script_rejects_preexisting_staged_changes(tmp_path):
 
 
 def test_release_script_stages_relative_notes_out_path(tmp_path):
-    spec = importlib.util.spec_from_file_location("release_script", SCRIPT)
-    assert spec and spec.loader
-    release_script = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(release_script)
+    release_script = load_release_script()
 
     paths = release_script.release_files_to_stage(Path("release-notes-test.md"))
 
