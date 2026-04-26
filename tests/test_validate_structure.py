@@ -219,18 +219,35 @@ def test_contract_map_adapter_source_and_generated_paths_exist() -> None:
         assert (ROOT / rel).is_dir()
 
 
-def test_script_thinness_keeps_operator_route_logic_out_of_cli_wrapper() -> None:
-    script = ROOT / "scripts" / "run_orchestrator.py"
-    tree = ast.parse(script.read_text(encoding="utf-8"))
+def _module_assigned_names(path: Path) -> set[str]:
+    tree = ast.parse(path.read_text(encoding="utf-8"))
     assigned_names = set()
     for node in tree.body:
         if isinstance(node, ast.AnnAssign) and isinstance(node.target, ast.Name):
             assigned_names.add(node.target.id)
         elif isinstance(node, ast.Assign):
             assigned_names.update(target.id for target in node.targets if isinstance(target, ast.Name))
+    return assigned_names
+
+
+def test_script_thinness_keeps_operator_route_logic_out_of_cli_wrapper() -> None:
+    assigned_names = _module_assigned_names(ROOT / "scripts" / "run_orchestrator.py")
 
     assert "operator route selection" in (ROOT / "docs" / "contract-map.md").read_text(encoding="utf-8")
     assert not {"STAGE_ROLE_MAP", "ROUTE_ORDER", "RISK_TO_ROUTE"} & assigned_names
+
+
+def test_script_thinness_keeps_evolution_policy_logic_out_of_cli_wrapper() -> None:
+    assigned_names = _module_assigned_names(ROOT / "scripts" / "forgeflow_evolution.py")
+
+    assert "project-local evolution policy logic" in (ROOT / "docs" / "contract-map.md").read_text(encoding="utf-8")
+    assert not {
+        "PROJECT_RULE_DIR",
+        "RETIRED_RULE_DIR",
+        "HARD_GATE_REQUIRES",
+        "APPROVED_COMMANDS",
+        "APPROVED_COMMAND_IDS",
+    } & assigned_names
 
 
 def test_make_validate_runs_runtime_seam_tests() -> None:
