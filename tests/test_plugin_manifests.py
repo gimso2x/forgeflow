@@ -135,6 +135,30 @@ def test_plugin_version_check_reports_marketplace_name_drift():
     ]
 
 
+def test_plugin_version_check_reports_unsupported_cursor_manifest_keyword():
+    checker = _load_script("check_plugin_versions")
+    manifests = {
+        Path(".claude-plugin/plugin.json"): {
+            "name": "forgeflow",
+            "version": "0.1.16",
+            "repository": "https://github.com/gimso2x/forgeflow",
+            "license": "MIT",
+            "keywords": ["Cursor"],
+        },
+        Path(".codex-plugin/plugin.json"): {
+            "name": "forgeflow",
+            "version": "0.1.16",
+            "repository": "https://github.com/gimso2x/forgeflow",
+            "license": "MIT",
+        },
+    }
+    marketplace = {"name": "forgeflow", "metadata": {"version": "0.1.16"}, "plugins": [{"name": "forgeflow"}]}
+
+    errors = checker.plugin_metadata_errors(manifests, marketplace)
+
+    assert errors == [".claude-plugin/plugin.json: keywords includes unsupported 'cursor'"]
+
+
 def test_plugin_version_check_reports_unsupported_cursor_marketplace_tag():
     checker = _load_script("check_plugin_versions")
     manifests = {
@@ -154,7 +178,7 @@ def test_plugin_version_check_reports_unsupported_cursor_marketplace_tag():
     marketplace = {
         "name": "forgeflow",
         "metadata": {"version": "0.1.16"},
-        "plugins": [{"name": "forgeflow", "tags": ["codex", "cursor"]}],
+        "plugins": [{"name": "forgeflow", "tags": ["codex", "Cursor"]}],
     }
 
     errors = checker.plugin_metadata_errors(manifests, marketplace)

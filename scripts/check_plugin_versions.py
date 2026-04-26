@@ -34,6 +34,10 @@ def supported_manifest_errors(paths: list[Path]) -> list[str]:
     return [f"{_display_path(path)}: supported plugin manifest is missing" for path in paths if not path.exists()]
 
 
+def _contains_unsupported_cursor(values: object) -> bool:
+    return any(str(value).lower() == "cursor" for value in values) if isinstance(values, list) else False
+
+
 def plugin_metadata_errors(manifests: dict[Path, dict], marketplace: dict) -> list[str]:
     claude = manifests[CLAUDE_PLUGIN] if CLAUDE_PLUGIN in manifests else manifests[Path(".claude-plugin/plugin.json")]
     expected_name = claude["name"]
@@ -55,6 +59,8 @@ def plugin_metadata_errors(manifests: dict[Path, dict], marketplace: dict) -> li
             errors.append(f"{rel}: repository {manifest.get('repository')!r} != {expected_repository!r}")
         if manifest.get("license") != expected_license:
             errors.append(f"{rel}: license {manifest.get('license')!r} != {expected_license!r}")
+        if _contains_unsupported_cursor(manifest.get("keywords", [])):
+            errors.append(f"{rel}: keywords includes unsupported 'cursor'")
 
     marketplace_rel = _display_path(MARKETPLACE)
     marketplace_name = marketplace.get("name")
@@ -64,7 +70,7 @@ def plugin_metadata_errors(manifests: dict[Path, dict], marketplace: dict) -> li
         plugin_name = plugin.get("name")
         if plugin_name != expected_name:
             errors.append(f"{marketplace_rel}: plugins[{index}].name {plugin_name!r} != {expected_name!r}")
-        if "cursor" in plugin.get("tags", []):
+        if _contains_unsupported_cursor(plugin.get("tags", [])):
             errors.append(f"{marketplace_rel}: plugins[{index}].tags includes unsupported 'cursor'")
 
     marketplace_version = marketplace.get("metadata", {}).get("version")
