@@ -87,18 +87,30 @@ Example exact-count response must be plain text lines, not a fenced block:
 
 No heading. No preamble. No code fence. No third line.
 
+## Evidence discipline
+
+Review evidence is not fan fiction.
+
+- Claim only what you directly observed in this review turn or what is explicitly present in provided artifacts.
+- If a worker, previous assistant, or user says a command passed, cite it as reported evidence unless you personally ran or inspected the command output in this turn.
+- Do not say lint/build/tests/dev-server/runtime verification passed unless you ran the command or inspected the concrete captured output.
+- If verification is missing, blocked, or only reported second-hand, mark it as missing or reported; do not convert it into approval-grade evidence.
+- `evidence_refs` must name concrete files, command outputs, diffs, or user-provided artifacts. Avoid vague refs like "verified behavior".
+- When command execution is disallowed, use manual inspection language only: "not run", "manual inspection", "requires verification".
+
 ## Procedure
 
 1. Review from artifacts and code, not worker vibes.
 2. Check scope coverage and acceptance criteria.
 3. Run or inspect verification only if the user allowed command execution.
-4. For quality review, apply discipline heuristics without creating a separate stage:
+4. Separate observed evidence from reported or missing evidence before choosing a verdict.
+5. For quality review, apply discipline heuristics without creating a separate stage:
    - Was the change the smallest safe change that satisfies the request?
    - Did the implementation follow existing codebase patterns instead of inventing a new local religion?
    - Were assumptions about types, APIs, behavior, and test coverage verified against actual files?
    - If performance was touched, was the bottleneck measured before and after the change?
-5. Classify findings: critical, major, minor, info.
-6. Return a clear verdict unless the user asked for a narrower output.
+6. Classify findings: critical, major, minor, info.
+7. Return a clear verdict unless the user asked for a narrower output.
 
 Do not merge spec-review and quality-review for large/high-risk work.
 

@@ -56,6 +56,8 @@ If writing is allowed, write only under the current project workspace or the exp
 
 When the user asks for an exact count, exact format, or "only" output, that instruction overrides the normal artifact template. Return exactly what was requested and nothing extra.
 
+If the user asks for a label-only route selection (for example "Return only the selected route label", "label only", or "route label only"), output exactly one of `small`, `medium`, or `large_high_risk`. Do not add route rationale, headings, JSON, Markdown, or even a friendly sentence. One token-ish label. That's it.
+
 Bad: adding verdicts, JSON artifacts, rationale sections, or extra warnings after the requested list.
 Good: if asked for exactly two checks, return exactly two checks.
 
@@ -66,12 +68,12 @@ When the user says "do not run commands", do not propose command execution as if
 1. Inspect relevant repo context before inventing scope.
 2. Ask at most 2 clarifying questions, and only for true blockers. Ask 0 if the request is already actionable.
 3. Score complexity:
-   - 5-8: `small`
-   - 9-12: `medium`
-   - 13-15: `large_high_risk`
-4. State the route and why.
-5. Produce the brief in a structured form the next skill can consume.
-6. If the request is actionable, treat listed open questions as bounded assumptions and make the next stage obvious without asking the user to do your planning work.
+   - 5-8: `small` — one localized change, usually 1-2 files, low ambiguity, no cross-cutting behavior.
+   - 9-12: `medium` — several coordinated files/components, shared state/layout/navigation, moderate test/update surface, but no security/data migration/infra rollback risk.
+   - 13-15: `large_high_risk` — auth/security, data migration, payments, production infra, irreversible data changes, broad architecture migration, or many contracts/journeys requiring separate spec and quality review.
+4. State the route and why, unless an exact-output/label-only instruction applies.
+5. Produce the brief in a structured form the next skill can consume, unless an exact-output/label-only instruction applies.
+6. If the request is actionable, treat listed open questions as bounded assumptions and make the next stage obvious without asking the user to do your planning work, unless an exact-output/label-only instruction applies.
 
 Do not implement here. Clarify is the intake gate, not the coding phase.
 
