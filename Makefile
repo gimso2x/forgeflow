@@ -15,6 +15,7 @@ check-env:
 	$(VENV_PYTHON) scripts/check_environment.py
 
 validate:
+	$(VENV_PYTHON) scripts/check_plugin_versions.py
 	$(VENV_PYTHON) scripts/validate_structure.py
 	$(VENV_PYTHON) scripts/validate_policy.py
 	$(VENV_PYTHON) scripts/validate_generated.py

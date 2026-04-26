@@ -1,4 +1,6 @@
 import json
+import subprocess
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -35,6 +37,18 @@ def test_supported_plugin_metadata_does_not_advertise_cursor_plugin_support():
         assert "cursor" not in manifest["keywords"]
     for plugin in marketplace["plugins"]:
         assert "cursor" not in plugin.get("tags", [])
+
+
+def test_plugin_version_check_script_fails_fast_before_release():
+    result = subprocess.run(
+        [sys.executable, "scripts/check_plugin_versions.py"],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert "plugin versions synchronized: 0.1.16" in result.stdout
 
 
 def test_codex_manifest_declares_skills_and_interface_metadata():
