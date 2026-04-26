@@ -111,6 +111,8 @@ def test_contract_map_names_runtime_seam_boundaries() -> None:
         "`forgeflow_runtime/artifact_validation.py`",
         "`forgeflow_runtime/task_identity.py`",
         "`forgeflow_runtime/plan_ledger.py`",
+        "`forgeflow_runtime/stage_transition.py`",
+        "`forgeflow_runtime/route_execution.py`",
         "python -m pytest tests/runtime -q",
     ]:
         assert required_text in contract_map
