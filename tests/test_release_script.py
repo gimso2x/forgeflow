@@ -30,11 +30,12 @@ def test_release_script_dry_run_prints_ordered_checks_without_mutating_versions(
     assert "Release plan for v0.1.14" in result.stdout
     assert "1. update plugin manifests version to 0.1.14" in result.stdout
     assert "2. update .claude-plugin/marketplace.json metadata.version to 0.1.14" in result.stdout
-    assert "3. run pytest -q" in result.stdout
-    assert "4. run make validate" in result.stdout
-    assert "5. run make smoke-claude-plugin" in result.stdout
-    assert "6. create git commit: chore: release v0.1.14" in result.stdout
-    assert "7. create annotated tag: v0.1.14" in result.stdout
+    assert "3. run scripts/check_plugin_versions.py" in result.stdout
+    assert "4. run pytest -q" in result.stdout
+    assert "5. run make validate" in result.stdout
+    assert "6. run make smoke-claude-plugin" in result.stdout
+    assert "7. create git commit: chore: release v0.1.14" in result.stdout
+    assert "8. create annotated tag: v0.1.14" in result.stdout
     assert "git commit -am" not in SCRIPT.read_text(encoding="utf-8")
     assert json.loads(PLUGIN.read_text()) == before_plugin
     assert json.loads(MARKETPLACE.read_text()) == before_marketplace

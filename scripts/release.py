@@ -59,6 +59,7 @@ def release_notes(version: str) -> str:
     return f"""## {tag}
 
 Verification checklist:
+- `python scripts/check_plugin_versions.py`
 - `pytest -q`
 - `make validate`
 - `make smoke-claude-plugin`
@@ -110,12 +111,13 @@ def release_plan(version: str) -> str:
             f"Release plan for {tag}",
             f"1. update plugin manifests version to {version}",
             f"2. update .claude-plugin/marketplace.json metadata.version to {version}",
-            "3. run pytest -q",
-            "4. run make validate",
-            "5. run make smoke-claude-plugin",
-            f"6. create git commit: chore: release {tag}",
-            f"7. create annotated tag: {tag}",
-            f"8. push with: git push origin main {tag}",
+            "3. run scripts/check_plugin_versions.py",
+            "4. run pytest -q",
+            "5. run make validate",
+            "6. run make smoke-claude-plugin",
+            f"7. create git commit: chore: release {tag}",
+            f"8. create annotated tag: {tag}",
+            f"9. push with: git push origin main {tag}",
         ]
     )
 
@@ -151,6 +153,7 @@ def main() -> int:
         return 0
 
     if not args.skip_checks:
+        run([sys.executable, "scripts/check_plugin_versions.py"])
         run([sys.executable, "-m", "pytest", "-q"])
         run(["make", "validate"])
         run(["make", "smoke-claude-plugin"])
