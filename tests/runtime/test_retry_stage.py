@@ -7,31 +7,6 @@ import pytest
 from forgeflow_runtime.orchestrator import RuntimeViolation, retry_stage
 
 
-def _write_medium_plan_ledger(task_dir: Path, write_json: Callable[[Path, dict], None]) -> None:
-    write_json(
-        task_dir / "plan-ledger.json",
-        {
-            "schema_version": "0.1",
-            "task_id": "task-001",
-            "route": "medium",
-            "current_task_id": "task-1",
-            "tasks": [
-                {
-                    "id": "task-1",
-                    "title": "execute bounded refactor",
-                    "depends_on": [],
-                    "files": ["run-state.json"],
-                    "parallel_safe": False,
-                    "status": "in_progress",
-                    "required_gates": ["machine", "validator"],
-                    "evidence_refs": [],
-                    "attempt_count": 0,
-                }
-            ],
-        },
-    )
-
-
 def _write_retry_checkpoint(
     task_dir: Path,
     write_json: Callable[[Path, dict], None],
@@ -82,11 +57,12 @@ def test_retry_is_bounded(
 def test_retry_stage_preserves_medium_route_checkpoint(
     tmp_path: Path,
     make_task_dir: Callable[[Path], Path],
+    medium_plan_artifacts: Callable[..., None],
     write_json: Callable[[Path, dict], None],
     assert_schema_valid: Callable[[str, dict], None],
 ) -> None:
     task_dir = make_task_dir(tmp_path)
-    _write_medium_plan_ledger(task_dir, write_json)
+    medium_plan_artifacts(task_dir)
     _write_retry_checkpoint(task_dir, write_json)
 
     state = retry_stage(task_dir=task_dir, stage_name="execute", max_retries=2)
@@ -103,10 +79,11 @@ def test_retry_stage_preserves_medium_route_checkpoint(
 def test_retry_stage_rejects_checkpoint_route_drift_against_plan_ledger(
     tmp_path: Path,
     make_task_dir: Callable[[Path], Path],
+    medium_plan_artifacts: Callable[..., None],
     write_json: Callable[[Path, dict], None],
 ) -> None:
     task_dir = make_task_dir(tmp_path)
-    _write_medium_plan_ledger(task_dir, write_json)
+    medium_plan_artifacts(task_dir)
     _write_retry_checkpoint(task_dir, write_json, route="small")
 
     with pytest.raises(RuntimeViolation, match="checkpoint.json route small does not match canonical route medium"):
