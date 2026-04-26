@@ -135,6 +135,38 @@ def test_plugin_version_check_reports_marketplace_name_drift():
     ]
 
 
+def test_plugin_version_check_reports_marketplace_owner_url_drift():
+    checker = _load_script("check_plugin_versions")
+    manifests = {
+        Path(".claude-plugin/plugin.json"): {
+            "name": "forgeflow",
+            "version": "0.1.16",
+            "author": {"name": "gimso2x", "url": "https://github.com/gimso2x"},
+            "repository": "https://github.com/gimso2x/forgeflow",
+            "license": "MIT",
+        },
+        Path(".codex-plugin/plugin.json"): {
+            "name": "forgeflow",
+            "version": "0.1.16",
+            "author": {"name": "gimso2x", "url": "https://github.com/gimso2x"},
+            "repository": "https://github.com/gimso2x/forgeflow",
+            "license": "MIT",
+        },
+    }
+    marketplace = {
+        "name": "forgeflow",
+        "owner": {"name": "gimso2x", "url": "https://example.invalid/stale"},
+        "metadata": {"version": "0.1.16"},
+        "plugins": [{"name": "forgeflow"}],
+    }
+
+    errors = checker.plugin_metadata_errors(manifests, marketplace)
+
+    assert errors == [
+        ".claude-plugin/marketplace.json: owner.url 'https://example.invalid/stale' != 'https://github.com/gimso2x'"
+    ]
+
+
 def test_plugin_version_check_reports_unsupported_cursor_manifest_keyword():
     checker = _load_script("check_plugin_versions")
     manifests = {

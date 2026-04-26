@@ -44,6 +44,7 @@ def plugin_metadata_errors(manifests: dict[Path, dict], marketplace: dict) -> li
     expected_version = claude["version"]
     expected_homepage = claude.get("homepage", claude["repository"])
     expected_repository = claude["repository"]
+    expected_owner_url = claude.get("author", {}).get("url")
     expected_license = claude["license"]
 
     errors: list[str] = []
@@ -66,6 +67,9 @@ def plugin_metadata_errors(manifests: dict[Path, dict], marketplace: dict) -> li
     marketplace_name = marketplace.get("name")
     if marketplace_name != expected_name:
         errors.append(f"{marketplace_rel}: name {marketplace_name!r} != {expected_name!r}")
+    marketplace_owner_url = marketplace.get("owner", {}).get("url")
+    if expected_owner_url and marketplace_owner_url != expected_owner_url:
+        errors.append(f"{marketplace_rel}: owner.url {marketplace_owner_url!r} != {expected_owner_url!r}")
     for index, plugin in enumerate(marketplace.get("plugins", [])):
         plugin_name = plugin.get("name")
         if plugin_name != expected_name:
