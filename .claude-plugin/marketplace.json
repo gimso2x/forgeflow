@@ -14,7 +14,15 @@
       "source": "./",
       "description": "Run agent work through clarify, plan, execute, review, and finalize with artifact-backed state instead of chat-memory vibes.",
       "category": "engineering",
-      "tags": ["ai-agents", "workflow", "harness", "review", "artifacts", "claude-code", "codex", "cursor"]
+      "tags": [
+        "ai-agents",
+        "workflow",
+        "harness",
+        "review",
+        "artifacts",
+        "claude-code",
+        "codex"
+      ]
     }
   ]
 }

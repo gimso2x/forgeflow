@@ -27,6 +27,16 @@ def test_cursor_plugin_manifest_is_not_supported():
     assert not (ROOT / ".cursor-plugin" / "plugin.json").exists()
 
 
+def test_supported_plugin_metadata_does_not_advertise_cursor_plugin_support():
+    marketplace = load(ROOT / ".claude-plugin" / "marketplace.json")
+    manifests = [load(CLAUDE), load(CODEX)]
+
+    for manifest in manifests:
+        assert "cursor" not in manifest["keywords"]
+    for plugin in marketplace["plugins"]:
+        assert "cursor" not in plugin.get("tags", [])
+
+
 def test_codex_manifest_declares_skills_and_interface_metadata():
     manifest = load(CODEX)
 

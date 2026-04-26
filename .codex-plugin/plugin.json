@@ -17,7 +17,6 @@
     "artifacts",
     "claude-code",
     "codex",
-    "cursor",
     "engineering-discipline"
   ],
   "skills": "./skills/",
