@@ -1,8 +1,8 @@
 import json
+from collections.abc import Callable
 from pathlib import Path
 
 import pytest
-from jsonschema import Draft202012Validator
 
 from forgeflow_runtime.orchestrator import (
     RuntimeViolation,
@@ -19,15 +19,6 @@ ROOT = Path(__file__).resolve().parents[2]
 
 def _write_json(path: Path, payload: dict) -> None:
     path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
-
-
-def _load_schema(name: str) -> dict:
-    return json.loads((ROOT / "schemas" / f"{name}.schema.json").read_text(encoding="utf-8"))
-
-
-def _assert_schema_valid(name: str, payload: dict) -> None:
-    errors = sorted(Draft202012Validator(_load_schema(name)).iter_errors(payload), key=lambda err: list(err.path))
-    assert not errors, [f"{list(err.path)}: {err.message}" for err in errors]
 
 
 def _make_task_dir(tmp_path: Path) -> Path:
@@ -137,7 +128,9 @@ def test_run_route_rejects_medium_plan_ledger_out_of_order_completed_stages(tmp_
         run_route(task_dir=task_dir, policy=policy, route_name="medium")
 
 
-def test_run_route_resumes_from_existing_checkpoint(tmp_path: Path) -> None:
+def test_run_route_resumes_from_existing_checkpoint(
+    tmp_path: Path, assert_schema_valid: Callable[[str, dict], None]
+) -> None:
     policy = load_runtime_policy(ROOT)
     task_dir = _make_task_dir(tmp_path)
     _write_json(
@@ -221,7 +214,7 @@ def test_run_route_resumes_from_existing_checkpoint(tmp_path: Path) -> None:
         "stage entered: finalize",
     ]
     checkpoint = json.loads((task_dir / "checkpoint.json").read_text(encoding="utf-8"))
-    _assert_schema_valid("checkpoint", checkpoint)
+    assert_schema_valid("checkpoint", checkpoint)
     assert checkpoint["current_stage"] == "finalize"
     assert checkpoint["run_state_ref"] == "run-state.json"
     assert checkpoint["latest_review_ref"] == "review-report.json"
