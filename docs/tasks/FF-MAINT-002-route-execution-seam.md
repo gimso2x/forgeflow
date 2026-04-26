@@ -1,7 +1,7 @@
 # FF-MAINT-002: Extract Route Execution Seam
 
 Priority: P0
-Status: Proposed
+Status: Landed in local review stack
 Type: behavior-preserving refactor
 Primary file: `forgeflow_runtime/orchestrator.py`
 Candidate new file: `forgeflow_runtime/route_execution.py`

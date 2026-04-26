@@ -1,7 +1,7 @@
 # FF-MAINT-003: Consolidate Runtime Test Fixtures Carefully
 
 Priority: P1
-Status: Proposed
+Status: Landed in local review stack
 Type: test maintainability
 Primary area: `tests/runtime/`
 Candidate file: `tests/runtime/conftest.py`

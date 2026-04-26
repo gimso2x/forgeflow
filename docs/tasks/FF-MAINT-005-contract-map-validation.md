@@ -1,7 +1,7 @@
 # FF-MAINT-005: Harden Contract Map Validation
 
 Priority: P1
-Status: Proposed
+Status: Landed in local review stack
 Type: docs/structure validation
 Primary file: `docs/contract-map.md`
 Candidate tests: `tests/test_validate_structure.py`, optionally `tests/test_contract_map.py`

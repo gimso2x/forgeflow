@@ -1,7 +1,7 @@
 # ForgeFlow Maintainability Task Backlog
 
 Date: 2026-04-26
-Status: Proposed
+Status: Landed in local review stack
 Scope: behavior-preserving maintainability hardening after runtime/evolution decomposition
 
 ## Verdict

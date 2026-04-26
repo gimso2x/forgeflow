@@ -1,7 +1,7 @@
 # FF-MAINT-001: Extract Stage Transition Seam
 
 Priority: P0
-Status: Proposed
+Status: Landed in local review stack
 Type: behavior-preserving refactor
 Primary file: `forgeflow_runtime/orchestrator.py`
 Candidate new file: `forgeflow_runtime/stage_transition.py`

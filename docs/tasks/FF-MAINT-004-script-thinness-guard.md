@@ -1,7 +1,7 @@
 # FF-MAINT-004: Add Script Thinness Guard
 
 Priority: P1
-Status: Proposed
+Status: Landed in local review stack
 Type: structure/contract validation
 Primary area: `scripts/*.py`, `forgeflow_runtime/*`
 
