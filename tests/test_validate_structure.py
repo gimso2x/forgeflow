@@ -203,6 +203,22 @@ def test_contract_map_validation_commands_reference_existing_paths() -> None:
         assert (ROOT / rel).exists()
 
 
+def test_contract_map_adapter_source_and_generated_paths_exist() -> None:
+    contract_map = (ROOT / "docs" / "contract-map.md").read_text(encoding="utf-8")
+
+    assert "Contract map validation checks adapter source and generated directories exist" in contract_map
+    for rel in [
+        "adapters/targets/claude",
+        "adapters/targets/codex",
+        "adapters/targets/cursor",
+        "adapters/generated/claude",
+        "adapters/generated/codex",
+        "adapters/generated/cursor",
+    ]:
+        assert f"`{rel}`" in contract_map
+        assert (ROOT / rel).is_dir()
+
+
 def test_script_thinness_keeps_operator_route_logic_out_of_cli_wrapper() -> None:
     script = ROOT / "scripts" / "run_orchestrator.py"
     tree = ast.parse(script.read_text(encoding="utf-8"))
