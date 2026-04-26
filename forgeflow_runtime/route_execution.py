@@ -36,3 +36,11 @@ def route_entry_decision(
 
 def route_iteration_stages(route: list[str], start_index: int) -> list[str]:
     return list(route[start_index:])
+
+
+def stage_completion_status(stage_name: str, *, existing_final_status: str | None) -> tuple[str, str | None]:
+    if stage_name == "finalize":
+        return "completed", "success"
+    if stage_name == "long-run":
+        return "completed", existing_final_status or "success"
+    return "in_progress", existing_final_status

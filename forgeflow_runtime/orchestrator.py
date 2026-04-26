@@ -37,7 +37,7 @@ from forgeflow_runtime.plan_ledger import (
 )
 from forgeflow_runtime.policy_loader import RuntimePolicy, load_runtime_policy
 from forgeflow_runtime.resume_validation import resume_start_index
-from forgeflow_runtime.route_execution import route_entry_decision, route_iteration_stages
+from forgeflow_runtime.route_execution import route_entry_decision, route_iteration_stages, stage_completion_status
 from forgeflow_runtime.stage_transition import next_stage_for_transition
 from forgeflow_runtime.task_identity import canonical_task_id as _canonical_task_id
 from forgeflow_runtime.task_identity import task_id as _task_id
@@ -1045,13 +1045,15 @@ def run_route(task_dir: Path, policy: RuntimePolicy, route_name: str) -> dict[st
                 raise RuntimeViolation(
                     f"finalize requires run-state approval flags: {', '.join(missing_flags)}"
                 )
-            run_state["status"] = "completed"
-            run_state["final_status"] = "success"
-            _finalize_plan_ledger_task(plan_ledger)
 
-        if stage_name == "long-run":
-            run_state["status"] = "completed"
-            run_state["final_status"] = run_state.get("final_status", "success")
+        status, final_status = stage_completion_status(
+            stage_name,
+            existing_final_status=run_state.get("final_status"),
+        )
+        run_state["status"] = status
+        if final_status is not None:
+            run_state["final_status"] = final_status
+        if stage_name in {"finalize", "long-run"}:
             _finalize_plan_ledger_task(plan_ledger)
 
         _append_decision(
