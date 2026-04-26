@@ -142,6 +142,7 @@ def test_contract_map_names_script_runtime_boundary() -> None:
         "High-risk CLI wrappers",
         "`scripts/run_orchestrator.py`",
         "`scripts/forgeflow_evolution.py`",
+        "Contract map validation checks high-risk CLI wrappers stay thin",
     ]:
         assert required_text in contract_map
 

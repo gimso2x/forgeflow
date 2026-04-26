@@ -29,4 +29,5 @@ ForgeFlow keeps behavior stable by treating a small set of files and commands as
 - Contract map validation checks named runtime seam files exist, so seam docs cannot silently point at missing modules.
 - Contract map validation checks named validation command paths exist, so command examples cannot silently rot into missing scripts or test paths.
 - Contract map validation checks adapter source and generated directories exist, so adapter boundary docs cannot drift away from supported Claude, Codex, and Cursor surfaces.
+- Contract map validation checks high-risk CLI wrappers stay thin, so script/runtime boundary drift is caught before policy logic settles in scripts.
 - If a README example names a command, prefer a Make target or repo-managed script path that CI can exercise.
