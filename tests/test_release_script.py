@@ -69,6 +69,17 @@ def test_release_script_can_update_versions_only_and_write_release_notes(tmp_pat
         CODEX.write_text(original_codex)
 
 
+def test_release_script_declares_supported_plugin_manifests_once():
+    spec = importlib.util.spec_from_file_location("release_script", SCRIPT)
+    assert spec and spec.loader
+    release_script = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(release_script)
+
+    paths = [str(path.relative_to(ROOT)) for path in release_script.SUPPORTED_PLUGIN_MANIFESTS]
+
+    assert paths == [".claude-plugin/plugin.json", ".codex-plugin/plugin.json"]
+
+
 def test_release_script_stages_only_supported_plugin_manifests():
     spec = importlib.util.spec_from_file_location("release_script", SCRIPT)
     assert spec and spec.loader
