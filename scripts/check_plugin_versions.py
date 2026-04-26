@@ -35,7 +35,7 @@ def supported_manifest_errors(paths: list[Path]) -> list[str]:
 
 
 def _contains_unsupported_cursor(values: object) -> bool:
-    return any(str(value).lower() == "cursor" for value in values) if isinstance(values, list) else False
+    return any(str(value).strip().lower() == "cursor" for value in values) if isinstance(values, list) else False
 
 
 def plugin_metadata_errors(manifests: dict[Path, dict], marketplace: dict) -> list[str]:
