@@ -37,6 +37,7 @@ from forgeflow_runtime.plan_ledger import (
 )
 from forgeflow_runtime.policy_loader import RuntimePolicy, load_runtime_policy
 from forgeflow_runtime.resume_validation import resume_start_index
+from forgeflow_runtime.stage_transition import next_stage_for_transition
 from forgeflow_runtime.task_identity import canonical_task_id as _canonical_task_id
 from forgeflow_runtime.task_identity import task_id as _task_id
 
@@ -840,11 +841,7 @@ def advance_to_next_stage(
             f"requested current_stage {current_stage} does not match persisted run-state stage {run_state.get('current_stage')}"
         )
 
-    current_index = route.index(current_stage)
-    if current_index + 1 >= len(route):
-        raise RuntimeViolation(f"stage {current_stage} has no next stage in route {route_name}")
-
-    next_stage = route[current_index + 1]
+    next_stage = next_stage_for_transition(route, current_stage, route_name=route_name, violation_factory=RuntimeViolation)
     missing_artifacts = _missing_artifacts(task_dir, policy.stage_requirements.get(next_stage, []))
     if missing_artifacts:
         raise RuntimeViolation(
