@@ -70,6 +70,9 @@ def plugin_metadata_errors(manifests: dict[Path, dict], marketplace: dict) -> li
         plugin_name = plugin.get("name")
         if plugin_name != expected_name:
             errors.append(f"{marketplace_rel}: plugins[{index}].name {plugin_name!r} != {expected_name!r}")
+        plugin_source = plugin.get("source")
+        if plugin_source is not None and plugin_source != "./":
+            errors.append(f"{marketplace_rel}: plugins[{index}].source {plugin_source!r} != './'")
         if _contains_unsupported_cursor(plugin.get("tags", [])):
             errors.append(f"{marketplace_rel}: plugins[{index}].tags includes unsupported 'cursor'")
 
