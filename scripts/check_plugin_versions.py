@@ -12,6 +12,7 @@ from release import PLUGIN_JSON as CLAUDE_PLUGIN
 from release import SUPPORTED_PLUGIN_MANIFESTS
 
 ROOT = Path(__file__).resolve().parents[1]
+UNSUPPORTED_PLUGIN_MANIFESTS = [ROOT / ".cursor-plugin" / "plugin.json"]
 
 
 def load_json(path: Path) -> dict:
@@ -23,6 +24,10 @@ def _display_path(path: Path) -> str:
         return str(path.relative_to(ROOT))
     except ValueError:
         return str(path)
+
+
+def unsupported_manifest_errors(paths: list[Path]) -> list[str]:
+    return [f"{_display_path(path)}: unsupported plugin manifest must be removed" for path in paths if path.exists()]
 
 
 def plugin_metadata_errors(manifests: dict[Path, dict], marketplace: dict) -> list[str]:
@@ -66,7 +71,7 @@ def main() -> int:
     manifests = {path: load_json(path) for path in SUPPORTED_PLUGIN_MANIFESTS}
     marketplace = load_json(MARKETPLACE)
     expected_version = manifests[CLAUDE_PLUGIN]["version"]
-    errors = plugin_metadata_errors(manifests, marketplace)
+    errors = [*unsupported_manifest_errors(UNSUPPORTED_PLUGIN_MANIFESTS), *plugin_metadata_errors(manifests, marketplace)]
 
     if errors:
         for error in errors:

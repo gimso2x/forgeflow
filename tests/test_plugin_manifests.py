@@ -86,6 +86,17 @@ def test_plugin_version_check_reports_supported_manifest_homepage_drift():
     ]
 
 
+def test_plugin_version_check_reports_unsupported_cursor_manifest_if_it_reappears(tmp_path):
+    checker = _load_script("check_plugin_versions")
+    unsupported = tmp_path / ".cursor-plugin" / "plugin.json"
+    unsupported.parent.mkdir()
+    unsupported.write_text('{"name": "forgeflow"}\n', encoding="utf-8")
+
+    errors = checker.unsupported_manifest_errors([unsupported])
+
+    assert errors == [f"{unsupported}: unsupported plugin manifest must be removed"]
+
+
 def test_plugin_version_check_reports_marketplace_name_drift():
     checker = _load_script("check_plugin_versions")
     manifests = {
