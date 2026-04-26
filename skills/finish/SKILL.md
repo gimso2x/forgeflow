@@ -16,7 +16,7 @@ Use this skill when implementation is complete and the remaining question is how
 This is not the same as `ship`:
 
 - `ship` prepares the final handoff summary.
-- `finish` decides what happens to the branch: merge, PR, keep, or discard.
+- `finish` decides branch disposition: merge, PR, keep, or discard, and requires explicit user direction.
 
 ## Input
 

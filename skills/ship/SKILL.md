@@ -11,7 +11,9 @@ validate_prompt: |
 
 # Ship
 
-Use this skill to finalize ForgeFlow work after review passes.
+Use this skill to prepare the final handoff after review passes.
+
+`ship` does not merge, discard, clean up, or decide branch disposition. Use `finish` for branch disposition after the user gives explicit direction.
 
 ## Input
 
@@ -28,14 +30,14 @@ Use this skill to finalize ForgeFlow work after review passes.
   - verification commands and results
   - review verdict
   - residual risks
-  - handoff action: commit, PR, keep, or stop
+  - handoff action: report completed; branch disposition remains pending for `finish`
 
 ## Exit Condition
 
 - Working tree state is understood
 - Final verification is green or failures are explicitly documented
 - Review verdict permits shipping
-- Commit/PR/handoff is completed if requested
+- Final handoff is completed
 - User gets a concise final report
 
 ## File write and output discipline
@@ -72,10 +74,10 @@ No heading. No preamble. No code fence. No third line.
 1. Check git status and diff only if command execution is allowed.
 2. Run final verification only if command execution is allowed.
 3. Ensure review passed; do not ship blocked work.
-4. Prepare commit/PR/handoff summary.
+4. Prepare the final handoff summary.
 5. Preserve artifacts/evidence instead of burying them in chat.
 
-Never discard or destructive-clean without explicit confirmation.
+Never discard, merge, PR, or destructive-clean from `ship`; hand branch disposition to `finish` and require explicit confirmation there.
 
 ## Output mode examples
 

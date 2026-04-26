@@ -39,7 +39,10 @@ claude plugin list
 /forgeflow:run
 /forgeflow:review
 /forgeflow:ship
+/forgeflow:finish
 ```
+
+`/forgeflow:ship`은 검증·리뷰 evidence를 묶어 final handoff/report를 만드는 단계입니다. branch disposition은 여기서 하지 않습니다. `/forgeflow:finish`는 그 다음에 merge, PR, keep, or discard 같은 branch disposition을 explicit user direction으로 결정하는 단계입니다.
 
 짧은 이름(`/clarify`, `/plan`, `/review`, `/ship`)도 동작할 수 있지만, 다른 Claude plugin/gstack skill과 충돌할 수 있습니다. 운영에서는 **항상 `/forgeflow:<stage>` 네임스페이스 형식**을 권장합니다. 특히 `/review`와 `/ship`은 충돌 가능성이 높습니다.
 
