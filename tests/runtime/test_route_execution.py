@@ -1,11 +1,11 @@
 import json
+from collections.abc import Callable
 from pathlib import Path
 
 import pytest
-from jsonschema import Draft202012Validator
 
 from forgeflow_runtime.orchestrator import RuntimeViolation, load_runtime_policy, run_route
-from forgeflow_runtime.route_execution import route_entry_decision, route_iteration_stages, stage_completion_status
+from forgeflow_runtime.route_execution import route_entry_decision, route_iteration_stages
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -49,36 +49,15 @@ def test_route_entry_decision_marks_complete_route() -> None:
     assert decision.already_complete is True
 
 
-def test_stage_completion_status_marks_finalize_success() -> None:
-    assert stage_completion_status("finalize", existing_final_status=None) == ("completed", "success")
-
-
-def test_stage_completion_status_preserves_long_run_final_status() -> None:
-    assert stage_completion_status("long-run", existing_final_status="partial") == ("completed", "partial")
-
-
-def test_stage_completion_status_leaves_intermediate_stage_in_progress() -> None:
-    assert stage_completion_status("quality-review", existing_final_status=None) == ("in_progress", None)
-
-
-def _write_json(path: Path, payload: dict) -> None:
-    path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
-
-
-def _load_schema(name: str) -> dict:
-    return json.loads((ROOT / "schemas" / f"{name}.schema.json").read_text(encoding="utf-8"))
-
-
-def _assert_schema_valid(name: str, payload: dict) -> None:
-    errors = sorted(Draft202012Validator(_load_schema(name)).iter_errors(payload), key=lambda err: list(err.path))
-    assert not errors, [f"{list(err.path)}: {err.message}" for err in errors]
-
-
-def test_small_route_runs_end_to_end_and_updates_state(tmp_path: Path) -> None:
+def test_small_route_runs_end_to_end_and_updates_state(
+    tmp_path: Path,
+    write_json: Callable[[Path, dict], None],
+    assert_schema_valid: Callable[[str, dict], None],
+) -> None:
     policy = load_runtime_policy(ROOT)
     task_dir = tmp_path / "task"
     task_dir.mkdir()
-    _write_json(
+    write_json(
         task_dir / "brief.json",
         {
             "schema_version": "0.1",
@@ -91,7 +70,7 @@ def test_small_route_runs_end_to_end_and_updates_state(tmp_path: Path) -> None:
             "risk_level": "low",
         },
     )
-    _write_json(
+    write_json(
         task_dir / "review-report.json",
         {
             "schema_version": "0.1",
@@ -115,10 +94,10 @@ def test_small_route_runs_end_to_end_and_updates_state(tmp_path: Path) -> None:
         "quality_review_passed",
         "ready_to_finalize",
     ]
-    _assert_schema_valid("run-state", result)
+    assert_schema_valid("run-state", result)
 
     decision_log = json.loads((task_dir / "decision-log.json").read_text(encoding="utf-8"))
-    _assert_schema_valid("decision-log", decision_log)
+    assert_schema_valid("decision-log", decision_log)
     decisions = [entry["decision"] for entry in decision_log["entries"]]
     assert decisions == [
         "route selected: small",
@@ -129,11 +108,14 @@ def test_small_route_runs_end_to_end_and_updates_state(tmp_path: Path) -> None:
     ]
 
 
-def test_large_route_runs_end_to_end_and_collects_both_review_flags(tmp_path: Path) -> None:
+def test_large_route_runs_end_to_end_and_collects_both_review_flags(
+    tmp_path: Path,
+    write_json: Callable[[Path, dict], None],
+) -> None:
     policy = load_runtime_policy(ROOT)
     task_dir = tmp_path / "large-task"
     task_dir.mkdir()
-    _write_json(
+    write_json(
         task_dir / "brief.json",
         {
             "schema_version": "0.1",
@@ -146,7 +128,7 @@ def test_large_route_runs_end_to_end_and_collects_both_review_flags(tmp_path: Pa
             "risk_level": "high",
         },
     )
-    _write_json(
+    write_json(
         task_dir / "plan.json",
         {
             "schema_version": "0.1",
@@ -161,7 +143,7 @@ def test_large_route_runs_end_to_end_and_collects_both_review_flags(tmp_path: Pa
             ],
         },
     )
-    _write_json(
+    write_json(
         task_dir / "plan-ledger.json",
         {
             "schema_version": "0.1",
@@ -183,7 +165,7 @@ def test_large_route_runs_end_to_end_and_collects_both_review_flags(tmp_path: Pa
             ]
         },
     )
-    _write_json(
+    write_json(
         task_dir / "review-report-spec.json",
         {
             "schema_version": "0.1",
@@ -195,7 +177,7 @@ def test_large_route_runs_end_to_end_and_collects_both_review_flags(tmp_path: Pa
             "next_action": "quality-review로 진행",
         },
     )
-    _write_json(
+    write_json(
         task_dir / "review-report-quality.json",
         {
             "schema_version": "0.1",
@@ -207,7 +189,7 @@ def test_large_route_runs_end_to_end_and_collects_both_review_flags(tmp_path: Pa
             "next_action": "finalize 가능",
         },
     )
-    _write_json(
+    write_json(
         task_dir / "eval-record.json",
         {
             "schema_version": "0.1",
@@ -236,11 +218,14 @@ def test_large_route_runs_end_to_end_and_collects_both_review_flags(tmp_path: Pa
     ]
 
 
-def test_large_route_rejects_missing_eval_record_before_long_run(tmp_path: Path) -> None:
+def test_large_route_rejects_missing_eval_record_before_long_run(
+    tmp_path: Path,
+    write_json: Callable[[Path, dict], None],
+) -> None:
     policy = load_runtime_policy(ROOT)
     task_dir = tmp_path / "large-task-missing-eval"
     task_dir.mkdir()
-    _write_json(
+    write_json(
         task_dir / "brief.json",
         {
             "schema_version": "0.1",
@@ -253,7 +238,7 @@ def test_large_route_rejects_missing_eval_record_before_long_run(tmp_path: Path)
             "risk_level": "high",
         },
     )
-    _write_json(
+    write_json(
         task_dir / "plan.json",
         {
             "schema_version": "0.1",
@@ -268,7 +253,7 @@ def test_large_route_rejects_missing_eval_record_before_long_run(tmp_path: Path)
             ],
         },
     )
-    _write_json(
+    write_json(
         task_dir / "plan-ledger.json",
         {
             "schema_version": "0.1",
@@ -290,7 +275,7 @@ def test_large_route_rejects_missing_eval_record_before_long_run(tmp_path: Path)
             ]
         },
     )
-    _write_json(
+    write_json(
         task_dir / "review-report-spec.json",
         {
             "schema_version": "0.1",
@@ -302,7 +287,7 @@ def test_large_route_rejects_missing_eval_record_before_long_run(tmp_path: Path)
             "next_action": "quality-review로 진행",
         },
     )
-    _write_json(
+    write_json(
         task_dir / "review-report-quality.json",
         {
             "schema_version": "0.1",

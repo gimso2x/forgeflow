@@ -1,4 +1,5 @@
 import json
+from typing import Callable
 from pathlib import Path
 
 import pytest
@@ -9,51 +10,13 @@ from forgeflow_runtime.orchestrator import RuntimeViolation, advance_to_next_sta
 ROOT = Path(__file__).resolve().parents[2]
 
 
-def _write_json(path: Path, payload: dict) -> None:
-    path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
-
-
-def _make_task_dir(tmp_path: Path) -> Path:
-    task_dir = tmp_path / "task"
-    task_dir.mkdir()
-    _write_json(
-        task_dir / "brief.json",
-        {
-            "schema_version": "0.1",
-            "task_id": "task-001",
-            "objective": "Run a small route",
-            "in_scope": ["runtime"],
-            "out_of_scope": [],
-            "constraints": ["local only"],
-            "acceptance_criteria": ["route works"],
-            "risk_level": "low",
-        },
-    )
-    _write_json(
-        task_dir / "run-state.json",
-        {
-            "schema_version": "0.1",
-            "task_id": "task-001",
-            "current_stage": "clarify",
-            "status": "in_progress",
-            "completed_gates": ["clarification_complete"],
-            "failed_gates": [],
-            "retries": {},
-            "current_task_id": "",
-            "spec_review_approved": False,
-            "quality_review_approved": False,
-        },
-    )
-    return task_dir
-
-
-def test_finalize_blocks_missing_review_flags(tmp_path: Path) -> None:
+def test_finalize_blocks_missing_review_flags(make_task_dir: Callable[[Path], Path], write_json: Callable[[Path, dict], None], tmp_path: Path) -> None:
     policy = load_runtime_policy(ROOT)
-    task_dir = _make_task_dir(tmp_path)
+    task_dir = make_task_dir(tmp_path)
     run_state = json.loads((task_dir / "run-state.json").read_text(encoding="utf-8"))
     run_state["current_stage"] = "quality-review"
-    _write_json(task_dir / "run-state.json", run_state)
-    _write_json(
+    write_json(task_dir / "run-state.json", run_state)
+    write_json(
         task_dir / "review-report.json",
         {
             "schema_version": "0.1",
@@ -70,10 +33,10 @@ def test_finalize_blocks_missing_review_flags(tmp_path: Path) -> None:
         advance_to_next_stage(task_dir=task_dir, policy=policy, route_name="small", current_stage="quality-review")
 
 
-def test_run_route_rejects_non_approved_quality_review(tmp_path: Path) -> None:
+def test_run_route_rejects_non_approved_quality_review(make_task_dir: Callable[[Path], Path], write_json: Callable[[Path, dict], None], tmp_path: Path) -> None:
     policy = load_runtime_policy(ROOT)
-    task_dir = _make_task_dir(tmp_path)
-    _write_json(
+    task_dir = make_task_dir(tmp_path)
+    write_json(
         task_dir / "review-report.json",
         {
             "schema_version": "0.1",
@@ -89,10 +52,10 @@ def test_run_route_rejects_non_approved_quality_review(tmp_path: Path) -> None:
         run_route(task_dir=task_dir, policy=policy, route_name="small")
 
 
-def test_run_route_rejects_approved_review_with_open_blockers(tmp_path: Path) -> None:
+def test_run_route_rejects_approved_review_with_open_blockers(make_task_dir: Callable[[Path], Path], write_json: Callable[[Path, dict], None], tmp_path: Path) -> None:
     policy = load_runtime_policy(ROOT)
-    task_dir = _make_task_dir(tmp_path)
-    _write_json(
+    task_dir = make_task_dir(tmp_path)
+    write_json(
         task_dir / "review-report.json",
         {
             "schema_version": "0.1",
@@ -110,10 +73,10 @@ def test_run_route_rejects_approved_review_with_open_blockers(tmp_path: Path) ->
         run_route(task_dir=task_dir, policy=policy, route_name="small")
 
 
-def test_run_route_rejects_approved_quality_review_marked_unsafe(tmp_path: Path) -> None:
+def test_run_route_rejects_approved_quality_review_marked_unsafe(make_task_dir: Callable[[Path], Path], write_json: Callable[[Path, dict], None], tmp_path: Path) -> None:
     policy = load_runtime_policy(ROOT)
-    task_dir = _make_task_dir(tmp_path)
-    _write_json(
+    task_dir = make_task_dir(tmp_path)
+    write_json(
         task_dir / "review-report.json",
         {
             "schema_version": "0.1",
@@ -131,10 +94,10 @@ def test_run_route_rejects_approved_quality_review_marked_unsafe(tmp_path: Path)
         run_route(task_dir=task_dir, policy=policy, route_name="small")
 
 
-def test_run_route_rejects_approved_spec_review_marked_unsafe(tmp_path: Path) -> None:
+def test_run_route_rejects_approved_spec_review_marked_unsafe(make_task_dir: Callable[[Path], Path], write_json: Callable[[Path, dict], None], tmp_path: Path) -> None:
     policy = load_runtime_policy(ROOT)
-    task_dir = _make_task_dir(tmp_path)
-    _write_json(
+    task_dir = make_task_dir(tmp_path)
+    write_json(
         task_dir / "review-report.json",
         {
             "schema_version": "0.1",
