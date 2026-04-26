@@ -5,9 +5,16 @@ import pytest
 from jsonschema import Draft202012Validator
 
 from forgeflow_runtime.orchestrator import RuntimeViolation, load_runtime_policy, run_route
+from forgeflow_runtime.route_execution import route_iteration_stages
 
 
 ROOT = Path(__file__).resolve().parents[2]
+
+
+def test_route_iteration_stages_starts_at_resume_index() -> None:
+    route = ["clarify", "plan", "execute", "quality-review", "finalize"]
+
+    assert route_iteration_stages(route, 2) == ["execute", "quality-review", "finalize"]
 
 
 def _write_json(path: Path, payload: dict) -> None:

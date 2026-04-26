@@ -37,6 +37,7 @@ from forgeflow_runtime.plan_ledger import (
 )
 from forgeflow_runtime.policy_loader import RuntimePolicy, load_runtime_policy
 from forgeflow_runtime.resume_validation import resume_start_index
+from forgeflow_runtime.route_execution import route_iteration_stages
 from forgeflow_runtime.stage_transition import next_stage_for_transition
 from forgeflow_runtime.task_identity import canonical_task_id as _canonical_task_id
 from forgeflow_runtime.task_identity import task_id as _task_id
@@ -1017,7 +1018,7 @@ def run_route(task_dir: Path, policy: RuntimePolicy, route_name: str) -> dict[st
             rationale="validated checkpoint state reused instead of replaying prior stages",
         )
 
-    for stage_name in route[start_index:]:
+    for stage_name in route_iteration_stages(route, start_index):
         missing_artifacts = _missing_artifacts(task_dir, policy.stage_requirements.get(stage_name, []))
         if missing_artifacts:
             raise RuntimeViolation(
