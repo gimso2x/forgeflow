@@ -195,7 +195,7 @@ def test_plugin_version_check_script_fails_fast_before_release():
     )
 
     assert result.returncode == 0, result.stderr
-    assert "plugin versions synchronized: 0.1.16" in result.stdout
+    assert f"plugin versions synchronized: {load(CLAUDE)['version']}" in result.stdout
 
 
 def test_codex_manifest_declares_skills_and_interface_metadata():
