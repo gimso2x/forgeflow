@@ -1,3 +1,4 @@
+import ast
 import importlib.util
 import subprocess
 import sys
@@ -111,6 +112,8 @@ def test_contract_map_names_runtime_seam_boundaries() -> None:
         "`forgeflow_runtime/artifact_validation.py`",
         "`forgeflow_runtime/task_identity.py`",
         "`forgeflow_runtime/plan_ledger.py`",
+        "`forgeflow_runtime/stage_transition.py`",
+        "`forgeflow_runtime/route_execution.py`",
         "python -m pytest tests/runtime -q",
     ]:
         assert required_text in contract_map
@@ -124,6 +127,22 @@ def test_contract_map_names_schema_version_migration_seam() -> None:
         "`forgeflow_runtime/schema_versions.py`",
         "current supported artifact version",
         "future migration hook seam",
+    ]:
+        assert required_text in contract_map
+
+
+def test_contract_map_names_script_runtime_boundary() -> None:
+    contract_map = (ROOT / "docs" / "contract-map.md").read_text(encoding="utf-8")
+
+    for required_text in [
+        "Script/runtime boundary",
+        "`scripts/*.py`",
+        "Thin command-line and validation entrypoints",
+        "reusable behavior lives in `forgeflow_runtime/`",
+        "High-risk CLI wrappers",
+        "`scripts/run_orchestrator.py`",
+        "`scripts/forgeflow_evolution.py`",
+        "Contract map validation checks high-risk CLI wrappers stay thin",
     ]:
         assert required_text in contract_map
 
@@ -145,6 +164,91 @@ def test_contract_map_names_evolution_runtime_seams() -> None:
         "python -m pytest tests/evolution -q",
     ]:
         assert required_text in contract_map
+
+
+def test_contract_map_runtime_seam_paths_exist_and_are_declared() -> None:
+    contract_map = (ROOT / "docs" / "contract-map.md").read_text(encoding="utf-8")
+
+    assert "Contract map validation checks named runtime seam files exist" in contract_map
+    for rel in [
+        "forgeflow_runtime/gate_evaluation.py",
+        "forgeflow_runtime/resume_validation.py",
+        "forgeflow_runtime/artifact_validation.py",
+        "forgeflow_runtime/task_identity.py",
+        "forgeflow_runtime/plan_ledger.py",
+        "forgeflow_runtime/stage_transition.py",
+        "forgeflow_runtime/route_execution.py",
+        "forgeflow_runtime/operator_routing.py",
+    ]:
+        assert f"`{rel}`" in contract_map
+        assert (ROOT / rel).is_file()
+
+
+def test_contract_map_validation_commands_reference_existing_paths() -> None:
+    contract_map = (ROOT / "docs" / "contract-map.md").read_text(encoding="utf-8")
+
+    assert "Contract map validation checks named validation command paths exist" in contract_map
+    for rel in [
+        "scripts/validate_sample_artifacts.py",
+        "tests/test_validate_sample_artifacts.py",
+        "scripts/validate_policy.py",
+        "tests/evolution",
+        "tests/runtime",
+        "scripts/validate_generated.py",
+        "tests/test_generate_adapters.py",
+        "tests/test_validate_generated.py",
+        "tests/test_plugin_manifests.py",
+        "scripts/validate_structure.py",
+    ]:
+        assert rel in contract_map
+        assert (ROOT / rel).exists()
+
+
+def test_contract_map_adapter_source_and_generated_paths_exist() -> None:
+    contract_map = (ROOT / "docs" / "contract-map.md").read_text(encoding="utf-8")
+
+    assert "Contract map validation checks adapter source and generated directories exist" in contract_map
+    for rel in [
+        "adapters/targets/claude",
+        "adapters/targets/codex",
+        "adapters/targets/cursor",
+        "adapters/generated/claude",
+        "adapters/generated/codex",
+        "adapters/generated/cursor",
+    ]:
+        assert f"`{rel}`" in contract_map
+        assert (ROOT / rel).is_dir()
+
+
+def _module_assigned_names(path: Path) -> set[str]:
+    tree = ast.parse(path.read_text(encoding="utf-8"))
+    assigned_names = set()
+    for node in tree.body:
+        if isinstance(node, ast.AnnAssign) and isinstance(node.target, ast.Name):
+            assigned_names.add(node.target.id)
+        elif isinstance(node, ast.Assign):
+            assigned_names.update(target.id for target in node.targets if isinstance(target, ast.Name))
+    return assigned_names
+
+
+def test_script_thinness_keeps_operator_route_logic_out_of_cli_wrapper() -> None:
+    assigned_names = _module_assigned_names(ROOT / "scripts" / "run_orchestrator.py")
+
+    assert "operator route selection" in (ROOT / "docs" / "contract-map.md").read_text(encoding="utf-8")
+    assert not {"STAGE_ROLE_MAP", "ROUTE_ORDER", "RISK_TO_ROUTE"} & assigned_names
+
+
+def test_script_thinness_keeps_evolution_policy_logic_out_of_cli_wrapper() -> None:
+    assigned_names = _module_assigned_names(ROOT / "scripts" / "forgeflow_evolution.py")
+
+    assert "project-local evolution policy logic" in (ROOT / "docs" / "contract-map.md").read_text(encoding="utf-8")
+    assert not {
+        "PROJECT_RULE_DIR",
+        "RETIRED_RULE_DIR",
+        "HARD_GATE_REQUIRES",
+        "APPROVED_COMMANDS",
+        "APPROVED_COMMAND_IDS",
+    } & assigned_names
 
 
 def test_make_validate_runs_runtime_seam_tests() -> None:
