@@ -14,8 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PLUGIN_JSON = ROOT / ".claude-plugin" / "plugin.json"
 MARKETPLACE_JSON = ROOT / ".claude-plugin" / "marketplace.json"
 CODEX_PLUGIN_JSON = ROOT / ".codex-plugin" / "plugin.json"
-CURSOR_PLUGIN_JSON = ROOT / ".cursor-plugin" / "plugin.json"
-PLUGIN_VERSION_JSONS = [PLUGIN_JSON, CODEX_PLUGIN_JSON, CURSOR_PLUGIN_JSON]
+PLUGIN_VERSION_JSONS = [PLUGIN_JSON, CODEX_PLUGIN_JSON]
 SEMVER_RE = re.compile(r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:[-+][0-9A-Za-z.-]+)?$")
 
 
@@ -92,7 +91,6 @@ def release_files_to_stage(notes_out: Path | None = None) -> list[str]:
     paths = [
         PLUGIN_JSON.relative_to(ROOT),
         CODEX_PLUGIN_JSON.relative_to(ROOT),
-        CURSOR_PLUGIN_JSON.relative_to(ROOT),
         MARKETPLACE_JSON.relative_to(ROOT),
     ]
     if notes_out is not None:
