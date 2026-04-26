@@ -73,59 +73,15 @@ def test_advance_requires_plan_ledger_for_medium_route(
         advance_to_next_stage(task_dir=task_dir, policy=policy, route_name="medium", current_stage="plan")
 
 
-def _write_medium_plan_artifacts(
-    task_dir: Path, write_json: Callable[[Path, dict], None], *, route_name: str = "medium"
-) -> None:
-    write_json(
-        task_dir / "plan.json",
-        {
-            "schema_version": "0.1",
-            "task_id": "task-001",
-            "steps": [
-                {
-                    "id": "step-1",
-                    "objective": "update workflow docs",
-                    "dependencies": [],
-                    "expected_output": "workflow docs reflect medium route behavior",
-                    "verification": "pytest tests/test_runtime_orchestrator.py -q",
-                    "rollback_note": "remove incomplete workflow edits if validation fails",
-                }
-            ],
-        },
-    )
-    write_json(
-        task_dir / "plan-ledger.json",
-        {
-            "schema_version": "0.1",
-            "task_id": "task-001",
-            "route": route_name,
-            "completed_stages": [],
-            "completed_gates": [],
-            "retries": {},
-            "current_task_id": "task-1",
-            "tasks": [
-                {
-                    "id": "task-1",
-                    "title": "update workflow docs",
-                    "depends_on": [],
-                    "files": ["docs/workflow.md"],
-                    "parallel_safe": False,
-                    "status": "in_progress",
-                    "required_gates": ["machine", "validator"],
-                    "evidence_refs": [],
-                    "attempt_count": 0,
-                }
-            ],
-        },
-    )
-
-
 def test_run_route_syncs_current_task_from_plan_ledger(
-    make_task_dir: Callable[[Path], Path], write_json: Callable[[Path, dict], None], tmp_path: Path
+    make_task_dir: Callable[[Path], Path],
+    medium_plan_artifacts: Callable[..., None],
+    write_json: Callable[[Path, dict], None],
+    tmp_path: Path,
 ) -> None:
     policy = load_runtime_policy(ROOT)
     task_dir = make_task_dir(tmp_path)
-    _write_medium_plan_artifacts(task_dir, write_json)
+    medium_plan_artifacts(task_dir)
     write_json(
         task_dir / "review-report.json",
         {
@@ -163,10 +119,10 @@ def test_run_route_syncs_current_task_from_plan_ledger(
 
 
 def test_retry_stage_updates_plan_ledger_attempts(
-    make_task_dir: Callable[[Path], Path], write_json: Callable[[Path, dict], None], tmp_path: Path
+    make_task_dir: Callable[[Path], Path], medium_plan_artifacts: Callable[..., None], tmp_path: Path
 ) -> None:
     task_dir = make_task_dir(tmp_path)
-    _write_medium_plan_artifacts(task_dir, write_json)
+    medium_plan_artifacts(task_dir)
 
     result = retry_stage(task_dir=task_dir, stage_name="execute", max_retries=2)
 
@@ -180,11 +136,14 @@ def test_retry_stage_updates_plan_ledger_attempts(
 
 
 def test_advance_updates_plan_ledger_gate_evidence(
-    make_task_dir: Callable[[Path], Path], write_json: Callable[[Path, dict], None], tmp_path: Path
+    make_task_dir: Callable[[Path], Path],
+    medium_plan_artifacts: Callable[..., None],
+    write_json: Callable[[Path, dict], None],
+    tmp_path: Path,
 ) -> None:
     policy = load_runtime_policy(ROOT)
     task_dir = make_task_dir(tmp_path)
-    _write_medium_plan_artifacts(task_dir, write_json)
+    medium_plan_artifacts(task_dir)
     run_state = json.loads((task_dir / "run-state.json").read_text(encoding="utf-8"))
     run_state["current_stage"] = "plan"
     write_json(task_dir / "run-state.json", run_state)
