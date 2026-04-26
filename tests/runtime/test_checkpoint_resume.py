@@ -1,8 +1,8 @@
 import json
+from collections.abc import Callable
 from pathlib import Path
 
 import pytest
-from jsonschema import Draft202012Validator
 
 from forgeflow_runtime.orchestrator import (
     RuntimeViolation,
@@ -17,110 +17,23 @@ from forgeflow_runtime.orchestrator import (
 ROOT = Path(__file__).resolve().parents[2]
 
 
-def _write_json(path: Path, payload: dict) -> None:
-    path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
-
-
-def _load_schema(name: str) -> dict:
-    return json.loads((ROOT / "schemas" / f"{name}.schema.json").read_text(encoding="utf-8"))
-
-
-def _assert_schema_valid(name: str, payload: dict) -> None:
-    errors = sorted(Draft202012Validator(_load_schema(name)).iter_errors(payload), key=lambda err: list(err.path))
-    assert not errors, [f"{list(err.path)}: {err.message}" for err in errors]
-
-
-def _make_task_dir(tmp_path: Path) -> Path:
-    task_dir = tmp_path / "task"
-    task_dir.mkdir()
-    _write_json(
-        task_dir / "brief.json",
-        {
-            "schema_version": "0.1",
-            "task_id": "task-001",
-            "objective": "Run a small route",
-            "in_scope": ["runtime"],
-            "out_of_scope": [],
-            "constraints": ["local only"],
-            "acceptance_criteria": ["route works"],
-            "risk_level": "low",
-        },
-    )
-    _write_json(
-        task_dir / "run-state.json",
-        {
-            "schema_version": "0.1",
-            "task_id": "task-001",
-            "current_stage": "clarify",
-            "status": "in_progress",
-            "completed_gates": ["clarification_complete"],
-            "failed_gates": [],
-            "retries": {},
-            "current_task_id": "",
-            "spec_review_approved": False,
-            "quality_review_approved": False,
-        },
-    )
-    return task_dir
-
-
-def _write_medium_plan_artifacts(task_dir: Path, *, route_name: str = "medium") -> None:
-    _write_json(
-        task_dir / "plan.json",
-        {
-            "schema_version": "0.1",
-            "task_id": "task-001",
-            "steps": [
-                {
-                    "id": "step-1",
-                    "objective": "update workflow docs",
-                    "dependencies": [],
-                    "expected_output": "workflow docs reflect medium route behavior",
-                    "verification": "pytest tests/runtime/test_checkpoint_resume.py -q",
-                    "rollback_note": "remove incomplete workflow edits if validation fails",
-                }
-            ],
-        },
-    )
-    _write_json(
-        task_dir / "plan-ledger.json",
-        {
-            "schema_version": "0.1",
-            "task_id": "task-001",
-            "route": route_name,
-            "completed_stages": [],
-            "completed_gates": [],
-            "retries": {},
-            "current_task_id": "task-1",
-            "tasks": [
-                {
-                    "id": "task-1",
-                    "title": "update workflow docs",
-                    "depends_on": [],
-                    "files": ["docs/workflow.md"],
-                    "parallel_safe": False,
-                    "status": "in_progress",
-                    "required_gates": ["machine", "validator"],
-                    "evidence_refs": [],
-                    "attempt_count": 0,
-                }
-            ],
-        },
-    )
-
-
-def test_run_route_rejects_medium_plan_ledger_out_of_order_completed_stages(tmp_path: Path) -> None:
+def test_run_route_rejects_medium_plan_ledger_out_of_order_completed_stages(
+    tmp_path: Path,
+    medium_plan_artifacts: Callable[..., None],
+    write_json: Callable[[Path, dict], None],
+    make_task_dir: Callable[[Path], Path],
+) -> None:
     policy = load_runtime_policy(ROOT)
-    task_dir = _make_task_dir(tmp_path)
-    _write_medium_plan_artifacts(task_dir, route_name="medium")
+    task_dir = make_task_dir(tmp_path)
+    medium_plan_artifacts(task_dir, route_name="medium")
     run_state = json.loads((task_dir / "run-state.json").read_text(encoding="utf-8"))
     run_state["current_stage"] = "execute"
-    _write_json(task_dir / "run-state.json", run_state)
+    write_json(task_dir / "run-state.json", run_state)
     plan_ledger = json.loads((task_dir / "plan-ledger.json").read_text(encoding="utf-8"))
     plan_ledger["completed_stages"] = ["clarify", "plan", "quality-review"]
     plan_ledger["completed_gates"] = ["clarification_complete", "plan_executable"]
-    _write_json(task_dir / "plan-ledger.json", plan_ledger)
-    _write_json(
+    write_json(task_dir / "plan-ledger.json", plan_ledger)
+    write_json(
         task_dir / "review-report.json",
         {
             "schema_version": "0.1",
@@ -137,10 +50,15 @@ def test_run_route_rejects_medium_plan_ledger_out_of_order_completed_stages(tmp_
         run_route(task_dir=task_dir, policy=policy, route_name="medium")
 
 
-def test_run_route_resumes_from_existing_checkpoint(tmp_path: Path) -> None:
+def test_run_route_resumes_from_existing_checkpoint(
+    tmp_path: Path,
+    assert_schema_valid: Callable[[str, dict], None],
+    write_json: Callable[[Path, dict], None],
+    make_task_dir: Callable[[Path], Path],
+) -> None:
     policy = load_runtime_policy(ROOT)
-    task_dir = _make_task_dir(tmp_path)
-    _write_json(
+    task_dir = make_task_dir(tmp_path)
+    write_json(
         task_dir / "run-state.json",
         {
             "schema_version": "0.1",
@@ -155,7 +73,7 @@ def test_run_route_resumes_from_existing_checkpoint(tmp_path: Path) -> None:
             "quality_review_approved": False,
         },
     )
-    _write_json(
+    write_json(
         task_dir / "decision-log.json",
         {
             "schema_version": "0.1",
@@ -172,7 +90,7 @@ def test_run_route_resumes_from_existing_checkpoint(tmp_path: Path) -> None:
             ],
         },
     )
-    _write_json(
+    write_json(
         task_dir / "review-report.json",
         {
             "schema_version": "0.1",
@@ -184,7 +102,7 @@ def test_run_route_resumes_from_existing_checkpoint(tmp_path: Path) -> None:
             "next_action": "finalize 가능",
         },
     )
-    _write_json(
+    write_json(
         task_dir / "checkpoint.json",
         {
             "schema_version": "0.1",
@@ -221,7 +139,7 @@ def test_run_route_resumes_from_existing_checkpoint(tmp_path: Path) -> None:
         "stage entered: finalize",
     ]
     checkpoint = json.loads((task_dir / "checkpoint.json").read_text(encoding="utf-8"))
-    _assert_schema_valid("checkpoint", checkpoint)
+    assert_schema_valid("checkpoint", checkpoint)
     assert checkpoint["current_stage"] == "finalize"
     assert checkpoint["run_state_ref"] == "run-state.json"
     assert checkpoint["latest_review_ref"] == "review-report.json"
@@ -229,10 +147,14 @@ def test_run_route_resumes_from_existing_checkpoint(tmp_path: Path) -> None:
     assert checkpoint["open_blockers"] == []
 
 
-def test_run_route_rejects_mismatched_checkpoint_route(tmp_path: Path) -> None:
+def test_run_route_rejects_mismatched_checkpoint_route(
+    tmp_path: Path,
+    write_json: Callable[[Path, dict], None],
+    make_task_dir: Callable[[Path], Path],
+) -> None:
     policy = load_runtime_policy(ROOT)
-    task_dir = _make_task_dir(tmp_path)
-    _write_json(
+    task_dir = make_task_dir(tmp_path)
+    write_json(
         task_dir / "checkpoint.json",
         {
             "schema_version": "0.1",
@@ -247,7 +169,7 @@ def test_run_route_rejects_mismatched_checkpoint_route(tmp_path: Path) -> None:
             "updated_at": "2026-04-22T00:05:00Z"
         },
     )
-    _write_json(
+    write_json(
         task_dir / "review-report.json",
         {
             "schema_version": "0.1",
@@ -264,10 +186,14 @@ def test_run_route_rejects_mismatched_checkpoint_route(tmp_path: Path) -> None:
         run_route(task_dir=task_dir, policy=policy, route_name="small")
 
 
-def test_run_route_rejects_checkpoint_gate_drift(tmp_path: Path) -> None:
+def test_run_route_rejects_checkpoint_gate_drift(
+    tmp_path: Path,
+    write_json: Callable[[Path, dict], None],
+    make_task_dir: Callable[[Path], Path],
+) -> None:
     policy = load_runtime_policy(ROOT)
-    task_dir = _make_task_dir(tmp_path)
-    _write_json(
+    task_dir = make_task_dir(tmp_path)
+    write_json(
         task_dir / "run-state.json",
         {
             "schema_version": "0.1",
@@ -282,7 +208,7 @@ def test_run_route_rejects_checkpoint_gate_drift(tmp_path: Path) -> None:
             "quality_review_approved": False,
         },
     )
-    _write_json(
+    write_json(
         task_dir / "review-report.json",
         {
             "schema_version": "0.1",
@@ -299,10 +225,14 @@ def test_run_route_rejects_checkpoint_gate_drift(tmp_path: Path) -> None:
         run_route(task_dir=task_dir, policy=policy, route_name="small")
 
 
-def test_run_route_rejects_future_gate_checkpoint_drift(tmp_path: Path) -> None:
+def test_run_route_rejects_future_gate_checkpoint_drift(
+    tmp_path: Path,
+    write_json: Callable[[Path, dict], None],
+    make_task_dir: Callable[[Path], Path],
+) -> None:
     policy = load_runtime_policy(ROOT)
-    task_dir = _make_task_dir(tmp_path)
-    _write_json(
+    task_dir = make_task_dir(tmp_path)
+    write_json(
         task_dir / "run-state.json",
         {
             "schema_version": "0.1",
@@ -317,7 +247,7 @@ def test_run_route_rejects_future_gate_checkpoint_drift(tmp_path: Path) -> None:
             "quality_review_approved": False,
         },
     )
-    _write_json(
+    write_json(
         task_dir / "review-report.json",
         {
             "schema_version": "0.1",
@@ -334,10 +264,14 @@ def test_run_route_rejects_future_gate_checkpoint_drift(tmp_path: Path) -> None:
         run_route(task_dir=task_dir, policy=policy, route_name="small")
 
 
-def test_run_route_rejects_incomplete_completed_checkpoint(tmp_path: Path) -> None:
+def test_run_route_rejects_incomplete_completed_checkpoint(
+    tmp_path: Path,
+    write_json: Callable[[Path, dict], None],
+    make_task_dir: Callable[[Path], Path],
+) -> None:
     policy = load_runtime_policy(ROOT)
-    task_dir = _make_task_dir(tmp_path)
-    _write_json(
+    task_dir = make_task_dir(tmp_path)
+    write_json(
         task_dir / "run-state.json",
         {
             "schema_version": "0.1",
@@ -353,7 +287,7 @@ def test_run_route_rejects_incomplete_completed_checkpoint(tmp_path: Path) -> No
             "final_status": "success",
         },
     )
-    _write_json(
+    write_json(
         task_dir / "review-report.json",
         {
             "schema_version": "0.1",
@@ -370,23 +304,32 @@ def test_run_route_rejects_incomplete_completed_checkpoint(tmp_path: Path) -> No
         run_route(task_dir=task_dir, policy=policy, route_name="small")
 
 
-def test_advance_rejects_mismatched_run_state_stage(tmp_path: Path) -> None:
+def test_advance_rejects_mismatched_run_state_stage(
+    tmp_path: Path,
+    write_json: Callable[[Path, dict], None],
+    make_task_dir: Callable[[Path], Path],
+) -> None:
     policy = load_runtime_policy(ROOT)
-    task_dir = _make_task_dir(tmp_path)
+    task_dir = make_task_dir(tmp_path)
 
     run_state = json.loads((task_dir / "run-state.json").read_text(encoding="utf-8"))
     run_state["current_stage"] = "execute"
-    _write_json(task_dir / "run-state.json", run_state)
+    write_json(task_dir / "run-state.json", run_state)
 
     with pytest.raises(RuntimeViolation, match="requested current_stage clarify does not match persisted run-state stage execute"):
         advance_to_next_stage(task_dir=task_dir, policy=policy, route_name="small", current_stage="clarify")
 
 
-def test_resume_rejects_medium_session_state_with_wrong_plan_ledger_ref(tmp_path: Path) -> None:
+def test_resume_rejects_medium_session_state_with_wrong_plan_ledger_ref(
+    tmp_path: Path,
+    medium_plan_artifacts: Callable[..., None],
+    write_json: Callable[[Path, dict], None],
+    make_task_dir: Callable[[Path], Path],
+) -> None:
     policy = load_runtime_policy(ROOT)
-    task_dir = _make_task_dir(tmp_path)
-    _write_medium_plan_artifacts(task_dir, route_name="medium")
-    _write_json(
+    task_dir = make_task_dir(tmp_path)
+    medium_plan_artifacts(task_dir, route_name="medium")
+    write_json(
         task_dir / "checkpoint.json",
         {
             "schema_version": "0.1",
@@ -401,7 +344,7 @@ def test_resume_rejects_medium_session_state_with_wrong_plan_ledger_ref(tmp_path
             "updated_at": "2026-04-22T00:05:00Z",
         },
     )
-    _write_json(
+    write_json(
         task_dir / "session-state.json",
         {
             "schema_version": "0.1",
@@ -421,10 +364,14 @@ def test_resume_rejects_medium_session_state_with_wrong_plan_ledger_ref(tmp_path
         resume_task(task_dir=task_dir, policy=policy, route_name="medium")
 
 
-def test_resume_rejects_stale_session_state_latest_review_ref(tmp_path: Path) -> None:
+def test_resume_rejects_stale_session_state_latest_review_ref(
+    tmp_path: Path,
+    write_json: Callable[[Path, dict], None],
+    make_task_dir: Callable[[Path], Path],
+) -> None:
     policy = load_runtime_policy(ROOT)
-    task_dir = _make_task_dir(tmp_path)
-    _write_json(
+    task_dir = make_task_dir(tmp_path)
+    write_json(
         task_dir / "review-report-spec.json",
         {
             "schema_version": "0.1",
@@ -436,7 +383,7 @@ def test_resume_rejects_stale_session_state_latest_review_ref(tmp_path: Path) ->
             "next_action": "quality-review로 진행",
         },
     )
-    _write_json(
+    write_json(
         task_dir / "review-report-quality.json",
         {
             "schema_version": "0.1",
@@ -448,7 +395,7 @@ def test_resume_rejects_stale_session_state_latest_review_ref(tmp_path: Path) ->
             "next_action": "finalize 가능",
         },
     )
-    _write_json(
+    write_json(
         task_dir / "checkpoint.json",
         {
             "schema_version": "0.1",
@@ -464,7 +411,7 @@ def test_resume_rejects_stale_session_state_latest_review_ref(tmp_path: Path) ->
             "updated_at": "2026-04-22T00:05:00Z",
         },
     )
-    _write_json(
+    write_json(
         task_dir / "session-state.json",
         {
             "schema_version": "0.1",
@@ -485,10 +432,14 @@ def test_resume_rejects_stale_session_state_latest_review_ref(tmp_path: Path) ->
         resume_task(task_dir=task_dir, policy=policy, route_name="small")
 
 
-def test_status_rejects_session_state_route_drift(tmp_path: Path) -> None:
+def test_status_rejects_session_state_route_drift(
+    tmp_path: Path,
+    write_json: Callable[[Path, dict], None],
+    make_task_dir: Callable[[Path], Path],
+) -> None:
     policy = load_runtime_policy(ROOT)
-    task_dir = _make_task_dir(tmp_path)
-    _write_json(
+    task_dir = make_task_dir(tmp_path)
+    write_json(
         task_dir / "checkpoint.json",
         {
             "schema_version": "0.1",
@@ -503,7 +454,7 @@ def test_status_rejects_session_state_route_drift(tmp_path: Path) -> None:
             "updated_at": "2026-04-22T00:05:00Z",
         },
     )
-    _write_json(
+    write_json(
         task_dir / "session-state.json",
         {
             "schema_version": "0.1",
@@ -523,10 +474,14 @@ def test_status_rejects_session_state_route_drift(tmp_path: Path) -> None:
         status_summary(task_dir=task_dir, policy=policy, route_name="small")
 
 
-def test_status_rejects_session_state_stage_drift(tmp_path: Path) -> None:
+def test_status_rejects_session_state_stage_drift(
+    tmp_path: Path,
+    write_json: Callable[[Path, dict], None],
+    make_task_dir: Callable[[Path], Path],
+) -> None:
     policy = load_runtime_policy(ROOT)
-    task_dir = _make_task_dir(tmp_path)
-    _write_json(
+    task_dir = make_task_dir(tmp_path)
+    write_json(
         task_dir / "checkpoint.json",
         {
             "schema_version": "0.1",
@@ -541,7 +496,7 @@ def test_status_rejects_session_state_stage_drift(tmp_path: Path) -> None:
             "updated_at": "2026-04-22T00:05:00Z",
         },
     )
-    _write_json(
+    write_json(
         task_dir / "session-state.json",
         {
             "schema_version": "0.1",
@@ -561,10 +516,14 @@ def test_status_rejects_session_state_stage_drift(tmp_path: Path) -> None:
         status_summary(task_dir=task_dir, policy=policy, route_name="small")
 
 
-def test_status_rejects_session_state_latest_review_ref_that_escapes_task_dir(tmp_path: Path) -> None:
+def test_status_rejects_session_state_latest_review_ref_that_escapes_task_dir(
+    tmp_path: Path,
+    write_json: Callable[[Path, dict], None],
+    make_task_dir: Callable[[Path], Path],
+) -> None:
     policy = load_runtime_policy(ROOT)
-    task_dir = _make_task_dir(tmp_path)
-    _write_json(
+    task_dir = make_task_dir(tmp_path)
+    write_json(
         task_dir / "checkpoint.json",
         {
             "schema_version": "0.1",
@@ -579,7 +538,7 @@ def test_status_rejects_session_state_latest_review_ref_that_escapes_task_dir(tm
             "updated_at": "2026-04-22T00:05:00Z",
         },
     )
-    _write_json(
+    write_json(
         task_dir / "session-state.json",
         {
             "schema_version": "0.1",

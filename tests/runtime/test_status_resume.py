@@ -1,4 +1,5 @@
 import json
+from typing import Callable
 from pathlib import Path
 
 from forgeflow_runtime.orchestrator import load_runtime_policy, resume_task, status_summary
@@ -7,93 +8,10 @@ from forgeflow_runtime.orchestrator import load_runtime_policy, resume_task, sta
 ROOT = Path(__file__).resolve().parents[2]
 
 
-def _write_json(path: Path, payload: dict) -> None:
-    path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
-
-
-def _make_task_dir(tmp_path: Path) -> Path:
-    task_dir = tmp_path / "task"
-    task_dir.mkdir()
-    _write_json(
-        task_dir / "brief.json",
-        {
-            "schema_version": "0.1",
-            "task_id": "task-001",
-            "objective": "Run a small route",
-            "in_scope": ["runtime"],
-            "out_of_scope": [],
-            "constraints": ["local only"],
-            "acceptance_criteria": ["route works"],
-            "risk_level": "low",
-        },
-    )
-    _write_json(
-        task_dir / "run-state.json",
-        {
-            "schema_version": "0.1",
-            "task_id": "task-001",
-            "current_stage": "clarify",
-            "status": "in_progress",
-            "completed_gates": ["clarification_complete"],
-            "failed_gates": [],
-            "retries": {},
-            "current_task_id": "",
-            "spec_review_approved": False,
-            "quality_review_approved": False,
-        },
-    )
-    return task_dir
-
-
-def _write_medium_plan_artifacts(task_dir: Path, *, route_name: str = "medium") -> None:
-    _write_json(
-        task_dir / "plan.json",
-        {
-            "schema_version": "0.1",
-            "task_id": "task-001",
-            "steps": [
-                {
-                    "id": "step-1",
-                    "objective": "update workflow docs",
-                    "dependencies": [],
-                    "expected_output": "workflow docs reflect medium route behavior",
-                    "verification": "pytest tests/runtime/test_status_resume.py -q",
-                    "rollback_note": "remove incomplete workflow edits if validation fails",
-                }
-            ],
-        },
-    )
-    _write_json(
-        task_dir / "plan-ledger.json",
-        {
-            "schema_version": "0.1",
-            "task_id": "task-001",
-            "route": route_name,
-            "completed_stages": [],
-            "completed_gates": [],
-            "retries": {},
-            "current_task_id": "task-1",
-            "tasks": [
-                {
-                    "id": "task-1",
-                    "title": "update workflow docs",
-                    "depends_on": [],
-                    "files": ["docs/workflow.md"],
-                    "parallel_safe": False,
-                    "status": "in_progress",
-                    "required_gates": ["machine", "validator"],
-                    "evidence_refs": [],
-                    "attempt_count": 0,
-                }
-            ],
-        },
-    )
-
-
-def test_resume_task_reloads_session_state_and_returns_current_truth(tmp_path: Path) -> None:
+def test_resume_task_reloads_session_state_and_returns_current_truth(make_task_dir: Callable[[Path], Path], write_json: Callable[[Path, dict], None], tmp_path: Path) -> None:
     policy = load_runtime_policy(ROOT)
-    task_dir = _make_task_dir(tmp_path)
-    _write_json(
+    task_dir = make_task_dir(tmp_path)
+    write_json(
         task_dir / "run-state.json",
         {
             "schema_version": "0.1",
@@ -108,7 +26,7 @@ def test_resume_task_reloads_session_state_and_returns_current_truth(tmp_path: P
             "quality_review_approved": False,
         },
     )
-    _write_json(
+    write_json(
         task_dir / "checkpoint.json",
         {
             "schema_version": "0.1",
@@ -124,7 +42,7 @@ def test_resume_task_reloads_session_state_and_returns_current_truth(tmp_path: P
             "updated_at": "2026-04-22T00:05:00Z"
         },
     )
-    _write_json(
+    write_json(
         task_dir / "review-report.json",
         {
             "schema_version": "0.1",
@@ -136,7 +54,7 @@ def test_resume_task_reloads_session_state_and_returns_current_truth(tmp_path: P
             "next_action": "finalize 가능",
         },
     )
-    _write_json(
+    write_json(
         task_dir / "session-state.json",
         {
             "schema_version": "0.1",
@@ -162,10 +80,10 @@ def test_resume_task_reloads_session_state_and_returns_current_truth(tmp_path: P
     assert result["next_action"] == "checkpoint truth"
 
 
-def test_status_summary_reports_current_truth(tmp_path: Path) -> None:
+def test_status_summary_reports_current_truth(make_task_dir: Callable[[Path], Path], write_json: Callable[[Path, dict], None], tmp_path: Path) -> None:
     policy = load_runtime_policy(ROOT)
-    task_dir = _make_task_dir(tmp_path)
-    _write_json(
+    task_dir = make_task_dir(tmp_path)
+    write_json(
         task_dir / "checkpoint.json",
         {
             "schema_version": "0.1",
@@ -180,7 +98,7 @@ def test_status_summary_reports_current_truth(tmp_path: Path) -> None:
             "updated_at": "2026-04-22T00:05:00Z"
         },
     )
-    _write_json(
+    write_json(
         task_dir / "session-state.json",
         {
             "schema_version": "0.1",
@@ -208,11 +126,16 @@ def test_status_summary_reports_current_truth(tmp_path: Path) -> None:
     assert result["next_action"] == "execute로 진행"
 
 
-def test_resume_task_prefers_plan_ledger_current_task_for_medium_route(tmp_path: Path) -> None:
+def test_resume_task_prefers_plan_ledger_current_task_for_medium_route(
+    make_task_dir: Callable[[Path], Path],
+    medium_plan_artifacts: Callable[..., None],
+    write_json: Callable[[Path, dict], None],
+    tmp_path: Path,
+) -> None:
     policy = load_runtime_policy(ROOT)
-    task_dir = _make_task_dir(tmp_path)
-    _write_medium_plan_artifacts(task_dir)
-    _write_json(
+    task_dir = make_task_dir(tmp_path)
+    medium_plan_artifacts(task_dir)
+    write_json(
         task_dir / "run-state.json",
         {
             "schema_version": "0.1",
@@ -227,7 +150,7 @@ def test_resume_task_prefers_plan_ledger_current_task_for_medium_route(tmp_path:
             "quality_review_approved": False,
         },
     )
-    _write_json(
+    write_json(
         task_dir / "checkpoint.json",
         {
             "schema_version": "0.1",
@@ -243,7 +166,7 @@ def test_resume_task_prefers_plan_ledger_current_task_for_medium_route(tmp_path:
             "updated_at": "2026-04-22T00:05:00Z"
         },
     )
-    _write_json(
+    write_json(
         task_dir / "session-state.json",
         {
             "schema_version": "0.1",
@@ -265,11 +188,16 @@ def test_resume_task_prefers_plan_ledger_current_task_for_medium_route(tmp_path:
     assert result["current_task_id"] == "task-1"
 
 
-def test_status_summary_prefers_plan_ledger_current_task_for_medium_route(tmp_path: Path) -> None:
+def test_status_summary_prefers_plan_ledger_current_task_for_medium_route(
+    make_task_dir: Callable[[Path], Path],
+    medium_plan_artifacts: Callable[..., None],
+    write_json: Callable[[Path, dict], None],
+    tmp_path: Path,
+) -> None:
     policy = load_runtime_policy(ROOT)
-    task_dir = _make_task_dir(tmp_path)
-    _write_medium_plan_artifacts(task_dir)
-    _write_json(
+    task_dir = make_task_dir(tmp_path)
+    medium_plan_artifacts(task_dir)
+    write_json(
         task_dir / "run-state.json",
         {
             "schema_version": "0.1",
@@ -284,7 +212,7 @@ def test_status_summary_prefers_plan_ledger_current_task_for_medium_route(tmp_pa
             "quality_review_approved": False,
         },
     )
-    _write_json(
+    write_json(
         task_dir / "plan-ledger.json",
         {
             "schema_version": "0.1",
@@ -309,7 +237,7 @@ def test_status_summary_prefers_plan_ledger_current_task_for_medium_route(tmp_pa
             ],
         },
     )
-    _write_json(
+    write_json(
         task_dir / "checkpoint.json",
         {
             "schema_version": "0.1",
@@ -325,7 +253,7 @@ def test_status_summary_prefers_plan_ledger_current_task_for_medium_route(tmp_pa
             "updated_at": "2026-04-22T00:05:00Z"
         },
     )
-    _write_json(
+    write_json(
         task_dir / "session-state.json",
         {
             "schema_version": "0.1",
