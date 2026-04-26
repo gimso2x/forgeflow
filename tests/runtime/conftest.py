@@ -56,6 +56,55 @@ def make_task_dir(write_json: Callable[[Path, dict], None]) -> Callable[[Path], 
 
 
 @pytest.fixture
+def medium_plan_artifacts(write_json: Callable[[Path, dict], None]) -> Callable[..., None]:
+    def _write_medium_plan_artifacts(task_dir: Path, *, route_name: str = "medium") -> None:
+        write_json(
+            task_dir / "plan.json",
+            {
+                "schema_version": "0.1",
+                "task_id": "task-001",
+                "steps": [
+                    {
+                        "id": "step-1",
+                        "objective": "update workflow docs",
+                        "dependencies": [],
+                        "expected_output": "workflow docs reflect medium route behavior",
+                        "verification": "pytest tests/runtime -q",
+                        "rollback_note": "remove incomplete workflow edits if validation fails",
+                    }
+                ],
+            },
+        )
+        write_json(
+            task_dir / "plan-ledger.json",
+            {
+                "schema_version": "0.1",
+                "task_id": "task-001",
+                "route": route_name,
+                "completed_stages": [],
+                "completed_gates": [],
+                "retries": {},
+                "current_task_id": "task-1",
+                "tasks": [
+                    {
+                        "id": "task-1",
+                        "title": "update workflow docs",
+                        "depends_on": [],
+                        "files": ["docs/workflow.md"],
+                        "parallel_safe": False,
+                        "status": "in_progress",
+                        "required_gates": ["machine", "validator"],
+                        "evidence_refs": [],
+                        "attempt_count": 0,
+                    }
+                ],
+            },
+        )
+
+    return _write_medium_plan_artifacts
+
+
+@pytest.fixture
 def assert_schema_valid() -> Callable[[str, dict], None]:
     def _load_schema(name: str) -> dict:
         return json.loads((ROOT / "schemas" / f"{name}.schema.json").read_text(encoding="utf-8"))

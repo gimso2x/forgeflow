@@ -17,61 +17,15 @@ from forgeflow_runtime.orchestrator import (
 ROOT = Path(__file__).resolve().parents[2]
 
 
-def _write_medium_plan_artifacts(
-    task_dir: Path, write_json: Callable[[Path, dict], None], *, route_name: str = "medium"
-) -> None:
-    write_json(
-        task_dir / "plan.json",
-        {
-            "schema_version": "0.1",
-            "task_id": "task-001",
-            "steps": [
-                {
-                    "id": "step-1",
-                    "objective": "update workflow docs",
-                    "dependencies": [],
-                    "expected_output": "workflow docs reflect medium route behavior",
-                    "verification": "pytest tests/runtime/test_checkpoint_resume.py -q",
-                    "rollback_note": "remove incomplete workflow edits if validation fails",
-                }
-            ],
-        },
-    )
-    write_json(
-        task_dir / "plan-ledger.json",
-        {
-            "schema_version": "0.1",
-            "task_id": "task-001",
-            "route": route_name,
-            "completed_stages": [],
-            "completed_gates": [],
-            "retries": {},
-            "current_task_id": "task-1",
-            "tasks": [
-                {
-                    "id": "task-1",
-                    "title": "update workflow docs",
-                    "depends_on": [],
-                    "files": ["docs/workflow.md"],
-                    "parallel_safe": False,
-                    "status": "in_progress",
-                    "required_gates": ["machine", "validator"],
-                    "evidence_refs": [],
-                    "attempt_count": 0,
-                }
-            ],
-        },
-    )
-
-
 def test_run_route_rejects_medium_plan_ledger_out_of_order_completed_stages(
     tmp_path: Path,
+    medium_plan_artifacts: Callable[..., None],
     write_json: Callable[[Path, dict], None],
     make_task_dir: Callable[[Path], Path],
 ) -> None:
     policy = load_runtime_policy(ROOT)
     task_dir = make_task_dir(tmp_path)
-    _write_medium_plan_artifacts(task_dir, write_json, route_name="medium")
+    medium_plan_artifacts(task_dir, route_name="medium")
     run_state = json.loads((task_dir / "run-state.json").read_text(encoding="utf-8"))
     run_state["current_stage"] = "execute"
     write_json(task_dir / "run-state.json", run_state)
@@ -368,12 +322,13 @@ def test_advance_rejects_mismatched_run_state_stage(
 
 def test_resume_rejects_medium_session_state_with_wrong_plan_ledger_ref(
     tmp_path: Path,
+    medium_plan_artifacts: Callable[..., None],
     write_json: Callable[[Path, dict], None],
     make_task_dir: Callable[[Path], Path],
 ) -> None:
     policy = load_runtime_policy(ROOT)
     task_dir = make_task_dir(tmp_path)
-    _write_medium_plan_artifacts(task_dir, write_json, route_name="medium")
+    medium_plan_artifacts(task_dir, route_name="medium")
     write_json(
         task_dir / "checkpoint.json",
         {
