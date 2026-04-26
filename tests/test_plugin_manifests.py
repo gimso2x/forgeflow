@@ -60,6 +60,32 @@ def test_plugin_version_check_reuses_release_supported_manifest_list():
     assert checker.SUPPORTED_PLUGIN_MANIFESTS is release.SUPPORTED_PLUGIN_MANIFESTS
 
 
+def test_plugin_version_check_reports_supported_manifest_homepage_drift():
+    checker = _load_script("check_plugin_versions")
+    manifests = {
+        Path(".claude-plugin/plugin.json"): {
+            "name": "forgeflow",
+            "version": "0.1.16",
+            "repository": "https://github.com/gimso2x/forgeflow",
+            "license": "MIT",
+        },
+        Path(".codex-plugin/plugin.json"): {
+            "name": "forgeflow",
+            "version": "0.1.16",
+            "homepage": "https://example.invalid/stale",
+            "repository": "https://github.com/gimso2x/forgeflow",
+            "license": "MIT",
+        },
+    }
+    marketplace = {"metadata": {"version": "0.1.16"}}
+
+    errors = checker.plugin_metadata_errors(manifests, marketplace)
+
+    assert errors == [
+        ".codex-plugin/plugin.json: homepage 'https://example.invalid/stale' != 'https://github.com/gimso2x/forgeflow'"
+    ]
+
+
 def test_plugin_version_check_script_fails_fast_before_release():
     result = subprocess.run(
         [sys.executable, "scripts/check_plugin_versions.py"],

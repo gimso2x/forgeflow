@@ -18,30 +18,46 @@ def load_json(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def main() -> int:
-    claude = load_json(CLAUDE_PLUGIN)
+def _display_path(path: Path) -> str:
+    try:
+        return str(path.relative_to(ROOT))
+    except ValueError:
+        return str(path)
+
+
+def plugin_metadata_errors(manifests: dict[Path, dict], marketplace: dict) -> list[str]:
+    claude = manifests[CLAUDE_PLUGIN] if CLAUDE_PLUGIN in manifests else manifests[Path(".claude-plugin/plugin.json")]
     expected_name = claude["name"]
     expected_version = claude["version"]
+    expected_homepage = claude.get("homepage", claude["repository"])
     expected_repository = claude["repository"]
     expected_license = claude["license"]
 
     errors: list[str] = []
-    for path in SUPPORTED_PLUGIN_MANIFESTS:
-        manifest = load_json(path)
-        rel = path.relative_to(ROOT)
+    for path, manifest in manifests.items():
+        rel = _display_path(path)
         if manifest.get("name") != expected_name:
             errors.append(f"{rel}: name {manifest.get('name')!r} != {expected_name!r}")
         if manifest.get("version") != expected_version:
             errors.append(f"{rel}: version {manifest.get('version')!r} != {expected_version!r}")
+        if manifest.get("homepage", expected_homepage) != expected_homepage:
+            errors.append(f"{rel}: homepage {manifest.get('homepage')!r} != {expected_homepage!r}")
         if manifest.get("repository") != expected_repository:
             errors.append(f"{rel}: repository {manifest.get('repository')!r} != {expected_repository!r}")
         if manifest.get("license") != expected_license:
             errors.append(f"{rel}: license {manifest.get('license')!r} != {expected_license!r}")
 
-    marketplace = load_json(MARKETPLACE)
     marketplace_version = marketplace.get("metadata", {}).get("version")
     if marketplace_version != expected_version:
-        errors.append(f"{MARKETPLACE.relative_to(ROOT)}: metadata.version {marketplace_version!r} != {expected_version!r}")
+        errors.append(f"{_display_path(MARKETPLACE)}: metadata.version {marketplace_version!r} != {expected_version!r}")
+    return errors
+
+
+def main() -> int:
+    manifests = {path: load_json(path) for path in SUPPORTED_PLUGIN_MANIFESTS}
+    marketplace = load_json(MARKETPLACE)
+    expected_version = manifests[CLAUDE_PLUGIN]["version"]
+    errors = plugin_metadata_errors(manifests, marketplace)
 
     if errors:
         for error in errors:
