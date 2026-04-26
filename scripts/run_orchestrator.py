@@ -23,6 +23,7 @@ from forgeflow_runtime.orchestrator import (  # noqa: E402
     status_summary,
     step_back,
 )
+from forgeflow_runtime.operator_routing import ROUTE_ORDER, effective_route, role_for_stage  # noqa: E402
 from forgeflow_runtime.engine import execute_stage  # noqa: E402
 from forgeflow_runtime.executor import ExecutorError  # noqa: E402
 from forgeflow_runtime.generator import GenerationError  # noqa: E402
@@ -45,64 +46,6 @@ def _execution_payload(*, stage: str, role: str, adapter: str, result, use_real:
 
 def _print_payload(payload: dict) -> None:
     print(json.dumps(payload, indent=2, ensure_ascii=False))
-
-
-STAGE_ROLE_MAP: dict[str, str] = {
-    "clarify": "coordinator",
-    "plan": "planner",
-    "execute": "worker",
-    "spec-review": "spec-reviewer",
-    "quality-review": "quality-reviewer",
-    "finalize": "coordinator",
-    "long-run": "worker",
-}
-
-ROUTE_ORDER: list[str] = ["small", "medium", "large_high_risk"]
-RISK_TO_ROUTE: dict[str, str] = {
-    "low": "small",
-    "medium": "medium",
-    "high": "large_high_risk",
-}
-
-
-def _role_for_stage(stage: str) -> str:
-    role = STAGE_ROLE_MAP.get(stage)
-    if not role:
-        raise RuntimeViolation(f"no default role mapping for stage: {stage}")
-    return role
-
-
-def _route_rank(route_name: str) -> int:
-    if route_name not in ROUTE_ORDER:
-        raise RuntimeViolation(f"unknown route: {route_name}")
-    return ROUTE_ORDER.index(route_name)
-
-
-def _auto_route_for_task_dir(task_dir: Path) -> str:
-    for artifact_name in ["session-state.json", "checkpoint.json", "plan-ledger.json"]:
-        path = task_dir / artifact_name
-        if not path.exists():
-            continue
-        payload = json.loads(path.read_text(encoding="utf-8"))
-        route_name = payload.get("route")
-        if isinstance(route_name, str) and route_name:
-            return route_name
-
-    brief_path = task_dir / "brief.json"
-    if brief_path.exists():
-        brief = json.loads(brief_path.read_text(encoding="utf-8"))
-        risk_level = brief.get("risk_level")
-        if isinstance(risk_level, str) and risk_level in RISK_TO_ROUTE:
-            return RISK_TO_ROUTE[risk_level]
-
-    return "small"
-
-
-def _effective_route(*, task_dir: Path, explicit_route: str | None, min_route: str | None) -> str:
-    route_name = explicit_route or _auto_route_for_task_dir(task_dir)
-    if min_route is None:
-        return route_name
-    return ROUTE_ORDER[max(_route_rank(route_name), _route_rank(min_route))]
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -241,10 +184,11 @@ def main() -> int:
     policy = load_runtime_policy(ROOT)
 
     try:
-        route_name = _effective_route(
+        route_name = effective_route(
             task_dir=task_dir,
             explicit_route=getattr(args, "route", None),
             min_route=getattr(args, "min_route", None),
+            violation_factory=RuntimeViolation,
         )
         if args.command == "start":
             _print_payload(start_task(task_dir=task_dir, policy=policy, route_name=route_name))
@@ -298,7 +242,7 @@ def main() -> int:
             if not current_stage:
                 print("ERROR: current_stage not set in run-state.", file=sys.stderr)
                 return 1
-            role = args.role or _role_for_stage(current_stage)
+            role = args.role or role_for_stage(current_stage, violation_factory=RuntimeViolation)
             result = execute_stage(
                 task_dir=task_dir,
                 task_id=run_state.get("task_id", "unknown"),
