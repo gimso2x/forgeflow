@@ -138,6 +138,9 @@ def test_contract_map_names_script_runtime_boundary() -> None:
         "`scripts/*.py`",
         "Thin command-line and validation entrypoints",
         "reusable behavior lives in `forgeflow_runtime/`",
+        "High-risk CLI wrappers",
+        "`scripts/run_orchestrator.py`",
+        "`scripts/forgeflow_evolution.py`",
     ]:
         assert required_text in contract_map
 
