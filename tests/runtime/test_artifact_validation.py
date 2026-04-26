@@ -1,8 +1,8 @@
 import json
+from collections.abc import Callable
 from pathlib import Path
 
 import pytest
-from jsonschema import Draft202012Validator
 
 from forgeflow_runtime.artifact_validation import load_validated_artifact
 from forgeflow_runtime.orchestrator import RuntimeViolation, load_runtime_policy, retry_stage, run_route
@@ -11,67 +11,29 @@ from forgeflow_runtime.orchestrator import RuntimeViolation, load_runtime_policy
 ROOT = Path(__file__).resolve().parents[2]
 
 
-def _write_json(path: Path, payload: dict) -> None:
-    path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
-
-def _load_schema(name: str) -> dict:
-    return json.loads((ROOT / "schemas" / f"{name}.schema.json").read_text(encoding="utf-8"))
-
-
-def _assert_schema_valid(name: str, payload: dict) -> None:
-    errors = sorted(Draft202012Validator(_load_schema(name)).iter_errors(payload), key=lambda err: list(err.path))
-    assert not errors, [f"{list(err.path)}: {err.message}" for err in errors]
-
-
-def _make_task_dir(tmp_path: Path) -> Path:
-    task_dir = tmp_path / "task"
-    task_dir.mkdir()
-    _write_json(
-        task_dir / "brief.json",
-        {
-            "schema_version": "0.1",
-            "task_id": "task-001",
-            "objective": "Run a small route",
-            "in_scope": ["runtime"],
-            "out_of_scope": [],
-            "constraints": ["local only"],
-            "acceptance_criteria": ["route works"],
-            "risk_level": "low",
-        },
-    )
-    _write_json(
-        task_dir / "run-state.json",
-        {
-            "schema_version": "0.1",
-            "task_id": "task-001",
-            "current_stage": "clarify",
-            "status": "in_progress",
-            "completed_gates": ["clarification_complete"],
-            "failed_gates": [],
-            "retries": {},
-            "current_task_id": "",
-            "spec_review_approved": False,
-            "quality_review_approved": False,
-        },
-    )
-    return task_dir
-
-
-def test_load_validated_artifact_rejects_unknown_schema_version_with_clear_error(tmp_path: Path) -> None:
-    task_dir = _make_task_dir(tmp_path)
+def test_load_validated_artifact_rejects_unknown_schema_version_with_clear_error(
+    tmp_path: Path,
+    make_task_dir: Callable[[Path], Path],
+    write_json: Callable[[Path, dict], None],
+) -> None:
+    task_dir = make_task_dir(tmp_path)
     run_state = json.loads((task_dir / "run-state.json").read_text(encoding="utf-8"))
     run_state["schema_version"] = "9.9"
-    _write_json(task_dir / "run-state.json", run_state)
+    write_json(task_dir / "run-state.json", run_state)
 
     with pytest.raises(RuntimeViolation, match="run-state.json uses unsupported schema_version 9.9"):
         load_validated_artifact(task_dir, "run-state", expected_task_id="task-001")
 
 
-def test_run_route_rejects_schema_invalid_existing_run_state(tmp_path: Path) -> None:
+def test_run_route_rejects_schema_invalid_existing_run_state(
+    tmp_path: Path,
+    make_task_dir: Callable[[Path], Path],
+    write_json: Callable[[Path, dict], None],
+) -> None:
     policy = load_runtime_policy(ROOT)
-    task_dir = _make_task_dir(tmp_path)
-    _write_json(
+    task_dir = make_task_dir(tmp_path)
+    write_json(
         task_dir / "run-state.json",
         {
             "schema_version": "0.1",
@@ -86,7 +48,7 @@ def test_run_route_rejects_schema_invalid_existing_run_state(tmp_path: Path) -> 
             "quality_review_approved": False,
         },
     )
-    _write_json(
+    write_json(
         task_dir / "review-report.json",
         {
             "schema_version": "0.1",
@@ -103,10 +65,14 @@ def test_run_route_rejects_schema_invalid_existing_run_state(tmp_path: Path) -> 
         run_route(task_dir=task_dir, policy=policy, route_name="small")
 
 
-def test_run_route_rejects_schema_invalid_review_report(tmp_path: Path) -> None:
+def test_run_route_rejects_schema_invalid_review_report(
+    tmp_path: Path,
+    make_task_dir: Callable[[Path], Path],
+    write_json: Callable[[Path, dict], None],
+) -> None:
     policy = load_runtime_policy(ROOT)
-    task_dir = _make_task_dir(tmp_path)
-    _write_json(
+    task_dir = make_task_dir(tmp_path)
+    write_json(
         task_dir / "review-report.json",
         {
             "schema_version": "0.1",
@@ -121,10 +87,14 @@ def test_run_route_rejects_schema_invalid_review_report(tmp_path: Path) -> None:
         run_route(task_dir=task_dir, policy=policy, route_name="small")
 
 
-def test_run_route_rejects_mismatched_review_report_task_id(tmp_path: Path) -> None:
+def test_run_route_rejects_mismatched_review_report_task_id(
+    tmp_path: Path,
+    make_task_dir: Callable[[Path], Path],
+    write_json: Callable[[Path, dict], None],
+) -> None:
     policy = load_runtime_policy(ROOT)
-    task_dir = _make_task_dir(tmp_path)
-    _write_json(
+    task_dir = make_task_dir(tmp_path)
+    write_json(
         task_dir / "review-report.json",
         {
             "schema_version": "0.1",
@@ -141,11 +111,14 @@ def test_run_route_rejects_mismatched_review_report_task_id(tmp_path: Path) -> N
         run_route(task_dir=task_dir, policy=policy, route_name="small")
 
 
-def test_run_route_rejects_mismatched_eval_record_task_id(tmp_path: Path) -> None:
+def test_run_route_rejects_mismatched_eval_record_task_id(
+    tmp_path: Path,
+    write_json: Callable[[Path, dict], None],
+) -> None:
     policy = load_runtime_policy(ROOT)
     task_dir = tmp_path / "large-task"
     task_dir.mkdir()
-    _write_json(
+    write_json(
         task_dir / "brief.json",
         {
             "schema_version": "0.1",
@@ -158,7 +131,7 @@ def test_run_route_rejects_mismatched_eval_record_task_id(tmp_path: Path) -> Non
             "risk_level": "high",
         },
     )
-    _write_json(
+    write_json(
         task_dir / "plan.json",
         {
             "schema_version": "0.1",
@@ -173,7 +146,7 @@ def test_run_route_rejects_mismatched_eval_record_task_id(tmp_path: Path) -> Non
             ],
         },
     )
-    _write_json(
+    write_json(
         task_dir / "plan-ledger.json",
         {
             "schema_version": "0.1",
@@ -195,7 +168,7 @@ def test_run_route_rejects_mismatched_eval_record_task_id(tmp_path: Path) -> Non
             ],
         },
     )
-    _write_json(
+    write_json(
         task_dir / "review-report-spec.json",
         {
             "schema_version": "0.1",
@@ -207,7 +180,7 @@ def test_run_route_rejects_mismatched_eval_record_task_id(tmp_path: Path) -> Non
             "next_action": "quality-review로 진행",
         },
     )
-    _write_json(
+    write_json(
         task_dir / "review-report-quality.json",
         {
             "schema_version": "0.1",
@@ -219,7 +192,7 @@ def test_run_route_rejects_mismatched_eval_record_task_id(tmp_path: Path) -> Non
             "next_action": "finalize 가능",
         },
     )
-    _write_json(
+    write_json(
         task_dir / "eval-record.json",
         {
             "schema_version": "0.1",
@@ -234,9 +207,13 @@ def test_run_route_rejects_mismatched_eval_record_task_id(tmp_path: Path) -> Non
         run_route(task_dir=task_dir, policy=policy, route_name="large_high_risk")
 
 
-def test_retry_stage_rejects_mismatched_decision_log_task_id(tmp_path: Path) -> None:
-    task_dir = _make_task_dir(tmp_path)
-    _write_json(
+def test_retry_stage_rejects_mismatched_decision_log_task_id(
+    tmp_path: Path,
+    make_task_dir: Callable[[Path], Path],
+    write_json: Callable[[Path, dict], None],
+) -> None:
+    task_dir = make_task_dir(tmp_path)
+    write_json(
         task_dir / "decision-log.json",
         {
             "schema_version": "0.1",
@@ -249,10 +226,15 @@ def test_retry_stage_rejects_mismatched_decision_log_task_id(tmp_path: Path) -> 
         retry_stage(task_dir=task_dir, stage_name="execute")
 
 
-def test_run_route_migrates_legacy_decision_log_timestamps(tmp_path: Path) -> None:
+def test_run_route_migrates_legacy_decision_log_timestamps(
+    tmp_path: Path,
+    make_task_dir: Callable[[Path], Path],
+    write_json: Callable[[Path, dict], None],
+    assert_schema_valid: Callable[[str, dict], None],
+) -> None:
     policy = load_runtime_policy(ROOT)
-    task_dir = _make_task_dir(tmp_path)
-    _write_json(
+    task_dir = make_task_dir(tmp_path)
+    write_json(
         task_dir / "decision-log.json",
         {
             "schema_version": "0.1",
@@ -269,7 +251,7 @@ def test_run_route_migrates_legacy_decision_log_timestamps(tmp_path: Path) -> No
             ],
         },
     )
-    _write_json(
+    write_json(
         task_dir / "review-report.json",
         {
             "schema_version": "0.1",
@@ -286,5 +268,5 @@ def test_run_route_migrates_legacy_decision_log_timestamps(tmp_path: Path) -> No
 
     assert result["status"] == "completed"
     decision_log = json.loads((task_dir / "decision-log.json").read_text(encoding="utf-8"))
-    _assert_schema_valid("decision-log", decision_log)
+    assert_schema_valid("decision-log", decision_log)
     assert decision_log["entries"][0]["timestamp"] == "1970-01-01T00:00:01Z"
