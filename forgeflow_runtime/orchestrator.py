@@ -35,6 +35,7 @@ from forgeflow_runtime.plan_ledger import (
     sync_plan_ledger_retry as _sync_plan_ledger_retry,
     sync_plan_ledger_review as _sync_plan_ledger_review,
 )
+from forgeflow_runtime.operator_routing import role_for_stage
 from forgeflow_runtime.policy_loader import RuntimePolicy, load_runtime_policy
 from forgeflow_runtime.resume_validation import resume_start_index
 from forgeflow_runtime.route_execution import route_entry_decision, route_iteration_stages, stage_completion_status
@@ -887,18 +888,7 @@ def advance_to_next_stage(
     if execute_immediately:
         from forgeflow_runtime.engine import execute_stage
 
-        default_role_map = {
-            "clarify": "coordinator",
-            "plan": "planner",
-            "execute": "worker",
-            "spec-review": "spec-reviewer",
-            "quality-review": "quality-reviewer",
-            "finalize": "coordinator",
-            "long-run": "worker",
-        }
-        execution_role = role or default_role_map.get(next_stage)
-        if not execution_role:
-            raise RuntimeViolation(f"no default role mapping for stage: {next_stage}")
+        execution_role = role or role_for_stage(next_stage, violation_factory=RuntimeViolation)
         result = execute_stage(
             task_dir=task_dir,
             task_id=staged_run_state.get("task_id", canonical_task_id),

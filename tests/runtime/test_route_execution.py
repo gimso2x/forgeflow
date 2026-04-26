@@ -49,7 +49,18 @@ def test_route_entry_decision_marks_complete_route() -> None:
     assert decision.already_complete is True
 
 
-<<<<<<< HEAD
+def test_stage_completion_status_marks_finalize_success() -> None:
+    assert stage_completion_status("finalize", existing_final_status=None) == ("completed", "success")
+
+
+def test_stage_completion_status_preserves_long_run_final_status() -> None:
+    assert stage_completion_status("long-run", existing_final_status="partial") == ("completed", "partial")
+
+
+def test_stage_completion_status_leaves_intermediate_stage_in_progress() -> None:
+    assert stage_completion_status("quality-review", existing_final_status=None) == ("in_progress", None)
+
+
 def _write_json(path: Path, payload: dict) -> None:
     path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
@@ -64,25 +75,6 @@ def _assert_schema_valid(name: str, payload: dict) -> None:
 
 
 def test_small_route_runs_end_to_end_and_updates_state(tmp_path: Path) -> None:
-=======
-def test_stage_completion_status_marks_finalize_success() -> None:
-    assert stage_completion_status("finalize", existing_final_status=None) == ("completed", "success")
-
-
-def test_stage_completion_status_preserves_long_run_final_status() -> None:
-    assert stage_completion_status("long-run", existing_final_status="partial") == ("completed", "partial")
-
-
-def test_stage_completion_status_leaves_intermediate_stage_in_progress() -> None:
-    assert stage_completion_status("quality-review", existing_final_status=None) == ("in_progress", None)
-
-
-def test_small_route_runs_end_to_end_and_updates_state(
-    tmp_path: Path,
-    write_json: Callable[[Path, dict], None],
-    assert_schema_valid: Callable[[str, dict], None],
-) -> None:
->>>>>>> 9c70586 (refactor: extract route completion status seam)
     policy = load_runtime_policy(ROOT)
     task_dir = tmp_path / "task"
     task_dir.mkdir()
