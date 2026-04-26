@@ -27,4 +27,5 @@ ForgeFlow keeps behavior stable by treating a small set of files and commands as
 - Keep scripts thin: CLI parsing and printing live in `scripts/`, reusable behavior lives in `forgeflow_runtime/`.
 - Add a focused validation or test assertion when a new contract surface becomes required.
 - Contract map validation checks named runtime seam files exist, so seam docs cannot silently point at missing modules.
+- Contract map validation checks named validation command paths exist, so command examples cannot silently rot into missing scripts or test paths.
 - If a README example names a command, prefer a Make target or repo-managed script path that CI can exercise.

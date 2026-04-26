@@ -1,3 +1,4 @@
+import ast
 import importlib.util
 import subprocess
 import sys
@@ -176,9 +177,44 @@ def test_contract_map_runtime_seam_paths_exist_and_are_declared() -> None:
         "forgeflow_runtime/plan_ledger.py",
         "forgeflow_runtime/stage_transition.py",
         "forgeflow_runtime/route_execution.py",
+        "forgeflow_runtime/operator_routing.py",
     ]:
         assert f"`{rel}`" in contract_map
         assert (ROOT / rel).is_file()
+
+
+def test_contract_map_validation_commands_reference_existing_paths() -> None:
+    contract_map = (ROOT / "docs" / "contract-map.md").read_text(encoding="utf-8")
+
+    assert "Contract map validation checks named validation command paths exist" in contract_map
+    for rel in [
+        "scripts/validate_sample_artifacts.py",
+        "tests/test_validate_sample_artifacts.py",
+        "scripts/validate_policy.py",
+        "tests/evolution",
+        "tests/runtime",
+        "scripts/validate_generated.py",
+        "tests/test_generate_adapters.py",
+        "tests/test_validate_generated.py",
+        "tests/test_plugin_manifests.py",
+        "scripts/validate_structure.py",
+    ]:
+        assert rel in contract_map
+        assert (ROOT / rel).exists()
+
+
+def test_script_thinness_keeps_operator_route_logic_out_of_cli_wrapper() -> None:
+    script = ROOT / "scripts" / "run_orchestrator.py"
+    tree = ast.parse(script.read_text(encoding="utf-8"))
+    assigned_names = set()
+    for node in tree.body:
+        if isinstance(node, ast.AnnAssign) and isinstance(node.target, ast.Name):
+            assigned_names.add(node.target.id)
+        elif isinstance(node, ast.Assign):
+            assigned_names.update(target.id for target in node.targets if isinstance(target, ast.Name))
+
+    assert "operator route selection" in (ROOT / "docs" / "contract-map.md").read_text(encoding="utf-8")
+    assert not {"STAGE_ROLE_MAP", "ROUTE_ORDER", "RISK_TO_ROUTE"} & assigned_names
 
 
 def test_make_validate_runs_runtime_seam_tests() -> None:
