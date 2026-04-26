@@ -60,6 +60,14 @@ def test_plugin_version_check_reuses_release_supported_manifest_list():
     assert checker.SUPPORTED_PLUGIN_MANIFESTS is release.SUPPORTED_PLUGIN_MANIFESTS
 
 
+def test_plugin_version_check_reports_missing_supported_manifest():
+    checker = _load_script("check_plugin_versions")
+
+    errors = checker.supported_manifest_errors([ROOT / ".codex-plugin" / "missing-plugin.json"])
+
+    assert errors == [".codex-plugin/missing-plugin.json: supported plugin manifest is missing"]
+
+
 def test_plugin_version_check_reports_supported_manifest_homepage_drift():
     checker = _load_script("check_plugin_versions")
     manifests = {

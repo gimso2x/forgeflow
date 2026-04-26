@@ -30,6 +30,10 @@ def unsupported_manifest_errors(paths: list[Path]) -> list[str]:
     return [f"{_display_path(path)}: unsupported plugin manifest must be removed" for path in paths if path.exists()]
 
 
+def supported_manifest_errors(paths: list[Path]) -> list[str]:
+    return [f"{_display_path(path)}: supported plugin manifest is missing" for path in paths if not path.exists()]
+
+
 def plugin_metadata_errors(manifests: dict[Path, dict], marketplace: dict) -> list[str]:
     claude = manifests[CLAUDE_PLUGIN] if CLAUDE_PLUGIN in manifests else manifests[Path(".claude-plugin/plugin.json")]
     expected_name = claude["name"]
@@ -68,10 +72,19 @@ def plugin_metadata_errors(manifests: dict[Path, dict], marketplace: dict) -> li
 
 
 def main() -> int:
+    support_errors = [
+        *unsupported_manifest_errors(UNSUPPORTED_PLUGIN_MANIFESTS),
+        *supported_manifest_errors(SUPPORTED_PLUGIN_MANIFESTS),
+    ]
+    if support_errors:
+        for error in support_errors:
+            print(f"ERROR: {error}", file=sys.stderr)
+        return 1
+
     manifests = {path: load_json(path) for path in SUPPORTED_PLUGIN_MANIFESTS}
     marketplace = load_json(MARKETPLACE)
     expected_version = manifests[CLAUDE_PLUGIN]["version"]
-    errors = [*unsupported_manifest_errors(UNSUPPORTED_PLUGIN_MANIFESTS), *plugin_metadata_errors(manifests, marketplace)]
+    errors = plugin_metadata_errors(manifests, marketplace)
 
     if errors:
         for error in errors:
