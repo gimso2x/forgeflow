@@ -161,6 +161,23 @@ def test_contract_map_names_evolution_runtime_seams() -> None:
         assert required_text in contract_map
 
 
+def test_contract_map_runtime_seam_paths_exist_and_are_declared() -> None:
+    contract_map = (ROOT / "docs" / "contract-map.md").read_text(encoding="utf-8")
+
+    assert "Contract map validation checks named runtime seam files exist" in contract_map
+    for rel in [
+        "forgeflow_runtime/gate_evaluation.py",
+        "forgeflow_runtime/resume_validation.py",
+        "forgeflow_runtime/artifact_validation.py",
+        "forgeflow_runtime/task_identity.py",
+        "forgeflow_runtime/plan_ledger.py",
+        "forgeflow_runtime/stage_transition.py",
+        "forgeflow_runtime/route_execution.py",
+    ]:
+        assert f"`{rel}`" in contract_map
+        assert (ROOT / rel).is_file()
+
+
 def test_make_validate_runs_runtime_seam_tests() -> None:
     makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
 

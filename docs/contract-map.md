@@ -26,4 +26,5 @@ ForgeFlow keeps behavior stable by treating a small set of files and commands as
 - Do not patch generated adapter output directly; update adapter sources and run the generator.
 - Keep scripts thin: CLI parsing and printing live in `scripts/`, reusable behavior lives in `forgeflow_runtime/`.
 - Add a focused validation or test assertion when a new contract surface becomes required.
+- Contract map validation checks named runtime seam files exist, so seam docs cannot silently point at missing modules.
 - If a README example names a command, prefer a Make target or repo-managed script path that CI can exercise.
