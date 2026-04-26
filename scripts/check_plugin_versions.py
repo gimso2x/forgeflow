@@ -7,11 +7,11 @@ import json
 import sys
 from pathlib import Path
 
+from release import MARKETPLACE_JSON as MARKETPLACE
+from release import PLUGIN_JSON as CLAUDE_PLUGIN
+from release import SUPPORTED_PLUGIN_MANIFESTS
+
 ROOT = Path(__file__).resolve().parents[1]
-CLAUDE_PLUGIN = ROOT / ".claude-plugin" / "plugin.json"
-CODEX_PLUGIN = ROOT / ".codex-plugin" / "plugin.json"
-MARKETPLACE = ROOT / ".claude-plugin" / "marketplace.json"
-SUPPORTED_PLUGIN_MANIFESTS = (CLAUDE_PLUGIN, CODEX_PLUGIN)
 
 
 def load_json(path: Path) -> dict:

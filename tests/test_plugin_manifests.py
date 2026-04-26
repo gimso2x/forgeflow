@@ -1,3 +1,4 @@
+import importlib.util
 import json
 import subprocess
 import sys
@@ -37,6 +38,26 @@ def test_supported_plugin_metadata_does_not_advertise_cursor_plugin_support():
         assert "cursor" not in manifest["keywords"]
     for plugin in marketplace["plugins"]:
         assert "cursor" not in plugin.get("tags", [])
+
+
+def _load_script(name: str):
+    path = ROOT / "scripts" / f"{name}.py"
+    scripts_dir = str(path.parent)
+    if scripts_dir not in sys.path:
+        sys.path.insert(0, scripts_dir)
+    spec = importlib.util.spec_from_file_location(name, path)
+    assert spec and spec.loader
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_plugin_version_check_reuses_release_supported_manifest_list():
+    release = _load_script("release")
+    checker = _load_script("check_plugin_versions")
+
+    assert checker.SUPPORTED_PLUGIN_MANIFESTS is release.SUPPORTED_PLUGIN_MANIFESTS
 
 
 def test_plugin_version_check_script_fails_fast_before_release():
