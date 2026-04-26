@@ -37,7 +37,7 @@ from forgeflow_runtime.plan_ledger import (
 )
 from forgeflow_runtime.policy_loader import RuntimePolicy, load_runtime_policy
 from forgeflow_runtime.resume_validation import resume_start_index
-from forgeflow_runtime.route_execution import route_iteration_stages
+from forgeflow_runtime.route_execution import route_entry_decision, route_iteration_stages
 from forgeflow_runtime.stage_transition import next_stage_for_transition
 from forgeflow_runtime.task_identity import canonical_task_id as _canonical_task_id
 from forgeflow_runtime.task_identity import task_id as _task_id
@@ -973,13 +973,20 @@ def run_route(task_dir: Path, policy: RuntimePolicy, route_name: str) -> dict[st
         plan_ledger=plan_ledger,
     )
 
-    if start_index >= len(route):
+    route_entry = route_entry_decision(
+        route_name=route_name,
+        start_index=start_index,
+        resume_from_stage=resume_from_stage,
+        route_length=len(route),
+    )
+
+    if route_entry.already_complete:
         _append_decision(
             decision_log,
             actor="orchestrator",
             category="routing",
-            decision=f"route already complete: {route_name}",
-            rationale="validated checkpoint already reached route terminal stage",
+            decision=route_entry.decision,
+            rationale=route_entry.rationale,
         )
         _write_validated_artifact(task_dir, "decision-log", decision_log)
         _write_validated_artifact(task_dir, "run-state", run_state)
@@ -1001,22 +1008,13 @@ def run_route(task_dir: Path, policy: RuntimePolicy, route_name: str) -> dict[st
         )
         return run_state
 
-    if start_index == 0:
-        _append_decision(
-            decision_log,
-            actor="orchestrator",
-            category="routing",
-            decision=f"route selected: {route_name}",
-            rationale="canonical complexity route applied",
-        )
-    else:
-        _append_decision(
-            decision_log,
-            actor="orchestrator",
-            category="routing",
-            decision=f"route resumed: {route_name} from {resume_from_stage}",
-            rationale="validated checkpoint state reused instead of replaying prior stages",
-        )
+    _append_decision(
+        decision_log,
+        actor="orchestrator",
+        category="routing",
+        decision=route_entry.decision,
+        rationale=route_entry.rationale,
+    )
 
     for stage_name in route_iteration_stages(route, start_index):
         missing_artifacts = _missing_artifacts(task_dir, policy.stage_requirements.get(stage_name, []))
