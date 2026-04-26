@@ -47,9 +47,18 @@ def plugin_metadata_errors(manifests: dict[Path, dict], marketplace: dict) -> li
         if manifest.get("license") != expected_license:
             errors.append(f"{rel}: license {manifest.get('license')!r} != {expected_license!r}")
 
+    marketplace_rel = _display_path(MARKETPLACE)
+    marketplace_name = marketplace.get("name")
+    if marketplace_name != expected_name:
+        errors.append(f"{marketplace_rel}: name {marketplace_name!r} != {expected_name!r}")
+    for index, plugin in enumerate(marketplace.get("plugins", [])):
+        plugin_name = plugin.get("name")
+        if plugin_name != expected_name:
+            errors.append(f"{marketplace_rel}: plugins[{index}].name {plugin_name!r} != {expected_name!r}")
+
     marketplace_version = marketplace.get("metadata", {}).get("version")
     if marketplace_version != expected_version:
-        errors.append(f"{_display_path(MARKETPLACE)}: metadata.version {marketplace_version!r} != {expected_version!r}")
+        errors.append(f"{marketplace_rel}: metadata.version {marketplace_version!r} != {expected_version!r}")
     return errors
 
 

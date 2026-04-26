@@ -77,12 +77,42 @@ def test_plugin_version_check_reports_supported_manifest_homepage_drift():
             "license": "MIT",
         },
     }
-    marketplace = {"metadata": {"version": "0.1.16"}}
+    marketplace = {"name": "forgeflow", "metadata": {"version": "0.1.16"}, "plugins": [{"name": "forgeflow"}]}
 
     errors = checker.plugin_metadata_errors(manifests, marketplace)
 
     assert errors == [
         ".codex-plugin/plugin.json: homepage 'https://example.invalid/stale' != 'https://github.com/gimso2x/forgeflow'"
+    ]
+
+
+def test_plugin_version_check_reports_marketplace_name_drift():
+    checker = _load_script("check_plugin_versions")
+    manifests = {
+        Path(".claude-plugin/plugin.json"): {
+            "name": "forgeflow",
+            "version": "0.1.16",
+            "repository": "https://github.com/gimso2x/forgeflow",
+            "license": "MIT",
+        },
+        Path(".codex-plugin/plugin.json"): {
+            "name": "forgeflow",
+            "version": "0.1.16",
+            "repository": "https://github.com/gimso2x/forgeflow",
+            "license": "MIT",
+        },
+    }
+    marketplace = {
+        "name": "forgeflow-stale",
+        "metadata": {"version": "0.1.16"},
+        "plugins": [{"name": "forgeflow-stale"}],
+    }
+
+    errors = checker.plugin_metadata_errors(manifests, marketplace)
+
+    assert errors == [
+        ".claude-plugin/marketplace.json: name 'forgeflow-stale' != 'forgeflow'",
+        ".claude-plugin/marketplace.json: plugins[0].name 'forgeflow-stale' != 'forgeflow'",
     ]
 
 
