@@ -29,3 +29,22 @@ def test_review_evidence_discipline_distinguishes_observed_from_reported() -> No
         "Separate observed evidence from reported or missing evidence before choosing a verdict.",
     ]:
         assert required_text in skill
+
+
+def test_init_skill_exposes_orchestrator_bootstrap_without_auto_chaining() -> None:
+    skill_path = ROOT / "skills" / "init" / "SKILL.md"
+    assert skill_path.exists()
+    skill = skill_path.read_text(encoding="utf-8")
+
+    for required_text in [
+        "name: init",
+        "scripts/run_orchestrator.py init",
+        "--task-id",
+        "--objective",
+        "--risk low|medium|high",
+        "bootstrap a new task workspace",
+        "without overwriting existing artifacts",
+        "Do not automatically continue into `/forgeflow:clarify`",
+        "다음 스텝으로 `/forgeflow:clarify`를 진행하시겠습니까? (y/n)",
+    ]:
+        assert required_text in skill

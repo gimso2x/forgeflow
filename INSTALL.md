@@ -34,6 +34,7 @@ claude plugin list
 설치 후 새 Claude Code 세션을 열고 slash skill을 사용하세요. 기본 입구는 `/forgeflow:clarify`지만, agent가 자연스럽게 다음 stage를 이어 받아야지 사용자가 매번 workflow 운영자가 될 필요는 없습니다.
 
 ```text
+/forgeflow:init --task-id <id> --objective "<objective>" --risk low|medium|high
 /forgeflow:clarify <하고 싶은 작업>
 /forgeflow:plan
 /forgeflow:run
