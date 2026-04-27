@@ -72,6 +72,25 @@ def test_local_hard_rule_examples_are_project_scoped_deterministic_and_auditable
         assert "raw_frustration" not in serialized
 
 
+def test_validate_evolution_policy_contract_accepts_current_policy() -> None:
+    validate_policy = _load_validate_policy_module()
+    evolution = validate_policy._load_yaml(ROOT / "policy" / "canonical" / "evolution.yaml")
+
+    errors = validate_policy._validate_evolution_policy_contract(ROOT, evolution)
+
+    assert errors == []
+
+
+def test_validate_evolution_policy_contract_rejects_global_review_advice() -> None:
+    validate_policy = _load_validate_policy_module()
+    evolution = validate_policy._load_yaml(ROOT / "policy" / "canonical" / "evolution.yaml")
+    evolution["scopes"]["global"]["permissions"].append("advise_review")
+
+    errors = validate_policy._validate_evolution_policy_contract(ROOT, evolution)
+
+    assert "evolution global scope must not advise review gates" in errors
+
+
 def test_validate_policy_rejects_global_review_advice_boundary_violation(tmp_path: Path) -> None:
     validate_policy = _load_validate_policy_module()
     fixture_root = tmp_path / "fixture"
