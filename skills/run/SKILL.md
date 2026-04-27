@@ -86,7 +86,8 @@ Worker self-report is not approval. `/forgeflow:review` still has to happen.
 
 ## UX guardrails
 
-- Treat the latest executable brief/plan as sufficient authority for in-repo work the user already asked for.
+- Treat the latest executable brief/plan as sufficient authority only after the user has approved entering `/forgeflow:run`.
+- 이미 승인된 run scope 안에서는 반복적으로 계획을 다시 허락받지 않는다.
 - Do not pause just to reconfirm the same plan before editing files.
 - Only bounce back to `/forgeflow:clarify` or `/forgeflow:specify` when scope genuinely changed or a blocker invalidates the current brief/plan.
 - Bad: `승인된 계획대로 실행하겠습니다.`만 말하고 대기.

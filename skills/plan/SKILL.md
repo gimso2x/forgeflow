@@ -135,16 +135,17 @@ No heading. No preamble. No code fence. No third line.
    - dependency ordering
    - regression and recovery risks
    - verification strategy
-7. Hand off to `/forgeflow:run`.
+7. Propose `/forgeflow:run` as the next stage and stop for explicit user approval.
 
 Do not code during planning unless the user explicitly asks for a tiny small-route direct execution.
 
 ## UX guardrails
 
 - Planning owns plan creation; do not ask the user to make the plan.
-- Once the plan is executable, do not ask for a second "plan approval" by default.
-- Only stop for confirmation if execution would exceed the requested scope or trigger a new external side effect.
-- Prefer a direct handoff such as `계획 확정. 바로 run.` over ceremony like `다음 단계는 /forgeflow:run으로 승인 후 진행`.
+- Do not ask for 계획 내용 재승인 when the plan is executable; the agent owns decomposition.
+- Do stop before crossing the `plan → run` stage boundary, because execution is a separate stage.
+- End with a closed next-stage question such as `계획은 여기까지 확정됐습니다. 다음 스텝으로 `/forgeflow:run`을 진행하시겠습니까? (y/n)`.
+- Bad: `계획 확정. run 직행.`
 - Bad: `내가 계획을 세워?`
 - Good: `아니요. 계획은 내가 세운다. 아래처럼 진행.`
 

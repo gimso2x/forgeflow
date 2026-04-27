@@ -82,10 +82,11 @@ Do not implement here. Clarify is the intake gate, not the coding phase.
 - Do repo inspection before saying the scope is unclear.
 - Do not manufacture open questions just to prolong intake.
 - Do not ask the user to write the plan for you.
-- Do not ask for permission to move from clarify to plan/run unless the next step would cause a new external side effect the user did not already request.
-- When the request is already sufficient, end with a short forward handoff like `route=medium. 바로 plan으로 간다.`
-- Bad: `다음 단계는 /forgeflow:plan입니다. 승인해 주세요.`
-- Good: `요구사항 충분. medium route. 이제 plan 작성.`
+- Do not ask the user to approve the brief content again when the request is already sufficient.
+- Do stop at the stage boundary before starting `/forgeflow:plan` or `/forgeflow:run`.
+- When the request is already sufficient, end with a closed next-stage question: `요구사항 충분. medium route입니다. 다음 스텝으로 `/forgeflow:plan`을 진행하시겠습니까? (y/n)`
+- Bad: `route=medium. plan 직행.`
+- Good: `요구사항 충분. medium route입니다. 다음 스텝으로 `/forgeflow:plan`을 진행하시겠습니까? (y/n)`
 
 ## Output mode examples
 
