@@ -72,6 +72,19 @@ def test_docs_explain_stage_boundaries_are_user_approved_not_manual_operation() 
     assert "자연스럽게 이어받는 쪽이 정본 UX입니다" not in install
 
 
+def test_readme_documents_plugin_init_cache_guard_and_release_smoke() -> None:
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+
+    assert "Claude/Codex plugin cache" in readme
+    assert "cache 아래에 `.forgeflow/tasks/...`를 만들지 않고 실패" in readme
+    assert "traceback 없이 `ERROR:`" in readme
+    assert "일반 프로젝트 경로에 `plugin/marketplace`" in readme
+    assert "--task-dir /path/to/your-project/.forgeflow/tasks/<task-id>" in readme
+    assert "Maintainer verification before release or plugin update" in readme
+    assert "make smoke-claude-plugin" in readme
+    assert "writes starter artifacts through `/forgeflow:init`" in readme
+
+
 def test_make_validate_runs_ux_contract_tests() -> None:
     makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
     assert "tests/test_forgeflow_ux_contract.py" in makefile
