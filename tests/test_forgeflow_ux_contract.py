@@ -75,3 +75,27 @@ def test_docs_explain_stage_boundaries_are_user_approved_not_manual_operation() 
 def test_make_validate_runs_ux_contract_tests() -> None:
     makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
     assert "tests/test_forgeflow_ux_contract.py" in makefile
+
+
+def test_so2x_minimum_spec_and_plan_gates_are_documented() -> None:
+    specify = (ROOT / "skills" / "specify" / "SKILL.md").read_text(encoding="utf-8")
+    plan = (ROOT / "skills" / "plan" / "SKILL.md").read_text(encoding="utf-8")
+
+    for required_text in [
+        "Minimum requirements gate",
+        "`Goal`",
+        "`Requirements`",
+        "`Implementation Constraints`",
+        "`Verification`",
+    ]:
+        assert required_text in specify
+
+    for required_text in [
+        "Minimum plan gate",
+        "`Goal`",
+        "`Requirements`",
+        "`Implementation Steps`",
+        "`Verification`",
+        "Do not proceed to `/forgeflow:run` if one of those is missing for non-trivial work.",
+    ]:
+        assert required_text in plan

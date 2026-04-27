@@ -48,3 +48,50 @@ def test_init_skill_exposes_orchestrator_bootstrap_without_auto_chaining() -> No
         "다음 스텝으로 `/forgeflow:clarify`를 진행하시겠습니까? (y/n)",
     ]:
         assert required_text in skill
+
+
+def test_safe_commit_skill_locks_pre_commit_safety_contract() -> None:
+    skill_path = ROOT / "skills" / "safe-commit" / "SKILL.md"
+    assert skill_path.exists()
+    skill = skill_path.read_text(encoding="utf-8")
+
+    for required_text in [
+        "name: safe-commit",
+        "secret scan",
+        "file-size and generated-file risk",
+        "scope drift",
+        "verification evidence",
+        "request traceability",
+        "final disposition: `SAFE` or `UNSAFE`",
+        "Redact credentials as `[REDACTED]`.",
+    ]:
+        assert required_text in skill
+
+
+def test_check_harness_skill_scores_core_harness_health_categories() -> None:
+    skill_path = ROOT / "skills" / "check-harness" / "SKILL.md"
+    assert skill_path.exists()
+    skill = skill_path.read_text(encoding="utf-8")
+
+    for required_text in [
+        "name: check-harness",
+        "total score out of 100",
+        "Entry points",
+        "Shared context",
+        "Execution habits",
+        "Verification",
+        "Maintainability",
+        "smallest sufficient fixes",
+    ]:
+        assert required_text in skill
+
+
+def test_cross_cutting_so2x_skills_are_listed_in_skill_index() -> None:
+    index = (ROOT / "skills" / "SKILLS.md").read_text(encoding="utf-8")
+
+    for required_text in [
+        "[`safe-commit`](safe-commit/SKILL.md)",
+        "[`check-harness`](check-harness/SKILL.md)",
+        "so2x-harness",
+    ]:
+        assert required_text in index

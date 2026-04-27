@@ -27,10 +27,22 @@ Use this skill when a clarified request needs explicit requirements before plann
   - sub-requirements `R1.1`, `R1.2`, ...
   - verification method for each sub-requirement
 
+## Minimum requirements gate
+
+For non-trivial work, `requirements.md` must include these sections before `/forgeflow:plan` consumes it:
+
+- `Goal`
+- `Requirements`
+- `Implementation Constraints`
+- `Verification`
+
+Tiny response-only or exact-output prompts may omit the full artifact, but the response still needs enough Goal, Requirements, and Verification signal for planning.
+
 ## Exit Condition
 
 - Every requirement traces to a decision or brief constraint
 - Every sub-requirement is testable or manually verifiable
+- Non-trivial `requirements.md` includes `Goal`, `Requirements`, `Implementation Constraints`, and `Verification`
 - No implementation tasks are created here
 - `/forgeflow:plan` can consume the requirements without guessing
 

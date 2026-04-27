@@ -83,12 +83,24 @@ Optional contract-aware `plan.json` fields:
 
 Small documentation-only tasks may omit these fields. If the fields are present, they must be internally consistent and pass sample artifact validation.
 
+## Minimum plan gate
+
+Before crossing `plan → run`, the plan must make these sections explicit in `plan.json`, a sibling plan note, or the response artifact:
+
+- `Goal`
+- `Requirements`
+- `Implementation Steps`
+- `Verification`
+
+Do not proceed to `/forgeflow:run` if one of those is missing for non-trivial work. For tiny exact-output prompts, preserve the requested format but keep the same information density in the listed steps.
+
 ## Exit Condition
 
 - Every task has exact file paths or a justified discovery step
 - Every task has verification
 - Dependencies form a DAG
 - Medium/large routes have enough detail for `/forgeflow:run` without guessing
+- The minimum plan gate covers `Goal`, `Requirements`, `Implementation Steps`, and `Verification`
 - Contract metadata is present for cross-module work, or explicitly unnecessary
 - `fulfills`, `journeys`, and `verify_plan` links are consistent when present
 - No placeholder tasks remain
