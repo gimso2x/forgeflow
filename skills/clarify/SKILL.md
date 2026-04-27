@@ -27,14 +27,14 @@ Use this skill to convert a raw request into a ForgeFlow `brief.json`-style cont
   - constraints
   - acceptance criteria
   - scope boundary
-  - open questions
+  - non-blocking unknowns / bounded assumptions
   - complexity score
   - route: `small`, `medium`, or `large_high_risk`
 
 ## Exit Condition
 
 - The request has a clear goal and scope boundary
-- Open questions are either answered or explicitly listed
+- True blocker questions are answered; non-blocking unknowns are recorded as bounded assumptions
 - A route is selected and justified
 - Next skill is named:
   - `small` -> `/forgeflow:run` or direct execute path
@@ -73,14 +73,14 @@ When the user says "do not run commands", do not propose command execution as if
    - 13-15: `large_high_risk` — auth/security, data migration, payments, production infra, irreversible data changes, broad architecture migration, or many contracts/journeys requiring separate spec and quality review.
 4. State the route and why, unless an exact-output/label-only instruction applies.
 5. Produce the brief in a structured form the next skill can consume, unless an exact-output/label-only instruction applies.
-6. If the request is actionable, treat listed open questions as bounded assumptions and make the next stage obvious without asking the user to do your planning work, unless an exact-output/label-only instruction applies.
+6. If the request is actionable, record remaining non-blocking unknowns as bounded assumptions and make the next stage obvious without asking the user to do your planning work, unless an exact-output/label-only instruction applies.
 
 Do not implement here. Clarify is the intake gate, not the coding phase.
 
 ## UX guardrails
 
 - Do repo inspection before saying the scope is unclear.
-- Do not manufacture open questions just to prolong intake.
+- Do not manufacture open questions just to prolong intake; `non-blocking unknowns` are artifact notes, not questions the user must answer.
 - Do not ask the user to write the plan for you.
 - Do not ask the user to approve the brief content again when the request is already sufficient.
 - Do stop at the stage boundary before starting `/forgeflow:plan` or `/forgeflow:run`.

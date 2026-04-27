@@ -9,6 +9,7 @@ def test_clarify_skill_requires_minimal_blocker_only_questions() -> None:
 
     assert "Ask at most 2 clarifying questions" in text
     assert "only for true blockers" in text
+    assert "artifact notes, not questions the user must answer" in text
     assert "Do not ask the user to write the plan for you." in text
     assert "다음 스텝으로 `/forgeflow:plan`을 진행하시겠습니까? (y/n)" in text
     assert "바로 plan으로 간다" not in text
