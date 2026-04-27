@@ -10,6 +10,8 @@ def test_clarify_skill_allows_focused_requirement_questions() -> None:
     assert "Ask up to 5 clarifying questions" in text
     assert "materially improve requirements" in text
     assert "do not pad the list" in text
+    assert "product behavior, user/audience, success criteria" in text
+    assert "implementation chores the agent should infer from repo inspection" in text
     assert "Ask at most 2 clarifying questions" not in text
     assert "only for true blockers" not in text
     assert "blocker-only" not in text

@@ -67,6 +67,8 @@ When the user says "do not run commands", do not propose command execution as if
 
 1. Inspect relevant repo context before inventing scope.
 2. Ask up to 5 clarifying questions when they materially improve requirements. Ask 0 if the request is already actionable, and do not pad the list with nice-to-have trivia.
+   - Good questions resolve product behavior, user/audience, success criteria, data/source of truth, rollout/risk constraints, or explicit out-of-scope boundaries.
+   - Bad questions ask for implementation chores the agent should infer from repo inspection, preferences that do not change the plan, or confirmations that can be recorded as bounded assumptions.
 3. Score complexity:
    - 5-8: `small` — one localized change, usually 1-2 files, low ambiguity, no cross-cutting behavior.
    - 9-12: `medium` — several coordinated files/components, shared state/layout/navigation, moderate test/update surface, but no security/data migration/infra rollback risk.
