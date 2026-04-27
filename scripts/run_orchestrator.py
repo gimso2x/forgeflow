@@ -168,17 +168,13 @@ Notes:
 
 
 def _cwd_is_plugin_cache(cwd: Path) -> bool:
-    path_text = cwd.resolve().as_posix()
-    return any(
-        marker in path_text
-        for marker in (
-            ".claude/plugins/cache",
-            ".codex/plugins",
-            ".codex/plugin",
-            "/plugin/marketplace/",
-            "/plugins/cache/",
-        )
-    )
+    parts = cwd.resolve().parts
+    for index, part in enumerate(parts):
+        if part == ".claude" and parts[index + 1 : index + 3] == ("plugins", "cache"):
+            return True
+        if part == ".codex" and len(parts) > index + 1 and parts[index + 1] in {"plugin", "plugins"}:
+            return True
+    return False
 
 
 def _default_task_dir_for_init(task_id: str) -> Path:
@@ -193,16 +189,17 @@ def _default_task_dir_for_init(task_id: str) -> Path:
 def main() -> int:
     parser = build_parser()
     args = parser.parse_args()
-    task_dir_arg = getattr(args, "task_dir", None)
-    if task_dir_arg:
-        task_dir = Path(task_dir_arg).resolve()
-    elif args.command == "init":
-        task_dir = _default_task_dir_for_init(args.task_id)
-    else:
-        parser.error("--task-dir is required for this command")
-    policy = load_runtime_policy(ROOT)
 
     try:
+        task_dir_arg = getattr(args, "task_dir", None)
+        if task_dir_arg:
+            task_dir = Path(task_dir_arg).resolve()
+        elif args.command == "init":
+            task_dir = _default_task_dir_for_init(args.task_id)
+        else:
+            parser.error("--task-dir is required for this command")
+        policy = load_runtime_policy(ROOT)
+
         route_name = effective_route(
             task_dir=task_dir,
             explicit_route=getattr(args, "route", None),

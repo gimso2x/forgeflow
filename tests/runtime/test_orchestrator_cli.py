@@ -129,9 +129,33 @@ def test_cli_init_without_task_dir_refuses_plugin_cache_cwd(tmp_path: Path) -> N
 
     assert result.returncode == 1
     assert result.stdout == ""
+    assert result.stderr.startswith("ERROR: ")
     assert "plugin cache" in result.stderr
     assert "--task-dir" in result.stderr
+    assert "Traceback" not in result.stderr
     assert not (plugin_cache_dir / ".forgeflow" / "tasks" / "cache-write-001").exists()
+
+
+def test_cli_init_without_task_dir_allows_ordinary_plugin_marketplace_named_project(tmp_path: Path) -> None:
+    project_dir = tmp_path / "plugin" / "marketplace" / "myproj"
+    project_dir.mkdir(parents=True)
+
+    result = _run_orchestrator_cli(
+        "init",
+        "--task-id",
+        "false-positive-001",
+        "--objective",
+        "Ordinary project path should not be blocked",
+        "--risk",
+        "low",
+        cwd=project_dir,
+    )
+
+    assert result.returncode == 0, result.stderr
+    expected_task_dir = project_dir / ".forgeflow" / "tasks" / "false-positive-001"
+    payload = json.loads(result.stdout)
+    assert Path(payload["task_dir"]) == expected_task_dir
+    assert (expected_task_dir / "brief.json").exists()
 
 
 def test_cli_init_refuses_to_overwrite_existing_artifacts(tmp_path: Path) -> None:
