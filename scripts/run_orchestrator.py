@@ -167,8 +167,27 @@ Notes:
     return parser
 
 
+def _cwd_is_plugin_cache(cwd: Path) -> bool:
+    path_text = cwd.resolve().as_posix()
+    return any(
+        marker in path_text
+        for marker in (
+            ".claude/plugins/cache",
+            ".codex/plugins",
+            ".codex/plugin",
+            "/plugin/marketplace/",
+            "/plugins/cache/",
+        )
+    )
+
+
 def _default_task_dir_for_init(task_id: str) -> Path:
-    return (Path.cwd() / ".forgeflow" / "tasks" / task_id).resolve()
+    cwd = Path.cwd().resolve()
+    if _cwd_is_plugin_cache(cwd):
+        raise RuntimeViolation(
+            "init default task-dir resolved inside a plugin cache; pass --task-dir pointing at the target project"
+        )
+    return (cwd / ".forgeflow" / "tasks" / task_id).resolve()
 
 
 def main() -> int:

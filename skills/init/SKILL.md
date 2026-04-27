@@ -30,7 +30,9 @@ Run the existing orchestrator bootstrap command from the ForgeFlow repository ro
 python3 scripts/run_orchestrator.py init --task-id <task-id> --objective "<objective>" --risk low|medium|high [--task-dir <path>]
 ```
 
-This bootstraps a new task workspace without overwriting existing artifacts. The default task directory is `./.forgeflow/tasks/<task-id>`.
+This bootstraps a new task workspace without overwriting existing artifacts. The default task directory is `./.forgeflow/tasks/<task-id>` **in the user's active project/workspace**, not inside a Claude/Codex plugin installation cache.
+
+Plugin-cache safety rule: never create task artifacts under a path containing `.claude/plugins/cache`, `.codex/plugins`, or any plugin marketplace/cache directory. If the slash command runtime resolves `.` to the plugin install/cache directory and the user did not provide `--task-dir`, stop and ask for an explicit `--task-dir` instead of writing there. If the user provides `--task-dir`, use that path exactly.
 
 Expected starter artifacts include:
 

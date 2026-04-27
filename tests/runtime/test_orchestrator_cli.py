@@ -112,6 +112,28 @@ def test_cli_init_without_task_dir_writes_under_current_project_forgeflow_tasks(
     assert not (ROOT / ".forgeflow" / "tasks" / "readme-quickstart-001").exists()
 
 
+def test_cli_init_without_task_dir_refuses_plugin_cache_cwd(tmp_path: Path) -> None:
+    plugin_cache_dir = tmp_path / ".claude" / "plugins" / "cache" / "forgeflow"
+    plugin_cache_dir.mkdir(parents=True)
+
+    result = _run_orchestrator_cli(
+        "init",
+        "--task-id",
+        "cache-write-001",
+        "--objective",
+        "Do not write into plugin cache",
+        "--risk",
+        "low",
+        cwd=plugin_cache_dir,
+    )
+
+    assert result.returncode == 1
+    assert result.stdout == ""
+    assert "plugin cache" in result.stderr
+    assert "--task-dir" in result.stderr
+    assert not (plugin_cache_dir / ".forgeflow" / "tasks" / "cache-write-001").exists()
+
+
 def test_cli_init_refuses_to_overwrite_existing_artifacts(tmp_path: Path) -> None:
     task_dir = tmp_path / "existing-task"
     task_dir.mkdir()

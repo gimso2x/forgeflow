@@ -44,11 +44,17 @@ When writing `plan.json`, it **must** conform to `schemas/plan.schema.json` exac
       "dependencies": [],
       "expected_output": "Badge location and target badge content are known.",
       "verification": "Manual inspection of README badge location and requested badge content.",
-      "rollback_note": "No repository files changed during planning."
+      "rollback_note": "No repository files changed during planning.",
+      "fulfills": ["R1"]
     }
+  ],
+  "verify_plan": [
+    {"target": "R1", "type": "sub_req", "gates": ["manual_review"]}
   ]
 }
 ```
+
+`steps[].fulfills` and top-level `verify_plan` are required even for minimal written `plan.json`. For small tasks, create a simple requirement ID such as `R1` and make every step fulfill it.
 
 Do not add non-schema fields such as `route`, `tasks`, `files_to_change`, `acceptance_criteria`, `verification_commands`, or `route_selection_rationale` to `plan.json`.
 

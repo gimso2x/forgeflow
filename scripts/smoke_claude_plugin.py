@@ -24,27 +24,27 @@ DRY_RUN_CASES = [
     ),
     (
         "specify_exact",
-        "/forgeflow:specify Dry run only. Return exactly two numbered lines and nothing else. List two spec questions for a README badge task. Do not write files. Do not run commands.",
+        "/forgeflow:specify Dry run only. Your entire response must be exactly two numbered lines and nothing else: no preamble, no heading, no summary. List two spec questions for a README badge task. Do not write files. Do not run commands.",
         "two_lines",
     ),
     (
         "plan_exact",
-        "/forgeflow:plan Dry run only. Return exactly two numbered lines and nothing else. List two plan steps for a README badge task. Do not write files. Do not run commands.",
+        "/forgeflow:plan Dry run only. Your entire response must be exactly two numbered lines and nothing else: no preamble, no heading, no summary. List two plan steps for a README badge task. Do not write files. Do not run commands.",
         "two_lines",
     ),
     (
         "run_exact",
-        "/forgeflow:run Dry run only. Return exactly two numbered lines and nothing else. List two execution checks for a README badge task. Do not write files. Do not run commands.",
+        "/forgeflow:run Dry run only. Your entire response must be exactly two numbered lines and nothing else: no preamble, no heading, no summary. List two execution checks for a README badge task. Do not write files. Do not run commands.",
         "two_lines",
     ),
     (
         "review_exact",
-        "/forgeflow:review Dry run only. Return exactly two numbered lines and nothing else. For a README badge diff, list two review checks. Do not write files. Do not run commands.",
+        "/forgeflow:review Dry run only. Your entire response must be exactly two numbered lines and nothing else: no preamble, no heading, no summary. For a README badge diff, list two review checks. Do not write files. Do not run commands.",
         "two_lines",
     ),
     (
         "ship_exact",
-        "/forgeflow:ship Dry run only. Return exactly two numbered lines and nothing else. List two ship checks for a README badge task. Do not write files. Do not run commands.",
+        "/forgeflow:ship Dry run only. Your entire response must be exactly two numbered lines and nothing else: no preamble, no heading, no summary. List two ship checks for a README badge task. Do not write files. Do not run commands.",
         "two_lines",
     ),
 ]
@@ -125,6 +125,15 @@ def validate_schema(task_dir: Path, artifact: str, schema: str) -> None:
         raise AssertionError(f"{artifact} schema failed: {details}")
 
 
+def assert_init_artifacts(task_dir: Path) -> None:
+    expected = ["brief.json", "run-state.json", "checkpoint.json", "session-state.json"]
+    missing = [name for name in expected if not (task_dir / name).exists()]
+    if missing:
+        raise AssertionError(f"init_write missing starter artifacts: {missing}")
+    for name in expected:
+        json.loads((task_dir / name).read_text(encoding="utf-8"))
+
+
 def git_status() -> str:
     return subprocess.check_output(["git", "status", "--short"], cwd=ROOT, text=True)
 
@@ -161,6 +170,10 @@ def main() -> int:
 
         write_cases = [
             (
+                "init_write",
+                f"/forgeflow:init --task-id claude-plugin-smoke --objective \"Smoke-test init slash command\" --risk low --task-dir {task_dir}. Create only the init starter artifacts in that task directory. Do not modify repository files outside that task directory.",
+            ),
+            (
                 "plan_write",
                 f"/forgeflow:plan Write plan.json under {task_dir} for a README badge task. Keep it minimal. Use schema_version exactly 0.1. Do not modify repository files outside that task directory.",
             ),
@@ -175,8 +188,10 @@ def main() -> int:
             assert_no_permission_denials(name, result)
             print(result.get("result", "").strip())
 
+        assert_init_artifacts(task_dir)
         validate_schema(task_dir, "plan.json", "plan.schema.json")
         validate_schema(task_dir, "review-report.json", "review-report.schema.json")
+        print("init_artifacts=PASS")
         print("plan_schema=PASS")
         print("review-report_schema=PASS")
 
