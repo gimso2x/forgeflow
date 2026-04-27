@@ -92,6 +92,15 @@ Before crossing `plan → run`, the plan must make these sections explicit in `p
 - `Implementation Steps`
 - `Verification`
 
+### Requirement traceability
+
+For non-trivial work, carry the requirement map through the executable plan instead of leaving it as prose:
+
+- Each non-trivial step must include `fulfills` with requirement or sub-requirement IDs when requirements are known.
+- Every `fulfills` target must have a matching `verify_plan` entry.
+- Use `type: "sub_req"` for requirement-level targets and `type: "step"` only when the verification target is the step itself.
+- If a step intentionally has no requirement reference, say why in the sibling plan note or response artifact; do not silently create orphan work.
+
 Do not proceed to `/forgeflow:run` if one of those is missing for non-trivial work. For tiny exact-output prompts, preserve the requested format but keep the same information density in the listed steps.
 
 ## Exit Condition

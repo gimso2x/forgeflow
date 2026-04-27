@@ -96,6 +96,9 @@ def test_so2x_minimum_spec_and_plan_gates_are_documented() -> None:
         "`Requirements`",
         "`Implementation Steps`",
         "`Verification`",
+        "Requirement traceability",
+        "Each non-trivial step must include `fulfills`",
+        "Every `fulfills` target must have a matching `verify_plan` entry",
         "Do not proceed to `/forgeflow:run` if one of those is missing for non-trivial work.",
     ]:
         assert required_text in plan
