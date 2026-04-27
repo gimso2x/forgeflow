@@ -37,9 +37,9 @@ Use this skill to convert a raw request into a ForgeFlow `brief.json`-style cont
 - Open questions are either answered or explicitly listed
 - A route is selected and justified
 - Next skill is named:
-  - `small` -> `/run` or direct execute path
-  - `medium` -> `/plan`
-  - `large_high_risk` -> `/plan` with spec/quality review kept separate
+  - `small` -> `/forgeflow:run` or direct execute path
+  - `medium` -> `/forgeflow:plan`
+  - `large_high_risk` -> `/forgeflow:plan` with spec/quality review kept separate
 
 ## File write and output discipline
 
@@ -92,7 +92,7 @@ Do not implement here. Clarify is the intake gate, not the coding phase.
 If asked:
 
 ```text
-/clarify Add a README badge. Return only the selected route label. Do not write files.
+/forgeflow:clarify Add a README badge. Return only the selected route label. Do not write files.
 ```
 
 Return only one of:

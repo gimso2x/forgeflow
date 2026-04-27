@@ -18,7 +18,7 @@ Use this skill to turn a ForgeFlow brief or requirements document into an execut
 - `brief.json` or equivalent brief
 - `requirements.md` if available
 - Codebase context
-- Route selected by `/clarify`
+- Route selected by `/forgeflow:clarify`
 
 ## Output Artifacts
 
@@ -88,7 +88,7 @@ Small documentation-only tasks may omit these fields. If the fields are present,
 - Every task has exact file paths or a justified discovery step
 - Every task has verification
 - Dependencies form a DAG
-- Medium/large routes have enough detail for `/run` without guessing
+- Medium/large routes have enough detail for `/forgeflow:run` without guessing
 - Contract metadata is present for cross-module work, or explicitly unnecessary
 - `fulfills`, `journeys`, and `verify_plan` links are consistent when present
 - No placeholder tasks remain
@@ -135,7 +135,7 @@ No heading. No preamble. No code fence. No third line.
    - dependency ordering
    - regression and recovery risks
    - verification strategy
-7. Hand off to `/run`.
+7. Hand off to `/forgeflow:run`.
 
 Do not code during planning unless the user explicitly asks for a tiny small-route direct execution.
 
@@ -153,7 +153,7 @@ Do not code during planning unless the user explicitly asks for a tiny small-rou
 If asked:
 
 ```text
-/plan For route small, list exactly two plan steps. Do not write files.
+/forgeflow:plan For route small, list exactly two plan steps. Do not write files.
 ```
 
 Return exactly the requested steps in the response. Do **not** create `plan.json`.
@@ -161,7 +161,7 @@ Return exactly the requested steps in the response. Do **not** create `plan.json
 If asked:
 
 ```text
-/plan Write plan.json under work/my-task
+/forgeflow:plan Write plan.json under work/my-task
 ```
 
 Then and only then write `work/my-task/plan.json`.

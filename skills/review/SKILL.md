@@ -1,6 +1,6 @@
 ---
 name: review
-description: Perform independent ForgeFlow review against requirements, plan, and code. Use after /run before /ship.
+description: Perform independent ForgeFlow review against requirements, plan, and code. Use after /forgeflow:run before /forgeflow:ship.
 version: 0.1.0
 author: gimso2x
 validate_prompt: |
@@ -41,7 +41,7 @@ When writing `review-report.json`, it **must** conform to `schemas/review-report
   "verdict": "approved",
   "findings": ["No blockers found in the hypothetical README badge diff."],
   "approved_by": "forgeflow-review",
-  "next_action": "Proceed to /ship.",
+  "next_action": "Proceed to /forgeflow:ship.",
   "safe_for_next_stage": true,
   "open_blockers": [],
   "evidence_refs": ["hypothetical README badge diff"]
@@ -56,7 +56,7 @@ Do not add non-schema fields such as `findings_by_severity`, `blocker_list`, or 
 - Tests/build/lint are considered or run where appropriate
 - Critical/major findings block ship
 - Approved review has no open blockers and is safe for next stage
-- Next step is `/ship` only if review passes
+- Next step is `/forgeflow:ship` only if review passes
 
 ## File write and output discipline
 
@@ -119,7 +119,7 @@ Do not merge spec-review and quality-review for large/high-risk work.
 If asked:
 
 ```text
-/review Dry run only. List exactly two review checks. Do not write files. Do not run commands.
+/forgeflow:review Dry run only. List exactly two review checks. Do not write files. Do not run commands.
 ```
 
 Return exactly two review checks. Do not add a verdict, artifact JSON, or extra commentary.

@@ -34,7 +34,7 @@ Use this skill to execute the selected ForgeFlow route.
 - Verification commands have been run
 - Failures are fixed or explicitly recorded
 - Runtime evidence exists for review
-- Next step is `/review`
+- Next step is `/forgeflow:review`
 
 ## File write and output discipline
 
@@ -73,21 +73,21 @@ No heading. No preamble. No code fence. No third line. Start directly with `1.`.
 4. Treat `fulfills`, `journeys`, and `verify_plan` as verification obligations, not decoration.
 5. Run focused verification after each meaningful change.
 6. Update evidence/decision notes.
-7. Stop if requirements become ambiguous; return to `/clarify` or `/specify`.
+7. Stop if requirements become ambiguous; return to `/forgeflow:clarify` or `/forgeflow:specify`.
 
 Contract-aware execution rules:
 
 - Do not change an interface or invariant named in `contracts` unless the plan explicitly authorizes it.
 - For each step with `fulfills`, record evidence against those requirement/sub-requirement IDs.
-- For each journey in `journeys`, preserve end-to-end verification until `/review`; a passed unit test alone is not enough for a journey gate.
+- For each journey in `journeys`, preserve end-to-end verification until `/forgeflow:review`; a passed unit test alone is not enough for a journey gate.
 - If `verify_plan` exists and a target cannot be verified, mark the task blocked instead of pretending it is done.
 
-Worker self-report is not approval. `/review` still has to happen.
+Worker self-report is not approval. `/forgeflow:review` still has to happen.
 
 ## UX guardrails
 
 - Treat the latest executable brief/plan as sufficient authority for in-repo work the user already asked for.
 - Do not pause just to reconfirm the same plan before editing files.
-- Only bounce back to `/clarify` or `/specify` when scope genuinely changed or a blocker invalidates the current brief/plan.
+- Only bounce back to `/forgeflow:clarify` or `/forgeflow:specify` when scope genuinely changed or a blocker invalidates the current brief/plan.
 - Bad: `승인된 계획대로 실행하겠습니다.`만 말하고 대기.
 - Good: 바로 수정/검증을 시작하고 evidence를 남긴다.

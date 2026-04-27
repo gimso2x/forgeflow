@@ -84,7 +84,7 @@ Never discard, merge, PR, or destructive-clean from `ship`; hand branch disposit
 If asked:
 
 ```text
-/ship Dry run only. List exactly two ship checks. Do not write files. Do not run commands.
+/forgeflow:ship Dry run only. List exactly two ship checks. Do not write files. Do not run commands.
 ```
 
 Return exactly two ship checks. Do not add command equivalents, git actions, artifact writes, or a final verdict unless requested.

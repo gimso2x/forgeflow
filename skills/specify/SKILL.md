@@ -32,7 +32,7 @@ Use this skill when a clarified request needs explicit requirements before plann
 - Every requirement traces to a decision or brief constraint
 - Every sub-requirement is testable or manually verifiable
 - No implementation tasks are created here
-- `/plan` can consume the requirements without guessing
+- `/forgeflow:plan` can consume the requirements without guessing
 
 ## File write and output discipline
 
@@ -106,4 +106,4 @@ Output discipline:
 4. Ask forced-choice questions only when a decision changes implementation shape.
 5. Derive requirements downward: goal -> WHERE/context -> decisions -> requirements -> sub-requirements.
 6. Keep requirements behavioral, not implementation-flavored.
-7. Hand off to `/plan`.
+7. Hand off to `/forgeflow:plan`.
