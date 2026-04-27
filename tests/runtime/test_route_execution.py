@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 
 from forgeflow_runtime.orchestrator import RuntimeViolation, load_runtime_policy, run_route
-from forgeflow_runtime.route_execution import route_entry_decision, route_iteration_stages
+from forgeflow_runtime.route_execution import build_route_result, route_entry_decision, route_iteration_stages
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -15,6 +15,29 @@ def test_route_iteration_stages_starts_at_resume_index() -> None:
     route = ["clarify", "plan", "execute", "quality-review", "finalize"]
 
     assert route_iteration_stages(route, 2) == ["execute", "quality-review", "finalize"]
+
+
+def test_build_route_result_uses_plan_ledger_progress_when_present() -> None:
+    run_state = {
+        "current_stage": "finalize",
+        "status": "completed",
+        "completed_gates": ["stale-run-state-gate"],
+        "retries": {"execute": 1},
+    }
+    plan_ledger = {
+        "completed_gates": ["clarification_complete", "ready_to_finalize"],
+        "retries": {"execute": 2, "quality-review": 1},
+    }
+
+    result = build_route_result(run_state, plan_ledger)
+
+    assert result == {
+        "current_stage": "finalize",
+        "status": "completed",
+        "completed_gates": ["clarification_complete", "ready_to_finalize"],
+        "retries": {"execute": 2, "quality-review": 1},
+    }
+    assert run_state["completed_gates"] == ["stale-run-state-gate"]
 
 
 def test_route_entry_decision_selects_new_route() -> None:
