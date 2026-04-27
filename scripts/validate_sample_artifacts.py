@@ -28,6 +28,7 @@ NEGATIVE_SAMPLES = {
     "review-report-approved-with-open-blockers.sample.json": ROOT / "schemas/review-report.schema.json",
     "review-report-approved-unsafe.sample.json": ROOT / "schemas/review-report.schema.json",
     "plan-ledger-done-without-evidence.sample.json": ROOT / "schemas/plan-ledger.schema.json",
+    "plan-step-missing-fulfills.sample.json": ROOT / "schemas/plan.schema.json",
     "checkpoint-invalid-updated-at.sample.json": ROOT / "schemas/checkpoint.schema.json",
     "session-state-missing-ref.sample.json": ROOT / "schemas/session-state.schema.json",
 }

@@ -162,6 +162,14 @@ def test_large_route_runs_end_to_end_and_collects_both_review_flags(
                     "objective": "Run route",
                     "expected_output": "done",
                     "verification": "pytest",
+                    "fulfills": ["large route works"],
+                }
+            ],
+            "verify_plan": [
+                {
+                    "target": "large route works",
+                    "type": "sub_req",
+                    "gates": ["pytest"],
                 }
             ],
         },
@@ -272,6 +280,14 @@ def test_large_route_rejects_missing_eval_record_before_long_run(
                     "objective": "Run route",
                     "expected_output": "done",
                     "verification": "pytest",
+                    "fulfills": ["large route works"],
+                }
+            ],
+            "verify_plan": [
+                {
+                    "target": "large route works",
+                    "type": "sub_req",
+                    "gates": ["pytest"],
                 }
             ],
         },

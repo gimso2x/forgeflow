@@ -554,6 +554,14 @@ def _bootstrap_plan(task_id: str, route_name: str) -> dict[str, Any]:
                 "expected_output": "brief, run-state, session-state, and route-owned artifacts exist",
                 "verification": "python3 scripts/run_orchestrator.py status --task-dir <task-dir> --route <route>",
                 "rollback_note": "remove bootstrapped task directory if initialization is invalid",
+                "fulfills": ["route artifacts are initialized and resumable"],
+            }
+        ],
+        "verify_plan": [
+            {
+                "target": "route artifacts are initialized and resumable",
+                "type": "sub_req",
+                "gates": ["python3 scripts/run_orchestrator.py status --task-dir <task-dir> --route <route>"],
             }
         ],
     }

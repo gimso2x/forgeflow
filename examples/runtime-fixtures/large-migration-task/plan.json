@@ -6,19 +6,51 @@
       "id": "step-1",
       "objective": "Plan migration",
       "expected_output": "sequenced plan",
-      "verification": "review plan"
+      "verification": "review plan",
+      "fulfills": [
+        "step-1-requirement"
+      ]
     },
     {
       "id": "step-2",
       "objective": "Execute migration changes",
       "expected_output": "execution evidence captured",
-      "verification": "run orchestrator"
+      "verification": "run orchestrator",
+      "fulfills": [
+        "step-2-requirement"
+      ]
     },
     {
       "id": "step-3",
       "objective": "Capture long-run learnings",
       "expected_output": "eval record present",
-      "verification": "inspect eval record"
+      "verification": "inspect eval record",
+      "fulfills": [
+        "step-3-requirement"
+      ]
+    }
+  ],
+  "verify_plan": [
+    {
+      "target": "step-1-requirement",
+      "type": "step",
+      "gates": [
+        "review plan"
+      ]
+    },
+    {
+      "target": "step-2-requirement",
+      "type": "step",
+      "gates": [
+        "run orchestrator"
+      ]
+    },
+    {
+      "target": "step-3-requirement",
+      "type": "step",
+      "gates": [
+        "inspect eval record"
+      ]
     }
   ]
 }

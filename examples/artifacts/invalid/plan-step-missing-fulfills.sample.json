@@ -1,0 +1,23 @@
+{
+  "schema_version": "0.1",
+  "task_id": "task-orphan-work-001",
+  "steps": [
+    {
+      "id": "step-1",
+      "objective": "Change implementation without linking it to a requirement.",
+      "dependencies": [],
+      "expected_output": "An untraceable implementation change",
+      "verification": "pytest tests/test_sample_artifacts.py -q",
+      "rollback_note": "Revert the orphan change if it cannot be tied to a requirement."
+    }
+  ],
+  "verify_plan": [
+    {
+      "target": "documented-requirement",
+      "type": "sub_req",
+      "gates": [
+        "pytest"
+      ]
+    }
+  ]
+}

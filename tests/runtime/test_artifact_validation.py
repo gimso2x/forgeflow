@@ -142,6 +142,14 @@ def test_run_route_rejects_mismatched_eval_record_task_id(
                     "objective": "Run route",
                     "expected_output": "done",
                     "verification": "pytest",
+                    "fulfills": ["large route works"],
+                }
+            ],
+            "verify_plan": [
+                {
+                    "target": "large route works",
+                    "type": "sub_req",
+                    "gates": ["pytest"],
                 }
             ],
         },

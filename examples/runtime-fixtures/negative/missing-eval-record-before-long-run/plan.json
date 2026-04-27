@@ -6,7 +6,19 @@
       "id": "step-1",
       "objective": "Attempt large route",
       "expected_output": "blocked before long-run",
-      "verification": "runtime violation"
+      "verification": "runtime violation",
+      "fulfills": [
+        "step-1-requirement"
+      ]
+    }
+  ],
+  "verify_plan": [
+    {
+      "target": "step-1-requirement",
+      "type": "step",
+      "gates": [
+        "runtime violation"
+      ]
     }
   ]
 }

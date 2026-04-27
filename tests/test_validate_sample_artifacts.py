@@ -255,6 +255,7 @@ def test_validate_sample_artifacts_tracks_positive_and_negative_fixtures() -> No
         ("review-report-blocked-missing-next-action.sample.json", "next_action"),
         ("review-report-open-blockers-wrong-type.sample.json", "open_blockers"),
         ("plan-ledger-done-without-evidence.sample.json", "evidence_refs"),
+        ("plan-step-missing-fulfills.sample.json", "fulfills"),
         ("checkpoint-invalid-updated-at.sample.json", "updated_at"),
         ("session-state-missing-ref.sample.json", "plan_ref"),
     ],

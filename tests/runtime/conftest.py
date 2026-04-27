@@ -71,6 +71,14 @@ def medium_plan_artifacts(write_json: Callable[[Path, dict], None]) -> Callable[
                         "expected_output": "workflow docs reflect medium route behavior",
                         "verification": "pytest tests/runtime -q",
                         "rollback_note": "remove incomplete workflow edits if validation fails",
+                        "fulfills": ["workflow docs reflect medium route behavior"],
+                    }
+                ],
+                "verify_plan": [
+                    {
+                        "target": "workflow docs reflect medium route behavior",
+                        "type": "sub_req",
+                        "gates": ["pytest tests/runtime -q"],
                     }
                 ],
             },

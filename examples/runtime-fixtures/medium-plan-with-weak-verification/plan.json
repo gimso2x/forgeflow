@@ -6,13 +6,35 @@
       "id": "step-1",
       "objective": "Prepare refactor plan",
       "expected_output": "plan recorded",
-      "verification": "review plan"
+      "verification": "review plan",
+      "fulfills": [
+        "step-1-requirement"
+      ]
     },
     {
       "id": "step-2",
       "objective": "Execute bounded refactor",
       "expected_output": "decision log and state written",
-      "verification": "run orchestrator"
+      "verification": "run orchestrator",
+      "fulfills": [
+        "step-2-requirement"
+      ]
+    }
+  ],
+  "verify_plan": [
+    {
+      "target": "step-1-requirement",
+      "type": "step",
+      "gates": [
+        "review plan"
+      ]
+    },
+    {
+      "target": "step-2-requirement",
+      "type": "step",
+      "gates": [
+        "run orchestrator"
+      ]
     }
   ]
 }
