@@ -38,7 +38,7 @@ def test_release_script_dry_run_prints_ordered_checks_without_mutating_versions(
     assert "Release plan for v0.1.14" in result.stdout
     assert "1. update plugin manifests version to 0.1.14" in result.stdout
     assert "2. update .claude-plugin/marketplace.json metadata.version to 0.1.14" in result.stdout
-    assert "3. run scripts/check_plugin_versions.py" in result.stdout
+    assert "3. run python scripts/check_plugin_versions.py" in result.stdout
     assert "4. run pytest -q" in result.stdout
     assert "5. run make validate" in result.stdout
     assert "6. run make smoke-claude-plugin" in result.stdout

@@ -70,7 +70,11 @@ def plugin_metadata_errors(manifests: dict[Path, dict], marketplace: dict) -> li
     marketplace_owner_url = marketplace.get("owner", {}).get("url")
     if expected_owner_url and marketplace_owner_url != expected_owner_url:
         errors.append(f"{marketplace_rel}: owner.url {marketplace_owner_url!r} != {expected_owner_url!r}")
-    for index, plugin in enumerate(marketplace.get("plugins", [])):
+    marketplace_plugins = marketplace.get("plugins")
+    if not isinstance(marketplace_plugins, list) or not marketplace_plugins:
+        errors.append(f"{marketplace_rel}: plugins must include at least one installable plugin entry")
+        marketplace_plugins = []
+    for index, plugin in enumerate(marketplace_plugins):
         plugin_name = plugin.get("name")
         if plugin_name != expected_name:
             errors.append(f"{marketplace_rel}: plugins[{index}].name {plugin_name!r} != {expected_name!r}")

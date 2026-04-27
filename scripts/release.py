@@ -111,7 +111,7 @@ def release_plan(version: str) -> str:
             f"Release plan for {tag}",
             f"1. update plugin manifests version to {version}",
             f"2. update .claude-plugin/marketplace.json metadata.version to {version}",
-            "3. run scripts/check_plugin_versions.py",
+            "3. run python scripts/check_plugin_versions.py",
             "4. run pytest -q",
             "5. run make validate",
             "6. run make smoke-claude-plugin",
