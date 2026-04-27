@@ -7,6 +7,7 @@ import sys
 from pathlib import Path
 
 from forgeflow_runtime.evolution import adopt_example_rule, doctor_evolution_state
+from forgeflow_runtime.evolution_doctor import _audit_log_health, _collect_rule_health
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -20,6 +21,59 @@ def _write_project_rule(tmp_path: Path, rule: dict) -> None:
 
 def _valid_rule() -> dict:
     return json.loads((ROOT / "examples" / "evolution" / "no-env-commit-rule.json").read_text(encoding="utf-8"))
+
+
+def test_rule_health_seam_reports_rule_safety_and_issues(tmp_path: Path) -> None:
+    rule = _valid_rule()
+    rule["check"]["command_id"] = "evil-command"
+    _write_project_rule(tmp_path, rule)
+
+    health = _collect_rule_health(
+        tmp_path,
+        loader=lambda root: [(rule, root / ".forgeflow" / "evolution" / "rules" / "no-env-commit-rule.json")],
+        source="active",
+        issue_code="unsafe_active_rule",
+    )
+
+    assert health.rule_ids == {"no-env-commit"}
+    assert health.rules[0]["safe_to_execute"] is False
+    assert health.issues == [
+        {
+            "severity": "error",
+            "code": "unsafe_active_rule",
+            "rule_id": "no-env-commit",
+            "path": str(tmp_path / ".forgeflow" / "evolution" / "rules" / "no-env-commit-rule.json"),
+            "failed_safety_checks": ["approved_command", "approved_command_contract"],
+        }
+    ]
+
+
+def test_audit_log_health_seam_reports_counts_last_event_and_issues(tmp_path: Path) -> None:
+    audit_path = tmp_path / ".forgeflow" / "evolution" / "audit-log.jsonl"
+    audit_path.parent.mkdir(parents=True)
+    audit_path.write_text(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "timestamp": "2026-04-27T00:00:00Z",
+                "event": "adopt",
+                "rule_id": "x",
+                "passed": True,
+            }
+        )
+        + "\n"
+        + '{"event":"missing-fields","rule_id":"x"}\n'
+        + "not-json\n",
+        encoding="utf-8",
+    )
+
+    health = _audit_log_health(audit_path)
+
+    assert health.events_count == 2
+    assert health.last_event == {"event": "missing-fields", "rule_id": "x"}
+    assert [issue["code"] for issue in health.issues] == ["audit_event_missing_fields", "invalid_audit_json"]
+    assert health.issues[0]["line"] == 2
+    assert health.issues[1]["line"] == 3
 
 
 def test_doctor_reports_clean_lifecycle_state(tmp_path: Path) -> None:
