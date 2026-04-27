@@ -81,6 +81,34 @@ def _validate_evolution_examples(root: Path, evolution: dict[str, Any]) -> list[
     return errors
 
 
+def _validate_evolution_policy_contract(root: Path, evolution: dict[str, Any]) -> list[str]:
+    errors: list[str] = []
+    global_scope = evolution["scopes"]["global"]
+    project_scope = evolution["scopes"]["project"]
+    if global_scope.get("activation") != "explicit_opt_in":
+        errors.append("evolution global scope must be explicit opt-in")
+    if "advise_review" in global_scope.get("permissions", []):
+        errors.append("evolution global scope must not advise review gates")
+    for forbidden in ["raw_prompt_storage_by_default", "raw_frustration_text_by_default", "hard_enforcement_by_default", "cross_project_exit_2"]:
+        if forbidden not in global_scope.get("forbidden", []):
+            errors.append(f"evolution global scope missing forbidden guard: {forbidden}")
+    if project_scope.get("artifact_root") != ".forgeflow/evolution":
+        errors.append("evolution project artifact_root must be .forgeflow/evolution")
+    for required in ["project_local_enablement", "soft_soak_period", "independent_recurrence_or_audited_maintainer_enablement", "deterministic_check", "low_false_positive_rate", "rollback_available", "eval_record", "audit_trail"]:
+        if required not in project_scope.get("hard_gate_requires", []):
+            errors.append(f"evolution hard gate missing requirement: {required}")
+    if evolution.get("rule_lifecycle") != ["candidate", "soft", "hard_candidate", "adopted_hard", "retired"]:
+        errors.append("evolution rule_lifecycle must stay v1-minimal")
+    retrieval = evolution.get("retrieval_contract", {})
+    if retrieval.get("max_patterns") != 3:
+        errors.append("evolution retrieval must cap global patterns at 3")
+    for required in ["confidence", "why_matched", "scope", "source_count"]:
+        if required not in retrieval.get("requires", []):
+            errors.append(f"evolution retrieval missing required field: {required}")
+    errors.extend(_validate_evolution_examples(root, evolution))
+    return errors
+
+
 def validate_policy_root(root: Path) -> list[str]:
     errors: list[str] = []
     canonical_dir = root / "policy" / "canonical"
@@ -171,30 +199,7 @@ def validate_policy_root(root: Path) -> list[str]:
     if "run-state.spec_review_approved" not in review_text:
         errors.append("review-model missing run-state approval flag guidance")
 
-    evolution = policy_docs["evolution"]
-    global_scope = evolution["scopes"]["global"]
-    project_scope = evolution["scopes"]["project"]
-    if global_scope.get("activation") != "explicit_opt_in":
-        errors.append("evolution global scope must be explicit opt-in")
-    if "advise_review" in global_scope.get("permissions", []):
-        errors.append("evolution global scope must not advise review gates")
-    for forbidden in ["raw_prompt_storage_by_default", "raw_frustration_text_by_default", "hard_enforcement_by_default", "cross_project_exit_2"]:
-        if forbidden not in global_scope.get("forbidden", []):
-            errors.append(f"evolution global scope missing forbidden guard: {forbidden}")
-    if project_scope.get("artifact_root") != ".forgeflow/evolution":
-        errors.append("evolution project artifact_root must be .forgeflow/evolution")
-    for required in ["project_local_enablement", "soft_soak_period", "independent_recurrence_or_audited_maintainer_enablement", "deterministic_check", "low_false_positive_rate", "rollback_available", "eval_record", "audit_trail"]:
-        if required not in project_scope.get("hard_gate_requires", []):
-            errors.append(f"evolution hard gate missing requirement: {required}")
-    if evolution.get("rule_lifecycle") != ["candidate", "soft", "hard_candidate", "adopted_hard", "retired"]:
-        errors.append("evolution rule_lifecycle must stay v1-minimal")
-    retrieval = evolution.get("retrieval_contract", {})
-    if retrieval.get("max_patterns") != 3:
-        errors.append("evolution retrieval must cap global patterns at 3")
-    for required in ["confidence", "why_matched", "scope", "source_count"]:
-        if required not in retrieval.get("requires", []):
-            errors.append(f"evolution retrieval missing required field: {required}")
-    errors.extend(_validate_evolution_examples(root, evolution))
+    errors.extend(_validate_evolution_policy_contract(root, policy_docs["evolution"]))
 
     long_run_text = (root / "docs" / "long-run-model.md").read_text(encoding="utf-8")
     for required in ["eval-record.json", "worth_long_run_capture", "No evidence, no memory", "do not retain"]:
