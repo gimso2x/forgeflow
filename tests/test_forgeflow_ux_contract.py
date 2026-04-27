@@ -44,6 +44,22 @@ def test_canonical_prompts_require_stage_boundary_approval_without_reapproval_lo
     assert "불필요하게 사용자 승인 단계로 바꾸지 않는다" not in coordinator
 
 
+def test_canonical_prompts_embed_karpathy_execution_discipline() -> None:
+    planner = (ROOT / "prompts" / "canonical" / "planner.md").read_text(encoding="utf-8")
+    worker = (ROOT / "prompts" / "canonical" / "worker.md").read_text(encoding="utf-8")
+    reviewer = (ROOT / "prompts" / "canonical" / "spec-reviewer.md").read_text(encoding="utf-8")
+    review_skill = (ROOT / "skills" / "review" / "SKILL.md").read_text(encoding="utf-8")
+
+    assert "success condition" in planner
+    assert "simplest sufficient plan" in planner
+    assert "assumptions" in planner
+    assert "Every changed line should trace directly to the approved request" in worker
+    assert "no drive-by refactors" in worker
+    assert "smallest safe change" in reviewer
+    assert "unverified assumptions" in reviewer
+    assert "Every changed line should trace directly to the approved request" in review_skill
+
+
 def test_docs_explain_stage_boundaries_are_user_approved_not_manual_operation() -> None:
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
     install = (ROOT / "INSTALL.md").read_text(encoding="utf-8")

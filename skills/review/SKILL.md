@@ -105,6 +105,7 @@ Review evidence is not fan fiction.
 3. Run or inspect verification only if the user allowed command execution.
 4. Separate observed evidence from reported or missing evidence before choosing a verdict.
 5. For quality review, apply discipline heuristics without creating a separate stage:
+   - Every changed line should trace directly to the approved request.
    - Was the change the smallest safe change that satisfies the request?
    - Did the implementation follow existing codebase patterns instead of inventing a new local religion?
    - Were assumptions about types, APIs, behavior, and test coverage verified against actual files?
