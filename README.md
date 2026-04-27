@@ -2,8 +2,17 @@
 
 ForgeFlow is an artifact-first delivery harness for AI coding agents.
 
-It is **not** an agent OS and it is **not** a prompt zoo.
-It is a repo seed for running work through explicit stages, artifacts, gates, and independent review.
+It keeps agent work out of vibes-only chat history and pushes it through explicit stages, durable artifacts, gates, and independent review. It is **not** an agent OS, a hosted SaaS runtime, or a prompt zoo.
+
+## At a glance
+
+| Area | What ForgeFlow gives you |
+| --- | --- |
+| Workflow | clarify → plan when needed → execute → independent review → finalize |
+| Evidence | `brief.json`, `run-state.json`, `plan-ledger.json`, `review-report.json`, `eval-record.json` |
+| Surfaces | Claude Code plugin, Codex metadata, generated Claude/Codex/Cursor adapters, local runtime |
+| Safety | no worker self-approval, schema gates, generated adapter drift checks, release version sync |
+| Boundary | local artifact-first harness; not a provider orchestration service |
 
 ## Installation
 
@@ -566,6 +575,18 @@ This runs:
 - generated adapter validation
 - JSON Schema sample artifact validation for positive and negative fixtures
 - executable adherence evals across small/medium/large and negative runtime fixtures
+
+## Sharp edges worth checking
+
+Before a release or bigger refactor, check these first:
+
+1. **Plugin version drift** — `.claude-plugin/plugin.json`, `.codex-plugin/plugin.json`, and `.claude-plugin/marketplace.json` must agree. Use `scripts/check_plugin_versions.py`; do not hand-wave this.
+2. **Generated adapter drift** — canonical policy, prompts, schemas, and target manifests must be regenerated and validated, or Claude/Codex/Cursor docs silently diverge.
+3. **README/INSTALL contract drift** — tests intentionally pin key install and runtime phrases. If the docs get “prettier” by deleting operational anchors, validation will slap you. Good.
+4. **Live plugin drift** — `make validate` is deterministic, but `make smoke-claude-plugin` depends on Claude CLI auth/quota/cache and can fail independently.
+5. **Runtime stage drift** — `run`, `execute`, and `advance --execute` have different mutation semantics. Refactor these only with runtime tests beside you.
+6. **Artifact compatibility** — stricter schemas can break old on-disk task artifacts unless migration or intentional rejection is covered.
+7. **Legacy numbered skills** — old `skills/01-*` style docs still need quarantine/decision work; keep that as a follow-up, not a drive-by cleanup.
 
 ## Naming
 The name is **ForgeFlow** because the point is to forge messy agent work into a flow with gates, evidence, and review.
