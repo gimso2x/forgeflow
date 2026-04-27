@@ -38,7 +38,7 @@ from forgeflow_runtime.plan_ledger import (
 from forgeflow_runtime.operator_routing import role_for_stage
 from forgeflow_runtime.policy_loader import RuntimePolicy, load_runtime_policy
 from forgeflow_runtime.resume_validation import resume_start_index
-from forgeflow_runtime.route_execution import route_entry_decision, route_iteration_stages, stage_completion_status
+from forgeflow_runtime.route_execution import build_route_result, route_entry_decision, route_iteration_stages, stage_completion_status
 from forgeflow_runtime.stage_transition import next_stage_for_transition
 from forgeflow_runtime.task_identity import canonical_task_id as _canonical_task_id
 from forgeflow_runtime.task_identity import task_id as _task_id
@@ -1073,11 +1073,7 @@ def run_route(task_dir: Path, policy: RuntimePolicy, route_name: str) -> dict[st
             session_state=session_state,
         )
 
-    result = dict(run_state)
-    progress = _plan_ledger_progress(plan_ledger) or run_state
-    result["completed_gates"] = list(progress.get("completed_gates", []))
-    result["retries"] = dict(progress.get("retries", result.get("retries", {})))
-    return result
+    return build_route_result(run_state, _plan_ledger_progress(plan_ledger))
 
 
 def retry_stage(task_dir: Path, stage_name: str, max_retries: int = 2) -> dict[str, Any]:

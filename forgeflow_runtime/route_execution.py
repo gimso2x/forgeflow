@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Any
 
 
 @dataclass(frozen=True)
@@ -36,6 +37,14 @@ def route_entry_decision(
 
 def route_iteration_stages(route: list[str], start_index: int) -> list[str]:
     return list(route[start_index:])
+
+
+def build_route_result(run_state: dict[str, Any], plan_ledger: dict[str, Any] | None) -> dict[str, Any]:
+    result = dict(run_state)
+    progress = plan_ledger if plan_ledger is not None else run_state
+    result["completed_gates"] = list(progress.get("completed_gates", []))
+    result["retries"] = dict(progress.get("retries", result.get("retries", {})))
+    return result
 
 
 def stage_completion_status(stage_name: str, *, existing_final_status: str | None) -> tuple[str, str | None]:
