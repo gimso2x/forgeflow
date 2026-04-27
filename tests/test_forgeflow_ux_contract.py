@@ -7,8 +7,9 @@ ROOT = Path(__file__).resolve().parents[1]
 def test_clarify_skill_requires_minimal_blocker_only_questions() -> None:
     text = (ROOT / "skills" / "clarify" / "SKILL.md").read_text(encoding="utf-8")
 
-    assert "Ask at most 2 clarifying questions" in text
-    assert "only for true blockers" in text
+    assert "Ask up to 5 clarifying questions" in text
+    assert "materially improve requirements" in text
+    assert "do not pad the list" in text
     assert "artifact notes, not questions the user must answer" in text
     assert "Do not ask the user to write the plan for you." in text
     assert "다음 스텝으로 `/forgeflow:plan`을 진행하시겠습니까? (y/n)" in text

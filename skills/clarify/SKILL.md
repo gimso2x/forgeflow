@@ -66,7 +66,7 @@ When the user says "do not run commands", do not propose command execution as if
 ## Procedure
 
 1. Inspect relevant repo context before inventing scope.
-2. Ask at most 2 clarifying questions, and only for true blockers. Ask 0 if the request is already actionable.
+2. Ask up to 5 clarifying questions when they materially improve requirements. Ask 0 if the request is already actionable, and do not pad the list with nice-to-have trivia.
 3. Score complexity:
    - 5-8: `small` — one localized change, usually 1-2 files, low ambiguity, no cross-cutting behavior.
    - 9-12: `medium` — several coordinated files/components, shared state/layout/navigation, moderate test/update surface, but no security/data migration/infra rollback risk.
