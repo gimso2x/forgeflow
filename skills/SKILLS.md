@@ -14,12 +14,12 @@ Skills are markdown documents that live in `skills/`. Each skill defines a bound
 
 | # | Skill | Purpose | Borrowed from |
 |---|-------|---------|---------------|
-| 01 | [`clarify`](01-clarify.md) | Resolve ambiguity, explore codebase, emit a **Context Brief** with complexity routing. | engineering-discipline |
-| 02 | [`specify`](02-specify.md) | Derive structured **requirements.md** from the brief through a decision interview. | hoyeon |
-| 03 | [`plan`](03-plan.md) | Turn requirements into an executable **plan.json** with task contracts. | hoyeon + engineering-discipline |
-| 04 | [`run`](04-run.md) | Execute plan tasks using **worker-validator pairs** with checkpoint/recovery. | engineering-discipline |
-| 05 | [`review`](05-review.md) | **Information-isolated** verification of executed work against the plan. | engineering-discipline |
-| 06 | [`ship`](06-ship.md) | Finalize: tests, coverage audit, PR, cleanup. | gstack |
+| 01 | [`clarify`](clarify/SKILL.md) | Resolve ambiguity, explore codebase, emit a **Context Brief** with complexity routing. | engineering-discipline |
+| 02 | [`specify`](specify/SKILL.md) | Derive structured **requirements.md** from the brief through a decision interview. | hoyeon |
+| 03 | [`plan`](plan/SKILL.md) | Turn requirements into an executable **plan.json** with task contracts. | hoyeon + engineering-discipline |
+| 04 | [`run`](run/SKILL.md) | Execute plan tasks using **worker-validator pairs** with checkpoint/recovery. | engineering-discipline |
+| 05 | [`review`](review/SKILL.md) | **Information-isolated** verification of executed work against the plan. | engineering-discipline |
+| 06 | [`ship`](ship/SKILL.md) | Final handoff/report after verification; branch disposition lives in [`finish`](finish/SKILL.md). | gstack |
 
 ## Cross-cutting skills (invoke any time)
 
@@ -68,6 +68,7 @@ User: "Refactor the entire payment module"
 
 1. Pick the next available number or `x-` prefix.
 2. Copy the template from [`_template.md`](_template.md).
-3. Fill in Purpose, Trigger, Input, Output, Execution, Constraints, Exit Condition.
-4. Add a row to the table above.
-5. Run `make validate`.
+3. Create the active contract at `skills/<name>/SKILL.md`; keep historical imports under `docs/legacy/skills/`, not beside active plugin contracts.
+4. Fill in Purpose, Trigger, Input, Output, Execution, Constraints, Exit Condition.
+5. Add a row to the table above.
+6. Run `make validate`.

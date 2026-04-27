@@ -586,7 +586,7 @@ Before a release or bigger refactor, check these first:
 4. **Live plugin drift** — `make validate` is deterministic, but `make smoke-claude-plugin` depends on Claude CLI auth/quota/cache and can fail independently.
 5. **Runtime stage drift** — `run`, `execute`, and `advance --execute` have different mutation semantics. Refactor these only with runtime tests beside you.
 6. **Artifact compatibility** — stricter schemas can break old on-disk task artifacts unless migration or intentional rejection is covered.
-7. **Legacy numbered skills** — old `skills/01-*` style docs still need quarantine/decision work; keep that as a follow-up, not a drive-by cleanup.
+7. **Legacy numbered skills** — old `skills/01-*` style docs are quarantined under `docs/legacy/skills/`; keep active plugin contracts in `skills/<name>/SKILL.md`.
 
 ## Naming
 The name is **ForgeFlow** because the point is to forge messy agent work into a flow with gates, evidence, and review.
