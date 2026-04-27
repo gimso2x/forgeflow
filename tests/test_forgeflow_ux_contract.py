@@ -4,7 +4,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def test_clarify_skill_requires_minimal_blocker_only_questions() -> None:
+def test_clarify_skill_allows_focused_requirement_questions() -> None:
     text = (ROOT / "skills" / "clarify" / "SKILL.md").read_text(encoding="utf-8")
 
     assert "Ask up to 5 clarifying questions" in text
