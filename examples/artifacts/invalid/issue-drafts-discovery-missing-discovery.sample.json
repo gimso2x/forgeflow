@@ -1,0 +1,32 @@
+{
+  "schema_version": "0.1",
+  "task_id": "sample-helper-skill-layer",
+  "source_plan_ref": "plan.sample.json",
+  "artifact_authority": {
+    "scope_owner": "plan.json",
+    "contract_owner": "contracts.md",
+    "publication_owner": "adapter metadata"
+  },
+  "issue_drafts": [
+    {
+      "id": "draft-publication-policy",
+      "title": "Decide publication metadata for GitHub issues",
+      "summary": "Gather the repository, label, and milestone policy needed before issue drafts can be safely published by an adapter.",
+      "slice_type": "discovery",
+      "human_gate": "required",
+      "human_blocker": "Need target repo and label policy from the operator before any GitHub API call.",
+      "blocked_by": [],
+      "trace": {
+        "plan_steps": [],
+        "fulfills": [],
+        "contract_anchors": []
+      },
+      "acceptance_checks": [
+        "The discovery output names the publication target and labels, or records that publication is intentionally skipped."
+      ],
+      "verification_expectations": [
+        "Confirm no GitHub API call is performed by the to-issues skill itself."
+      ]
+    }
+  ]
+}

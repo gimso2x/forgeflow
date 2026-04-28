@@ -260,6 +260,7 @@ def test_validate_sample_artifacts_tracks_positive_and_negative_fixtures() -> No
         ("plan-step-missing-fulfills.sample.json", "fulfills"),
         ("checkpoint-invalid-updated-at.sample.json", "updated_at"),
         ("session-state-missing-ref.sample.json", "plan_ref"),
+        ("issue-drafts-discovery-missing-discovery.sample.json", "discovery"),
         ("interface-spec-single-option.sample.json", "options"),
     ],
 )

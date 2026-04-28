@@ -34,6 +34,7 @@ NEGATIVE_SAMPLES = {
     "plan-step-missing-fulfills.sample.json": ROOT / "schemas/plan.schema.json",
     "checkpoint-invalid-updated-at.sample.json": ROOT / "schemas/checkpoint.schema.json",
     "session-state-missing-ref.sample.json": ROOT / "schemas/session-state.schema.json",
+    "issue-drafts-discovery-missing-discovery.sample.json": ROOT / "schemas/issue-drafts.schema.json",
     "interface-spec-single-option.sample.json": ROOT / "schemas/interface-spec.schema.json",
 }
 NEGATIVE_SEMANTIC_PLAN_SAMPLES = {
