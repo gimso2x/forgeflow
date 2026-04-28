@@ -51,6 +51,12 @@ review는 대화 분위기가 아니라 아래를 본다.
 review가 실패하면 다음 stage로 못 간다.
 특히 `spec-review` 실패를 품질 코멘트로 얼버무리고 `quality-review`로 넘기는 건 금지다.
 
+### 5. referenced path는 존재해야 한다
+review artifact가 파일 경로, 명령, schema, evidence ref를 언급하면 가능한 범위에서 실제 존재를 확인해야 한다.
+없는 파일을 근거처럼 쓰는 건 "작은 실수"가 아니라 AI workflow에서 제일 비싼 종류의 헛소리다.
+
+이 규칙은 `jha0313/skills_repo`의 AI-readiness rubric에서 가져온 핵심 패턴이다. 단, ForgeFlow에서는 새 점수판이 아니라 기존 review evidence discipline으로 흡수한다. 외부 skill 흡수 기준은 `docs/external-skill-ingestion-model.md`를 따른다.
+
 ---
 
 ## `spec-review`가 보는 것
