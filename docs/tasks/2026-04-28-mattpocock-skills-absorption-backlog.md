@@ -11,7 +11,7 @@ Cross-cutting acceptance criterion for all issues:
 ## Issue 1 — Add ForgeFlow-native `to-issues` draft artifact model
 
 Priority: P0
-Type: AFK after design approval
+Human gate: not_required after design approval
 Blocked by: none
 
 ### Problem
@@ -107,7 +107,7 @@ Run:
 ## Issue 2 — Add contract-first `design-interface` support skill
 
 Priority: P0
-Type: AFK after design approval
+Human gate: not_required after design approval
 Blocked by: none
 
 ### Problem
@@ -185,7 +185,7 @@ Run:
 ## Issue 3 — Add refactor-mode branch to `plan` guidance
 
 Priority: P1
-Type: AFK
+Human gate: not_required
 Blocked by: none
 
 ### Problem
@@ -256,7 +256,7 @@ Run:
 ## Issue 4 — Add issue-readiness and git-safety policy language
 
 Priority: P1
-Type: AFK
+Human gate: not_required
 Blocked by: Issue 1 for issue-readiness semantics; can proceed independently only for git-safety wording
 
 ### Problem

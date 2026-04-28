@@ -4,13 +4,18 @@
 
 It is not a new ForgeFlow stage. That matters. A separate `/forgeflow:design` stage would be ceremony creep. The useful part from `mattpocock/skills` is smaller: force the agent to compare interface shapes before it starts writing code.
 
-## Artifact
+## Artifacts
 
 Default task-local output:
 
 ```text
-.forgeflow/tasks/<task-id>/interface-spec.json
 .forgeflow/tasks/<task-id>/contracts.md
+```
+
+Optional machine-checkable output, only when the task explicitly needs schema-backed interface design:
+
+```text
+.forgeflow/tasks/<task-id>/interface-spec.json
 ```
 
 Repository sample:
@@ -53,7 +58,7 @@ The two-option rule is intentional. If there is only one option, the agent is pr
 
 ## Source of truth
 
-`interface-spec.json` is the machine-checkable design artifact.
+`interface-spec.json` is the optional machine-checkable design artifact. It is not mandatory for every interface decision.
 
 `contracts.md` is the human-facing contract excerpt used by later plan/run/review work.
 

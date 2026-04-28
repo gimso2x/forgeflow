@@ -39,10 +39,13 @@ Read, in this order:
 
 ## Output Artifacts
 
-Write task-local outputs:
+Write the task-local contract output by default:
 
-1. `.forgeflow/tasks/<task-id>/interface-spec.json`
-2. `.forgeflow/tasks/<task-id>/contracts.md`
+1. `.forgeflow/tasks/<task-id>/contracts.md`
+
+Write the machine-checkable output only when the task explicitly needs schema-backed interface design, adapter automation, or durable cross-task traceability:
+
+2. `.forgeflow/tasks/<task-id>/interface-spec.json`
 
 Repository-level contract examples live at:
 
@@ -83,8 +86,10 @@ Repository-level contract examples live at:
    - Explain why.
    - Record rejected alternatives with reasons.
 
-9. Emit `interface-spec.json`.
-   - It must validate against `schemas/interface-spec.schema.json`.
+9. Decide whether JSON is justified.
+   - Default to `contracts.md` only.
+   - Emit `interface-spec.json` when the boundary needs machine validation, publication/adapter automation, or durable cross-task traceability.
+   - If emitted, it must validate against `schemas/interface-spec.schema.json`.
 
 10. Update `contracts.md`.
     - Add or replace only the relevant section.
@@ -105,9 +110,9 @@ Repository-level contract examples live at:
 
 Done when:
 
-1. `interface-spec.json` exists and validates against `schemas/interface-spec.schema.json`.
-2. `contracts.md` contains the chosen interface contract.
-3. the artifact names callers, public surfaces, invariants, errors, tests, migration concerns, and at least two options.
+1. `contracts.md` contains the chosen interface contract.
+2. if `interface-spec.json` is emitted, it validates against `schemas/interface-spec.schema.json`.
+3. the contract output names callers, public surfaces, invariants, errors, tests, migration concerns, and at least two options.
 4. later plan/run/review work can reference the interface without guessing.
 
 ## Failure Modes
