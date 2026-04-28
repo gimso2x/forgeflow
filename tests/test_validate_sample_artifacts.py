@@ -260,6 +260,7 @@ def test_validate_sample_artifacts_tracks_positive_and_negative_fixtures() -> No
         ("plan-step-missing-fulfills.sample.json", "fulfills"),
         ("checkpoint-invalid-updated-at.sample.json", "updated_at"),
         ("session-state-missing-ref.sample.json", "plan_ref"),
+        ("interface-spec-single-option.sample.json", "options"),
     ],
 )
 def test_negative_fixtures_fail_for_expected_reason(fixture_name: str, expected_fragment: str) -> None:

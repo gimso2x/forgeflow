@@ -1,0 +1,67 @@
+{
+  "schema_version": "0.1",
+  "task_id": "task-design-interface-example",
+  "source_refs": {
+    "brief_ref": ".forgeflow/tasks/task-design-interface-example/brief.json",
+    "plan_ref": ".forgeflow/tasks/task-design-interface-example/plan.json",
+    "contracts_ref": ".forgeflow/tasks/task-design-interface-example/contracts.md"
+  },
+  "artifact_kind": "interface_spec",
+  "problem": "Define the stable interface before implementation so callers and tests do not drift.",
+  "callers": [
+    {
+      "name": "plan skill",
+      "kind": "skill",
+      "need": "Needs a stable contract section to reference from plan tasks."
+    }
+  ],
+  "public_surface": [
+    {
+      "name": "interface-spec.json",
+      "surface_type": "json",
+      "signature_or_shape": "schema-backed artifact with callers, surfaces, invariants, options, and chosen option",
+      "stability": "new"
+    }
+  ],
+  "invariants": [
+    "The interface spec is derived from brief and plan artifacts, not invented in isolation."
+  ],
+  "compatibility_constraints": [
+    "Do not add a new canonical /forgeflow:design stage."
+  ],
+  "error_behavior": [
+    {
+      "condition": "Only one interface option is provided",
+      "expected_behavior": "Validation fails because tradeoff exploration was skipped."
+    }
+  ],
+  "testing_surface": [
+    "JSON schema validation for interface-spec.sample.json"
+  ],
+  "migration_concerns": [
+    "Existing tasks without interface-spec.json remain valid unless the helper is explicitly invoked."
+  ],
+  "options": [
+    {
+      "id": "option-json-and-contracts",
+      "summary": "Emit a JSON interface spec plus a contracts.md section.",
+      "shape": "Write interface-spec.json as validation source and mirror the chosen public contract into contracts.md.",
+      "pros": ["machine-checkable", "human-readable", "fits artifact-first workflow"],
+      "cons": ["two files must stay traceable"],
+      "compatibility_notes": "Compatible because contracts.md remains the operator-facing contract."
+    }
+  ],
+  "chosen_option": "option-json-and-contracts",
+  "rejected_alternatives": [
+    {
+      "option_id": "option-contracts-only",
+      "reason": "Markdown alone is too easy to desynchronize from tests and validators."
+    }
+  ],
+  "contracts_output": {
+    "target_artifact": "contracts.md",
+    "section_anchor": "#interface-spec",
+    "markdown_section": "## Interface Spec\n\nThe implementation must preserve the JSON interface-spec artifact."
+  },
+  "decision_note": "Use JSON plus contracts.md because it gives both deterministic validation and readable operator context."
+}
