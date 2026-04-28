@@ -11,6 +11,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from forgeflow_runtime.evolution import adopt_example_rule, audit_events, doctor_evolution_state, dry_run_rule, effectiveness_review, execute_rule, inspect_evolution_policy, list_promotions, list_rules, promote_rule, promote_stub, promotion_decision, promotion_gate, promotion_plan, promotion_ready, proposal_approve, proposal_approvals, proposal_review, restore_rule, retire_rule, write_promotion_plan
+from forgeflow_runtime.evolution_observations import read_observations, suggest_from_task
 
 
 def _target_root(args: argparse.Namespace) -> Path:
@@ -463,6 +464,42 @@ def cmd_audit(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_observations(args: argparse.Namespace) -> int:
+    result = read_observations(_target_root(args), args.task)
+    if args.json:
+        print(json.dumps(result, ensure_ascii=False, indent=2))
+        return 0
+    print(f"Evolution observations: {result['task_id']}")
+    print(f"- read-only: {str(result['read_only']).lower()}")
+    print(f"- would mutate: {str(result['would_mutate']).lower()}")
+    print(f"- path: {result['observation_path']}")
+    if result["observations"]:
+        for event in result["observations"]:
+            codes = ", ".join(event.get("blocker_codes", []))
+            print(f"  - {event.get('timestamp')} {event.get('stage')} {codes}")
+    else:
+        print("- observations: <none>")
+    return 0
+
+
+def cmd_suggest(args: argparse.Namespace) -> int:
+    result = suggest_from_task(_target_root(args), args.task)
+    if args.json:
+        print(json.dumps(result, ensure_ascii=False, indent=2))
+        return 0
+    print(f"Evolution suggestions: {result['task_id']}")
+    print(f"- read-only: {str(result['read_only']).lower()}")
+    print(f"- would mutate: {str(result['would_mutate']).lower()}")
+    print(f"- would generate rule: {str(result['would_generate_rule']).lower()}")
+    print(f"- would enforce: {str(result['would_enforce']).lower()}")
+    if result["suggestions"]:
+        for suggestion in result["suggestions"]:
+            print(f"  - {suggestion['suggested_rule_id']}: {suggestion['pattern_summary']}")
+    else:
+        print("- suggestions: <none>")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="ForgeFlow evolution policy helper")
     parser.add_argument("--root", default=str(ROOT), help="project root; defaults to the ForgeFlow checkout")
@@ -554,6 +591,14 @@ def build_parser() -> argparse.ArgumentParser:
     audit.add_argument("--limit", type=int, default=20)
     audit.add_argument("--json", action="store_true")
     audit.set_defaults(func=cmd_audit)
+    observations = sub.add_parser("observations", help="read task-local evolution observations without mutating policy")
+    observations.add_argument("--task", required=True)
+    observations.add_argument("--json", action="store_true")
+    observations.set_defaults(func=cmd_observations)
+    suggest = sub.add_parser("suggest", help="read-only suggestion summary from task-local observations")
+    suggest.add_argument("--task", required=True)
+    suggest.add_argument("--json", action="store_true")
+    suggest.set_defaults(func=cmd_suggest)
     return parser
 
 

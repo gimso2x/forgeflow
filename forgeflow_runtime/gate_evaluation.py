@@ -11,6 +11,7 @@ from forgeflow_runtime.artifact_validation import (
     missing_artifacts,
 )
 from forgeflow_runtime.errors import RuntimeViolation
+from forgeflow_runtime.evolution_observations import append_review_blocker_observation
 from forgeflow_runtime.policy_loader import RuntimePolicy
 
 
@@ -85,9 +86,49 @@ def enforce_stage_gate(task_dir: Path, policy: RuntimePolicy, stage_name: str, *
         expected_verdict,
         canonical_task_id=canonical_task_id,
     ) is None:
+        _append_review_gate_observation(
+            task_dir,
+            stage_name=stage_name,
+            gate_name=gate_name,
+            expected_review_type=expected_review_type,
+            expected_verdict=expected_verdict,
+            canonical_task_id=canonical_task_id,
+        )
         raise RuntimeViolation(
             f"{stage_name} requires approved {expected_review_type} review-report artifact"
         )
+
+
+def _append_review_gate_observation(
+    task_dir: Path,
+    *,
+    stage_name: str,
+    gate_name: str | None,
+    expected_review_type: str,
+    expected_verdict: str,
+    canonical_task_id: str,
+) -> None:
+    reason = f"{stage_name} requires {expected_verdict} {expected_review_type} review-report artifact"
+    for artifact_name in ["review-report", "review-report-spec", "review-report-quality"]:
+        review_path = artifact_path(task_dir, artifact_name)
+        if not review_path.exists():
+            continue
+        try:
+            payload = load_validated_artifact(task_dir, artifact_name, expected_task_id=canonical_task_id)
+        except Exception:
+            continue
+        if payload.get("review_type") != expected_review_type:
+            continue
+        append_review_blocker_observation(
+            task_dir,
+            task_id=canonical_task_id,
+            stage=stage_name,
+            gate=gate_name,
+            review_payload=payload,
+            artifact_refs=[review_path.name],
+            reason=reason,
+        )
+        return
 
 
 def _validate_review_semantics(payload: dict[str, Any], *, source_name: str) -> None:

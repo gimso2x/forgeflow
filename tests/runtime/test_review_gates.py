@@ -51,6 +51,25 @@ def test_run_route_rejects_non_approved_quality_review(make_task_dir: Callable[[
     with pytest.raises(RuntimeViolation, match="quality-review requires approved quality review-report artifact"):
         run_route(task_dir=task_dir, policy=policy, route_name="small")
 
+    observation_path = task_dir / "evolution-observations.jsonl"
+    observation = json.loads(observation_path.read_text(encoding="utf-8").strip())
+    assert observation["event"] == "review_blocker_observed"
+    assert observation["stage"] == "quality-review"
+    assert observation["blocker_codes"] == ["quality_changes_requested"]
+    assert observation["would_generate_rule"] is False
+    assert observation["would_enforce"] is False
+    assert "missing verification" not in observation_path.read_text(encoding="utf-8")
+
+
+def test_run_route_does_not_create_evolution_observation_when_review_artifact_is_missing(make_task_dir: Callable[[Path], Path], tmp_path: Path) -> None:
+    policy = load_runtime_policy(ROOT)
+    task_dir = make_task_dir(tmp_path)
+
+    with pytest.raises(RuntimeViolation, match="quality-review requires artifacts satisfying gate"):
+        run_route(task_dir=task_dir, policy=policy, route_name="small")
+
+    assert not (task_dir / "evolution-observations.jsonl").exists()
+
 
 def test_run_route_rejects_approved_review_with_open_blockers(make_task_dir: Callable[[Path], Path], write_json: Callable[[Path, dict], None], tmp_path: Path) -> None:
     policy = load_runtime_policy(ROOT)

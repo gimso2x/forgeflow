@@ -98,7 +98,7 @@ The green baseline makes controlled refactors possible.
 
 ### 3.3 Adapter boundaries are mostly contained
 
-Claude, Codex, and Cursor surfaces exist, but they do not dominate the runtime core. Recent generated-drift and preset contract hardening made this better.
+Claude and Codex surfaces exist, but they do not dominate the runtime core. Recent generated-drift and preset contract hardening made this better.
 
 ### 3.4 Operational pain is being fixed at the right layer
 
@@ -390,7 +390,7 @@ This protects future refactors.
 
 #### P2.1 Adapter capability normalization
 
-Claude/Codex/Cursor should share an internal capability model. Generate adapter-specific docs from that.
+Claude/Codex/Codex should share an internal capability model. Generate adapter-specific docs from that.
 
 #### P2.2 Repo health dashboard
 

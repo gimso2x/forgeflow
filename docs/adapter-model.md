@@ -1,7 +1,7 @@
 # Adapter Model
 
 ## 목적
-Claude, Codex, Cursor 같은 런타임 차이를 코어 workflow에서 분리한다.
+Claude, Codex 같은 런타임 차이를 코어 workflow에서 분리한다.
 
 핵심 원칙은 하나다.
 **adapter는 표면을 바꾸지만 의미를 바꾸면 안 된다.**
@@ -60,12 +60,11 @@ adapter가 바꾸면 안 되는 것:
 P0 기준 generated 산출물:
 - `generated/claude/CLAUDE.md`
 - `generated/codex/CODEX.md`
-- `generated/cursor/HARNESS_CURSOR.md`
 
 주의:
 - generated output은 install path / surface style / handoff format까지 target별로 드러내야 한다.
 - generated output은 manifest의 installation_steps를 그대로 포함해서 실제 배치 순서를 보여줘야 한다.
-- Cursor용 `.mdc` 또는 `rules/` 레이아웃은 generated markdown 안에서 명시적으로 안내한다.
+- Codex용 `.mdc` 또는 `rules/` 레이아웃은 generated markdown 안에서 명시적으로 안내한다.
 - canonical semantics를 보존하는 범위에서만 target-aware formatting을 허용한다.
 - `adapters/generated/` 아래에 추적되는 파일은 manifest가 가리키는 현재 generated 산출물만 허용한다. 보조 메모나 수동 산출물은 다른 경로에 둔다.
 
@@ -76,7 +75,6 @@ v1에서는 adapter를 과하게 벌리지 않는다.
 추천 범위:
 - claude
 - codex
-- cursor
 
 gemini/copilot/opencode는 나중이다.
 처음부터 다 하려는 건 욕심이다.
