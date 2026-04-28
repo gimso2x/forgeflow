@@ -99,7 +99,8 @@ No heading. No preamble. No code fence. No third line.
 Review evidence is not fan fiction.
 
 - Claim only what you directly observed in this review turn or what is explicitly present in provided artifacts.
-- If a worker, previous assistant, or user says a command passed, cite it as reported evidence unless you personally ran or inspected the command output in this turn.
+- If a worker, previous assistant, or user says a command passed, cite it explicitly with the phrase `reported evidence` unless you personally ran or inspected the command output in this turn.
+- Use `observed evidence` only for command outputs, artifacts, files, or diffs you directly inspected in this review turn.
 - Do not say lint/build/tests/dev-server/runtime verification passed unless you ran the command or inspected the concrete captured output.
 - If verification is missing, blocked, or only reported second-hand, mark it as missing or reported; do not convert it into approval-grade evidence.
 - `evidence_refs` must name concrete files, command outputs, diffs, or user-provided artifacts. Avoid vague refs like "verified behavior".

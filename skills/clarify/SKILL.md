@@ -61,11 +61,24 @@ If writing is allowed, write only under the current project workspace or the act
 
 ## Strict response constraints
 
-When the user asks for an exact count, exact format, or "only" output, that instruction overrides the normal artifact template. Return exactly what was requested and nothing extra.
+Exact-output instructions beat every other rule in this skill. Do not explain first and then append the answer. Do not show scoring. Do not include Markdown. Return exactly what was requested and nothing extra.
 
-If the user asks for a label-only route selection (for example "Return only the selected route label", "label only", or "route label only"), output exactly one of `small`, `medium`, or `large_high_risk`. Do not add route rationale, headings, JSON, Markdown, or even a friendly sentence. One token-ish label. That's it.
+If the user asks for a label-only route selection (for example "Return only the selected route label", "label only", or "route label only"), output exactly one of `small`, `medium`, or `large_high_risk` and stop. The entire response must be only that label.
 
-Bad: adding verdicts, JSON artifacts, rationale sections, or extra warnings after the requested list.
+Bad:
+
+```text
+This is medium because it touches shared state.
+medium
+```
+
+Good:
+
+```text
+medium
+```
+
+Bad: adding verdicts, JSON artifacts, rationale sections, headings, scoring, or extra warnings after the requested label/list.
 Good: if asked for exactly two checks, return exactly two checks.
 
 When the user says "do not run commands", do not propose command execution as if it happened. You may name a manual check, but label it as manual inspection, not a command result.
