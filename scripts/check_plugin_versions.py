@@ -12,7 +12,7 @@ from release import PLUGIN_JSON as CLAUDE_PLUGIN
 from release import SUPPORTED_PLUGIN_MANIFESTS
 
 ROOT = Path(__file__).resolve().parents[1]
-UNSUPPORTED_PLUGIN_MANIFESTS = [ROOT / ".cursor-plugin" / "plugin.json"]
+UNSUPPORTED_PLUGIN_MANIFESTS: list[Path] = []
 
 
 def load_json(path: Path) -> dict:
@@ -27,15 +27,11 @@ def _display_path(path: Path) -> str:
 
 
 def unsupported_manifest_errors(paths: list[Path]) -> list[str]:
-    return [f"{_display_path(path)}: unsupported plugin manifest must be removed" for path in paths if path.exists()]
+    return []
 
 
 def supported_manifest_errors(paths: list[Path]) -> list[str]:
     return [f"{_display_path(path)}: supported plugin manifest is missing" for path in paths if not path.exists()]
-
-
-def _contains_unsupported_cursor(values: object) -> bool:
-    return any(str(value).strip().lower() == "cursor" for value in values) if isinstance(values, list) else False
 
 
 def plugin_metadata_errors(manifests: dict[Path, dict], marketplace: dict) -> list[str]:
@@ -60,8 +56,6 @@ def plugin_metadata_errors(manifests: dict[Path, dict], marketplace: dict) -> li
             errors.append(f"{rel}: repository {manifest.get('repository')!r} != {expected_repository!r}")
         if manifest.get("license") != expected_license:
             errors.append(f"{rel}: license {manifest.get('license')!r} != {expected_license!r}")
-        if _contains_unsupported_cursor(manifest.get("keywords", [])):
-            errors.append(f"{rel}: keywords includes unsupported 'cursor'")
 
     marketplace_rel = _display_path(MARKETPLACE)
     marketplace_name = marketplace.get("name")
@@ -84,8 +78,6 @@ def plugin_metadata_errors(manifests: dict[Path, dict], marketplace: dict) -> li
         plugin_version = plugin.get("version")
         if plugin_version is not None and plugin_version != expected_version:
             errors.append(f"{marketplace_rel}: plugins[{index}].version {plugin_version!r} != {expected_version!r}")
-        if _contains_unsupported_cursor(plugin.get("tags", [])):
-            errors.append(f"{marketplace_rel}: plugins[{index}].tags includes unsupported 'cursor'")
 
     marketplace_version = marketplace.get("metadata", {}).get("version")
     if marketplace_version != expected_version:

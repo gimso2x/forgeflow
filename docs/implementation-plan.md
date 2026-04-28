@@ -78,7 +78,7 @@
 - route 예시가 complexity-routing.yaml과 일치하는지 확인
 
 ### Task 7: First runnable generator slice
-**Objective:** canonical prompt 하나를 claude/codex/cursor용 generated output으로 내리는 최소 generator를 만든다.
+**Objective:** canonical prompt 하나를 claude/codex용 generated output으로 내리는 최소 generator를 만든다.
 
 **Files:**
 - Create: `scripts/generate-adapters.*`

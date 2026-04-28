@@ -62,7 +62,6 @@ def file_for_target(name: str, manifest: dict[str, object] | None = None) -> str
     mapping = {
         'claude': 'CLAUDE.md',
         'codex': 'CODEX.md',
-        'cursor': 'HARNESS_CURSOR.md',
     }
     return mapping.get(name, f'{name.upper()}.md')
 

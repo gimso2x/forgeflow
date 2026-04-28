@@ -12,10 +12,8 @@ REQUIRED_DIRS = [
     'prompts/canonical',
     'adapters/targets/claude',
     'adapters/targets/codex',
-    'adapters/targets/cursor',
     'adapters/generated/claude',
     'adapters/generated/codex',
-    'adapters/generated/cursor',
     'runtime/orchestrator',
     'runtime/ledger',
     'runtime/gates',
@@ -73,7 +71,6 @@ REQUIRED_FILES = [
     'adapters/manifest.schema.json',
     'adapters/targets/claude/manifest.yaml',
     'adapters/targets/codex/manifest.yaml',
-    'adapters/targets/cursor/manifest.yaml',
     'evals/adherence/README.md',
     'evals/regression/README.md',
 ]

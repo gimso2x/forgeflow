@@ -63,83 +63,83 @@ def test_validate_manifest_rejects_missing_runtime_realism_fields() -> None:
 def test_validate_manifest_rejects_missing_installation_steps() -> None:
     generate_adapters = _load_generate_adapters_module()
     manifest = {
-        "name": "cursor",
+        "name": "codex",
         "runtime_type": "editor-agent",
         "input_mode": "rules-and-context",
         "output_mode": "files-and-chat",
         "supports_roles": ["planner", "worker", "spec-reviewer", "quality-reviewer"],
         "supports_generated_files": True,
         "tooling_constraints": [
-            "rules surface may require .mdc or cursor-specific placement",
+            "rules surface may require .mdc or codex-specific placement",
             "generated artifacts must not redefine canonical semantics",
         ],
-        "generated_filename": "HARNESS_CURSOR.md",
-        "recommended_location": ".cursor/rules/forgeflow.mdc",
-        "surface_style": "cursor-rules-markdown",
+        "generated_filename": "HARNESS_CODEX.md",
+        "recommended_location": ".codex/rules/forgeflow.mdc",
+        "surface_style": "codex-rules-markdown",
         "handoff_format": "artifacts-plus-chat-summary",
         "session_persistence": "rule-file persists across chat sessions until regenerated",
-        "workspace_boundary": "project rules live under .cursor/rules and guide editor-native runs",
+        "workspace_boundary": "project rules live under .codex/rules and guide editor-native runs",
         "review_delivery": "chat summary plus artifact file updates inside the workspace",
-        "recovery_delivery_note": "Cursor delivers recovery through .cursor/rules guidance, not hooks.",
+        "recovery_delivery_note": "Codex delivers recovery through .codex/rules guidance, not hooks.",
     }
 
     with pytest.raises(ValueError, match=r"missing required keys \['installation_steps'\]"):
-        generate_adapters.validate_manifest(manifest, ROOT / "adapters" / "targets" / "cursor" / "manifest.yaml")
+        generate_adapters.validate_manifest(manifest, ROOT / "adapters" / "targets" / "codex" / "manifest.yaml")
 
 
 def test_generated_filename_comes_from_manifest() -> None:
     generate_adapters = _load_generate_adapters_module()
 
     manifest = {
-        "generated_filename": "CUSTOM_CURSOR.md",
+        "generated_filename": "CUSTOM_CODEX.md",
     }
 
-    assert generate_adapters.file_for_target("cursor", manifest) == "CUSTOM_CURSOR.md"
+    assert generate_adapters.file_for_target("codex", manifest) == "CUSTOM_CODEX.md"
 
 
 def test_build_content_includes_target_specific_install_and_handoff_sections() -> None:
     generate_adapters = _load_generate_adapters_module()
     manifest = {
-        "name": "cursor",
+        "name": "codex",
         "runtime_type": "editor-agent",
         "input_mode": "rules-and-context",
         "output_mode": "files-and-chat",
         "supports_roles": ["planner", "worker", "spec-reviewer", "quality-reviewer"],
         "supports_generated_files": True,
         "tooling_constraints": [
-            "rules surface may require .mdc or cursor-specific placement",
+            "rules surface may require .mdc or codex-specific placement",
             "generated artifacts must not redefine canonical semantics",
         ],
         "installation_steps": [
-            "Place the generated content in .cursor/rules/forgeflow.mdc.",
+            "Place the generated content in .codex/rules/forgeflow.mdc.",
             "Keep ForgeFlow workflow semantics in this rule file and avoid per-chat rewrites.",
         ],
-        "generated_filename": "HARNESS_CURSOR.md",
-        "recommended_location": ".cursor/rules/forgeflow.mdc",
-        "surface_style": "cursor-rules-markdown",
+        "generated_filename": "HARNESS_CODEX.md",
+        "recommended_location": ".codex/rules/forgeflow.mdc",
+        "surface_style": "codex-rules-markdown",
         "handoff_format": "artifacts-plus-chat-summary",
         "session_persistence": "rule-file persists across chat sessions until regenerated",
-        "workspace_boundary": "project rules live under .cursor/rules and guide editor-native runs",
+        "workspace_boundary": "project rules live under .codex/rules and guide editor-native runs",
         "review_delivery": "chat summary plus artifact file updates inside the workspace",
-        "recovery_delivery_note": "Cursor delivers recovery through .cursor/rules guidance, not hooks.",
+        "recovery_delivery_note": "Codex delivers recovery through .codex/rules guidance, not hooks.",
     }
 
-    content = generate_adapters.build_content("cursor", manifest)
+    content = generate_adapters.build_content("codex", manifest)
 
     assert "## Installation guidance" in content
-    assert "- generated_filename: HARNESS_CURSOR.md" in content
-    assert "- recommended_location: .cursor/rules/forgeflow.mdc" in content
+    assert "- generated_filename: HARNESS_CODEX.md" in content
+    assert "- recommended_location: .codex/rules/forgeflow.mdc" in content
     assert "## Installation steps" in content
-    assert "1. Place the generated content in .cursor/rules/forgeflow.mdc." in content
+    assert "1. Place the generated content in .codex/rules/forgeflow.mdc." in content
     assert "2. Keep ForgeFlow workflow semantics in this rule file and avoid per-chat rewrites." in content
     assert "## Target operating notes" in content
-    assert "- surface_style: cursor-rules-markdown" in content
+    assert "- surface_style: codex-rules-markdown" in content
     assert "- handoff_format: artifacts-plus-chat-summary" in content
     assert "## Runtime realism contract" in content
     assert "- session_persistence: rule-file persists across chat sessions until regenerated" in content
-    assert "- workspace_boundary: project rules live under .cursor/rules and guide editor-native runs" in content
+    assert "- workspace_boundary: project rules live under .codex/rules and guide editor-native runs" in content
     assert "- review_delivery: chat summary plus artifact file updates inside the workspace" in content
-    assert "Copy this generated adapter into `.cursor/rules/forgeflow.mdc`" in content
+    assert "Copy this generated adapter into `.codex/rules/forgeflow.mdc`" in content
 
 
 def test_build_content_renders_claude_team_execution_guidance_only_when_manifest_opts_in() -> None:

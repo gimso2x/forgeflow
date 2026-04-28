@@ -7,7 +7,6 @@ CONTRACT = ROOT / "policy/canonical/team-patterns.yaml"
 GENERATED = {
     "claude": ROOT / "adapters/generated/claude/CLAUDE.md",
     "codex": ROOT / "adapters/generated/codex/CODEX.md",
-    "cursor": ROOT / "adapters/generated/cursor/HARNESS_CURSOR.md",
 }
 
 REQUIRED_PATTERNS = {

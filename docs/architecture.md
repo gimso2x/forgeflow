@@ -70,7 +70,7 @@ ForgeFlow artifact-first delivery harness.
 ### E. Adapter generator
 책임:
 - canonical policy를 host-specific 산출물로 변환
-- Claude/Codex/Cursor 차이를 surface에서만 흡수
+- Claude/Codex 차이를 surface에서만 흡수
 
 ### F. Eval + memory layer
 책임:
@@ -125,7 +125,7 @@ P0에서 반드시 들어가는 것:
 - 6 core artifact schemas
 - canonical role prompts
 - adapter manifest schema
-- claude/codex/cursor target placeholders
+- claude/codex target placeholders
 - eval/readme와 examples
 
 P0에서 일부러 안 넣는 것:
@@ -159,5 +159,5 @@ P0에 들어가는 self-evolution의 정본은 `policy/canonical/evolution.yaml`
 - 다음 stage로 넘어갈 artifact가 있는가?
 - 누가 구현했고 누가 판정하는가?
 - review는 무엇을 근거로 pass/fail 했는가?
-- 이 semantics가 Claude/Codex/Cursor에서 동일하게 유지되는가?
+- 이 semantics가 Claude/Codex에서 동일하게 유지되는가?
 - 실패했을 때 어디서 resume할 수 있는가?

@@ -44,7 +44,7 @@ class TestExecuteStage:
             assert result.status == "success"
             assert "stub-codex-output" in (result.raw_output or "")
 
-    def test_cursor_target(self):
+    def test_codex_target(self):
         with tempfile.TemporaryDirectory() as td:
             p = Path(td)
             (p / "brief.json").write_text(json.dumps({"task_id": "t3", "objective": "test"}))
@@ -54,10 +54,10 @@ class TestExecuteStage:
                 stage="clarify",
                 route="small",
                 role="coordinator",
-                adapter_target="cursor",
+                adapter_target="codex",
             )
             assert result.status == "success"
-            assert "stub-cursor-output" in (result.raw_output or "")
+            assert "stub-codex-output" in (result.raw_output or "")
 
     def test_extra_context_passed(self):
         with tempfile.TemporaryDirectory() as td:

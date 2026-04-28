@@ -4,7 +4,7 @@
 
 **Goal:** Add a minimal project-local safety bundle installer path that exposes ForgeFlow's guard intent for Claude projects without importing `harness_framework`'s global Stop-hook runtime or auto-commit loop.
 
-**Architecture:** Extend `scripts/install_agent_presets.py` with `--hook-bundles`. For this first hook slice, support Claude only and install a static project-local `.claude/settings.json` plus hook scripts under `.claude/hooks/forgeflow/`. Codex/Cursor should fail clearly for hook bundles instead of pretending equivalent runtime hooks exist. Hooks are small Python stdlib scripts receiving Claude Code stdin JSON.
+**Architecture:** Extend `scripts/install_agent_presets.py` with `--hook-bundles`. For this first hook slice, support Claude only and install a static project-local `.claude/settings.json` plus hook scripts under `.claude/hooks/forgeflow/`. Codex/Codex should fail clearly for hook bundles instead of pretending equivalent runtime hooks exist. Hooks are small Python stdlib scripts receiving Claude Code stdin JSON.
 
 **Tech Stack:** Python stdlib, Claude Code hook JSON stdin contract, pytest.
 

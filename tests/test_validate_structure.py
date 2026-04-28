@@ -211,10 +211,10 @@ def test_contract_map_adapter_source_and_generated_paths_exist() -> None:
     for rel in [
         "adapters/targets/claude",
         "adapters/targets/codex",
-        "adapters/targets/cursor",
+        "adapters/targets/codex",
         "adapters/generated/claude",
         "adapters/generated/codex",
-        "adapters/generated/cursor",
+        "adapters/generated/codex",
     ]:
         assert f"`{rel}`" in contract_map
         assert (ROOT / rel).is_dir()

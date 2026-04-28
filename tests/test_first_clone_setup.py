@@ -403,11 +403,10 @@ def test_readme_documents_project_team_preset_installer() -> None:
     assert "### Project team presets" in readme
     assert "python3 scripts/install_agent_presets.py --adapter claude --target /path/to/your-project --profile nextjs" in readme
     assert "python3 scripts/install_agent_presets.py --adapter codex --target /path/to/your-project --profile nextjs" in readme
-    assert "python3 scripts/install_agent_presets.py --adapter cursor --target /path/to/your-project --profile nextjs" in readme
     assert "python3 scripts/install_claude_agent_presets.py --target /path/to/your-project --profile nextjs" in readme
     assert ".claude/agents/forgeflow-coordinator.md" in readme
     assert ".codex/forgeflow/forgeflow-coordinator.md" in readme
-    assert ".cursor/rules/forgeflow-coordinator.mdc" in readme
+    assert ".codex/rules/forgeflow-nextjs-worker.mdc" in readme
     assert "The installer reads `package.json` and documents only scripts that actually exist." in readme
     assert readme.index("### Manual adapter install") < readme.index("### Project team presets") < readme.index("### Local runtime install")
 

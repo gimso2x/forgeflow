@@ -104,18 +104,17 @@ tooling_constraints:
     )
     for target, filename, handoff in [
         ("claude", "CLAUDE.md", "artifacts-plus-terminal-summary"),
-        ("cursor", "HARNESS_CURSOR.md", "artifacts-plus-chat-summary"),
     ]:
         file_path = root / "adapters" / "generated" / target / filename
         file_path.parent.mkdir(parents=True, exist_ok=True)
-        install_1 = f"1. Copy the generated adapter to ./{filename} at the repo root." if target == "claude" else "1. Place the generated content in .cursor/rules/forgeflow.mdc."
+        install_1 = f"1. Copy the generated adapter to ./{filename} at the repo root." if target == "claude" else "1. Place the generated content in .codex/rules/forgeflow.mdc."
         install_2 = (
             "2. Keep Claude-specific helper notes in surrounding docs, not by changing ForgeFlow semantics."
             if target == "claude"
             else "2. Keep ForgeFlow workflow semantics in this rule file and avoid per-chat rewrites."
         )
-        location = f"./{filename}" if target == "claude" else ".cursor/rules/forgeflow.mdc"
-        surface = "root-instruction-file" if target == "claude" else "cursor-rules-markdown"
+        location = f"./{filename}" if target == "claude" else ".codex/rules/forgeflow.mdc"
+        surface = "root-instruction-file" if target == "claude" else "codex-rules-markdown"
         file_path.write_text(
             "\n".join(
                 [
@@ -134,7 +133,7 @@ tooling_constraints:
                     f"- surface_style: {surface}",
                     f"- handoff_format: {handoff}",
                     "- session_persistence: root instruction file persists across repo sessions until regenerated" if target == "claude" else "- session_persistence: rule file persists across chat sessions until regenerated",
-                    "- workspace_boundary: repo root instruction file shapes CLI runs but artifacts still live in the project workspace" if target == "claude" else "- workspace_boundary: project rules live under .cursor/rules and guide editor-native runs",
+                    "- workspace_boundary: repo root instruction file shapes CLI runs but artifacts still live in the project workspace" if target == "claude" else "- workspace_boundary: project rules live under .codex/rules and guide editor-native runs",
                     "- review_delivery: terminal-oriented summary plus artifact files checked in the repo" if target == "claude" else "- review_delivery: chat summary plus artifact file updates inside the workspace",
                     "# Coordinator" if target == "claude" else "# Planner",
                     "# Planner",
@@ -162,9 +161,9 @@ generated_filename: {filename}
 recommended_location: {location}
 surface_style: {surface}
 handoff_format: {handoff}
-session_persistence: {'rule file persists across chat sessions until regenerated' if target == 'cursor' else 'root instruction file persists across repo sessions until regenerated'}
-workspace_boundary: {'project rules live under .cursor/rules and guide editor-native runs' if target == 'cursor' else ('repo root instruction file shapes CLI runs but artifacts still live in the project workspace' if target == 'claude' else 'repo root instruction file steers CLI work while emphasizing git-visible workspace changes')}
-review_delivery: {'chat summary plus artifact file updates inside the workspace' if target == 'cursor' else ('terminal-oriented summary plus artifact files checked in the repo' if target == 'claude' else 'git-diff-centric summary plus artifact files checked in the repo')}
+session_persistence: {'rule file persists across chat sessions until regenerated' if target == 'codex' else 'root instruction file persists across repo sessions until regenerated'}
+workspace_boundary: {'project rules live under .codex/rules and guide editor-native runs' if target == 'codex' else ('repo root instruction file shapes CLI runs but artifacts still live in the project workspace' if target == 'claude' else 'repo root instruction file steers CLI work while emphasizing git-visible workspace changes')}
+review_delivery: {'chat summary plus artifact file updates inside the workspace' if target == 'codex' else ('terminal-oriented summary plus artifact files checked in the repo' if target == 'claude' else 'git-diff-centric summary plus artifact files checked in the repo')}
 installation_steps:
   - {install_1[3:]}
   - {install_2[3:]}
@@ -219,7 +218,7 @@ tooling_constraints:
         raise AssertionError(f"unexpected command: {command}")
 
     monkeypatch.setattr(validate_generated.subprocess, "run", fake_run)
-    monkeypatch.setattr(validate_generated, "REQUIRED_GENERATED", {"claude": "CLAUDE.md", "codex": "CODEX.md", "cursor": "HARNESS_CURSOR.md"})
+    monkeypatch.setattr(validate_generated, "REQUIRED_GENERATED", {"claude": "CLAUDE.md", "codex": "CUSTOM_CODEX.md"})
 
     errors = validate_generated.check_generated_outputs(root)
 
@@ -232,21 +231,20 @@ def test_validate_generated_rejects_stale_tracked_generated_files_for_removed_ta
     root = tmp_path / "repo"
     for target, filename, handoff in [
         ("claude", "CLAUDE.md", "artifacts-plus-terminal-summary"),
-        ("codex", "CODEX.md", "artifacts-plus-git-diff"),
-        ("cursor", "HARNESS_CURSOR.md", "artifacts-plus-chat-summary"),
+        ("codex", "HARNESS_CODEX.md", "artifacts-plus-chat-summary"),
     ]:
         file_path = root / "adapters" / "generated" / target / filename
         file_path.parent.mkdir(parents=True, exist_ok=True)
-        install_1 = f"1. Copy the generated adapter to ./{filename} at the repo root." if target != "cursor" else "1. Place the generated content in .cursor/rules/forgeflow.mdc."
+        install_1 = f"1. Copy the generated adapter to ./{filename} at the repo root." if target != "codex" else "1. Place the generated content in .codex/rules/forgeflow.mdc."
         install_2 = (
             f"2. Preserve the canonical review order even when {target.capitalize()} returns specialized summaries."
-            if target != "cursor"
+            if target != "codex"
             else "2. Keep ForgeFlow workflow semantics in this rule file and avoid per-chat rewrites."
         )
-        location = f"./{filename}" if target != "cursor" else ".cursor/rules/forgeflow.mdc"
-        surface = "root-instruction-file" if target != "cursor" else "cursor-rules-markdown"
+        location = f"./{filename}" if target != "codex" else ".codex/rules/forgeflow.mdc"
+        surface = "root-instruction-file" if target != "codex" else "codex-rules-markdown"
         roles = ["# Planner", "# Worker", "# Spec Reviewer", "# Quality Reviewer"]
-        if target != "cursor":
+        if target != "codex":
             roles.insert(0, "# Coordinator")
         file_path.write_text(
             "\n".join(
@@ -265,9 +263,9 @@ def test_validate_generated_rejects_stale_tracked_generated_files_for_removed_ta
                     install_2,
                     f"- surface_style: {surface}",
                     f"- handoff_format: {handoff}",
-                    "- session_persistence: rule file persists across chat sessions until regenerated" if target == "cursor" else "- session_persistence: root instruction file persists across repo sessions until regenerated",
-                    "- workspace_boundary: project rules live under .cursor/rules and guide editor-native runs" if target == "cursor" else ("- workspace_boundary: repo root instruction file shapes CLI runs but artifacts still live in the project workspace" if target == "claude" else "- workspace_boundary: repo root instruction file steers CLI work while emphasizing git-visible workspace changes"),
-                    "- review_delivery: chat summary plus artifact file updates inside the workspace" if target == "cursor" else ("- review_delivery: terminal-oriented summary plus artifact files checked in the repo" if target == "claude" else "- review_delivery: git-diff-centric summary plus artifact files checked in the repo"),
+                    "- session_persistence: rule file persists across chat sessions until regenerated" if target == "codex" else "- session_persistence: root instruction file persists across repo sessions until regenerated",
+                    "- workspace_boundary: project rules live under .codex/rules and guide editor-native runs" if target == "codex" else ("- workspace_boundary: repo root instruction file shapes CLI runs but artifacts still live in the project workspace" if target == "claude" else "- workspace_boundary: repo root instruction file steers CLI work while emphasizing git-visible workspace changes"),
+                    "- review_delivery: chat summary plus artifact file updates inside the workspace" if target == "codex" else ("- review_delivery: terminal-oriented summary plus artifact files checked in the repo" if target == "claude" else "- review_delivery: git-diff-centric summary plus artifact files checked in the repo"),
                     *roles,
                 ]
             ),
@@ -277,11 +275,11 @@ def test_validate_generated_rejects_stale_tracked_generated_files_for_removed_ta
         manifest_path.parent.mkdir(parents=True, exist_ok=True)
         manifest_path.write_text(
             f"""name: {target}
-runtime_type: {'editor-agent' if target == 'cursor' else 'cli-agent'}
-input_mode: {'rules-and-context' if target == 'cursor' else 'prompt-and-files'}
-output_mode: {'files-and-chat' if target == 'cursor' else 'markdown-and-files'}
+runtime_type: {'editor-agent' if target == 'codex' else 'cli-agent'}
+input_mode: {'rules-and-context' if target == 'codex' else 'prompt-and-files'}
+output_mode: {'files-and-chat' if target == 'codex' else 'markdown-and-files'}
 supports_roles:
-  - {'planner' if target == 'cursor' else 'coordinator'}
+  - {'planner' if target == 'codex' else 'coordinator'}
   - planner
   - worker
   - spec-reviewer
@@ -291,9 +289,9 @@ generated_filename: {filename}
 recommended_location: {location}
 surface_style: {surface}
 handoff_format: {handoff}
-session_persistence: {'rule file persists across chat sessions until regenerated' if target == 'cursor' else 'root instruction file persists across repo sessions until regenerated'}
-workspace_boundary: {'project rules live under .cursor/rules and guide editor-native runs' if target == 'cursor' else ('repo root instruction file shapes CLI runs but artifacts still live in the project workspace' if target == 'claude' else 'repo root instruction file steers CLI work while emphasizing git-visible workspace changes')}
-review_delivery: {'chat summary plus artifact file updates inside the workspace' if target == 'cursor' else ('terminal-oriented summary plus artifact files checked in the repo' if target == 'claude' else 'git-diff-centric summary plus artifact files checked in the repo')}
+session_persistence: {'rule file persists across chat sessions until regenerated' if target == 'codex' else 'root instruction file persists across repo sessions until regenerated'}
+workspace_boundary: {'project rules live under .codex/rules and guide editor-native runs' if target == 'codex' else ('repo root instruction file shapes CLI runs but artifacts still live in the project workspace' if target == 'claude' else 'repo root instruction file steers CLI work while emphasizing git-visible workspace changes')}
+review_delivery: {'chat summary plus artifact file updates inside the workspace' if target == 'codex' else ('terminal-oriented summary plus artifact files checked in the repo' if target == 'claude' else 'git-diff-centric summary plus artifact files checked in the repo')}
 installation_steps:
   - {install_1[3:]}
   - {install_2[3:]}
@@ -314,7 +312,7 @@ tooling_constraints:
             return subprocess.CompletedProcess(
                 command,
                 0,
-                stdout="adapters/generated/claude/CLAUDE.md\nadapters/generated/codex/CODEX.md\nadapters/generated/cursor/HARNESS_CURSOR.md\nadapters/generated/retired/LEGACY.md\n",
+                stdout="adapters/generated/claude/CLAUDE.md\nadapters/generated/codex/HARNESS_CODEX.md\nadapters/generated/retired/LEGACY.md\n",
                 stderr="",
             )
         raise AssertionError(f"unexpected command: {command}")
@@ -372,7 +370,7 @@ def test_validate_generated_derives_expected_output_path_from_manifest(tmp_path:
     validate_generated = _load_validate_generated_module()
 
     root = tmp_path / "repo"
-    generated_file = root / "adapters" / "generated" / "cursor" / "CUSTOM_CURSOR.md"
+    generated_file = root / "adapters" / "generated" / "codex" / "CUSTOM_CODEX.md"
     generated_file.parent.mkdir(parents=True)
     generated_file.write_text(
         "\n".join(
@@ -384,15 +382,15 @@ def test_validate_generated_derives_expected_output_path_from_manifest(tmp_path:
                 "Non-negotiable rules",
                 "Canonical workflow snapshot",
                 "Canonical role prompts",
-                "- generated_filename: CUSTOM_CURSOR.md",
-                "- recommended_location: .cursor/rules/forgeflow.mdc",
+                "- generated_filename: CUSTOM_CODEX.md",
+                "- recommended_location: .codex/rules/forgeflow.mdc",
                 "## Installation steps",
-                "1. Place the generated content in .cursor/rules/forgeflow.mdc.",
+                "1. Place the generated content in .codex/rules/forgeflow.mdc.",
                 "2. Keep ForgeFlow workflow semantics in this rule file and avoid per-chat rewrites.",
-                "- surface_style: cursor-rules-markdown",
+                "- surface_style: codex-rules-markdown",
                 "- handoff_format: artifacts-plus-chat-summary",
                 "- session_persistence: rule file persists across chat sessions until regenerated",
-                "- workspace_boundary: project rules live under .cursor/rules and guide editor-native runs",
+                "- workspace_boundary: project rules live under .codex/rules and guide editor-native runs",
                 "- review_delivery: chat summary plus artifact file updates inside the workspace",
                 "# Planner",
                 "# Worker",
@@ -402,10 +400,10 @@ def test_validate_generated_derives_expected_output_path_from_manifest(tmp_path:
         ),
         encoding="utf-8",
     )
-    manifest = root / "adapters" / "targets" / "cursor" / "manifest.yaml"
+    manifest = root / "adapters" / "targets" / "codex" / "manifest.yaml"
     manifest.parent.mkdir(parents=True)
     manifest.write_text(
-        """name: cursor
+        """name: codex
 runtime_type: editor-agent
 input_mode: rules-and-context
 output_mode: files-and-chat
@@ -415,18 +413,18 @@ supports_roles:
   - spec-reviewer
   - quality-reviewer
 supports_generated_files: true
-generated_filename: CUSTOM_CURSOR.md
-recommended_location: .cursor/rules/forgeflow.mdc
-surface_style: cursor-rules-markdown
+generated_filename: CUSTOM_CODEX.md
+recommended_location: .codex/rules/forgeflow.mdc
+surface_style: codex-rules-markdown
 handoff_format: artifacts-plus-chat-summary
 session_persistence: rule file persists across chat sessions until regenerated
-workspace_boundary: project rules live under .cursor/rules and guide editor-native runs
+workspace_boundary: project rules live under .codex/rules and guide editor-native runs
 review_delivery: chat summary plus artifact file updates inside the workspace
 installation_steps:
-  - Place the generated content in .cursor/rules/forgeflow.mdc.
+  - Place the generated content in .codex/rules/forgeflow.mdc.
   - Keep ForgeFlow workflow semantics in this rule file and avoid per-chat rewrites.
 tooling_constraints:
-  - rules surface may require .mdc or cursor-specific placement
+  - rules surface may require .mdc or codex-specific placement
   - generated artifacts must not redefine canonical semantics
 """,
         encoding="utf-8",
@@ -515,7 +513,7 @@ tooling_constraints:
         raise AssertionError(f"unexpected command: {command}")
 
     monkeypatch.setattr(validate_generated.subprocess, "run", fake_run)
-    monkeypatch.setattr(validate_generated, "REQUIRED_GENERATED", {"claude": "CLAUDE.md", "codex": "CODEX.md", "cursor": "HARNESS_CURSOR.md"})
+    monkeypatch.setattr(validate_generated, "REQUIRED_GENERATED", {"claude": "CLAUDE.md", "codex": "CODEX.md", "codex": "HARNESS_CODEX.md"})
 
     errors = validate_generated.check_generated_outputs(root)
 

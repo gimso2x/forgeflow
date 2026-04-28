@@ -97,7 +97,7 @@ python3 scripts/run_orchestrator.py advance \
   --route small \
   --current-stage clarify \
   --execute \
-  --adapter cursor
+  --adapter codex
 
 # Retry, rewind, or escalate.
 python3 scripts/run_orchestrator.py retry \

@@ -21,4 +21,4 @@ Absorb the useful part of `revfactory/harness`: an adapter-neutral vocabulary fo
 
 - `pytest tests/test_team_pattern_contract.py -q` passes.
 - `make validate` passes.
-- Generated Claude/Codex/Cursor adapter docs include `## Team pattern guidance`.
+- Generated Claude/Codex/Codex adapter docs include `## Team pattern guidance`.

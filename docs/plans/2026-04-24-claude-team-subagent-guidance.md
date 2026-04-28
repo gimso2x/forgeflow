@@ -12,7 +12,7 @@
 
 ## Task 1: Add regression tests for Claude-only team guidance
 
-**Objective:** Ensure Claude generated adapter includes team/subagent guidance while Codex/Cursor remain adapter-neutral.
+**Objective:** Ensure Claude generated adapter includes team/subagent guidance while Codex/Codex remain adapter-neutral.
 
 **Files:**
 - Modify: `tests/test_generate_adapters.py`
@@ -48,7 +48,7 @@
 - Include: `Subagents are an execution mechanism, not a ForgeFlow workflow primitive.`
 - Include: `Subagents may produce evidence, but artifacts remain the source of truth.`
 - Include supported patterns: Producer-Reviewer, Fan-out/Fan-in, Expert Pool.
-- Do not add the section to Codex/Cursor unless their manifest opts in later.
+- Do not add the section to Codex/Codex unless their manifest opts in later.
 
 ## Task 4: Document adapter boundary
 

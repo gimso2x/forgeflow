@@ -78,26 +78,6 @@ def test_cli_execute_real_claude_uses_binary_from_path_without_live_credentials(
     assert (task_dir / "clarify-output.md").read_text(encoding="utf-8").strip() == "FAKE_CLAUDE_REAL_OUTPUT"
 
 
-def test_cli_execute_real_unsupported_adapter_fails_explicitly(tmp_path: Path) -> None:
-    task_dir = _make_task_dir(tmp_path)
-
-    result = _run_orchestrator_cli(
-        "execute",
-        "--task-dir",
-        str(task_dir),
-        "--route",
-        "small",
-        "--adapter",
-        "cursor",
-        "--real",
-    )
-
-    assert result.returncode == 0
-    payload = json.loads(result.stdout)
-    assert payload["status"] == "failure"
-    assert payload["error"] == "real adapter unsupported: cursor; supported real adapters: claude, codex"
-
-
 def test_cli_execute_real_codex_missing_binary_is_actionable(tmp_path: Path) -> None:
     task_dir = _make_task_dir(tmp_path)
 

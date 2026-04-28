@@ -24,7 +24,7 @@ python3 scripts/run_orchestrator.py execute \
 
 ## Unsupported real execution
 
-Real Cursor execution is intentionally unsupported in this slice. Cursor may have generated adapter docs, but `--real --adapter cursor` is not a supported runtime boundary yet.
+Cursor is no longer a generated or supported adapter target in this repo. `--real --adapter cursor` is outside the current runtime boundary, and the supported surface is intentionally limited to Claude Code and Codex CLI.
 
 This is not coyness. Calling every host CLI directly before defining capture, auth, cwd, and artifact semantics is how a harness turns into soup.
 

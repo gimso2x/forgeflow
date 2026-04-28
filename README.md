@@ -10,7 +10,7 @@ It keeps agent work out of vibes-only chat history and pushes it through explici
 | --- | --- |
 | Workflow | clarify → plan when needed → execute → independent review → finalize |
 | Evidence | `brief.json`, `run-state.json`, `plan-ledger.json`, `review-report.json`, `eval-record.json` |
-| Surfaces | Claude Code plugin, Codex metadata, generated Claude/Codex/Cursor adapters, local runtime |
+| Surfaces | Claude Code plugin, Codex metadata, generated Claude/Codex adapters, local runtime |
 | Safety | no worker self-approval, schema gates, generated adapter drift checks, release version sync |
 | Boundary | local artifact-first harness; not a provider orchestration service |
 
@@ -74,7 +74,6 @@ claude plugin list
 ```bash
 cp adapters/generated/claude/CLAUDE.md /path/to/your-project/CLAUDE.md
 cp adapters/generated/codex/CODEX.md /path/to/your-project/CODEX.md
-cp adapters/generated/cursor/HARNESS_CURSOR.md /path/to/your-project/HARNESS_CURSOR.md
 ```
 
 ### Project team presets
@@ -93,11 +92,6 @@ Codex:
 python3 scripts/install_agent_presets.py --adapter codex --target /path/to/your-project --profile nextjs
 ```
 
-Cursor:
-
-```bash
-python3 scripts/install_agent_presets.py --adapter cursor --target /path/to/your-project --profile nextjs
-```
 
 The legacy Claude wrapper still works:
 
@@ -114,13 +108,11 @@ This creates adapter-local presets plus a generated team-init note:
 /path/to/your-project/.codex/forgeflow/forgeflow-coordinator.md
 /path/to/your-project/.codex/forgeflow/forgeflow-nextjs-worker.md
 /path/to/your-project/.codex/forgeflow/forgeflow-quality-reviewer.md
-/path/to/your-project/.cursor/rules/forgeflow-coordinator.mdc
-/path/to/your-project/.cursor/rules/forgeflow-nextjs-worker.mdc
-/path/to/your-project/.cursor/rules/forgeflow-quality-reviewer.mdc
+/path/to/your-project/.codex/rules/forgeflow-nextjs-worker.mdc
 /path/to/your-project/docs/forgeflow-team-init.md
 ```
 
-The installer refuses global config targets such as `~/.claude`, `~/.codex`, `~/.cursor`, direct `.claude/agents`, direct `.codex/forgeflow`, and direct `.cursor/rules`. Team presets belong to the project, not your global agent config. The installer reads `package.json` and documents only scripts that actually exist.
+The installer refuses global config targets such as `~/.claude`, `~/.codex`, direct `.claude/agents`, direct `.codex/forgeflow`, and direct `.codex/rules`. Team presets belong to the project, not your global agent config. The installer reads `package.json` and documents only scripts that actually exist.
 
 For first-time project onboarding, add starter docs:
 
@@ -439,7 +431,7 @@ make orchestrator-status
 python3 scripts/run_orchestrator.py execute --task-dir examples/runtime-fixtures/small-doc-task --route small --adapter codex
 python3 scripts/run_orchestrator.py execute --task-dir examples/runtime-fixtures/small-doc-task --route small --adapter claude --real
 python3 scripts/run_orchestrator.py run --task-dir examples/runtime-fixtures/small-doc-task --min-route medium
-python3 scripts/run_orchestrator.py advance --task-dir examples/runtime-fixtures/small-doc-task --route small --current-stage clarify --execute --adapter cursor
+python3 scripts/run_orchestrator.py advance --task-dir examples/runtime-fixtures/small-doc-task --route small --current-stage clarify --execute --adapter codex
 ```
 
 Full operator examples live in `docs/operator-shell.md`. `run_runtime_sample.py`는 fixture를 임시 workspace로 복사한 뒤 실행해서 샘플 명령만으로 tracked runtime fixture가 dirty 상태가 되지 않게 막는다. manual `run_orchestrator.py` 명령은 대상 `--task-dir`를 실제로 변경하므로 demo에는 disposable sample runner를 쓰는 게 맞다.
@@ -567,7 +559,7 @@ It already includes:
 - design docs
 - canonical policy files
 - JSON schemas for core artifacts
-- generated adapters for Claude / Codex / Cursor
+- generated adapters for Claude / Codex
 - target-specific installation guidance captured in manifest metadata and rendered into generated adapters
 - validation scripts
 - sample artifact fixtures
@@ -605,7 +597,7 @@ This runs:
 Before a release or bigger refactor, check these first:
 
 1. **Plugin version drift** — `.claude-plugin/plugin.json`, `.codex-plugin/plugin.json`, and `.claude-plugin/marketplace.json` must agree. Use `scripts/check_plugin_versions.py`; do not hand-wave this.
-2. **Generated adapter drift** — canonical policy, prompts, schemas, and target manifests must be regenerated and validated, or Claude/Codex/Cursor docs silently diverge.
+2. **Generated adapter drift** — canonical policy, prompts, schemas, and target manifests must be regenerated and validated, or Claude/Codex docs silently diverge.
 3. **README/INSTALL contract drift** — tests intentionally pin key install and runtime phrases. If the docs get “prettier” by deleting operational anchors, validation will slap you. Good.
 4. **Live plugin drift** — `make validate` is deterministic, but `make smoke-claude-plugin` depends on Claude CLI auth/quota/cache and can fail independently.
 5. **Runtime stage drift** — `run`, `execute`, and `advance --execute` have different mutation semantics. Refactor these only with runtime tests beside you.

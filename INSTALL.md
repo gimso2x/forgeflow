@@ -89,14 +89,6 @@ cp /tmp/forgeflow/adapters/generated/codex/CODEX.md ./CODEX.md
 codex exec "Read CODEX.md first, then summarize the ForgeFlow route model."
 ```
 
-## Cursor 설치
-
-```bash
-git clone https://github.com/gimso2x/forgeflow.git /tmp/forgeflow
-cp /tmp/forgeflow/adapters/generated/cursor/HARNESS_CURSOR.md ./HARNESS_CURSOR.md
-```
-
-Cursor 프로젝트 규칙/문서 표면에서 `HARNESS_CURSOR.md`를 참조하게 두세요.
 
 ## 로컬 runtime 설치
 

@@ -5,17 +5,14 @@ CONTRACT = ROOT / "policy/canonical/recovery.yaml"
 GENERATED = {
     "claude": ROOT / "adapters/generated/claude/CLAUDE.md",
     "codex": ROOT / "adapters/generated/codex/CODEX.md",
-    "cursor": ROOT / "adapters/generated/cursor/HARNESS_CURSOR.md",
 }
 MANIFESTS = {
     "claude": ROOT / "adapters/targets/claude/manifest.yaml",
     "codex": ROOT / "adapters/targets/codex/manifest.yaml",
-    "cursor": ROOT / "adapters/targets/cursor/manifest.yaml",
 }
 DELIVERY_NOTES = {
     "claude": "Claude may deliver recovery through optional adapter hooks plus generated instructions.",
     "codex": "Codex delivers recovery through CODEX.md instruction guidance, not hooks.",
-    "cursor": "Cursor delivers recovery through .cursor/rules guidance, not hooks.",
 }
 
 def shared_rules() -> list[str]:

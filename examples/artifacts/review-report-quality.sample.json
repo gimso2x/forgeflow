@@ -12,7 +12,7 @@
   "next_action": "finalize 가능",
   "evidence_refs": [
     "docs/adapter-model.md",
-    "adapters/generated/cursor/HARNESS_CURSOR.md",
+    "adapters/generated/codex/HARNESS_CODEX.md",
     "scripts/validate_generated.py"
   ]
 }

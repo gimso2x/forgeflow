@@ -22,7 +22,7 @@ class RunTaskRequest:
     task_id: str
     token_budget_input: int
     token_budget_output: int
-    adapter_target: str  # e.g. "claude", "codex", "cursor"
+    adapter_target: str  # e.g. "claude", "codex"
     artifacts_to_stream: list[str] | None = None
     extra: dict[str, Any] | None = None
 
@@ -39,7 +39,7 @@ class RunTaskResult:
 
 
 class ExecutorAdapter(Protocol):
-    """Protocol for runtime-specific adapters (Claude, Codex, Cursor)."""
+    """Protocol for runtime-specific adapters (Claude, Codex)."""
 
     @property
     def name(self) -> str:
@@ -108,14 +108,6 @@ class StubCodexAdapter(_BaseStubAdapter):
     def run_task(self, request: RunTaskRequest) -> RunTaskResult:
         return self._run_stub(request, "stub-codex-output")
 
-
-class StubCursorAdapter(_BaseStubAdapter):
-    """Stub adapter for Cursor IDE agent workflows."""
-
-    name = "cursor"
-
-    def run_task(self, request: RunTaskRequest) -> RunTaskResult:
-        return self._run_stub(request, "stub-cursor-output")
 
 
 class ClaudeCodeAdapter:
@@ -279,7 +271,6 @@ class CodexCLIAdapter:
 STUB_REGISTRY: dict[str, ExecutorAdapter] = {
     "claude": StubClaudeAdapter(),
     "codex": StubCodexAdapter(),
-    "cursor": StubCursorAdapter(),
 }
 
 

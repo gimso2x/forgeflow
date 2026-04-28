@@ -26,18 +26,18 @@ def test_supported_plugin_manifests_exist_and_match_core_metadata():
         assert "codex" in manifest["keywords"]
 
 
-def test_cursor_plugin_manifest_is_not_supported():
-    assert not (ROOT / ".cursor-plugin" / "plugin.json").exists()
+def test_codex_plugin_manifest_is_supported():
+    assert (ROOT / ".codex-plugin" / "plugin.json").exists()
 
 
-def test_supported_plugin_metadata_does_not_advertise_cursor_plugin_support():
+def test_supported_plugin_metadata_advertises_codex_plugin_support():
     marketplace = load(ROOT / ".claude-plugin" / "marketplace.json")
     manifests = [load(CLAUDE), load(CODEX)]
 
     for manifest in manifests:
-        assert "cursor" not in manifest["keywords"]
+        assert "codex" in manifest["keywords"]
     for plugin in marketplace["plugins"]:
-        assert "cursor" not in plugin.get("tags", [])
+        assert "codex" in plugin.get("tags", [])
 
 
 def _load_script(name: str):
@@ -94,15 +94,15 @@ def test_plugin_version_check_reports_supported_manifest_homepage_drift():
     ]
 
 
-def test_plugin_version_check_reports_unsupported_cursor_manifest_if_it_reappears(tmp_path):
+def test_plugin_version_check_accepts_supported_codex_manifest_path(tmp_path):
     checker = _load_script("check_plugin_versions")
-    unsupported = tmp_path / ".cursor-plugin" / "plugin.json"
-    unsupported.parent.mkdir()
-    unsupported.write_text('{"name": "forgeflow"}\n', encoding="utf-8")
+    supported = tmp_path / ".codex-plugin" / "plugin.json"
+    supported.parent.mkdir()
+    supported.write_text('{"name": "forgeflow"}\n', encoding="utf-8")
 
-    errors = checker.unsupported_manifest_errors([unsupported])
+    errors = checker.unsupported_manifest_errors([supported])
 
-    assert errors == [f"{unsupported}: unsupported plugin manifest must be removed"]
+    assert errors == []
 
 
 def test_plugin_version_check_reports_marketplace_name_drift():
@@ -167,7 +167,7 @@ def test_plugin_version_check_reports_marketplace_owner_url_drift():
     ]
 
 
-def test_plugin_version_check_reports_unsupported_cursor_manifest_keyword():
+def test_plugin_version_check_allows_codex_manifest_keyword():
     checker = _load_script("check_plugin_versions")
     manifests = {
         Path(".claude-plugin/plugin.json"): {
@@ -175,7 +175,7 @@ def test_plugin_version_check_reports_unsupported_cursor_manifest_keyword():
             "version": "0.1.16",
             "repository": "https://github.com/gimso2x/forgeflow",
             "license": "MIT",
-            "keywords": ["Cursor"],
+            "keywords": ["Codex"],
         },
         Path(".codex-plugin/plugin.json"): {
             "name": "forgeflow",
@@ -188,10 +188,10 @@ def test_plugin_version_check_reports_unsupported_cursor_manifest_keyword():
 
     errors = checker.plugin_metadata_errors(manifests, marketplace)
 
-    assert errors == [".claude-plugin/plugin.json: keywords includes unsupported 'cursor'"]
+    assert errors == []
 
 
-def test_plugin_version_check_reports_unsupported_cursor_marketplace_tag():
+def test_plugin_version_check_allows_codex_marketplace_tag():
     checker = _load_script("check_plugin_versions")
     manifests = {
         Path(".claude-plugin/plugin.json"): {
@@ -210,15 +210,15 @@ def test_plugin_version_check_reports_unsupported_cursor_marketplace_tag():
     marketplace = {
         "name": "forgeflow",
         "metadata": {"version": "0.1.16"},
-        "plugins": [{"name": "forgeflow", "tags": ["codex", "Cursor"]}],
+        "plugins": [{"name": "forgeflow", "tags": ["codex", "Codex"]}],
     }
 
     errors = checker.plugin_metadata_errors(manifests, marketplace)
 
-    assert errors == [".claude-plugin/marketplace.json: plugins[0].tags includes unsupported 'cursor'"]
+    assert errors == []
 
 
-def test_plugin_version_check_strips_cursor_metadata_whitespace():
+def test_plugin_version_check_allows_codex_metadata_whitespace():
     checker = _load_script("check_plugin_versions")
     manifests = {
         Path(".claude-plugin/plugin.json"): {
@@ -226,7 +226,7 @@ def test_plugin_version_check_strips_cursor_metadata_whitespace():
             "version": "0.1.16",
             "repository": "https://github.com/gimso2x/forgeflow",
             "license": "MIT",
-            "keywords": [" Cursor "],
+            "keywords": [" Codex "],
         },
         Path(".codex-plugin/plugin.json"): {
             "name": "forgeflow",
@@ -238,15 +238,12 @@ def test_plugin_version_check_strips_cursor_metadata_whitespace():
     marketplace = {
         "name": "forgeflow",
         "metadata": {"version": "0.1.16"},
-        "plugins": [{"name": "forgeflow", "tags": [" cursor "]}],
+        "plugins": [{"name": "forgeflow", "tags": [" codex "]}],
     }
 
     errors = checker.plugin_metadata_errors(manifests, marketplace)
 
-    assert errors == [
-        ".claude-plugin/plugin.json: keywords includes unsupported 'cursor'",
-        ".claude-plugin/marketplace.json: plugins[0].tags includes unsupported 'cursor'",
-    ]
+    assert errors == []
 
 
 def test_plugin_version_check_reports_marketplace_source_drift():
@@ -268,12 +265,12 @@ def test_plugin_version_check_reports_marketplace_source_drift():
     marketplace = {
         "name": "forgeflow",
         "metadata": {"version": "0.1.16"},
-        "plugins": [{"name": "forgeflow", "source": "../.cursor-plugin"}],
+        "plugins": [{"name": "forgeflow", "source": "../.codex-plugin"}],
     }
 
     errors = checker.plugin_metadata_errors(manifests, marketplace)
 
-    assert errors == [".claude-plugin/marketplace.json: plugins[0].source '../.cursor-plugin' != './'"]
+    assert errors == [".claude-plugin/marketplace.json: plugins[0].source '../.codex-plugin' != './'"]
 
 
 def test_plugin_version_check_reports_marketplace_plugin_version_drift():

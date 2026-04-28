@@ -14,9 +14,9 @@
       "timestamp": "2026-04-22T23:42:00Z",
       "actor": "worker",
       "category": "consistency",
-      "decision": "Cursor output은 P0에서 HARNESS_CURSOR.md 형태를 유지한다.",
+      "decision": "Codex output은 P0에서 HARNESS_CODEX.md 형태를 유지한다.",
       "rationale": ".mdc 규칙 레이아웃은 P1 이후 선택지로 미룬다.",
-      "affected_artifacts": ["adapter-model", "generated/cursor"]
+      "affected_artifacts": ["adapter-model", "generated/codex"]
     }
   ]
 }

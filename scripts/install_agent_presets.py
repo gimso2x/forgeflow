@@ -45,14 +45,6 @@ ADAPTERS = {
         global_config_names=(".codex",),
         forbidden_suffixes=((".codex", "forgeflow"),),
     ),
-    "cursor": AdapterSpec(
-        name="cursor",
-        preset_root=ROOT / "adapters/targets/cursor/rules",
-        install_subdir=Path(".cursor/rules"),
-        title="ForgeFlow Cursor Rules Initialization",
-        global_config_names=(".cursor",),
-        forbidden_suffixes=((".cursor", "rules"),),
-    ),
 }
 
 REQUIRED_PRESETS = {
@@ -66,11 +58,6 @@ REQUIRED_PRESETS = {
             "forgeflow-coordinator.md",
             "forgeflow-nextjs-worker.md",
             "forgeflow-quality-reviewer.md",
-        ],
-        "cursor": [
-            "forgeflow-coordinator.mdc",
-            "forgeflow-nextjs-worker.mdc",
-            "forgeflow-quality-reviewer.mdc",
         ],
     }
 }
@@ -166,7 +153,7 @@ def install_hook_bundles(target: Path, adapter: str, bundles: list[str]) -> list
     if not bundles:
         return []
     if adapter != "claude":
-        raise ValueError("Hook bundles are Claude adapter only for now; Codex and Cursor receive safety intent through presets/rules.")
+        raise ValueError("Hook bundles are Claude adapter only for now; Codex receives safety intent through presets.")
 
     installed: list[str] = []
     for bundle in bundles:

@@ -11,7 +11,6 @@ ROOT = Path(__file__).resolve().parents[1]
 REQUIRED_GENERATED = {
     'claude': 'CLAUDE.md',
     'codex': 'CODEX.md',
-    'cursor': 'HARNESS_CURSOR.md',
 }
 REQUIRED_MARKERS = [
     'This file is generated from canonical harness policy.',

@@ -20,7 +20,7 @@
   ],
   "risk_level": "low",
   "assumptions": [
-    "현재 target은 claude/codex/cursor 세 개다"
+    "현재 target은 claude/codex/codex 세 개다"
   ],
   "open_questions": []
 }

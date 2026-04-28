@@ -93,7 +93,8 @@ def test_release_script_stages_only_supported_plugin_manifests():
 
     assert ".claude-plugin/plugin.json" in paths
     assert ".codex-plugin/plugin.json" in paths
-    assert ".cursor-plugin/plugin.json" not in paths
+    assert ".claude-plugin/marketplace.json" in paths
+    assert len(paths) == 3
 
 
 def test_release_script_rejects_preexisting_staged_changes(tmp_path):
