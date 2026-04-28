@@ -61,6 +61,7 @@ Do not use it for one-file or one-step tasks.
 - `contracts.md` owns interface, compatibility, and invariant constraints.
 - Issue drafts are derived artifacts. They cannot become a second plan.
 - `AFK` and `HITL` are upstream commentary only. Do not use them as artifact values.
+- docs/to-issues-model.md owns issue-readiness semantics. Apply that model when separating human-gated work from agent-ready work and user-facing behavior from implementation guesses.
 - GitHub labels, milestones, and target repo are adapter metadata, not core identity.
 - Do not call the GitHub API. Publishing is a separate explicit adapter action.
 - Redact credentials as `[REDACTED]`.

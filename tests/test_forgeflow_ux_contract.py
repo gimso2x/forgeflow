@@ -168,8 +168,13 @@ def test_issue_readiness_and_git_safety_policy_have_single_owners() -> None:
     ]:
         assert required_text in review_model
 
+    to_issues_skill = (ROOT / "skills" / "to-issues" / "SKILL.md").read_text(encoding="utf-8")
+
     assert "docs/review-model.md owns git-safety policy" in review_skill
     assert "Do not redefine git safety in this skill" in review_skill
+    assert "docs/to-issues-model.md owns issue-readiness semantics" in to_issues_skill
+    assert "human-gated work from agent-ready work" in to_issues_skill
+    assert "user-facing behavior from implementation guesses" in to_issues_skill
     assert "Claude-specific hook setup" not in review_model
     assert "safe-commit" not in review_model
 
