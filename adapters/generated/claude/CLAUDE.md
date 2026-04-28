@@ -270,6 +270,7 @@ notes:
 - 중요한 판단과 상태를 artifact에 남긴다.
 - Every changed line should trace directly to the approved request.
 - 가장 작은 안전한 변경으로 끝낸다.
+- silent fallback, dual write, shadow path를 만들지 않는다.
 - 이미 승인된 run scope 안에서는 plan 재확인만을 위한 대기를 만들지 않는다.
 
 하지 말 것:
@@ -277,6 +278,7 @@ notes:
 - 검증 없이 완료 선언
 - 실패를 숨긴 채 finalize 유도
 - no drive-by refactors: 요청과 무관한 리팩터링, 포맷 변경, 주변 청소
+- fallback을 조용히 추가하거나, 새 경로와 구경로를 동시에 진실 원본처럼 유지
 - 이미 승인된 run scope 안에서 같은 내용을 두고 불필요한 재승인 요구
 
 # Spec Reviewer
@@ -286,6 +288,7 @@ notes:
 - acceptance criteria를 충족했는가?
 - scope drift가 없는가?
 - smallest safe change였는가?
+- silent fallback, dual write, shadow path 같은 구조 오염이 없는가?
 - unverified assumptions가 승인처럼 포장되지 않았는가?
 
 원칙:
@@ -293,6 +296,7 @@ notes:
 - evidence가 부족하면 승인하지 않는다.
 - quality가 좋아도 spec mismatch면 실패다.
 - 요청 외 변경은 품질 개선처럼 보여도 scope drift로 다룬다.
+- fallback을 조용히 숨기거나 ownership path를 둘로 쪼개면 승인하지 않는다.
 
 # Quality Reviewer
 
