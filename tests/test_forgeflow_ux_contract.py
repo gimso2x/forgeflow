@@ -197,6 +197,40 @@ def test_skill_index_points_new_active_contracts_to_directory_skills() -> None:
     assert "Pick the next available number" not in skill_index
 
 
+def test_design_interface_skill_feeds_existing_contract_artifacts() -> None:
+    skill = (ROOT / "skills" / "design-interface" / "SKILL.md").read_text(encoding="utf-8")
+    model = (ROOT / "docs" / "contract-design-model.md").read_text(encoding="utf-8")
+
+    for required_text in [
+        "optional support skill",
+        "not a new `/forgeflow:design` stage",
+        "feeds `contracts.md` and plan artifacts",
+        "creates no separate approval gate, lifecycle state, or persistence lane",
+        "Default output is a `contracts.md` section",
+        "`interface-spec.json` is optional",
+        "at least two materially different interface options",
+        "callers, invariants, compatibility, testing surface, and migration impact",
+    ]:
+        assert required_text in skill
+
+    for required_text in [
+        "contracts.md remains the default source of truth",
+        "schemas/interface-spec.schema.json is an optional structured representation",
+        "does not replace `/forgeflow:plan`",
+        "no parallel design source of truth",
+    ]:
+        assert required_text in model
+
+    allowed_design_stage_phrases = [
+        "not a new `/forgeflow:design` stage",
+        "No new canonical `/forgeflow:design` stage",
+    ]
+    skill_without_allowed_phrases = skill
+    for phrase in allowed_design_stage_phrases:
+        skill_without_allowed_phrases = skill_without_allowed_phrases.replace(phrase, "")
+    assert "/forgeflow:design" not in skill_without_allowed_phrases
+
+
 def test_so2x_minimum_spec_and_plan_gates_are_documented() -> None:
     specify = (ROOT / "skills" / "specify" / "SKILL.md").read_text(encoding="utf-8")
     plan = (ROOT / "skills" / "plan" / "SKILL.md").read_text(encoding="utf-8")

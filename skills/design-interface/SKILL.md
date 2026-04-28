@@ -11,7 +11,9 @@ Force interface decisions before code changes when a task changes an observable 
 
 This skill absorbs the useful part of `mattpocock/skills`: design the interface first, compare real alternatives, then write the chosen contract where later work can verify it.
 
-No new canonical `/forgeflow:design` stage. This is a helper. Use it only when the boundary matters.
+This optional support skill feeds `contracts.md` and plan artifacts; it creates no separate approval gate, lifecycle state, or persistence lane.
+
+No new canonical `/forgeflow:design` stage. This optional support skill is not a new `/forgeflow:design` stage. Use it only when the boundary matters.
 
 ## Trigger
 
@@ -39,11 +41,11 @@ Read, in this order:
 
 ## Output Artifacts
 
-Write the task-local contract output by default:
+Default output is a `contracts.md` section in the task-local contract output:
 
 1. `.forgeflow/tasks/<task-id>/contracts.md`
 
-Write the machine-checkable output only when the task explicitly needs schema-backed interface design, adapter automation, or durable cross-task traceability:
+`interface-spec.json` is optional. Write the machine-checkable output only when the task explicitly needs schema-backed interface design, adapter automation, or durable cross-task traceability:
 
 2. `.forgeflow/tasks/<task-id>/interface-spec.json`
 
@@ -79,7 +81,7 @@ Repository-level contract examples live at:
 
 7. Compare at least two materially different interface options.
    - This is mandatory.
-   - at least two materially different interface options must be present.
+   - Each option must name callers, invariants, compatibility, testing surface, and migration impact.
    - If both options are the same thing with different adjectives, that is fake design. Reject it.
 
 8. Choose one option.
