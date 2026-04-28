@@ -189,6 +189,14 @@ def test_safe_commit_skill_applies_canonical_git_safety_policy() -> None:
     assert "Dirty user work is preserved by default" in safe_commit
 
 
+def test_skill_index_points_new_active_contracts_to_directory_skills() -> None:
+    skill_index = (ROOT / "skills" / "SKILLS.md").read_text(encoding="utf-8")
+
+    assert "Create the active contract at `skills/<name>/SKILL.md`" in skill_index
+    assert "Historical imports belong under `docs/legacy/skills/`" in skill_index
+    assert "Pick the next available number" not in skill_index
+
+
 def test_so2x_minimum_spec_and_plan_gates_are_documented() -> None:
     specify = (ROOT / "skills" / "specify" / "SKILL.md").read_text(encoding="utf-8")
     plan = (ROOT / "skills" / "plan" / "SKILL.md").read_text(encoding="utf-8")

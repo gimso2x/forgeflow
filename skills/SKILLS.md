@@ -71,9 +71,10 @@ User: "Refactor the entire payment module"
 
 ## Adding a new skill
 
-1. Pick the next available number or `x-` prefix.
+1. Pick a bounded skill name that matches the operation (`<name>` for workflow/support skills, `x-<name>` only for truly cross-cutting skills).
 2. Copy the template from [`_template.md`](_template.md).
-3. Create the active contract at `skills/<name>/SKILL.md`; keep historical imports under `docs/legacy/skills/`, not beside active plugin contracts.
-4. Fill in Purpose, Trigger, Input, Output, Execution, Constraints, Exit Condition.
-5. Add a row to the table above.
-6. Run `make validate`.
+3. Create the active contract at `skills/<name>/SKILL.md`.
+4. Historical imports belong under `docs/legacy/skills/`, not beside active plugin contracts.
+5. Fill in Purpose, Trigger, Input, Output, Execution, Constraints, Exit Condition.
+6. Add a row to the table above.
+7. Run `make validate`.
