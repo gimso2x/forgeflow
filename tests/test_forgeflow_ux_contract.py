@@ -115,6 +115,34 @@ def test_makefile_defines_policy_scan_target() -> None:
     assert "scripts/policy_scan.py" in makefile
 
 
+def test_plan_skill_documents_refactor_mode_without_new_stage_or_schema() -> None:
+    plan = (ROOT / "skills" / "plan" / "SKILL.md").read_text(encoding="utf-8")
+    decision = (ROOT / "docs" / "refactor-planning-decision.md").read_text(encoding="utf-8")
+
+    for required_text in [
+        "## Refactor mode",
+        "behavior-preserving structural change across an existing public surface",
+        "migration-sensitive internal reorganization",
+        "test-sensitive decomposition work",
+        "removal/replacement of implementation machinery while preserving user-visible behavior",
+        "not a new `/forgeflow:refactor-plan` command",
+        "`schemas/plan.schema.json` remains authoritative",
+        "preserved public behavior statement",
+        "explicit non-goals",
+        "migration boundary",
+        "rollback, escape hatch, or explicit not-applicable note",
+        "tiny always-green implementation steps",
+        "regression verification strategy focused on public behavior",
+        "Existing coverage",
+        "docs/refactor-planning-decision.md",
+    ]:
+        assert required_text in plan
+
+    assert "Status: accepted" in decision
+    assert "`schemas/plan.schema.json` is unchanged" in decision
+    assert "does not create `/forgeflow:refactor-plan`" in decision
+
+
 def test_so2x_minimum_spec_and_plan_gates_are_documented() -> None:
     specify = (ROOT / "skills" / "specify" / "SKILL.md").read_text(encoding="utf-8")
     plan = (ROOT / "skills" / "plan" / "SKILL.md").read_text(encoding="utf-8")

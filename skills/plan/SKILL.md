@@ -98,6 +98,33 @@ Before crossing `plan → run`, the plan must make these sections explicit in `p
 - `Implementation Steps`
 - `Verification`
 
+## Refactor mode
+
+Use refactor mode inside this existing plan flow when the requested work is primarily a behavior-preserving structural change across an existing public surface, a migration-sensitive internal reorganization, test-sensitive decomposition work, or removal/replacement of implementation machinery while preserving user-visible behavior.
+
+Refactor mode is a planning branch, not a new `/forgeflow:refactor-plan` command, stage, approval gate, schema lane, or separate source of truth. `schemas/plan.schema.json` remains authoritative unless a separate decision proves a schema change is needed. If a refactor-specific requirement cannot be represented by existing `plan.json` fields or a named sibling markdown section, stop and produce a schema/decision note before execution.
+
+When refactor mode applies, the plan must include:
+
+- preserved public behavior statement, or a decision explaining why the refactor is internal-only
+- explicit non-goals
+- migration boundary
+- rollback, escape hatch, or explicit not-applicable note for contained internal refactors
+- tiny always-green implementation steps
+- regression verification strategy focused on public behavior over implementation-detail tests
+- note on whether existing tests cover the affected public behavior
+
+Representation rules:
+
+- preserved behavior maps to `Requirements`, `steps[].objective`, `steps[].fulfills`, and `verify_plan`
+- non-goals live in a sibling plan note section named `Non-goals`
+- migration boundaries live in a sibling plan note section named `Migration boundary`, or in `contracts.interfaces` / `contracts.invariants` for cross-module seams
+- rollback or escape hatch lives in `steps[].rollback_note`
+- regression verification lives in `steps[].verification` and top-level `verify_plan`
+- existing test coverage lives in a sibling plan note section named `Existing coverage`
+
+See `docs/refactor-planning-decision.md` for the canonical representation decision.
+
 ### Requirement traceability
 
 For non-trivial work, carry the requirement map through the executable plan instead of leaving it as prose:
@@ -116,6 +143,7 @@ Do not proceed to `/forgeflow:run` if one of those is missing for non-trivial wo
 - Dependencies form a DAG
 - Medium/large routes have enough detail for `/forgeflow:run` without guessing
 - The minimum plan gate covers `Goal`, `Requirements`, `Implementation Steps`, and `Verification`
+- Refactor-specific checks are present only when refactor mode applies, with preserved behavior, non-goals, migration boundary, rollback or escape hatch, regression verification, and existing coverage represented in existing plan fields or sibling markdown sections
 - Contract metadata is present for cross-module work, or explicitly unnecessary
 - `fulfills`, `journeys`, and `verify_plan` links are consistent when present
 - No placeholder tasks remain
