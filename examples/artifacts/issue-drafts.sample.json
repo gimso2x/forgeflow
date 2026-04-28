@@ -1,0 +1,81 @@
+{
+  "schema_version": "0.1",
+  "task_id": "sample-helper-skill-layer",
+  "source_plan_ref": "plan.sample.json",
+  "source_brief_ref": "brief.sample.json",
+  "contracts_ref": "contracts.md",
+  "artifact_authority": {
+    "scope_owner": "plan.json",
+    "contract_owner": "contracts.md",
+    "publication_owner": "adapter metadata"
+  },
+  "publication_metadata": {
+    "target_repo": "example/forgeflow-consumer",
+    "labels": [
+      "forgeflow",
+      "backlog"
+    ],
+    "milestone": "helper-skill-layer"
+  },
+  "issue_drafts": [
+    {
+      "id": "draft-contract-boundary",
+      "title": "Add contract boundary for helper skill outputs",
+      "summary": "Define the minimal artifact contract that lets helper skills produce derived outputs without becoming a new source of truth.",
+      "slice_type": "vertical",
+      "human_gate": "not_required",
+      "blocked_by": [],
+      "trace": {
+        "plan_steps": [
+          "step-1"
+        ],
+        "fulfills": [
+          "contracts-are-explicit"
+        ],
+        "contract_anchors": [
+          "#contracts"
+        ]
+      },
+      "acceptance_checks": [
+        "Derived issue artifacts state that plan.json owns scope.",
+        "Contract anchors are stable headings or omitted."
+      ],
+      "verification_expectations": [
+        "Validate the artifact against schemas/issue-drafts.schema.json.",
+        "Run git diff --check before publishing."
+      ]
+    },
+    {
+      "id": "draft-publication-policy",
+      "title": "Decide publication metadata for GitHub issues",
+      "summary": "Gather the repository, label, and milestone policy needed before issue drafts can be safely published by an adapter.",
+      "slice_type": "discovery",
+      "human_gate": "required",
+      "human_blocker": "Need target repo and label policy from the operator before any GitHub API call.",
+      "blocked_by": [
+        "draft-contract-boundary"
+      ],
+      "trace": {
+        "plan_steps": [],
+        "fulfills": [],
+        "contract_anchors": []
+      },
+      "acceptance_checks": [
+        "The discovery output names the publication target and labels, or records that publication is intentionally skipped."
+      ],
+      "verification_expectations": [
+        "Confirm no GitHub API call is performed by the to-issues skill itself."
+      ],
+      "discovery": {
+        "question": "Which repository and label/milestone policy should issue publication use?",
+        "evidence_to_gather": [
+          "Target GitHub repository",
+          "Allowed labels",
+          "Milestone or no-milestone decision"
+        ],
+        "artifact_to_produce": "publication-metadata.json or a decision-log entry",
+        "decision_unblocked": "Whether a later GitHub adapter may publish these drafts."
+      }
+    }
+  ]
+}

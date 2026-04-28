@@ -18,6 +18,7 @@ POSITIVE_SAMPLES = {
     "examples/artifacts/eval-record.sample.json": ROOT / "schemas/eval-record.schema.json",
     "examples/artifacts/checkpoint.sample.json": ROOT / "schemas/checkpoint.schema.json",
     "examples/artifacts/session-state.sample.json": ROOT / "schemas/session-state.schema.json",
+    "examples/artifacts/issue-drafts.sample.json": ROOT / "schemas/issue-drafts.schema.json",
 }
 NEGATIVE_SAMPLES = {
     "run-state-invalid-stage.sample.json": ROOT / "schemas/run-state.schema.json",

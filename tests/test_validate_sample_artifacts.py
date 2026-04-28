@@ -232,6 +232,7 @@ def test_validate_sample_artifacts_tracks_positive_and_negative_fixtures() -> No
 
     assert validate_samples.POSITIVE_SAMPLES
     assert validate_samples.NEGATIVE_SAMPLES
+    assert "examples/artifacts/issue-drafts.sample.json" in validate_samples.POSITIVE_SAMPLES
 
     result = subprocess.run(
         [sys.executable, "scripts/validate_sample_artifacts.py"],
