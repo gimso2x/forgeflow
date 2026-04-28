@@ -114,6 +114,7 @@ Review evidence is not fan fiction.
 5. For quality review, apply discipline heuristics without creating a separate stage:
    - Every changed line should trace directly to the approved request.
    - Was the change the smallest safe change that satisfies the request?
+   - Did the change avoid silent fallback, dual write, and shadow-path ownership drift?
    - Did the implementation follow existing codebase patterns instead of inventing a new local religion?
    - Were assumptions about types, APIs, behavior, and test coverage verified against actual files?
    - If performance was touched, was the bottleneck measured before and after the change?

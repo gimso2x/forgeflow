@@ -4,10 +4,12 @@ spec_review:
     - Did the output satisfy the brief objective?
     - Were acceptance criteria met?
     - Did execution stay inside scope?
+    - Did the change avoid silent fallback, dual write, or shadow-path ownership drift?
     - Is evidence sufficient for the claimed completion?
   fail_on:
     - missing acceptance coverage
     - unapproved scope drift
+    - silent fallback or dual-write drift
     - evidence-free completion claim
     - approved verdict with open_blockers or safe_for_next_stage=false
 quality_review:
@@ -16,8 +18,10 @@ quality_review:
     - Is the verification quality acceptable?
     - Are residual risks documented?
     - Is maintainability acceptable for the task size?
+    - Was this the smallest safe change without alternate ownership paths?
   fail_on:
     - avoidable complexity
     - weak verification
     - hidden residual risk
+    - shadow-path ownership drift
     - approved verdict with open_blockers or safe_for_next_stage=false

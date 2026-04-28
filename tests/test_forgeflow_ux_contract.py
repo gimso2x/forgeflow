@@ -76,9 +76,12 @@ def test_canonical_prompts_embed_karpathy_execution_discipline() -> None:
     assert "assumptions" in planner
     assert "Every changed line should trace directly to the approved request" in worker
     assert "no drive-by refactors" in worker
+    assert "silent fallback, dual write, shadow path" in worker
     assert "smallest safe change" in reviewer
+    assert "silent fallback, dual write, shadow path" in reviewer
     assert "unverified assumptions" in reviewer
     assert "Every changed line should trace directly to the approved request" in review_skill
+    assert "silent fallback, dual write, and shadow-path ownership drift" in review_skill
 
 
 def test_docs_explain_stage_boundaries_are_user_approved_not_manual_operation() -> None:
@@ -106,9 +109,10 @@ def test_readme_documents_plugin_init_cache_guard_and_release_smoke() -> None:
     assert "writes starter artifacts through `/forgeflow:init`" in readme
 
 
-def test_make_validate_runs_ux_contract_tests() -> None:
+def test_makefile_defines_policy_scan_target() -> None:
     makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
-    assert "tests/test_forgeflow_ux_contract.py" in makefile
+    assert "policy-scan:" in makefile
+    assert "scripts/policy_scan.py" in makefile
 
 
 def test_so2x_minimum_spec_and_plan_gates_are_documented() -> None:

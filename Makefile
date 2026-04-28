@@ -107,6 +107,9 @@ verify-skill-smoke:
 finish-skill-smoke:
 	$(VENV_PYTHON) -m pytest tests/test_finish_skill_contract.py -q
 
+policy-scan:
+	$(VENV_PYTHON) scripts/policy_scan.py
+
 plugin-manifest-smoke:
 	$(VENV_PYTHON) -m pytest tests/test_plugin_manifests.py -q
 
