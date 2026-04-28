@@ -144,7 +144,7 @@ def test_design_interface_skill_absorbs_contract_first_pattern_as_optional_helpe
 
 
 def test_canonical_forgeflow_skills_default_to_artifact_first_mode() -> None:
-    for skill_name in ["forgeflow", "clarify", "plan", "run", "review", "ship"]:
+    for skill_name in ["forgeflow", "clarify", "specify", "plan", "run", "review", "ship"]:
         skill = (ROOT / "skills" / skill_name / "SKILL.md").read_text(encoding="utf-8")
 
         assert "Default to **artifact-first mode**." in skill
