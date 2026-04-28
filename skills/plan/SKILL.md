@@ -224,7 +224,7 @@ Return exactly the requested steps in the response. Do **not** create `plan.json
 If asked:
 
 ```text
-/forgeflow:plan Write plan.json under work/my-task
+/forgeflow:plan Write plan.json under .forgeflow/tasks/<task-id>
 ```
 
-Then and only then write `work/my-task/plan.json`.
+Then and only then write `.forgeflow/tasks/<task-id>/plan.json`.

@@ -150,6 +150,7 @@ def test_canonical_forgeflow_skills_default_to_artifact_first_mode() -> None:
         assert "Default to **artifact-first mode**." in skill
         assert "response-only mode" not in skill
         assert "return their content in the chat response" not in skill
+        assert "work/my-task" not in skill
         assert "Never write inside the plugin installation directory, marketplace cache" in skill
         assert "explicitly asks for a dry run" in skill
         assert ".forgeflow/tasks/<task-id>/" in skill
