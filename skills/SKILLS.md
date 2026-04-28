@@ -47,7 +47,8 @@ User: "I want to build a daily briefing app"
   → plan             → plan.json
   → run              → decision-log.json + run-state.json + plan-ledger.json + code changes
   → review           → review-report.json
-  → ship             → PR + cleanup
+  → ship             → final handoff
+  → finish           → branch disposition: merge, PR, keep, or discard
 ```
 
 ## Long-run lifecycle (complex tasks)
