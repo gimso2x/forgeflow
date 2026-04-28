@@ -83,11 +83,30 @@ An issue draft bundle becomes stale if any of these change:
 
 Stale bundles must be regenerated or marked stale in a decision log before use.
 
+## Issue readiness policy
+
+Issue readiness means a draft is safe for an agent or human to pick up without replaying the whole planning conversation.
+It distinguishes **human-gated work from agent-ready work** in ForgeFlow-native terms:
+
+- `human_gate: required` means the draft needs a product, security, access, release, or irreversible-scope decision before execution.
+- `human_gate: not_required` means the draft has enough plan trace, acceptance checks, and verification expectations for an agent to execute within the approved scope.
+- The gate is readiness metadata, not a new lifecycle state.
+
+A ready draft separates **user-facing behavior from implementation guesses**:
+
+- user-facing behavior belongs in the summary, acceptance checks, and verification expectations;
+- implementation guesses belong in notes or constraints only when backed by the approved plan, contracts, or repo evidence;
+- speculative fixes should not masquerade as accepted requirements.
+
+Root cause should be investigated before filing fix-oriented issues when feasible. If the root cause is unknown, create a discovery draft instead of pretending the fix is obvious.
+
+GitHub labels and milestones are publication metadata. They may help humans triage after publication, but ForgeFlow does not create a runtime issue state machine from labels, milestones, or GitHub project columns.
+
 ## Publication boundary
 
 `to-issues` never calls the GitHub API.
-
 Publishing is a later adapter action. Labels and milestones are adapter metadata. They do not define core artifact identity.
+This boundary also means `to-issues` does not mutate issues, infer completion from labels, or require a GitHub-specific workflow to be considered canonical.
 
 ## Example
 

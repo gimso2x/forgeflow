@@ -143,6 +143,37 @@ def test_plan_skill_documents_refactor_mode_without_new_stage_or_schema() -> Non
     assert "does not create `/forgeflow:refactor-plan`" in decision
 
 
+def test_issue_readiness_and_git_safety_policy_have_single_owners() -> None:
+    to_issues = (ROOT / "docs" / "to-issues-model.md").read_text(encoding="utf-8")
+    review_model = (ROOT / "docs" / "review-model.md").read_text(encoding="utf-8")
+    review_skill = (ROOT / "skills" / "review" / "SKILL.md").read_text(encoding="utf-8")
+
+    for required_text in [
+        "## Issue readiness policy",
+        "human-gated work from agent-ready work",
+        "user-facing behavior from implementation guesses",
+        "Root cause should be investigated before filing fix-oriented issues",
+        "GitHub labels and milestones are publication metadata",
+        "does not create a runtime issue state machine",
+    ]:
+        assert required_text in to_issues
+
+    for required_text in [
+        "## Git safety and diff-scope policy",
+        "Broad staging is forbidden unless explicitly justified",
+        "Destructive git actions require explicit user approval",
+        "Dirty user work is preserved by default",
+        "Reviews must name the exact diff scope and verification evidence",
+        "adapter-neutral",
+    ]:
+        assert required_text in review_model
+
+    assert "docs/review-model.md owns git-safety policy" in review_skill
+    assert "Do not redefine git safety in this skill" in review_skill
+    assert "Claude-specific hook setup" not in review_model
+    assert "safe-commit" not in review_model
+
+
 def test_so2x_minimum_spec_and_plan_gates_are_documented() -> None:
     specify = (ROOT / "skills" / "specify" / "SKILL.md").read_text(encoding="utf-8")
     plan = (ROOT / "skills" / "plan" / "SKILL.md").read_text(encoding="utf-8")

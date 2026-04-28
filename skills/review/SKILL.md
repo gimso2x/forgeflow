@@ -105,6 +105,14 @@ Review evidence is not fan fiction.
 - `evidence_refs` must name concrete files, command outputs, diffs, or user-provided artifacts. Avoid vague refs like "verified behavior".
 - When command execution is disallowed, use manual inspection language only: "not run", "manual inspection", "requires verification".
 
+## Git safety summary
+
+`docs/review-model.md owns git-safety policy`. Do not redefine git safety in this skill; apply that model during review.
+
+- Name the exact diff scope reviewed: files, directories, commit range, or staged changes.
+- Name verification evidence: commands run, artifacts inspected, or missing evidence.
+- Treat broad staging, destructive git actions, and dirty unrelated user work as review risks unless explicitly justified and approved.
+
 ## Procedure
 
 1. Review from artifacts and code, not worker vibes.

@@ -175,6 +175,20 @@ Claude Code처럼 subagent나 agent team을 지원하는 runtime에서는 review
 
 ---
 
+## Git safety and diff-scope policy
+
+Git safety is adapter-neutral policy. It applies the same way to Claude, Codex, and any future ForgeFlow adapter; a tool may add guardrails, but the workflow rule lives here.
+
+- Broad staging is forbidden unless explicitly justified. Prefer path-limited staging of the files that belong to the approved task.
+- Destructive git actions require explicit user approval: reset, checkout/restore of user changes, clean, rebase that rewrites local work, force push, or deleting branches/tags.
+- Dirty user work is preserved by default. If unrelated modifications exist, do not sweep them into the task commit and do not "clean up" unless the user asked for that exact cleanup.
+- Reviews must name the exact diff scope and verification evidence. A review should say which files/commits it inspected and which commands or artifacts back the verdict.
+- If broad staging or a destructive action is unavoidable, record the reason and the user's approval in the task artifact or decision log.
+
+This is policy, not a new command surface. ForgeFlow does not need a dedicated commit-safety stage to enforce basic git hygiene; review and ship gates should reject sloppy diff ownership.
+
+---
+
 ## finalize와 review의 관계
 
 `finalize`는 review를 대체하지 않는다.
