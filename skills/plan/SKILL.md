@@ -5,7 +5,7 @@ version: 0.1.0
 author: gimso2x
 validate_prompt: |
   Must preserve exact-output and dry-run constraints when requested.
-  Must produce schema-valid plan.json when file writing is explicitly allowed.
+  Must default to artifact-first behavior and produce schema-valid `plan.json` in the active task directory unless the user explicitly requests dry-run or no-write output.
   Must keep contracts, fulfills, journeys, and verify_plan consistent when present.
 ---
 
@@ -122,13 +122,20 @@ Do not proceed to `/forgeflow:run` if one of those is missing for non-trivial wo
 
 ## File write and output discipline
 
-Default to **response-only mode**. Do not call Write/Edit or create artifact files unless the user explicitly asks you to write files or provides a clear writable task directory.
+Default to **artifact-first mode**. Plan should write `plan.json` under the active task directory unless the user explicitly asks for a dry run, exact-output response, or no-write simulation.
+
+Canonical writable location:
+
+- explicit task directory provided by the user, or
+- repo-local `.forgeflow/tasks/<task-id>/` created via `/forgeflow:init` or `python3 scripts/run_orchestrator.py init ...`.
+
+If the task directory is missing, bootstrap it first. Do not downgrade planning into a chat transcript when the workflow contract expects artifacts.
 
 If the user says "do not write files", "return only", "dry run", "just list", or asks for a label/summary only, obey that output constraint exactly and do not attempt any filesystem mutation.
 
-When artifacts such as `brief.json`, `plan.json`, or `review-report.json` are mentioned without an explicit writable path, return their content in the chat response as fenced text or concise structured bullets. Do not guess a path in the repository root.
+When artifacts such as `plan.json` are mentioned without an explicit path, write them to the active task directory, not the repository root and not chat-only fallback.
 
-If writing is allowed, write only under the current project workspace or the explicit task directory named by the user. Never write inside the plugin installation directory, marketplace cache, or `skills/<skill>/`.
+If writing is allowed, write only under the current project workspace or the active task directory. Never write inside the plugin installation directory, marketplace cache, or `skills/<skill>/`.
 
 
 ## Strict response constraints
@@ -184,7 +191,7 @@ If asked:
 /forgeflow:plan For route small, list exactly two plan steps. Do not write files.
 ```
 
-Return exactly the requested steps in the response. Do **not** create `plan.json`.
+Return exactly the requested steps in the response. Do **not** create `plan.json` for this dry-run variant.
 
 If asked:
 

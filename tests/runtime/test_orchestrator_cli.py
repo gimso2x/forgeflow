@@ -1,4 +1,5 @@
 import json
+import shutil
 from pathlib import Path
 
 from tests.runtime.cli_helpers import ROOT, make_task_dir, run_orchestrator_cli, write_json
@@ -156,6 +157,57 @@ def test_cli_init_without_task_dir_allows_ordinary_plugin_marketplace_named_proj
     payload = json.loads(result.stdout)
     assert Path(payload["task_dir"]) == expected_task_dir
     assert (expected_task_dir / "brief.json").exists()
+
+
+def test_cli_mutating_commands_refuse_explicit_task_dir_inside_plugin_cache(tmp_path: Path) -> None:
+    plugin_task_dir = tmp_path / ".claude" / "plugins" / "cache" / "forgeflow" / ".forgeflow" / "tasks" / "bad-task"
+    plugin_task_dir.mkdir(parents=True)
+    _write_json(
+        plugin_task_dir / "run-state.json",
+        {
+            "schema_version": "0.1",
+            "task_id": "bad-task",
+            "current_stage": "clarify",
+            "status": "in_progress",
+            "completed_gates": [],
+            "failed_gates": [],
+            "retries": {},
+            "current_task_id": "",
+            "spec_review_approved": False,
+            "quality_review_approved": False,
+        },
+    )
+
+    for command in [
+        ("init", "--task-id", "bad-task", "--objective", "Do not write here", "--risk", "low"),
+        ("start",),
+        ("run", "--route", "small"),
+        ("resume",),
+        ("advance", "--route", "small", "--current-stage", "clarify"),
+        ("retry", "--stage", "clarify"),
+        ("step-back", "--route", "small", "--current-stage", "clarify"),
+        ("escalate", "--from-route", "small"),
+        ("execute", "--route", "small"),
+    ]:
+        result = _run_orchestrator_cli(command[0], "--task-dir", str(plugin_task_dir), *command[1:])
+        assert result.returncode == 1, (command, result.stderr)
+        assert result.stdout == ""
+        assert result.stderr.startswith("ERROR: ")
+        assert "plugin cache" in result.stderr or "marketplace cache" in result.stderr
+        assert "--task-dir" in result.stderr
+        assert "Traceback" not in result.stderr
+
+
+def test_cli_status_allows_read_only_inspection_inside_plugin_cache(tmp_path: Path) -> None:
+    source_task_dir = ROOT / "examples" / "runtime-fixtures" / "small-doc-task"
+    plugin_task_dir = tmp_path / ".claude" / "plugins" / "cache" / "forgeflow" / ".forgeflow" / "tasks" / "inspect-only"
+    shutil.copytree(source_task_dir, plugin_task_dir)
+
+    result = _run_orchestrator_cli("status", "--task-dir", str(plugin_task_dir))
+    assert result.returncode == 0, result.stderr
+    payload = json.loads(result.stdout)
+    assert payload["task_id"] == "task-runtime-small-001"
+    assert payload["current_stage"] == "finalize"
 
 
 def test_cli_init_refuses_to_overwrite_existing_artifacts(tmp_path: Path) -> None:
@@ -343,7 +395,7 @@ def test_cli_advance_with_execute_runs_next_stage_and_updates_run_state(tmp_path
         "clarify",
         "--execute",
         "--adapter",
-        "cursor",
+        "codex",
     )
 
     assert result.returncode == 0
@@ -440,13 +492,13 @@ def test_cli_medium_route_execute_flow_is_automated_end_to_end(tmp_path: Path) -
         "plan",
         "--execute",
         "--adapter",
-        "cursor",
+        "codex",
     )
     assert advance_execute.returncode == 0
     advance_execute_payload = json.loads(advance_execute.stdout)
     assert advance_execute_payload["next_stage"] == "execute"
     assert advance_execute_payload["execution"]["stage"] == "execute"
-    assert advance_execute_payload["execution"]["adapter"] == "cursor"
+    assert advance_execute_payload["execution"]["adapter"] == "codex"
     assert (task_dir / "execute-output.md").exists()
 
     status_after_execute = _run_orchestrator_cli("status", "--task-dir", str(task_dir), "--route", "medium")

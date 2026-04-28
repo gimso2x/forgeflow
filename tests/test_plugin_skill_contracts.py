@@ -95,3 +95,15 @@ def test_cross_cutting_so2x_skills_are_listed_in_skill_index() -> None:
         "so2x-harness",
     ]:
         assert required_text in index
+
+
+def test_canonical_forgeflow_skills_default_to_artifact_first_mode() -> None:
+    for skill_name in ["forgeflow", "clarify", "plan", "run", "review", "ship"]:
+        skill = (ROOT / "skills" / skill_name / "SKILL.md").read_text(encoding="utf-8")
+
+        assert "Default to **artifact-first mode**." in skill
+        assert "response-only mode" not in skill
+        assert "return their content in the chat response" not in skill
+        assert "Never write inside the plugin installation directory, marketplace cache" in skill
+        assert "explicitly asks for a dry run" in skill
+        assert ".forgeflow/tasks/<task-id>/" in skill

@@ -38,13 +38,20 @@ Use this skill to execute the selected ForgeFlow route.
 
 ## File write and output discipline
 
-Default to **response-only mode**. Do not call Write/Edit or create artifact files unless the user explicitly asks you to write files or provides a clear writable task directory.
+Default to **artifact-first mode**. Run should update `run-state.json` before and after code changes, and keep execution evidence in the active task directory unless the user explicitly asks for a dry run, exact-output response, or no-write simulation.
+
+Canonical writable location:
+
+- explicit task directory provided by the user, or
+- repo-local `.forgeflow/tasks/<task-id>/` created via `/forgeflow:init` or `python3 scripts/run_orchestrator.py init ...`.
+
+If the task directory is missing, bootstrap or recover it first. Do not jump straight into `src/...` edits while the workflow state lives nowhere.
 
 If the user says "do not write files", "return only", "dry run", "just list", or asks for a label/summary only, obey that output constraint exactly and do not attempt any filesystem mutation.
 
-When artifacts such as `brief.json`, `plan.json`, or `review-report.json` are mentioned without an explicit writable path, return their content in the chat response as fenced text or concise structured bullets. Do not guess a path in the repository root.
+When artifacts such as `run-state.json` or `decision-log.json` are mentioned without an explicit path, write them to the active task directory, not the repository root and not chat-only fallback.
 
-If writing is allowed, write only under the current project workspace or the explicit task directory named by the user. Never write inside the plugin installation directory, marketplace cache, or `skills/<skill>/`.
+If writing is allowed, write only under the current project workspace or the active task directory. Never write inside the plugin installation directory, marketplace cache, or `skills/<skill>/`.
 
 
 ## Strict response constraints
@@ -73,7 +80,8 @@ No heading. No preamble. No code fence. No third line. Start directly with `1.`.
 4. Treat `fulfills`, `journeys`, and `verify_plan` as verification obligations, not decoration.
 5. Run focused verification after each meaningful change.
 6. Update evidence/decision notes.
-7. Stop if requirements become ambiguous; return to `/forgeflow:clarify` or `/forgeflow:specify`.
+7. Record artifact updates before claiming progress: if implementation started, `run-state.json` should say so before you brag in chat.
+8. Stop if requirements become ambiguous; return to `/forgeflow:clarify` or `/forgeflow:specify`.
 
 Contract-aware execution rules:
 

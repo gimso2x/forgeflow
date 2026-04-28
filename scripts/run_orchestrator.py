@@ -77,7 +77,7 @@ def build_parser() -> argparse.ArgumentParser:
   make orchestrator-status
   # Mutating manual stage commands stay explicit operator commands.
   python3 scripts/run_orchestrator.py execute --task-dir examples/runtime-fixtures/small-doc-task --route small --adapter codex
-  python3 scripts/run_orchestrator.py advance --task-dir examples/runtime-fixtures/small-doc-task --route small --current-stage clarify --execute --adapter cursor
+  python3 scripts/run_orchestrator.py advance --task-dir examples/runtime-fixtures/small-doc-task --route small --current-stage clarify --execute --adapter codex
   python3 scripts/run_orchestrator.py retry --task-dir examples/runtime-fixtures/small-doc-task --stage execute --max-retries 2
   python3 scripts/run_orchestrator.py step-back --task-dir examples/runtime-fixtures/small-doc-task --route small --current-stage quality-review
   python3 scripts/run_orchestrator.py escalate --task-dir examples/runtime-fixtures/small-doc-task --from-route small
@@ -135,7 +135,7 @@ Notes:
     advance_parser.add_argument("--min-route", choices=ROUTE_ORDER, help=min_route_help)
     advance_parser.add_argument("--current-stage", required=True)
     advance_parser.add_argument("--execute", action="store_true", help="execute the next stage immediately after advancing")
-    advance_parser.add_argument("--adapter", choices=["claude", "codex", "cursor"], default="claude")
+    advance_parser.add_argument("--adapter", choices=["claude", "codex"], default="claude")
     advance_parser.add_argument("--role", default=None, help="override role when --execute is used")
     advance_parser.add_argument("--artifacts", nargs="+", default=None, help="artifact names to stream when --execute is used")
     advance_parser.add_argument("--real", action="store_true", help="use real CLI adapters when --execute is used")
@@ -159,7 +159,7 @@ Notes:
     exec_parser.add_argument("--task-dir", required=True)
     exec_parser.add_argument("--route", help=route_help)
     exec_parser.add_argument("--min-route", choices=ROUTE_ORDER, help=min_route_help)
-    exec_parser.add_argument("--adapter", choices=["claude", "codex", "cursor"], default="claude")
+    exec_parser.add_argument("--adapter", choices=["claude", "codex"], default="claude")
     exec_parser.add_argument("--role", default=None, help="override role (auto-detected from stage if omitted)")
     exec_parser.add_argument("--artifacts", nargs="+", default=None, help="artifact names to stream")
     exec_parser.add_argument("--real", action="store_true", help="use real CLI adapters instead of stubs")
@@ -186,6 +186,24 @@ def _default_task_dir_for_init(task_id: str) -> Path:
     return (cwd / ".forgeflow" / "tasks" / task_id).resolve()
 
 
+def _task_dir_is_plugin_cache(task_dir: Path) -> bool:
+    return _cwd_is_plugin_cache(task_dir)
+
+
+def _command_mutates_task(command: str) -> bool:
+    return command in {"start", "init", "run", "resume", "advance", "retry", "step-back", "escalate", "execute"}
+
+
+def _guard_mutating_task_dir(command: str, task_dir: Path) -> None:
+    if not _command_mutates_task(command):
+        return
+    if _task_dir_is_plugin_cache(task_dir):
+        raise RuntimeViolation(
+            f"{command} refuses to mutate task artifacts inside a plugin or marketplace cache; "
+            "pass --task-dir pointing at the target project .forgeflow/tasks/<task-id> directory"
+        )
+
+
 def main() -> int:
     parser = build_parser()
     args = parser.parse_args()
@@ -198,6 +216,7 @@ def main() -> int:
             task_dir = _default_task_dir_for_init(args.task_id)
         else:
             parser.error("--task-dir is required for this command")
+        _guard_mutating_task_dir(args.command, task_dir)
         policy = load_runtime_policy(ROOT)
 
         route_name = effective_route(

@@ -33,6 +33,27 @@ def test_plan_and_run_skills_separate_stage_boundary_approval_from_reapproval() 
     assert "Do not pause just to reconfirm the same plan before editing files." in run_text
 
 
+def test_canonical_workflow_skills_are_artifact_first_by_default() -> None:
+    clarify = (ROOT / "skills" / "clarify" / "SKILL.md").read_text(encoding="utf-8")
+    plan = (ROOT / "skills" / "plan" / "SKILL.md").read_text(encoding="utf-8")
+    run = (ROOT / "skills" / "run" / "SKILL.md").read_text(encoding="utf-8")
+    review = (ROOT / "skills" / "review" / "SKILL.md").read_text(encoding="utf-8")
+    ship = (ROOT / "skills" / "ship" / "SKILL.md").read_text(encoding="utf-8")
+    forgeflow = (ROOT / "skills" / "forgeflow" / "SKILL.md").read_text(encoding="utf-8")
+
+    for text in [clarify, plan, run, review, ship, forgeflow]:
+        assert "Default to **artifact-first mode**." in text
+        assert "response-only mode" not in text
+        assert ".forgeflow/tasks/<task-id>/" in text
+        assert "dry run" in text
+
+    assert "write `brief.json` under the active task directory" in clarify
+    assert "write `plan.json` under the active task directory" in plan
+    assert "update `run-state.json` before and after code changes" in run
+    assert "write `review-report.json` under the active task directory" in review
+    assert "Preserve artifacts/evidence instead of burying them in chat." in ship
+
+
 def test_canonical_prompts_require_stage_boundary_approval_without_reapproval_loops() -> None:
     coordinator = (ROOT / "prompts" / "canonical" / "coordinator.md").read_text(encoding="utf-8")
     planner = (ROOT / "prompts" / "canonical" / "planner.md").read_text(encoding="utf-8")
