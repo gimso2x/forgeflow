@@ -1,0 +1,94 @@
+{
+  "schema_version": "0.1",
+  "task_id": "task-design-interface-example",
+  "source_refs": {
+    "brief_ref": ".forgeflow/tasks/task-design-interface-example/brief.json",
+    "plan_ref": ".forgeflow/tasks/task-design-interface-example/plan.json",
+    "contracts_ref": ".forgeflow/tasks/task-design-interface-example/contracts.md"
+  },
+  "artifact_kind": "interface_spec",
+  "problem": "Define the stable interface before implementation so callers and tests do not drift.",
+  "callers": [
+    {
+      "name": "plan skill",
+      "kind": "skill",
+      "need": "Needs a stable contract section to reference from plan tasks."
+    },
+    {
+      "name": "pytest validators",
+      "kind": "test",
+      "need": "Needs deterministic JSON shape and error behavior to assert."
+    }
+  ],
+  "public_surface": [
+    {
+      "name": "interface-spec.json",
+      "surface_type": "json",
+      "signature_or_shape": "schema-backed artifact with callers, surfaces, invariants, options, and chosen option",
+      "stability": "new"
+    },
+    {
+      "name": "contracts.md#interface-spec",
+      "surface_type": "markdown",
+      "signature_or_shape": "human-readable contract section generated from the chosen interface option",
+      "stability": "compatible-extension"
+    }
+  ],
+  "invariants": [
+    "The interface spec is derived from brief and plan artifacts, not invented in isolation.",
+    "The chosen option must preserve ForgeFlow's existing artifact-first workflow."
+  ],
+  "compatibility_constraints": [
+    "Do not add a new canonical /forgeflow:design stage.",
+    "Do not create a second source of truth beside plan.json and contracts.md."
+  ],
+  "error_behavior": [
+    {
+      "condition": "Required caller or public surface is missing",
+      "expected_behavior": "Validation fails before implementation begins."
+    },
+    {
+      "condition": "Only one interface option is provided",
+      "expected_behavior": "Validation fails because tradeoff exploration was skipped."
+    }
+  ],
+  "testing_surface": [
+    "JSON schema validation for interface-spec.sample.json",
+    "Skill contract test verifies design-interface remains a helper skill, not a stage."
+  ],
+  "migration_concerns": [
+    "Existing tasks without interface-spec.json remain valid unless the helper is explicitly invoked.",
+    "Generated contracts.md sections must be append-only unless a task explicitly updates them."
+  ],
+  "options": [
+    {
+      "id": "option-json-and-contracts",
+      "summary": "Emit a JSON interface spec plus a contracts.md section.",
+      "shape": "Write interface-spec.json as validation source and mirror the chosen public contract into contracts.md.",
+      "pros": ["machine-checkable", "human-readable", "fits artifact-first workflow"],
+      "cons": ["two files must stay traceable"],
+      "compatibility_notes": "Compatible because contracts.md remains the operator-facing contract."
+    },
+    {
+      "id": "option-contracts-only",
+      "summary": "Write only a contracts.md section.",
+      "shape": "Skip JSON and rely on markdown contract prose only.",
+      "pros": ["simple to read", "minimal files"],
+      "cons": ["harder to validate", "more prone to drift"],
+      "compatibility_notes": "Compatible with old workflows but weaker for automation."
+    }
+  ],
+  "chosen_option": "option-json-and-contracts",
+  "rejected_alternatives": [
+    {
+      "option_id": "option-contracts-only",
+      "reason": "Markdown alone is too easy to desynchronize from tests and validators."
+    }
+  ],
+  "contracts_output": {
+    "target_artifact": "contracts.md",
+    "section_anchor": "#interface-spec",
+    "markdown_section": "## Interface Spec\n\nThe implementation must preserve the JSON interface-spec artifact and mirror the chosen public contract into this contracts.md section. Callers, public surfaces, invariants, errors, tests, and migration concerns must be explicit before code changes begin."
+  },
+  "decision_note": "Use JSON plus contracts.md because it gives both deterministic validation and readable operator context."
+}

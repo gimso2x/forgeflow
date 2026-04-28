@@ -1,0 +1,151 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://forgeflow.local/schemas/interface-spec.schema.json",
+  "title": "Interface Spec",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "task_id",
+    "source_refs",
+    "artifact_kind",
+    "problem",
+    "callers",
+    "public_surface",
+    "invariants",
+    "compatibility_constraints",
+    "error_behavior",
+    "testing_surface",
+    "migration_concerns",
+    "options",
+    "chosen_option",
+    "contracts_output"
+  ],
+  "properties": {
+    "schema_version": { "type": "string", "const": "0.1" },
+    "task_id": { "type": "string", "minLength": 1 },
+    "source_refs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["brief_ref", "plan_ref"],
+      "properties": {
+        "brief_ref": { "type": "string", "minLength": 1 },
+        "plan_ref": { "type": "string", "minLength": 1 },
+        "contracts_ref": { "type": "string", "minLength": 1 }
+      }
+    },
+    "artifact_kind": { "type": "string", "const": "interface_spec" },
+    "problem": { "type": "string", "minLength": 12 },
+    "callers": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/caller" }
+    },
+    "public_surface": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/public_surface_entry" }
+    },
+    "invariants": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 8 }
+    },
+    "compatibility_constraints": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 8 }
+    },
+    "error_behavior": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/error_case" }
+    },
+    "testing_surface": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 8 }
+    },
+    "migration_concerns": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 8 }
+    },
+    "options": {
+      "type": "array",
+      "minItems": 2,
+      "items": { "$ref": "#/$defs/interface_option" }
+    },
+    "chosen_option": { "type": "string", "minLength": 1 },
+    "rejected_alternatives": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/rejected_option" },
+      "default": []
+    },
+    "contracts_output": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["target_artifact", "section_anchor", "markdown_section"],
+      "properties": {
+        "target_artifact": { "type": "string", "const": "contracts.md" },
+        "section_anchor": { "type": "string", "pattern": "^#[a-z0-9][a-z0-9-]*$" },
+        "markdown_section": { "type": "string", "minLength": 80 }
+      }
+    },
+    "decision_note": { "type": "string", "minLength": 12 }
+  },
+  "$defs": {
+    "caller": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "kind", "need"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "kind": { "type": "string", "enum": ["user", "cli", "skill", "adapter", "module", "test", "external"] },
+        "need": { "type": "string", "minLength": 8 }
+      }
+    },
+    "public_surface_entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "surface_type", "signature_or_shape", "stability"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "surface_type": { "type": "string", "enum": ["cli", "file", "json", "markdown", "python", "http", "mcp", "plugin"] },
+        "signature_or_shape": { "type": "string", "minLength": 8 },
+        "stability": { "type": "string", "enum": ["new", "compatible-extension", "breaking-change", "internal-only"] }
+      }
+    },
+    "error_case": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["condition", "expected_behavior"],
+      "properties": {
+        "condition": { "type": "string", "minLength": 8 },
+        "expected_behavior": { "type": "string", "minLength": 8 }
+      }
+    },
+    "interface_option": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "summary", "shape", "pros", "cons", "compatibility_notes"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^option-[a-z0-9-]+$" },
+        "summary": { "type": "string", "minLength": 8 },
+        "shape": { "type": "string", "minLength": 12 },
+        "pros": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 4 } },
+        "cons": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 4 } },
+        "compatibility_notes": { "type": "string", "minLength": 8 }
+      }
+    },
+    "rejected_option": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["option_id", "reason"],
+      "properties": {
+        "option_id": { "type": "string", "pattern": "^option-[a-z0-9-]+$" },
+        "reason": { "type": "string", "minLength": 8 }
+      }
+    }
+  }
+}

@@ -120,6 +120,29 @@ def test_to_issues_skill_absorbs_mattpocock_pattern_as_optional_helper() -> None
     assert "mattpocock/skills" in index
 
 
+def test_design_interface_skill_absorbs_contract_first_pattern_as_optional_helper() -> None:
+    skill_path = ROOT / "skills" / "design-interface" / "SKILL.md"
+    assert skill_path.exists()
+    skill = skill_path.read_text(encoding="utf-8")
+    index = (ROOT / "skills" / "SKILLS.md").read_text(encoding="utf-8")
+
+    for required_text in [
+        "name: design-interface",
+        "Input Artifacts",
+        "Output Artifacts",
+        "contracts.md",
+        "schemas/interface-spec.schema.json",
+        "at least two materially different interface options",
+        "No new canonical `/forgeflow:design` stage",
+        "Do not create a parallel design source of truth",
+        ".forgeflow/tasks/<task-id>/",
+    ]:
+        assert required_text in skill
+
+    assert "[`design-interface`](design-interface/SKILL.md)" in index
+    assert "mattpocock/skills" in index
+
+
 def test_canonical_forgeflow_skills_default_to_artifact_first_mode() -> None:
     for skill_name in ["forgeflow", "clarify", "plan", "run", "review", "ship"]:
         skill = (ROOT / "skills" / skill_name / "SKILL.md").read_text(encoding="utf-8")
