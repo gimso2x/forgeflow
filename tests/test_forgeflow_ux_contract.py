@@ -174,6 +174,16 @@ def test_issue_readiness_and_git_safety_policy_have_single_owners() -> None:
     assert "safe-commit" not in review_model
 
 
+def test_safe_commit_skill_applies_canonical_git_safety_policy() -> None:
+    safe_commit = (ROOT / "skills" / "safe-commit" / "SKILL.md").read_text(encoding="utf-8")
+
+    assert "docs/review-model.md owns git-safety policy" in safe_commit
+    assert "Do not redefine git safety in this skill" in safe_commit
+    assert "Broad staging is forbidden unless explicitly justified" in safe_commit
+    assert "Destructive git actions require explicit user approval" in safe_commit
+    assert "Dirty user work is preserved by default" in safe_commit
+
+
 def test_so2x_minimum_spec_and_plan_gates_are_documented() -> None:
     specify = (ROOT / "skills" / "specify" / "SKILL.md").read_text(encoding="utf-8")
     plan = (ROOT / "skills" / "plan" / "SKILL.md").read_text(encoding="utf-8")

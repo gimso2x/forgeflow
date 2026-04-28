@@ -42,6 +42,12 @@ If a writable task directory is provided, write the report to `safe-commit-repor
 
 ## Procedure
 
+docs/review-model.md owns git-safety policy. Do not redefine git safety in this skill; apply that canonical policy while reviewing the commit candidate:
+
+- Broad staging is forbidden unless explicitly justified by the requested scope.
+- Destructive git actions require explicit user approval.
+- Dirty user work is preserved by default.
+
 1. Inspect the real diff; do not rely on memory or worker vibes.
 2. Run or inspect a secret scan appropriate to the repository. At minimum, search changed content for obvious token/key patterns and credential files.
 3. Check file-size and generated-file risk:
