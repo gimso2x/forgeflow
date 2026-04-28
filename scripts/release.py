@@ -28,6 +28,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--no-commit", action="store_true", help="Do not create the release commit.")
     parser.add_argument("--no-tag", action="store_true", help="Do not create the annotated release tag.")
     parser.add_argument("--notes-out", type=Path, help="Write release note draft to this path.")
+    parser.add_argument(
+        "--allow-docs-only",
+        action="store_true",
+        help="Allow a release even when every tracked change since the latest tag is docs-only.",
+    )
     return parser.parse_args()
 
 
@@ -104,6 +109,55 @@ def staged_paths() -> list[str]:
     return [line for line in result.stdout.splitlines() if line.strip()]
 
 
+def latest_release_tag() -> str | None:
+    result = subprocess.run(
+        ["git", "describe", "--tags", "--abbrev=0", "--match", "v*"],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        return None
+    tag = result.stdout.strip()
+    return tag or None
+
+
+def changed_paths_since(tag: str) -> list[Path]:
+    result = subprocess.run(
+        ["git", "diff", "--name-only", f"{tag}..HEAD"],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        check=True,
+    )
+    return [Path(line.strip()) for line in result.stdout.splitlines() if line.strip()]
+
+
+def is_docs_only_path(path: Path) -> bool:
+    normalized = path.as_posix()
+    return normalized.startswith("docs/") or path.suffix.lower() in {".md", ".mdx", ".rst", ".txt"}
+
+
+def docs_only_guard_message(tag: str, changed_paths: list[Path]) -> str | None:
+    if not changed_paths:
+        return f"No tracked changes since {tag}; cutting a release now would be empty noise."
+    if all(is_docs_only_path(path) for path in changed_paths):
+        changed = ", ".join(path.as_posix() for path in changed_paths)
+        return (
+            f"Docs-only changes detected since {tag}: {changed}. "
+            "Skip the release unless you really want a docs-only tag; rerun with --allow-docs-only to override."
+        )
+    return None
+
+
+def release_guard_message() -> str | None:
+    tag = latest_release_tag()
+    if not tag:
+        return None
+    return docs_only_guard_message(tag, changed_paths_since(tag))
+
+
 def release_plan(version: str) -> str:
     tag = f"v{version}"
     return "\n".join(
@@ -131,6 +185,12 @@ def main() -> int:
         return 2
 
     print(release_plan(args.version))
+    guard_message = release_guard_message()
+    if guard_message and not args.allow_docs_only:
+        print(f"ERROR: {guard_message}", file=sys.stderr)
+        return 2
+    if guard_message and args.allow_docs_only:
+        print(f"OVERRIDE: {guard_message}")
     if args.dry_run:
         if args.notes_out:
             print(f"Dry-run: would write release notes to {args.notes_out}")
