@@ -1,6 +1,12 @@
 ---
 name: design-interface
 description: Define a task-local interface contract before implementation when a change touches public JSON, CLI, file, module, plugin, MCP, HTTP, or skill boundaries. Absorbs mattpocock/skills-style interface design as an optional ForgeFlow helper, not a new stage.
+version: 0.1.0
+author: gimso2x
+validate_prompt: |
+  Must compare at least two materially different interface options before implementation.
+  Must write task-local contract artifacts instead of creating a new ForgeFlow stage.
+  Must preserve existing callers, compatibility constraints, and verification expectations.
 ---
 
 # design-interface

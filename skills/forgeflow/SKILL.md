@@ -3,6 +3,10 @@ name: forgeflow
 description: Artifact-first delivery workflow for AI coding agents. Use when a user types /forgeflow, /forgeflow:<stage>, or asks to implement, refactor, debug, review, or ship code through clarify, route selection, artifacts, gates, and independent review.
 version: 0.1.0
 author: gimso2x
+validate_prompt: |
+  Must route work through explicit ForgeFlow stages and artifact-backed gates.
+  Must preserve stage boundaries, verification evidence, and independent review semantics.
+  Must not treat ForgeFlow as a chat-only ritual when task artifacts are required.
 ---
 
 # ForgeFlow

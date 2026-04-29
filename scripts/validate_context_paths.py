@@ -113,6 +113,10 @@ def find_broken_references(root: Path) -> list[BrokenReference]:
         seen: set[str] = set()
         for match in PATH_REF_RE.finditer(text):
             reference = match.group(1)
+            if "://" in text[max(0, match.start() - 16) : match.start()] or (
+                reference.startswith("//") and match.start() > 0 and text[match.start() - 1] == ":"
+            ):
+                continue
             if reference in seen or is_example_reference(reference):
                 continue
             seen.add(reference)

@@ -53,6 +53,17 @@ def test_context_path_validator_reports_broken_hidden_dir_refs(tmp_path: Path) -
     assert [item.render() for item in broken] == ["README.md:1: .github/workflows/missing.yml"]
 
 
+def test_context_path_validator_ignores_url_paths(tmp_path: Path) -> None:
+    validator = _load_validator_module()
+    (tmp_path / "README.md").write_text(
+        "Install with https://raw.githubusercontent.com/gimso2x/forgeflow/main/scripts/bootstrap_codex_plugin.py.\n"
+        "Docs live at https://example.com/docs/guide.md.\n",
+        encoding="utf-8",
+    )
+
+    assert validator.find_broken_references(tmp_path) == []
+
+
 def test_context_path_validator_accepts_existing_hidden_dir_refs(tmp_path: Path) -> None:
     validator = _load_validator_module()
     workflow = tmp_path / ".github" / "workflows" / "validate.yml"

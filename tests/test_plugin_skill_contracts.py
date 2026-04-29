@@ -1,7 +1,26 @@
 from pathlib import Path
 
+import yaml
+
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def _frontmatter(path: Path) -> str:
+    text = path.read_text(encoding="utf-8")
+    assert text.startswith("---\n"), f"{path} missing YAML frontmatter"
+    end = text.find("\n---", 4)
+    assert end != -1, f"{path} missing closing YAML frontmatter delimiter"
+    return text[4:end]
+
+
+def test_all_skill_frontmatter_is_valid_yaml() -> None:
+    for skill_path in sorted((ROOT / "skills").glob("*/SKILL.md")):
+        data = yaml.safe_load(_frontmatter(skill_path))
+        assert isinstance(data, dict), skill_path
+        assert data.get("name"), skill_path
+        assert data.get("description"), skill_path
+        assert data.get("validate_prompt"), skill_path
 
 
 def test_clarify_label_only_rule_overrides_normal_brief_procedure() -> None:
@@ -172,6 +191,10 @@ def test_codex_plugin_accepts_forgeflow_slash_style_prompts() -> None:
         assert "response-only mode" not in skill
         assert "return their content in the chat response" not in skill
         assert "work/my-task" not in skill
-        assert "Never write inside the plugin installation directory, marketplace cache" in skill
-        assert "explicitly asks for a dry run" in skill
-        assert ".forgeflow/tasks/<task-id>/" in skill
+        if skill_name == "init":
+            assert "Plugin-cache safety rule" in skill
+        else:
+            assert "Never write inside the plugin installation directory, marketplace cache" in skill
+        if skill_name != "init":
+            assert "explicitly asks for a dry run" in skill
+        assert ".forgeflow/tasks/<task-id>" in skill

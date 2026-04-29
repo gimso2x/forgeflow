@@ -50,6 +50,14 @@ Return a finish decision report containing:
 - The user has chosen one finish option
 - No destructive action runs without explicit confirmation
 
+## File write and output discipline
+
+If writing is allowed, write only under the current project workspace or the active task directory. Never write inside the plugin installation directory, marketplace cache, or `skills/<skill>/`.
+
+If the user explicitly asks for a dry run, exact-output response, or no-write simulation, obey that output constraint exactly and do not mutate branch state or task artifacts.
+
+Use `.forgeflow/tasks/<task-id>/` for any task-local finish evidence unless the user provides another project-local artifact directory.
+
 ## Procedure
 
 ### 1. Verify before finishing

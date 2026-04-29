@@ -1,6 +1,12 @@
 ---
 name: to-issues
 description: Convert an approved ForgeFlow plan into traceable issue draft artifacts without publishing them.
+version: 0.1.0
+author: gimso2x
+validate_prompt: |
+  Must derive issue drafts from an approved plan without adding net-new scope.
+  Must keep GitHub publication separate and never call the GitHub API from this skill.
+  Must preserve trace links, human gates, and verification expectations in task artifacts.
 ---
 
 # Skill: to-issues
