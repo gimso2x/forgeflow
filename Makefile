@@ -1,7 +1,13 @@
-PYTHON ?= python3
 VENV ?= .venv
-VENV_PYTHON := $(VENV)/bin/python
-VENV_PIP := $(VENV)/bin/pip
+ifeq ($(OS),Windows_NT)
+VENV_BIN := $(VENV)/Scripts
+PYTHON ?= python
+else
+VENV_BIN := $(VENV)/bin
+PYTHON ?= python3
+endif
+VENV_PYTHON := $(VENV_BIN)/python
+VENV_PIP := $(VENV_BIN)/pip
 
 .PHONY: setup check-env validate generate regen clean validate-samples runtime-sample adherence-evals monitor-summary monitor-summary-json orchestrator-help orchestrator-status smoke-claude-plugin validate-context-paths validate-upstream-import validate-hoyeon-import validate-skill-contracts validate-claude-hooks plan-cli-smoke evolution-policy-smoke learn-smoke claude-hook-smoke shared-recovery-smoke team-pattern-smoke agent-preset-smoke claude-agent-preset-smoke release-script-smoke verify-skill-smoke finish-skill-smoke plugin-manifest-smoke
 
@@ -36,6 +42,7 @@ validate:
 	$(VENV_PYTHON) -m pytest tests/test_team_pattern_contract.py -q
 	$(VENV_PYTHON) -m pytest tests/test_agent_preset_install.py -q
 	$(VENV_PYTHON) -m pytest tests/test_claude_agent_preset_install.py -q
+	$(VENV_PYTHON) -m pytest tests/test_codex_plugin_install.py -q
 	$(VENV_PYTHON) -m pytest tests/test_first_clone_setup.py -q
 	$(VENV_PYTHON) -m pytest tests/test_release_script.py -q
 	$(VENV_PYTHON) -m pytest tests/test_verify_skill_contract.py -q
@@ -129,4 +136,4 @@ validate-samples:
 regen: generate validate
 
 clean:
-	find . -type d -name __pycache__ -prune -exec rm -rf {} +
+	$(VENV_PYTHON) scripts/clean.py

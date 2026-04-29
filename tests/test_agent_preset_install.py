@@ -58,6 +58,7 @@ def test_generic_installer_installs_codex_nextjs_presets_into_project_only(tmp_p
     assert coordinator.exists()
     assert (target / ".codex/forgeflow/forgeflow-nextjs-worker.md").exists()
     assert (target / ".codex/forgeflow/forgeflow-quality-reviewer.md").exists()
+    assert (target / ".codex/rules/forgeflow-nextjs-worker.mdc").exists()
     assert not GLOBAL_CODEX_PRESETS.exists() or before_global_exists
 
     text = (target / "docs/forgeflow-team-init.md").read_text(encoding="utf-8")
@@ -68,18 +69,87 @@ def test_generic_installer_installs_codex_nextjs_presets_into_project_only(tmp_p
     assert "After an edit/write/apply failure, re-read the target file before retrying." in coordinator.read_text(encoding="utf-8")
 
 
+def test_codex_installer_can_install_generated_codex_md(tmp_path):
+    target = tmp_path / "sample-next"
+    write_package(target, {"dev": "next dev"})
+
+    result = run_installer(
+        GENERIC_INSTALLER,
+        target,
+        "--adapter",
+        "codex",
+        "--profile",
+        "nextjs",
+        "--install-codex-md",
+    )
+
+    assert result.returncode == 0, result.stderr
+    codex_md = target / "CODEX.md"
+    assert codex_md.exists()
+    assert "# Codex ForgeFlow Adapter" in codex_md.read_text(encoding="utf-8")
+    init = (target / "docs/forgeflow-team-init.md").read_text(encoding="utf-8")
+    assert "## Codex root instruction file" in init
+    assert "`CODEX.md`" in init
+
+
+def test_codex_installer_preserves_existing_codex_md_without_overwrite(tmp_path):
+    target = tmp_path / "sample-next"
+    write_package(target, {"dev": "next dev"})
+    existing = target / "CODEX.md"
+    existing.write_text("# Existing Codex rules\n", encoding="utf-8")
+
+    result = run_installer(
+        GENERIC_INSTALLER,
+        target,
+        "--adapter",
+        "codex",
+        "--profile",
+        "nextjs",
+        "--install-codex-md",
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert existing.read_text(encoding="utf-8") == "# Existing Codex rules\n"
+    assert "Preserved existing CODEX.md" in result.stdout
+
+
+def test_codex_installer_can_overwrite_codex_md_when_explicit(tmp_path):
+    target = tmp_path / "sample-next"
+    write_package(target, {"dev": "next dev"})
+    existing = target / "CODEX.md"
+    existing.write_text("# Existing Codex rules\n", encoding="utf-8")
+
+    result = run_installer(
+        GENERIC_INSTALLER,
+        target,
+        "--adapter",
+        "codex",
+        "--profile",
+        "nextjs",
+        "--install-codex-md",
+        "--overwrite-codex-md",
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert "# Codex ForgeFlow Adapter" in existing.read_text(encoding="utf-8")
+
+
 
 def test_installer_rejects_adapter_config_directory_target(tmp_path):
     claude_target = tmp_path / ".claude/agents"
     codex_target = tmp_path / ".codex/forgeflow"
+    codex_rules_target = tmp_path / ".codex/rules"
 
     claude_result = run_installer(GENERIC_INSTALLER, claude_target, "--adapter", "claude", "--profile", "nextjs")
     codex_result = run_installer(GENERIC_INSTALLER, codex_target, "--adapter", "codex", "--profile", "nextjs")
+    codex_rules_result = run_installer(GENERIC_INSTALLER, codex_rules_target, "--adapter", "codex", "--profile", "nextjs")
 
     assert claude_result.returncode != 0
     assert "pass the project root instead" in claude_result.stderr
     assert codex_result.returncode != 0
     assert "pass the project root instead" in codex_result.stderr
+    assert codex_rules_result.returncode != 0
+    assert "pass the project root instead" in codex_rules_result.stderr
 
 
 def test_installer_documents_only_existing_package_scripts(tmp_path):

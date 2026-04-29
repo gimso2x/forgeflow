@@ -22,12 +22,30 @@ def test_makefile_exposes_idempotent_setup_and_environment_check() -> None:
     makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
 
     assert ".PHONY: setup" in makefile
+    assert "ifeq ($(OS),Windows_NT)" in makefile
+    assert "VENV_BIN := $(VENV)/Scripts" in makefile
+    assert "VENV_BIN := $(VENV)/bin" in makefile
     assert "$(PYTHON) -m venv $(VENV)" in makefile
     assert "$(VENV_PYTHON) -m pip install" in makefile
     assert "check-env" in makefile
     assert "$(VENV_PYTHON) scripts/check_environment.py" in makefile
     assert "$(VENV_PYTHON) scripts/validate_structure.py" in makefile
     assert "$(VENV_PYTHON) -m pytest tests/test_first_clone_setup.py -q" in makefile
+    assert "$(VENV_PYTHON) -m pytest tests/test_codex_plugin_install.py -q" in makefile
+
+
+def test_windows_powershell_wrappers_are_documented_and_present() -> None:
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    install = (ROOT / "INSTALL.md").read_text(encoding="utf-8")
+    windows_doc = (ROOT / "docs/windows.md").read_text(encoding="utf-8")
+
+    for name in ["setup.ps1", "validate.ps1", "run_orchestrator.ps1", "install_codex_plugin.ps1"]:
+        assert (ROOT / "scripts" / name).exists()
+    assert (ROOT / "scripts" / "install_codex_plugin.py").exists()
+    assert ".\\scripts\\setup.ps1" in readme
+    assert ".\\scripts\\validate.ps1" in install
+    assert ".\\scripts\\run_orchestrator.ps1" in windows_doc
+    assert ".\\scripts\\install_codex_plugin.ps1" in windows_doc
 
 
 def test_makefile_smoke_targets_use_repo_managed_python_environment() -> None:
@@ -381,6 +399,16 @@ def test_ci_validation_job_creates_venv_before_make_validate() -> None:
     assert "make validate" in repo_validation_job
     assert repo_validation_job.index("make setup") < repo_validation_job.index("make check-env") < repo_validation_job.index("make validate")
     assert ".venv/bin/python -m pytest -q" in repo_validation_job
+
+
+def test_ci_has_windows_smoke_job_for_powershell_wrappers() -> None:
+    workflow = (ROOT / ".github/workflows/validate.yml").read_text(encoding="utf-8")
+
+    assert "windows-smoke:" in workflow
+    assert "runs-on: windows-latest" in workflow
+    assert ".\\scripts\\setup.ps1" in workflow
+    assert ".\\scripts\\validate.ps1" in workflow
+    assert ".\\scripts\\run_orchestrator.ps1 init" in workflow
 
 
 def test_ci_generated_drift_job_uses_repo_managed_venv_before_validation() -> None:

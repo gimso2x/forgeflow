@@ -92,6 +92,28 @@ Codex:
 python3 scripts/install_agent_presets.py --adapter codex --target /path/to/your-project --profile nextjs
 ```
 
+To install Codex presets and the generated root instruction file in one pass:
+
+```bash
+python3 scripts/install_agent_presets.py --adapter codex --target /path/to/your-project --profile nextjs --install-codex-md
+```
+
+Existing project `CODEX.md` files are preserved by default. Use `--overwrite-codex-md` only when replacing that file is intentional.
+
+To expose ForgeFlow as a home-local Codex plugin marketplace entry:
+
+```bash
+python3 scripts/install_codex_plugin.py
+```
+
+On Windows PowerShell:
+
+```powershell
+.\scripts\install_codex_plugin.ps1
+```
+
+This copies the plugin to `~/plugins/forgeflow` and registers `~/.agents/plugins/marketplace.json`. Re-run with `--force` when intentionally replacing an existing local plugin copy.
+
 
 The legacy Claude wrapper still works:
 
@@ -158,6 +180,13 @@ make monitor-summary-json
 make setup
 make check-env
 make validate
+```
+
+On Windows PowerShell, use the wrapper scripts instead of relying on Unix-style virtualenv paths:
+
+```powershell
+.\scripts\setup.ps1
+.\scripts\validate.ps1
 ```
 
 ### Updating an existing checkout
@@ -447,10 +476,31 @@ codex exec "Read CODEX.md first, then summarize the ForgeFlow stage order in one
 codex exec "Use ForgeFlow rules. Inspect examples/runtime-fixtures/small-doc-task and explain which artifacts gate finalize."
 ```
 
+프로젝트에 Codex preset과 `CODEX.md`를 같이 설치하려면:
+
+```bash
+python3 scripts/install_agent_presets.py --adapter codex --target /path/to/your-project --profile nextjs --install-codex-md
+```
+
+Codex 앱의 local plugin marketplace에 ForgeFlow를 노출하려면:
+
+```bash
+python3 scripts/install_codex_plugin.py
+```
+
+Windows PowerShell:
+
+```powershell
+.\scripts\install_codex_plugin.ps1
+```
+
+이 경로는 글로벌에 ForgeFlow plugin entry를 등록하지만, 프로젝트 규칙은 여전히 각 프로젝트의 `CODEX.md`와 `.codex/forgeflow` preset으로 설치한다. 글로벌 플러그인은 project setup을 시작하는 입구로 보고, task artifact는 프로젝트의 `.forgeflow/tasks/<task-id>/` 아래에 둔다.
+
 권장 흐름:
 - ForgeFlow semantics는 `CODEX.md`에서 고정한다.
 - 실제 작업 지시는 issue/brief/plan artifact와 함께 Codex prompt로 넘긴다.
 - route 실행 검증은 `python3 scripts/run_orchestrator.py ... --adapter codex`로 따로 확인한다. 실제 Codex CLI를 호출하려면 `--real`을 붙이고, payload의 `execution_mode`가 `real`인지 본다.
+- Codex Desktop에서는 plugin metadata가 발견되더라도 프로젝트 루트 `CODEX.md`와 project-local `.codex/forgeflow` preset을 정본으로 둔다.
 
 ## Using ForgeFlow in Claude Code
 Claude Code에서는 repo 루트의 `CLAUDE.md`가 지속 표면이다. 이것도 똑같이 generated adapter를 복사해서 쓴다. Claude용 팁을 추가하고 싶으면 README나 별도 docs에 쓰지, canonical semantics를 `CLAUDE.md`에서 멋대로 바꾸면 안 된다.
