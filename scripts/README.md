@@ -37,7 +37,7 @@ Windows PowerShell에서는 아래 wrapper를 사용할 수 있다.
 Codex 앱에서 ForgeFlow를 local plugin entry로 노출하려면:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/gimso2x/forgeflow/main/scripts/bootstrap_codex_plugin.py | python3 - --force
+curl -fsSL https://raw.githubusercontent.com/gimso2x/forgeflow/main/scripts/bootstrap_codex_plugin.py | python3 - -- --force
 ```
 
 이미 checkout 안에 있다면:

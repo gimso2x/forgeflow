@@ -9,7 +9,7 @@ Codex can start from the ForgeFlow plugin directly. Treat `/forgeflow:<stage>` p
 Without creating a ForgeFlow checkout yourself:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/gimso2x/forgeflow/main/scripts/bootstrap_codex_plugin.py | python3 - --force
+curl -fsSL https://raw.githubusercontent.com/gimso2x/forgeflow/main/scripts/bootstrap_codex_plugin.py | python3 - -- --force
 ```
 
 Windows PowerShell:

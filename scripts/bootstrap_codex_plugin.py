@@ -3,7 +3,7 @@
 
 This script is meant to be safe to run from a raw GitHub URL, for example:
 
-    curl -fsSL https://raw.githubusercontent.com/gimso2x/forgeflow/main/scripts/bootstrap_codex_plugin.py | python3 - --force
+    curl -fsSL https://raw.githubusercontent.com/gimso2x/forgeflow/main/scripts/bootstrap_codex_plugin.py | python3 - -- --force
 """
 
 from __future__ import annotations
