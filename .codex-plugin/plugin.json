@@ -1,6 +1,6 @@
 {
   "name": "forgeflow",
-  "version": "0.1.26",
+  "version": "0.1.27",
   "description": "Artifact-first delivery harness for AI coding agents: staged workflow, gates, evidence, and independent review",
   "author": {
     "name": "gimso2x",
