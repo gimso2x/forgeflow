@@ -40,6 +40,8 @@ Use this skill to execute the selected ForgeFlow route.
 
 Default to **artifact-first mode**. Run should update `run-state.json` before and after code changes, and keep execution evidence in the active task directory unless the user explicitly asks for a dry run, exact-output response, or no-write simulation.
 
+Step state must be incremental, not a final recap. Each plan step must move through `in_progress` before `completed`, and the agent must update `run-state.json` immediately when starting and finishing each step. Example: `step-1: pending → in_progress → completed`, then `step-2: pending → in_progress → completed`. Do not batch-mark all steps as `completed` only at the end. If a step cannot finish, mark it `blocked` or `failed` with evidence instead of leaving the last known state ambiguous.
+
 Canonical writable location:
 
 - explicit task directory provided by the user, or
