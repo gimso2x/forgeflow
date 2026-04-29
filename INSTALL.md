@@ -83,6 +83,28 @@ git clone https://github.com/gimso2x/forgeflow.git /tmp/forgeflow
 cp /tmp/forgeflow/adapters/generated/codex/CODEX.md ./CODEX.md
 ```
 
+Next.js 프로젝트라면 preset과 `CODEX.md`를 한 번에 설치할 수 있습니다.
+
+```bash
+python3 scripts/install_agent_presets.py --adapter codex --target /path/to/your-project --profile nextjs --install-codex-md
+```
+
+기존 `CODEX.md`는 기본적으로 보존됩니다. 교체가 의도된 경우에만 `--overwrite-codex-md`를 같이 사용하세요.
+
+Codex 앱의 local plugin marketplace에 ForgeFlow를 노출하려면:
+
+```bash
+python3 scripts/install_codex_plugin.py
+```
+
+Windows PowerShell:
+
+```powershell
+.\scripts\install_codex_plugin.ps1
+```
+
+이 명령은 `~/plugins/forgeflow`에 plugin copy를 만들고 `~/.agents/plugins/marketplace.json`에 local source entry를 추가합니다. 기존 copy나 다른 marketplace entry를 교체하려면 `--force`를 명시하세요.
+
 검증:
 
 ```bash
@@ -100,6 +122,13 @@ cd forgeflow
 make setup
 make check-env
 make validate
+```
+
+Windows PowerShell에서는 Unix-style `.venv/bin/python` 경로 대신 wrapper를 사용할 수 있습니다.
+
+```powershell
+.\scripts\setup.ps1
+.\scripts\validate.ps1
 ```
 
 샘플 실행:

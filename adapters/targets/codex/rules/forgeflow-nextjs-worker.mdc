@@ -1,0 +1,15 @@
+---
+description: ForgeFlow Next.js worker rule for Codex project-local setup.
+globs:
+  - "**/*.{js,jsx,ts,tsx,css,md,mdx,json}"
+---
+
+# ForgeFlow Next.js Worker Rule
+
+Use the project-local ForgeFlow worker preset before editing Next.js app files.
+
+- Read `CODEX.md` when present before planning or editing.
+- Keep changes scoped to the approved ForgeFlow brief or plan.
+- Preserve existing Next.js routing, data fetching, component, and styling conventions unless the plan explicitly changes them.
+- Record verification evidence in the active `.forgeflow/tasks/<task-id>/` directory when a task directory exists.
+- Do not treat worker self-report as final approval; route non-trivial work through independent review.

@@ -26,6 +26,8 @@ class AdapterSpec:
     title: str
     global_config_names: tuple[str, ...]
     forbidden_suffixes: tuple[tuple[str, ...], ...]
+    rule_root: Path | None = None
+    rule_install_subdir: Path | None = None
 
 
 ADAPTERS = {
@@ -43,7 +45,9 @@ ADAPTERS = {
         install_subdir=Path(".codex/forgeflow"),
         title="ForgeFlow Codex Preset Initialization",
         global_config_names=(".codex",),
-        forbidden_suffixes=((".codex", "forgeflow"),),
+        forbidden_suffixes=((".codex", "forgeflow"), (".codex", "rules")),
+        rule_root=ROOT / "adapters/targets/codex/rules",
+        rule_install_subdir=Path(".codex/rules"),
     ),
 }
 
@@ -59,6 +63,11 @@ REQUIRED_PRESETS = {
             "forgeflow-nextjs-worker.md",
             "forgeflow-quality-reviewer.md",
         ],
+    }
+}
+REQUIRED_RULES = {
+    "nextjs": {
+        "codex": ["forgeflow-nextjs-worker.mdc"],
     }
 }
 
@@ -123,6 +132,25 @@ def copy_presets(target: Path, profile: str, spec: AdapterSpec) -> list[Path]:
     return copied
 
 
+def copy_rules(target: Path, profile: str, spec: AdapterSpec) -> list[Path]:
+    if spec.rule_root is None or spec.rule_install_subdir is None:
+        return []
+    rule_names = REQUIRED_RULES.get(profile, {}).get(spec.name, [])
+    if not rule_names:
+        return []
+    install_dir = target / spec.rule_install_subdir
+    install_dir.mkdir(parents=True, exist_ok=True)
+    copied: list[Path] = []
+    for name in rule_names:
+        src = spec.rule_root / name
+        if not src.exists():
+            raise FileNotFoundError(f"Missing rule preset: {src}")
+        dst = install_dir / name
+        shutil.copyfile(src, dst)
+        copied.append(dst)
+    return copied
+
+
 def copy_starter_docs(target: Path) -> list[Path]:
     docs_dir = target / "docs"
     docs_dir.mkdir(parents=True, exist_ok=True)
@@ -175,6 +203,17 @@ def install_hook_bundles(target: Path, adapter: str, bundles: list[str]) -> list
     return installed
 
 
+def install_codex_md(target: Path, *, overwrite: bool = False) -> Path | None:
+    src = ROOT / "adapters" / "generated" / "codex" / "CODEX.md"
+    if not src.exists():
+        raise FileNotFoundError(f"Missing generated Codex adapter: {src}")
+    dst = target / "CODEX.md"
+    if dst.exists() and not overwrite:
+        return None
+    shutil.copyfile(src, dst)
+    return dst
+
+
 def verification_lines(scripts: dict[str, str]) -> list[str]:
     preferred = ["dev", "build", "lint", "test"]
     lines = []
@@ -195,6 +234,8 @@ def write_doc(
     spec: AdapterSpec,
     starter_docs: list[Path],
     hook_bundles: list[str],
+    codex_md: Path | None,
+    codex_md_skipped: bool,
 ) -> Path:
     doc = target / "docs" / "forgeflow-team-init.md"
     doc.parent.mkdir(parents=True, exist_ok=True)
@@ -205,6 +246,13 @@ def write_doc(
     hook_lines = [f"- `{bundle}` — project-local opt-in Claude safety bundle." for bundle in hook_bundles]
     if not hook_lines:
         hook_lines = ["- No hook/safety bundles installed. Hooks are opt-in and project-local only."]
+    codex_lines: list[str]
+    if codex_md is not None:
+        codex_lines = [f"- `{codex_md.relative_to(target)}` — generated Codex root instruction file."]
+    elif codex_md_skipped:
+        codex_lines = ["- Existing `CODEX.md` preserved. Re-run with `--overwrite-codex-md` only when replacing it is intentional."]
+    else:
+        codex_lines = ["- `CODEX.md` was not installed in this run."]
     content = "\n".join(
         [
             f"# {spec.title}",
@@ -246,6 +294,12 @@ def write_doc(
             "",
             "These guardrails are convenience checks, not a complete sandbox or permission model.",
             "",
+            "## Codex root instruction file",
+            "",
+            *codex_lines,
+            "",
+            "Codex reads project-root instructions before work. Use `--install-codex-md` for project setup when the target should carry ForgeFlow stage and review semantics directly.",
+            "",
             "## Safety boundary",
             "",
             f"These presets are installed under this project only. Do not create or update `{Path.home() / spec.global_config_names[0]}` for project team setup.",
@@ -280,7 +334,9 @@ def install(
     *,
     with_starter_docs: bool = False,
     hook_bundles: list[str] | None = None,
-) -> tuple[Path, list[Path], Path, list[Path], list[str]]:
+    install_codex_root_instruction: bool = False,
+    overwrite_codex_root_instruction: bool = False,
+) -> tuple[Path, list[Path], Path, list[Path], list[str], Path | None, bool]:
     if adapter not in ADAPTERS:
         raise ValueError(f"Unsupported adapter: {adapter}")
     spec = ADAPTERS[adapter]
@@ -289,10 +345,29 @@ def install(
     scripts = load_package_scripts(target)
     bundles = hook_bundles or []
     copied = copy_presets(target, profile, spec)
+    copied.extend(copy_rules(target, profile, spec))
     starter_docs = copy_starter_docs(target) if with_starter_docs else []
     installed_bundles = install_hook_bundles(target, adapter, bundles)
-    doc = write_doc(target, profile, adapter, copied, scripts, spec, starter_docs, installed_bundles)
-    return target, copied, doc, starter_docs, installed_bundles
+    codex_md: Path | None = None
+    codex_md_skipped = False
+    if install_codex_root_instruction:
+        if adapter != "codex":
+            raise ValueError("--install-codex-md is only valid with --adapter codex")
+        codex_md = install_codex_md(target, overwrite=overwrite_codex_root_instruction)
+        codex_md_skipped = codex_md is None
+    doc = write_doc(
+        target,
+        profile,
+        adapter,
+        copied,
+        scripts,
+        spec,
+        starter_docs,
+        installed_bundles,
+        codex_md,
+        codex_md_skipped,
+    )
+    return target, copied, doc, starter_docs, installed_bundles, codex_md, codex_md_skipped
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -310,16 +385,28 @@ def main(argv: list[str] | None = None) -> int:
         default="",
         help="Comma-separated project-local hook bundles to install. Currently supports Claude-only: basic-safety",
     )
+    parser.add_argument(
+        "--install-codex-md",
+        action="store_true",
+        help="With --adapter codex, copy adapters/generated/codex/CODEX.md into the target project root.",
+    )
+    parser.add_argument(
+        "--overwrite-codex-md",
+        action="store_true",
+        help="Replace an existing target CODEX.md when used with --install-codex-md.",
+    )
     args = parser.parse_args(argv)
 
     try:
         bundles = parse_hook_bundles(args.hook_bundles)
-        target, copied, doc, starter_docs, installed_bundles = install(
+        target, copied, doc, starter_docs, installed_bundles, codex_md, codex_md_skipped = install(
             args.target,
             args.adapter,
             args.profile,
             with_starter_docs=args.with_starter_docs,
             hook_bundles=bundles,
+            install_codex_root_instruction=args.install_codex_md,
+            overwrite_codex_root_instruction=args.overwrite_codex_md,
         )
     except Exception as exc:  # noqa: BLE001 - CLI reports concise failure
         return die(str(exc))
@@ -329,6 +416,10 @@ def main(argv: list[str] | None = None) -> int:
         print(f"Created {len(starter_docs)} starter docs under {target / 'docs'}")
     if installed_bundles:
         print(f"Installed hook bundles: {', '.join(installed_bundles)}")
+    if codex_md is not None:
+        print(f"Installed Codex root instruction file: {codex_md}")
+    elif codex_md_skipped:
+        print("Preserved existing CODEX.md; use --overwrite-codex-md to replace it intentionally.")
     print(f"Wrote {doc}")
     return 0
 

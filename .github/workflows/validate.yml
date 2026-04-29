@@ -48,3 +48,26 @@ jobs:
 
       - name: Regenerate adapters and fail on drift
         run: .venv/bin/python scripts/validate_generated.py
+
+  windows-smoke:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        shell: pwsh
+        run: .\scripts\setup.ps1
+
+      - name: Run Windows validation smoke
+        shell: pwsh
+        run: .\scripts\validate.ps1
+
+      - name: Smoke task init
+        shell: pwsh
+        run: .\scripts\run_orchestrator.ps1 init --task-id windows-smoke --objective "Validate Windows wrapper" --risk low
