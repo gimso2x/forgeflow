@@ -39,7 +39,9 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         nargs=argparse.REMAINDER,
         help="Arguments passed to scripts/install_codex_plugin.py. Prefix with -- when needed.",
     )
-    return parser.parse_args(argv)
+    args, installer_args = parser.parse_known_args(argv)
+    args.installer_args = [*args.installer_args, *installer_args]
+    return args
 
 
 def download_archive(url: str, target: Path) -> None:

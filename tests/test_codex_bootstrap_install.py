@@ -66,6 +66,31 @@ def test_codex_bootstrap_downloads_archive_and_runs_repo_installer(tmp_path):
     assert payload["cwd"].endswith("forgeflow-main")
 
 
+def test_codex_bootstrap_passes_installer_flags_without_separator(tmp_path):
+    archive = make_fake_release_archive(tmp_path)
+    record = tmp_path / "record.json"
+    env = {**os.environ, "FORGEFLOW_BOOTSTRAP_RECORD": str(record)}
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(BOOTSTRAP),
+            "--archive-url",
+            archive.as_uri(),
+            "--force",
+        ],
+        cwd=ROOT,
+        env=env,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
+    payload = __import__("json").loads(record.read_text(encoding="utf-8"))
+    assert payload["argv"] == ["--force"]
+
+
 def test_install_docs_offer_clone_free_codex_bootstrap_command():
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
     install = (ROOT / "INSTALL.md").read_text(encoding="utf-8")
