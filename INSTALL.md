@@ -90,7 +90,21 @@ Codex에서는 ForgeFlow plugin을 설치한 뒤 Claude와 같은 slash-style pr
 
 ### Codex plugin 등록
 
-Codex 앱의 local plugin marketplace에 ForgeFlow를 노출하려면 ForgeFlow checkout에서 실행합니다.
+Codex 앱의 local plugin marketplace에 ForgeFlow를 노출하려면 checkout 없이 bootstrap installer를 실행합니다.
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/gimso2x/forgeflow/main/scripts/bootstrap_codex_plugin.py | python3 - --force
+```
+
+Windows PowerShell:
+
+```powershell
+irm https://raw.githubusercontent.com/gimso2x/forgeflow/main/scripts/bootstrap_codex_plugin.py | python -
+```
+
+이 bootstrap은 임시 디렉터리에 ForgeFlow archive를 내려받은 뒤 `scripts/install_codex_plugin.py`를 실행합니다. 설치 후 임시 checkout은 삭제됩니다.
+
+이미 ForgeFlow checkout 안에 있다면 로컬 스크립트를 직접 실행해도 됩니다.
 
 ```bash
 python3 scripts/install_codex_plugin.py

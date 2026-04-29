@@ -105,7 +105,19 @@ claude plugin install forgeflow
 
 ## Codex Plugin과 수동 Adapter
 
-Codex에서는 ForgeFlow plugin을 설치한 뒤 Claude와 같은 slash-style prompt로 시작합니다.
+Codex에서는 ForgeFlow plugin을 설치한 뒤 Claude와 같은 slash-style prompt로 시작합니다. 사용자가 checkout을 직접 만들 필요 없이 한 줄로 local marketplace에 등록할 수 있습니다.
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/gimso2x/forgeflow/main/scripts/bootstrap_codex_plugin.py | python3 - --force
+```
+
+Windows PowerShell:
+
+```powershell
+irm https://raw.githubusercontent.com/gimso2x/forgeflow/main/scripts/bootstrap_codex_plugin.py | python -
+```
+
+이미 ForgeFlow checkout 안에 있다면 같은 설치를 로컬 스크립트로 실행할 수 있습니다.
 
 ```bash
 python3 scripts/install_codex_plugin.py

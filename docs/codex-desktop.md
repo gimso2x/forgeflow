@@ -6,7 +6,21 @@ Codex can start from the ForgeFlow plugin directly. Treat `/forgeflow:<stage>` p
 
 ## Add ForgeFlow To The Local Plugin Marketplace
 
-From a ForgeFlow checkout:
+Without creating a ForgeFlow checkout yourself:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/gimso2x/forgeflow/main/scripts/bootstrap_codex_plugin.py | python3 - --force
+```
+
+Windows PowerShell:
+
+```powershell
+irm https://raw.githubusercontent.com/gimso2x/forgeflow/main/scripts/bootstrap_codex_plugin.py | python -
+```
+
+The bootstrap downloads ForgeFlow to a temporary directory, runs the regular installer, and removes the temporary checkout afterward.
+
+From an existing ForgeFlow checkout:
 
 ```bash
 python3 scripts/install_codex_plugin.py

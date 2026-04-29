@@ -16,6 +16,7 @@ P0에서 필요한 최소 자동화를 둔다.
 - `run_orchestrator.ps1` : Windows PowerShell용 `run_orchestrator.py` wrapper
 - `install_codex_plugin.py` : ForgeFlow를 home-local Codex plugin marketplace에 등록
 - `install_codex_plugin.ps1` : Windows PowerShell용 Codex plugin marketplace 설치 wrapper
+- `bootstrap_codex_plugin.py` : checkout 없이 raw GitHub URL에서 실행하는 Codex plugin 설치 bootstrap
 
 ## 권장 실행 순서
 make target이 repo-managed `.venv`를 사용하므로 fresh clone에서는 아래 순서로 실행한다.
@@ -34,6 +35,12 @@ Windows PowerShell에서는 아래 wrapper를 사용할 수 있다.
 ## Codex plugin marketplace
 
 Codex 앱에서 ForgeFlow를 local plugin entry로 노출하려면:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/gimso2x/forgeflow/main/scripts/bootstrap_codex_plugin.py | python3 - --force
+```
+
+이미 checkout 안에 있다면:
 
 ```bash
 python3 scripts/install_codex_plugin.py
