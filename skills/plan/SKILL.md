@@ -207,6 +207,7 @@ Do not code during planning unless the user explicitly asks for a tiny small-rou
 - Do not ask for 계획 내용 재승인 when the plan is executable; the agent owns decomposition.
 - Do stop before crossing the `plan → run` stage boundary, because execution is a separate stage.
 - End with a closed next-stage question such as `계획은 여기까지 확정됐습니다. 다음 스텝으로 `/forgeflow:run`을 진행하시겠습니까? (y/n)`.
+- Do not invoke `/forgeflow:run`, the Skill tool, or any execution tool in the same assistant turn after asking the closed next-stage question. The next assistant turn may proceed only after an explicit user approval such as `y`, `yes`, `진행`, or `실행`.
 - Bad: `계획 확정. run 직행.`
 - Bad: `내가 계획을 세워?`
 - Good: `아니요. 계획은 내가 세운다. 아래처럼 진행.`
