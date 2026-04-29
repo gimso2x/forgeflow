@@ -69,6 +69,15 @@ def test_canonical_workflow_skills_are_artifact_first_by_default() -> None:
     assert "Preserve artifacts/evidence instead of burying them in chat." in ship
 
 
+def test_run_skill_requires_incremental_step_state_updates() -> None:
+    run = (ROOT / "skills" / "run" / "SKILL.md").read_text(encoding="utf-8")
+
+    assert "Each plan step must move through `in_progress` before `completed`" in run
+    assert "update `run-state.json` immediately when starting and finishing each step" in run
+    assert "Do not batch-mark all steps as `completed` only at the end" in run
+    assert "step-1: pending → in_progress → completed" in run
+
+
 def test_canonical_prompts_require_stage_boundary_approval_without_reapproval_loops() -> None:
     coordinator = (ROOT / "prompts" / "canonical" / "coordinator.md").read_text(encoding="utf-8")
     planner = (ROOT / "prompts" / "canonical" / "planner.md").read_text(encoding="utf-8")
