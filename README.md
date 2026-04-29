@@ -9,10 +9,10 @@ It keeps agent work out of vibes-only chat history and pushes it through explici
 | Area | What ForgeFlow gives you |
 | --- | --- |
 | Workflow | clarify → plan when needed → execute → independent review → finalize |
-| Evidence | `brief.json`, `run-state.json`, `plan-ledger.json`, `review-report.json`, `eval-record.json` |
+| Evidence | `brief.json`, `run-state.json`, `plan-ledger.json`, `review-report.json`, `eval-record.json`; referenced paths must exist or be explicitly marked missing/hypothetical |
 | Surfaces | Claude Code plugin, Codex metadata, generated Claude/Codex adapters, local runtime |
-| Safety | no worker self-approval, schema gates, generated adapter drift checks, release version sync |
-| Boundary | local artifact-first harness; not a provider orchestration service |
+| Safety | no worker self-approval, schema gates, generated adapter drift checks, release version sync, docs-only release override |
+| Boundary | local artifact-first harness; not a provider orchestration service; external skills are mined for discipline, not imported as new command surfaces |
 
 ## Installation
 

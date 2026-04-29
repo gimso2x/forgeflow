@@ -26,6 +26,8 @@ def test_review_evidence_discipline_distinguishes_observed_from_reported() -> No
         "reported evidence",
         "Do not say lint/build/tests/dev-server/runtime verification passed unless you ran the command",
         "mark it as missing or reported",
+        "Referenced repository paths must exist in the reviewed diff/worktree",
+        "Path hallucination is a blocker, not a typo.",
         "Separate observed evidence from reported or missing evidence before choosing a verdict.",
     ]:
         assert required_text in skill

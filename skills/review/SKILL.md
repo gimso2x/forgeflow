@@ -104,6 +104,8 @@ Review evidence is not fan fiction.
 - Do not say lint/build/tests/dev-server/runtime verification passed unless you ran the command or inspected the concrete captured output.
 - If verification is missing, blocked, or only reported second-hand, mark it as missing or reported; do not convert it into approval-grade evidence.
 - `evidence_refs` must name concrete files, command outputs, diffs, or user-provided artifacts. Avoid vague refs like "verified behavior".
+- Referenced repository paths must exist in the reviewed diff/worktree unless explicitly labeled as planned, missing, or user-provided hypothetical paths.
+- Do not approve a review that treats nonexistent files, schemas, commands, or evidence refs as observed facts. Path hallucination is a blocker, not a typo.
 - When command execution is disallowed, use manual inspection language only: "not run", "manual inspection", "requires verification".
 
 ## Git safety summary
