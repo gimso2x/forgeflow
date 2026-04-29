@@ -3,7 +3,7 @@ VENV ?= .venv
 VENV_PYTHON := $(VENV)/bin/python
 VENV_PIP := $(VENV)/bin/pip
 
-.PHONY: setup check-env validate generate regen clean validate-samples runtime-sample adherence-evals monitor-summary monitor-summary-json orchestrator-help orchestrator-status smoke-claude-plugin validate-upstream-import validate-hoyeon-import validate-skill-contracts validate-claude-hooks plan-cli-smoke evolution-policy-smoke learn-smoke claude-hook-smoke shared-recovery-smoke team-pattern-smoke agent-preset-smoke claude-agent-preset-smoke release-script-smoke verify-skill-smoke finish-skill-smoke plugin-manifest-smoke
+.PHONY: setup check-env validate generate regen clean validate-samples runtime-sample adherence-evals monitor-summary monitor-summary-json orchestrator-help orchestrator-status smoke-claude-plugin validate-context-paths validate-upstream-import validate-hoyeon-import validate-skill-contracts validate-claude-hooks plan-cli-smoke evolution-policy-smoke learn-smoke claude-hook-smoke shared-recovery-smoke team-pattern-smoke agent-preset-smoke claude-agent-preset-smoke release-script-smoke verify-skill-smoke finish-skill-smoke plugin-manifest-smoke
 
 setup:
 	$(PYTHON) scripts/check_environment.py --require-venv-support --skip-modules
@@ -16,6 +16,7 @@ check-env:
 
 validate:
 	$(VENV_PYTHON) scripts/check_plugin_versions.py
+	$(VENV_PYTHON) scripts/validate_context_paths.py
 	$(VENV_PYTHON) scripts/validate_structure.py
 	$(VENV_PYTHON) scripts/validate_policy.py
 	$(VENV_PYTHON) scripts/validate_generated.py
@@ -64,6 +65,9 @@ orchestrator-status:
 
 validate-upstream-import:
 	$(VENV_PYTHON) scripts/validate_upstream_import.py
+
+validate-context-paths:
+	$(VENV_PYTHON) scripts/validate_context_paths.py
 
 validate-hoyeon-import:
 	$(VENV_PYTHON) scripts/validate_hoyeon_import.py

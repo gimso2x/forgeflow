@@ -159,5 +159,6 @@ P0에 들어가는 self-evolution의 정본은 `policy/canonical/evolution.yaml`
 - 다음 stage로 넘어갈 artifact가 있는가?
 - 누가 구현했고 누가 판정하는가?
 - review는 무엇을 근거로 pass/fail 했는가?
+- evidence ref가 source-repo 파일, generated output, installed-target example, placeholder 중 무엇인지 구분되는가?
 - 이 semantics가 Claude/Codex에서 동일하게 유지되는가?
 - 실패했을 때 어디서 resume할 수 있는가?

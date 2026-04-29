@@ -4,6 +4,7 @@
 P0에서 필요한 최소 자동화를 둔다.
 
 ## 포함 스크립트
+- `validate_context_paths.py` : README/AGENTS/CLAUDE/CODEX의 repo-local path 참조가 실제 파일을 가리키는지 검증
 - `validate_structure.py` : 필수 디렉토리/파일 존재 검증
 - `validate_policy.py` : workflow/stages/routes/schema 핵심 규칙 검증
 - `generate_adapters.py` : canonical policy와 prompt를 target별 generated output으로 변환

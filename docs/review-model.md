@@ -55,7 +55,20 @@ review가 실패하면 다음 stage로 못 간다.
 review artifact가 파일 경로, 명령, schema, evidence ref를 언급하면 가능한 범위에서 실제 존재를 확인해야 한다.
 없는 파일을 근거처럼 쓰는 건 "작은 실수"가 아니라 AI workflow에서 제일 비싼 종류의 헛소리다.
 
-이 규칙은 `jha0313/skills_repo`의 AI-readiness rubric에서 가져온 핵심 패턴이다. 단, ForgeFlow에서는 새 점수판이 아니라 기존 review evidence discipline으로 흡수한다. 외부 skill 흡수 기준은 `docs/external-skill-ingestion-model.md`를 따른다.
+이 규칙은 `gimso2x/skills_repo`의 AI-readiness cartography rubric에서 가져온 핵심 패턴이다. 단, ForgeFlow에서는 새 점수판이 아니라 기존 review evidence discipline으로 흡수한다. 외부 skill 흡수 기준은 `docs/external-skill-ingestion-model.md`를 따른다.
+
+### 6. AI-readiness는 점수가 아니라 review 질문이다
+ForgeFlow는 설치형 harness/plugin이다. 그래서 source repo에 context 문서를 잔뜩 추가하는 것만으로 installed project의 AI-readiness가 좋아졌다고 보면 안 된다.
+
+reviewer는 AI-readiness 관련 변경을 볼 때 아래를 묻는다.
+
+- Navigation: 새 에이전트가 실제 entry point, command path, canonical owner를 찾을 수 있는가?
+- Evidence: 언급된 경로가 source-repo 파일, generated output, installed-target example, placeholder, hypothetical 중 무엇인지 구분되는가?
+- Dependency: 변경이 `forgeflow_runtime/`, `adapters/`, `schemas/`, `policy/canonical/`, `prompts/canonical/`, `tests/` 중 어디를 가로지르는지 드러나는가?
+- Tribal knowledge: 이후 작업자가 알아야 할 이유가 `docs/decisions/`, `docs/*-model.md`, task artifact, 또는 inspectable memory에 남는가?
+- Freshness: 같은 stale-context 문제가 다시 생기지 않도록 `make validate`, focused pytest, generated-drift check 같은 cheap gate가 있는가?
+
+이 질문들은 새 stage가 아니다. `spec-review`와 `quality-review`가 evidence 품질을 볼 때 쓰는 렌즈다.
 
 ---
 
