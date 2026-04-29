@@ -1,6 +1,6 @@
 ---
 name: specify
-description: Derive testable requirements from a ForgeFlow brief before planning. Use when scope needs formal requirements before execution.
+description: Derive testable requirements from a ForgeFlow brief before planning. Use when the user types /forgeflow:specify or when scope needs formal requirements before execution.
 version: 0.1.0
 author: gimso2x
 validate_prompt: |

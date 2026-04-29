@@ -1,6 +1,6 @@
 ---
 name: init
-description: Bootstrap a new ForgeFlow task workspace by calling the orchestrator init command without crossing into clarify/plan/run automatically.
+description: Bootstrap a new ForgeFlow task workspace by calling the orchestrator init command without crossing into clarify/plan/run automatically. Use when the user types /forgeflow:init.
 version: 0.1.0
 author: gimso2x
 validate_prompt: |

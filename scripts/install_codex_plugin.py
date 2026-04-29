@@ -175,7 +175,7 @@ def main(argv: list[str] | None = None) -> int:
 
     print(f"ForgeFlow plugin root: {plugin_root}")
     print(f"Marketplace entry {action}: {marketplace_path}")
-    print("Restart Codex Desktop, then install or enable ForgeFlow from the local marketplace if prompted.")
+    print("Restart Codex Desktop, install or enable ForgeFlow from the local marketplace if prompted, then use /forgeflow:clarify or /forgeflow:init.")
     return 0
 
 

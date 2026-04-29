@@ -1,6 +1,6 @@
 ---
 name: clarify
-description: Turn a vague request into a scoped ForgeFlow brief and route decision. Use first for new implementation/refactor/debug requests unless the user already provided a complete brief.
+description: Turn a vague request into a scoped ForgeFlow brief and route decision. Use when the user types /forgeflow:clarify, or first for new implementation/refactor/debug requests unless the user already provided a complete brief.
 version: 0.1.0
 author: gimso2x
 validate_prompt: |

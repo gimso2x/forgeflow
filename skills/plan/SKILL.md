@@ -1,6 +1,6 @@
 ---
 name: plan
-description: Create an executable ForgeFlow plan with exact tasks, files, acceptance criteria, and verification steps.
+description: Create an executable ForgeFlow plan with exact tasks, files, acceptance criteria, and verification steps. Use when the user types /forgeflow:plan.
 version: 0.1.0
 author: gimso2x
 validate_prompt: |

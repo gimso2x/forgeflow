@@ -150,6 +150,25 @@ def test_canonical_forgeflow_skills_default_to_artifact_first_mode() -> None:
         skill = (ROOT / "skills" / skill_name / "SKILL.md").read_text(encoding="utf-8")
 
         assert "Default to **artifact-first mode**." in skill
+
+
+def test_codex_plugin_accepts_forgeflow_slash_style_prompts() -> None:
+    forgeflow = (ROOT / "skills" / "forgeflow" / "SKILL.md").read_text(encoding="utf-8")
+    assert "Codex exposes plugin skills" in forgeflow
+
+    expected = {
+        "init": "/forgeflow:init",
+        "clarify": "/forgeflow:clarify",
+        "specify": "/forgeflow:specify",
+        "plan": "/forgeflow:plan",
+        "run": "/forgeflow:run",
+        "review": "/forgeflow:review",
+        "ship": "/forgeflow:ship",
+        "finish": "/forgeflow:finish",
+    }
+    for skill_name, slash_prompt in expected.items():
+        skill = (ROOT / "skills" / skill_name / "SKILL.md").read_text(encoding="utf-8")
+        assert slash_prompt in skill
         assert "response-only mode" not in skill
         assert "return their content in the chat response" not in skill
         assert "work/my-task" not in skill

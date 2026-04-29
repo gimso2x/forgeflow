@@ -346,3 +346,6 @@ def test_codex_manifest_declares_skills_and_interface_metadata():
     assert "Write" in interface["capabilities"]
     assert interface["defaultPrompt"]
     assert "artifact" in interface["longDescription"].lower()
+    assert "/forgeflow:init" in interface["longDescription"]
+    assert "/forgeflow:clarify <describe the coding task>" in interface["defaultPrompt"]
+    assert "/forgeflow:run" in interface["defaultPrompt"]

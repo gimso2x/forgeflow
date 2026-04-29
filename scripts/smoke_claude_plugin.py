@@ -53,12 +53,22 @@ DRY_RUN_CASES = [
 def run_claude(prompt: str, out_dir: Path, name: str, timeout: int) -> dict:
     raw_path = out_dir / f"{name}.raw"
     json_path = out_dir / f"{name}.json"
-    command = [
-        "script",
-        "-qfec",
-        f"claude --dangerously-skip-permissions -p {sh_quote(prompt)} --output-format json",
-        "/dev/null",
-    ]
+    if shutil.which("script"):
+        command = [
+            "script",
+            "-qfec",
+            f"claude --dangerously-skip-permissions -p {sh_quote(prompt)} --output-format json",
+            "/dev/null",
+        ]
+    else:
+        command = [
+            "claude",
+            "--dangerously-skip-permissions",
+            "-p",
+            prompt,
+            "--output-format",
+            "json",
+        ]
     completed = subprocess.run(
         command,
         cwd=ROOT,
@@ -146,9 +156,6 @@ def main() -> int:
 
     if not shutil.which("claude"):
         print("CLAUDE PLUGIN SMOKE: SKIP - claude CLI not found")
-        return 77
-    if not shutil.which("script"):
-        print("CLAUDE PLUGIN SMOKE: SKIP - script command not found")
         return 77
 
     before_status = git_status()

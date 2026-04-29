@@ -1,6 +1,6 @@
 ---
 name: run
-description: Execute a ForgeFlow plan with verification and runtime evidence. Use for implementation after clarify/plan.
+description: Execute a ForgeFlow plan with verification and runtime evidence. Use when the user types /forgeflow:run or asks to implement after clarify/plan.
 version: 0.1.0
 author: gimso2x
 validate_prompt: |

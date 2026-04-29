@@ -1,6 +1,6 @@
 ---
 name: forgeflow
-description: Artifact-first delivery workflow for AI coding agents. Use when a user asks to implement, refactor, debug, review, or ship code and the work should go through clarify, route selection, artifacts, gates, and independent review.
+description: Artifact-first delivery workflow for AI coding agents. Use when a user types /forgeflow, /forgeflow:<stage>, or asks to implement, refactor, debug, review, or ship code through clarify, route selection, artifacts, gates, and independent review.
 version: 0.1.0
 author: gimso2x
 ---
@@ -8,6 +8,22 @@ author: gimso2x
 # ForgeFlow
 
 ForgeFlow turns agent work into explicit stages with artifacts, gates, and independent review.
+
+## Slash-style entrypoints
+
+Claude Code may expose native slash commands. Codex exposes plugin skills, so these same strings are prompt triggers that dispatch to the matching ForgeFlow skill:
+
+- `/forgeflow` -> this overview workflow skill
+- `/forgeflow:init ...` -> `init`
+- `/forgeflow:clarify ...` -> `clarify`
+- `/forgeflow:specify` -> `specify`
+- `/forgeflow:plan` -> `plan`
+- `/forgeflow:run` -> `run`
+- `/forgeflow:review` -> `review`
+- `/forgeflow:ship` -> `ship`
+- `/forgeflow:finish` -> `finish`
+
+Do not require `CODEX.md` before plugin use. `CODEX.md` and project presets are optional project-local hardening surfaces.
 
 ## Input
 

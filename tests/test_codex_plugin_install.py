@@ -30,6 +30,8 @@ def test_codex_plugin_installer_copies_plugin_and_writes_marketplace(tmp_path):
     result = run_installer(tmp_path)
 
     assert result.returncode == 0, result.stderr
+    assert "/forgeflow:clarify" in result.stdout
+    assert "/forgeflow:init" in result.stdout
     plugin_root = tmp_path / "plugins" / "forgeflow"
     marketplace_path = tmp_path / ".agents/plugins/marketplace.json"
     assert (plugin_root / ".codex-plugin/plugin.json").exists()

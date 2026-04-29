@@ -1,6 +1,6 @@
 ---
 name: finish
-description: Finish a ForgeFlow development branch safely after implementation and review by verifying evidence, presenting merge/PR/keep/discard options, and protecting destructive actions.
+description: Finish a ForgeFlow development branch safely after implementation and review by verifying evidence, presenting merge/PR/keep/discard options, and protecting destructive actions. Use when the user types /forgeflow:finish.
 version: 0.1.0
 author: gimso2x
 validate_prompt: |

@@ -1,6 +1,6 @@
 ---
 name: ship
-description: Finalize ForgeFlow work after review: summarize, verify, prepare PR/commit handoff, and preserve evidence.
+description: Finalize ForgeFlow work after review: summarize, verify, prepare PR/commit handoff, and preserve evidence. Use when the user types /forgeflow:ship.
 version: 0.1.0
 author: gimso2x
 validate_prompt: |
