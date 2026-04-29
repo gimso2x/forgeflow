@@ -28,9 +28,24 @@ def test_plan_and_run_skills_separate_stage_boundary_approval_from_reapproval() 
 
     assert "계획 내용 재승인" in plan_text
     assert "다음 스텝으로 `/forgeflow:run`을 진행하시겠습니까? (y/n)" in plan_text
+    assert "Do not invoke `/forgeflow:run`, the Skill tool, or any execution tool in the same assistant turn" in plan_text
     assert "계획 확정. 바로 run." not in plan_text
     assert "이미 승인된 run scope 안에서는" in run_text
     assert "Do not pause just to reconfirm the same plan before editing files." in run_text
+    assert "If `/forgeflow:run` was reached without explicit user approval" in run_text
+
+
+def test_review_changes_requested_blocks_run_state_and_fix_loop() -> None:
+    review_text = (ROOT / "skills" / "review" / "SKILL.md").read_text(encoding="utf-8")
+    run_text = (ROOT / "skills" / "run" / "SKILL.md").read_text(encoding="utf-8")
+
+    assert "If verdict is `changes_requested` or `blocked`, update `run-state.json`" in review_text
+    assert "review_blocked" in review_text
+    assert "Do not call `/forgeflow:ship` unless `verdict=approved`" in review_text
+    assert "When the user asks to fix review findings" in run_text
+    assert "re-run focused verification" in run_text
+    assert "update `review-report.json`" in run_text
+    assert "open_blockers` must reflect the remaining current blockers" in run_text
 
 
 def test_canonical_workflow_skills_are_artifact_first_by_default() -> None:

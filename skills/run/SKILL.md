@@ -95,8 +95,10 @@ Worker self-report is not approval. `/forgeflow:review` still has to happen.
 ## UX guardrails
 
 - Treat the latest executable brief/plan as sufficient authority only after the user has approved entering `/forgeflow:run`.
+- If `/forgeflow:run` was reached without explicit user approval after the previous stage-boundary question, stop immediately and ask for approval instead of editing files. Do not infer approval from the agent's own prior question.
 - 이미 승인된 run scope 안에서는 반복적으로 계획을 다시 허락받지 않는다.
 - Do not pause just to reconfirm the same plan before editing files.
 - Only bounce back to `/forgeflow:clarify` or `/forgeflow:specify` when scope genuinely changed or a blocker invalidates the current brief/plan.
+- When the user asks to fix review findings, treat that as approval to enter a fix loop for the current review scope: read the latest `review-report.json`, fix only current `open_blockers`/major findings, re-run focused verification, and update `review-report.json` before claiming the fix loop is complete. The updated `open_blockers` must reflect the remaining current blockers, not stale blockers from the previous review.
 - Bad: `승인된 계획대로 실행하겠습니다.`만 말하고 대기.
 - Good: 바로 수정/검증을 시작하고 evidence를 남긴다.

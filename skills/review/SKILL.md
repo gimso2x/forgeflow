@@ -131,6 +131,8 @@ Review evidence is not fan fiction.
    - If performance was touched, was the bottleneck measured before and after the change?
 6. Classify findings: critical, major, minor, info.
 7. Return a clear verdict unless the user asked for a narrower output.
+8. If verdict is `changes_requested` or `blocked`, update `run-state.json` in the active task directory when present so status reflects the review gate, for example `review_blocked`, and record the review artifact path/evidence. Do not leave the task looking ship-ready just because implementation steps completed.
+9. Do not call `/forgeflow:ship` unless `verdict=approved`, `safe_for_next_stage=true`, and `open_blockers=[]` are all true in the current `review-report.json`.
 
 Do not merge spec-review and quality-review for large/high-risk work.
 
