@@ -52,7 +52,7 @@ EXAMPLE_REF_CONTAINS = (
 )
 
 PATH_REF_RE = re.compile(
-    r"(?<![A-Za-z0-9_./<>{}-])"
+    r"(?<![A-Za-z0-9_./<>{}~-])"
     r"((?:\./|/|\.[A-Za-z0-9_-]+/|[A-Za-z0-9_]+/)"
     r"[A-Za-z0-9_./-]+\."
     r"(?:json|yaml|yml|toml|tsx|jsx|py|ts|js|md|sql|html|css|sh|go|rs|java|kt|rb|php))"
