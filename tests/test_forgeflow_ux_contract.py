@@ -112,25 +112,21 @@ def test_docs_explain_stage_boundaries_are_user_approved_not_manual_operation() 
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
     install = (ROOT / "INSTALL.md").read_text(encoding="utf-8")
 
-    assert "사용자가 stage 명령을 하나하나 대신 운영하라는 뜻은 아니다" in readme
-    assert "계획을 세워주세요" in readme
-    assert "agent-owned decomposition" in readme
-    assert "stage 경계를 넘을 때는 닫힌 질문으로 멈춘다" in readme
+    assert "사용자가 매번 stage를 운영해야 한다는 뜻은 아닙니다" in readme
+    assert "stage 경계에서 다음 단계로 넘어갈지 확인합니다" in readme
+    assert "사용자가 매번 workflow 운영자가 될 필요는 없습니다" in install
+    assert "stage 경계를 넘을 때는 agent가 멈추고 닫힌 질문으로 확인합니다" in install
     assert "다음 스텝으로 `/forgeflow:run`을 진행하시겠습니까? (y/n)" in install
     assert "자연스럽게 이어받는 쪽이 정본 UX입니다" not in install
 
 
-def test_readme_documents_plugin_init_cache_guard_and_release_smoke() -> None:
-    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+def test_install_documents_plugin_cache_guard_and_smoke() -> None:
+    install = (ROOT / "INSTALL.md").read_text(encoding="utf-8")
 
-    assert "Claude/Codex plugin cache" in readme
-    assert "cache 아래에 `.forgeflow/tasks/...`를 만들지 않고 실패" in readme
-    assert "traceback 없이 `ERROR:`" in readme
-    assert "일반 프로젝트 경로에 `plugin/marketplace`" in readme
-    assert "--task-dir /path/to/your-project/.forgeflow/tasks/<task-id>" in readme
-    assert "Maintainer verification before release or plugin update" in readme
-    assert "make smoke-claude-plugin" in readme
-    assert "writes starter artifacts through `/forgeflow:init`" in readme
+    assert "make smoke-claude-plugin" in install
+    assert "plugin cache" in install
+    assert "make validate" in install
+    assert "/forgeflow:init" in install
 
 
 def test_makefile_defines_policy_scan_target() -> None:

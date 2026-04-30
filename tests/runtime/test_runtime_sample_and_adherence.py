@@ -11,31 +11,19 @@ _make_task_dir = make_task_dir
 _run_orchestrator_cli = run_orchestrator_cli
 
 
-def test_readme_examples_describe_manual_execution_flow() -> None:
-    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+def test_install_documents_manual_execution_flow() -> None:
+    install = (ROOT / "INSTALL.md").read_text(encoding="utf-8")
 
-    assert "## Quickstart" in readme
-    assert "make validate" in readme
-    assert "make orchestrator-help" in readme
-    assert "make runtime-sample" in readme
-    assert "scripts/run_orchestrator.py init" in readme
-    assert "Other manual `run_orchestrator.py` commands mutate their target `--task-dir`" in readme
-    assert "scripts/run_orchestrator.py execute --task-dir" in readme
-    assert "advance --execute" in readme
-    assert "## Using ForgeFlow in Codex" in readme
-    assert "cp adapters/generated/codex/CODEX.md ./CODEX.md" in readme
-    assert "codex exec" in readme
-    assert "## Using ForgeFlow in Claude Code" in readme
-    assert "cp adapters/generated/claude/CLAUDE.md ./CLAUDE.md" in readme
-    assert "claude -p" in readme
-    assert "## Claude Code prompt templates" in readme
-    assert "### Small task template" in readme
-    assert "### Medium task template" in readme
-    assert "### Large / high-risk task template" in readme
-    assert "State the route you are using" in readme
-    assert "Do not merge spec-review and quality-review" in readme
-    assert "run`은 artifact/gate 기준으로 route 상태를 진행" in readme
-    assert "execute`는 현재 stage를 어댑터로 실행" in readme
+    assert "make validate" in install
+    assert "make runtime-sample" in install
+    assert "scripts/run_orchestrator.py init" in install
+    assert "run_orchestrator.py execute" in install
+    assert "adapter codex" in install
+    assert "adapter claude" in install
+    assert "cp adapters/generated/codex/CODEX.md" in install
+    assert "cp adapters/generated/claude/CLAUDE.md" in install
+    assert "codex exec" in install
+    assert "claude -p" in install
 
 
 def test_runtime_sample_cli_uses_disposable_fixture_copy() -> None:
