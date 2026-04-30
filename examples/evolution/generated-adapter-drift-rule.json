@@ -8,7 +8,7 @@
   "check": {
     "kind": "command",
     "command_id": "generated-adapter-drift",
-    "command": "python3 scripts/generate_adapters.py --check",
+    "command": "python scripts/generate_adapters.py --check",
     "expected_exit_code": 0
   },
   "enforcement": {

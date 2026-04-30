@@ -36,7 +36,7 @@ def test_dry_run_rule_rejects_project_rule_with_mismatched_command_contract(tmp_
 def test_generated_adapter_drift_example_previews_non_mutating_check_command() -> None:
     rule = json.loads((ROOT / "examples" / "evolution" / "generated-adapter-drift-rule.json").read_text(encoding="utf-8"))
 
-    assert rule["check"]["command"] == "python3 scripts/generate_adapters.py --check"
+    assert rule["check"]["command"] == "python scripts/generate_adapters.py --check"
 
 
 def test_generated_adapter_drift_execute_has_no_hidden_git_diff_contract() -> None:

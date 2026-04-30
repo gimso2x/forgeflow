@@ -24,6 +24,13 @@ user request
 ForgeFlow는 보통 Claude Code plugin이나 Codex plugin으로 설치해서 씁니다.
 
 수동 adapter 복사, local runtime, maintainer 검증, Windows wrapper 같은 자세한 절차는 [INSTALL.md](INSTALL.md)를 보세요.
+Native Windows PowerShell에서 local runtime까지 검증할 때는 [docs/windows.md](docs/windows.md)의 wrapper 흐름을 사용하세요.
+
+```powershell
+.\scripts\setup.ps1
+.\scripts\validate.ps1
+.\scripts\run_orchestrator.ps1 init --task-id my-task-001 --objective "Update README quickstart" --risk low
+```
 
 ### Claude Code Plugin
 

@@ -46,6 +46,10 @@ def test_windows_powershell_wrappers_are_documented_and_present() -> None:
     assert ".\\scripts\\validate.ps1" in install
     assert ".\\scripts\\run_orchestrator.ps1" in windows_doc
     assert ".\\scripts\\install_codex_plugin.ps1" in windows_doc
+    assert "$env:PYTHON" in windows_doc
+    assert "py -3" in windows_doc
+    assert "subprocess argument lists" in windows_doc
+    assert "windows-smoke" in windows_doc
 
 
 def test_makefile_smoke_targets_use_repo_managed_python_environment() -> None:

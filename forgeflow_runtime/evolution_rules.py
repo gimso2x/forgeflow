@@ -17,8 +17,8 @@ HARD_GATE_REQUIRES = {
     "audit_trail",
 }
 APPROVED_COMMANDS = {
-    "generated-adapter-drift": "python3 scripts/generate_adapters.py --check",
-    "no-env-commit": "git rev-parse --is-inside-work-tree >/dev/null 2>&1 && git diff --cached --name-only | python3 -c \"import sys; bad=[p for p in sys.stdin.read().splitlines() if p in {'.env', '.env.local'} or p.endswith('/.env') or p.endswith('/.env.local')]; sys.exit(1 if bad else 0)\"",
+    "generated-adapter-drift": "python scripts/generate_adapters.py --check",
+    "no-env-commit": "python scripts/forgeflow_evolution.py execute --rule no-env-commit --i-understand-project-local-hard-rule",
 }
 APPROVED_COMMAND_IDS = set(APPROVED_COMMANDS)
 

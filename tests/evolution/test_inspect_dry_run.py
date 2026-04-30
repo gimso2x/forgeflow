@@ -69,10 +69,21 @@ def test_dry_run_rule_reports_command_without_executing_it() -> None:
     assert result["would_execute"] is False
     assert result["safe_to_execute_later"] is True
     assert result["mode"] == "hard_exit_2"
-    assert "python3 scripts/generate_adapters.py" in result["command"]
+    assert result["command"] == "python scripts/generate_adapters.py --check"
     assert result["safety_checks"]["scope_project"] is True
     assert result["safety_checks"]["deterministic"] is True
     assert result["safety_checks"]["global_export_disabled"] is True
+
+
+def test_project_hard_rule_previews_do_not_require_posix_shell_or_python3() -> None:
+    for rule_id in ["generated-adapter-drift", "no-env-commit"]:
+        result = dry_run_rule(ROOT, rule_id)
+        command = result["command"]
+
+        assert "python3" not in command
+        assert ">/dev/null" not in command
+        assert "2>&1" not in command
+        assert " | " not in command
 
 
 def test_dry_run_rule_rejects_unknown_rule_id() -> None:
@@ -118,4 +129,3 @@ def test_forgeflow_evolution_dry_run_human_output_says_no_command_execution() ->
     assert "would execute: false" in result.stdout
     assert "command not executed" in result.stdout
     assert "safe to execute later: true" in result.stdout
-
