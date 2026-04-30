@@ -46,6 +46,9 @@ EXAMPLE_REF_EXACT = {
     "docs/forgeflow-team-init.md",
     ".claude/settings.json",
     ".claude/hooks/forgeflow/basic_safety_guard.py",
+    ".claude/agents/forgeflow-coordinator.md",
+    ".codex/forgeflow/forgeflow-coordinator.md",
+    ".codex/rules/forgeflow-nextjs-worker.mdc",
 }
 EXAMPLE_REF_CONTAINS = (
     ".forgeflow/tasks/my-task-001/",
