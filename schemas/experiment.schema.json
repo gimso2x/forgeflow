@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ForgeFlow Experiment Config",
+  "description": "Configuration for an XLOOP automated experiment run.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "metric_command",
+    "metric_key",
+    "direction"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "0.1"
+    },
+    "metric_command": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1},
+      "minItems": 1,
+      "description": "Command to execute for measuring the metric, as a list of arguments (no shell injection)."
+    },
+    "metric_key": {
+      "type": "string",
+      "minLength": 1,
+      "description": "JSON key in metric output to track (e.g. 'passed', 'duration')."
+    },
+    "direction": {
+      "type": "string",
+      "enum": ["higher", "lower"],
+      "description": "Optimization direction: 'higher' to maximize, 'lower' to minimize."
+    },
+    "max_iterations": {
+      "type": "integer",
+      "minimum": 1,
+      "default": 10,
+      "description": "Maximum number of experiment iterations."
+    },
+    "circuit_breaker_limit": {
+      "type": "integer",
+      "minimum": 1,
+      "default": 3,
+      "description": "Number of consecutive non-improvements before the circuit breaker trips."
+    },
+    "branch_prefix": {
+      "type": "string",
+      "minLength": 1,
+      "default": "xloop",
+      "description": "Prefix for experiment branch names."
+    },
+    "min_improvement": {
+      "type": "number",
+      "default": 0.0,
+      "description": "Minimum improvement threshold to accept a change."
+    },
+    "cwd": {
+      "type": ["string", "null"],
+      "description": "Working directory for metric commands. Null uses current directory."
+    }
+  }
+}
