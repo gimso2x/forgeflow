@@ -93,6 +93,21 @@
         "failed",
         "cancelled"
       ]
+    },
+    "progress": {
+      "type": "object",
+      "description": "Progress tracking data injected by execute-intelligence",
+      "properties": {
+        "total_tasks": { "type": "integer" },
+        "done": { "type": "integer" },
+        "in_progress": { "type": "integer" },
+        "pending": { "type": "integer" },
+        "blocked": { "type": "integer" },
+        "cancelled": { "type": "integer" },
+        "percent": { "type": "number" },
+        "per_task": { "type": "object" },
+        "next_actionable": { "type": "array", "items": { "type": "string" } }
+      }
     }
   },
   "additionalProperties": false

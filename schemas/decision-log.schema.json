@@ -39,7 +39,10 @@
               "spec-reviewer",
               "quality-reviewer",
               "orchestrator",
-              "operator"
+              "operator",
+              "execute-intelligence",
+              "progress-tracker",
+              "stuck-detector"
             ]
           },
           "category": {
@@ -51,7 +54,11 @@
               "recovery",
               "routing",
               "stage-transition",
-              "consistency"
+              "consistency",
+              "execute-context",
+              "anomaly-warning",
+              "stuck-signal",
+              "escalation"
             ]
           },
           "decision": {

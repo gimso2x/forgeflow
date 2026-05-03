@@ -122,17 +122,18 @@ Review evidence is not fan fiction.
 2. Check scope coverage and acceptance criteria.
 3. Run or inspect verification only if the user allowed command execution.
 4. Separate observed evidence from reported or missing evidence before choosing a verdict.
-5. For quality review, apply discipline heuristics without creating a separate stage:
+5. **Check for stuck signals**: review `decision-log.json` for entries with actor `stuck-detector` or category `escalation`. If the worker hit a stuck condition but continued editing anyway, that's a major finding — the worker ignored an escalation signal.
+6. For quality review, apply discipline heuristics without creating a separate stage:
    - Every changed line should trace directly to the approved request.
    - Was the change the smallest safe change that satisfies the request?
    - Did the change avoid silent fallback, dual write, and shadow-path ownership drift?
    - Did the implementation follow existing codebase patterns instead of inventing a new local religion?
    - Were assumptions about types, APIs, behavior, and test coverage verified against actual files?
    - If performance was touched, was the bottleneck measured before and after the change?
-6. Classify findings: critical, major, minor, info.
-7. Return a clear verdict unless the user asked for a narrower output.
-8. If verdict is `changes_requested` or `blocked`, update `run-state.json` in the active task directory when present so status reflects the review gate, for example `review_blocked`, and record the review artifact path/evidence. Do not leave the task looking ship-ready just because implementation steps completed.
-9. Do not call `/forgeflow:ship` unless `verdict=approved`, `safe_for_next_stage=true`, and `open_blockers=[]` are all true in the current `review-report.json`.
+7. Classify findings: critical, major, minor, info.
+8. Return a clear verdict unless the user asked for a narrower output.
+9. If verdict is `changes_requested` or `blocked`, update `run-state.json` in the active task directory when present so status reflects the review gate, for example `review_blocked`, and record the review artifact path/evidence. Do not leave the task looking ship-ready just because implementation steps completed.
+10. Do not call `/forgeflow:ship` unless `verdict=approved`, `safe_for_next_stage=true`, and `open_blockers=[]` are all true in the current `review-report.json`.
 
 Do not merge spec-review and quality-review for large/high-risk work.
 

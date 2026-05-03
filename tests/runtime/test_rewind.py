@@ -139,12 +139,12 @@ def test_step_back_rewinds_plan_ledger_progress_for_medium_route(
     decision_log = json.loads((task_dir / "decision-log.json").read_text(encoding="utf-8"))
     decisions = [entry["decision"] for entry in decision_log["entries"]]
     assert "step back: quality-review -> execute" in decisions
-    assert decisions[-4:] == [
-        "route resumed: medium from execute",
-        "stage entered: execute",
-        "stage entered: quality-review",
-        "stage entered: finalize",
-    ]
+    # After rewind, execute stage injects execute-intelligence entries
+    resume_idx = decisions.index("route resumed: medium from execute")
+    assert "stage entered: execute" in decisions[resume_idx:]
+    assert "stage entered: quality-review" in decisions
+    assert "stage entered: finalize" in decisions
+    assert decisions[-1] == "stage entered: finalize"
 
 
 def test_step_back_large_route_preserves_spec_evidence_and_clears_quality_flag(

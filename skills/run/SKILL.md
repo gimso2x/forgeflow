@@ -94,6 +94,29 @@ Contract-aware execution rules:
 
 Worker self-report is not approval. `/forgeflow:review` still has to happen.
 
+## Execute Intelligence (v0.2)
+
+When the orchestrator enters the `execute` stage, it automatically injects three intelligence layers into `decision-log.json` and `run-state.json`:
+
+1. **Execute Context** (`execute-intelligence` actor): reads `plan-ledger.json` and generates a structured prompt showing the current task, its dependencies, files to edit, required gates, and attempt count. Check `decision-log.json` entries with `category: "execute-context"` for the formatted prompt.
+
+2. **Progress Tracking** (`progress-tracker` actor): calculates per-task and overall completion percentage, identifies next-actionable tasks (pending tasks whose `depends_on` are all done), and writes the `progress` object to `run-state.json`. If anomalies are detected (excessive attempts, stage retries, too many concurrent tasks), warnings appear as `category: "anomaly-warning"` entries.
+
+3. **Stuck Detection** (`stuck-detector` actor): monitors four signals:
+   - `attempt_threshold`: task attempted 4+ times → critical
+   - `test_regression`: test failures increased 50%+ from external signals → critical
+   - `file_edit_loop`: same file edited 5+ times across tasks → warning
+   - `stage_retry_threshold`: execute stage retried 4+ times → critical
+
+   When a critical signal fires, the orchestrator sets `run-state.status = "blocked"` and logs an `escalation` entry. The agent should then pause, reconsider the approach, or ask the user for guidance instead of continuing to retry.
+
+### How to use these as an agent
+
+- At the start of each execute turn, read `decision-log.json` for the latest `execute-context` entry — it tells you exactly what to work on.
+- Check `run-state.json` → `progress` for overall status and `next_actionable` tasks.
+- If `run-state.status` is `"blocked"` with stuck signals, do NOT continue editing. Report the stuck condition and suggest alternatives.
+- To provide external test regression signals, call `detect_stuck(task_dir, external_signals={"test_failures_before": N, "test_failures_after": M})`.
+
 ## UX guardrails
 
 - Treat the latest executable brief/plan as sufficient authority only after the user has approved entering `/forgeflow:run`.

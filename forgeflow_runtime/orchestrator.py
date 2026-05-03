@@ -43,6 +43,10 @@ from forgeflow_runtime.stage_transition import next_stage_for_transition
 from forgeflow_runtime.task_identity import canonical_task_id as _canonical_task_id
 from forgeflow_runtime.task_identity import task_id as _task_id
 
+from forgeflow_runtime.execute_context import build_execute_context as _build_execute_context, format_execute_prompt as _format_execute_prompt
+from forgeflow_runtime.progress_tracker import calculate_progress as _calculate_progress, detect_progress_anomaly as _detect_progress_anomaly
+from forgeflow_runtime.stuck_detector import detect_stuck as _detect_stuck, should_escalate as _should_escalate, format_stuck_report as _format_stuck_report
+
 
 @dataclass(frozen=True)
 class TransitionResult:
@@ -1030,6 +1034,55 @@ def run_route(task_dir: Path, policy: RuntimePolicy, route_name: str) -> dict[st
 
         if stage_name == "execute" and not _artifact_path(task_dir, "decision-log").exists():
             raise RuntimeViolation("execute requires decision-log.json to exist")
+
+        # --- Execute Intelligence: inject task context + progress + stuck detection ---
+        if stage_name == "execute":
+            # Build and log execute context for the current task
+            exe_ctx = _build_execute_context(task_dir)
+            if exe_ctx.get("current_task") is not None:
+                _append_decision(
+                    decision_log,
+                    actor="execute-intelligence",
+                    category="execute-context",
+                    decision=f"task context: {exe_ctx.get('task_index', '?')} — {exe_ctx.get('current_task', {}).get('title', '?')}",
+                    rationale=_format_execute_prompt(exe_ctx),
+                )
+
+            # Progress tracking
+            progress = _calculate_progress(plan_ledger)
+            run_state["progress"] = progress
+
+            # Anomaly detection
+            anomaly_warnings = _detect_progress_anomaly(plan_ledger, run_state)
+            if anomaly_warnings:
+                _append_decision(
+                    decision_log,
+                    actor="progress-tracker",
+                    category="anomaly-warning",
+                    decision="progress anomaly detected",
+                    rationale="; ".join(anomaly_warnings),
+                )
+
+            # Stuck detection
+            stuck_signals = _detect_stuck(task_dir)
+            if stuck_signals:
+                stuck_report = _format_stuck_report(stuck_signals)
+                _append_decision(
+                    decision_log,
+                    actor="stuck-detector",
+                    category="stuck-signal",
+                    decision=f"stuck detected ({len(stuck_signals)} signals)",
+                    rationale=stuck_report,
+                )
+                if _should_escalate(stuck_signals):
+                    run_state["status"] = "blocked"
+                    _append_decision(
+                        decision_log,
+                        actor="stuck-detector",
+                        category="escalation",
+                        decision="execution blocked due to stuck signals",
+                        rationale="Critical stuck signal detected. Agent should reconsider approach or ask for guidance.",
+                    )
 
         if stage_name in {"spec-review", "quality-review"}:
             review_artifact = _latest_review_ref(task_dir)
