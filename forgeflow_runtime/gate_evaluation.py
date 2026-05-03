@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 from forgeflow_runtime.artifact_validation import (
     artifact_path,
@@ -12,6 +11,8 @@ from forgeflow_runtime.artifact_validation import (
 )
 from forgeflow_runtime.errors import RuntimeViolation
 from forgeflow_runtime.evolution_observations import append_review_blocker_observation
+from forgeflow_runtime.executor import RunTaskResult
+from forgeflow_runtime.gate_ralf import RALFResult, ralf_config_from_policy, ralf_loop
 from forgeflow_runtime.policy_loader import RuntimePolicy
 
 
@@ -140,3 +141,67 @@ def _validate_review_semantics(payload: dict[str, Any], *, source_name: str) -> 
         raise RuntimeViolation(f"approved {source_name} cannot declare open_blockers")
     if verdict == "approved" and payload.get("safe_for_next_stage") is False:
         raise RuntimeViolation(f"approved {source_name} cannot set safe_for_next_stage=false")
+
+
+def evaluate_with_ralf(
+    task_dir: Path,
+    policy: RuntimePolicy,
+    stage_name: str,
+    *,
+    canonical_task_id: str,
+    fix_executor: Callable[[str], RunTaskResult] | None = None,
+    max_attempts: int = 3,
+    circuit_breaker: int = 3,
+) -> RALFResult:
+    """Evaluate a stage gate with optional RALF self-healing retry.
+
+    If *fix_executor* is ``None``, the gate is checked exactly once (no
+    retry).  If a fix executor is provided, the full RALF loop runs with
+    up to *max_attempts* evaluations.
+
+    Retry parameters default to the keyword arguments but can be
+    overridden by the policy's ``gate_retry`` dict when present.
+    """
+    cfg = ralf_config_from_policy(
+        policy, max_attempts=max_attempts, circuit_breaker=circuit_breaker,
+    )
+
+    def gate_fn() -> None:
+        enforce_stage_gate(task_dir, policy, stage_name, canonical_task_id=canonical_task_id)
+
+    # No fix executor → single gate check, no retry
+    if fix_executor is None:
+        from forgeflow_runtime.gate_ralf import RALFAttempt, RALFResult as _RALFResult
+        import time
+
+        t0 = time.monotonic()
+        try:
+            gate_fn()
+            elapsed = time.monotonic() - t0
+            return _RALFResult(
+                passed=True,
+                attempts=[
+                    RALFAttempt(attempt=1, passed=True, duration_seconds=round(elapsed, 4))
+                ],
+            )
+        except RuntimeViolation as exc:
+            elapsed = time.monotonic() - t0
+            return _RALFResult(
+                passed=False,
+                attempts=[
+                    RALFAttempt(
+                        attempt=1,
+                        passed=False,
+                        rejection_reason=str(exc),
+                        duration_seconds=round(elapsed, 4),
+                    )
+                ],
+            )
+
+    return ralf_loop(
+        gate_fn,
+        fix_executor,
+        max_attempts=cfg.max_attempts,
+        circuit_breaker=cfg.circuit_breaker,
+        stage_name=stage_name,
+    )

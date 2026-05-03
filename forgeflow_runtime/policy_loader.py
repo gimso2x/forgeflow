@@ -12,6 +12,14 @@ class PolicyLoadError(Exception):
 
 
 @dataclass(frozen=True)
+class GateRetryConfig:
+    """Typed configuration for RALF gate retry behaviour."""
+
+    max_attempts: int = 3
+    circuit_breaker: int = 3
+
+
+@dataclass(frozen=True)
 class RuntimePolicy:
     workflow_stages: list[str]
     stage_requirements: dict[str, list[str]]
@@ -22,6 +30,7 @@ class RuntimePolicy:
     finalize_flags: list[str]
     review_order: list[str]
     orchestration: dict[str, Any] | None = None
+    gate_retry: dict[str, Any] | None = None
 
 
 def _load_yaml(path: Path) -> dict[str, Any]:
