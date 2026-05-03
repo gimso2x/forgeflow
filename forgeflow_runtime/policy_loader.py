@@ -31,6 +31,7 @@ class RuntimePolicy:
     review_order: list[str]
     orchestration: dict[str, Any] | None = None
     gate_retry: dict[str, Any] | None = None
+    budget: dict[str, Any] | None = None
 
 
 def _load_yaml(path: Path) -> dict[str, Any]:
