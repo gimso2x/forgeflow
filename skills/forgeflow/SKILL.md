@@ -100,6 +100,8 @@ When the user says "do not run commands", do not propose command execution as if
 5. Do not treat the implementer's own summary as approval.
 6. Keep state in artifacts/files, not just chat history.
 7. If using ForgeFlow's local runtime, remember default `execute` is stub; real provider CLI execution requires `--real` and `execution_mode: real` in the payload.
+8. **Run (execute) step scope**: Each plan step implements only its own `objective` scope. Do not implement future steps early. If a previous step already covers the current step's scope, perform incremental edits instead of skipping with an empty turn.
+9. **Review read-only**: The review stage is read-only verification. Use only `Read`, `Bash` (for verification), and `Grep`. Do not use `Write` or `Edit` during review. Record required fixes in `review-report.json` findings and hand back to the worker.
 
 ## Operator prompts
 
