@@ -5,6 +5,33 @@
   "required": ["version", "routes"],
   "properties": {
     "version": {"type": ["string", "number"]},
+    "adaptive_routing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["enabled"],
+      "properties": {
+        "enabled": {"type": "boolean"},
+        "weights": {
+          "type": "object",
+          "additionalProperties": {"type": "number"},
+          "properties": {
+            "file_count": {"type": "number"},
+            "estimated_lines": {"type": "number"},
+            "requirement_count": {"type": "number"},
+            "dependency_count": {"type": "number"},
+            "risk_keyword": {"type": "number"}
+          }
+        },
+        "thresholds": {
+          "type": "object",
+          "additionalProperties": {"type": "number"},
+          "properties": {
+            "low": {"type": "number"},
+            "high": {"type": "number"}
+          }
+        }
+      }
+    },
     "routes": {
       "type": "object",
       "minProperties": 1,

@@ -32,6 +32,7 @@ class RuntimePolicy:
     orchestration: dict[str, Any] | None = None
     gate_retry: dict[str, Any] | None = None
     budget: dict[str, Any] | None = None
+    adaptive_routing: dict[str, Any] | None = None
 
 
 def _load_yaml(path: Path) -> dict[str, Any]:
@@ -105,6 +106,7 @@ def load_runtime_policy(root: Path) -> RuntimePolicy:
 
     review_order = workflow_doc.get("review_order", [])
     orchestration = routing_doc.get("orchestration", None)
+    adaptive_routing = routing_doc.get("adaptive_routing", None)
 
     return RuntimePolicy(
         workflow_stages=workflow_stages,
@@ -116,4 +118,5 @@ def load_runtime_policy(root: Path) -> RuntimePolicy:
         finalize_flags=finalize_flags,
         review_order=review_order,
         orchestration=orchestration,
+        adaptive_routing=adaptive_routing,
     )

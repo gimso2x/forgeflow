@@ -1,4 +1,15 @@
 version: 0.2
+adaptive_routing:
+  enabled: false  # opt-in
+  weights:
+    file_count: 1.0
+    estimated_lines: 0.1
+    requirement_count: 2.0
+    dependency_count: 1.5
+    risk_keyword: 3.0
+  thresholds:
+    low: 10.0
+    high: 25.0
 routes:
   small:
     stages: [clarify, execute, quality-review, finalize]
