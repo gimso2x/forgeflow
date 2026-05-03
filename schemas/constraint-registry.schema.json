@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ConstraintRegistry",
+  "description": "Schema for a ForgeFlow constraint registry YAML file used to define custom anti-pattern rules.",
+  "type": "object",
+  "required": ["constraints", "schema_version"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "0.1"
+    },
+    "constraints": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "pattern"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Unique identifier for the constraint, e.g. 'no-todo'."
+          },
+          "pattern": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Regex pattern to search for in file contents."
+          },
+          "reason": {
+            "type": "string",
+            "description": "Human-readable explanation of why this is a violation.",
+            "default": ""
+          },
+          "suggestion": {
+            "type": "string",
+            "description": "Suggested fix or remediation.",
+            "default": ""
+          },
+          "category": {
+            "type": "string",
+            "description": "Category grouping, e.g. 'code-quality', 'security', 'style', 'custom'.",
+            "default": "custom"
+          },
+          "severity": {
+            "type": "string",
+            "enum": ["error", "warning"],
+            "description": "Severity level of the constraint.",
+            "default": "warning"
+          }
+        }
+      }
+    }
+  }
+}

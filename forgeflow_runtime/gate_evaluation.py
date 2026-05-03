@@ -14,6 +14,7 @@ from forgeflow_runtime.evolution_observations import append_review_blocker_obser
 from forgeflow_runtime.executor import RunTaskResult
 from forgeflow_runtime.gate_ralf import RALFResult, ralf_config_from_policy, ralf_loop
 from forgeflow_runtime.policy_loader import RuntimePolicy
+from forgeflow_runtime.constraint_checker import Violation, check_directory, check_with_registry, max_file_lines_check
 
 
 _STAGE_GATE_EVIDENCE_ARTIFACTS = {
@@ -205,3 +206,42 @@ def evaluate_with_ralf(
         circuit_breaker=cfg.circuit_breaker,
         stage_name=stage_name,
     )
+
+
+def check_quality_constraints(
+    task_dir: Path,
+    policy: RuntimePolicy,
+    *,
+    canonical_task_id: str,
+) -> list[Violation]:
+    """Run constraint scan as part of quality gate.
+
+    Only runs if ``policy.constraints`` is set and ``enabled`` is ``True``.
+    Returns a list of :class:`Violation` instances (empty means pass).
+    """
+    from pathlib import Path as _Path
+
+    cfg = policy.constraints
+    if not cfg or not isinstance(cfg, dict) or not cfg.get("enabled"):
+        return []
+
+    registry_path = cfg.get("registry_path")
+    categories = cfg.get("categories")
+    severities = cfg.get("severities")
+    max_file_lines = cfg.get("max_file_lines")
+
+    registry = _Path(registry_path) if registry_path else None
+
+    scan = check_with_registry(
+        task_dir,
+        registry_path=registry,
+        categories=categories,
+        severities=severities,
+    )
+
+    violations: list[Violation] = list(scan.violations)
+
+    if max_file_lines is not None and isinstance(max_file_lines, (int, float)):
+        violations.extend(max_file_lines_check(task_dir, int(max_file_lines)))
+
+    return violations

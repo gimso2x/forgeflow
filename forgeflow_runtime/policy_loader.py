@@ -33,6 +33,7 @@ class RuntimePolicy:
     gate_retry: dict[str, Any] | None = None
     budget: dict[str, Any] | None = None
     adaptive_routing: dict[str, Any] | None = None
+    constraints: dict[str, Any] | None = None  # {enabled, registry_path, categories, max_file_lines}
 
 
 def _load_yaml(path: Path) -> dict[str, Any]:
