@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
 from typing import Any, Callable
 
@@ -67,9 +68,30 @@ class OrchestrationResult:
 def _fan_out(
     request: RunTaskRequest, providers: list[str], *, use_real: bool = False
 ) -> list[RunTaskResult]:
-    """Dispatch the same request to multiple providers."""
-    results: list[RunTaskResult] = []
-    for provider in providers:
+    """Dispatch the same request to multiple providers concurrently.
+
+    Uses ThreadPoolExecutor so that multi-model strategies (consensus,
+    debate round-1, etc.) run in parallel instead of sequentially.
+    """
+    if len(providers) <= 1:
+        # Single provider — no need for thread pool overhead
+        if not providers:
+            return []
+        req = RunTaskRequest(
+            prompt=request.prompt,
+            role=request.role,
+            stage=request.stage,
+            task_dir=request.task_dir,
+            task_id=request.task_id,
+            token_budget_input=request.token_budget_input,
+            token_budget_output=request.token_budget_output,
+            adapter_target=providers[0],
+            artifacts_to_stream=request.artifacts_to_stream,
+            extra=request.extra,
+        )
+        return [dispatch(req, use_real=use_real)]
+
+    def _dispatch_one(provider: str) -> tuple[str, RunTaskResult]:
         req = RunTaskRequest(
             prompt=request.prompt,
             role=request.role,
@@ -82,9 +104,20 @@ def _fan_out(
             artifacts_to_stream=request.artifacts_to_stream,
             extra=request.extra,
         )
-        result = dispatch(req, use_real=use_real)
-        results.append(result)
-    return results
+        return provider, dispatch(req, use_real=use_real)
+
+    ordered: list[tuple[str, RunTaskResult] | None] = [None] * len(providers)
+
+    with ThreadPoolExecutor(max_workers=len(providers)) as pool:
+        futures = {pool.submit(_dispatch_one, p): i for i, p in enumerate(providers)}
+        for future in as_completed(futures):
+            idx = futures[future]
+            try:
+                ordered[idx] = future.result()
+            except Exception as exc:
+                ordered[idx] = (providers[idx], RunTaskResult(status="failure", error=str(exc)))
+
+    return [r for _, r in ordered if r is not None]
 
 
 def _merge_token_usage(results: list[RunTaskResult]) -> dict[str, int]:

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 from collections import Counter
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from typing import Any
 
@@ -131,10 +132,11 @@ def run_debate(
     providers = config.providers
     round_results: list[_RoundResult] = []
 
-    # --- Round 1: independent ---
+    # --- Round 1: independent (parallel) ---
     round1_outputs: dict[str, str] = {}
-    round1_results: list[RunTaskResult] = []
-    for provider in providers:
+    round1_results: list[RunTaskResult | None] = [None] * len(providers)
+
+    def _dispatch_round1(provider: str) -> tuple[str, RunTaskResult]:
         req = RunTaskRequest(
             prompt=request.prompt,
             role=request.role,
@@ -147,10 +149,20 @@ def run_debate(
             artifacts_to_stream=request.artifacts_to_stream,
             extra=request.extra,
         )
-        result = dispatch(req, use_real=use_real)
-        round1_results.append(result)
-        if result.status == "success" and result.raw_output:
-            round1_outputs[provider] = result.raw_output
+        return provider, dispatch(req, use_real=use_real)
+
+    with ThreadPoolExecutor(max_workers=len(providers)) as pool:
+        futures = {pool.submit(_dispatch_round1, p): i for i, p in enumerate(providers)}
+        for future in as_completed(futures):
+            idx = futures[future]
+            try:
+                provider, result = future.result()
+            except Exception as exc:
+                provider = providers[idx]
+                result = RunTaskResult(status="failure", error=str(exc))
+            round1_results[idx] = result
+            if result.status == "success" and result.raw_output:
+                round1_outputs[provider] = result.raw_output
 
     if not round1_outputs:
         first_error = next((r.error for r in round1_results if r.error), "all providers failed")
