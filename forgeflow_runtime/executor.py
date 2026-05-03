@@ -315,3 +315,40 @@ def list_adapters(*, include_real: bool = False) -> list[str]:
     if include_real:
         return sorted(set(STUB_REGISTRY) | set(REAL_REGISTRY))
     return sorted(STUB_REGISTRY.keys())
+
+
+def orchestrate(
+    request: RunTaskRequest,
+    policy: Any | None = None,
+    *,
+    use_real: bool = False,
+) -> RunTaskResult:
+    """Orchestrate a run_task request, using multi-model if policy configures it.
+
+    If *policy* has an ``orchestration`` dict with a ``strategy`` key, the
+    request is fanned out to multiple adapters using the configured strategy.
+    Otherwise, falls back to single-adapter :func:`dispatch`.
+
+    Args:
+        request: The execution request.
+        policy: A RuntimePolicy (or any object with an ``orchestration`` attr).
+        use_real: Whether to use real CLI adapters.
+
+    Returns:
+        RunTaskResult from either orchestration or single dispatch.
+    """
+    orch_config = getattr(policy, "orchestration", None)
+    if isinstance(orch_config, dict) and orch_config.get("strategy"):
+        from forgeflow_runtime.orchestra import OrchestrationConfig, run_orchestration
+
+        config = OrchestrationConfig(
+            strategy=orch_config["strategy"],
+            providers=orch_config.get("providers", [request.adapter_target]),
+            fallback=orch_config.get("fallback", "first"),
+            timeout=float(orch_config.get("timeout", 120.0)),
+            consensus_threshold=float(orch_config.get("consensus_threshold", 0.6)),
+        )
+        result = run_orchestration(request, config, use_real=use_real)
+        return result.to_run_task_result()
+
+    return dispatch(request, use_real=use_real)
