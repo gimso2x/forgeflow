@@ -35,6 +35,6 @@ Create an implementation plan. Only needed for `medium` and `large_high_risk` ro
    }
    ```
 
-4. If design alternatives exist, record decisions in `decision-log.json`.
+4. If design alternatives exist or requirements are ambiguous, record decisions in `decision-log.json` with rationale (e.g. "No retry on timeout — treated as resource bound, not transient"). List possible interpretations when ambiguous.
 
 5. Report: task count, dependency chain, risk notes, next stage (run).

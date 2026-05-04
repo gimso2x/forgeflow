@@ -47,10 +47,17 @@ Review completed work independently. **Read-only — do not modify code.**
 
 5. **Severity guide**:
    - P0: writes outside project, corrupts config, breaks build
-   - P1: false commands, missing artifacts, unverified claims
+   - P1: false commands, missing artifacts, unverified claims, **dead code, type-unsafe patterns, bare except**
    - P2: unclear wording, weak examples, minor formatting
 
-6. If `changes_requested`: set `safe_for_next_stage: false` and list required fixes.
+6. **Code quality gates** (check as P1):
+   - Dead code: unreachable branches, unused imports/variables/functions.
+   - Type safety: mixed-type return lists (e.g. `gather(return_exceptions=True)` without narrowing), in-place type mutation.
+   - Exception handling: bare `except:`, silently swallowed exceptions.
+   - Trivial tests: tests verifying string equality instead of actual logic.
+   - Global mutable state: module-level dicts, connections, singletons leaking state between tests.
+
+7. If `changes_requested`: set `safe_for_next_stage: false` and list required fixes.
    The implementer must address findings and re-submit.
 
-7. **Hard rule**: Do not use Write/Edit tools during review. Read, Grep, and Bash (verification only).
+8. **Hard rule**: Do not use Write/Edit tools during review. Read, Grep, and Bash (verification only).
