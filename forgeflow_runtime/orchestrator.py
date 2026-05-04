@@ -840,6 +840,7 @@ def advance_to_next_stage(
     role: str | None = None,
     artifacts_to_stream: list[str] | None = None,
     use_real: bool = False,
+    collector: Any | None = None,
 ) -> TransitionResult:
     route = _resolve_route(policy, route_name)
     canonical_task_id = _canonical_task_id(task_dir)
@@ -910,6 +911,7 @@ def advance_to_next_stage(
             adapter_target=adapter_target,
             artifacts_to_stream=artifacts_to_stream,
             use_real=use_real,
+            collector=collector,
         )
         if result.status != "success":
             reason = result.error or f"stage execution returned status={result.status}"
@@ -947,7 +949,29 @@ def advance_to_next_stage(
     return TransitionResult(next_stage=next_stage, execution=execution_payload)
 
 
+def _write_profile_artifact(task_dir: Path, profile: Any) -> None:
+    """Write a PipelineProfile as a JSON artifact (no schema validation required)."""
+    import dataclasses
+
+    payload = {
+        "pipeline_id": profile.pipeline_id,
+        "route": profile.route,
+        "total_duration_s": profile.total_duration_s,
+        "total_cost_usd": profile.total_cost_usd,
+        "total_input_tokens": profile.total_input_tokens,
+        "total_output_tokens": profile.total_output_tokens,
+        "started_at": profile.started_at,
+        "finished_at": profile.finished_at,
+        "stages": [dataclasses.asdict(s) for s in profile.stages],
+    }
+    out_path = _artifact_path(task_dir, "pipeline-profile")
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    _write_json(out_path, payload)
+
+
 def run_route(task_dir: Path, policy: RuntimePolicy, route_name: str) -> dict[str, Any]:
+    from forgeflow_runtime.profiling import ProfilingCollector
+
     route = _resolve_route(policy, route_name)
     canonical_task_id = _canonical_task_id(task_dir)
     plan_ledger = _require_plan_ledger_for_route(task_dir, route_name, canonical_task_id=canonical_task_id)
@@ -955,6 +979,7 @@ def run_route(task_dir: Path, policy: RuntimePolicy, route_name: str) -> dict[st
     decision_log = _ensure_decision_log(task_dir, canonical_task_id=canonical_task_id)
     checkpoint = _load_checkpoint(task_dir, canonical_task_id=canonical_task_id)
     session_state = _load_session_state(task_dir, canonical_task_id=canonical_task_id)
+    collector = ProfilingCollector(pipeline_id=canonical_task_id, route=route_name)
     if plan_ledger is not None and plan_ledger.get("current_task_id"):
         run_state["current_task_id"] = plan_ledger["current_task_id"]
     if checkpoint is not None:
@@ -1008,7 +1033,9 @@ def run_route(task_dir: Path, policy: RuntimePolicy, route_name: str) -> dict[st
             plan_ledger=plan_ledger,
             session_state=session_state,
         )
-        return run_state
+        profile = collector.build()
+        _write_profile_artifact(task_dir, profile)
+        return build_route_result(run_state, _plan_ledger_progress(plan_ledger))
 
     _append_decision(
         decision_log,
@@ -1019,6 +1046,9 @@ def run_route(task_dir: Path, policy: RuntimePolicy, route_name: str) -> dict[st
     )
 
     for stage_name in route_iteration_stages(route, start_index):
+        # Profiling: start stage timer
+        collector._start_stage(stage_name, model="orchestrator")
+
         missing_artifacts = _missing_artifacts(task_dir, policy.stage_requirements.get(stage_name, []))
         if missing_artifacts:
             raise RuntimeViolation(
@@ -1117,6 +1147,18 @@ def run_route(task_dir: Path, policy: RuntimePolicy, route_name: str) -> dict[st
         _write_validated_artifact(task_dir, "run-state", run_state)
         _write_validated_artifact(task_dir, "decision-log", decision_log)
         _write_plan_ledger_if_present(task_dir, plan_ledger)
+
+        # Profiling: record completed stage
+        from forgeflow_runtime.executor import RunTaskResult
+        stage_status = run_state.get("status", "unknown")
+        collector.record_stage(
+            RunTaskResult(
+                status=stage_status,
+                token_usage={"input": 0, "output": 0},
+                error=None,
+            )
+        )
+
         checkpoint = _sync_checkpoint(
             task_dir,
             route_name=route_name,
@@ -1133,6 +1175,10 @@ def run_route(task_dir: Path, policy: RuntimePolicy, route_name: str) -> dict[st
             plan_ledger=plan_ledger,
             session_state=session_state,
         )
+
+    # Save profiling profile as artifact
+    profile = collector.build()
+    _write_profile_artifact(task_dir, profile)
 
     return build_route_result(run_state, _plan_ledger_progress(plan_ledger))
 

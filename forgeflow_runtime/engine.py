@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import time
 from pathlib import Path
 from typing import Any
 
@@ -18,11 +19,15 @@ def execute_stage(
     extra_context: dict[str, Any] | None = None,
     artifacts_to_stream: list[str] | None = None,
     use_real: bool = False,
+    collector: Any | None = None,
 ) -> RunTaskResult:
     """Wire prompt generation -> executor dispatch for a single stage.
 
     This is the runtime glue between the orchestrator (which decides *when*
     a stage runs) and the adapter target (which performs the actual work).
+
+    If *collector* is provided (a :class:`~forgeflow_runtime.profiling.ProfilingCollector`),
+    stage timing and token/cost metrics are recorded automatically.
     """
     ctx = PromptContext(
         role=role,
@@ -46,4 +51,16 @@ def execute_stage(
         artifacts_to_stream=artifacts_to_stream,
         extra=extra_context,
     )
-    return dispatch(request, use_real=use_real)
+
+    if collector is not None:
+        timer = collector.stage(stage, model=adapter_target)
+        timer.__enter__()
+
+    try:
+        result = dispatch(request, use_real=use_real)
+    finally:
+        if collector is not None:
+            timer.__exit__(None, None, None)
+            collector.record_stage(result)
+
+    return result

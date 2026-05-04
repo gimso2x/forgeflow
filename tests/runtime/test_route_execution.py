@@ -130,6 +130,15 @@ def test_small_route_runs_end_to_end_and_updates_state(
         "stage entered: finalize",
     ]
 
+    # Profiling artifact must be written
+    profile_path = task_dir / "pipeline-profile.json"
+    assert profile_path.exists(), "pipeline-profile.json artifact must exist after run_route"
+    profile = json.loads(profile_path.read_text(encoding="utf-8"))
+    assert profile["pipeline_id"] != ""
+    assert profile["route"] == "small"
+    assert len(profile["stages"]) >= 1
+    assert profile["total_duration_s"] >= 0.0
+
 
 def test_large_route_runs_end_to_end_and_collects_both_review_flags(
     tmp_path: Path,
