@@ -34,7 +34,27 @@ Use this skill to execute the selected ForgeFlow route.
 - Verification commands have been run
 - Failures are fixed or explicitly recorded
 - Runtime evidence exists for review
-- Next step is `/forgeflow:review`
+- `run-state.json` has been written to the active task directory **before** the exit summary
+
+### Route-aware exit requirements
+
+The run stage MUST produce `run-state.json` conforming to `schemas/run-state.schema.json`. The exit prompt and next-step guidance depend on the active route:
+
+- **small** route: After implementation, run at least one smoke check (build, lint, or type check — whichever is fastest). Write `run-state.json` with `status: "completed"`, then prompt the user:
+  ```
+  구현 완료. 검증 통과. /forgeflow:review로 리뷰를 진행하시겠습니까? (y/n)
+  ```
+- **medium** route: Write `run-state.json` after each step completes. After final step, prompt:
+  ```
+  모든 계획 단계 실행 완료. /forgeflow:review를 진행해야 합니다. (y/n)
+  ```
+- **large_high_risk** route: Write `run-state.json` after each step completes. After final step, the next stage is **mandatory** — do NOT ask whether to review:
+  ```
+  large_high_risk route 실행 완료. 독립 review가 필수입니다. /forgeflow:review를 자동으로 시작합니다.
+  ```
+  Then immediately invoke `/forgeflow:review`.
+
+Do not end the run stage without writing `run-state.json`. A run that leaves no state artifact is incomplete.
 
 ## File write and output discipline
 
@@ -76,14 +96,16 @@ No heading. No preamble. No code fence. No third line. Start directly with `1.`.
 
 ## Procedure
 
-1. Confirm route and current stage.
-2. Read `contracts` metadata and sibling `contracts.md` before editing when present.
-3. Execute only tasks that belong to the plan/scope.
-4. Treat `fulfills`, `journeys`, and `verify_plan` as verification obligations, not decoration.
-5. Run focused verification after each meaningful change.
-6. Update evidence/decision notes.
-7. Record artifact updates before claiming progress: if implementation started, `run-state.json` should say so before you brag in chat.
-8. Stop if requirements become ambiguous; return to `/forgeflow:clarify` or `/forgeflow:specify`.
+1. Confirm route and current stage. Read `brief.json` to determine route.
+2. Initialize `run-state.json` in the active task directory if it does not exist. Set `current_stage: "execute"`, `status: "in_progress"`.
+3. Read `contracts` metadata and sibling `contracts.md` before editing when present.
+4. Execute only tasks that belong to the plan/scope.
+5. Treat `fulfills`, `journeys`, and `verify_plan` as verification obligations, not decoration.
+6. Run focused verification after each meaningful change.
+7. Update `run-state.json` immediately when starting and finishing each step. Step state must be incremental: `step-1: pending → in_progress → completed`, then `step-2: pending → in_progress → completed`. Do not batch-mark all steps as `completed` only at the end. If a step cannot finish, mark it `blocked` or `failed` with evidence.
+8. After all steps complete, set `run-state.status = "completed"` and `run-state.completed_gates` to include all passed gates.
+9. Stop if requirements become ambiguous; return to `/forgeflow:clarify` or `/forgeflow:specify`.
+10. Deliver the route-aware exit prompt (see Exit Condition above).
 
 Contract-aware execution rules:
 

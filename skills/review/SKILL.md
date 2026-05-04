@@ -55,8 +55,21 @@ Do not add non-schema fields such as `findings_by_severity`, `blocker_list`, or 
 - Requirements/acceptance criteria are checked against actual files
 - Tests/build/lint are considered or run where appropriate
 - Critical/major findings block ship
+- `review-report.json` has been written to the active task directory **before** the exit summary
 - Approved review has no open blockers and is safe for next stage
 - Next step is `/forgeflow:ship` only if review passes
+
+A review that leaves no `review-report.json` is incomplete. The verdict exists only in the artifact, not in chat sentiment.
+
+### Route-aware review behavior
+
+- **small** route: Single quality review. Write `review-report.json` with `review_type: "quality"`.
+- **medium** route: Single quality review. Write `review-report.json` with `review_type: "quality"`.
+- **large_high_risk** route: Two separate reviews are **required**:
+  1. `/forgeflow:review` (spec) — Write `review-report-spec.json` with `review_type: "spec"`.
+  2. `/forgeflow:review` (quality) — Write `review-report-quality.json` with `review_type: "quality"`.
+
+  For large_high_risk, if `review-report-spec.json` does not exist or has `verdict != "approved"`, do not proceed to quality review. Each review is an independent gate.
 
 ## File write and output discipline
 
@@ -118,22 +131,23 @@ Review evidence is not fan fiction.
 
 ## Procedure
 
-1. Review from artifacts and code, not worker vibes.
-2. Check scope coverage and acceptance criteria.
-3. Run or inspect verification only if the user allowed command execution.
-4. Separate observed evidence from reported or missing evidence before choosing a verdict.
-5. **Check for stuck signals**: review `decision-log.json` for entries with actor `stuck-detector` or category `escalation`. If the worker hit a stuck condition but continued editing anyway, that's a major finding — the worker ignored an escalation signal.
-6. For quality review, apply discipline heuristics without creating a separate stage:
+1. Read `brief.json` to determine route and expected review scope.
+2. Review from artifacts and code, not worker vibes.
+3. Check scope coverage and acceptance criteria.
+4. Run or inspect verification only if the user allowed command execution.
+5. Separate observed evidence from reported or missing evidence before choosing a verdict.
+6. **Check for stuck signals**: review `decision-log.json` for entries with actor `stuck-detector` or category `escalation`. If the worker hit a stuck condition but continued editing anyway, that's a major finding — the worker ignored an escalation signal.
+7. For quality review, apply discipline heuristics without creating a separate stage:
    - Every changed line should trace directly to the approved request.
    - Was the change the smallest safe change that satisfies the request?
    - Did the change avoid silent fallback, dual write, and shadow-path ownership drift?
    - Did the implementation follow existing codebase patterns instead of inventing a new local religion?
    - Were assumptions about types, APIs, behavior, and test coverage verified against actual files?
    - If performance was touched, was the bottleneck measured before and after the change?
-7. Classify findings: critical, major, minor, info.
-8. Return a clear verdict unless the user asked for a narrower output.
-9. If verdict is `changes_requested` or `blocked`, update `run-state.json` in the active task directory when present so status reflects the review gate, for example `review_blocked`, and record the review artifact path/evidence. Do not leave the task looking ship-ready just because implementation steps completed.
-10. Do not call `/forgeflow:ship` unless `verdict=approved`, `safe_for_next_stage=true`, and `open_blockers=[]` are all true in the current `review-report.json`.
+8. Classify findings: critical, major, minor, info.
+9. **Write `review-report.json`** (or `review-report-spec.json` / `review-report-quality.json` for large_high_risk) to the active task directory. The verdict in the file is the only valid verdict.
+10. Return a clear verdict in chat that matches the file. If verdict is `changes_requested` or `blocked`, update `run-state.json` in the active task directory so status reflects the review gate, for example `review_blocked`.
+11. Do not call `/forgeflow:ship` unless `verdict=approved`, `safe_for_next_stage=true`, and `open_blockers=[]` are all true in the **written** `review-report.json`.
 
 Do not merge spec-review and quality-review for large/high-risk work.
 

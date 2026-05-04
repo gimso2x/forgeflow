@@ -30,6 +30,7 @@ Use this skill to convert a raw request into a ForgeFlow `brief.json`-style cont
   - non-blocking unknowns / bounded assumptions
   - complexity score
   - route: `small`, `medium`, or `large_high_risk`
+  - min_verification: list of required verification steps for the run stage
 
 ## Exit Condition
 
@@ -93,9 +94,13 @@ When the user says "do not run commands", do not propose command execution as if
    - 5-8: `small` — one localized change, usually 1-2 files, low ambiguity, no cross-cutting behavior.
    - 9-12: `medium` — several coordinated files/components, shared state/layout/navigation, moderate test/update surface, but no security/data migration/infra rollback risk.
    - 13-15: `large_high_risk` — auth/security, data migration, payments, production infra, irreversible data changes, broad architecture migration, or many contracts/journeys requiring separate spec and quality review.
-4. State the route and why, unless an exact-output/label-only instruction applies.
-5. Produce the brief in a structured form the next skill can consume, unless an exact-output/label-only instruction applies.
-6. If the request is actionable, record remaining non-blocking unknowns as bounded assumptions and make the next stage obvious without asking the user to do your planning work, unless an exact-output/label-only instruction applies.
+4. Set `min_verification` in the brief:
+   - `small`: at least one of `build`, `lint`, or `type_check` — whichever is available and fastest.
+   - `medium`: at least `lint` and `type_check`, plus `test` if tests exist for changed files.
+   - `large_high_risk`: full verification suite — `build`, `lint`, `type_check`, and `test`.
+5. State the route and why, unless an exact-output/label-only instruction applies.
+6. Produce the brief in a structured form the next skill can consume, unless an exact-output/label-only instruction applies.
+7. If the request is actionable, record remaining non-blocking unknowns as bounded assumptions and make the next stage obvious without asking the user to do your planning work, unless an exact-output/label-only instruction applies.
 
 Do not implement here. Clarify is the intake gate, not the coding phase.
 

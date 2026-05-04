@@ -198,3 +198,62 @@ def test_codex_plugin_accepts_forgeflow_slash_style_prompts() -> None:
         if skill_name != "init":
             assert "explicitly asks for a dry run" in skill
         assert ".forgeflow/tasks/<task-id>" in skill
+
+
+# --- Route-aware enforcement contracts ---
+
+
+def test_run_skill_has_route_aware_exit_requirements() -> None:
+    skill = (ROOT / "skills" / "run" / "SKILL.md").read_text(encoding="utf-8")
+
+    assert "Route-aware exit requirements" in skill
+    assert "run-state.json" in skill
+    # Each route should have specific exit guidance
+    assert "**small** route" in skill
+    assert "**medium** route" in skill
+    assert "**large_high_risk** route" in skill
+    # large_high_risk must auto-chain to review
+    assert "large_high_risk route 실행 완료" in skill
+    assert "/forgeflow:review를 자동으로 시작합니다" in skill
+    # Must not end without run-state.json
+    assert "Do not end the run stage without writing `run-state.json`" in skill
+
+
+def test_run_skill_initializes_run_state_before_editing() -> None:
+    skill = (ROOT / "skills" / "run" / "SKILL.md").read_text(encoding="utf-8")
+
+    assert "Initialize `run-state.json`" in skill
+    assert "current_stage: \"execute\"" in skill
+    assert "status: \"in_progress\"" in skill
+
+
+def test_review_skill_has_route_aware_behavior() -> None:
+    skill = (ROOT / "skills" / "review" / "SKILL.md").read_text(encoding="utf-8")
+
+    assert "Route-aware review behavior" in skill
+    assert "**small** route" in skill
+    assert "**medium** route" in skill
+    assert "**large_high_risk** route" in skill
+    # large_high_risk must produce separate spec + quality reports
+    assert "review-report-spec.json" in skill
+    assert "review-report-quality.json" in skill
+    assert "Two separate reviews are **required**" in skill
+    # Must not leave review without artifact
+    assert "A review that leaves no `review-report.json` is incomplete" in skill
+
+
+def test_review_skill_writes_verdict_to_file_not_chat() -> None:
+    skill = (ROOT / "skills" / "review" / "SKILL.md").read_text(encoding="utf-8")
+
+    assert "The verdict in the file is the only valid verdict" in skill
+    assert "The verdict exists only in the artifact, not in chat sentiment" in skill
+
+
+def test_clarify_skill_sets_min_verification() -> None:
+    skill = (ROOT / "skills" / "clarify" / "SKILL.md").read_text(encoding="utf-8")
+
+    assert "min_verification" in skill
+    # Each route should have defined minimum verification
+    assert "build" in skill and "lint" in skill and "type_check" in skill
+    # min_verification should be in brief output spec
+    assert "min_verification: list of required verification steps" in skill
