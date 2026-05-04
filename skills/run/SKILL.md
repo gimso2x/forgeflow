@@ -62,6 +62,16 @@ Default to **artifact-first mode**. Run should update `run-state.json` before an
 
 Step state must be incremental, not a final recap. Each plan step must move through `in_progress` before `completed`, and the agent must update `run-state.json` immediately when starting and finishing each step. Example: `step-1: pending → in_progress → completed`, then `step-2: pending → in_progress → completed`. Do not batch-mark all steps as `completed` only at the end. If a step cannot finish, mark it `blocked` or `failed` with evidence instead of leaving the last known state ambiguous.
 
+**Progress and timestamp discipline:**
+
+Every time `run-state.json` is written, the `progress` object MUST be recalculated from the current step statuses:
+- `percentage`: `(completed_steps / total_steps) * 100`, rounded to 1 decimal
+- `completed_steps`: count of steps with status `"completed"`
+- `total_steps`: total number of steps in the plan
+- `next_actionable`: list of step IDs that are `"pending"` and whose dependencies are all `"completed"`
+
+All `started_at` and `completed_at` timestamps MUST be real ISO 8601 values (e.g. `2026-05-04T02:35:00.000Z`), **not** placeholder zeros like `2026-05-04T00:00:00.000Z`. Use `new Date().toISOString()` or equivalent when recording timestamps.
+
 Canonical writable location:
 
 - explicit task directory provided by the user, or
