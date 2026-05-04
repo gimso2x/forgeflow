@@ -105,6 +105,38 @@ class TestRALFLoopAllFail:
         assert result.circuit_breaker_tripped is False
 
 
+class TestRALFLoopBroadedExceptions:
+    def test_oserror_caught_as_rejection(self) -> None:
+        def gate_raises_oserror() -> None:
+            raise OSError("artifact file vanished")
+
+        result = ralf_loop(
+            gate_raises_oserror,
+            lambda _: _make_fix_result(),
+            max_attempts=2,
+            circuit_breaker=5,
+        )
+        assert result.passed is False
+        assert len(result.attempts) == 2
+        assert "artifact file vanished" in result.attempts[0].rejection_reason
+
+    def test_json_decode_error_caught_as_rejection(self) -> None:
+        import json
+
+        def gate_raises_json_error() -> None:
+            raise json.JSONDecodeError("bad json", "{}", 0)
+
+        result = ralf_loop(
+            gate_raises_json_error,
+            lambda _: _make_fix_result(),
+            max_attempts=2,
+            circuit_breaker=5,
+        )
+        assert result.passed is False
+        assert len(result.attempts) == 2
+        assert "bad json" in result.attempts[0].rejection_reason
+
+
 class TestCircuitBreaker:
     def test_trips_on_consecutive_same_reason(self) -> None:
         result = ralf_loop(

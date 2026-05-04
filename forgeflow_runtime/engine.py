@@ -56,11 +56,12 @@ def execute_stage(
         timer = collector.stage(stage, model=adapter_target)
         timer.__enter__()
 
+    result: RunTaskResult | None = None
     try:
         result = dispatch(request, use_real=use_real)
+        return result
     finally:
         if collector is not None:
             timer.__exit__(None, None, None)
-            collector.record_stage(result)
-
-    return result
+            if result is not None:
+                collector.record_stage(result)

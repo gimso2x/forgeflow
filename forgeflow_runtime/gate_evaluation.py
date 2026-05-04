@@ -9,6 +9,8 @@ from forgeflow_runtime.artifact_validation import (
     load_validated_artifact,
     missing_artifacts,
 )
+import json
+
 from forgeflow_runtime.errors import RuntimeViolation
 from forgeflow_runtime.evolution_observations import append_review_blocker_observation
 from forgeflow_runtime.executor import RunTaskResult
@@ -185,7 +187,7 @@ def evaluate_with_ralf(
                     RALFAttempt(attempt=1, passed=True, duration_seconds=round(elapsed, 4))
                 ],
             )
-        except RuntimeViolation as exc:
+        except (RuntimeViolation, OSError, json.JSONDecodeError) as exc:
             elapsed = time.monotonic() - t0
             return _RALFResult(
                 passed=False,
