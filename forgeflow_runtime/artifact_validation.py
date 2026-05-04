@@ -24,6 +24,11 @@ SCHEMA_BY_ARTIFACT = {
     "eval-record": "eval-record",
     "checkpoint": "checkpoint",
     "session-state": "session-state",
+    "evolution-rule": "evolution-rule",
+    "experiment": "experiment",
+    "constraint-registry": "constraint-registry",
+    "interface-spec": "interface-spec",
+    "issue-drafts": "issue-drafts",
 }
 
 REPO_ROOT = Path(__file__).resolve().parents[1]

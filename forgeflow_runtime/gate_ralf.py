@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import time
 from dataclasses import dataclass
 from typing import Any, Callable
@@ -96,7 +97,7 @@ def ralf_loop(
                 attempts=attempts,
                 final_output=final_output,
             )
-        except RuntimeViolation as exc:
+        except (RuntimeViolation, OSError, json.JSONDecodeError) as exc:
             elapsed = time.monotonic() - t0
             reason = str(exc)
 
