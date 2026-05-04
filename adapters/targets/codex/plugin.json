@@ -1,0 +1,39 @@
+{
+  "name": "forgeflow-codex",
+  "description": "ForgeFlow adapter for Codex — staged workflow, gates, evidence, and independent review",
+  "version": "0.2.1",
+  "author": {
+    "name": "gimso2x",
+    "url": "https://github.com/gimso2x"
+  },
+  "repository": "https://github.com/gimso2x/forgeflow",
+  "license": "MIT",
+  "runtime_type": "cli-agent",
+  "input_mode": "prompt-and-files",
+  "output_mode": "markdown-and-files",
+  "supports_roles": [
+    "coordinator",
+    "planner",
+    "worker",
+    "spec-reviewer",
+    "quality-reviewer"
+  ],
+  "keywords": [
+    "ai-agents",
+    "workflow",
+    "harness",
+    "review",
+    "artifacts",
+    "codex"
+  ],
+  "agents": [
+    "adapters/targets/codex/agents/forgeflow-coordinator.md",
+    "adapters/targets/codex/agents/forgeflow-planner.md",
+    "adapters/targets/codex/agents/forgeflow-worker.md",
+    "adapters/targets/codex/agents/forgeflow-spec-reviewer.md",
+    "adapters/targets/codex/agents/forgeflow-quality-reviewer.md"
+  ],
+  "rules": [
+    "adapters/targets/codex/rules/forgeflow-nextjs-worker.mdc"
+  ]
+}
