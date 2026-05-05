@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import dataclasses
+import sys
 
 import pytest
 
@@ -144,7 +145,9 @@ class TestRunEvidenceContract:
         scenario = QAScenario(
             name="valid-pass",
             description="d",
-            command='echo \'{"status":"pass","executed":true,"coverage":0.9,"console_errors":[]}\'',
+            command=(
+                f"{sys.executable} -c \"import json; print(json.dumps({{'status':'pass','executed':True,'coverage':0.9,'console_errors':[]}}))\""
+            ),
             repair_command=None,
             required_for={ProjectType.APP},
             evidence_keys={"a"},

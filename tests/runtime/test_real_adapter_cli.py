@@ -1,5 +1,6 @@
 import json
 import os
+import sys
 from pathlib import Path
 
 from tests.runtime.cli_helpers import ROOT, make_task_dir, run_orchestrator_cli
@@ -9,19 +10,30 @@ _make_task_dir = make_task_dir
 _run_orchestrator_cli = run_orchestrator_cli
 
 
+def _fake_cli_path(bin_dir: Path, name: str) -> Path:
+    return bin_dir / (f"{name}.cmd" if sys.platform == "win32" else name)
+
+
+def _path_with(bin_dir: Path) -> str:
+    return f"{bin_dir}{os.pathsep}{os.environ.get('PATH', '')}"
+
+
 def test_cli_execute_real_codex_uses_binary_from_path_without_live_credentials(tmp_path: Path) -> None:
     task_dir = _make_task_dir(tmp_path)
     bin_dir = tmp_path / "bin"
     bin_dir.mkdir()
-    codex = bin_dir / "codex"
-    codex.write_text(
-        "#!/usr/bin/env python3\n"
-        "import sys\n"
-        "assert sys.argv[1] == 'exec'\n"
-        "print('FAKE_CODEX_REAL_OUTPUT')\n",
-        encoding="utf-8",
-    )
-    codex.chmod(0o755)
+    codex = _fake_cli_path(bin_dir, "codex")
+    if sys.platform == "win32":
+        codex.write_text("@echo off\npython -c \"import sys; assert sys.argv[1] == 'exec'; print('FAKE_CODEX_REAL_OUTPUT')\" %*\n", encoding="utf-8")
+    else:
+        codex.write_text(
+            "#!/usr/bin/env python3\n"
+            "import sys\n"
+            "assert sys.argv[1] == 'exec'\n"
+            "print('FAKE_CODEX_REAL_OUTPUT')\n",
+            encoding="utf-8",
+        )
+        codex.chmod(0o755)
 
     result = _run_orchestrator_cli(
         "execute",
@@ -32,7 +44,7 @@ def test_cli_execute_real_codex_uses_binary_from_path_without_live_credentials(t
         "--adapter",
         "codex",
         "--real",
-        env={"PATH": f"{bin_dir}:{os.environ.get('PATH', '')}"},
+        env={"PATH": _path_with(bin_dir)},
     )
 
     assert result.returncode == 0
@@ -46,17 +58,24 @@ def test_cli_execute_real_claude_uses_binary_from_path_without_live_credentials(
     task_dir = _make_task_dir(tmp_path)
     bin_dir = tmp_path / "bin"
     bin_dir.mkdir()
-    claude = bin_dir / "claude"
-    claude.write_text(
-        "#!/usr/bin/env python3\n"
-        "import sys\n"
-        "assert '-p' in sys.argv\n"
-        "assert '--bare' in sys.argv\n"
-        "assert '--dangerously-skip-permissions' in sys.argv\n"
-        "print('FAKE_CLAUDE_REAL_OUTPUT')\n",
-        encoding="utf-8",
-    )
-    claude.chmod(0o755)
+    claude = _fake_cli_path(bin_dir, "claude")
+    if sys.platform == "win32":
+        claude.write_text(
+            "@echo off\n"
+            "python -c \"import sys; assert '-p' in sys.argv; assert '--bare' in sys.argv; assert '--dangerously-skip-permissions' in sys.argv; print('FAKE_CLAUDE_REAL_OUTPUT')\" %*\n",
+            encoding="utf-8",
+        )
+    else:
+        claude.write_text(
+            "#!/usr/bin/env python3\n"
+            "import sys\n"
+            "assert '-p' in sys.argv\n"
+            "assert '--bare' in sys.argv\n"
+            "assert '--dangerously-skip-permissions' in sys.argv\n"
+            "print('FAKE_CLAUDE_REAL_OUTPUT')\n",
+            encoding="utf-8",
+        )
+        claude.chmod(0o755)
 
     result = _run_orchestrator_cli(
         "execute",
@@ -67,7 +86,7 @@ def test_cli_execute_real_claude_uses_binary_from_path_without_live_credentials(
         "--adapter",
         "claude",
         "--real",
-        env={"PATH": f"{bin_dir}:{os.environ.get('PATH', '')}"},
+        env={"PATH": _path_with(bin_dir)},
     )
 
     assert result.returncode == 0

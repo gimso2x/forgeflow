@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -50,12 +51,14 @@ def _write_profile(task_dir: Path, *, pipeline_id: str = "run-1", duration: floa
 
 
 def _run(*args: str) -> subprocess.CompletedProcess[str]:
+    env = {**os.environ, "PYTHONIOENCODING": "utf-8"}
     return subprocess.run(
         [sys.executable, str(SCRIPT), *args],
         cwd=ROOT,
         check=False,
         capture_output=True,
         text=True,
+        env=env,
     )
 
 

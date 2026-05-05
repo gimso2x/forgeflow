@@ -503,7 +503,7 @@ class TestArtifactRefPath:
     def test_validates_absolute(self, tmp_path: Path) -> None:
         with pytest.raises(RuntimeViolation, match="must be task-relative"):
             _artifact_ref_path(
-                tmp_path, "/etc/passwd", source_name="test.json", field_name="ref"
+                tmp_path, str(Path.cwd().anchor or Path.cwd()), source_name="test.json", field_name="ref"
             )
 
     def test_validates_escape(self, tmp_path: Path) -> None:
