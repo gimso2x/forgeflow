@@ -59,7 +59,10 @@ def main() -> int:
             return result.returncode
 
         payload = json.loads(result.stdout)
-        payload["sample_source_fixture"] = str(fixture_dir.relative_to(ROOT)) if fixture_dir.is_relative_to(ROOT) else str(fixture_dir)
+        if fixture_dir.is_relative_to(ROOT):
+            payload["sample_source_fixture"] = fixture_dir.relative_to(ROOT).as_posix()
+        else:
+            payload["sample_source_fixture"] = fixture_dir.as_posix()
         print(json.dumps(payload, indent=2, ensure_ascii=False))
     return 0
 
