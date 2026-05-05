@@ -23,7 +23,7 @@ Implement the task. Updates `run-state.json` with progress and verification evid
    {
      "schema_version": "0.1",
      "task_id": "<task-id>",
-     "status": "running|completed|failed",
+     "status": "not_started|in_progress|completed|blocked",
      "progress": {
        "percentage": 0-100,
        "current_task": "<sub-task-id>",
@@ -69,7 +69,7 @@ Implement the task. Updates `run-state.json` with progress and verification evid
 
 ## Bounded verification fix loop
 
-When a lint/build/test/typecheck command fails after an implementation change, do not stop at the first failure. Record the failed command, exit code, and concise failure summary in `run-state.json`, apply the smallest scoped fix, then rerun the focused verification. Repeat for at most 3 attempts. Mark work complete only after the latest required verification passes; if failures remain, set `run-state.status` to `blocked` or `failed` and keep the failure evidence.
+When a lint/build/test/typecheck command fails after an implementation change, do not stop at the first failure. Record each failed command, exit code, and concise failure summary in `run-state.json.evidence_refs` using a compact string such as `verification:FAIL attempt=1 command="npm run lint" exit=1 reason="react-hooks/set-state-in-effect"`, increment `run-state.retries.execute`, apply the smallest scoped fix, then rerun the focused verification. Repeat for at most 3 attempts. Mark work complete only after the latest required verification passes and add a final `verification:PASS ...` evidence ref; if failures remain, set `run-state.status` to `blocked` and keep the latest failure evidence.
 
 ## Automation / non-interactive approval mode
 

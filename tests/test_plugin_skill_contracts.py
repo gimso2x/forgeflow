@@ -254,6 +254,13 @@ def test_worker_prompts_require_bounded_verification_fix_loop() -> None:
         assert "Bounded verification fix loop" in prompt
         assert "Repeat for at most 3 attempts" in prompt
         assert "Mark work complete only after the latest required verification passes" in prompt
+        assert "run-state.json.evidence_refs" in prompt
+        assert "run-state.retries.execute" in prompt
+        assert "verification:FAIL" in prompt
+        assert "verification:PASS" in prompt
+        assert "react-hooks/set-state-in-effect" in prompt
+        assert "set `run-state.status` to `blocked`" in prompt
+        assert "if failures remain, set `run-state.status` to `blocked` or `failed`" not in prompt
 
 
 def test_codex_prompts_require_minimum_artifact_contract_for_small_tasks() -> None:
