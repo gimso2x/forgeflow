@@ -92,8 +92,35 @@ def install_codex_baseline(project: Path) -> None:
     # Keep these command names in source so contract tests and operators can grep them:
     # install_agent_presets.py, codex_plugin_doctor.py, smoke_codex_plugin.py
     run([sys.executable, "scripts/install_agent_presets.py", "--adapter", "codex", "--target", str(project), "--profile", "nextjs", "--install-codex-md"], cwd=ROOT)
-    run([sys.executable, "scripts/codex_plugin_doctor.py", "--project", str(project)], cwd=ROOT)
-    run(["git", "add", "CODEX.md", ".codex", "docs/forgeflow-team-init.md"], cwd=project)
+    marketplace = project / ".forgeflow-ci" / "marketplace.json"
+    marketplace.parent.mkdir(parents=True, exist_ok=True)
+    marketplace.write_text(
+        json.dumps(
+            {
+                "plugins": [
+                    {"name": "forgeflow", "source": {"type": "local", "path": str(ROOT)}}
+                ]
+            },
+            ensure_ascii=False,
+            indent=2,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    run(
+        [
+            sys.executable,
+            "scripts/codex_plugin_doctor.py",
+            "--marketplace-path",
+            str(marketplace),
+            "--plugin-root",
+            str(ROOT),
+            "--project",
+            str(project),
+        ],
+        cwd=ROOT,
+    )
+    run(["git", "add", "CODEX.md", ".codex", "docs/forgeflow-team-init.md", ".forgeflow-ci/marketplace.json"], cwd=project)
     run(["git", "commit", "-m", "install forgeflow codex preset baseline"], cwd=project)
 
 
