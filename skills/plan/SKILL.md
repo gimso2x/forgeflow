@@ -142,6 +142,7 @@ Do not proceed to `/forgeflow:run` if one of those is missing for non-trivial wo
 - Every task has verification
 - Dependencies form a DAG
 - Medium/large routes have enough detail for `/forgeflow:run` without guessing
+- A visual plan view can be generated when useful: `python3 scripts/forgeflow_visual.py plan <task-dir>/plan.json --format markdown`; for live browser feedback, run `node scripts/visual-companion.cjs` and POST the Mermaid source to `http://127.0.0.1:8765/diagram`.
 - The minimum plan gate covers `Goal`, `Requirements`, `Implementation Steps`, and `Verification`
 - Refactor-specific checks are present only when refactor mode applies, with preserved behavior, non-goals, migration boundary, rollback or escape hatch, regression verification, and existing coverage represented in existing plan fields or sibling markdown sections
 - Contract metadata is present for cross-module work, or explicitly unnecessary

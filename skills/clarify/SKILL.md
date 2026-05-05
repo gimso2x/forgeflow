@@ -37,6 +37,7 @@ Use this skill to convert a raw request into a ForgeFlow `brief.json`-style cont
 - The request has a clear goal and scope boundary
 - True blocker questions are answered; non-blocking unknowns are recorded as bounded assumptions
 - A route is selected and justified
+- Optional visual artifact is available when useful for design feedback: run `python3 scripts/forgeflow_visual.py clarify <task-dir>/brief.json --format markdown`, or pipe Mermaid output to `node scripts/visual-companion.cjs` via `POST /diagram`.
 - Next skill is named:
   - `small` -> `/forgeflow:run` or direct execute path
   - `medium` -> `/forgeflow:plan`

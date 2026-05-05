@@ -56,6 +56,7 @@ Do not add non-schema fields such as `findings_by_severity`, `blocker_list`, or 
 - Tests/build/lint are considered or run where appropriate
 - Critical/major findings block ship
 - `review-report.json` has been written to the active task directory **before** the exit summary
+- Optional review visualization can be generated with `python3 scripts/forgeflow_visual.py review <task-dir>/review-report.json --format markdown` for changed-risk/blocked-path discussion.
 - Approved review has no open blockers and is safe for next stage
 - Next step is `/forgeflow:ship` only if review passes
 
