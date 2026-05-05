@@ -71,3 +71,25 @@ jobs:
       - name: Smoke task init
         shell: pwsh
         run: .\scripts\run_orchestrator.ps1 init --task-id windows-smoke --objective "Validate Windows wrapper" --risk low
+
+  plugin-smoke-matrix:
+    name: plugin-smoke-matrix (${{ matrix.os }}, ${{ matrix.surface }}, ${{ matrix.route_label }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        surface: [claude, codex]
+        route_label: [small, medium, large_high_risk]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run plugin smoke matrix
+        shell: bash
+        run: python scripts/ci_plugin_smoke_matrix.py --surface "${{ matrix.surface }}" --route-label "${{ matrix.route_label }}"

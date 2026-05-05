@@ -131,6 +131,26 @@ python3 scripts/smoke_codex_plugin.py --project /path/to/nextjs-app
 
 세부 명령은 [scripts/README.md](scripts/README.md)에 있습니다.
 
+## Plugin smoke matrix
+
+Claude/Codex 플러그인·프리셋 smoke는 CI의 `plugin-smoke-matrix` job에서 Linux/Windows, Claude/Codex, `small`/`medium`/`large_high_risk` route label 조합으로 돕니다. 실제 Claude/Codex CLI가 있는 환경에서는 route-label dry-run까지 실행하고, 없는 GitHub runner에서는 packaging, Codex project-local preset install, doctor, non-mutating guard를 검증합니다.
+
+로컬에서 disposable Next.js 앱으로 재현하려면:
+
+```bash
+base="/tmp/forgeflow-next-smoke-$(date +%Y%m%d-%H%M%S)"
+mkdir -p "$base"
+cd "$base"
+npx create-next-app@latest app --ts --eslint --app --src-dir --no-tailwind --use-npm --yes
+cd app
+git init && git add . && git commit -m 'initial next smoke app'
+cd /home/ubuntu/work/forgeflow
+python3 scripts/ci_plugin_smoke_matrix.py --surface codex --route-label medium --project "$base/app"
+python3 scripts/ci_plugin_smoke_matrix.py --surface claude --route-label small --project "$base/app"
+```
+
+각 smoke는 baseline setup 이후 `git status --short`와 project content snapshot을 비교해 non-mutating 조건을 확인합니다.
+
 ## Philosophy
 
 - Artifact over chat memory
