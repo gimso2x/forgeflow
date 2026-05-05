@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- **Claude/Codex plugin smoke hardening**: stabilized Codex doctor artifact-policy checks, route-label exact-output checks, and non-mutating smoke validation.
+- **Generated adapter validation**: normalized generated validation paths across platforms.
+- **Windows CI stability**: removed POSIX-only assumptions from runtime fixture paths, plugin metadata path rendering, verification-pipeline tests, fake CLI execution, and PID liveness checks.
+
+### Validation
+
+- Local: `python3 scripts/validate_generated.py` PASS.
+- Local: `python3 -m pytest -q` → 1209 passed.
+- CI: `windows-smoke`, `repo-validation`, and `generated-drift` passed on `main` run `25386400965`.
+
 ## [0.3.0] - 2026-05-05
 
 ### Added
