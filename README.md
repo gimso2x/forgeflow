@@ -2,6 +2,8 @@
 
 ForgeFlow는 AI coding agent 작업을 채팅 기억이 아니라 **명시적인 stage, 로컬 artifact, gate, evidence, 독립 review**로 진행하게 만드는 artifact-first delivery harness입니다. Claude Code와 Codex에서 같은 workflow를 쓰도록 돕고, 작은 수정은 가볍게, 리스크 있는 작업은 계획과 검증을 남기게 합니다.
 
+현재 릴리즈는 **v0.3.0**입니다. 이 버전은 자연어 요구사항에서 계획 초안을 만들고, runtime/profile artifact를 읽고, Codex plugin 설치 상태를 진단하고, Mermaid/Markdown으로 작업 상태를 시각화하는 운영 보조 도구를 포함합니다.
+
 ## How it works
 
 ForgeFlow는 agent가 바로 코드를 고치기 전에 요청을 실행 가능한 작업으로 정리하게 합니다. 작업 크기와 위험도를 보고 route를 고른 뒤, 필요한 만큼 계획을 만들고, 실행 결과를 artifact로 남기고, 독립 review를 거쳐 마무리합니다.
@@ -105,8 +107,28 @@ Codex plugin, `CODEX.md`, project preset의 차이는 [docs/codex-desktop.md](do
 - Generated Claude/Codex adapter instructions
 - Canonical workflow policy and JSON schemas
 - Local validation, sample fixtures, and runtime support tools
+- v0.3.0 helpers for plan drafting, profile inspection, visual rendering, and Codex plugin diagnosis
 
 ForgeFlow는 hosted agent service나 SaaS runtime이 아닙니다. agent가 로컬 프로젝트에서 더 예측 가능하게 일하도록 만드는 workflow 규약과 검증 도구입니다.
+
+## v0.3.0 operator helpers
+
+v0.3.0은 “작업을 시켰다”에서 끝내지 않고, 계획·진단·시각화·성능 확인까지 로컬 artifact로 붙잡는 쪽으로 정리했습니다.
+
+- Natural language plan generation: `forgeflow_runtime/natural_language_plan.py`가 이슈 본문, brief, 자유 문장 요구사항을 schema-valid `plan.json` 초안으로 바꿉니다. 완성품이 아니라 plan stage에서 다듬는 안전한 초안입니다.
+- Profile artifact CLI: `scripts/forgeflow_profile.py`로 `pipeline-profile.json`을 요약하고 병목을 보고, 두 task profile을 비교할 수 있습니다.
+- Visual companion tooling: `scripts/forgeflow_visual.py`는 `brief.json`, `plan.json`, `review-report.json`을 Mermaid 또는 Markdown으로 렌더링합니다. 브라우저 companion은 `node scripts/visual-companion.cjs`로 띄웁니다.
+- Codex plugin doctor: `scripts/codex_plugin_doctor.py`가 Codex CLI, local marketplace, plugin root, project preset/CODEX 상태를 읽기 전용으로 점검합니다.
+
+빠른 예시는 아래처럼 실행합니다.
+
+```bash
+python3 scripts/forgeflow_profile.py summary .forgeflow/tasks/<task-id>
+python3 scripts/forgeflow_visual.py plan .forgeflow/tasks/<task-id>/plan.json --format mermaid
+python3 scripts/codex_plugin_doctor.py --project .
+```
+
+세부 명령은 [scripts/README.md](scripts/README.md)에 있습니다.
 
 ## Philosophy
 

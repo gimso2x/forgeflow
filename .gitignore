@@ -16,3 +16,4 @@ Thumbs.db
 # Generated local noise
 *.log
 .hermes-learnings.jsonl
+.forgeflow/
