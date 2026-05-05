@@ -21,9 +21,9 @@ def load_json(path: Path) -> dict:
 
 def _display_path(path: Path) -> str:
     try:
-        return str(path.relative_to(ROOT))
+        return path.relative_to(ROOT).as_posix()
     except ValueError:
-        return str(path)
+        return path.as_posix()
 
 
 def unsupported_manifest_errors(paths: list[Path]) -> list[str]:

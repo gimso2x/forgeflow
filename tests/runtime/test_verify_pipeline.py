@@ -2,6 +2,12 @@
 
 from __future__ import annotations
 
+import json
+import os
+import shlex
+import sys
+import tempfile
+
 from forgeflow_runtime.verify_pipeline import (
     VerifyConfig,
     VerifyResult,
@@ -13,22 +19,26 @@ from forgeflow_runtime.verify_pipeline import (
 )
 
 
+def _py_command(source: str) -> str:
+    return f"{shlex.quote(sys.executable)} -c {shlex.quote(source)}"
+
+
 # ---------------------------------------------------------------------------
 # run_verify_step
 # ---------------------------------------------------------------------------
 
 class TestRunVerifyStep:
     def test_exit_zero_passed(self) -> None:
-        result = run_verify_step("echo hello")
+        result = run_verify_step(_py_command("print('hello')"))
         assert result.passed is True
         assert "hello" in result.evidence
 
     def test_nonzero_exit_failed(self) -> None:
-        result = run_verify_step("exit 1")
+        result = run_verify_step(_py_command("raise SystemExit(1)"))
         assert result.passed is False
 
     def test_stderr_captured(self) -> None:
-        result = run_verify_step("echo oops >&2; exit 1")
+        result = run_verify_step(_py_command("import sys; print('oops', file=sys.stderr); raise SystemExit(1)"))
         assert result.passed is False
         assert "oops" in result.evidence
 
@@ -68,12 +78,15 @@ class TestVerifyLoopFixPass:
         """Verify fails attempt 1, fix runs, verify passes attempt 2."""
         # Use a temp file as a state flag: first verify fails, fix touches it,
         # second verify succeeds.
-        import tempfile, os
-
         with tempfile.TemporaryDirectory() as tmpdir:
             flag = os.path.join(tmpdir, "flag")
-            verify_cmd = f"test -f {flag} && echo ok"
-            fix_cmd = f"touch {flag}"
+            flag_literal = json.dumps(flag)
+            verify_cmd = _py_command(
+                "import os; "
+                f"flag = {flag_literal}; "
+                "print('ok') if os.path.exists(flag) else (_ for _ in ()).throw(SystemExit(1))"
+            )
+            fix_cmd = _py_command(f"from pathlib import Path; Path({flag_literal}).touch()")
 
             cfg = VerifyConfig(
                 verify_command=verify_cmd,
@@ -98,8 +111,8 @@ class TestVerifyLoopFixPass:
 class TestVerifyLoopExhausted:
     def test_max_attempts_exhausted(self) -> None:
         cfg = VerifyConfig(
-            verify_command="exit 1",
-            fix_command="echo fix",
+            verify_command=_py_command("raise SystemExit(1)"),
+            fix_command=_py_command("print('fix')"),
             max_attempts=2,
         )
         results = run_verification_loop(cfg)
@@ -118,8 +131,8 @@ class TestVerifyLoopExhausted:
 class TestVerifyLoopSpecReview:
     def test_spec_review_pass(self) -> None:
         cfg = VerifyConfig(
-            verify_command="echo ok",
-            spec_review_command="echo spec ok",
+            verify_command=_py_command("print('ok')"),
+            spec_review_command=_py_command("print('spec ok')"),
         )
         results = run_verification_loop(cfg)
         stages = [r.stage for r in results]
@@ -130,8 +143,8 @@ class TestVerifyLoopSpecReview:
 
     def test_spec_review_fail_stops(self) -> None:
         cfg = VerifyConfig(
-            verify_command="echo ok",
-            spec_review_command="exit 1",
+            verify_command=_py_command("print('ok')"),
+            spec_review_command=_py_command("raise SystemExit(1)"),
         )
         results = run_verification_loop(cfg)
         assert len(results) == 1
