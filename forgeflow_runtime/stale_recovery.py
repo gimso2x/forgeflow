@@ -6,6 +6,7 @@ exponential backoff on repeated failures.  Pure stdlib — no external deps.
 
 from __future__ import annotations
 
+import ctypes
 import os
 from dataclasses import dataclass, replace
 from datetime import datetime, timedelta
@@ -50,6 +51,17 @@ class DaemonStatus:
 
 def is_pid_alive(pid: int) -> bool:
     """Return *True* if a process with *pid* exists on this host."""
+    if pid <= 0:
+        return False
+    if os.name == "nt":
+        # On Windows, os.kill(pid, 0) is not a liveness probe and can deliver
+        # a console control event. Use OpenProcess instead.
+        process_query_limited_information = 0x1000
+        handle = ctypes.windll.kernel32.OpenProcess(process_query_limited_information, False, pid)
+        if handle:
+            ctypes.windll.kernel32.CloseHandle(handle)
+            return True
+        return False
     try:
         os.kill(pid, 0)
         return True
