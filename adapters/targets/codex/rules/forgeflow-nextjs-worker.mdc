@@ -13,3 +13,7 @@ Use the project-local ForgeFlow worker preset before editing Next.js app files.
 - Preserve existing Next.js routing, data fetching, component, and styling conventions unless the plan explicitly changes them.
 - Record verification evidence in the active `.forgeflow/tasks/<task-id>/` directory when a task directory exists.
 - Do not treat worker self-report as final approval; route non-trivial work through independent review.
+
+## Minimum artifact contract
+
+ForgeFlow is artifact-first even for tiny tasks. Before or while editing code, ensure an active `.forgeflow/tasks/<task-id>/` directory exists. A small task is incomplete unless it writes at least `brief.json` and `run-state.json`; medium/high tasks must also keep `plan.json` or `plan-ledger.json` and review artifacts as the route requires. Do not rely on the user prompt to restate this requirement.

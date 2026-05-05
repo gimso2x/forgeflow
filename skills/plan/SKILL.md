@@ -142,6 +142,7 @@ Do not proceed to `/forgeflow:run` if one of those is missing for non-trivial wo
 - Every task has verification
 - Dependencies form a DAG
 - Medium/large routes have enough detail for `/forgeflow:run` without guessing
+- A visual plan view can be generated when useful: `python3 scripts/forgeflow_visual.py plan <task-dir>/plan.json --format markdown`; for live browser feedback, run `node scripts/visual-companion.cjs` and POST the Mermaid source to `http://127.0.0.1:8765/diagram`.
 - The minimum plan gate covers `Goal`, `Requirements`, `Implementation Steps`, and `Verification`
 - Refactor-specific checks are present only when refactor mode applies, with preserved behavior, non-goals, migration boundary, rollback or escape hatch, regression verification, and existing coverage represented in existing plan fields or sibling markdown sections
 - Contract metadata is present for cross-module work, or explicitly unnecessary
@@ -183,6 +184,11 @@ Example exact-count response must be plain text lines, not a fenced block:
 2. Update the badge markdown and verify the rendered preview manually.
 
 No heading. No preamble. No code fence. No third line.
+
+
+## Automation / non-interactive approval mode
+
+If the user explicitly includes `--yes`, `--auto-approve`, `--non-interactive`, or says to continue through ForgeFlow stages without further approval, treat that as approval for the current bounded ForgeFlow sequence. Do not pause at the normal stage-boundary y/n prompt; proceed to the next requested ForgeFlow stage after writing the required artifact for the current stage. This only applies inside the stated task scope and never overrides a blocker, failed verification, missing required artifact, or unsafe/destructive action.
 
 ## Procedure
 

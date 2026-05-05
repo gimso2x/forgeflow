@@ -23,7 +23,7 @@ Implement the task. Updates `run-state.json` with progress and verification evid
    {
      "schema_version": "0.1",
      "task_id": "<task-id>",
-     "status": "running|completed|failed",
+     "status": "not_started|in_progress|completed|blocked",
      "progress": {
        "percentage": 0-100,
        "current_task": "<sub-task-id>",
@@ -66,3 +66,11 @@ Implement the task. Updates `run-state.json` with progress and verification evid
    - Record in `decision-log.json`. Include "why", not just "what".
 
 10. When all tasks are done: set status `"completed"`, report files changed and verification summary.
+
+## Bounded verification fix loop
+
+When a lint/build/test/typecheck command fails after an implementation change, do not stop at the first failure. Record each failed command, exit code, and concise failure summary in `run-state.json.evidence_refs` using a compact string such as `verification:FAIL attempt=1 command="npm run lint" exit=1 reason="react-hooks/set-state-in-effect"`, increment `run-state.retries.execute`, apply the smallest scoped fix, then rerun the focused verification. Repeat for at most 3 attempts. Mark work complete only after the latest required verification passes and add a final `verification:PASS ...` evidence ref; if failures remain, set `run-state.status` to `blocked` and keep the latest failure evidence.
+
+## Automation / non-interactive approval mode
+
+If the user explicitly includes `--yes`, `--auto-approve`, `--non-interactive`, or says to continue through ForgeFlow stages without further approval, treat that as approval for the current bounded ForgeFlow sequence. Do not pause at the normal stage-boundary y/n prompt; proceed to the next requested ForgeFlow stage after writing the required artifact for the current stage. This only applies inside the stated task scope and never overrides a blocker, failed verification, missing required artifact, or unsafe/destructive action.

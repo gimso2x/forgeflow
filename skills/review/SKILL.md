@@ -56,6 +56,7 @@ Do not add non-schema fields such as `findings_by_severity`, `blocker_list`, or 
 - Tests/build/lint are considered or run where appropriate
 - Critical/major findings block ship
 - `review-report.json` has been written to the active task directory **before** the exit summary
+- Optional review visualization can be generated with `python3 scripts/forgeflow_visual.py review <task-dir>/review-report.json --format markdown` for changed-risk/blocked-path discussion.
 - Approved review has no open blockers and is safe for next stage
 - Next step is `/forgeflow:ship` only if review passes
 
@@ -140,6 +141,11 @@ This gate applies regardless of route size. Even small-route reviews must run te
 - Name the exact diff scope reviewed: files, directories, commit range, or staged changes.
 - Name verification evidence: commands run, artifacts inspected, or missing evidence.
 - Treat broad staging, destructive git actions, and dirty unrelated user work as review risks unless explicitly justified and approved.
+
+
+## Automation / non-interactive approval mode
+
+If the user explicitly includes `--yes`, `--auto-approve`, `--non-interactive`, or says to continue through ForgeFlow stages without further approval, treat that as approval for the current bounded ForgeFlow sequence. Do not pause at the normal stage-boundary y/n prompt; proceed to the next requested ForgeFlow stage after writing the required artifact for the current stage. This only applies inside the stated task scope and never overrides a blocker, failed verification, missing required artifact, or unsafe/destructive action.
 
 ## Procedure
 
