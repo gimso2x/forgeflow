@@ -104,6 +104,11 @@ Example exact-count response must be plain text lines, not a fenced block:
 
 No heading. No preamble. No code fence. No third line. Start directly with `1.`.
 
+
+## Automation / non-interactive approval mode
+
+If the user explicitly includes `--yes`, `--auto-approve`, `--non-interactive`, or says to continue through ForgeFlow stages without further approval, treat that as approval for the current bounded ForgeFlow sequence. Do not pause at the normal stage-boundary y/n prompt; proceed to the next requested ForgeFlow stage after writing the required artifact for the current stage. This only applies inside the stated task scope and never overrides a blocker, failed verification, missing required artifact, or unsafe/destructive action.
+
 ## Procedure
 
 1. Confirm route and current stage. Read `brief.json` to determine route.
@@ -159,3 +164,7 @@ When the orchestrator enters the `execute` stage, it automatically injects three
 - When the user asks to fix review findings, treat that as approval to enter a fix loop for the current review scope: read the latest `review-report.json`, fix only current `open_blockers`/major findings, re-run focused verification, and update `review-report.json` before claiming the fix loop is complete. The updated `open_blockers` must reflect the remaining current blockers, not stale blockers from the previous review.
 - Bad: `승인된 계획대로 실행하겠습니다.`만 말하고 대기.
 - Good: 바로 수정/검증을 시작하고 evidence를 남긴다.
+
+## Bounded verification fix loop
+
+When a lint/build/test/typecheck command fails after an implementation change, do not stop at the first failure. Record the failed command, exit code, and concise failure summary in `run-state.json`, apply the smallest scoped fix, then rerun the focused verification. Repeat for at most 3 attempts. Mark work complete only after the latest required verification passes; if failures remain, set `run-state.status` to `blocked` or `failed` and keep the failure evidence.

@@ -38,3 +38,7 @@ Create an implementation plan. Only needed for `medium` and `large_high_risk` ro
 4. If design alternatives exist or requirements are ambiguous, record decisions in `decision-log.json` with rationale (e.g. "No retry on timeout — treated as resource bound, not transient"). List possible interpretations when ambiguous.
 
 5. Report: task count, dependency chain, risk notes, next stage (run).
+
+## Automation / non-interactive approval mode
+
+If the user explicitly includes `--yes`, `--auto-approve`, `--non-interactive`, or says to continue through ForgeFlow stages without further approval, treat that as approval for the current bounded ForgeFlow sequence. Do not pause at the normal stage-boundary y/n prompt; proceed to the next requested ForgeFlow stage after writing the required artifact for the current stage. This only applies inside the stated task scope and never overrides a blocker, failed verification, missing required artifact, or unsafe/destructive action.

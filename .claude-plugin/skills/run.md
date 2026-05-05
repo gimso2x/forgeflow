@@ -66,3 +66,11 @@ Implement the task. Updates `run-state.json` with progress and verification evid
    - Record in `decision-log.json`. Include "why", not just "what".
 
 10. When all tasks are done: set status `"completed"`, report files changed and verification summary.
+
+## Bounded verification fix loop
+
+When a lint/build/test/typecheck command fails after an implementation change, do not stop at the first failure. Record the failed command, exit code, and concise failure summary in `run-state.json`, apply the smallest scoped fix, then rerun the focused verification. Repeat for at most 3 attempts. Mark work complete only after the latest required verification passes; if failures remain, set `run-state.status` to `blocked` or `failed` and keep the failure evidence.
+
+## Automation / non-interactive approval mode
+
+If the user explicitly includes `--yes`, `--auto-approve`, `--non-interactive`, or says to continue through ForgeFlow stages without further approval, treat that as approval for the current bounded ForgeFlow sequence. Do not pause at the normal stage-boundary y/n prompt; proceed to the next requested ForgeFlow stage after writing the required artifact for the current stage. This only applies inside the stated task scope and never overrides a blocker, failed verification, missing required artifact, or unsafe/destructive action.

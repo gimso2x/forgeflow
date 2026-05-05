@@ -45,6 +45,11 @@ When a requirement is ambiguous or allows multiple interpretations, **state the 
 - Record in `decision-log.json` (reference existing entries from planner stage).
 - Include enough context for reviewers to verify: "why", not just "what".
 
+
+## Bounded verification fix loop
+
+When a lint/build/test/typecheck command fails after an implementation change, do not stop at the first failure. Record the failed command, exit code, and concise failure summary in `run-state.json`, apply the smallest scoped fix, then rerun the focused verification. Repeat for at most 3 attempts. Mark work complete only after the latest required verification passes; if failures remain, set `run-state.status` to `blocked` or `failed` and keep the failure evidence.
+
 ## Verification preference
 Use existing scripts in this order when present:
 1. `npm run lint`

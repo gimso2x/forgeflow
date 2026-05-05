@@ -17,6 +17,7 @@ P0에서 필요한 최소 자동화를 둔다.
 - `install_codex_plugin.py` : ForgeFlow를 home-local Codex plugin marketplace에 등록
 - `install_codex_plugin.ps1` : Windows PowerShell용 Codex plugin marketplace 설치 wrapper
 - `bootstrap_codex_plugin.py` : checkout 없이 raw GitHub URL에서 실행하는 Codex plugin 설치 bootstrap
+- `codex_plugin_doctor.py` : Codex CLI, local marketplace, plugin root, project preset/CODEX 상태를 읽기 전용으로 진단
 
 ## 권장 실행 순서
 make target이 repo-managed `.venv`를 사용하므로 fresh clone에서는 아래 순서로 실행한다.

@@ -39,6 +39,12 @@ This creates or updates:
 ~/.agents/plugins/marketplace.json
 ```
 
+Diagnose the Codex installation without changing files:
+
+```bash
+python3 scripts/codex_plugin_doctor.py --project /path/to/your-project
+```
+
 Restart Codex Desktop after installing the local plugin entry. Then enable ForgeFlow from the local marketplace if prompted.
 
 Use the plugin with slash-style prompts:

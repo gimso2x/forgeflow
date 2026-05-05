@@ -227,6 +227,47 @@ def test_run_skill_initializes_run_state_before_editing() -> None:
     assert "status: \"in_progress\"" in skill
 
 
+def test_forgeflow_stage_skills_support_non_interactive_approval_mode() -> None:
+    for rel in [
+        "skills/plan/SKILL.md",
+        "skills/run/SKILL.md",
+        "skills/review/SKILL.md",
+        ".claude-plugin/skills/plan.md",
+        ".claude-plugin/skills/run.md",
+        ".claude-plugin/skills/review.md",
+    ]:
+        skill = (ROOT / rel).read_text(encoding="utf-8")
+        assert "Automation / non-interactive approval mode" in skill
+        assert "--auto-approve" in skill
+        assert "--non-interactive" in skill
+        assert "Do not pause at the normal stage-boundary y/n prompt" in skill
+
+
+def test_worker_prompts_require_bounded_verification_fix_loop() -> None:
+    for rel in [
+        "skills/run/SKILL.md",
+        ".claude-plugin/skills/run.md",
+        "adapters/targets/claude/agents/forgeflow-worker.md",
+        "adapters/targets/codex/agents/forgeflow-worker.md",
+    ]:
+        prompt = (ROOT / rel).read_text(encoding="utf-8")
+        assert "Bounded verification fix loop" in prompt
+        assert "Repeat for at most 3 attempts" in prompt
+        assert "Mark work complete only after the latest required verification passes" in prompt
+
+
+def test_codex_prompts_require_minimum_artifact_contract_for_small_tasks() -> None:
+    for rel in [
+        "adapters/targets/codex/agents/forgeflow-coordinator.md",
+        "adapters/targets/codex/agents/forgeflow-worker.md",
+        "adapters/targets/codex/rules/forgeflow-nextjs-worker.mdc",
+    ]:
+        prompt = (ROOT / rel).read_text(encoding="utf-8")
+        assert "Minimum artifact contract" in prompt
+        assert "A small task is incomplete unless it writes at least `brief.json` and `run-state.json`" in prompt
+        assert "Do not rely on the user prompt to restate this requirement" in prompt
+
+
 def test_review_skill_has_route_aware_behavior() -> None:
     skill = (ROOT / "skills" / "review" / "SKILL.md").read_text(encoding="utf-8")
 
