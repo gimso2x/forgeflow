@@ -1,7 +1,7 @@
 ---
 name: forgeflow
 description: Artifact-first delivery harness for AI coding agents — staged workflow, gates, evidence, and independent review.
-version: "0.2.1"
+version: "0.3.0"
 category: engineering
 tags: [ai-agents, workflow, harness, review, artifacts, claude-code, codex]
 ---

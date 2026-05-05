@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-05-05
+
+### Added
+
+- **Natural language plan generation**: `natural_language_plan.py` — generate plan drafts from free-form descriptions
+- **Profile artifact CLI**: `forgeflow_profile.py` — inspect and export task profiles
+- **Visual companion tooling**: `forgeflow_visual.py` + `visual-companion.cjs` — visual pipeline status rendering
+- **Codex plugin doctor**: `codex_plugin_doctor.py` — diagnose and repair Codex plugin installations
+
+### Fixed
+
+- **Codex ForgeFlow flow contracts**: hardened worker verification and retry loop
+- **Claude/Codex agent SKILL.md updates**: review gate, run-state discipline improvements
+
+### Removed
+
+- Cleaned up 7 stale backup/rebuild local branches
+- Deleted 3 merged/unused remote branches
+
 ## [0.2.1] - 2026-05-04
 
 ### Fixed
