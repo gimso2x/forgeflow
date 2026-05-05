@@ -37,6 +37,11 @@ Do not edit manually. Update canonical docs/policy/prompts and rerun `scripts/ge
 - Do not merge spec review and quality review.
 - Do not treat worker self-report as sufficient evidence.
 
+## Artifact state policy
+- Write ForgeFlow task artifacts under repo-local `.forgeflow/tasks/<task-id>/` unless the user provides an explicit task directory.
+- Preserve `run-state.json` as the resumable execution ledger for each task.
+- Do not replace required artifact files with chat-only summaries.
+
 ## Tooling constraints
 - prompt surface may be CLAUDE.md style
 - generated artifacts must not redefine canonical semantics

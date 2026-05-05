@@ -57,6 +57,40 @@ def test_codex_plugin_doctor_reports_pass_for_installed_marketplace_and_project(
     assert by_name["artifact_policy"]["status"] == "PASS"
 
 
+def test_generated_codex_adapter_satisfies_doctor_artifact_policy(tmp_path):
+    plugin_root = tmp_path / "plugins" / "forgeflow"
+    marketplace = tmp_path / ".agents" / "plugins" / "marketplace.json"
+    project = tmp_path / "project"
+    _write_plugin_root(plugin_root)
+    marketplace.parent.mkdir(parents=True)
+    marketplace.write_text(
+        json.dumps({"plugins": [{"name": "forgeflow", "source": {"source": "local", "path": "./plugins/forgeflow"}}]}) + "\n",
+        encoding="utf-8",
+    )
+    project.mkdir()
+    (project / ".forgeflow").mkdir()
+    (project / ".codex" / "forgeflow").mkdir(parents=True)
+    generated_codex = ROOT / "adapters" / "generated" / "codex" / "CODEX.md"
+    (project / "CODEX.md").write_text(generated_codex.read_text(encoding="utf-8"), encoding="utf-8")
+
+    result = run_doctor(
+        "--marketplace-path",
+        str(marketplace),
+        "--plugin-root",
+        str(plugin_root),
+        "--project",
+        str(project),
+        "--json",
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    payload = json.loads(result.stdout)
+    by_name = {check["name"]: check for check in payload["checks"]}
+    assert by_name["artifact_policy"]["status"] == "PASS"
+    assert ".forgeflow/tasks" in by_name["artifact_policy"]["detail"]
+    assert "run-state.json" in by_name["artifact_policy"]["detail"]
+
+
 def test_codex_plugin_doctor_fails_missing_marketplace_and_plugin_root(tmp_path):
     result = run_doctor(
         "--marketplace-path",

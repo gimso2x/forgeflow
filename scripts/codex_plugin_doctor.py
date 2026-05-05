@@ -89,8 +89,17 @@ def project_check(project: Path) -> list[Check]:
     checks.append(Check("project_codex_preset", _status(preset_dir.exists(), warn=True), str(preset_dir)))
     if codex_md.exists():
         text = codex_md.read_text(encoding="utf-8", errors="replace")
-        has_artifact_policy = ".forgeflow/tasks" in text and "run-state.json" in text
-        checks.append(Check("artifact_policy", _status(has_artifact_policy), "CODEX.md mentions .forgeflow/tasks and run-state.json"))
+        missing_markers = [marker for marker in (".forgeflow/tasks", "run-state.json") if marker not in text]
+        if missing_markers:
+            checks.append(
+                Check(
+                    "artifact_policy",
+                    "FAIL",
+                    "CODEX.md missing artifact policy marker(s): " + ", ".join(missing_markers),
+                )
+            )
+        else:
+            checks.append(Check("artifact_policy", "PASS", "CODEX.md mentions .forgeflow/tasks and run-state.json"))
     else:
         checks.append(Check("artifact_policy", "WARN", "CODEX.md missing; cannot verify artifact policy"))
     return checks

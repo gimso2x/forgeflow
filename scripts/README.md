@@ -18,6 +18,8 @@ P0에서 필요한 최소 자동화를 둔다.
 - `install_codex_plugin.ps1` : Windows PowerShell용 Codex plugin marketplace 설치 wrapper
 - `bootstrap_codex_plugin.py` : checkout 없이 raw GitHub URL에서 실행하는 Codex plugin 설치 bootstrap
 - `codex_plugin_doctor.py` : Codex CLI, local marketplace, plugin root, project preset/CODEX 상태를 읽기 전용으로 진단
+- `smoke_claude_plugin.py` : Claude slash skills dry-run/write smoke를 실행하고 repo dirty-state를 검증
+- `smoke_codex_plugin.py` : project-local Codex `CODEX.md`/preset 기반 `small`/`medium`/`large_high_risk` route-label smoke를 실행하고 repo dirty-state를 검증
 - `forgeflow_profile.py` : `pipeline-profile.json` 성능 artifact를 요약/병목 분석/비교
 - `forgeflow_visual.py` : brief/plan/review artifact를 Mermaid 또는 Markdown 다이어그램으로 렌더링
 - `visual-companion.cjs` : 로컬 브라우저 Mermaid companion 서버(WebSocket + POST `/diagram`, 기본 포트 8765)
