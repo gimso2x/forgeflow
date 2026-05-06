@@ -7,17 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.2] - 2026-05-06
+
+### Added
+
+- **Ouroboros handoff absorption**: documented ForgeFlow contract improvements from `docs/ouroboros-forgeflow-handoff.md`.
+- **Runtime adapter boundary docs**: added `docs/runtime-adapters.md` to separate workflow contracts from execution backend capabilities.
+
+### Changed
+
+- **Clarify contract**: made Socratic clarification, ambiguity scoring, hidden assumptions, non-goals, and blocker/non-blocking question separation explicit.
+- **Plan/review/run contracts**: strengthened requirement traceability, adapter limitation handling, blocker-first review evidence, and scoped execution discipline.
+- **Route vocabulary**: pinned route labels to `small`, `medium`, and `large_high_risk` across coordinator prompts and generated Claude/Codex adapters.
+
 ### Fixed
 
 - **Claude/Codex plugin smoke hardening**: stabilized Codex doctor artifact-policy checks, route-label exact-output checks, and non-mutating smoke validation.
 - **Generated adapter validation**: normalized generated validation paths across platforms.
 - **Windows CI stability**: removed POSIX-only assumptions from runtime fixture paths, plugin metadata path rendering, verification-pipeline tests, fake CLI execution, and PID liveness checks.
+- **Codex smoke route labels**: prevented adapter/team-size synonyms such as `solo` from satisfying ForgeFlow route-label dry-runs.
 
 ### Validation
 
-- Local: `python3 scripts/validate_generated.py` PASS.
-- Local: `python3 -m pytest -q` → 1209 passed.
-- CI: `windows-smoke`, `repo-validation`, and `generated-drift` passed on `main` run `25386400965`.
+- Local: `python3 scripts/validate_generated.py` PASS before route-vocabulary generation update.
+- Local: Claude/Codex plugin smoke matrix passed for `small`, `medium`, and `large_high_risk`.
+- Local: `python3 scripts/validate_structure.py` PASS.
+- Local: `python3 -m pytest -q` → 1217 passed.
+- CI: `windows-smoke`, `repo-validation`, and `generated-drift` passed on `main` run `25386400965` before this release.
 
 ## [0.3.0] - 2026-05-05
 

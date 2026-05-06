@@ -305,3 +305,42 @@ def test_clarify_skill_sets_min_verification() -> None:
     assert "build" in skill and "lint" in skill and "type_check" in skill
     # min_verification should be in brief output spec
     assert "min_verification: list of required verification steps" in skill
+
+
+def test_ouroboros_handoff_strengthens_clarify_ambiguity_contract() -> None:
+    skill = (ROOT / "skills" / "clarify" / "SKILL.md").read_text(encoding="utf-8")
+
+    assert "Socratic clarification" in skill
+    assert "ambiguity score" in skill
+    assert "hidden assumptions" in skill
+    assert "non-goals" in skill
+    assert "blocker questions" in skill
+
+
+def test_ouroboros_handoff_strengthens_plan_traceability_contract() -> None:
+    skill = (ROOT / "skills" / "plan" / "SKILL.md").read_text(encoding="utf-8")
+
+    assert "Assign stable requirement IDs" in skill
+    assert "Every acceptance criterion from the brief" in skill
+    assert "do not silently create orphan work" in skill
+    assert "adapter limitation" in skill
+
+
+def test_ouroboros_handoff_strengthens_review_evidence_contract() -> None:
+    skill = (ROOT / "skills" / "review" / "SKILL.md").read_text(encoding="utf-8")
+
+    assert "blocker-first verdict" in skill
+    assert "observed evidence" in skill
+    assert "reported evidence" in skill
+    assert "uninspected claimed evidence prevents approval" in skill
+
+
+def test_runtime_adapter_document_captures_backend_boundary() -> None:
+    doc = (ROOT / "docs" / "runtime-adapters.md").read_text(encoding="utf-8")
+
+    assert "ForgeFlow keeps workflow contracts separate from execution backends" in doc
+    assert "Capability matrix" in doc
+    assert "Claude Code" in doc
+    assert "Codex" in doc
+    assert "Hermes" in doc
+    assert "OpenCode" in doc

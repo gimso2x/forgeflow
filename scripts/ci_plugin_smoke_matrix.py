@@ -145,7 +145,9 @@ def run_claude_surface(project: Path, route_label: str, timeout: int) -> dict[st
     request = ROUTE_REQUESTS[route_label]
     prompt = (
         f"/forgeflow:clarify Dry run only. Return only the selected route label for: {request}. "
-        "Valid labels: small, medium, large_high_risk. Do not write files. Do not run commands."
+        "Valid labels: small, medium, large_high_risk. "
+        "Final answer must be exactly one label and nothing else: no prefix, no rationale, no dry-run note. "
+        "Do not write files. Do not run commands."
     )
     result = run(["claude", "--dangerously-skip-permissions", "-p", prompt], cwd=project, timeout=timeout, check=False)
     final = result.stdout.strip().splitlines()[-1].strip() if result.stdout.strip() else ""
@@ -158,7 +160,8 @@ def run_codex_surface(project: Path, route_label: str, timeout: int) -> dict[str
     prompt = (
         "Read CODEX.md and .codex/forgeflow/forgeflow-coordinator.md first. Apply ForgeFlow route criteria as dry-run. "
         "Do not write files. Do not run commands. "
-        f"Final answer must be exactly {route_label} and nothing else. Request: {request}"
+        f"Final answer must be exactly {route_label} and nothing else: no prefix, no rationale, no dry-run note. "
+        f"Request: {request}"
     )
     result = run(["codex", "exec", "--skip-git-repo-check", "--output-last-message", str(out), prompt], cwd=project, timeout=timeout, check=False)
     final = out.read_text(encoding="utf-8", errors="replace").strip() if out.exists() else ""

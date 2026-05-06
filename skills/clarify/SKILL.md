@@ -27,6 +27,10 @@ Use this skill to convert a raw request into a ForgeFlow `brief.json`-style cont
   - constraints
   - acceptance criteria
   - scope boundary
+  - non-goals
+  - ambiguity score and ambiguity notes
+  - open questions split into blocker questions vs non-blocking unknowns
+  - hidden assumptions recorded as bounded assumptions
   - non-blocking unknowns / bounded assumptions
   - complexity score
   - route: `small`, `medium`, or `large_high_risk`
@@ -91,17 +95,23 @@ When the user says "do not run commands", do not propose command execution as if
 2. Ask up to 5 clarifying questions when they materially improve requirements. Ask 0 if the request is already actionable, and do not pad the list with nice-to-have trivia.
    - Good questions resolve product behavior, user/audience, success criteria, data/source of truth, rollout/risk constraints, or explicit out-of-scope boundaries.
    - Bad questions ask for implementation chores the agent should infer from repo inspection, preferences that do not change the plan, or confirmations that can be recorded as bounded assumptions.
-3. Score complexity:
+3. Apply Socratic clarification before route selection:
+   - Name the hidden assumptions the request appears to rely on.
+   - Separate true blocker questions from non-blocking unknowns.
+   - State explicit non-goals and scope boundaries before planning.
+   - Assign an ambiguity score from `0.0` to `1.0`; above `0.2`, either ask blocker questions or record why execution can proceed safely with bounded assumptions.
+   - Do not let ambiguity disappear into prose. It must be visible in the brief artifact or response artifact.
+4. Score complexity:
    - 5-8: `small` — one localized change, usually 1-2 files, low ambiguity, no cross-cutting behavior.
    - 9-12: `medium` — several coordinated files/components, shared state/layout/navigation, moderate test/update surface, but no security/data migration/infra rollback risk.
    - 13-15: `large_high_risk` — auth/security, data migration, payments, production infra, irreversible data changes, broad architecture migration, or many contracts/journeys requiring separate spec and quality review.
-4. Set `min_verification` in the brief:
+5. Set `min_verification` in the brief:
    - `small`: at least one of `build`, `lint`, or `type_check` — whichever is available and fastest.
    - `medium`: at least `lint` and `type_check`, plus `test` if tests exist for changed files.
    - `large_high_risk`: full verification suite — `build`, `lint`, `type_check`, and `test`.
-5. State the route and why, unless an exact-output/label-only instruction applies.
-6. Produce the brief in a structured form the next skill can consume, unless an exact-output/label-only instruction applies.
-7. If the request is actionable, record remaining non-blocking unknowns as bounded assumptions and make the next stage obvious without asking the user to do your planning work, unless an exact-output/label-only instruction applies.
+6. State the route and why, unless an exact-output/label-only instruction applies.
+7. Produce the brief in a structured form the next skill can consume, unless an exact-output/label-only instruction applies.
+8. If the request is actionable, record remaining non-blocking unknowns as bounded assumptions and make the next stage obvious without asking the user to do your planning work, unless an exact-output/label-only instruction applies.
 
 Do not implement here. Clarify is the intake gate, not the coding phase.
 

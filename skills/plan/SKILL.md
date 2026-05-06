@@ -67,6 +67,7 @@ For non-trivial work, plan the cross-module contract before task decomposition:
 3. Add `fulfills` links on steps when requirements or sub-requirements are known.
 4. Add `verify_plan` entries for each fulfilled requirement/sub-requirement and each journey.
 5. Add `journeys` for multi-step user or system flows that require end-to-end verification.
+6. Preserve the clarify-stage non-goals and bounded assumptions in a sibling plan note when they affect execution boundaries.
 
 Optional contract-aware `plan.json` fields:
 
@@ -129,10 +130,13 @@ See `docs/refactor-planning-decision.md` for the canonical representation decisi
 
 For non-trivial work, carry the requirement map through the executable plan instead of leaving it as prose:
 
+- Assign stable requirement IDs (`R1`, `R2`, or `R1.1`) before decomposing implementation steps.
 - Each non-trivial step must include `fulfills` with requirement or sub-requirement IDs when requirements are known.
 - Every `fulfills` target must have a matching `verify_plan` entry.
+- Every acceptance criterion from the brief must map to at least one requirement ID, step, or verify target; otherwise record it as intentionally out of scope.
 - Use `type: "sub_req"` for requirement-level targets and `type: "step"` only when the verification target is the step itself.
 - If a step intentionally has no requirement reference, say why in the sibling plan note or response artifact; do not silently create orphan work.
+- If a verification target is not executable by the chosen backend, record the adapter limitation and a fallback manual/evidence gate before run starts.
 
 Do not proceed to `/forgeflow:run` if one of those is missing for non-trivial work. For tiny exact-output prompts, preserve the requested format but keep the same information density in the listed steps.
 

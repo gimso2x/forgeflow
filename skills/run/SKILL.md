@@ -115,12 +115,13 @@ If the user explicitly includes `--yes`, `--auto-approve`, `--non-interactive`, 
 2. Initialize `run-state.json` in the active task directory if it does not exist. Set `current_stage: "execute"`, `status: "in_progress"`.
 3. Read `contracts` metadata and sibling `contracts.md` before editing when present.
 4. Execute only tasks that belong to the plan/scope.
-5. Treat `fulfills`, `journeys`, and `verify_plan` as verification obligations, not decoration.
-6. Run focused verification after each meaningful change.
-7. Update `run-state.json` immediately when starting and finishing each step. Step state must be incremental: `step-1: pending → in_progress → completed`, then `step-2: pending → in_progress → completed`. Do not batch-mark all steps as `completed` only at the end. If a step cannot finish, mark it `blocked` or `failed` with evidence.
-8. After all steps complete, set `run-state.status = "completed"` and `run-state.completed_gates` to include all passed gates.
-9. Stop if requirements become ambiguous; return to `/forgeflow:clarify` or `/forgeflow:specify`.
-10. Deliver the route-aware exit prompt (see Exit Condition above).
+5. Apply adapter-aware execution: use the chosen backend for implementation mechanics, but keep ForgeFlow artifacts, gates, and evidence paths backend-neutral. If the backend cannot produce required evidence, record that limitation in `decision-log.json` and block or downgrade the affected verification gate instead of silently proceeding.
+6. Treat `fulfills`, `journeys`, and `verify_plan` as verification obligations, not decoration.
+7. Run focused verification after each meaningful change.
+8. Update `run-state.json` immediately when starting and finishing each step. Step state must be incremental: `step-1: pending → in_progress → completed`, then `step-2: pending → in_progress → completed`. Do not batch-mark all steps as `completed` only at the end. If a step cannot finish, mark it `blocked` or `failed` with evidence.
+9. After all steps complete, set `run-state.status = "completed"` and `run-state.completed_gates` to include all passed gates.
+10. Stop if requirements become ambiguous; return to `/forgeflow:clarify` or `/forgeflow:specify`.
+11. Deliver the route-aware exit prompt (see Exit Condition above).
 
 Contract-aware execution rules:
 
