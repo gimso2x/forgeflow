@@ -187,11 +187,24 @@ class TestInitTask:
         assert result["task_id"] == "t-01"
         for name in ["brief.json", "run-state.json", "checkpoint.json", "session-state.json"]:
             assert (task_dir / name).exists(), f"{name} missing"
+        for name in [
+            "docs/PRD.md",
+            "docs/ARCHITECTURE.md",
+            "docs/QA.md",
+            "docs/DECISIONS.md",
+            "tasks/init-summary.md",
+            ".claude/agents/planner.md",
+            ".claude/skills/plan/SKILL.md",
+            "CLAUDE.md",
+        ]:
+            assert (task_dir / name).exists(), f"{name} missing"
+        assert "producer-reviewer" in result["selected_architecture"]
 
         # verify brief
         brief = json.loads((task_dir / "brief.json").read_text())
         assert brief["task_id"] == "t-01"
         assert brief["risk_level"] == "low"
+        assert "do it" in (task_dir / "docs/PRD.md").read_text()
 
         # verify run-state current_stage is first stage of small route
         run_state = json.loads((task_dir / "run-state.json").read_text())
@@ -206,6 +219,8 @@ class TestInitTask:
         assert result["task_id"] == "t-02"
         for name in ["brief.json", "run-state.json", "checkpoint.json", "session-state.json"]:
             assert (task_dir / name).exists(), f"{name} missing"
+        assert "docs/ARCHITECTURE.md" in result["created"]
+        assert result["selected_architecture"] == "producer-reviewer + pipeline"
 
         run_state = json.loads((task_dir / "run-state.json").read_text())
         medium_stages = _resolve_route(policy, "medium")
@@ -223,6 +238,23 @@ class TestInitTask:
         task_dir = tmp_path / "task"
         with pytest.raises(RuntimeViolation, match="unknown risk level"):
             init_task(task_dir, policy, task_id="t-01", objective="x", risk_level="critical")
+
+    def test_init_task_selects_higher_rigor_architecture_for_risky_work(
+        self, tmp_path: Path, policy: RuntimePolicy
+    ) -> None:
+        task_dir = tmp_path / "risky-task"
+        result = init_task(
+            task_dir,
+            policy,
+            task_id="t-risk",
+            objective="security migration for auth architecture",
+            risk_level="high",
+        )
+
+        assert result["selected_architecture"] == "fan-out/fan-in + producer-reviewer"
+        architecture = (task_dir / "docs/ARCHITECTURE.md").read_text()
+        assert "fan-out/fan-in + producer-reviewer" in architecture
+        assert "security migration for auth architecture" in (task_dir / "tasks/init-summary.md").read_text()
 
     def test_init_task_creates_valid_checkpoint_and_session(self, tmp_path: Path, policy: RuntimePolicy) -> None:
         """Verify checkpoint and session-state have correct route/stage refs."""

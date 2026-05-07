@@ -68,8 +68,22 @@ def test_cli_init_bootstraps_task_from_operator_inputs(tmp_path: Path) -> None:
     payload = json.loads(result.stdout)
     assert payload["task_id"] == "my-task-001"
     assert payload["route"] == "small"
-    assert payload["created"] == ["brief.json", "run-state.json", "checkpoint.json", "session-state.json"]
-    assert payload["next_action"] == "run status or execute the clarify stage"
+    for name in [
+        "brief.json",
+        "docs/PRD.md",
+        "docs/ARCHITECTURE.md",
+        "tasks/init-summary.md",
+        ".claude/agents/planner.md",
+        ".claude/skills/plan/SKILL.md",
+        "CLAUDE.md",
+        "run-state.json",
+        "checkpoint.json",
+        "session-state.json",
+    ]:
+        assert name in payload["created"]
+        assert (task_dir / name).exists(), f"{name} missing"
+    assert payload["selected_architecture"] == "producer-reviewer + pipeline"
+    assert payload["next_action"] == "run status, then execute clarify; generated drafts are task-local starting points"
 
     brief = json.loads((task_dir / "brief.json").read_text(encoding="utf-8"))
     assert brief["task_id"] == "my-task-001"

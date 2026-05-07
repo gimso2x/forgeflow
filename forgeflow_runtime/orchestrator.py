@@ -571,6 +571,176 @@ def _bootstrap_plan(task_id: str, route_name: str) -> dict[str, Any]:
     }
 
 
+def _slugify_file_stem(value: str) -> str:
+    slug = "".join(ch.lower() if ch.isalnum() else "-" for ch in value).strip("-")
+    while "--" in slug:
+        slug = slug.replace("--", "-")
+    return slug or "task"
+
+
+def _select_team_architecture(objective: str, risk_level: str) -> dict[str, Any]:
+    text = objective.lower()
+    if risk_level == "high" or any(token in text for token in ["migration", "refactor", "architecture", "security"]):
+        pattern = "fan-out/fan-in + producer-reviewer"
+        rationale = "High-risk or architecture-heavy work benefits from parallel discovery followed by independent review."
+    elif any(token in text for token in ["bug", "fix", "qa", "test", "regression"]):
+        pattern = "pipeline + producer-reviewer"
+        rationale = "Debugging work should flow from reproduction to minimal fix to regression review."
+    else:
+        pattern = "producer-reviewer + pipeline"
+        rationale = "Default ForgeFlow work needs a useful draft, then review, then staged execution."
+    return {"pattern": pattern, "rationale": rationale}
+
+
+def _write_new_text(path: Path, content: str) -> None:
+    if path.exists():
+        raise RuntimeViolation(f"init refuses to overwrite existing generated draft: {path.name}")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(content.rstrip() + "\n", encoding="utf-8")
+
+
+def _init_markdown_drafts(*, task_dir: Path, task_id: str, objective: str, risk_level: str, route_name: str) -> list[str]:
+    architecture = _select_team_architecture(objective, risk_level)
+    pattern = architecture["pattern"]
+    rationale = architecture["rationale"]
+    feature_slug = _slugify_file_stem(objective)[:48]
+    drafts = {
+        "docs/PRD.md": f"""# PRD — {task_id}
+
+## Objective
+{objective}
+
+## Scope
+- In scope: {objective}
+- Out of scope: unrelated platform rebuilds, database workflow engines, and adapter-specific global config writes.
+
+## Acceptance Criteria
+- The task has schema-valid ForgeFlow artifacts.
+- The generated drafts are specific enough to guide clarify, plan, qa, review, and finalize stages.
+- Evidence is recorded before review approval.
+""",
+        "docs/ARCHITECTURE.md": f"""# Architecture Draft — {task_id}
+
+## Selected Team Architecture
+Pattern: {pattern}
+
+Rationale: {rationale}
+
+## Roles
+- Planner: decomposes the objective into verifiable tasks and dependencies.
+- Implementer: changes the target files against the task document, not chat vibes.
+- QA: reproduces failures, verifies fixes, and records regression checks.
+- Reviewer: checks evidence, spec gaps, structural risk, and test coverage.
+
+## Flow
+1. Clarify scope and assumptions.
+2. Plan task breakdown and verification strategy.
+3. Execute the next actionable task.
+4. QA with reproducible evidence.
+5. Review before finalization.
+""",
+        "docs/QA.md": f"""# QA Draft — {task_id}
+
+## Verification Strategy
+- Start with the narrowest command that proves the changed behavior.
+- Add regression checks for every bug or contract gap found during execution.
+- Record command, exit code, and relevant output in review evidence.
+
+## Watchpoints
+- Empty template output is not enough; generated drafts must mention the actual objective.
+- Review must not approve without concrete evidence.
+- Keep Claude/Codex adapter details project-local.
+""",
+        "docs/DECISIONS.md": f"""# Decisions — {task_id}
+
+## ADR-001: Init creates usable drafts
+Decision: ForgeFlow init creates task-local PRD, architecture, QA, agent, skill, and pointer drafts.
+
+Reason: A blank scaffold forces the next agent to rediscover intent. A draft makes the handoff executable.
+
+Consequence: Init remains bounded: it drafts the workflow, but does not auto-run clarify/plan/execute.
+""",
+        "tasks/init-summary.md": f"""# Init Summary — {task_id}
+
+Objective: {objective}
+Risk: {risk_level}
+Route: {route_name}
+Selected architecture: {pattern}
+
+## Generated Drafts
+- docs/PRD.md
+- docs/ARCHITECTURE.md
+- docs/QA.md
+- docs/DECISIONS.md
+- tasks/feature/{feature_slug}.md
+- tasks/qa/{feature_slug}.md
+- .claude/agents/*.md
+- .claude/skills/*/SKILL.md
+- CLAUDE.md
+
+## Next Command
+Run status, then execute clarify when ready. Do not skip evidence collection.
+""",
+        f"tasks/feature/{feature_slug}.md": f"""# Feature Task — {objective}
+
+## Source of Truth
+- `brief.json`
+- `docs/PRD.md`
+- `docs/ARCHITECTURE.md`
+
+## Breakdown
+1. Confirm scope and assumptions.
+2. Identify target files.
+3. Implement the smallest coherent slice.
+4. Run focused verification.
+5. Record evidence for review.
+""",
+        f"tasks/qa/{feature_slug}.md": f"""# QA Task — {objective}
+
+## Reproduction
+- Capture the command or manual steps that show the current behavior.
+
+## Fix Verification
+- Run focused tests first.
+- Run broader validation if runtime, schemas, adapters, or generated outputs changed.
+
+## Regression Checklist
+- Objective-specific behavior verified.
+- No unrelated generated drift.
+- Review evidence includes real command output.
+""",
+        ".claude/agents/planner.md": "# Planner Agent\n\nRole: turn the objective into task breakdown, dependencies, risks, and verification strategy.\n\nOutput: update task docs and plan artifacts before implementation.\n",
+        ".claude/agents/implementer.md": "# Implementer Agent\n\nRole: execute the approved task document with minimal, test-backed changes.\n\nOutput: changed files plus command evidence.\n",
+        ".claude/agents/qa.md": "# QA Agent\n\nRole: reproduce, verify, and regression-check behavior independently from implementation.\n\nOutput: QA evidence and unresolved watchpoints.\n",
+        ".claude/agents/reviewer.md": "# Reviewer Agent\n\nRole: judge spec compliance, evidence quality, structural risk, and test gaps.\n\nOutput: approve, request fixes, or block finalization with concrete reasons.\n",
+        ".claude/skills/plan/SKILL.md": "# Plan Skill\n\nTrigger: before implementation.\n\nProcedure: clarify scope, break work into tasks, record dependencies, define verification commands.\n",
+        ".claude/skills/build/SKILL.md": "# Build Skill\n\nTrigger: executing an approved task.\n\nProcedure: edit the smallest slice, run focused checks, preserve evidence.\n",
+        ".claude/skills/qa-fix/SKILL.md": "# QA Fix Skill\n\nTrigger: bug, regression, or QA failure.\n\nProcedure: reproduce first, fix minimally, rerun regression checks, document evidence.\n",
+        ".claude/skills/review/SKILL.md": "# Review Skill\n\nTrigger: before finalization.\n\nProcedure: verify referenced files, command evidence, spec gaps, and unresolved risks.\n",
+        "CLAUDE.md": f"""# ForgeFlow Task Pointer — {task_id}
+
+ForgeFlow task artifacts live here. Use these entry points instead of copying all rules into chat:
+
+- Brief: `brief.json`
+- Init summary: `tasks/init-summary.md`
+- PRD: `docs/PRD.md`
+- Architecture: `docs/ARCHITECTURE.md`
+- QA: `docs/QA.md`
+
+Triggers:
+- `/forgeflow:clarify` to lock scope.
+- `/forgeflow:plan` to create or update the task plan.
+- `/forgeflow:qa` to verify behavior independently.
+- `/forgeflow:review` to approve only with evidence.
+""",
+    }
+    created: list[str] = []
+    for relative, content in drafts.items():
+        _write_new_text(task_dir / relative, content)
+        created.append(relative)
+    return created
+
+
 def _bootstrap_plan_ledger(task_id: str, route_name: str) -> dict[str, Any]:
     return {
         "schema_version": "0.1",
@@ -625,10 +795,11 @@ def init_task(
     route_name = {"low": "small", "medium": "medium", "high": "large_high_risk"}[risk_level]
     route = _resolve_route(policy, route_name)
     if task_dir.exists():
-        existing_artifacts = [path.name for path in task_dir.iterdir() if path.is_file()]
+        existing_artifacts = [path.name for path in task_dir.iterdir()]
         if existing_artifacts:
             raise RuntimeViolation("init refuses to overwrite existing task artifacts")
     task_dir.mkdir(parents=True, exist_ok=True)
+    created_artifacts: list[str] = []
 
     brief_payload = {
         "schema_version": "0.1",
@@ -641,9 +812,21 @@ def init_task(
         "risk_level": risk_level,
     }
     _write_validated_artifact(task_dir, "brief", brief_payload)
+    created_artifacts.append("brief.json")
+
+    created_artifacts.extend(
+        _init_markdown_drafts(
+            task_dir=task_dir,
+            task_id=task_id,
+            objective=objective,
+            risk_level=risk_level,
+            route_name=route_name,
+        )
+    )
 
     run_state = _initial_run_state(task_id, route)
     _write_validated_artifact(task_dir, "run-state", run_state)
+    created_artifacts.append("run-state.json")
 
     checkpoint = _sync_checkpoint(
         task_dir,
@@ -653,6 +836,7 @@ def init_task(
         plan_ledger=None,
         checkpoint=None,
     )
+    created_artifacts.append("checkpoint.json")
     _sync_session_state(
         task_dir,
         route_name=route_name,
@@ -661,13 +845,15 @@ def init_task(
         plan_ledger=None,
         session_state=None,
     )
+    created_artifacts.append("session-state.json")
 
     return {
         "task_id": task_id,
         "task_dir": str(task_dir),
         "route": route_name,
-        "created": ["brief.json", "run-state.json", "checkpoint.json", "session-state.json"],
-        "next_action": "run status or execute the clarify stage",
+        "created": created_artifacts,
+        "selected_architecture": _select_team_architecture(objective, risk_level)["pattern"],
+        "next_action": "run status, then execute clarify; generated drafts are task-local starting points",
     }
 
 
