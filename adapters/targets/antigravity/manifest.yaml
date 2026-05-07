@@ -1,0 +1,28 @@
+name: antigravity
+runtime_type: ide-agent
+input_mode: project-instruction-file
+output_mode: workspace-files-and-ide-chat
+supports_roles:
+  - coordinator
+  - planner
+  - worker
+  - spec-reviewer
+  - quality-reviewer
+supports_generated_files: true
+generated_filename: AGENTS.md
+recommended_location: ./AGENTS.md
+surface_style: root-instruction-file
+handoff_format: artifacts-plus-chat-summary
+installation_steps:
+  - Copy the generated adapter to ./AGENTS.md at the repo root.
+  - Treat Antigravity as an IDE instruction consumer, not as a ForgeFlow CLI execution target.
+  - Keep ForgeFlow artifacts in the workspace and use Antigravity chat only for handoff summaries.
+  - Add Antigravity-specific overrides in a separate GEMINI.md only when the project explicitly needs them.
+session_persistence: root AGENTS.md instruction file persists as project context across Antigravity IDE sessions until regenerated
+workspace_boundary: IDE workspace context steers edits while ForgeFlow artifacts remain repo-local source of truth
+review_delivery: IDE chat summary plus artifact file updates inside the workspace
+recovery_delivery_note: Antigravity receives recovery guidance through project instruction context, not CLI hooks or command execution.
+tooling_constraints:
+  - Antigravity is an IDE agent surface, not a CLI runtime adapter
+  - generated AGENTS.md must guide workspace behavior without inventing Antigravity commands
+  - generated artifacts must not redefine canonical semantics

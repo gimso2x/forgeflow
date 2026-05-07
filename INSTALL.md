@@ -182,6 +182,24 @@ Next.js preset 설치 시 생성되는 role prompt는 `.codex/forgeflow/` 아래
 
 plugin entry와 ForgeFlow skills가 기본 사용 표면입니다. `CODEX.md`, `.codex/forgeflow/`, `.forgeflow/tasks/`는 프로젝트에 더 강한 지속성과 artifact state가 필요할 때 쓰는 보강 표면입니다.
 
+## Antigravity 설치
+
+Antigravity는 CLI 실행 adapter가 아니라 IDE instruction adapter입니다. 그래서 `scripts/run_orchestrator.py execute --adapter antigravity --real` 같은 경로를 만들지 않습니다. 프로젝트 루트의 instruction file을 IDE가 읽게 하는 방식으로 연결합니다.
+
+```bash
+git clone https://github.com/gimso2x/forgeflow.git /tmp/forgeflow
+cp /tmp/forgeflow/adapters/generated/antigravity/AGENTS.md ./AGENTS.md
+```
+
+운영 규칙:
+
+- Antigravity IDE에서 저장소를 열고 `AGENTS.md`를 프로젝트 지침으로 사용합니다.
+- ForgeFlow artifact는 `.forgeflow/tasks/<task-id>/` 아래에 남깁니다.
+- IDE chat 응답은 handoff summary로만 보고, canonical state는 artifact 파일과 git diff로 확인합니다.
+- Antigravity 전용 override가 필요할 때만 별도 `GEMINI.md`를 추가합니다. 기본 adapter는 `AGENTS.md` 하나로 충분합니다.
+
+## Runtime 빠른 검증
+
 ```bash
 python3 scripts/run_orchestrator.py execute \
   --task-dir examples/runtime-fixtures/small-doc-task \
@@ -299,4 +317,5 @@ make -C /path/to/forgeflow validate
 ```bash
 cp adapters/generated/claude/CLAUDE.md /path/to/project/CLAUDE.md
 cp adapters/generated/codex/CODEX.md /path/to/project/CODEX.md
+cp adapters/generated/antigravity/AGENTS.md /path/to/project/AGENTS.md
 ```

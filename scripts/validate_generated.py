@@ -8,10 +8,7 @@ from pathlib import Path
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
-REQUIRED_GENERATED = {
-    'claude': 'CLAUDE.md',
-    'codex': 'CODEX.md',
-}
+REQUIRED_GENERATED: dict[str, str] | None = None
 REQUIRED_MARKERS = [
     'This file is generated from canonical harness policy.',
     'Installation guidance',
@@ -54,6 +51,18 @@ def load_manifest_list(path: Path, key: str) -> list[str]:
     if not isinstance(values, list):
         return []
     return [str(value) for value in values]
+
+
+def required_generated(root: Path) -> dict[str, str]:
+    if REQUIRED_GENERATED is not None:
+        return REQUIRED_GENERATED
+    targets_dir = root / 'adapters' / 'targets'
+    required: dict[str, str] = {}
+    for manifest_path in sorted(targets_dir.glob('*/manifest.yaml')):
+        generated_filename = load_manifest_value(manifest_path, 'generated_filename')
+        if generated_filename:
+            required[manifest_path.parent.name] = generated_filename
+    return required
 
 
 def check_generated_outputs(root: Path) -> list[str]:
@@ -120,7 +129,7 @@ def check_generated_outputs(root: Path) -> list[str]:
         )
 
     expected_generated_paths = set()
-    for target, name in REQUIRED_GENERATED.items():
+    for target, name in required_generated(root).items():
         manifest = root / 'adapters' / 'targets' / target / 'manifest.yaml'
         expected_filename = load_manifest_value(manifest, 'generated_filename') or name
         relative_path = Path('adapters/generated') / target / expected_filename
@@ -180,7 +189,7 @@ def main() -> int:
             print(f'- {err}')
         return 1
     print('GENERATED VALIDATION: PASS')
-    for target, fallback_name in REQUIRED_GENERATED.items():
+    for target, fallback_name in required_generated(ROOT).items():
         manifest = ROOT / 'adapters' / 'targets' / target / 'manifest.yaml'
         expected_name = load_manifest_value(manifest, 'generated_filename') or fallback_name
         print(f'- checked adapters/generated/{target}/{expected_name}')

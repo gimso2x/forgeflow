@@ -20,6 +20,8 @@ def test_install_documents_manual_execution_flow() -> None:
     assert "run_orchestrator.py execute" in install
     assert "adapter codex" in install
     assert "adapter claude" in install
+    assert "Antigravity는 CLI 실행 adapter가 아니라 IDE instruction adapter" in install
+    assert "cp adapters/generated/antigravity/AGENTS.md" in install
     assert "cp adapters/generated/codex/CODEX.md" in install
     assert "cp adapters/generated/claude/CLAUDE.md" in install
     assert "codex exec" in install
