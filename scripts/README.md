@@ -59,7 +59,7 @@ Windows PowerShell:
 .\scripts\install_codex_plugin.ps1
 ```
 
-Checkout 없이 PowerShell에서 bootstrap할 때는 `irm ... | python -`을 사용할 수 있다. `python` 대신 Windows launcher만 있는 환경에서는 checkout 안의 `install_codex_plugin.ps1` wrapper를 사용한다.
+Checkout 없이 PowerShell에서 bootstrap할 때는 `irm ... | python - -- --force`를 사용할 수 있다. `python` 대신 Windows launcher만 있는 환경에서는 checkout 안의 `install_codex_plugin.ps1` wrapper를 사용한다.
 
 ## Runtime sample
 make target이 repo-managed `.venv`를 사용하므로 fresh clone에서는 아래 순서로 실행한다.

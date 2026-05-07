@@ -15,7 +15,7 @@ curl -fsSL https://raw.githubusercontent.com/gimso2x/forgeflow/main/scripts/boot
 Windows PowerShell:
 
 ```powershell
-irm https://raw.githubusercontent.com/gimso2x/forgeflow/main/scripts/bootstrap_codex_plugin.py | python -
+irm https://raw.githubusercontent.com/gimso2x/forgeflow/main/scripts/bootstrap_codex_plugin.py | python - -- --force
 ```
 
 The bootstrap downloads ForgeFlow to a temporary directory, runs the regular installer, and removes the temporary checkout afterward.
@@ -46,6 +46,11 @@ python3 scripts/codex_plugin_doctor.py --project /path/to/your-project
 ```
 
 Restart Codex Desktop after installing the local plugin entry. Then enable ForgeFlow from the local marketplace if prompted.
+If the desktop plugin card does not show the version, read the installed manifest directly:
+
+```powershell
+(Get-Content "$HOME\plugins\forgeflow\.codex-plugin\plugin.json" | ConvertFrom-Json).version
+```
 
 Use the plugin with slash-style prompts:
 

@@ -99,10 +99,16 @@ curl -fsSL https://raw.githubusercontent.com/gimso2x/forgeflow/main/scripts/boot
 Windows PowerShell:
 
 ```powershell
-irm https://raw.githubusercontent.com/gimso2x/forgeflow/main/scripts/bootstrap_codex_plugin.py | python -
+irm https://raw.githubusercontent.com/gimso2x/forgeflow/main/scripts/bootstrap_codex_plugin.py | python - -- --force
 ```
 
 이 bootstrap은 임시 디렉터리에 ForgeFlow archive를 내려받은 뒤 `scripts/install_codex_plugin.py`를 실행합니다. 설치 후 임시 checkout은 삭제됩니다.
+
+설치된 plugin 버전 확인:
+
+```powershell
+(Get-Content "$HOME\plugins\forgeflow\.codex-plugin\plugin.json" | ConvertFrom-Json).version
+```
 
 이미 ForgeFlow checkout 안에 있다면 로컬 스크립트를 직접 실행해도 됩니다.
 

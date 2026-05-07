@@ -39,10 +39,16 @@ This writes under `~/plugins/forgeflow` and `~/.agents/plugins/marketplace.json`
 For checkout-free bootstrap from PowerShell, use:
 
 ```powershell
-irm https://raw.githubusercontent.com/gimso2x/forgeflow/main/scripts/bootstrap_codex_plugin.py | python -
+irm https://raw.githubusercontent.com/gimso2x/forgeflow/main/scripts/bootstrap_codex_plugin.py | python - -- --force
 ```
 
 If `python` is not on PATH but the Windows launcher is, clone the repo and use `.\scripts\install_codex_plugin.ps1` so the wrapper can fall back to `py -3`.
+
+To verify the installed Codex plugin version, read the installed manifest:
+
+```powershell
+(Get-Content "$HOME\plugins\forgeflow\.codex-plugin\plugin.json" | ConvertFrom-Json).version
+```
 
 ## Make
 

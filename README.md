@@ -74,10 +74,16 @@ curl -fsSL https://raw.githubusercontent.com/gimso2x/forgeflow/main/scripts/boot
 Windows PowerShell:
 
 ```powershell
-irm https://raw.githubusercontent.com/gimso2x/forgeflow/main/scripts/bootstrap_codex_plugin.py | python -
+irm https://raw.githubusercontent.com/gimso2x/forgeflow/main/scripts/bootstrap_codex_plugin.py | python - -- --force
 ```
 
 설치 후 Codex Desktop을 재시작하고 local marketplace에서 ForgeFlow를 enable합니다. 그 다음 Claude와 같은 slash-style prompt로 사용합니다.
+
+설치된 plugin 버전은 PowerShell에서 확인할 수 있습니다.
+
+```powershell
+(Get-Content "$HOME\plugins\forgeflow\.codex-plugin\plugin.json" | ConvertFrom-Json).version
+```
 
 ```text
 /forgeflow:clarify <하고 싶은 작업>
