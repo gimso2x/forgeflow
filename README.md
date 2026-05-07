@@ -106,6 +106,32 @@ Codex plugin, `CODEX.md`, project preset의 차이는 [docs/codex-desktop.md](do
 
 작업 중 생성되는 대표 artifact는 `brief.json`, `plan-ledger.json`, `run-state.json`, `review-report.json`입니다. 세부 contract는 [docs/artifact-model.md](docs/artifact-model.md)와 [docs/review-model.md](docs/review-model.md)를 보세요.
 
+### Init scaffold
+
+`/forgeflow:init` 또는 `scripts/run_orchestrator.py init`은 이제 빈 런타임 JSON만 만들지 않습니다. task-local 작업 폴더를 만들고, 다음 agent가 바로 이어받을 수 있는 초안과 포인터를 같이 생성합니다.
+
+```bash
+python3 scripts/run_orchestrator.py init \
+  --task-id my-task-001 \
+  --objective "Update README quickstart" \
+  --risk low
+```
+
+기본 출력 위치는 `.forgeflow/tasks/<task-id>/`입니다. `--task-dir /path/to/task`를 주면 그 디렉터리 안에만 생성합니다. init은 기존 `brief.json`이 있으면 덮어쓰지 않고 실패합니다.
+
+생성되는 주요 파일:
+
+- Runtime state: `brief.json`, `run-state.json`, `checkpoint.json`, `session-state.json`
+- Draft docs: `.forgeflow/tasks/my-task-001/docs/PRD.md`, `.forgeflow/tasks/my-task-001/docs/ARCHITECTURE.md`, `.forgeflow/tasks/my-task-001/docs/QA.md`, `.forgeflow/tasks/my-task-001/docs/DECISIONS.md`
+- Task docs: `.forgeflow/tasks/my-task-001/tasks/init-summary.md`, `.forgeflow/tasks/my-task-001/tasks/feature/<objective-slug>.md`, `.forgeflow/tasks/my-task-001/tasks/qa/<objective-slug>.md`
+- Claude task-local entry points: `.forgeflow/tasks/my-task-001/.claude/agents/planner.md`, `.forgeflow/tasks/my-task-001/.claude/agents/implementer.md`, `.forgeflow/tasks/my-task-001/.claude/agents/qa.md`, `.forgeflow/tasks/my-task-001/.claude/agents/reviewer.md`
+- Claude task-local skills: `.forgeflow/tasks/my-task-001/.claude/skills/plan/SKILL.md`, `.forgeflow/tasks/my-task-001/.claude/skills/build/SKILL.md`, `.forgeflow/tasks/my-task-001/.claude/skills/qa-fix/SKILL.md`, `.forgeflow/tasks/my-task-001/.claude/skills/review/SKILL.md`
+- Pointer: `CLAUDE.md`
+
+`selected_architecture`도 결과 JSON에 포함됩니다. high risk, security, migration, refactor, architecture 계열 작업은 `fan-out/fan-in + producer-reviewer`로 올라가고, bug/fix/qa/test/regression 계열은 `pipeline + producer-reviewer`를 씁니다. 기본은 `producer-reviewer + pipeline`입니다.
+
+생성물은 설치 디렉터리나 전역 Claude/Codex 설정을 건드리지 않습니다. 전부 `.forgeflow/tasks/<task-id>/` 또는 명시한 `--task-dir` 아래에만 생깁니다.
+
 ## What's Inside
 
 - Claude Code plugin metadata and skills

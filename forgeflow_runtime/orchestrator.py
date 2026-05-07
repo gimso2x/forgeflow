@@ -716,7 +716,7 @@ Run status, then execute clarify when ready. Do not skip evidence collection.
         ".claude/skills/plan/SKILL.md": "# Plan Skill\n\nTrigger: before implementation.\n\nProcedure: clarify scope, break work into tasks, record dependencies, define verification commands.\n",
         ".claude/skills/build/SKILL.md": "# Build Skill\n\nTrigger: executing an approved task.\n\nProcedure: edit the smallest slice, run focused checks, preserve evidence.\n",
         ".claude/skills/qa-fix/SKILL.md": "# QA Fix Skill\n\nTrigger: bug, regression, or QA failure.\n\nProcedure: reproduce first, fix minimally, rerun regression checks, document evidence.\n",
-        ".claude/skills/review/SKILL.md": "# Review Skill\n\nTrigger: before finalization.\n\nProcedure: verify referenced files, command evidence, spec gaps, and unresolved risks.\n",
+        ".claude/skills/review/SKILL.md": "# Review Skill\n\nTrigger: before finalization.\n\nProcedure: verify referenced files, command evidence, spec gaps, and unresolved risks; approve only with evidence.\n",
         "CLAUDE.md": f"""# ForgeFlow Task Pointer — {task_id}
 
 ForgeFlow task artifacts live here. Use these entry points instead of copying all rules into chat:

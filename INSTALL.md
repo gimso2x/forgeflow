@@ -31,7 +31,7 @@ claude plugin list
 
 `plugin update`가 "already at the latest version"이라고 나오는데 새 slash skill이 반영되지 않으면, repo의 `.claude-plugin/plugin.json` version이 올라갔는지 확인하세요. Claude Code는 plugin version 기준으로 update를 판단합니다.
 
-설치 후 새 Claude Code 세션을 열고 slash skill을 사용하세요. 기본 입구는 `/forgeflow:clarify`지만, agent가 자연스럽게 다음 stage를 이어 받아야지 사용자가 매번 workflow 운영자가 될 필요는 없습니다.
+설치 후 새 Claude Code 세션을 열고 slash skill을 사용하세요. 기본 입구는 `/forgeflow:clarify`지만, 새 작업 폴더와 task-local agent scaffold를 먼저 만들고 싶으면 `/forgeflow:init`으로 시작합니다. agent가 자연스럽게 다음 stage를 이어 받아야지 사용자가 매번 workflow 운영자가 될 필요는 없습니다.
 
 ```text
 /forgeflow:init --task-id <id> --objective "<objective>" --risk low|medium|high
@@ -56,6 +56,30 @@ claude plugin list
 ```
 
 `/forgeflow`는 전체 workflow 설명/입구입니다. 실제 작업 진행은 보통 `/forgeflow:clarify`부터 시작하지만, 그 다음 `/forgeflow:plan`/`run`을 쓰는 이유를 agent가 정리해 줘야지 사용자에게 계획 작성을 떠넘기면 안 됩니다. 사용자가 매번 workflow 운영자가 될 필요는 없습니다. 다만 stage 경계를 넘을 때는 agent가 멈추고 닫힌 질문으로 확인합니다: `다음 스텝으로 `/forgeflow:run`을 진행하시겠습니까? (y/n)`.
+
+### Init이 만드는 것
+
+`/forgeflow:init`은 설치 작업이 아닙니다. 이미 설치된 ForgeFlow를 사용해서 현재 프로젝트 안의 `.forgeflow/tasks/<task-id>/` 또는 명시한 `--task-dir`에 task-local scaffold를 만드는 작업입니다. 그래서 plugin 설치 디렉터리, marketplace cache, 전역 Claude/Codex 설정은 건드리지 않습니다.
+
+CLI로 같은 동작을 검증할 수 있습니다.
+
+```bash
+python3 scripts/run_orchestrator.py init \
+  --task-id docs-001 \
+  --objective "Update user documentation" \
+  --risk low
+```
+
+생성물:
+
+- Runtime state: `brief.json`, `run-state.json`, `checkpoint.json`, `session-state.json`
+- Draft docs: `.forgeflow/tasks/my-task-001/docs/PRD.md`, `.forgeflow/tasks/my-task-001/docs/ARCHITECTURE.md`, `.forgeflow/tasks/my-task-001/docs/QA.md`, `.forgeflow/tasks/my-task-001/docs/DECISIONS.md`
+- Task docs: `.forgeflow/tasks/my-task-001/tasks/init-summary.md`, `.forgeflow/tasks/my-task-001/tasks/feature/<objective-slug>.md`, `.forgeflow/tasks/my-task-001/tasks/qa/<objective-slug>.md`
+- Task-local Claude agent prompts: `.forgeflow/tasks/my-task-001/.claude/agents/planner.md`, `.forgeflow/tasks/my-task-001/.claude/agents/implementer.md`, `.forgeflow/tasks/my-task-001/.claude/agents/qa.md`, `.forgeflow/tasks/my-task-001/.claude/agents/reviewer.md`
+- Task-local Claude skills: `.forgeflow/tasks/my-task-001/.claude/skills/plan/SKILL.md`, `.forgeflow/tasks/my-task-001/.claude/skills/build/SKILL.md`, `.forgeflow/tasks/my-task-001/.claude/skills/qa-fix/SKILL.md`, `.forgeflow/tasks/my-task-001/.claude/skills/review/SKILL.md`
+- Pointer: `CLAUDE.md`
+
+결과 JSON에는 `selected_architecture`가 포함됩니다. 높은 리스크나 security/migration/refactor/architecture 작업은 더 엄격한 `fan-out/fan-in + producer-reviewer` 흐름을 선택합니다. init 직후 권장 다음 단계는 `status` 확인 후 `/forgeflow:clarify`입니다. 생성된 문서는 최종 명세가 아니라 시작 초안입니다.
 
 ## 수동 Claude Code 설치
 

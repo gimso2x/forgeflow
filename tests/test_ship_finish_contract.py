@@ -18,6 +18,17 @@ def test_readme_and_install_explain_ship_and_finish_lifecycle_boundary():
     assert "merge, PR, keep, or discard" in combined
 
 
+def test_readme_and_install_explain_init_task_local_scaffold():
+    combined = README.read_text(encoding="utf-8") + "\n" + INSTALL.read_text(encoding="utf-8")
+
+    assert "/forgeflow:init" in combined
+    assert "scripts/run_orchestrator.py init" in combined
+    assert "task-local" in combined
+    assert "selected_architecture" in combined
+    assert ".claude/agents/planner.md" in combined
+    assert ".claude/skills/plan/SKILL.md" in combined
+    assert "plugin 설치 디렉터리" in combined or "installation directory" in combined
+
 def test_ship_skill_is_handoff_not_branch_disposition():
     ship_text = SHIP_SKILL.read_text(encoding="utf-8")
     finish_text = FINISH_SKILL.read_text(encoding="utf-8")

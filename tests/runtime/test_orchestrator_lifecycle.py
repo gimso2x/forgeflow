@@ -199,6 +199,56 @@ class TestInitTask:
         ]:
             assert (task_dir / name).exists(), f"{name} missing"
         assert "producer-reviewer" in result["selected_architecture"]
+        assert result["created"] == [
+            "brief.json",
+            "docs/PRD.md",
+            "docs/ARCHITECTURE.md",
+            "docs/QA.md",
+            "docs/DECISIONS.md",
+            "tasks/init-summary.md",
+            "tasks/feature/do-it.md",
+            "tasks/qa/do-it.md",
+            ".claude/agents/planner.md",
+            ".claude/agents/implementer.md",
+            ".claude/agents/qa.md",
+            ".claude/agents/reviewer.md",
+            ".claude/skills/plan/SKILL.md",
+            ".claude/skills/build/SKILL.md",
+            ".claude/skills/qa-fix/SKILL.md",
+            ".claude/skills/review/SKILL.md",
+            "CLAUDE.md",
+            "run-state.json",
+            "checkpoint.json",
+            "session-state.json",
+        ]
+
+        expected_agent_roles = {
+            "planner.md": "turn the objective into task breakdown",
+            "implementer.md": "execute the approved task document",
+            "qa.md": "reproduce, verify, and regression-check",
+            "reviewer.md": "judge spec compliance",
+        }
+        for file_name, required_text in expected_agent_roles.items():
+            agent_text = (task_dir / ".claude" / "agents" / file_name).read_text()
+            assert required_text in agent_text
+            assert "Output:" in agent_text
+
+        expected_skill_procedures = {
+            "plan": "define verification commands",
+            "build": "run focused checks",
+            "qa-fix": "reproduce first",
+            "review": "approve only with evidence",
+        }
+        for skill_name, required_text in expected_skill_procedures.items():
+            skill_text = (task_dir / ".claude" / "skills" / skill_name / "SKILL.md").read_text()
+            assert "Trigger:" in skill_text
+            assert "Procedure:" in skill_text
+            assert required_text in skill_text
+
+        pointer = (task_dir / "CLAUDE.md").read_text()
+        assert "ForgeFlow Task Pointer" in pointer
+        assert "docs/ARCHITECTURE.md" in pointer
+        assert "/forgeflow:review" in pointer
 
         # verify brief
         brief = json.loads((task_dir / "brief.json").read_text())
