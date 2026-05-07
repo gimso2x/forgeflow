@@ -59,6 +59,11 @@ def test_runtime_sample_cli_uses_disposable_fixture_copy() -> None:
     assert payload["status"] == "completed"
     assert payload["current_stage"] == "finalize"
     assert payload["sample_source_fixture"] == "examples/runtime-fixtures/small-doc-task"
+    assert payload["orchestration_surface"] == {
+        "instructions": "brief.json",
+        "status": "run-state.json",
+        "logs": "decision-log.json",
+    }
     assert "sample_workspace" not in payload
 
     for rel, original in tracked_files.items():

@@ -344,3 +344,26 @@ def test_runtime_adapter_document_captures_backend_boundary() -> None:
     assert "Codex" in doc
     assert "Hermes" in doc
     assert "OpenCode" in doc
+
+
+def test_harness_absorption_decision_records_forgeflow_boundary() -> None:
+    decision = (ROOT / "docs" / "decisions" / "0002-harness-absorption-boundary.md").read_text(
+        encoding="utf-8"
+    )
+    task = (ROOT / "docs" / "tasks" / "2026-05-08-harness-absorption-reflection.md").read_text(
+        encoding="utf-8"
+    )
+
+    for required_text in [
+        "task instructions, status, and logs in one orchestration surface",
+        "sample smoke or fixture",
+        "reusable skills, templates, runtime modules, or contract tests",
+        "No parallel workflow engine",
+        "No hidden chat-memory source of truth",
+        "No wholesale copy of external harness directory structures",
+    ]:
+        assert required_text in decision
+
+    assert "Status: completed" in task
+    assert "Obsidian: `Inbox/2026-05-08 [개발전] 하네스 흡수 반영.md`" in task
+    assert "Hermes Follow-up Boundary" in task

@@ -12,6 +12,20 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_FIXTURE = ROOT / "examples" / "runtime-fixtures" / "small-doc-task"
 
+ORCHESTRATION_SURFACE_ARTIFACTS = {
+    "instructions": "brief.json",
+    "status": "run-state.json",
+    "logs": "decision-log.json",
+}
+
+
+def _orchestration_surface(task_dir: Path) -> dict[str, str]:
+    return {
+        key: (task_dir / artifact_name).name
+        for key, artifact_name in ORCHESTRATION_SURFACE_ARTIFACTS.items()
+        if (task_dir / artifact_name).exists()
+    }
+
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
@@ -59,6 +73,7 @@ def main() -> int:
             return result.returncode
 
         payload = json.loads(result.stdout)
+        payload["orchestration_surface"] = _orchestration_surface(task_dir)
         if fixture_dir.is_relative_to(ROOT):
             payload["sample_source_fixture"] = fixture_dir.relative_to(ROOT).as_posix()
         else:
