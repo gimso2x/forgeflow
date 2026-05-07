@@ -22,6 +22,9 @@ def test_install_documents_manual_execution_flow() -> None:
     assert "adapter claude" in install
     assert "Antigravity는 CLI 실행 adapter가 아니라 IDE instruction adapter" in install
     assert "cp adapters/generated/antigravity/AGENTS.md" in install
+    assert "AGENTS.md의 ForgeFlow 절차를 따라" in install
+    assert "~/.gemini/GEMINI.md" in install
+    assert "generated `AGENTS.md` 전체를 글로벌 규칙에 복사하는 건 비추천" in install
     assert "cp adapters/generated/codex/CODEX.md" in install
     assert "cp adapters/generated/claude/CLAUDE.md" in install
     assert "codex exec" in install

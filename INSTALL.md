@@ -191,12 +191,60 @@ git clone https://github.com/gimso2x/forgeflow.git /tmp/forgeflow
 cp /tmp/forgeflow/adapters/generated/antigravity/AGENTS.md ./AGENTS.md
 ```
 
+Antigravity에서 실제 작업을 시작할 때는 대상 프로젝트 폴더를 IDE로 열고 Agent chat에 이렇게 요청합니다.
+
+```text
+AGENTS.md의 ForgeFlow 절차를 따라 이 작업을 진행해줘.
+먼저 .forgeflow/tasks/<task-id>/ 아래에 plan artifact를 만들고,
+구현 후 git diff와 테스트 결과를 기준으로 review summary를 남겨줘.
+```
+
+결과 확인은 IDE chat 말만 믿지 말고 repo artifact와 git 상태로 합니다.
+
+```bash
+git diff
+find .forgeflow/tasks -maxdepth 3 -type f
+```
+
 운영 규칙:
 
 - Antigravity IDE에서 저장소를 열고 `AGENTS.md`를 프로젝트 지침으로 사용합니다.
 - ForgeFlow artifact는 `.forgeflow/tasks/<task-id>/` 아래에 남깁니다.
 - IDE chat 응답은 handoff summary로만 보고, canonical state는 artifact 파일과 git diff로 확인합니다.
 - Antigravity 전용 override가 필요할 때만 별도 `GEMINI.md`를 추가합니다. 기본 adapter는 `AGENTS.md` 하나로 충분합니다.
+- Antigravity를 CLI adapter처럼 호출하지 않습니다. IDE chat은 실행 표면이고, git diff와 artifact 파일이 검증 표면입니다.
+
+### Antigravity 글로벌 사용
+
+가능합니다. 다만 generated `AGENTS.md` 전체를 글로벌 규칙에 복사하는 건 비추천입니다. Antigravity 공식 Rules 파일은 12,000자 제한이 있고, ForgeFlow generated adapter는 프로젝트별 canonical policy까지 포함해 더 깁니다.
+
+글로벌에는 짧은 부트스트랩 규칙만 둡니다. Antigravity의 Customizations → Rules → **+ Global**에서 만들거나 `~/.gemini/GEMINI.md`에 아래 내용을 둡니다.
+
+```markdown
+# ForgeFlow global rule for Antigravity
+
+When a workspace contains `AGENTS.md` with ForgeFlow instructions, follow it as the project harness contract.
+Do not invent a ForgeFlow CLI adapter for Antigravity.
+Treat Antigravity as an IDE instruction consumer.
+Keep canonical task state in `.forgeflow/tasks/<task-id>/` artifacts and verify results with `git diff` and tests.
+Use chat responses only as handoff summaries.
+```
+
+프로젝트별 자동 적용이 필요하면 workspace rule을 둡니다.
+
+```bash
+mkdir -p .agents/rules
+cat > .agents/rules/forgeflow.md <<'EOF'
+---
+description: Apply ForgeFlow harness instructions in this workspace
+alwaysApply: true
+---
+
+Follow the root `AGENTS.md` ForgeFlow adapter instructions for planning, implementation, review, artifact storage, and handoff summaries.
+EOF
+```
+
+이 구조가 제일 안전합니다: 글로벌은 "ForgeFlow가 보이면 따르라"는 짧은 라우터, 프로젝트 루트 `AGENTS.md`는 실제 상세 계약.
 
 ## Runtime 빠른 검증
 
