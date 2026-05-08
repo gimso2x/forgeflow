@@ -578,6 +578,420 @@ def _slugify_file_stem(value: str) -> str:
     return slug or "task"
 
 
+def _analyze_objective_domain(objective: str) -> dict[str, Any]:
+    """Extract domain signals from the objective for richer draft generation."""
+    text = objective.lower()
+    domains: list[str] = []
+    tech_stack: list[str] = []
+    change_type = "feature"
+
+    _DOMAIN_SIGNALS: dict[str, list[str]] = {
+        "api": ["api", "endpoint", "rest", "graphql", "http", "webhook", "rpc"],
+        "frontend": ["ui", "component", "page", "layout", "css", "style", "responsive", "form", "modal", "dashboard", "navigation"],
+        "backend": ["service", "handler", "controller", "middleware", "queue", "worker", "cron", "scheduler"],
+        "data": ["database", "schema", "migration", "query", "orm", "model", "seed", "etl", "pipeline", "mysql", "postgres", "sqlite"],
+        "auth": ["auth", "login", "session", "token", "oauth", "permission", "role", "access control"],
+        "infra": ["deploy", "ci", "cd", "docker", "container", "kubernetes", "terraform", "config", "env"],
+        "testing": ["test", "spec", "coverage", "mock", "stub", "fixture", "regression"],
+        "security": ["security", "vulnerability", "cve", "sanitize", "encrypt", "hash", "xss", "csrf"],
+    }
+    for domain, tokens in _DOMAIN_SIGNALS.items():
+        if any(t in text for t in tokens):
+            domains.append(domain)
+
+    _TECH_SIGNALS: dict[str, list[str]] = {
+        "python": ["python", "pytest", "django", "flask", "fastapi", "celery"],
+        "javascript": ["javascript", "js", "typescript", "ts", "node", "react", "vue", "next", "svelte"],
+        "sql": ["sql", "postgres", "mysql", "sqlite", "database"],
+        "go": ["go ", "golang"],
+        "rust": ["rust", "cargo"],
+    }
+    for tech, tokens in _TECH_SIGNALS.items():
+        if any(t in text for t in tokens):
+            tech_stack.append(tech)
+
+    if any(t in text for t in ["bug", "fix", "regression", "broken", "crash", "error", "failure"]):
+        change_type = "bugfix"
+    elif any(t in text for t in ["refactor", "restructure", "reorganize", "rename", "move", "split"]):
+        change_type = "refactor"
+    elif any(t in text for t in ["migration", "upgrade", "port", "migrate"]):
+        change_type = "migration"
+    elif any(t in text for t in ["security", "vulnerability", "cve", "patch"]):
+        change_type = "security"
+    elif any(t in text for t in ["test", "spec", "coverage"]):
+        change_type = "testing"
+
+    if not domains:
+        domains = ["general"]
+
+    return {
+        "domains": domains,
+        "tech_stack": tech_stack or ["unspecified"],
+        "change_type": change_type,
+    }
+
+
+_DOMAIN_CONSIDERATIONS: dict[str, str] = {
+    "api": "- API changes need backward compatibility check. Document endpoint contracts (method, path, request/response shapes).\n- Version endpoints if breaking changes are possible.\n- Add integration tests for new or modified endpoints.",
+    "frontend": "- Component changes need visual verification. Screenshot evidence for layout changes.\n- Check responsive behavior if layout is affected.\n- Verify accessibility for interactive elements.",
+    "backend": "- Service changes need unit tests at the handler/service boundary.\n- Check error handling paths, not just happy path.\n- Verify idempotency for any write operations.",
+    "data": "- Schema changes need migration scripts. Test up and down migrations.\n- Check for data loss scenarios.\n- Verify ORM model alignment with migration.",
+    "auth": "- Auth changes need security review. Test both authenticated and unauthenticated access.\n- Verify session/token lifecycle.\n- Check for privilege escalation paths.",
+    "infra": "- Infrastructure changes need rollback plan. Document rollback steps.\n- Test in isolated environment first.\n- Verify environment variable handling.",
+    "testing": "- Test changes should not alter production behavior. Verify test isolation.\n- Check for flaky test patterns (timing, order dependence).\n- Ensure new tests cover edge cases, not just happy path.",
+    "security": "- Security fixes need verification that the vulnerability is actually resolved.\n- Check for similar vulnerabilities in adjacent code.\n- Do not introduce new attack vectors in the fix.",
+    "general": "- Confirm scope with stakeholders before implementation.\n- Identify affected modules and potential side effects.\n- Plan verification strategy before starting implementation.",
+}
+
+_CHANGE_TYPE_CONSIDERATIONS: dict[str, str] = {
+    "bugfix": "- Root cause analysis before fix. Reproduce reliably first.\n- Minimal fix — do not refactor adjacent code while fixing.\n- Add regression test that would have caught the original bug.",
+    "refactor": "- Behavior must be preserved. All existing tests must pass without modification.\n- Refactor in small, reviewable steps.\n- No functional changes — if behavior changes, it is not a refactor.",
+    "migration": "- Migration must be reversible. Test rollback.\n- Check for data integrity before and after.\n- Plan downtime or migration window if applicable.",
+    "security": "- Security patches take priority over feature work.\n- Coordinate disclosure timeline.\n- Verify the fix does not break existing functionality.",
+    "testing": "- New tests should fail before the feature exists and pass after.\n- Measure coverage delta.\n- Do not skip assertions to make tests pass.",
+}
+
+
+def _domain_considerations(domains: list[str], change_type: str) -> str:
+    """Generate domain- and change-type-specific considerations for the PRD."""
+    lines: list[str] = []
+    for domain in domains:
+        if domain in _DOMAIN_CONSIDERATIONS:
+            lines.append(_DOMAIN_CONSIDERATIONS[domain])
+    if change_type in _CHANGE_TYPE_CONSIDERATIONS:
+        lines.append(_CHANGE_TYPE_CONSIDERATIONS[change_type])
+    if not lines:
+        lines.append("- Confirm scope before implementation. Identify affected modules and verification strategy.")
+    return "\n".join(lines)
+
+
+_QA_CHECKLISTS: dict[str, str] = {
+    "api": "- [ ] API contract verified (method, path, request/response)\n- [ ] Error responses match documented status codes\n- [ ] Backward compatibility confirmed for existing clients",
+    "frontend": "- [ ] Visual regression check (screenshot before/after if layout changed)\n- [ ] Responsive behavior verified\n- [ ] Accessibility check for interactive elements",
+    "backend": "- [ ] Unit tests at service boundary pass\n- [ ] Error handling paths tested, not just happy path\n- [ ] Idempotency verified for write operations",
+    "data": "- [ ] Migration up and down tested\n- [ ] Data integrity verified after migration\n- [ ] ORM model matches new schema",
+    "auth": "- [ ] Authenticated and unauthenticated access tested\n- [ ] Session/token lifecycle verified\n- [ ] No privilege escalation paths introduced",
+    "infra": "- [ ] Rollback procedure documented and tested\n- [ ] Environment variable handling verified\n- [ ] Deployment succeeds in isolated environment",
+    "testing": "- [ ] New tests are isolated (no order/timing dependence)\n- [ ] Edge cases covered, not just happy path\n- [ ] Tests fail before feature and pass after",
+    "security": "- [ ] Original vulnerability verified as resolved\n- [ ] Adjacent code checked for similar vulnerabilities\n- [ ] No new attack vectors introduced",
+    "general": "- [ ] Scope matches PRD acceptance criteria\n- [ ] Side effects on adjacent modules checked\n- [ ] Verification commands documented",
+}
+
+_QA_CHANGE_CHECKLISTS: dict[str, str] = {
+    "bugfix": "- [ ] Bug reproduced before fix\n- [ ] Fix is minimal (no unrelated changes)\n- [ ] Regression test added that catches the original bug",
+    "refactor": "- [ ] All existing tests pass without modification\n- [ ] No behavioral changes introduced\n- [ ] Refactored code is simpler or clearer than before",
+    "migration": "- [ ] Migration reversible (rollback tested)\n- [ ] Data integrity verified before and after\n- [ ] Downtime plan documented if applicable",
+    "security": "- [ ] Vulnerability confirmed fixed\n- [ ] No functionality broken by the fix\n- [ ] Disclosure timeline coordinated",
+    "testing": "- [ ] Coverage delta measured and positive\n- [ ] No assertions skipped to make tests pass\n- [ ] Test data properly managed and isolated",
+}
+
+
+def _qa_checklist(domains: list[str], change_type: str) -> str:
+    """Generate domain- and change-type-specific QA checklist items."""
+    lines: list[str] = []
+    for domain in domains:
+        if domain in _QA_CHECKLISTS:
+            lines.append(_QA_CHECKLISTS[domain])
+    if change_type in _QA_CHANGE_CHECKLISTS:
+        lines.append(_QA_CHANGE_CHECKLISTS[change_type])
+    if not lines:
+        lines.append("- [ ] Behavior matches PRD acceptance criteria")
+    return "\n".join(lines)
+
+
+_ARCH_CONSIDERATIONS: dict[str, str] = {
+    "api": "- API changes may require coordinated client updates. Consider versioning strategy.\n- Document endpoint contracts before implementation.\n- Plan for backward compatibility or deprecation timeline.",
+    "frontend": "- Component architecture should follow existing patterns in the codebase.\n- State management changes need careful review for side effects.\n- Consider code-splitting impact for new pages/features.",
+    "backend": "- Service boundaries should remain clear. Avoid cross-cutting concerns.\n- Queue/async work needs idempotency and retry strategy.\n- Plan for observability: logging, metrics, tracing.",
+    "data": "- Schema changes are hard to reverse in production. Plan migrations carefully.\n- Consider indexing strategy for new query patterns.\n- Data integrity constraints should be enforced at the DB level when possible.",
+    "auth": "- Auth changes affect all users. Plan for gradual rollout.\n- Token/session storage changes need performance testing.\n- Consider audit logging for auth events.",
+    "infra": "- Infrastructure changes should be reproducible (IaC).\n- Plan for rollback: blue-green, canary, or feature flags.\n- Monitor for deployment failures and have alerting in place.",
+    "security": "- Security architecture should follow least-privilege principle.\n- Plan for security testing (SAST, DAST, dependency scanning).\n- Document threat model for the changed components.",
+    "testing": "- Test architecture should support the team pattern selected above.\n- Consider test pyramid balance for the affected domains.\n- Plan for test data management and isolation.",
+    "general": "- Confirm the team pattern above matches the actual complexity of the work.\n- If the work is simpler than expected, the plan stage can reduce the pattern.",
+}
+
+
+def _architecture_considerations(domains: list[str], pattern: str) -> str:
+    """Generate architecture considerations based on detected domains."""
+    lines: list[str] = []
+    for domain in domains:
+        if domain in _ARCH_CONSIDERATIONS:
+            lines.append(_ARCH_CONSIDERATIONS[domain])
+    if not lines:
+        lines.append("- Confirm the team pattern above matches the actual complexity of the work.")
+    return "\n".join(lines)
+
+
+def _detect_project_type(task_dir: Path) -> dict[str, Any]:
+    """Detect project type by scanning ancestor directories for file-system signals."""
+    _PROJECT_MARKERS: dict[str, dict[str, list[str]]] = {
+        "nextjs": {
+            "files": ["next.config.js", "next.config.mjs", "next.config.ts"],
+            "dirs": ["app", "src/app"],
+            "extras": ["package.json"],
+        },
+        "react": {
+            "files": [],
+            "dirs": ["src/components", "src/pages", "src/App.tsx", "src/App.jsx"],
+            "extras": ["package.json"],
+        },
+        "fastapi": {
+            "files": [],
+            "dirs": [],
+            "extras": ["requirements.txt", "pyproject.toml"],
+            "content_patterns": ["from fastapi", "import fastapi"],
+        },
+        "django": {
+            "files": ["manage.py"],
+            "dirs": [],
+            "extras": ["requirements.txt"],
+        },
+        "flask": {
+            "files": [],
+            "dirs": [],
+            "extras": ["requirements.txt"],
+            "content_patterns": ["from flask", "import flask"],
+        },
+        "python-cli": {
+            "files": ["setup.py", "setup.cfg", "pyproject.toml"],
+            "dirs": [],
+            "extras": [],
+        },
+        "express": {
+            "files": [],
+            "dirs": [],
+            "extras": ["package.json"],
+            "content_patterns": ["from \"express\"", "require(\"express\")"],
+        },
+        "go-service": {
+            "files": ["go.mod"],
+            "dirs": [],
+            "extras": [],
+        },
+        "rust-project": {
+            "files": ["Cargo.toml"],
+            "dirs": [],
+            "extras": [],
+        },
+    }
+
+    # Walk up from task_dir looking for project root signals
+    scan_dir = task_dir.parent
+    project_root: Path | None = None
+    detected: list[str] = []
+    package_json_data: dict | None = None
+
+    for _ in range(8):  # max 8 levels up
+        if scan_dir == scan_dir.parent:
+            break
+        # Check for project markers at this level
+        if (scan_dir / "package.json").exists():
+            project_root = scan_dir
+            try:
+                raw = (scan_dir / "package.json").read_text(encoding="utf-8")
+                package_json_data = __import__("json").loads(raw)
+            except (OSError, ValueError):
+                package_json_data = {}
+            break
+        if (scan_dir / "pyproject.toml").exists() or (scan_dir / "requirements.txt").exists():
+            project_root = scan_dir
+            break
+        if (scan_dir / "go.mod").exists() or (scan_dir / "Cargo.toml").exists():
+            project_root = scan_dir
+            break
+        if (scan_dir / "manage.py").exists():
+            project_root = scan_dir
+            break
+        scan_dir = scan_dir.parent
+
+    if project_root is None:
+        return {"project_type": "unknown", "project_root": None, "framework": None, "language": None}
+
+    # Detect specific types
+    for ptype, markers in _PROJECT_MARKERS.items():
+        matched = False
+        for fname in markers.get("files", []):
+            if (project_root / fname).exists():
+                matched = True
+                break
+        if not matched:
+            for dname in markers.get("dirs", []):
+                if (project_root / dname).exists():
+                    matched = True
+                    break
+        if not matched:
+            for extra in markers.get("extras", []):
+                if not (project_root / extra).exists():
+                    matched = False
+                    break
+                # Extra file exists, check content patterns if any
+                cpats = markers.get("content_patterns", [])
+                if cpats and extra:
+                    try:
+                        content = (project_root / extra).read_text(encoding="utf-8").lower()
+                        if any(p.lower() in content for p in cpats):
+                            matched = True
+                            break
+                    except OSError:
+                        pass
+                else:
+                    matched = True
+        if matched:
+            detected.append(ptype)
+
+    # Refine using package.json dependencies
+    framework: str | None = None
+    language: str | None = None
+
+    if package_json_data:
+        deps = {**package_json_data.get("dependencies", {}), **package_json_data.get("devDependencies", {})}
+        if "next" in deps:
+            detected = ["nextjs"]
+            framework = "Next.js"
+        elif "react" in deps:
+            detected = ["react"]
+            framework = "React"
+        if "typescript" in deps or (project_root / "tsconfig.json").exists():
+            language = "TypeScript"
+        else:
+            language = "JavaScript"
+
+    if (project_root / "pyproject.toml").exists():
+        try:
+            content = (project_root / "pyproject.toml").read_text(encoding="utf-8").lower()
+            if "fastapi" in content and "fastapi" not in detected:
+                detected.insert(0, "fastapi")
+                framework = "FastAPI"
+            elif "django" in content and "django" not in detected:
+                detected.insert(0, "django")
+                framework = "Django"
+            elif "flask" in content and "flask" not in detected:
+                detected.insert(0, "flask")
+                framework = "Flask"
+        except OSError:
+            pass
+        if language is None:
+            language = "Python"
+
+    if (project_root / "go.mod").exists():
+        language = language or "Go"
+        if "go-service" not in detected:
+            detected.append("go-service")
+    if (project_root / "Cargo.toml").exists():
+        language = language or "Rust"
+        if "rust-project" not in detected:
+            detected.append("rust-project")
+
+    # Set framework for marker-based detections (Django, etc.)
+    _MARKER_FRAMEWORKS: dict[str, str] = {
+        "django": "Django",
+        "flask": "Flask",
+        "fastapi": "FastAPI",
+        "nextjs": "Next.js",
+        "react": "React",
+        "express": "Express",
+    }
+    if framework is None:
+        for dtype in detected:
+            if dtype in _MARKER_FRAMEWORKS:
+                framework = _MARKER_FRAMEWORKS[dtype]
+                break
+    if language is None and project_root is not None:
+        # Infer language from project markers
+        _LANG_MAP: dict[str, str] = {
+            "nextjs": "JavaScript",
+            "react": "JavaScript",
+            "express": "JavaScript",
+            "fastapi": "Python",
+            "django": "Python",
+            "flask": "Python",
+            "python-cli": "Python",
+        }
+        for dtype in detected:
+            if dtype in _LANG_MAP:
+                language = _LANG_MAP[dtype]
+                break
+
+    project_type = detected[0] if detected else "generic"
+    return {
+        "project_type": project_type,
+        "project_root": str(project_root),
+        "framework": framework,
+        "language": language,
+        "all_types": detected,
+    }
+
+
+def _project_type_considerations(project_info: dict[str, Any]) -> str:
+    """Generate project-type-specific considerations for drafts."""
+    ptype = project_info.get("project_type", "unknown")
+    framework = project_info.get("framework")
+    language = project_info.get("language")
+
+    _PROJECT_NOTES: dict[str, str] = {
+        "nextjs": (
+            "- Next.js: prefer App Router patterns (app/ directory) over Pages Router.\n"
+            "- Server Components by default; add 'use client' only when needed.\n"
+            "- Use Next.js built-in data fetching (fetch with revalidate) over useEffect patterns.\n"
+            "- Consider middleware for auth/routing logic.\n"
+        ),
+        "react": (
+            "- React: functional components with hooks.\n"
+            "- State management: prefer built-in useState/useReducer; add external lib only when justified.\n"
+            "- Follow component composition over inheritance.\n"
+        ),
+        "fastapi": (
+            "- FastAPI: use dependency injection for DB sessions, auth, and config.\n"
+            "- Pydantic models for request/response validation.\n"
+            "- APIRouter for endpoint grouping.\n"
+            "- Use async handlers for I/O-bound, sync for CPU-bound.\n"
+        ),
+        "django": (
+            "- Django: follow MTV pattern (Model-Template-View).\n"
+            "- Use Django ORM; avoid raw SQL unless necessary.\n"
+            "- Migrations should be reversible.\n"
+            "- Use Django forms for validation.\n"
+        ),
+        "flask": (
+            "- Flask: use Blueprints for route organization.\n"
+            "- Application factory pattern for testability.\n"
+            "- Prefer Flask-SQLAlchemy for database access.\n"
+        ),
+        "express": (
+            "- Express: use middleware chain for cross-cutting concerns.\n"
+            "- Router modules for endpoint grouping.\n"
+            "- Error handling middleware as last in the chain.\n"
+        ),
+        "go-service": (
+            "- Go: follow standard project layout.\n"
+            "- Interface-based design for testability.\n"
+            "- Use context.Context for cancellation/timeouts.\n"
+            "- Prefer stdlib HTTP handler patterns.\n"
+        ),
+        "rust-project": (
+            "- Rust: leverage the type system for correctness.\n"
+            "- Prefer Result<T, E> over unwrap() in library code.\n"
+            "- Use cargo clippy and cargo test as quality gates.\n"
+        ),
+    }
+
+    lines: list[str] = []
+    if ptype in _PROJECT_NOTES:
+        lines.append(_PROJECT_NOTES[ptype])
+    if framework and framework.lower() != ptype:
+        for key, note in _PROJECT_NOTES.items():
+            if key in framework.lower():
+                lines.append(note)
+                break
+    if not lines:
+        if language:
+            lines.append(f"- Detected language: {language}. Follow {language} best practices and conventions.")
+        else:
+            lines.append("- No specific project framework detected. Follow general best practices for the detected tech stack.")
+    return "\n".join(lines)
+
+
 def _select_team_architecture(objective: str, risk_level: str) -> dict[str, Any]:
     text = objective.lower()
     if risk_level == "high" or any(token in text for token in ["migration", "refactor", "architecture", "security"]):
@@ -601,14 +1015,30 @@ def _write_new_text(path: Path, content: str) -> None:
 
 def _init_markdown_drafts(*, task_dir: Path, task_id: str, objective: str, risk_level: str, route_name: str) -> list[str]:
     architecture = _select_team_architecture(objective, risk_level)
+    domain_info = _analyze_objective_domain(objective)
+    project_info = _detect_project_type(task_dir)
     pattern = architecture["pattern"]
     rationale = architecture["rationale"]
+    domains = domain_info["domains"]
+    tech_stack = domain_info["tech_stack"]
+    change_type = domain_info["change_type"]
+    project_type = project_info["project_type"]
+    project_framework = project_info.get("framework") or project_type
+    project_language = project_info.get("language") or "unspecified"
+    project_notes = _project_type_considerations(project_info)
     feature_slug = _slugify_file_stem(objective)[:48]
+    domain_list = ", ".join(domains)
+    tech_list = ", ".join(tech_stack)
     drafts = {
         "docs/PRD.md": f"""# PRD — {task_id}
 
 ## Objective
 {objective}
+
+## Domain Analysis
+- **Domains**: {domain_list}
+- **Tech Stack**: {tech_list}
+- **Change Type**: {change_type}
 
 ## Scope
 - In scope: {objective}
@@ -618,6 +1048,17 @@ def _init_markdown_drafts(*, task_dir: Path, task_id: str, objective: str, risk_
 - The task has schema-valid ForgeFlow artifacts.
 - The generated drafts are specific enough to guide clarify, plan, qa, review, and finalize stages.
 - Evidence is recorded before review approval.
+
+## Domain-Specific Considerations
+{_domain_considerations(domains, change_type)}
+
+## Project Context
+- **Project Type**: {project_type}
+- **Framework**: {project_framework}
+- **Language**: {project_language}
+
+## Project-Specific Guidelines
+{project_notes}
 """,
         "docs/ARCHITECTURE.md": f"""# Architecture Draft — {task_id}
 
@@ -625,6 +1066,19 @@ def _init_markdown_drafts(*, task_dir: Path, task_id: str, objective: str, risk_
 Pattern: {pattern}
 
 Rationale: {rationale}
+
+## Domain Context
+- **Domains**: {domain_list}
+- **Change Type**: {change_type}
+- **Risk Level**: {risk_level}
+
+## Project Context
+- **Project Type**: {project_type}
+- **Framework**: {project_framework}
+- **Language**: {project_language}
+
+## Project-Specific Architectural Guidelines
+{project_notes}
 
 ## Roles
 - Planner: decomposes the objective into verifiable tasks and dependencies.
@@ -638,13 +1092,28 @@ Rationale: {rationale}
 3. Execute the next actionable task.
 4. QA with reproducible evidence.
 5. Review before finalization.
+
+## Architecture Considerations
+{_architecture_considerations(domains, pattern)}
 """,
         "docs/QA.md": f"""# QA Draft — {task_id}
+
+## Domain Context
+- **Domains**: {domain_list}
+- **Change Type**: {change_type}
 
 ## Verification Strategy
 - Start with the narrowest command that proves the changed behavior.
 - Add regression checks for every bug or contract gap found during execution.
 - Record command, exit code, and relevant output in review evidence.
+
+## Domain-Specific QA Checklist
+{_qa_checklist(domains, change_type)}
+
+## Project-Specific QA Notes
+- **Project Type**: {project_type}
+- **Framework**: {project_framework}
+{project_notes}
 
 ## Watchpoints
 - Empty template output is not enough; generated drafts must mention the actual objective.
@@ -709,14 +1178,216 @@ Run status, then execute clarify when ready. Do not skip evidence collection.
 - No unrelated generated drift.
 - Review evidence includes real command output.
 """,
-        ".claude/agents/planner.md": "# Planner Agent\n\nRole: turn the objective into task breakdown, dependencies, risks, and verification strategy.\n\nOutput: update task docs and plan artifacts before implementation.\n",
-        ".claude/agents/implementer.md": "# Implementer Agent\n\nRole: execute the approved task document with minimal, test-backed changes.\n\nOutput: changed files plus command evidence.\n",
-        ".claude/agents/qa.md": "# QA Agent\n\nRole: reproduce, verify, and regression-check behavior independently from implementation.\n\nOutput: QA evidence and unresolved watchpoints.\n",
-        ".claude/agents/reviewer.md": "# Reviewer Agent\n\nRole: judge spec compliance, evidence quality, structural risk, and test gaps.\n\nOutput: approve, request fixes, or block finalization with concrete reasons.\n",
-        ".claude/skills/plan/SKILL.md": "# Plan Skill\n\nTrigger: before implementation.\n\nProcedure: clarify scope, break work into tasks, record dependencies, define verification commands.\n",
-        ".claude/skills/build/SKILL.md": "# Build Skill\n\nTrigger: executing an approved task.\n\nProcedure: edit the smallest slice, run focused checks, preserve evidence.\n",
-        ".claude/skills/qa-fix/SKILL.md": "# QA Fix Skill\n\nTrigger: bug, regression, or QA failure.\n\nProcedure: reproduce first, fix minimally, rerun regression checks, document evidence.\n",
-        ".claude/skills/review/SKILL.md": "# Review Skill\n\nTrigger: before finalization.\n\nProcedure: verify referenced files, command evidence, spec gaps, and unresolved risks; approve only with evidence.\n",
+        ".claude/agents/planner.md": f"""# Planner Agent
+
+## Role
+Turn the objective into task breakdown, dependencies, risks, and verification strategy.
+
+## Responsibilities
+- Read `brief.json` and `docs/PRD.md` to understand scope
+- Decompose the objective into ordered, verifiable tasks
+- Identify dependencies between tasks and external systems
+- Define verification commands for each task
+- Record the plan in plan-ledger artifacts
+
+## Input Artifacts
+- `brief.json` — task metadata and objective
+- `docs/PRD.md` — scope and acceptance criteria
+- `docs/ARCHITECTURE.md` — selected team pattern
+
+## Output Artifacts
+- Updated `tasks/feature/*.md` with breakdown, dependencies, verification
+- `plan-ledger.json` entries for each task
+
+## Collaboration Rules
+- Do not implement. Only plan and delegate structure.
+- Flag ambiguous scope back to clarify stage instead of guessing.
+- Each task must have a verification command, not just a description.
+
+## Error Handling
+- If objective is too vague, stop and request clarification.
+- If dependencies are circular, surface the cycle explicitly.
+""",
+        ".claude/agents/implementer.md": f"""# Implementer Agent
+
+## Role
+Execute the approved task document with minimal, test-backed changes.
+
+## Responsibilities
+- Read the task document as source of truth, not chat context
+- Make the smallest coherent change that satisfies the task
+- Run focused verification after each change
+- Record command evidence (command, exit code, relevant output)
+
+## Input Artifacts
+- `tasks/feature/*.md` — approved task breakdown
+- `docs/ARCHITECTURE.md` — structural constraints
+- `plan-ledger.json` — task ordering
+
+## Output Artifacts
+- Changed source files
+- Evidence records in task directory
+
+## Collaboration Rules
+- One task at a time. Do not batch unrelated changes.
+- If a task requires design decisions not in the plan, escalate rather than improvise.
+- Preserve existing tests. Add new tests for new behavior.
+
+## Error Handling
+- If tests fail after a change, fix before moving to the next task.
+- If a task is blocked by an external dependency, record and escalate.
+""",
+        ".claude/agents/qa.md": f"""# QA Agent
+
+## Role
+Reproduce, verify, and regression-check behavior independently from implementation.
+
+## Responsibilities
+- Reproduce reported issues from the bug description
+- Verify fixes against the original reproduction steps
+- Run regression checks for unrelated areas
+- Document all evidence with commands and output
+
+## Input Artifacts
+- `tasks/qa/*.md` — QA task with reproduction steps
+- `docs/QA.md` — verification strategy and watchpoints
+- Evidence from implementation
+
+## Output Artifacts
+- QA evidence: reproduction commands, actual vs expected, exit codes
+- Unresolved watchpoints list
+- Pass/fail verdict with evidence refs
+
+## Collaboration Rules
+- Independent from implementation. Do not read implementer's reasoning before testing.
+- Reproduce before fixing. Always.
+- Test the actual behavior, not the intended behavior.
+
+## Error Handling
+- If reproduction is impossible, record the attempted steps and mark as unreproducible.
+- If a regression is found outside scope, record it as a watchpoint, do not fix it.
+""",
+        ".claude/agents/reviewer.md": f"""# Reviewer Agent
+
+## Role
+Judge spec compliance, evidence quality, structural risk, and test gaps.
+
+## Responsibilities
+- Verify that evidence refs point to real command output
+- Check for spec gaps between PRD and implementation
+- Identify structural risks (coupling, missing error paths, untested edge cases)
+- Assess test coverage for the changed behavior
+
+## Input Artifacts
+- `docs/PRD.md` — acceptance criteria
+- `docs/ARCHITECTURE.md` — structural expectations
+- Implementation evidence from implementer and QA
+
+## Output Artifacts
+- Review verdict: approve, request fixes, or block finalization
+- Concrete reasons for any non-approve verdict
+- Specific file/line references for issues found
+
+## Collaboration Rules
+- Read-only. Do not modify code during review.
+- Approve only with evidence. No rubber stamps.
+- Distinguish between must-fix (block) and should-fix (request).
+
+## Error Handling
+- If evidence is missing or vague, request it explicitly.
+- If scope has drifted from PRD, flag it as a spec gap.
+""",
+        ".claude/skills/plan/SKILL.md": f"""# Plan Skill
+
+## Trigger
+Before implementation, when entering the plan stage.
+
+## Procedure
+1. Read `brief.json` and `docs/PRD.md` to confirm scope
+2. Identify target files and modules affected
+3. Break work into ordered tasks with clear inputs/outputs
+4. Record dependencies between tasks
+5. Define verification commands for each task
+6. Write the plan to `plan-ledger.json` and update `tasks/feature/*.md`
+
+## Exit Criteria
+- Every task has a description, target files, and verification command
+- Dependencies are explicit and acyclic
+- Plan is reviewable before execution begins
+
+## References
+- `docs/ARCHITECTURE.md` — selected team pattern
+- `docs/DECISIONS.md` — design decisions affecting the plan
+""",
+        ".claude/skills/build/SKILL.md": f"""# Build Skill
+
+## Trigger
+Executing an approved task from the plan ledger.
+
+## Procedure
+1. Read the current task from plan-ledger
+2. Identify the smallest coherent slice to implement
+3. Make the change, preserving existing structure
+4. Run focused verification (lint, type-check, unit tests)
+5. Record evidence: command, exit code, relevant output
+6. Mark the task complete in plan-ledger
+
+## Exit Criteria
+- Change is minimal and test-backed
+- Focused verification passes
+- Evidence is recorded for review
+
+## References
+- `tasks/feature/*.md` — task breakdown
+- `docs/QA.md` — watchpoints to avoid
+""",
+        ".claude/skills/qa-fix/SKILL.md": f"""# QA Fix Skill
+
+## Trigger
+Bug report, regression, or QA failure that needs fixing.
+
+## Procedure
+1. Reproduce the issue from the reported steps
+2. Confirm the reproduction is reliable
+3. Identify the minimal root cause
+4. Apply the smallest fix that resolves the cause
+5. Rerun the reproduction to confirm the fix
+6. Run regression checks for affected areas
+7. Document all evidence
+
+## Exit Criteria
+- Original issue is reproducibly fixed
+- No new regressions in affected areas
+- Evidence includes: reproduction before, fix command, verification after
+
+## References
+- `tasks/qa/*.md` — QA task with reproduction steps
+- `docs/QA.md` — regression checklist
+""",
+        ".claude/skills/review/SKILL.md": f"""# Review Skill
+
+## Trigger
+Before finalization, after implementation and QA are complete.
+
+## Procedure
+1. Read `docs/PRD.md` acceptance criteria
+2. Verify each criterion has supporting evidence
+3. Check evidence refs point to real command output (not summaries)
+4. Identify spec gaps between PRD scope and actual implementation
+5. Assess structural risk: coupling, missing error paths, untested edges
+6. Check test coverage for changed behavior
+7. Write verdict: approve / request fixes / block, with specific reasons
+
+## Exit Criteria
+- All acceptance criteria mapped to evidence or flagged as gaps
+- Structural risks documented with file/line references
+- Verdict is evidence-based, not impression-based
+
+## References
+- `docs/PRD.md` — acceptance criteria
+- `docs/ARCHITECTURE.md` — structural expectations
+- `docs/QA.md` — watchpoints
+""",
         "CLAUDE.md": f"""# ForgeFlow Task Pointer — {task_id}
 
 ForgeFlow task artifacts live here. Use these entry points instead of copying all rules into chat:

@@ -223,26 +223,28 @@ class TestInitTask:
         ]
 
         expected_agent_roles = {
-            "planner.md": "turn the objective into task breakdown",
-            "implementer.md": "execute the approved task document",
-            "qa.md": "reproduce, verify, and regression-check",
-            "reviewer.md": "judge spec compliance",
+            "planner.md": "Turn the objective into task breakdown",
+            "implementer.md": "Execute the approved task document",
+            "qa.md": "Reproduce, verify, and regression-check",
+            "reviewer.md": "Judge spec compliance",
         }
         for file_name, required_text in expected_agent_roles.items():
             agent_text = (task_dir / ".claude" / "agents" / file_name).read_text()
             assert required_text in agent_text
-            assert "Output:" in agent_text
+            assert "## Input Artifacts" in agent_text
+            assert "## Collaboration Rules" in agent_text
 
         expected_skill_procedures = {
-            "plan": "define verification commands",
-            "build": "run focused checks",
-            "qa-fix": "reproduce first",
-            "review": "approve only with evidence",
+            "plan": "Define verification commands for each task",
+            "build": "Run focused verification",
+            "qa-fix": "Reproduce the issue from the reported steps",
+            "review": "Verify each criterion has supporting evidence",
         }
         for skill_name, required_text in expected_skill_procedures.items():
             skill_text = (task_dir / ".claude" / "skills" / skill_name / "SKILL.md").read_text()
-            assert "Trigger:" in skill_text
-            assert "Procedure:" in skill_text
+            assert "## Trigger" in skill_text
+            assert "## Procedure" in skill_text
+            assert "## Exit Criteria" in skill_text
             assert required_text in skill_text
 
         pointer = (task_dir / "CLAUDE.md").read_text()
@@ -256,6 +258,25 @@ class TestInitTask:
         assert brief["risk_level"] == "low"
         assert "do it" in (task_dir / "docs/PRD.md").read_text()
 
+        # verify domain analysis in PRD
+        prd_text = (task_dir / "docs/PRD.md").read_text()
+        assert "## Domain Analysis" in prd_text
+        assert "general" in prd_text
+        assert "feature" in prd_text
+
+        # verify domain considerations in PRD
+        assert "## Domain-Specific Considerations" in prd_text
+
+        # verify domain context in ARCHITECTURE
+        arch_text = (task_dir / "docs/ARCHITECTURE.md").read_text()
+        assert "## Domain Context" in arch_text
+        assert "## Architecture Considerations" in arch_text
+
+        # verify QA domain checklist
+        qa_text = (task_dir / "docs/QA.md").read_text()
+        assert "## Domain Context" in qa_text
+        assert "## Domain-Specific QA Checklist" in qa_text
+
         # verify run-state current_stage is first stage of small route
         run_state = json.loads((task_dir / "run-state.json").read_text())
         small_stages = _resolve_route(policy, "small")
@@ -263,14 +284,24 @@ class TestInitTask:
 
     def test_init_task_medium_route(self, tmp_path: Path, policy: RuntimePolicy) -> None:
         task_dir = tmp_path / "medium-task"
-        result = init_task(task_dir, policy, task_id="t-02", objective="medium scope", risk_level="medium")
+        result = init_task(task_dir, policy, task_id="t-02", objective="fix bug in REST api endpoint", risk_level="medium")
 
         assert result["route"] == "medium"
         assert result["task_id"] == "t-02"
         for name in ["brief.json", "run-state.json", "checkpoint.json", "session-state.json"]:
             assert (task_dir / name).exists(), f"{name} missing"
         assert "docs/ARCHITECTURE.md" in result["created"]
-        assert result["selected_architecture"] == "producer-reviewer + pipeline"
+        assert result["selected_architecture"] == "pipeline + producer-reviewer"
+
+        # verify domain analysis detects api and bugfix
+        prd_text = (task_dir / "docs/PRD.md").read_text()
+        assert "api" in prd_text
+        assert "bugfix" in prd_text
+
+        # verify QA has domain-specific checklist for api
+        qa_text = (task_dir / "docs/QA.md").read_text()
+        assert "API contract verified" in qa_text
+        assert "Bug reproduced before fix" in qa_text
 
         run_state = json.loads((task_dir / "run-state.json").read_text())
         medium_stages = _resolve_route(policy, "medium")
