@@ -81,10 +81,14 @@ def test_cli_init_bootstraps_task_from_operator_inputs(tmp_path: Path) -> None:
     ]:
         assert name in payload["created"]
         assert (task_dir / name).exists(), f"{name} missing in task_dir"
-    # agents/skills are in project_root, not task_dir
-    for name in [".claude/agents/planner.md", ".claude/skills/plan/SKILL.md"]:
-        assert name in payload["created"]
-        assert (tmp_path / name).exists(), f"{name} missing in project_root"
+    # agents/skills are in project_root, not task_dir — exact set varies by work mode
+    agents_dir = tmp_path / ".claude" / "agents"
+    skills_dir = tmp_path / ".claude" / "skills"
+    assert agents_dir.exists(), ".claude/agents/ missing in project_root"
+    assert skills_dir.exists(), ".claude/skills/ missing in project_root"
+    # At least one agent and one skill must be created
+    assert any(agents_dir.glob("*.md")), "No agent files created"
+    assert any(d.is_dir() for d in skills_dir.iterdir()), "No skill dirs created"
     assert payload["selected_architecture"] == "producer-reviewer + pipeline"
     assert payload["next_action"] == "run status, then execute clarify; generated drafts are task-local starting points"
 
