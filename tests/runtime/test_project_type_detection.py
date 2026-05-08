@@ -181,6 +181,7 @@ class TestInitWithProjectContext:
 
         _init_markdown_drafts(
             task_dir=task_dir,
+            project_root=project,
             task_id="t-01",
             objective="add authentication to the dashboard",
             risk_level="medium",
@@ -208,6 +209,7 @@ class TestInitWithProjectContext:
 
         _init_markdown_drafts(
             task_dir=task_dir,
+            project_root=tmp_path,
             task_id="t-01",
             objective="fix the bug",
             risk_level="low",
@@ -229,6 +231,7 @@ class TestInitWithProjectContext:
 
         _init_markdown_drafts(
             task_dir=task_dir,
+            project_root=project,
             task_id="t-01",
             objective="add rate limiting to the API endpoints",
             risk_level="medium",

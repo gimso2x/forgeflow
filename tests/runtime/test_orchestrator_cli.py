@@ -50,7 +50,8 @@ def test_cli_help_separates_read_only_status_from_mutating_manual_stage_examples
 
 
 def test_cli_init_bootstraps_task_from_operator_inputs(tmp_path: Path) -> None:
-    task_dir = tmp_path / "my-task"
+    # Use .forgeflow/tasks/<id> structure so project_root resolves correctly
+    task_dir = tmp_path / ".forgeflow" / "tasks" / "my-task"
 
     result = _run_orchestrator_cli(
         "init",
@@ -73,15 +74,17 @@ def test_cli_init_bootstraps_task_from_operator_inputs(tmp_path: Path) -> None:
         "docs/PRD.md",
         "docs/ARCHITECTURE.md",
         "tasks/init-summary.md",
-        ".claude/agents/planner.md",
-        ".claude/skills/plan/SKILL.md",
         "CLAUDE.md",
         "run-state.json",
         "checkpoint.json",
         "session-state.json",
     ]:
         assert name in payload["created"]
-        assert (task_dir / name).exists(), f"{name} missing"
+        assert (task_dir / name).exists(), f"{name} missing in task_dir"
+    # agents/skills are in project_root, not task_dir
+    for name in [".claude/agents/planner.md", ".claude/skills/plan/SKILL.md"]:
+        assert name in payload["created"]
+        assert (tmp_path / name).exists(), f"{name} missing in project_root"
     assert payload["selected_architecture"] == "producer-reviewer + pipeline"
     assert payload["next_action"] == "run status, then execute clarify; generated drafts are task-local starting points"
 

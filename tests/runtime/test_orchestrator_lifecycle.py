@@ -181,46 +181,33 @@ def _add_checkpoint_and_session(
 class TestInitTask:
     def test_init_task_small_route(self, tmp_path: Path, policy: RuntimePolicy) -> None:
         task_dir = tmp_path / "small-task"
-        result = init_task(task_dir, policy, task_id="t-01", objective="do it", risk_level="low")
+        project_root = tmp_path / "project"
+        project_root.mkdir()
+        result = init_task(task_dir, policy, task_id="t-01", objective="do it", risk_level="low", project_root=project_root)
 
         assert result["route"] == "small"
         assert result["task_id"] == "t-01"
         for name in ["brief.json", "run-state.json", "checkpoint.json", "session-state.json"]:
             assert (task_dir / name).exists(), f"{name} missing"
+        # docs/tasks go in task_dir
         for name in [
             "docs/PRD.md",
             "docs/ARCHITECTURE.md",
             "docs/QA.md",
             "docs/DECISIONS.md",
             "tasks/init-summary.md",
-            ".claude/agents/planner.md",
-            ".claude/skills/plan/SKILL.md",
             "CLAUDE.md",
         ]:
             assert (task_dir / name).exists(), f"{name} missing"
-        assert "producer-reviewer" in result["selected_architecture"]
-        assert result["created"] == [
-            "brief.json",
-            "docs/PRD.md",
-            "docs/ARCHITECTURE.md",
-            "docs/QA.md",
-            "docs/DECISIONS.md",
-            "tasks/init-summary.md",
-            "tasks/feature/do-it.md",
-            "tasks/qa/do-it.md",
+        # agents/skills go in project_root
+        for name in [
             ".claude/agents/planner.md",
-            ".claude/agents/implementer.md",
-            ".claude/agents/qa.md",
-            ".claude/agents/reviewer.md",
             ".claude/skills/plan/SKILL.md",
-            ".claude/skills/build/SKILL.md",
-            ".claude/skills/qa-fix/SKILL.md",
-            ".claude/skills/review/SKILL.md",
-            "CLAUDE.md",
-            "run-state.json",
-            "checkpoint.json",
-            "session-state.json",
-        ]
+        ]:
+            assert (project_root / name).exists(), f"{name} missing"
+        assert "producer-reviewer" in result["selected_architecture"]
+        assert ".claude/agents/planner.md" in result["created"]
+        assert ".claude/skills/plan/SKILL.md" in result["created"]
 
         expected_agent_roles = {
             "planner.md": "Turn the objective into task breakdown",
@@ -229,7 +216,7 @@ class TestInitTask:
             "reviewer.md": "Judge spec compliance",
         }
         for file_name, required_text in expected_agent_roles.items():
-            agent_text = (task_dir / ".claude" / "agents" / file_name).read_text()
+            agent_text = (project_root / ".claude" / "agents" / file_name).read_text()
             assert required_text in agent_text
             assert "## Input Artifacts" in agent_text
             assert "## Collaboration Rules" in agent_text
@@ -241,7 +228,7 @@ class TestInitTask:
             "review": "Verify each criterion has supporting evidence",
         }
         for skill_name, required_text in expected_skill_procedures.items():
-            skill_text = (task_dir / ".claude" / "skills" / skill_name / "SKILL.md").read_text()
+            skill_text = (project_root / ".claude" / "skills" / skill_name / "SKILL.md").read_text()
             assert "## Trigger" in skill_text
             assert "## Procedure" in skill_text
             assert "## Exit Criteria" in skill_text

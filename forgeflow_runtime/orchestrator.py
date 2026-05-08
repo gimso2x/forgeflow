@@ -810,7 +810,7 @@ def _detect_project_type(task_dir: Path) -> dict[str, Any]:
     }
 
     # Walk up from task_dir looking for project root signals
-    scan_dir = task_dir.parent
+    scan_dir = task_dir
     project_root: Path | None = None
     detected: list[str] = []
     package_json_data: dict | None = None
@@ -1039,17 +1039,17 @@ def _select_team_architecture(objective: str, risk_level: str) -> dict[str, Any]
     return {"pattern": pattern, "rationale": rationale}
 
 
-def _write_new_text(path: Path, content: str) -> None:
-    if path.exists():
+def _write_new_text(path: Path, content: str, *, allow_existing: bool = False) -> None:
+    if path.exists() and not allow_existing:
         raise RuntimeViolation(f"init refuses to overwrite existing generated draft: {path.name}")
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(content.rstrip() + "\n", encoding="utf-8")
 
 
-def _init_markdown_drafts(*, task_dir: Path, task_id: str, objective: str, risk_level: str, route_name: str) -> list[str]:
+def _init_markdown_drafts(*, task_dir: Path, project_root: Path, task_id: str, objective: str, risk_level: str, route_name: str) -> list[str]:
     architecture = _select_team_architecture(objective, risk_level)
     domain_info = _analyze_objective_domain(objective)
-    project_info = _detect_project_type(task_dir)
+    project_info = _detect_project_type(project_root)
     pattern = architecture["pattern"]
     rationale = architecture["rationale"]
     domains = domain_info["domains"]
@@ -1440,7 +1440,14 @@ Triggers:
     }
     created: list[str] = []
     for relative, content in drafts.items():
-        _write_new_text(task_dir / relative, content)
+        if relative.startswith(".claude/"):
+            target = project_root / relative
+            # agents/skills are shared across tasks — skip if already present
+            if target.exists():
+                continue
+        else:
+            target = task_dir / relative
+        _write_new_text(target, content)
         created.append(relative)
     return created
 
@@ -1493,6 +1500,7 @@ def init_task(
     objective: str,
     task_id: str | None = None,
     risk_level: str | None = None,
+    project_root: Path | None = None,
 ) -> dict[str, Any]:
     task_id = task_id or _slugify_objective(objective)
     risk_level = risk_level or _estimate_risk(objective)
@@ -1500,6 +1508,9 @@ def init_task(
         raise RuntimeViolation(f"unknown risk level: {risk_level}")
     route_name = {"low": "small", "medium": "medium", "high": "large_high_risk"}[risk_level]
     route = _resolve_route(policy, route_name)
+    # project_root defaults to 3 levels up from .forgeflow/tasks/<id>/
+    if project_root is None:
+        project_root = task_dir.parent.parent.parent.resolve()
     if task_dir.exists():
         existing_artifacts = [path.name for path in task_dir.iterdir()]
         if existing_artifacts:
@@ -1523,6 +1534,7 @@ def init_task(
     created_artifacts.extend(
         _init_markdown_drafts(
             task_dir=task_dir,
+            project_root=project_root,
             task_id=task_id,
             objective=objective,
             risk_level=risk_level,
