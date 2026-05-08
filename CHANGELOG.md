@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-05-08
+
+### Added
+
+- **Domain analysis engine**: `_analyze_objective_domain()` detects 8 domain categories (api, frontend, backend, data, auth, infra, testing, security), 5 tech stacks (python, javascript, typescript, go, rust), and 6 change types (feature, bugfix, refactor, migration, security, testing) from objective text.
+- **Project type detection**: `_detect_project_type()` scans filesystem markers to identify Next.js, React, FastAPI, Django, Flask, Express, Go, Rust, and Python CLI projects.
+- **Domain-aware init drafts**: PRD, ARCHITECTURE, and QA drafts now include domain-specific considerations, architecture advice, and QA checklists based on detected domains and change type.
+- **Project-aware init drafts**: init drafts include framework-specific guidelines when a project type is detected.
+- **Domain analysis tests**: `test_domain_analysis.py` (21 tests) covering domain detection, consideration generation, QA checklist, and integration with init.
+- **Project type detection tests**: `test_project_type_detection.py` (17 tests) covering marker scanning, framework identification, and consideration generation.
+
+### Changed
+
+- **Agent templates**: restructured from 1-2 line summaries to Role/Responsibilities/Input Artifacts/Output Artifacts/Collaboration Rules/Error Handling (4 agents).
+- **Skill templates**: restructured from 1-2 line summaries to Trigger/Procedure(6-7 steps)/Exit Criteria/References (4 skills).
+- **harness absorption handoff**: updated to reflect completed domain analysis and project type detection milestones.
+
+### Fixed
+
+- **Data domain detection**: added mysql, postgres, sqlite keywords to data domain signals.
+
 ## [0.3.2] - 2026-05-06
 
 ### Added
