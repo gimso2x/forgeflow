@@ -1,21 +1,35 @@
 ---
-description: Initialize a new ForgeFlow task with task-id, objective, and risk level.
+description: Initialize a new ForgeFlow task. Just give an objective — task-id and risk are auto-inferred.
 ---
 
 # /forgeflow:init
 
-Initialize a ForgeFlow task. Creates the full task workspace: brief, run-state, agents, skills, and domain-aware draft documents.
+Initialize a ForgeFlow task. Creates the full workspace: brief, run-state, agents, skills, and domain-aware draft documents.
+
+## Usage
+
+```
+/forgeflow:init <objective>
+/forgeflow:init <objective> --risk <low|medium|high>
+/forgeflow:init <objective> --task-id <custom-id> --risk <high>
+```
+
+**objective만 주면 된다.** task-id는 objective에서 자동 슬러그 생성, risk는 키워드 기반 자동 추정.
 
 ## Instructions
 
-1. **Resolve arguments** — you MUST have all three before proceeding. If the user invoked `/forgeflow:init` with arguments (e.g. `/forgeflow:init feat-auth "add login page" medium`), use those directly. Only if any argument is missing, ask for just the missing ones — do NOT re-ask for arguments already provided.
+1. **Parse arguments** — extract objective (required), optional task-id and risk from the invocation.
 
-   Required:
-   - `task-id`: short identifier (e.g. `feat-auth`, `fix-login`)
-   - `objective`: one-sentence description of what to accomplish
-   - `risk`: `low`, `medium`, or `high` (default: `medium`)
+   - `objective`: what to accomplish (required)
+   - `task-id`: short identifier (optional, auto-generated from objective)
+   - `risk`: `low`, `medium`, `high` (optional, auto-estimated from objective keywords)
+     - High signals: migration, refactor, security, auth, payment, database, breaking
+     - Low signals: typo, rename, docs, lint, style, cosmetic
+     - Default: medium
 
-2. **Call the runtime** — invoke the Python API to create the full workspace:
+   If only an objective is provided, proceed immediately. Do NOT ask for task-id or risk.
+
+2. **Call the runtime**:
 
    ```bash
    cd <project-root> && PYTHONPATH=/path/to/forgeflow-repo python3 -c "
@@ -25,48 +39,44 @@ Initialize a ForgeFlow task. Creates the full task workspace: brief, run-state, 
    import json
    forgeflow_root = '<forgeflow-repo-path>'
    policy = load_runtime_policy(Path(forgeflow_root))
-   result = init_task(
-       Path('.forgeflow/tasks/<task-id>'),
-       policy,
-       task_id='<task-id>',
+   kwargs = dict(
+       task_dir=Path('.forgeflow/tasks/<task-id or auto>'),
+       policy=policy,
        objective='<objective>',
-       risk_level='<risk>',
    )
+   if '<task-id>' != 'auto':
+       kwargs['task_id'] = '<task-id>'
+   if '<risk>' != 'auto':
+       kwargs['risk_level'] = '<risk>'
+   result = init_task(**kwargs)
    for f in sorted(result['created']):
        print(f'  created: {f}')
+   print(f'task-id: {result[\"task_id\"]}')
+   print(f'route: {result[\"route\"]}  risk: {result[\"risk_level\"]}')
+   print(f'architecture: {result[\"selected_architecture\"]}')
    "
    ```
 
-   Replace `<forgeflow-repo-path>` with the local ForgeFlow repository path (e.g. `/home/ubuntu/work/forgeflow`). If running inside a session where `forgeflow_runtime` is already importable (same venv / PYTHONPATH), omit the PYTHONPATH prefix.
+   Replace `<forgeflow-repo-path>` with the local ForgeFlow repository path. If `forgeflow_runtime` is already importable, omit PYTHONPATH.
 
 3. **Report results** — after init completes, show:
-   - task-id and route (small/medium/large_high_risk)
+   - task-id (auto-inferred or explicit)
+   - route and risk level
    - selected team architecture pattern
    - detected domains and project type (if any)
-   - list of generated files
-   - next stage (clarify or plan depending on route)
+   - next stage
 
 ## What init creates
 
-The runtime `init_task()` generates a complete workspace under `.forgeflow/tasks/<task-id>/`:
+20 files under `.forgeflow/tasks/<task-id>/`:
 
-- `brief.json` — task metadata with schema validation
-- `run-state.json` — stage progression state
-- `checkpoint.json` — gate checkpoint
-- `session-state.json` — session tracking
+- `brief.json` — task metadata
+- `run-state.json`, `checkpoint.json`, `session-state.json` — state tracking
 - `CLAUDE.md` — pointer to key artifacts + trigger rules
-- `docs/PRD.md` — domain-aware PRD draft (includes domain analysis, considerations)
+- `docs/PRD.md` — domain-aware PRD draft
 - `docs/ARCHITECTURE.md` — architecture draft with domain context
 - `docs/QA.md` — QA draft with domain-specific checklists
 - `docs/DECISIONS.md` — ADR log
-- `tasks/init-summary.md` — generated drafts summary
-- `tasks/feature/<slug>.md` — feature breakdown draft
-- `tasks/qa/<slug>.md` — QA reproduction/fix/regression draft
-- `.claude/agents/` — 4 role-specific agent definitions (planner, implementer, qa, reviewer)
-- `.claude/skills/` — 4 stage-specific skill definitions (plan, build, qa-fix, review)
-
-## Notes
-
-- Init will refuse to overwrite existing task directories (RuntimeViolation).
-- The runtime auto-detects project type and domain from objective keywords.
-- Do NOT manually create brief.json — the runtime handles validation and schema.
+- `tasks/init-summary.md`, `tasks/feature/`, `tasks/qa/`
+- `.claude/agents/` — 4 role-specific agent definitions
+- `.claude/skills/` — 4 stage-specific skill definitions

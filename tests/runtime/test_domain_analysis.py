@@ -12,7 +12,7 @@ from forgeflow_runtime.orchestrator import (
     _qa_checklist,
     init_task,
 )
-from forgeflow_runtime.policy_loader import load_runtime_policy
+from forgeflow_runtime.policy_loader import RuntimePolicy, load_runtime_policy
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 
@@ -164,3 +164,62 @@ class TestInitWithDomainAnalysis:
 
         qa = (task_dir / "docs/QA.md").read_text()
         assert "All existing tests pass without modification" in qa
+
+
+class TestAutoInference:
+    """Tests for task-id slug and risk auto-inference."""
+
+    def test_slugify_basic(self) -> None:
+        from forgeflow_runtime.orchestrator import _slugify_objective
+        slug = _slugify_objective("Add OAuth login endpoint with session management")
+        assert slug == "add-oauth-login-endpoint-session-management"
+        assert len(slug) <= 64
+
+    def test_slugify_short(self) -> None:
+        from forgeflow_runtime.orchestrator import _slugify_objective
+        slug = _slugify_objective("fix typo")
+        assert slug == "fix-typo"
+
+    def test_slugify_korean_fallback(self) -> None:
+        from forgeflow_runtime.orchestrator import _slugify_objective
+        slug = _slugify_objective("로그인 페이지 만들기")
+        assert slug == "task"  # no latin words → fallback
+
+    def test_estimate_risk_high(self) -> None:
+        from forgeflow_runtime.orchestrator import _estimate_risk
+        assert _estimate_risk("migrate database schema to v2") == "high"
+
+    def test_estimate_risk_low(self) -> None:
+        from forgeflow_runtime.orchestrator import _estimate_risk
+        assert _estimate_risk("fix typo in readme") == "low"
+
+    def test_estimate_risk_medium_default(self) -> None:
+        from forgeflow_runtime.orchestrator import _estimate_risk
+        assert _estimate_risk("add user profile page") == "medium"
+
+    def test_init_objective_only(self, tmp_path: Path, policy: RuntimePolicy) -> None:
+        """init_task with only objective auto-infers task-id and risk."""
+        task_dir = tmp_path / "auto-task"
+        result = init_task(
+            task_dir,
+            policy,
+            objective="fix typo in README",
+        )
+        assert result["task_id"] == "fix-typo-readme"
+        assert result["risk_level"] == "low"
+        assert result["route"] == "small"
+        assert (task_dir / "brief.json").exists()
+
+    def test_init_override_keeps_explicit(self, tmp_path: Path, policy: RuntimePolicy) -> None:
+        """Explicit task_id/risk_level override auto-inference."""
+        task_dir = tmp_path / "override-task"
+        result = init_task(
+            task_dir,
+            policy,
+            objective="fix typo in README",
+            task_id="my-custom-id",
+            risk_level="high",
+        )
+        assert result["task_id"] == "my-custom-id"
+        assert result["risk_level"] == "high"
+        assert result["route"] == "large_high_risk"

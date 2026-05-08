@@ -723,6 +723,39 @@ def _architecture_considerations(domains: list[str], pattern: str) -> str:
     return "\n".join(lines)
 
 
+def _slugify_objective(objective: str) -> str:
+    """Generate a task-id slug from the objective string."""
+    import re
+    # take first ~6 meaningful words
+    words = re.sub(r"[^a-z0-9\s-]", "", objective.lower()).split()
+    stop = {"a", "an", "the", "to", "for", "in", "on", "of", "and", "or", "is",
+            "it", "with", "from", "by", "that", "this", "be", "are", "was", "were"}
+    meaningful = [w for w in words if w not in stop][:6]
+    slug = "-".join(meaningful) if meaningful else "task"
+    return slug[:64]
+
+
+_HIGH_RISK_SIGNALS = frozenset({
+    "migration", "refactor", "rewrite", "migrate", "database", "schema",
+    "breaking", "security", "auth", "authentication", "authorization",
+    "payment", "billing", "production", "deploy", "rollback",
+})
+_LOW_RISK_SIGNALS = frozenset({
+    "typo", "rename", "format", "whitespace", "comment", "docs",
+    "readme", "lint", "style", "cosmetic", "label", "color",
+})
+
+
+def _estimate_risk(objective: str) -> str:
+    """Estimate risk level from objective keywords."""
+    text = objective.lower()
+    if any(s in text for s in _HIGH_RISK_SIGNALS):
+        return "high"
+    if any(s in text for s in _LOW_RISK_SIGNALS):
+        return "low"
+    return "medium"
+
+
 def _detect_project_type(task_dir: Path) -> dict[str, Any]:
     """Detect project type by scanning ancestor directories for file-system signals."""
     _PROJECT_MARKERS: dict[str, dict[str, list[str]]] = {
@@ -1457,10 +1490,12 @@ def init_task(
     task_dir: Path,
     policy: RuntimePolicy,
     *,
-    task_id: str,
     objective: str,
-    risk_level: str,
+    task_id: str | None = None,
+    risk_level: str | None = None,
 ) -> dict[str, Any]:
+    task_id = task_id or _slugify_objective(objective)
+    risk_level = risk_level or _estimate_risk(objective)
     if risk_level not in {"low", "medium", "high"}:
         raise RuntimeViolation(f"unknown risk level: {risk_level}")
     route_name = {"low": "small", "medium": "medium", "high": "large_high_risk"}[risk_level]
@@ -1522,6 +1557,7 @@ def init_task(
         "task_id": task_id,
         "task_dir": str(task_dir),
         "route": route_name,
+        "risk_level": risk_level,
         "created": created_artifacts,
         "selected_architecture": _select_team_architecture(objective, risk_level)["pattern"],
         "next_action": "run status, then execute clarify; generated drafts are task-local starting points",
