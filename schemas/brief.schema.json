@@ -54,6 +54,14 @@
         "high"
       ]
     },
+    "route": {
+      "type": "string",
+      "enum": [
+        "small",
+        "medium",
+        "large_high_risk"
+      ]
+    },
     "assumptions": {
       "type": "array",
       "items": {

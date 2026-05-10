@@ -121,6 +121,46 @@ class TestDetectProjectType:
         assert result["project_type"] == "python-cli"
         assert result["language"] == "Python"
 
+    def test_tanstack_start_detected_via_package_json(self, tmp_path: Path) -> None:
+        project = tmp_path / "myapp"
+        project.mkdir()
+        (project / "package.json").write_text(json.dumps({
+            "dependencies": {"@tanstack/start": "1.0.0", "react": "18.2.0"},
+            "devDependencies": {"typescript": "5.3.0"},
+        }))
+        (project / "tsconfig.json").write_text("{}")
+        task_dir = project / ".forgeflow" / "tasks" / "t-01"
+        task_dir.mkdir(parents=True)
+        result = _detect_project_type(task_dir)
+        assert result["project_type"] == "tanstack-start"
+        assert result["framework"] == "TanStack Start"
+        assert result["language"] == "TypeScript"
+
+    def test_tanstack_start_detected_via_vinxi(self, tmp_path: Path) -> None:
+        project = tmp_path / "myapp"
+        project.mkdir()
+        (project / "package.json").write_text(json.dumps({
+            "dependencies": {"vinxi": "0.4.0", "react": "18.2.0"},
+        }))
+        task_dir = project / ".forgeflow" / "tasks" / "t-01"
+        task_dir.mkdir(parents=True)
+        result = _detect_project_type(task_dir)
+        assert result["project_type"] == "tanstack-start"
+        assert result["framework"] == "TanStack Start"
+
+    def test_tanstack_start_not_confused_with_plain_react(self, tmp_path: Path) -> None:
+        """When @tanstack/start is present, it should win over plain react."""
+        project = tmp_path / "myapp"
+        project.mkdir()
+        (project / "package.json").write_text(json.dumps({
+            "dependencies": {"@tanstack/start": "1.0.0", "react": "18.2.0"},
+        }))
+        task_dir = project / ".forgeflow" / "tasks" / "t-01"
+        task_dir.mkdir(parents=True)
+        result = _detect_project_type(task_dir)
+        assert result["project_type"] == "tanstack-start"
+        assert result["project_type"] != "react"
+
     def test_max_depth_stops_at_8_levels(self, tmp_path: Path) -> None:
         """Project root 9+ levels up should not be detected."""
         deep = tmp_path
@@ -161,6 +201,13 @@ class TestProjectTypeConsiderations:
         info = {"project_type": "unknown", "framework": None, "language": None}
         notes = _project_type_considerations(info)
         assert "general best practices" in notes
+
+    def test_tanstack_start_notes(self) -> None:
+        info = {"project_type": "tanstack-start", "framework": "TanStack Start", "language": "TypeScript"}
+        notes = _project_type_considerations(info)
+        assert "TanStack Start" in notes
+        assert "file-based routing" in notes
+        assert "Server Functions" in notes
 
 
 # ── Integration: init with project context ────────────────────────

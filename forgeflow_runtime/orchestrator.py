@@ -882,6 +882,9 @@ def _detect_project_type(task_dir: Path) -> dict[str, Any]:
         if "next" in deps:
             detected = ["nextjs"]
             framework = "Next.js"
+        elif "@tanstack/start" in deps or "vinxi" in deps:
+            detected = ["tanstack-start"]
+            framework = "TanStack Start"
         elif "react" in deps:
             detected = ["react"]
             framework = "React"
@@ -922,6 +925,7 @@ def _detect_project_type(task_dir: Path) -> dict[str, Any]:
         "flask": "Flask",
         "fastapi": "FastAPI",
         "nextjs": "Next.js",
+        "tanstack-start": "TanStack Start",
         "react": "React",
         "express": "Express",
     }
@@ -934,6 +938,7 @@ def _detect_project_type(task_dir: Path) -> dict[str, Any]:
         # Infer language from project markers
         _LANG_MAP: dict[str, str] = {
             "nextjs": "JavaScript",
+            "tanstack-start": "JavaScript",
             "react": "JavaScript",
             "express": "JavaScript",
             "fastapi": "Python",
@@ -973,6 +978,12 @@ def _project_type_considerations(project_info: dict[str, Any]) -> str:
             "- React: functional components with hooks.\n"
             "- State management: prefer built-in useState/useReducer; add external lib only when justified.\n"
             "- Follow component composition over inheritance.\n"
+        ),
+        "tanstack-start": (
+            "- TanStack Start: full-stack React framework built on Vinxi.\n"
+            "- Use file-based routing under app/routes/.\n"
+            "- Server Functions for data loading/mutations (createServerFn).\n"
+            "- Prefer TanStack Router patterns over manual routing.\n"
         ),
         "fastapi": (
             "- FastAPI: use dependency injection for DB sessions, auth, and config.\n"
@@ -1320,6 +1331,7 @@ def init_task(
         "constraints": ["initialized from operator CLI"],
         "acceptance_criteria": ["task artifacts are initialized and schema-valid"],
         "risk_level": risk_level,
+        "route": route_name,
     }
     _write_validated_artifact(task_dir, "brief", brief_payload)
     created_artifacts.append("brief.json")
