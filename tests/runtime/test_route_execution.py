@@ -91,6 +91,7 @@ def test_small_route_runs_end_to_end_and_updates_state(
             "constraints": ["local only"],
             "acceptance_criteria": ["route works"],
             "risk_level": "low",
+            "use_worktree": False,
         },
     )
     write_json(

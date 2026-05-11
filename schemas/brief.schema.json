@@ -73,6 +73,10 @@
       "items": {
         "type": "string"
       }
+    },
+    "use_worktree": {
+      "type": "boolean",
+      "description": "Whether to create a git worktree for isolated execution. If not set, the agent should ask the user at execute stage."
     }
   },
   "additionalProperties": false

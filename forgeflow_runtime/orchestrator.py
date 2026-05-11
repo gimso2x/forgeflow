@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
@@ -1751,16 +1752,58 @@ def _write_profile_artifact(task_dir: Path, profile: Any) -> None:
 def _maybe_create_worktree(
     task_dir: Path,
     run_state: dict[str, Any],
-    decision_log: list[dict[str, Any]],
+    decision_log: dict[str, Any],
 ) -> dict | None:
     """Optionally create a git worktree for isolated execution.
 
-    Returns a worktree info dict on success, None if the project is not a git
-    repo or creation fails (non-fatal — execution proceeds on the main tree).
+    Reads ``use_worktree`` from brief.json.  When the key is missing (null),
+    the function records an *action-required* decision entry so the calling
+    agent can prompt the user, and returns ``None`` without creating anything.
+    When the key is explicitly ``false``, creation is skipped silently.
+    When ``true`` (or when brief.json does not exist), proceeds with creation.
+
+    Returns a worktree info dict on success, None otherwise (non-fatal).
     """
-    # Walk up from task_dir to find the git repo root
+    # --- Check brief.json for user preference ---
+    brief_path = task_dir / "brief.json"
+    if brief_path.exists():
+        try:
+            brief = json.loads(brief_path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            brief = {}
+    else:
+        brief = {}
+
+    use_worktree = brief.get("use_worktree")
+    if use_worktree is None:
+        # Key absent — ask the user via decision-log action-required entry
+        _append_decision(
+            decision_log,
+            actor="execute-intelligence",
+            category="execute-context",
+            decision="worktree preference not set — ask user",
+            rationale=(
+                "brief.json has no 'use_worktree' field. "
+                "Ask the user whether to isolate execution in a git worktree, "
+                "then write 'use_worktree': true/false to brief.json and re-run execute."
+            ),
+        )
+        return None
+    if not use_worktree:
+        # Explicit user preference: execute on the main tree without adding
+        # noise to decision-log stage ordering.
+        return None
+
+    # --- Proceed with worktree creation ---
     repo_root = _find_git_root(task_dir)
     if repo_root is None:
+        _append_decision(
+            decision_log,
+            actor="execute-intelligence",
+            category="execute-context",
+            decision="worktree skipped — not a git repo",
+            rationale="no .git directory found; proceeding on main tree",
+        )
         return None
 
     task_id = run_state.get("task_id", "unknown")
@@ -1799,7 +1842,7 @@ def _cleanup_worktree(
     task_dir: Path,
     wt_info: dict,
     run_state: dict[str, Any],
-    decision_log: list[dict[str, Any]],
+    decision_log: dict[str, Any],
 ) -> None:
     """Remove the worktree after execute stage completes."""
     repo_root = _find_git_root(task_dir)
