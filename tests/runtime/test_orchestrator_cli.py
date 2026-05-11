@@ -69,28 +69,20 @@ def test_cli_init_bootstraps_task_from_operator_inputs(tmp_path: Path) -> None:
     payload = json.loads(result.stdout)
     assert payload["task_id"] == "my-task-001"
     assert payload["route"] == "small"
+    # init only creates core JSON artifacts — no docs/agents/skills
     for name in [
         "brief.json",
-        "docs/PRD.md",
-        "docs/ARCHITECTURE.md",
-        "tasks/init-summary.md",
-        "CLAUDE.md",
         "run-state.json",
         "checkpoint.json",
         "session-state.json",
     ]:
         assert name in payload["created"]
         assert (task_dir / name).exists(), f"{name} missing in task_dir"
-    # agents/skills are in project_root, not task_dir — exact set varies by work mode
-    agents_dir = tmp_path / ".claude" / "agents"
-    skills_dir = tmp_path / ".claude" / "skills"
-    assert agents_dir.exists(), ".claude/agents/ missing in project_root"
-    assert skills_dir.exists(), ".claude/skills/ missing in project_root"
-    # At least one agent and one skill must be created
-    assert any(agents_dir.glob("*.md")), "No agent files created"
-    assert any(d.is_dir() for d in skills_dir.iterdir()), "No skill dirs created"
-    assert payload["selected_architecture"] == "producer-reviewer + pipeline"
-    assert payload["next_action"] == "run status, then execute clarify; generated drafts are task-local starting points"
+    # drafts should NOT exist after init alone
+    assert not (task_dir / "docs" / "PRD.md").exists()
+    assert not (task_dir / "CLAUDE.md").exists()
+    assert "selected_architecture" not in payload
+    assert payload["next_action"] == "run clarify to analyze and generate drafts"
 
     brief = json.loads((task_dir / "brief.json").read_text(encoding="utf-8"))
     assert brief["task_id"] == "my-task-001"
@@ -102,12 +94,34 @@ def test_cli_init_bootstraps_task_from_operator_inputs(tmp_path: Path) -> None:
     assert run_state["current_stage"] == "clarify"
     assert run_state["status"] == "not_started"
 
+    # now run clarify to generate drafts
+    clarify_result = _run_orchestrator_cli("clarify", "--task-dir", str(task_dir))
+    assert clarify_result.returncode == 0
+    clarify_payload = json.loads(clarify_result.stdout)
+    assert clarify_payload["task_id"] == "my-task-001"
+    assert clarify_payload["route"] == "small"
+    assert "selected_architecture" in clarify_payload
+
+    # drafts now exist
+    for name in [
+        "docs/PRD.md",
+        "docs/ARCHITECTURE.md",
+        "tasks/init-summary.md",
+        "CLAUDE.md",
+    ]:
+        assert (task_dir / name).exists(), f"{name} missing after clarify"
+    agents_dir = tmp_path / ".claude" / "agents"
+    skills_dir = tmp_path / ".claude" / "skills"
+    assert agents_dir.exists(), ".claude/agents/ missing in project_root"
+    assert skills_dir.exists(), ".claude/skills/ missing in project_root"
+    assert any(agents_dir.glob("*.md")), "No agent files created"
+    assert any(d.is_dir() for d in skills_dir.iterdir()), "No skill dirs created"
+
     status_result = _run_orchestrator_cli("status", "--task-dir", str(task_dir))
     assert status_result.returncode == 0
     status_payload = json.loads(status_result.stdout)
     assert status_payload["task_id"] == "my-task-001"
     assert status_payload["route"] == "small"
-    assert status_payload["current_stage"] == "clarify"
 
 
 def test_cli_init_without_task_dir_writes_under_current_project_forgeflow_tasks(tmp_path: Path) -> None:

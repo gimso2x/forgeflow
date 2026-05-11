@@ -1326,26 +1326,15 @@ def init_task(
         "schema_version": "0.1",
         "task_id": task_id,
         "objective": objective,
-        "in_scope": [objective],
+        "in_scope": [],
         "out_of_scope": [],
-        "constraints": ["initialized from operator CLI"],
-        "acceptance_criteria": ["task artifacts are initialized and schema-valid"],
+        "constraints": [],
+        "acceptance_criteria": [],
         "risk_level": risk_level,
         "route": route_name,
     }
     _write_validated_artifact(task_dir, "brief", brief_payload)
     created_artifacts.append("brief.json")
-
-    created_artifacts.extend(
-        _init_markdown_drafts(
-            task_dir=task_dir,
-            project_root=project_root,
-            task_id=task_id,
-            objective=objective,
-            risk_level=risk_level,
-            route_name=route_name,
-        )
-    )
 
     run_state = _initial_run_state(task_id, route)
     _write_validated_artifact(task_dir, "run-state", run_state)
@@ -1376,8 +1365,87 @@ def init_task(
         "route": route_name,
         "risk_level": risk_level,
         "created": created_artifacts,
-        "selected_architecture": _select_team_architecture(objective, risk_level)["pattern"],
-        "next_action": "run status, then execute clarify; generated drafts are task-local starting points",
+        "next_action": "run clarify to analyze and generate drafts",
+    }
+
+
+def clarify_task(
+    task_dir: Path,
+    policy: RuntimePolicy,
+    *,
+    project_root: Path | None = None,
+) -> dict[str, Any]:
+    """Analyze the objective, generate markdown drafts, and advance past the clarify stage."""
+    brief = _load_validated_artifact(task_dir, "brief")
+    objective = brief["objective"]
+    task_id = brief["task_id"]
+    risk_level = brief.get("risk_level", "medium")
+    route_name = brief.get("route", "small")
+
+    if project_root is None:
+        project_root = task_dir.parent.parent.parent.resolve()
+
+    # 1. Domain analysis + architecture selection
+    domain_info = _analyze_objective_domain(objective)
+    _detect_project_type(project_root)
+    architecture = _select_team_architecture(objective, risk_level)
+
+    # 2. Generate markdown drafts (docs/, tasks/, agents, skills)
+    created_drafts = _init_markdown_drafts(
+        task_dir=task_dir,
+        project_root=project_root,
+        task_id=task_id,
+        objective=objective,
+        risk_level=risk_level,
+        route_name=route_name,
+    )
+
+    # 3. Enrich brief with domain analysis results
+    brief["in_scope"] = [objective]
+    brief["out_of_scope"] = []
+    brief["constraints"] = ["initialized from operator CLI"]
+    brief["acceptance_criteria"] = ["task artifacts are initialized and schema-valid"]
+    _write_validated_artifact(task_dir, "brief", brief)
+
+    # 4. Advance stage: clarify → next
+    route = _resolve_route(policy, route_name)
+    run_state = _load_validated_artifact(task_dir, "run-state", expected_task_id=task_id)
+    advance_result: TransitionResult | None = None
+    try:
+        advance_result = advance_to_next_stage(
+            task_dir, policy, route_name, run_state["current_stage"],
+        )
+    except RuntimeViolation:
+        pass  # single-stage routes may not advance
+
+    # 5. Re-sync checkpoint and session-state
+    run_state = _load_validated_artifact(task_dir, "run-state", expected_task_id=task_id)
+    plan_ledger = _load_plan_ledger(task_dir, canonical_task_id=task_id)
+    checkpoint = _sync_checkpoint(
+        task_dir,
+        route_name=route_name,
+        route=route,
+        run_state=run_state,
+        plan_ledger=plan_ledger,
+        checkpoint=None,
+    )
+    _sync_session_state(
+        task_dir,
+        route_name=route_name,
+        run_state=run_state,
+        checkpoint=checkpoint,
+        plan_ledger=plan_ledger,
+        session_state=None,
+    )
+
+    next_stage = advance_result.next_stage if advance_result else run_state["current_stage"]
+    return {
+        "task_id": task_id,
+        "route": route_name,
+        "created_drafts": created_drafts,
+        "selected_architecture": architecture["pattern"],
+        "current_stage": next_stage,
+        "next_action": f"stage advanced to {next_stage}; continue with execute or plan",
     }
 
 

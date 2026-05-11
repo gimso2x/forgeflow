@@ -10,12 +10,12 @@ from forgeflow_runtime.orchestrator import (
     _architecture_considerations,
     _domain_considerations,
     _qa_checklist,
+    clarify_task,
     init_task,
 )
 from forgeflow_runtime.policy_loader import RuntimePolicy, load_runtime_policy
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent
-
 
 @pytest.fixture()
 def policy():
@@ -120,9 +120,9 @@ class TestQAChecklist:
         assert "acceptance criteria" in text.lower()
 
 
-class TestInitWithDomainAnalysis:
-    def test_init_generates_domain_rich_prd(self, tmp_path, policy) -> None:
-        """Init with a domain-specific objective produces domain-aware drafts."""
+class TestClarifyWithDomainAnalysis:
+    def test_clarify_generates_domain_rich_prd(self, tmp_path, policy) -> None:
+        """Clarify with a domain-specific objective produces domain-aware drafts."""
         task_dir = tmp_path / "auth-task"
         init_task(
             task_dir,
@@ -131,6 +131,7 @@ class TestInitWithDomainAnalysis:
             objective="add OAuth login endpoint with session management",
             risk_level="medium",
         )
+        clarify_task(task_dir, policy)
 
         prd = (task_dir / "docs/PRD.md").read_text()
         assert "## Domain Analysis" in prd
@@ -147,8 +148,8 @@ class TestInitWithDomainAnalysis:
         assert "## Domain-Specific QA Checklist" in qa
         assert "Authenticated and unauthenticated" in qa
 
-    def test_init_generates_refactor_aware_drafts(self, tmp_path, policy) -> None:
-        """Init with refactor objective produces refactor-specific considerations."""
+    def test_clarify_generates_refactor_aware_drafts(self, tmp_path, policy) -> None:
+        """Clarify with refactor objective produces refactor-specific considerations."""
         task_dir = tmp_path / "refactor-task"
         init_task(
             task_dir,
@@ -157,6 +158,7 @@ class TestInitWithDomainAnalysis:
             objective="refactor database query layer for better performance",
             risk_level="high",
         )
+        clarify_task(task_dir, policy)
 
         prd = (task_dir / "docs/PRD.md").read_text()
         assert "refactor" in prd

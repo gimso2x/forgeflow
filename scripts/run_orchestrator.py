@@ -13,6 +13,7 @@ if str(ROOT) not in sys.path:
 from forgeflow_runtime.orchestrator import (  # noqa: E402
     RuntimeViolation,
     advance_to_next_stage,
+    clarify_task,
     escalate_route,
     init_task,
     load_runtime_policy,
@@ -107,9 +108,16 @@ Notes:
         help="bootstrap a new task from explicit operator inputs without overwriting existing artifacts",
     )
     init_parser.add_argument("--task-dir", help="task artifact directory; defaults to ./.forgeflow/tasks/<task-id>")
-    init_parser.add_argument("--task-id", required=True)
-    init_parser.add_argument("--objective", required=True)
-    init_parser.add_argument("--risk", choices=["low", "medium", "high"], required=True)
+    init_parser.add_argument("--task-id", help="task identifier; auto-inferred from objective if omitted")
+    init_parser.add_argument("--objective", help="one-sentence task goal; auto-inferred from project context if omitted")
+    init_parser.add_argument("--risk", choices=["low", "medium", "high"], help="risk level; auto-inferred if omitted")
+
+    clarify_parser = subparsers.add_parser(
+        "clarify",
+        help="analyze objective, detect project context, generate PRD/ARCH/QA drafts and deploy agents",
+    )
+    clarify_parser.add_argument("--task-dir", required=True)
+    clarify_parser.add_argument("--route", help=route_help)
 
     run_parser = subparsers.add_parser(
         "run",
@@ -191,7 +199,7 @@ def _task_dir_is_plugin_cache(task_dir: Path) -> bool:
 
 
 def _command_mutates_task(command: str) -> bool:
-    return command in {"start", "init", "run", "resume", "advance", "retry", "step-back", "escalate", "execute"}
+    return command in {"start", "init", "clarify", "run", "resume", "advance", "retry", "step-back", "escalate", "execute"}
 
 
 def _guard_mutating_task_dir(command: str, task_dir: Path) -> None:
@@ -212,8 +220,10 @@ def main() -> int:
         task_dir_arg = getattr(args, "task_dir", None)
         if task_dir_arg:
             task_dir = Path(task_dir_arg).resolve()
-        elif args.command == "init":
+        elif args.command == "init" and getattr(args, "task_id", None):
             task_dir = _default_task_dir_for_init(args.task_id)
+        elif args.command == "init":
+            parser.error("--task-id or --task-dir is required for init")
         else:
             parser.error("--task-dir is required for this command")
         _guard_mutating_task_dir(args.command, task_dir)
@@ -235,6 +245,13 @@ def main() -> int:
                     task_id=args.task_id,
                     objective=args.objective,
                     risk_level=args.risk,
+                )
+            )
+        elif args.command == "clarify":
+            _print_payload(
+                clarify_task(
+                    task_dir=task_dir,
+                    policy=policy,
                 )
             )
         elif args.command == "run":

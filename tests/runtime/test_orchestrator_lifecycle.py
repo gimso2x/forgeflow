@@ -19,6 +19,7 @@ from forgeflow_runtime.orchestrator import (
     _resolve_route,
     _validate_review_semantics,
     advance_to_next_stage,
+    clarify_task,
     escalate_route,
     init_task,
     resume_task,
@@ -187,9 +188,92 @@ class TestInitTask:
 
         assert result["route"] == "small"
         assert result["task_id"] == "t-01"
+        # init only creates the 4 core artifacts — no drafts
         for name in ["brief.json", "run-state.json", "checkpoint.json", "session-state.json"]:
             assert (task_dir / name).exists(), f"{name} missing"
-        # docs/tasks go in task_dir
+        # docs/ and tasks/ should NOT exist after init
+        assert not (task_dir / "docs").exists(), "docs/ should not exist after init"
+        assert not (task_dir / "tasks").exists(), "tasks/ should not exist after init"
+        assert not (task_dir / "CLAUDE.md").exists(), "CLAUDE.md should not exist after init"
+        # no selected_architecture in init result
+        assert "selected_architecture" not in result
+
+        # verify brief has empty arrays (raw objective only)
+        brief = json.loads((task_dir / "brief.json").read_text())
+        assert brief["task_id"] == "t-01"
+        assert brief["risk_level"] == "low"
+        assert brief["in_scope"] == []
+        assert brief["constraints"] == []
+
+        # verify run-state current_stage is first stage of small route
+        run_state = json.loads((task_dir / "run-state.json").read_text())
+        small_stages = _resolve_route(policy, "small")
+        assert run_state["current_stage"] == small_stages[0]
+
+        # verify next_action
+        assert "clarify" in result["next_action"]
+
+    def test_init_task_medium_route(self, tmp_path: Path, policy: RuntimePolicy) -> None:
+        task_dir = tmp_path / "medium-task"
+        result = init_task(task_dir, policy, task_id="t-02", objective="fix bug in REST api endpoint", risk_level="medium")
+
+        assert result["route"] == "medium"
+        assert result["task_id"] == "t-02"
+        for name in ["brief.json", "run-state.json", "checkpoint.json", "session-state.json"]:
+            assert (task_dir / name).exists(), f"{name} missing"
+        # init does NOT create docs/ or markdown drafts
+        assert not (task_dir / "docs").exists()
+        assert "selected_architecture" not in result
+
+        run_state = json.loads((task_dir / "run-state.json").read_text())
+        medium_stages = _resolve_route(policy, "medium")
+        assert run_state["current_stage"] == medium_stages[0]
+
+    def test_init_task_rejects_existing_artifacts(self, tmp_path: Path, policy: RuntimePolicy) -> None:
+        task_dir = tmp_path / "task"
+        task_dir.mkdir()
+        (task_dir / "brief.json").write_text("{}")
+
+        with pytest.raises(RuntimeViolation, match="init refuses to overwrite"):
+            init_task(task_dir, policy, task_id="t-01", objective="x", risk_level="low")
+
+    def test_init_task_invalid_risk_level(self, tmp_path: Path, policy: RuntimePolicy) -> None:
+        task_dir = tmp_path / "task"
+        with pytest.raises(RuntimeViolation, match="unknown risk level"):
+            init_task(task_dir, policy, task_id="t-01", objective="x", risk_level="critical")
+
+    def test_init_task_creates_valid_checkpoint_and_session(self, tmp_path: Path, policy: RuntimePolicy) -> None:
+        """Verify checkpoint and session-state have correct route/stage refs."""
+        task_dir = tmp_path / "small-task"
+        init_task(task_dir, policy, task_id="t-chk", objective="x", risk_level="low")
+
+        checkpoint = json.loads((task_dir / "checkpoint.json").read_text())
+        session = json.loads((task_dir / "session-state.json").read_text())
+        assert checkpoint["route"] == "small"
+        assert session["route"] == "small"
+        assert session["latest_checkpoint_ref"] == "checkpoint.json"
+        assert session["run_state_ref"] == "run-state.json"
+
+
+# =========================================================================
+# clarify_task tests
+# =========================================================================
+
+
+class TestClarifyTask:
+    def test_clarify_small_route_creates_drafts(self, tmp_path: Path, policy: RuntimePolicy) -> None:
+        project_root = tmp_path / "project"
+        project_root.mkdir()
+        task_dir = tmp_path / "small-task"
+        init_task(task_dir, policy, task_id="t-01", objective="do it", risk_level="low", project_root=project_root)
+
+        result = clarify_task(task_dir, policy, project_root=project_root)
+
+        assert result["task_id"] == "t-01"
+        assert result["route"] == "small"
+        assert "producer-reviewer" in result["selected_architecture"]
+
+        # docs/ and tasks/ now exist after clarify
         for name in [
             "docs/PRD.md",
             "docs/ARCHITECTURE.md",
@@ -199,11 +283,10 @@ class TestInitTask:
             "CLAUDE.md",
         ]:
             assert (task_dir / name).exists(), f"{name} missing"
-        # agents/skills go in project_root — exact set depends on work mode
-        # At minimum, architect and qa-engineer should exist for any mode
+
+        # agents/skills go in project_root
         assert (project_root / ".claude" / "agents").exists()
         assert (project_root / ".claude" / "skills").exists()
-        assert "producer-reviewer" in result["selected_architecture"]
 
         # Verify domain-specific agents have proper structure
         agents_dir = project_root / ".claude" / "agents"
@@ -230,19 +313,16 @@ class TestInitTask:
         assert "Work Mode" in pointer
         assert "/forgeflow:review" in pointer
 
-        # verify brief
+        # verify brief is enriched
         brief = json.loads((task_dir / "brief.json").read_text())
-        assert brief["task_id"] == "t-01"
-        assert brief["risk_level"] == "low"
-        assert "do it" in (task_dir / "docs/PRD.md").read_text()
+        assert brief["in_scope"] == ["do it"]
+        assert brief["constraints"] == ["initialized from operator CLI"]
 
         # verify domain analysis in PRD
         prd_text = (task_dir / "docs/PRD.md").read_text()
         assert "## Domain Analysis" in prd_text
         assert "general" in prd_text
         assert "feature" in prd_text
-
-        # verify domain considerations in PRD
         assert "## Domain-Specific Considerations" in prd_text
 
         # verify domain context in ARCHITECTURE
@@ -255,20 +335,13 @@ class TestInitTask:
         assert "## Domain Context" in qa_text
         assert "## Domain-Specific QA Checklist" in qa_text
 
-        # verify run-state current_stage is first stage of small route
-        run_state = json.loads((task_dir / "run-state.json").read_text())
-        small_stages = _resolve_route(policy, "small")
-        assert run_state["current_stage"] == small_stages[0]
-
-    def test_init_task_medium_route(self, tmp_path: Path, policy: RuntimePolicy) -> None:
+    def test_clarify_medium_route_domain_analysis(self, tmp_path: Path, policy: RuntimePolicy) -> None:
         task_dir = tmp_path / "medium-task"
-        result = init_task(task_dir, policy, task_id="t-02", objective="fix bug in REST api endpoint", risk_level="medium")
+        init_task(task_dir, policy, task_id="t-02", objective="fix bug in REST api endpoint", risk_level="medium")
+
+        result = clarify_task(task_dir, policy)
 
         assert result["route"] == "medium"
-        assert result["task_id"] == "t-02"
-        for name in ["brief.json", "run-state.json", "checkpoint.json", "session-state.json"]:
-            assert (task_dir / name).exists(), f"{name} missing"
-        assert "docs/ARCHITECTURE.md" in result["created"]
         assert result["selected_architecture"] == "pipeline + producer-reviewer"
 
         # verify domain analysis detects api and bugfix
@@ -281,28 +354,11 @@ class TestInitTask:
         assert "API contract verified" in qa_text
         assert "Bug reproduced before fix" in qa_text
 
-        run_state = json.loads((task_dir / "run-state.json").read_text())
-        medium_stages = _resolve_route(policy, "medium")
-        assert run_state["current_stage"] == medium_stages[0]
-
-    def test_init_task_rejects_existing_artifacts(self, tmp_path: Path, policy: RuntimePolicy) -> None:
-        task_dir = tmp_path / "task"
-        task_dir.mkdir()
-        (task_dir / "brief.json").write_text("{}")
-
-        with pytest.raises(RuntimeViolation, match="init refuses to overwrite"):
-            init_task(task_dir, policy, task_id="t-01", objective="x", risk_level="low")
-
-    def test_init_task_invalid_risk_level(self, tmp_path: Path, policy: RuntimePolicy) -> None:
-        task_dir = tmp_path / "task"
-        with pytest.raises(RuntimeViolation, match="unknown risk level"):
-            init_task(task_dir, policy, task_id="t-01", objective="x", risk_level="critical")
-
-    def test_init_task_selects_higher_rigor_architecture_for_risky_work(
+    def test_clarify_selects_higher_rigor_architecture_for_risky_work(
         self, tmp_path: Path, policy: RuntimePolicy
     ) -> None:
         task_dir = tmp_path / "risky-task"
-        result = init_task(
+        init_task(
             task_dir,
             policy,
             task_id="t-risk",
@@ -310,22 +366,30 @@ class TestInitTask:
             risk_level="high",
         )
 
+        result = clarify_task(task_dir, policy)
+
         assert result["selected_architecture"] == "fan-out/fan-in + producer-reviewer"
         architecture = (task_dir / "docs/ARCHITECTURE.md").read_text()
         assert "fan-out/fan-in + producer-reviewer" in architecture
         assert "security migration for auth architecture" in (task_dir / "tasks/init-summary.md").read_text()
 
-    def test_init_task_creates_valid_checkpoint_and_session(self, tmp_path: Path, policy: RuntimePolicy) -> None:
-        """Verify checkpoint and session-state have correct route/stage refs."""
-        task_dir = tmp_path / "small-task"
-        init_task(task_dir, policy, task_id="t-chk", objective="x", risk_level="low")
+    def test_clarify_enriches_brief(self, tmp_path: Path, policy: RuntimePolicy) -> None:
+        """Clarify fills in empty brief fields with domain analysis results."""
+        task_dir = tmp_path / "brief-task"
+        init_task(task_dir, policy, task_id="t-brief", objective="do something", risk_level="low")
 
-        checkpoint = json.loads((task_dir / "checkpoint.json").read_text())
-        session = json.loads((task_dir / "session-state.json").read_text())
-        assert checkpoint["route"] == "small"
-        assert session["route"] == "small"
-        assert session["latest_checkpoint_ref"] == "checkpoint.json"
-        assert session["run_state_ref"] == "run-state.json"
+        # Before clarify, brief has empty arrays
+        brief_before = json.loads((task_dir / "brief.json").read_text())
+        assert brief_before["in_scope"] == []
+        assert brief_before["constraints"] == []
+
+        clarify_task(task_dir, policy)
+
+        # After clarify, brief is enriched
+        brief_after = json.loads((task_dir / "brief.json").read_text())
+        assert brief_after["in_scope"] == ["do something"]
+        assert brief_after["constraints"] == ["initialized from operator CLI"]
+        assert brief_after["acceptance_criteria"] == ["task artifacts are initialized and schema-valid"]
 
 
 # =========================================================================
