@@ -58,7 +58,7 @@ Use the plugin with slash-style prompts:
 /forgeflow:init --task-id <id> --objective "<objective>" --risk low|medium|high
 /forgeflow:clarify <task>
 /forgeflow:plan
-/forgeflow:run
+/forgeflow:execute
 /forgeflow:review
 /forgeflow:ship
 /forgeflow:finish

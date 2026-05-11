@@ -138,14 +138,14 @@ For non-trivial work, carry the requirement map through the executable plan inst
 - If a step intentionally has no requirement reference, say why in the sibling plan note or response artifact; do not silently create orphan work.
 - If a verification target is not executable by the chosen backend, record the adapter limitation and a fallback manual/evidence gate before run starts.
 
-Do not proceed to `/forgeflow:run` if one of those is missing for non-trivial work. For tiny exact-output prompts, preserve the requested format but keep the same information density in the listed steps.
+Do not proceed to `/forgeflow:execute` if one of those is missing for non-trivial work. For tiny exact-output prompts, preserve the requested format but keep the same information density in the listed steps.
 
 ## Exit Condition
 
 - Every task has exact file paths or a justified discovery step
 - Every task has verification
 - Dependencies form a DAG
-- Medium/large routes have enough detail for `/forgeflow:run` without guessing
+- Medium/large routes have enough detail for `/forgeflow:execute` without guessing
 - A visual plan view can be generated when useful: `python3 scripts/forgeflow_visual.py plan <task-dir>/plan.json --format markdown`; for live browser feedback, run `node scripts/visual-companion.cjs` and POST the Mermaid source to `http://127.0.0.1:8765/diagram`.
 - The minimum plan gate covers `Goal`, `Requirements`, `Implementation Steps`, and `Verification`
 - Refactor-specific checks are present only when refactor mode applies, with preserved behavior, non-goals, migration boundary, rollback or escape hatch, regression verification, and existing coverage represented in existing plan fields or sibling markdown sections
@@ -207,7 +207,7 @@ If the user explicitly includes `--yes`, `--auto-approve`, `--non-interactive`, 
    - dependency ordering
    - regression and recovery risks
    - verification strategy
-7. Propose `/forgeflow:run` as the next stage and stop for explicit user approval.
+7. Propose `/forgeflow:execute` as the next stage and stop for explicit user approval.
 
 Do not code during planning unless the user explicitly asks for a tiny small-route direct execution.
 
@@ -216,8 +216,8 @@ Do not code during planning unless the user explicitly asks for a tiny small-rou
 - Planning owns plan creation; do not ask the user to make the plan.
 - Do not ask for 계획 내용 재승인 when the plan is executable; the agent owns decomposition.
 - Do stop before crossing the `plan → run` stage boundary, because execution is a separate stage.
-- End with a closed next-stage question such as `계획은 여기까지 확정됐습니다. 다음 스텝으로 `/forgeflow:run`을 진행하시겠습니까? (y/n)`.
-- Do not invoke `/forgeflow:run`, the Skill tool, or any execution tool in the same assistant turn after asking the closed next-stage question. The next assistant turn may proceed only after an explicit user approval such as `y`, `yes`, `진행`, or `실행`.
+- End with a closed next-stage question such as `계획은 여기까지 확정됐습니다. 다음 스텝으로 `/forgeflow:execute`을 진행하시겠습니까? (y/n)`.
+- Do not invoke `/forgeflow:execute`, the Skill tool, or any execution tool in the same assistant turn after asking the closed next-stage question. The next assistant turn may proceed only after an explicit user approval such as `y`, `yes`, `진행`, or `실행`.
 - Bad: `계획 확정. run 직행.`
 - Bad: `내가 계획을 세워?`
 - Good: `아니요. 계획은 내가 세운다. 아래처럼 진행.`

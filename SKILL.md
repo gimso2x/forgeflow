@@ -80,7 +80,7 @@ python3 scripts/policy_scan.py
 /forgeflow:init     — task 생성 (task-id, objective, risk)
 /forgeflow:clarify  — 요구사항 정리
 /forgeflow:plan     — 계획 수립
-/forgeflow:run      — 구현 실행
+/forgeflow:execute      — 구현 실행
 /forgeflow:review   — 독립 검증
 /forgeflow:ship     — 배포/마무리
 /forgeflow:finish   — 정리 및 종료

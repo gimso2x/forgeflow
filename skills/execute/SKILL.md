@@ -1,6 +1,6 @@
 ---
-name: run
-description: Legacy alias for /forgeflow:execute. Prefer /forgeflow:execute so command names match the runtime execute stage.
+name: execute
+description: Execute a ForgeFlow plan with verification and runtime evidence. Use when the user types /forgeflow:execute or asks to implement after clarify/plan.
 version: 0.1.0
 author: gimso2x
 validate_prompt: |
@@ -8,9 +8,6 @@ validate_prompt: |
   Must execute only scoped plan tasks and respect contracts or verify_plan obligations when present.
   Must not treat worker self-report as final approval; review remains required.
 ---
-
-
-> **CANONICAL NAME:** Use `/forgeflow:execute` for new docs and examples. `/forgeflow:run` remains a backward-compatible alias only.
 
 # Run
 

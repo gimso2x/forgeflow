@@ -37,7 +37,7 @@ claude plugin list
 /forgeflow:init --task-id <id> --objective "<objective>" --risk low|medium|high
 /forgeflow:clarify <하고 싶은 작업>
 /forgeflow:plan
-/forgeflow:run
+/forgeflow:execute
 /forgeflow:review
 /forgeflow:ship
 /forgeflow:finish
@@ -55,7 +55,7 @@ claude plugin list
 /forgeflow:plan
 ```
 
-`/forgeflow`는 전체 workflow 설명/입구입니다. 실제 작업 진행은 보통 `/forgeflow:clarify`부터 시작하지만, 그 다음 `/forgeflow:plan`/`run`을 쓰는 이유를 agent가 정리해 줘야지 사용자에게 계획 작성을 떠넘기면 안 됩니다. 사용자가 매번 workflow 운영자가 될 필요는 없습니다. 다만 stage 경계를 넘을 때는 agent가 멈추고 닫힌 질문으로 확인합니다: `다음 스텝으로 `/forgeflow:run`을 진행하시겠습니까? (y/n)`.
+`/forgeflow`는 전체 workflow 설명/입구입니다. 실제 작업 진행은 보통 `/forgeflow:clarify`부터 시작하지만, 그 다음 `/forgeflow:plan`/`run`을 쓰는 이유를 agent가 정리해 줘야지 사용자에게 계획 작성을 떠넘기면 안 됩니다. 사용자가 매번 workflow 운영자가 될 필요는 없습니다. 다만 stage 경계를 넘을 때는 agent가 멈추고 닫힌 질문으로 확인합니다: `다음 스텝으로 `/forgeflow:execute`을 진행하시겠습니까? (y/n)`.
 
 ### Init이 만드는 것
 
@@ -105,7 +105,7 @@ Codex에서는 ForgeFlow plugin을 설치한 뒤 Claude와 같은 slash-style pr
 - `/forgeflow:init`
 - `/forgeflow:clarify`
 - `/forgeflow:plan`
-- `/forgeflow:run`
+- `/forgeflow:execute`
 - `/forgeflow:review`
 - `/forgeflow:ship`
 - `/forgeflow:finish`
@@ -160,7 +160,7 @@ python3 scripts/install_codex_plugin.py --force
 /forgeflow:init --task-id <id> --objective "<objective>" --risk low|medium|high
 /forgeflow:clarify <하고 싶은 작업>
 /forgeflow:plan
-/forgeflow:run
+/forgeflow:execute
 /forgeflow:review
 /forgeflow:ship
 /forgeflow:finish
@@ -200,7 +200,7 @@ Next.js preset 설치 시 생성되는 role prompt는 `.codex/forgeflow/` 아래
 1. ForgeFlow checkout에서 `scripts/install_codex_plugin.py`로 local marketplace entry를 등록합니다.
 2. Codex Desktop을 재시작하고 ForgeFlow plugin을 enable합니다.
 3. 새 작업에서 `/forgeflow:clarify <하고 싶은 작업>`처럼 입력합니다.
-4. 필요하면 `/forgeflow:plan`, `/forgeflow:run`, `/forgeflow:review`, `/forgeflow:ship` 순서로 진행합니다.
+4. 필요하면 `/forgeflow:plan`, `/forgeflow:execute`, `/forgeflow:review`, `/forgeflow:ship` 순서로 진행합니다.
 5. 프로젝트에 지속 규칙이 필요할 때만 `CODEX.md` 또는 Codex preset을 추가 설치합니다.
 6. 실제 CLI execution까지 검증할 때만 `scripts/run_orchestrator.py ... --adapter codex --real`을 사용하고, 결과 JSON의 `"execution_mode": "real"`을 확인합니다.
 

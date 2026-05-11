@@ -1,6 +1,6 @@
 ---
 name: review
-description: Perform independent ForgeFlow review against requirements, plan, and code. Use when the user types /forgeflow:review, after /forgeflow:run and before /forgeflow:ship.
+description: Perform independent ForgeFlow review against requirements, plan, and code. Use when the user types /forgeflow:review, after /forgeflow:execute and before /forgeflow:ship.
 version: 0.1.0
 author: gimso2x
 validate_prompt: |

@@ -45,7 +45,7 @@ Expected starter artifacts include:
 
 `init` is workspace/bootstrap only. It is not requirement clarification, planning, implementation, review, shipping, or branch disposition.
 
-Do not automatically continue into `/forgeflow:clarify`, `/forgeflow:plan`, or `/forgeflow:run` after init succeeds. That would make the plugin feel like it secretly crossed a stage boundary. No thanks.
+Do not automatically continue into `/forgeflow:clarify`, `/forgeflow:plan`, or `/forgeflow:execute` after init succeeds. That would make the plugin feel like it secretly crossed a stage boundary. No thanks.
 
 ## Exit Condition
 

@@ -55,7 +55,7 @@ claude plugin install forgeflow
 ```text
 /forgeflow:clarify <하고 싶은 작업>
 /forgeflow:plan
-/forgeflow:run
+/forgeflow:execute
 /forgeflow:review
 /forgeflow:ship
 /forgeflow:finish
@@ -88,7 +88,7 @@ irm https://raw.githubusercontent.com/gimso2x/forgeflow/main/scripts/bootstrap_c
 ```text
 /forgeflow:clarify <하고 싶은 작업>
 /forgeflow:plan
-/forgeflow:run
+/forgeflow:execute
 /forgeflow:review
 /forgeflow:ship
 /forgeflow:finish

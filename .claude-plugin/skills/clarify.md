@@ -90,7 +90,7 @@ The heavy analysis stage. Takes the raw objective from init and produces everyth
 10. **Update run-state.json**: set `current_stage: "clarify"` (next advance goes to plan or run)
 
 11. **Determine next stage**:
-    - Route `small`: → `/forgeflow:run` (skip plan, go straight to execution)
+    - Route `small`: → `/forgeflow:execute` (skip plan, go straight to execution)
     - Route `medium` or `large`: → `/forgeflow:plan`
 
 12. **Report**:

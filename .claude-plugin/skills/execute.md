@@ -1,16 +1,8 @@
 ---
-description: Legacy alias for /forgeflow:execute. Prefer /forgeflow:execute so the user-facing command matches the runtime stage name.
+description: Execute the planned implementation with evidence-backed verification.
 ---
 
-# /forgeflow:run
-
-`/forgeflow:run` is a backward-compatible alias. The canonical implementation command is now `/forgeflow:execute`.
-
-Do not introduce new docs, prompts, or examples that teach `/forgeflow:run` as the primary command. Use `/forgeflow:execute` instead so the surface command matches `current_stage: "execute"`.
-
-If the user explicitly typed `/forgeflow:run`, follow the same rules as `/forgeflow:execute` and tell them once that `/forgeflow:execute` is the canonical name.
-
-## Shared implementation rules
+# /forgeflow:execute
 
 Implement the task. Updates `run-state.json` with progress and verification evidence.
 
@@ -21,7 +13,7 @@ Implement the task. Updates `run-state.json` with progress and verification evid
 2. For `small` route: implement the full objective directly.
    For `medium`/`high`: work through plan tasks in dependency order.
 
-3. **Worktree isolation preference**: Python runtime calls this stage `execute`; Claude plugin users should invoke it as `/forgeflow:execute`; `/forgeflow:run` is only a legacy alias. Before editing code, inspect `brief.json` and the latest `decision-log.json` entries.
+3. **Worktree isolation preference**: Python runtime calls this stage `execute`; Claude plugin users invoke it as `/forgeflow:execute`. Before editing code, inspect `brief.json` and the latest `decision-log.json` entries.
    - If `brief.json` has `"use_worktree": true`, use the runtime-prepared git worktree for execution when `run-state.json.worktree.path` is active.
    - If `brief.json` has `"use_worktree": false`, execute in the current working tree.
    - If `use_worktree` is missing/null, or `decision-log.json` contains `worktree preference not set — ask user`, ask the user whether to isolate execute in a git worktree. Then write `"use_worktree": true` or `"use_worktree": false` to `brief.json` and re-run `/forgeflow:execute`. Do not continue implementation until that preference is recorded.

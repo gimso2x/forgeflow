@@ -30,7 +30,7 @@ Already absorbed enough:
 
 - clarification → `/forgeflow:clarify`
 - plan-crafting → `/forgeflow:plan`
-- run-plan → `/forgeflow:run`
+- run-plan → `/forgeflow:execute`
 - review-work → `/forgeflow:review` + review model docs
 - long-run → `docs/long-run-model.md` + checkpoint/session state docs
 - clean-ai-slop → `skills/x-deslop.md`

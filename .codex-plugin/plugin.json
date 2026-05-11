@@ -23,7 +23,7 @@
   "interface": {
     "displayName": "ForgeFlow",
     "shortDescription": "Artifact-first planning, execution, review, verification, and finish workflows for coding agents",
-    "longDescription": "Use ForgeFlow to guide coding agents through artifact-backed clarify, plan, execute, review, verify, ship, and finish workflows with explicit gates and evidence instead of chat-memory vibes. After installing the plugin, use slash-style prompts such as /forgeflow:init, /forgeflow:clarify, /forgeflow:plan, /forgeflow:run, /forgeflow:review, /forgeflow:ship, and /forgeflow:finish.",
+    "longDescription": "Use ForgeFlow to guide coding agents through artifact-backed clarify, plan, execute, review, verify, ship, and finish workflows with explicit gates and evidence instead of chat-memory vibes. After installing the plugin, use slash-style prompts such as /forgeflow:init, /forgeflow:clarify, /forgeflow:plan, /forgeflow:execute, /forgeflow:review, /forgeflow:ship, and /forgeflow:finish.",
     "developerName": "gimso2x",
     "category": "Coding",
     "capabilities": [
@@ -35,7 +35,7 @@
       "/forgeflow:clarify <describe the coding task>",
       "/forgeflow:init --task-id <id> --objective \"<objective>\" --risk low|medium|high",
       "/forgeflow:plan",
-      "/forgeflow:run",
+      "/forgeflow:execute",
       "/forgeflow:review",
       "/forgeflow:ship",
       "/forgeflow:finish"

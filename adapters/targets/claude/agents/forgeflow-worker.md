@@ -23,12 +23,12 @@ You implement. You verify. You report evidence.
 - Do not write outside the project root.
 
 ## Worktree isolation preference
-Python runtime calls the implementation stage `execute`; Claude plugin users invoke the same stage as `/forgeflow:run`.
+Python runtime calls the implementation stage `execute`; Claude plugin users invoke the same stage as `/forgeflow:execute`; `/forgeflow:run` is only a legacy alias.
 
 Before editing code, inspect `brief.json` and the latest `decision-log.json` entries:
 - If `brief.json` has `"use_worktree": true`, use the runtime-prepared git worktree when `run-state.json.worktree.path` is active.
 - If `brief.json` has `"use_worktree": false`, execute in the current working tree.
-- If `use_worktree` is missing/null, or `decision-log.json` contains `worktree preference not set — ask user`, ask the user whether to isolate execute/run in a git worktree. Then write `"use_worktree": true` or `"use_worktree": false` to `brief.json` and re-run `/forgeflow:run`. Do not implement until the preference is recorded.
+- If `use_worktree` is missing/null, or `decision-log.json` contains `worktree preference not set — ask user`, ask the user whether to isolate execute in a git worktree. Then write `"use_worktree": true` or `"use_worktree": false` to `brief.json` and re-run `/forgeflow:execute`. Do not implement until the preference is recorded.
 - If the project is not a git repo, worktree isolation is non-fatal; continue in the current working tree.
 
 ## Scope gate

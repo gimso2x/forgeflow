@@ -43,7 +43,7 @@ Use this skill to convert a raw request into a ForgeFlow `brief.json`-style cont
 - A route is selected and justified
 - Optional visual artifact is available when useful for design feedback: run `python3 scripts/forgeflow_visual.py clarify <task-dir>/brief.json --format markdown`, or pipe Mermaid output to `node scripts/visual-companion.cjs` via `POST /diagram`.
 - Next skill is named:
-  - `small` -> `/forgeflow:run` or direct execute path
+  - `small` -> `/forgeflow:execute` or direct execute path
   - `medium` -> `/forgeflow:plan`
   - `high` -> `/forgeflow:plan` with spec/quality review kept separate
 
@@ -121,7 +121,7 @@ Do not implement here. Clarify is the intake gate, not the coding phase.
 - Do not manufacture open questions just to prolong intake; `non-blocking unknowns` are artifact notes, not questions the user must answer.
 - Do not ask the user to write the plan for you.
 - Do not ask the user to approve the brief content again when the request is already sufficient.
-- Do stop at the stage boundary before starting `/forgeflow:plan` or `/forgeflow:run`.
+- Do stop at the stage boundary before starting `/forgeflow:plan` or `/forgeflow:execute`.
 - When the request is already sufficient, end with a closed next-stage question: `요구사항 충분. medium route입니다. 다음 스텝으로 `/forgeflow:plan`을 진행하시겠습니까? (y/n)`
 - Bad: `route=medium. plan 직행.`
 - Good: `요구사항 충분. medium route입니다. 다음 스텝으로 `/forgeflow:plan`을 진행하시겠습니까? (y/n)`

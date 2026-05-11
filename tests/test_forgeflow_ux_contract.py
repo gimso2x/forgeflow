@@ -27,12 +27,12 @@ def test_plan_and_run_skills_separate_stage_boundary_approval_from_reapproval() 
     run_text = (ROOT / "skills" / "run" / "SKILL.md").read_text(encoding="utf-8")
 
     assert "계획 내용 재승인" in plan_text
-    assert "다음 스텝으로 `/forgeflow:run`을 진행하시겠습니까? (y/n)" in plan_text
-    assert "Do not invoke `/forgeflow:run`, the Skill tool, or any execution tool in the same assistant turn" in plan_text
+    assert "다음 스텝으로 `/forgeflow:execute`을 진행하시겠습니까? (y/n)" in plan_text
+    assert "Do not invoke `/forgeflow:execute`, the Skill tool, or any execution tool in the same assistant turn" in plan_text
     assert "계획 확정. 바로 run." not in plan_text
     assert "이미 승인된 run scope 안에서는" in run_text
     assert "Do not pause just to reconfirm the same plan before editing files." in run_text
-    assert "If `/forgeflow:run` was reached without explicit user approval" in run_text
+    assert "If `/forgeflow:execute` was reached without explicit user approval" in run_text
 
 
 def test_review_changes_requested_blocks_run_state_and_fix_loop() -> None:
@@ -116,7 +116,7 @@ def test_docs_explain_stage_boundaries_are_user_approved_not_manual_operation() 
     assert "stage 경계에서 다음 단계로 넘어갈지 확인합니다" in readme
     assert "사용자가 매번 workflow 운영자가 될 필요는 없습니다" in install
     assert "stage 경계를 넘을 때는 agent가 멈추고 닫힌 질문으로 확인합니다" in install
-    assert "다음 스텝으로 `/forgeflow:run`을 진행하시겠습니까? (y/n)" in install
+    assert "다음 스텝으로 `/forgeflow:execute`을 진행하시겠습니까? (y/n)" in install
     assert "자연스럽게 이어받는 쪽이 정본 UX입니다" not in install
 
 
@@ -273,6 +273,6 @@ def test_so2x_minimum_spec_and_plan_gates_are_documented() -> None:
         "Requirement traceability",
         "Each non-trivial step must include `fulfills`",
         "Every `fulfills` target must have a matching `verify_plan` entry",
-        "Do not proceed to `/forgeflow:run` if one of those is missing for non-trivial work.",
+        "Do not proceed to `/forgeflow:execute` if one of those is missing for non-trivial work.",
     ]:
         assert required_text in plan

@@ -34,7 +34,7 @@ DRY_RUN_CASES = [
     ),
     (
         "run_exact",
-        "/forgeflow:run Dry run only. Your entire response must be exactly two numbered lines and nothing else: no preamble, no heading, no summary. List two execution checks for a README badge task. Do not write files. Do not run commands.",
+        "/forgeflow:execute Dry run only. Your entire response must be exactly two numbered lines and nothing else: no preamble, no heading, no summary. List two execution checks for a README badge task. Do not write files. Do not run commands.",
         "two_lines",
     ),
     (

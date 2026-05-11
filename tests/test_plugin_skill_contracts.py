@@ -180,7 +180,7 @@ def test_codex_plugin_accepts_forgeflow_slash_style_prompts() -> None:
         "clarify": "/forgeflow:clarify",
         "specify": "/forgeflow:specify",
         "plan": "/forgeflow:plan",
-        "run": "/forgeflow:run",
+        "run": "/forgeflow:execute",
         "review": "/forgeflow:review",
         "ship": "/forgeflow:ship",
         "finish": "/forgeflow:finish",
@@ -273,7 +273,7 @@ def test_claude_run_surface_handles_execute_worktree_preference() -> None:
         assert "use_worktree" in prompt
         assert "worktree preference not set — ask user" in prompt
         assert "brief.json" in prompt
-        assert "re-run `/forgeflow:run`" in prompt
+        assert "re-run `/forgeflow:execute`" in prompt
 
 
 def test_codex_prompts_require_minimum_artifact_contract_for_small_tasks() -> None:
