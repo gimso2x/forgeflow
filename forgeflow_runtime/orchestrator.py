@@ -46,6 +46,7 @@ from forgeflow_runtime.task_identity import task_id as _task_id
 from forgeflow_runtime.execute_context import build_execute_context as _build_execute_context, format_execute_prompt as _format_execute_prompt
 from forgeflow_runtime.progress_tracker import calculate_progress as _calculate_progress, detect_progress_anomaly as _detect_progress_anomaly
 from forgeflow_runtime.stuck_detector import detect_stuck as _detect_stuck, should_escalate as _should_escalate, format_stuck_report as _format_stuck_report
+from forgeflow_runtime.worktree import create_worktree as _create_worktree, remove_worktree as _remove_worktree, is_repo_clean as _is_repo_clean
 
 
 @dataclass(frozen=True)
@@ -1747,6 +1748,100 @@ def _write_profile_artifact(task_dir: Path, profile: Any) -> None:
     _write_json(out_path, payload)
 
 
+def _maybe_create_worktree(
+    task_dir: Path,
+    run_state: dict[str, Any],
+    decision_log: list[dict[str, Any]],
+) -> dict | None:
+    """Optionally create a git worktree for isolated execution.
+
+    Returns a worktree info dict on success, None if the project is not a git
+    repo or creation fails (non-fatal — execution proceeds on the main tree).
+    """
+    # Walk up from task_dir to find the git repo root
+    repo_root = _find_git_root(task_dir)
+    if repo_root is None:
+        return None
+
+    task_id = run_state.get("task_id", "unknown")
+    branch = f"ff-exec-{task_id}"
+
+    try:
+        session = _create_worktree(str(repo_root), branch)
+        wt_info = {
+            "path": session.worktree_path,
+            "branch": session.branch,
+            "base_commit": session.base_commit,
+            "active": True,
+        }
+        run_state["worktree"] = wt_info
+        _append_decision(
+            decision_log,
+            actor="execute-intelligence",
+            category="execute-context",
+            decision="worktree created for isolated execution",
+            rationale=f"detached worktree at {session.worktree_path} (base: {session.base_commit[:8]})",
+        )
+        return wt_info
+    except Exception as exc:
+        # Non-fatal: worktree creation failure should not block execution
+        _append_decision(
+            decision_log,
+            actor="execute-intelligence",
+            category="execute-context",
+            decision="worktree creation skipped",
+            rationale=f"could not create worktree: {exc}; proceeding on main tree",
+        )
+        return None
+
+
+def _cleanup_worktree(
+    task_dir: Path,
+    wt_info: dict,
+    run_state: dict[str, Any],
+    decision_log: list[dict[str, Any]],
+) -> None:
+    """Remove the worktree after execute stage completes."""
+    repo_root = _find_git_root(task_dir)
+    if repo_root is None:
+        return
+
+    wt_path = wt_info.get("path", "")
+    if not wt_path:
+        run_state.setdefault("worktree", {})
+        run_state["worktree"]["active"] = False
+        return
+
+    try:
+        success = _remove_worktree(str(repo_root), wt_path)
+        status = "removed" if success else "remove failed (manual cleanup needed)"
+    except Exception as exc:
+        status = f"remove failed: {exc}"
+
+    run_state.setdefault("worktree", {})
+    run_state["worktree"]["active"] = False
+    _append_decision(
+        decision_log,
+        actor="execute-intelligence",
+        category="execute-context",
+        decision=f"worktree {status}",
+        rationale=f"worktree at {wt_path}: {status}",
+    )
+
+
+def _find_git_root(start: Path) -> Path | None:
+    """Walk up from *start* to find a directory containing .git/."""
+    current = start.resolve()
+    for _ in range(10):  # safety bound
+        if (current / ".git").exists():
+            return current
+        parent = current.parent
+        if parent == current:
+            break
+        current = parent
+    return None
+
+
 def run_route(task_dir: Path, policy: RuntimePolicy, route_name: str) -> dict[str, Any]:
     from forgeflow_runtime.profiling import ProfilingCollector
 
@@ -1843,6 +1938,11 @@ def run_route(task_dir: Path, policy: RuntimePolicy, route_name: str) -> dict[st
         if stage_name == "execute" and not _artifact_path(task_dir, "decision-log").exists():
             raise RuntimeViolation("execute requires decision-log.json to exist")
 
+        # --- Optional git worktree isolation for execute stage ---
+        _active_worktree: dict | None = None
+        if stage_name == "execute":
+            _active_worktree = _maybe_create_worktree(task_dir, run_state, decision_log)
+
         # --- Execute Intelligence: inject task context + progress + stuck detection ---
         if stage_name == "execute":
             # Build and log execute context for the current task
@@ -1925,6 +2025,10 @@ def run_route(task_dir: Path, policy: RuntimePolicy, route_name: str) -> dict[st
         _write_validated_artifact(task_dir, "run-state", run_state)
         _write_validated_artifact(task_dir, "decision-log", decision_log)
         _write_plan_ledger_if_present(task_dir, plan_ledger)
+
+        # --- Worktree cleanup after execute stage ---
+        if stage_name == "execute" and _active_worktree is not None:
+            _cleanup_worktree(task_dir, _active_worktree, run_state, decision_log)
 
         # Profiling: record completed stage
         from forgeflow_runtime.executor import RunTaskResult

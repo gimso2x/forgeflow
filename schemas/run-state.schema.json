@@ -108,6 +108,16 @@
         "per_task": { "type": "object" },
         "next_actionable": { "type": "array", "items": { "type": "string" } }
       }
+    },
+    "worktree": {
+      "type": "object",
+      "description": "Optional git worktree isolation for execute stage",
+      "properties": {
+        "path": { "type": "string" },
+        "branch": { "type": "string" },
+        "base_commit": { "type": "string" },
+        "active": { "type": "boolean" }
+      }
     }
   },
   "additionalProperties": false
