@@ -99,6 +99,8 @@ Before crossing `plan → run`, the plan must make these sections explicit in `p
 - `Implementation Steps`
 - `Verification`
 
+State assumptions and success criteria before proposing tasks. If an assumption changes the implementation path, record it as a bounded assumption or return to `/forgeflow:clarify`; do not hide it inside a task title.
+
 ## Refactor mode
 
 Use refactor mode inside this existing plan flow when the requested work is primarily a behavior-preserving structural change across an existing public surface, a migration-sensitive internal reorganization, test-sensitive decomposition work, or removal/replacement of implementation machinery while preserving user-visible behavior.

@@ -115,6 +115,8 @@ If the user explicitly includes `--yes`, `--auto-approve`, `--non-interactive`, 
 2. Initialize `run-state.json` in the active task directory if it does not exist. Set `current_stage: "execute"`, `status: "in_progress"`.
 3. Read `contracts` metadata and sibling `contracts.md` before editing when present.
 4. Execute only tasks that belong to the plan/scope.
+   - Prefer the smallest implementation that satisfies the acceptance criteria.
+   - Nothing speculative: no drive-by abstractions, unrelated cleanup, hidden migrations, or “while I’m here” rewrites unless the approved plan names them.
 5. Apply adapter-aware execution: use the chosen backend for implementation mechanics, but keep ForgeFlow artifacts, gates, and evidence paths backend-neutral. If the backend cannot produce required evidence, record that limitation in `decision-log.json` and block or downgrade the affected verification gate instead of silently proceeding.
 6. Treat `fulfills`, `journeys`, and `verify_plan` as verification obligations, not decoration.
 7. Run focused verification after each meaningful change.

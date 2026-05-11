@@ -92,6 +92,8 @@ When the user says "do not run commands", do not propose command execution as if
 ## Procedure
 
 1. Inspect relevant repo context before inventing scope.
+   - Surface confusion instead of guessing. If the request has competing interpretations that materially change scope, say so in the brief.
+   - Do not silently pick one interpretation when the ambiguity affects user-visible behavior, data, security, or files to edit.
 2. Ask up to 5 clarifying questions when they materially improve requirements. Ask 0 if the request is already actionable, and do not pad the list with nice-to-have trivia.
    - Good questions resolve product behavior, user/audience, success criteria, data/source of truth, rollout/risk constraints, or explicit out-of-scope boundaries.
    - Bad questions ask for implementation chores the agent should infer from repo inspection, preferences that do not change the plan, or confirmations that can be recorded as bounded assumptions.

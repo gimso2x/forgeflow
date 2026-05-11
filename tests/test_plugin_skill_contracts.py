@@ -171,6 +171,24 @@ def test_canonical_forgeflow_skills_default_to_artifact_first_mode() -> None:
         assert "Default to **artifact-first mode**." in skill
 
 
+def test_stage_skills_absorb_karpathy_discipline_without_new_stage() -> None:
+    clarify = (ROOT / "skills" / "clarify" / "SKILL.md").read_text(encoding="utf-8")
+    plan = (ROOT / "skills" / "plan" / "SKILL.md").read_text(encoding="utf-8")
+    execute = (ROOT / "skills" / "execute" / "SKILL.md").read_text(encoding="utf-8")
+    review = (ROOT / "skills" / "review" / "SKILL.md").read_text(encoding="utf-8")
+    index = (ROOT / "skills" / "SKILLS.md").read_text(encoding="utf-8")
+
+    assert "Surface confusion instead of guessing" in clarify
+    assert "Do not silently pick one interpretation" in clarify
+    assert "State assumptions and success criteria before proposing tasks" in plan
+    assert "Prefer the smallest implementation that satisfies the acceptance criteria" in execute
+    assert "Nothing speculative" in execute
+    assert "Every changed line should trace directly to the user's request" in review
+    assert "drive-by refactors" in review
+    assert "andrej-karpathy-skills" in index
+    assert "new canonical stage" not in index.lower()
+
+
 def test_codex_plugin_accepts_forgeflow_slash_style_prompts() -> None:
     forgeflow = (ROOT / "skills" / "forgeflow" / "SKILL.md").read_text(encoding="utf-8")
     assert "Codex exposes plugin skills" in forgeflow

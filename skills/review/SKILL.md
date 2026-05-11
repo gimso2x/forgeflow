@@ -158,7 +158,9 @@ If the user explicitly includes `--yes`, `--auto-approve`, `--non-interactive`, 
 7. Separate observed evidence from reported or missing evidence before choosing a verdict.
 8. **Check for stuck signals**: review `decision-log.json` for entries with actor `stuck-detector` or category `escalation`. If the worker hit a stuck condition but continued editing anyway, that's a major finding — the worker ignored an escalation signal.
 9. For quality review, apply discipline heuristics without creating a separate stage:
-   - Every changed line should trace directly to the approved request.
+   - Every changed line should trace directly to the approved request, the user's request, and the approved plan.
+   - Every changed line should trace directly to the user's request; anything else needs explicit scope approval.
+   - Flag drive-by refactors, speculative abstractions, or unrelated cleanup as scope drift unless the plan explicitly authorized them.
    - Was the change the smallest safe change that satisfies the request?
    - Did the change avoid silent fallback, dual write, and shadow-path ownership drift?
    - Did the implementation follow existing codebase patterns instead of inventing a new local religion?

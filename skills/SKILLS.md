@@ -14,11 +14,11 @@ Skills are markdown documents that live in `skills/`. Each skill defines a bound
 
 | # | Skill | Purpose | Borrowed from |
 |---|-------|---------|---------------|
-| 01 | [`clarify`](clarify/SKILL.md) | Resolve ambiguity, explore codebase, emit a **Context Brief** with complexity routing. | engineering-discipline |
+| 01 | [`clarify`](clarify/SKILL.md) | Resolve ambiguity, explore codebase, emit a **Context Brief** with complexity routing. | engineering-discipline + andrej-karpathy-skills |
 | 02 | [`specify`](specify/SKILL.md) | Derive structured **requirements.md** from the brief through a decision interview. | hoyeon |
-| 03 | [`plan`](plan/SKILL.md) | Turn requirements into an executable **plan.json** with task contracts. | hoyeon + engineering-discipline |
-| 04 | [`run`](run/SKILL.md) | Execute plan tasks using **worker-validator pairs** with checkpoint/recovery. | engineering-discipline |
-| 05 | [`review`](review/SKILL.md) | **Information-isolated** verification of executed work against the plan. | engineering-discipline |
+| 03 | [`plan`](plan/SKILL.md) | Turn requirements into an executable **plan.json** with task contracts. | hoyeon + engineering-discipline + andrej-karpathy-skills |
+| 04 | [`run`](run/SKILL.md) | Execute plan tasks using **worker-validator pairs** with checkpoint/recovery. | engineering-discipline + andrej-karpathy-skills |
+| 05 | [`review`](review/SKILL.md) | **Information-isolated** verification of executed work against the plan. | engineering-discipline + andrej-karpathy-skills |
 | 06 | [`ship`](ship/SKILL.md) | Final handoff/report after verification; branch disposition lives in [`finish`](finish/SKILL.md). | gstack |
 
 ## Cross-cutting skills (invoke any time)
