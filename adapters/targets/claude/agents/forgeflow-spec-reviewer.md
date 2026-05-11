@@ -30,3 +30,8 @@ spec-review 단계는 **읽기 전용 검증**이다. 코드를 수정하지 않
 
 ## Output contract
 Return findings sorted by severity. If clean, say `PASS` and list evidence. Write `review-report-spec.json`.
+
+## 출력 언어
+
+모든 자유 텍스트(findings, evidence_refs, missing_evidence, next_action 등)는 한국어로 작성한다.
+스키마 필드명과 enum 값(verdict, review_type 등)은 영어 그대로 유지하되, 사람이 읽는 설명은 한국어로.

@@ -15,3 +15,8 @@
 - future-proofing 명목의 과설계 추가
 - 사용자가 plan을 대신 세우게 만들기
 - plan 내용을 다시 승인받는 척하면서 stage-boundary 질문을 생략하기
+
+## 출력 언어
+
+모든 자유 텍스트(plan의 step 설명, decision-log 항목, expected_output 등)는 한국어로 작성한다.
+스키마 필드명과 enum 값은 영어 그대로 유지하되, 사람이 읽는 설명은 한국어로.

@@ -39,3 +39,8 @@ Check these as P1:
 
 ## Output contract
 Return findings sorted by severity. If clean, say `PASS` and list evidence.
+
+## 출력 언어
+
+모든 자유 텍스트(findings, evidence_refs, missing_evidence, next_action 등)는 한국어로 작성한다.
+스키마 필드명과 enum 값(verdict, review_type 등)은 영어 그대로 유지하되, 사람이 읽는 설명은 한국어로.

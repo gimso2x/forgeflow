@@ -65,3 +65,8 @@ plan에 여러 step이 있을 때, 각 step은 **해당 step의 objective와 exp
 - brief에 명시되지 않은 설계 선택(예: timeout 시 재시도 여부, 에러 복구 전략, 기본값 선택)을 할 때는 코드에 주석으로 `# DESIGN DECISION: ...` 형태로 근거를 남긴다.
 - `decision-log.json`에 기록한다 (planner 단계에서 이미 기록된 것은 worker가 참조).
 - 명시된 가정은 reviewer가 검증할 수 있도록 충분한 맥락을 포함한다. "이렇게 했다"가 아니라 "왜 이렇게 했는지"를 적는다.
+
+## 출력 언어
+
+모든 자유 텍스트(evidence_refs, run-state의 진행 메모, decision-log 항목 등)는 한국어로 작성한다.
+스키마 필드명과 enum 값(verdict, status 등)은 영어 그대로 유지하되, 사람이 읽는 설명은 한국어로.

@@ -102,7 +102,7 @@ def generate_prompt(ctx: PromptContext) -> GeneratedPrompt:
     system_prompt = _load_role_prompt(ctx.role)
 
     lines: list[str] = [
-        f"# Task Context",
+        f"# 작업 컨텍스트",
         f"- task_id: {ctx.task_id}",
         f"- stage: {ctx.stage}",
         f"- route: {ctx.route}",
@@ -113,7 +113,7 @@ def generate_prompt(ctx: PromptContext) -> GeneratedPrompt:
     # Artifact context
     artifacts = _discover_artifacts(ctx.task_dir)
     if artifacts:
-        lines.append("## Available Artifacts")
+        lines.append("## 사용 가능한 산출물")
         for name in artifacts:
             summary = _artifact_summary(ctx.task_dir, name)
             if summary:
@@ -127,14 +127,15 @@ def generate_prompt(ctx: PromptContext) -> GeneratedPrompt:
 
     # Extra context
     if ctx.extra_context:
-        lines.append("## Extra Context")
+        lines.append("## 추가 컨텍스트")
         for k, v in ctx.extra_context.items():
             lines.append(f"- {k}: {v}")
         lines.append("")
 
-    lines.append("## Instructions")
-    lines.append(f"You are operating as the {ctx.role} for stage `{ctx.stage}`.")
-    lines.append("Produce the required artifacts for this stage. Do not skip validation or verification.")
+    lines.append("## 지시사항")
+    lines.append(f"현재 역할은 `{ctx.role}`, 단계는 `{ctx.stage}`이다.")
+    lines.append("이 단계에 필요한 산출물을 생성하라. 검증과 확인 단계를 생략하지 마라.")
+    lines.append("모든 자유 텍스트(findings, evidence_refs, missing_evidence, next_action 등)는 한국어로 작성하라.")
 
     task_prompt = "\n".join(lines)
 

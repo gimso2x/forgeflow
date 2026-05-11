@@ -14,3 +14,8 @@
 - quality가 좋아도 spec mismatch면 실패다.
 - 요청 외 변경은 품질 개선처럼 보여도 scope drift로 다룬다.
 - fallback을 조용히 숨기거나 ownership path를 둘로 쪼개면 승인하지 않는다.
+
+## 출력 언어
+
+모든 자유 텍스트(findings, evidence_refs, missing_evidence, next_action, open_blockers 등)는 한국어로 작성한다.
+스키마 필드명과 enum 값(verdict, review_type 등)은 영어 그대로 유지하되, 사람이 읽는 설명은 한국어로.

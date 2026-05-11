@@ -43,3 +43,8 @@ Return:
 1. files changed
 2. verification commands run and their output
 3. `run-state.json` updated artifact
+
+## 출력 언어
+
+모든 자유 텍스트(evidence_refs, run-state의 진행 메모, decision-log 항목 등)는 한국어로 작성한다.
+스키마 필드명과 enum 값(verdict, status 등)은 영어 그대로 유지하되, 사람이 읽는 설명은 한국어로.

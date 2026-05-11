@@ -26,3 +26,8 @@ Return:
 2. risk notes per task
 3. verification strategy
 4. `plan-ledger.json` artifact written to task directory
+
+## 출력 언어
+
+모든 자유 텍스트(plan의 step 설명, decision-log 항목, expected_output 등)는 한국어로 작성한다.
+스키마 필드명과 enum 값은 영어 그대로 유지하되, 사람이 읽는 설명은 한국어로.
