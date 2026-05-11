@@ -19,6 +19,11 @@ Create the task workspace. Only does scaffold + raw objective storage. No domain
 
 ## Instructions
 
+> **CRITICAL RULE: NEVER ask the user for missing arguments.**
+> If objective, task-id, or risk is not provided, you MUST auto-infer them.
+> Do NOT output a form, a question, or a prompt requesting input.
+> Go directly to step 1a for auto-inference and proceed immediately.
+
 1. **Parse arguments** — extract optional objective, task-id, and risk from the invocation.
 
    - `objective`: what to accomplish (optional — auto-inferred if missing, see step 1a)
@@ -27,8 +32,6 @@ Create the task workspace. Only does scaffold + raw objective storage. No domain
      - High signals: migration, refactor, security, auth, payment, database, breaking
      - Low signals: typo, rename, docs, lint, style, cosmetic
      - Default: medium
-
-   **If any argument is missing, do NOT ask the user.** Proceed with auto-inference.
 
 1a. **Auto-infer objective** (when not provided):
 
