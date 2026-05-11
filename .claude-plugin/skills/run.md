@@ -13,12 +13,18 @@ Implement the task. Updates `run-state.json` with progress and verification evid
 2. For `small` route: implement the full objective directly.
    For `medium`/`high`: work through plan tasks in dependency order.
 
-3. For each sub-task or implementation step:
+3. **Worktree isolation preference**: Python runtime calls this stage `execute`; Claude plugin users invoke it as `/forgeflow:run`. Before editing code, inspect `brief.json` and the latest `decision-log.json` entries.
+   - If `brief.json` has `"use_worktree": true`, use the runtime-prepared git worktree for execution when `run-state.json.worktree.path` is active.
+   - If `brief.json` has `"use_worktree": false`, execute in the current working tree.
+   - If `use_worktree` is missing/null, or `decision-log.json` contains `worktree preference not set — ask user`, ask the user whether to isolate execute/run in a git worktree. Then write `"use_worktree": true` or `"use_worktree": false` to `brief.json` and re-run `/forgeflow:run`. Do not continue implementation until that preference is recorded.
+   - If the project is not a git repo, worktree isolation is non-fatal; continue in the current working tree.
+
+4. For each sub-task or implementation step:
    - Make the smallest useful change
    - Run verification commands (lint, build, test) that actually exist
    - Record results in `run-state.json`
 
-4. `run-state.json` format:
+5. `run-state.json` format:
    ```json
    {
      "schema_version": "0.1",
@@ -40,32 +46,32 @@ Implement the task. Updates `run-state.json` with progress and verification evid
    }
    ```
 
-5. **Rules**:
+6. **Rules**:
    - `progress.percentage` must be recalculated on every write
    - Timestamps must be real ISO 8601 (not placeholder zeros)
    - Only report commands that exist — verify before claiming
    - If verification fails, record the failure; do not mark complete
    - Do not add features or edge-case handling not in the brief. Only implement what is explicitly required.
 
-6. **Scope gate**: Before implementing, list each requirement from brief/plan. Every line of code must trace to a stated requirement. Remove any feature not in the brief immediately.
+7. **Scope gate**: Before implementing, list each requirement from brief/plan. Every line of code must trace to a stated requirement. Remove any feature not in the brief immediately.
 
-7. **Test isolation**: Tests must pass independently via `python -m pytest tests/ -v` in a fresh shell.
+8. **Test isolation**: Tests must pass independently via `python -m pytest tests/ -v` in a fresh shell.
    - Use `tmp_path` fixtures for files/DBs. No shared `reset_database()` patterns.
    - External resources (servers) must be started in fixtures, not assumed running.
    - Module-level mutable state must be isolated per test via `monkeypatch` or snapshot/restore.
    - Never hard-code ports. Use OS-assigned or `unused_port` fixtures.
    - Tests must pass in any execution order.
 
-8. **State management**: Avoid module-level mutable state.
+9. **State management**: Avoid module-level mutable state.
    - No `db_connection = None` style globals. Use constructors or context managers.
    - When globals are unavoidable, provide a reset function and isolate in tests.
    - Prefer class instances or function parameters over module-level state.
 
-9. **Design assumptions**: When a requirement is ambiguous, state the decision before implementing.
+10. **Design assumptions**: When a requirement is ambiguous, state the decision before implementing.
    - Add `# DESIGN DECISION: ...` comments with rationale for unstated choices (retry behavior, defaults, error strategy).
    - Record in `decision-log.json`. Include "why", not just "what".
 
-10. When all tasks are done: set status `"completed"`, report files changed and verification summary.
+11. When all tasks are done: set status `"completed"`, report files changed and verification summary.
 
 ## Bounded verification fix loop
 

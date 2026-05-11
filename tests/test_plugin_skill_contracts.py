@@ -263,6 +263,19 @@ def test_worker_prompts_require_bounded_verification_fix_loop() -> None:
         assert "if failures remain, set `run-state.status` to `blocked` or `failed`" not in prompt
 
 
+def test_claude_run_surface_handles_execute_worktree_preference() -> None:
+    for rel in [
+        ".claude-plugin/skills/run.md",
+        "adapters/targets/claude/agents/forgeflow-worker.md",
+    ]:
+        prompt = (ROOT / rel).read_text(encoding="utf-8")
+        assert "Worktree isolation preference" in prompt
+        assert "use_worktree" in prompt
+        assert "worktree preference not set — ask user" in prompt
+        assert "brief.json" in prompt
+        assert "re-run `/forgeflow:run`" in prompt
+
+
 def test_codex_prompts_require_minimum_artifact_contract_for_small_tasks() -> None:
     for rel in [
         "adapters/targets/codex/agents/forgeflow-coordinator.md",
