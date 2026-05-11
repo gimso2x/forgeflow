@@ -1,5 +1,5 @@
 ---
-description: Initialize a new ForgeFlow task. Just give an objective — task-id and risk are auto-inferred.
+description: Initialize a new ForgeFlow task. All arguments optional — auto-infers objective, task-id, and risk from project context.
 ---
 
 # /forgeflow:init
@@ -9,25 +9,46 @@ Initialize a ForgeFlow task. Creates the full workspace: brief, run-state, agent
 ## Usage
 
 ```
+/forgeflow:init
 /forgeflow:init <objective>
 /forgeflow:init <objective> --risk <low|medium|high>
 /forgeflow:init <objective> --task-id <custom-id> --risk <high>
 ```
 
-**objective만 주면 된다.** task-id는 objective에서 자동 슬러그 생성, risk는 키워드 기반 자동 추정.
+**모든 인자가 옵셔널이다.** 아무것도 안 주면 프로젝트 컨텍스트에서 자동 추론한다.
 
 ## Instructions
 
-1. **Parse arguments** — extract objective (required), optional task-id and risk from the invocation.
+1. **Parse arguments** — extract optional objective, task-id, and risk from the invocation.
 
-   - `objective`: what to accomplish (required)
+   - `objective`: what to accomplish (optional — auto-inferred if missing, see step 1a)
    - `task-id`: short identifier (optional, auto-generated from objective)
    - `risk`: `low`, `medium`, `high` (optional, auto-estimated from objective keywords)
      - High signals: migration, refactor, security, auth, payment, database, breaking
      - Low signals: typo, rename, docs, lint, style, cosmetic
      - Default: medium
 
-   If only an objective is provided, proceed immediately. Do NOT ask for task-id or risk.
+   **If any argument is missing, do NOT ask the user.** Proceed with auto-inference.
+
+1a. **Auto-infer objective** (when not provided):
+
+   Run these commands to gather project context:
+   ```bash
+   git log --oneline -5 2>/dev/null
+   git diff --stat HEAD 2>/dev/null
+   cat README.md 2>/dev/null | head -30
+   cat AGENTS.md 2>/dev/null | head -30
+   ls -la .forgeflow/tasks/ 2>/dev/null
+   ```
+
+   From the gathered context, infer a concise objective:
+   - If there are uncommitted changes → describe what they seem to be doing
+   - If recent commits show a pattern → continue that theme
+   - If README describes the project → summarize the next logical step
+   - If existing tasks exist → differentiate or extend them
+   - Fallback: "Improve project based on current state"
+
+   Keep the inferred objective to one clear sentence.
 
 2. **Call the runtime**:
 
