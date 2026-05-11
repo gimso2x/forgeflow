@@ -22,7 +22,7 @@ Then it synthesizes a milestone dependency DAG where every milestone has measura
 
 ForgeFlow already has stronger primitives than the source repo:
 
-- canonical `large_high_risk` route
+- canonical `high` route
 - `plan.json`
 - `plan-ledger.json`
 - checkpoint/session-state artifacts

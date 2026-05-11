@@ -18,11 +18,11 @@ def test_advance_blocks_missing_entry_artifacts(
 ) -> None:
     policy = load_runtime_policy(ROOT)
     task_dir = make_task_dir(tmp_path)
-    medium_plan_artifacts(task_dir, route_name="large_high_risk")
+    medium_plan_artifacts(task_dir, route_name="high")
     (task_dir / "run-state.json").unlink()
 
     with pytest.raises(RuntimeViolation, match="missing required artifacts for spec-review: run-state"):
-        advance_to_next_stage(task_dir=task_dir, policy=policy, route_name="large_high_risk", current_stage="execute")
+        advance_to_next_stage(task_dir=task_dir, policy=policy, route_name="high", current_stage="execute")
 
 
 def test_advance_can_execute_next_stage_immediately(

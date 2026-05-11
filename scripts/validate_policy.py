@@ -167,7 +167,7 @@ def validate_policy_root(root: Path) -> list[str]:
         errors.append("small route mismatch")
     if "medium" not in routes or routes["medium"] != ["clarify", "plan", "execute", "quality-review", "finalize"]:
         errors.append("medium route mismatch")
-    if "large_high_risk" not in routes or routes["large_high_risk"] != [
+    if "high" not in routes or routes["high"] != [
         "clarify",
         "plan",
         "execute",
@@ -176,7 +176,7 @@ def validate_policy_root(root: Path) -> list[str]:
         "finalize",
         "long-run",
     ]:
-        errors.append("large_high_risk route mismatch")
+        errors.append("high route mismatch")
 
     for schema_name in ["brief", "plan", "decision-log", "run-state", "review-report", "eval-record"]:
         schema_path = root / "schemas" / f"{schema_name}.schema.json"

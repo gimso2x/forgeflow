@@ -11,7 +11,7 @@ def test_validate_workflow_has_plugin_smoke_matrix_job() -> None:
     assert "plugin-smoke-matrix:" in workflow
     assert "os: [ubuntu-latest, windows-latest]" in workflow
     assert "surface: [claude, codex]" in workflow
-    assert "route_label: [small, medium, large_high_risk]" in workflow
+    assert "route_label: [small, medium, high]" in workflow
     assert "scripts/ci_plugin_smoke_matrix.py" in workflow
 
 
@@ -20,7 +20,7 @@ def test_ci_plugin_smoke_script_documents_non_mutating_route_matrix() -> None:
     for required in [
         "small",
         "medium",
-        "large_high_risk",
+        "high",
         "project_snapshot",
         "git status --short",
         "install_agent_presets.py",
@@ -38,7 +38,7 @@ def test_coordinator_rejects_adapter_synonyms_for_route_labels() -> None:
     codex = (ROOT / "adapters" / "generated" / "codex" / "CODEX.md").read_text(encoding="utf-8")
 
     for text in [coordinator, codex]:
-        assert "ForgeFlow route labels are exactly `small`, `medium`, and `large_high_risk`" in text
+        assert "ForgeFlow route labels are exactly `small`, `medium`, and `high`" in text
         assert "adapter/team-size synonyms" in text
         assert "`solo`" in text
 

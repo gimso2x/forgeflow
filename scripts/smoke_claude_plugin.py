@@ -19,7 +19,7 @@ ANSI_RE = re.compile(r"\x1b\[[0-9;?]*[A-Za-z]")
 DRY_RUN_CASES = [
     (
         "clarify_exact",
-        "/forgeflow:clarify Dry run only. Return only one selected route label for: fix one README typo. Valid labels: small, medium, large_high_risk. Do not write files. Do not run commands.",
+        "/forgeflow:clarify Dry run only. Return only one selected route label for: fix one README typo. Valid labels: small, medium, high. Do not write files. Do not run commands.",
         "label",
     ),
     (
@@ -108,7 +108,7 @@ def assert_no_permission_denials(name: str, result: dict) -> None:
 
 
 def assert_exact_label(name: str, text: str) -> None:
-    if text.strip() not in {"small", "medium", "large_high_risk"}:
+    if text.strip() not in {"small", "medium", "high"}:
         raise AssertionError(f"{name}: expected only route label; got {text!r}")
 
 

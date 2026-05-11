@@ -18,7 +18,7 @@ Ouroboros는 ForgeFlow에 별도 기능으로 추가하지 않고, ForgeFlow의 
 - P0-2 완료: `skills/review`에 observed evidence only, blocker-first verdict, self-report 분리 규칙을 강화했다.
 - P0-3 완료: `skills/plan`에 requirement traceability, contracts/journeys, orphan work 금지 규칙을 강화했다.
 - P1-4 완료: `docs/runtime-adapters.md`에 backend capability matrix와 adapter boundary를 추가했다.
-- P1-5 완료: `skills/review`는 `large_high_risk`에서 spec review와 quality review를 분리하도록 명시한다.
+- P1-5 완료: `skills/review`는 `high`에서 spec review와 quality review를 분리하도록 명시한다.
 - P1-6 완료: `skills/run`과 `skills/review`는 evidence/decision artifacts를 남기고 review 결과를 재사용 가능한 artifact로 환원하도록 유지한다.
 
 ## 가져온 것

@@ -42,7 +42,7 @@ At minimum, produce or update the artifacts appropriate for the selected route:
 
 - `brief.json` or equivalent brief: clarified objective, constraints, risk, route
 - `run-state.json`: current stage and completed gates
-- `plan-ledger.json` for medium/large routes: planned steps, task status, gate evidence
+- `plan-ledger.json` for medium/high routes: planned steps, task status, gate evidence
 - `review-report.json`: independent review result; worker self-report is not enough
 - final summary: changed files, verification evidence, residual risks
 
@@ -50,7 +50,7 @@ At minimum, produce or update the artifacts appropriate for the selected route:
 
 The task is complete only when:
 
-- route is explicitly selected: `small`, `medium`, or `large_high_risk`
+- route is explicitly selected: `small`, `medium`, or `high`
 - required stages for that route are complete
 - review gates are satisfied by evidence, not by vibes
 - verification commands have passed or failures are explicitly documented
@@ -61,7 +61,7 @@ The task is complete only when:
 ```text
 small: clarify -> execute -> quality-review -> finalize
 medium: clarify -> plan -> execute -> quality-review -> finalize
-large_high_risk: clarify -> plan -> execute -> spec-review -> quality-review -> finalize -> long-run
+high: clarify -> plan -> execute -> spec-review -> quality-review -> finalize -> long-run
 ```
 
 ## File write and output discipline
@@ -95,7 +95,7 @@ When the user says "do not run commands", do not propose command execution as if
 
 1. Start with clarify unless the user provides a complete brief.
 2. Pick the smallest route that honestly covers the risk.
-3. Do not skip plan for medium or large/high-risk work.
+3. Do not skip plan for medium or high work.
 4. Do not merge `spec-review` and `quality-review`.
 5. Do not treat the implementer's own summary as approval.
 6. Keep state in artifacts/files, not just chat history.

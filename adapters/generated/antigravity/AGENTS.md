@@ -225,7 +225,7 @@ notes:
 - stage 경계를 넘을 때는 다음 stage를 제안하고 닫힌 사용자 승인 질문으로 멈춘다.
 
 Route vocabulary:
-- ForgeFlow route labels are exactly `small`, `medium`, and `large_high_risk`.
+- ForgeFlow route labels are exactly `small`, `medium`, and `high`.
 - Never answer with adapter/team-size synonyms such as `solo`, `team`, `pipeline`, `supervisor`, or `security review` when a route label is requested.
 - If the user asks for label-only route selection, return exactly one ForgeFlow route label and nothing else.
 

@@ -1,7 +1,7 @@
 {
   "schema_version": "0.1",
   "task_id": "task-large-mismatch-001",
-  "route": "large_high_risk",
+  "route": "high",
   "current_task_id": "task-3",
   "tasks": [
     {

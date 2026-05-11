@@ -29,7 +29,7 @@ def test_clarify_label_only_rule_overrides_normal_brief_procedure() -> None:
     assert "label-only route selection" in skill
     assert "Return only the selected route label" in skill
     assert "label only" in skill
-    assert "output exactly one of `small`, `medium`, or `large_high_risk`" in skill
+    assert "output exactly one of `small`, `medium`, or `high`" in skill
     assert "State the route and why, unless an exact-output/label-only instruction applies." in skill
     assert (
         "Produce the brief in a structured form the next skill can consume, "
@@ -211,9 +211,9 @@ def test_run_skill_has_route_aware_exit_requirements() -> None:
     # Each route should have specific exit guidance
     assert "**small** route" in skill
     assert "**medium** route" in skill
-    assert "**large_high_risk** route" in skill
-    # large_high_risk must auto-chain to review
-    assert "large_high_risk route 실행 완료" in skill
+    assert "**high** route" in skill
+    # high must auto-chain to review
+    assert "high route 실행 완료" in skill
     assert "/forgeflow:review를 자동으로 시작합니다" in skill
     # Must not end without run-state.json
     assert "Do not end the run stage without writing `run-state.json`" in skill
@@ -281,8 +281,8 @@ def test_review_skill_has_route_aware_behavior() -> None:
     assert "Route-aware review behavior" in skill
     assert "**small** route" in skill
     assert "**medium** route" in skill
-    assert "**large_high_risk** route" in skill
-    # large_high_risk must produce separate spec + quality reports
+    assert "**high** route" in skill
+    # high must produce separate spec + quality reports
     assert "review-report-spec.json" in skill
     assert "review-report-quality.json" in skill
     assert "Two separate reviews are **required**" in skill

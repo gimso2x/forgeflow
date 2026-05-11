@@ -147,4 +147,4 @@ ledger가 없으면 이 두 리뷰가 다 chat archaeology가 된다.
 
 - `small` route에서는 ledger를 생략하거나 아주 얇게 둘 수 있다.
 - `medium` 이상은 ledger를 기본값으로 본다.
-- `large_high_risk`는 ledger 없이 운영하지 않는다.
+- `high`는 ledger 없이 운영하지 않는다.

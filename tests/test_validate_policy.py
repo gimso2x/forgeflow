@@ -212,7 +212,7 @@ routes:
     stages: [clarify, execute, quality-review, finalize]
   medium:
     stages: [clarify, plan, execute, quality-review, finalize]
-  large_high_risk:
+  high:
     stages: [clarify, plan, execute, spec-review, quality-review, finalize, long-run]
 """,
         encoding="utf-8",

@@ -117,7 +117,7 @@ class TestAssessComplexity:
         )
         score = assess_complexity(brief)
         assert score.level == "HIGH"
-        assert score.route_name == "large_high_risk"
+        assert score.route_name == "high"
 
     def test_custom_weights_override_defaults(self) -> None:
         brief = "Deploy to production."
@@ -158,7 +158,7 @@ class TestSelectRoute:
             factors=ComplexityFactors(),
             rationale="test",
         )
-        assert select_route(score, manual_route="large_high_risk", adaptive_enabled=True) == "small"
+        assert select_route(score, manual_route="high", adaptive_enabled=True) == "small"
 
     def test_adaptive_disabled_uses_manual(self) -> None:
         score = ComplexityScore(
@@ -168,7 +168,7 @@ class TestSelectRoute:
             factors=ComplexityFactors(),
             rationale="test",
         )
-        assert select_route(score, manual_route="large_high_risk", adaptive_enabled=False) == "large_high_risk"
+        assert select_route(score, manual_route="high", adaptive_enabled=False) == "high"
 
     def test_no_manual_and_adaptive_off_defaults_to_medium(self) -> None:
         score = ComplexityScore(

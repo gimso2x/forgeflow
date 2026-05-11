@@ -52,7 +52,7 @@ If implemented later, `review-summary` should be read-only and return:
 ```json
 {
   "task_id": "...",
-  "route": "large_high_risk",
+  "route": "high",
   "current_stage": "quality-review",
   "spec_review": {
     "artifact": "review-report-spec.json",

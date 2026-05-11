@@ -122,8 +122,8 @@ def test_medium_and_large_runtime_fixtures_run_end_to_end(tmp_path: Path) -> Non
     for fixture_name, route_name, expected_stage in [
         ("medium-refactor-task", "medium", "finalize"),
         ("medium-plan-with-weak-verification", "medium", "finalize"),
-        ("large-migration-task", "large_high_risk", "long-run"),
-        ("large-approved-but-unsafe", "large_high_risk", "long-run"),
+        ("large-migration-task", "high", "long-run"),
+        ("large-approved-but-unsafe", "high", "long-run"),
     ]:
         source_dir = fixtures_root / fixture_name
         task_dir = tmp_path / fixture_name

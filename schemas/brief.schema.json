@@ -59,7 +59,7 @@
       "enum": [
         "small",
         "medium",
-        "large_high_risk"
+        "high"
       ]
     },
     "assumptions": {

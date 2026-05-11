@@ -16,11 +16,11 @@ STAGE_ROLE_MAP: dict[str, str] = {
     "long-run": "worker",
 }
 
-ROUTE_ORDER: list[str] = ["small", "medium", "large_high_risk"]
+ROUTE_ORDER: list[str] = ["small", "medium", "high"]
 RISK_TO_ROUTE: dict[str, str] = {
     "low": "small",
     "medium": "medium",
-    "high": "large_high_risk",
+    "high": "high",
 }
 
 

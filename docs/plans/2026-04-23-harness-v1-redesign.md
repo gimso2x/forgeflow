@@ -97,7 +97,7 @@ Canonical stages remain:
 Canonical routes remain:
 - `small` -> `clarify -> execute -> quality-review -> finalize`
 - `medium` -> `clarify -> plan -> execute -> quality-review -> finalize`
-- `large_high_risk` -> `clarify -> plan -> execute -> spec-review -> quality-review -> finalize -> long-run`
+- `high` -> `clarify -> plan -> execute -> spec-review -> quality-review -> finalize -> long-run`
 
 **Decision:** keep this stable. Do not rename stages just because another repo had cooler words.
 

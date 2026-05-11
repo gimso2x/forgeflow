@@ -14,7 +14,7 @@ import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-VALID_LABELS = {"small", "medium", "large_high_risk"}
+VALID_LABELS = {"small", "medium", "high"}
 SNAPSHOT_SKIP_DIRS = {".git", ".omx", "node_modules"}
 CASES = [
     (
@@ -29,7 +29,7 @@ CASES = [
     ),
     (
         "codex_high",
-        "large_high_risk",
+        "high",
         "migrate production auth, database schema, and deployment rollback behavior for payments",
     ),
 ]
@@ -87,7 +87,7 @@ def smoke_case(project: Path, name: str, expected: str, request: str, timeout: i
     prompt = (
         "Read CODEX.md and .codex/forgeflow/forgeflow-coordinator.md first. Then apply the ForgeFlow /forgeflow:clarify route criteria as a dry-run route-label check. "
         "Do not write files. Do not run commands. "
-        "Your final answer must be exactly one route label and nothing else: small, medium, or large_high_risk. "
+        "Your final answer must be exactly one route label and nothing else: small, medium, or high. "
         f"Request: {request}"
     )
     before = git_status(project)

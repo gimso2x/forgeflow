@@ -188,7 +188,7 @@ def test_large_route_runs_end_to_end_and_collects_both_review_flags(
         {
             "schema_version": "0.1",
             "task_id": "task-large-001",
-            "route": "large_high_risk",
+            "route": "high",
             "current_task_id": "task-1",
             "tasks": [
                 {
@@ -240,7 +240,7 @@ def test_large_route_runs_end_to_end_and_collects_both_review_flags(
         },
     )
 
-    result = run_route(task_dir=task_dir, policy=policy, route_name="large_high_risk")
+    result = run_route(task_dir=task_dir, policy=policy, route_name="high")
 
     assert result["current_stage"] == "long-run"
     assert result["status"] == "completed"
@@ -306,7 +306,7 @@ def test_large_route_rejects_missing_eval_record_before_long_run(
         {
             "schema_version": "0.1",
             "task_id": "task-large-002",
-            "route": "large_high_risk",
+            "route": "high",
             "current_task_id": "task-1",
             "tasks": [
                 {
@@ -349,4 +349,4 @@ def test_large_route_rejects_missing_eval_record_before_long_run(
     )
 
     with pytest.raises(RuntimeViolation, match="long-run requires artifacts satisfying gate worth_long_run_capture: eval-record"):
-        run_route(task_dir=task_dir, policy=policy, route_name="large_high_risk")
+        run_route(task_dir=task_dir, policy=policy, route_name="high")

@@ -122,7 +122,7 @@ class TestGeneratePrompt:
             ctx = PromptContext(
                 role="planner",
                 stage="plan",
-                route="large_high_risk",
+                route="high",
                 task_dir=p,
                 task_id="t2",
                 extra_context={"priority": "p0", "deadline": "tomorrow"},

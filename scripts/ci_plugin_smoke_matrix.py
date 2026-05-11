@@ -22,7 +22,7 @@ ROOT = Path(__file__).resolve().parents[1]
 ROUTE_REQUESTS = {
     "small": "fix one README typo in a local documentation file",
     "medium": "implement a coordinated settings feature across six files: a settings route, two presentational React components, shared client state, navigation layout, and lint/type checks; no auth, data migration, payments, production infra, or irreversible changes",
-    "large_high_risk": "migrate production auth, database schema, protected routing, payments data access, deployment rollback behavior, and security review",
+    "high": "migrate production auth, database schema, protected routing, payments data access, deployment rollback behavior, and security review",
 }
 SKIP_DIRS = {".git", ".omx", "node_modules", ".next"}
 
@@ -145,7 +145,7 @@ def run_claude_surface(project: Path, route_label: str, timeout: int) -> dict[st
     request = ROUTE_REQUESTS[route_label]
     prompt = (
         f"/forgeflow:clarify Dry run only. Return only the selected route label for: {request}. "
-        "Valid labels: small, medium, large_high_risk. "
+        "Valid labels: small, medium, high. "
         "Final answer must be exactly one label and nothing else: no prefix, no rationale, no dry-run note. "
         "Do not write files. Do not run commands."
     )

@@ -224,4 +224,4 @@ class TestAutoInference:
         )
         assert result["task_id"] == "my-custom-id"
         assert result["risk_level"] == "high"
-        assert result["route"] == "large_high_risk"
+        assert result["route"] == "high"

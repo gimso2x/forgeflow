@@ -29,7 +29,7 @@
       "enum": [
         "small",
         "medium",
-        "large_high_risk"
+        "high"
       ]
     },
     "current_stage": {

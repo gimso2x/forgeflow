@@ -126,7 +126,7 @@ Create a first-class entrypoint so a new task can be started without hand-crafti
 ### Verification
 - `python3 scripts/run_orchestrator.py start --task-dir <tmp> --route small`
 - `python3 scripts/run_orchestrator.py start --task-dir <tmp> --route medium`
-- `python3 scripts/run_orchestrator.py start --task-dir <tmp> --route large_high_risk`
+- `python3 scripts/run_orchestrator.py start --task-dir <tmp> --route high`
 - `pytest tests/test_runtime_orchestrator.py -q`
 
 ### Why this matters

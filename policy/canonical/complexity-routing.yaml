@@ -25,7 +25,7 @@ routes:
       - multiple steps
       - moderate scope
       - verification needed
-  large_high_risk:
+  high:
     stages: [clarify, plan, execute, spec-review, quality-review, finalize, long-run]
     max_retries: 5
     traits:

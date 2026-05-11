@@ -25,7 +25,7 @@ Use this skill to execute the selected ForgeFlow route.
 - Code changes
 - `run-state.json` or equivalent stage/gate state
 - `decision-log.json` with key implementation decisions
-- Updated `plan-ledger.json` for medium/large routes
+- Updated `plan-ledger.json` for medium/high routes
 - Verification output summary
 
 ## Exit Condition
@@ -48,9 +48,9 @@ The run stage MUST produce `run-state.json` conforming to `schemas/run-state.sch
   ```
   모든 계획 단계 실행 완료. /forgeflow:review를 진행해야 합니다. (y/n)
   ```
-- **large_high_risk** route: Write `run-state.json` after each step completes. After final step, the next stage is **mandatory** — do NOT ask whether to review:
+- **high** route: Write `run-state.json` after each step completes. After final step, the next stage is **mandatory** — do NOT ask whether to review:
   ```
-  large_high_risk route 실행 완료. 독립 review가 필수입니다. /forgeflow:review를 자동으로 시작합니다.
+  high route 실행 완료. 독립 review가 필수입니다. /forgeflow:review를 자동으로 시작합니다.
   ```
   Then immediately invoke `/forgeflow:review`.
 

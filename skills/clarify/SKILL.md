@@ -33,7 +33,7 @@ Use this skill to convert a raw request into a ForgeFlow `brief.json`-style cont
   - hidden assumptions recorded as bounded assumptions
   - non-blocking unknowns / bounded assumptions
   - complexity score
-  - route: `small`, `medium`, or `large_high_risk`
+  - route: `small`, `medium`, or `high`
   - min_verification: list of required verification steps for the run stage
 
 ## Exit Condition
@@ -45,7 +45,7 @@ Use this skill to convert a raw request into a ForgeFlow `brief.json`-style cont
 - Next skill is named:
   - `small` -> `/forgeflow:run` or direct execute path
   - `medium` -> `/forgeflow:plan`
-  - `large_high_risk` -> `/forgeflow:plan` with spec/quality review kept separate
+  - `high` -> `/forgeflow:plan` with spec/quality review kept separate
 
 ## File write and output discipline
 
@@ -69,7 +69,7 @@ If writing is allowed, write only under the current project workspace or the act
 
 Exact-output instructions beat every other rule in this skill. Do not explain first and then append the answer. Do not show scoring. Do not include Markdown. Return exactly what was requested and nothing extra.
 
-If the user asks for a label-only route selection (for example "Return only the selected route label", "label only", or "route label only"), output exactly one of `small`, `medium`, or `large_high_risk` and stop. The entire response must be only that label.
+If the user asks for a label-only route selection (for example "Return only the selected route label", "label only", or "route label only"), output exactly one of `small`, `medium`, or `high` and stop. The entire response must be only that label.
 
 Bad:
 
@@ -104,11 +104,11 @@ When the user says "do not run commands", do not propose command execution as if
 4. Score complexity:
    - 5-8: `small` — one localized change, usually 1-2 files, low ambiguity, no cross-cutting behavior.
    - 9-12: `medium` — several coordinated files/components, shared state/layout/navigation, moderate test/update surface, but no security/data migration/infra rollback risk.
-   - 13-15: `large_high_risk` — auth/security, data migration, payments, production infra, irreversible data changes, broad architecture migration, or many contracts/journeys requiring separate spec and quality review.
+   - 13-15: `high` — auth/security, data migration, payments, production infra, irreversible data changes, broad architecture migration, or many contracts/journeys requiring separate spec and quality review.
 5. Set `min_verification` in the brief:
    - `small`: at least one of `build`, `lint`, or `type_check` — whichever is available and fastest.
    - `medium`: at least `lint` and `type_check`, plus `test` if tests exist for changed files.
-   - `large_high_risk`: full verification suite — `build`, `lint`, `type_check`, and `test`.
+   - `high`: full verification suite — `build`, `lint`, `type_check`, and `test`.
 6. State the route and why, unless an exact-output/label-only instruction applies.
 7. Produce the brief in a structured form the next skill can consume, unless an exact-output/label-only instruction applies.
 8. If the request is actionable, record remaining non-blocking unknowns as bounded assumptions and make the next stage obvious without asking the user to do your planning work, unless an exact-output/label-only instruction applies.
@@ -139,7 +139,7 @@ Return only one of:
 ```text
 small
 medium
-large_high_risk
+high
 ```
 
 No explanation. No JSON. No file writes.

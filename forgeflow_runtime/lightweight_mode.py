@@ -127,7 +127,7 @@ def should_use_gate(mode: EnforcementMode, complexity: str) -> bool:
     if mode == EnforcementMode.SOFT:
         return False
     # HYBRID: only gate medium and above
-    return complexity in ("medium", "large", "large_high_risk")
+    return complexity in ("medium", "large", "high")
 
 
 # ---------------------------------------------------------------------------

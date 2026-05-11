@@ -1,7 +1,7 @@
 """Adaptive task complexity assessment for route selection.
 
 Provides heuristic-based scoring of brief/plan content to automatically
-select the appropriate complexity route (small / medium / large_high_risk).
+select the appropriate complexity route (small / medium / high).
 """
 
 from __future__ import annotations
@@ -24,7 +24,7 @@ _RISK_KEYWORDS = frozenset({
 _LEVEL_TO_ROUTE: dict[str, str] = {
     "LOW": "small",
     "MEDIUM": "medium",
-    "HIGH": "large_high_risk",
+    "HIGH": "high",
 }
 
 
@@ -58,7 +58,7 @@ class ComplexityScore:
 
     raw_score: float
     level: str  # "LOW" | "MEDIUM" | "HIGH"
-    route_name: str  # "small" | "medium" | "large_high_risk"
+    route_name: str  # "small" | "medium" | "high"
     factors: ComplexityFactors
     rationale: str
 

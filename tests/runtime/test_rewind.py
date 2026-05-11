@@ -155,7 +155,7 @@ def test_step_back_large_route_preserves_spec_evidence_and_clears_quality_flag(
 ) -> None:
     policy = load_runtime_policy(ROOT)
     task_dir = make_task_dir(tmp_path)
-    medium_plan_artifacts(task_dir, route_name="large_high_risk")
+    medium_plan_artifacts(task_dir, route_name="high")
     write_json(
         task_dir / "run-state.json",
         {
@@ -176,7 +176,7 @@ def test_step_back_large_route_preserves_spec_evidence_and_clears_quality_flag(
         {
             "schema_version": "0.1",
             "task_id": "task-001",
-            "route": "large_high_risk",
+            "route": "high",
             "completed_stages": ["clarify", "plan", "execute", "spec-review", "quality-review", "finalize"],
             "completed_gates": [
                 "clarification_complete",
@@ -213,7 +213,7 @@ def test_step_back_large_route_preserves_spec_evidence_and_clears_quality_flag(
         },
     )
 
-    state = step_back(task_dir=task_dir, policy=policy, route_name="large_high_risk", current_stage="long-run")
+    state = step_back(task_dir=task_dir, policy=policy, route_name="high", current_stage="long-run")
 
     assert state["current_stage"] == "finalize"
     assert state["spec_review_approved"] is True

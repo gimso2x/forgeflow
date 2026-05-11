@@ -4,7 +4,7 @@ description: Plan the task by decomposing it into ordered, verifiable sub-tasks.
 
 # /forgeflow:plan
 
-Create an implementation plan. Only needed for `medium` and `large_high_risk` routes.
+Create an implementation plan. Only needed for `medium` and `high` routes.
 
 ## Instructions
 

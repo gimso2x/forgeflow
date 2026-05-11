@@ -23,7 +23,7 @@
       "enum": [
         "small",
         "medium",
-        "large_high_risk"
+        "high"
       ]
     },
     "current_task_id": {

@@ -12,7 +12,7 @@ Use the operator shell when you need to:
 - execute or advance one stage manually
 - retry a failed stage within budget
 - rewind a stage after review or gate failure
-- escalate a task to `large_high_risk`
+- escalate a task to `high`
 
 Do not use it to bypass review gates. `spec-review`와 `quality-review`는 CLI 명령이 아니라 artifact와 evidence로 통과한다.
 

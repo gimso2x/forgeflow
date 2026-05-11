@@ -66,11 +66,11 @@ A review that leaves no `review-report.json` is incomplete. The verdict exists o
 
 - **small** route: Single quality review. Write `review-report.json` with `review_type: "quality"`.
 - **medium** route: Single quality review. Write `review-report.json` with `review_type: "quality"`.
-- **large_high_risk** route: Two separate reviews are **required**:
+- **high** route: Two separate reviews are **required**:
   1. `/forgeflow:review` (spec) — Write `review-report-spec.json` with `review_type: "spec"`.
   2. `/forgeflow:review` (quality) — Write `review-report-quality.json` with `review_type: "quality"`.
 
-  For large_high_risk, if `review-report-spec.json` does not exist or has `verdict != "approved"`, do not proceed to quality review. Each review is an independent gate.
+  For high, if `review-report-spec.json` does not exist or has `verdict != "approved"`, do not proceed to quality review. Each review is an independent gate.
 
 ## File write and output discipline
 
@@ -165,7 +165,7 @@ If the user explicitly includes `--yes`, `--auto-approve`, `--non-interactive`, 
    - Were assumptions about types, APIs, behavior, and test coverage verified against actual files?
    - If performance was touched, was the bottleneck measured before and after the change?
 10. Classify findings: critical, major, minor, info.
-11. **Write `review-report.json`** (or `review-report-spec.json` / `review-report-quality.json` for large_high_risk) to the active task directory. The verdict in the file is the only valid verdict.
+11. **Write `review-report.json`** (or `review-report-spec.json` / `review-report-quality.json` for high) to the active task directory. The verdict in the file is the only valid verdict.
 12. Return a clear verdict in chat that matches the file. If verdict is `changes_requested` or `blocked`, update `run-state.json` in the active task directory so status reflects the review gate, for example `review_blocked`.
 13. Do not call `/forgeflow:ship` unless `verdict=approved`, `safe_for_next_stage=true`, and `open_blockers=[]` are all true in the **written** `review-report.json`.
 

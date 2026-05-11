@@ -11,7 +11,7 @@ Implement the task. Updates `run-state.json` with progress and verification evid
 1. Read `brief.json` and `plan-ledger.json` (if route requires planning).
 
 2. For `small` route: implement the full objective directly.
-   For `medium`/`large_high_risk`: work through plan tasks in dependency order.
+   For `medium`/`high`: work through plan tasks in dependency order.
 
 3. For each sub-task or implementation step:
    - Make the smallest useful change

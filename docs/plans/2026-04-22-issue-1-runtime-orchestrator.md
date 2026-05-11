@@ -107,10 +107,10 @@
 - Add tests for:
   - `retry_stage()` increments bounded retry counters and blocks when over budget.
   - `step_back()` rewinds to the previous route stage.
-  - `escalate_route()` upgrades `small` or `medium` tasks to `large_high_risk`.
+  - `escalate_route()` upgrades `small` or `medium` tasks to `high`.
 
 **Step 2: Run test to verify failure**
-- Run: `pytest tests/test_runtime_orchestrator.py::test_retry_is_bounded tests/test_runtime_orchestrator.py::test_step_back_rewinds_to_previous_stage tests/test_runtime_orchestrator.py::test_escalate_route_switches_to_large_high_risk -v`
+- Run: `pytest tests/test_runtime_orchestrator.py::test_retry_is_bounded tests/test_runtime_orchestrator.py::test_step_back_rewinds_to_previous_stage tests/test_runtime_orchestrator.py::test_escalate_route_switches_to_high -v`
 - Expected: FAIL because recovery helpers do not exist yet.
 
 **Step 3: Write minimal implementation**

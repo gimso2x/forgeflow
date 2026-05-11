@@ -11,7 +11,7 @@ def test_effective_route_uses_explicit_route_before_artifacts(
     tmp_path: Path,
     write_json: Callable[[Path, dict], None],
 ) -> None:
-    write_json(tmp_path / "checkpoint.json", {"route": "large_high_risk"})
+    write_json(tmp_path / "checkpoint.json", {"route": "high"})
 
     assert effective_route(task_dir=tmp_path, explicit_route="small", min_route=None) == "small"
 
@@ -29,9 +29,9 @@ def test_effective_route_reads_existing_runtime_artifact_route(
     tmp_path: Path,
     write_json: Callable[[Path, dict], None],
 ) -> None:
-    write_json(tmp_path / "session-state.json", {"route": "large_high_risk"})
+    write_json(tmp_path / "session-state.json", {"route": "high"})
 
-    assert effective_route(task_dir=tmp_path, explicit_route=None, min_route=None) == "large_high_risk"
+    assert effective_route(task_dir=tmp_path, explicit_route=None, min_route=None) == "high"
 
 
 def test_role_for_stage_rejects_unknown_stage() -> None:

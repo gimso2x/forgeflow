@@ -22,7 +22,7 @@ Do not use it for:
 
 ## Entry condition
 
-`long-run` only appears on the `large_high_risk` route:
+`long-run` only appears on the `high` route:
 
 ```text
 clarify -> plan -> execute -> spec-review -> quality-review -> finalize -> long-run

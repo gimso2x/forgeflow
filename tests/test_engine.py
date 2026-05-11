@@ -67,7 +67,7 @@ class TestExecuteStage:
                 task_dir=p,
                 task_id="t4",
                 stage="execute",
-                route="large_high_risk",
+                route="high",
                 role="worker",
                 adapter_target="claude",
                 extra_context={"risk_flag": "high"},

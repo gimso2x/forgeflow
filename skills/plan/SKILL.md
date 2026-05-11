@@ -29,7 +29,7 @@ Use this skill to turn a ForgeFlow brief or requirements document into an execut
   - acceptance criteria
   - verification commands
   - risk notes
-- `plan-ledger.json` starter shape for medium/large routes when useful
+- `plan-ledger.json` starter shape for medium/high routes when useful
 
 When writing `plan.json`, it **must** conform to `schemas/plan.schema.json` exactly:
 
@@ -58,7 +58,7 @@ When writing `plan.json`, it **must** conform to `schemas/plan.schema.json` exac
 
 Do not add non-schema fields such as `route`, `tasks`, `files_to_change`, `acceptance_criteria`, `verification_commands`, or `route_selection_rationale` to `plan.json`.
 
-## Contract-first traceability for medium/large or brownfield work
+## Contract-first traceability for medium/high or brownfield work
 
 For non-trivial work, plan the cross-module contract before task decomposition:
 
@@ -201,7 +201,7 @@ If the user explicitly includes `--yes`, `--auto-approve`, `--non-interactive`, 
 3. Decompose into small tasks with acceptance criteria.
 4. Mark dependency order and parallel safety.
 5. Identify risky tasks and required review evidence.
-6. For `large_high_risk` work, pressure-test milestone boundaries from five angles before execution:
+6. For `high` work, pressure-test milestone boundaries from five angles before execution:
    - feasibility risks
    - architecture/interface boundaries
    - dependency ordering

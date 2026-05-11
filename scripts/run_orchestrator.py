@@ -159,7 +159,7 @@ Notes:
     step_back_parser.add_argument("--min-route", choices=ROUTE_ORDER, help=min_route_help)
     step_back_parser.add_argument("--current-stage", required=True)
 
-    escalate_parser = subparsers.add_parser("escalate", help="escalate a route to large_high_risk")
+    escalate_parser = subparsers.add_parser("escalate", help="escalate a route to high")
     escalate_parser.add_argument("--task-dir", required=True)
     escalate_parser.add_argument("--from-route", required=True)
 

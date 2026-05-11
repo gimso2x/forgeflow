@@ -1310,7 +1310,7 @@ def init_task(
     risk_level = risk_level or _estimate_risk(objective)
     if risk_level not in {"low", "medium", "high"}:
         raise RuntimeViolation(f"unknown risk level: {risk_level}")
-    route_name = {"low": "small", "medium": "medium", "high": "large_high_risk"}[risk_level]
+    route_name = {"low": "small", "medium": "medium", "high": "high"}[risk_level]
     route = _resolve_route(policy, route_name)
     # project_root defaults to 3 levels up from .forgeflow/tasks/<id>/
     if project_root is None:
@@ -2072,7 +2072,7 @@ def step_back(task_dir: Path, policy: RuntimePolicy, route_name: str, current_st
 
 
 def escalate_route(task_dir: Path, from_route: str) -> dict[str, Any]:
-    if from_route not in {"small", "medium", "large_high_risk"}:
+    if from_route not in {"small", "medium", "high"}:
         raise RuntimeViolation(f"unknown route for escalation: {from_route}")
     canonical_task_id = _canonical_task_id(task_dir)
     run_state = _ensure_run_state(task_dir, canonical_task_id=canonical_task_id)
@@ -2088,22 +2088,22 @@ def escalate_route(task_dir: Path, from_route: str) -> dict[str, Any]:
         decision_log,
         actor="orchestrator",
         category="routing",
-        decision=f"route escalated: {from_route} -> large_high_risk",
+        decision=f"route escalated: {from_route} -> high",
         rationale="risk or recovery pressure exceeded original route",
     )
     _write_validated_artifact(task_dir, "run-state", run_state)
     _write_validated_artifact(task_dir, "decision-log", decision_log)
     checkpoint = _sync_checkpoint(
         task_dir,
-        route_name="large_high_risk",
-        route=_resolve_route(load_runtime_policy(REPO_ROOT), "large_high_risk"),
+        route_name="high",
+        route=_resolve_route(load_runtime_policy(REPO_ROOT), "high"),
         run_state=run_state,
         plan_ledger=plan_ledger,
         checkpoint=checkpoint,
     )
     _sync_session_state(
         task_dir,
-        route_name="large_high_risk",
+        route_name="high",
         run_state=run_state,
         checkpoint=checkpoint,
         plan_ledger=plan_ledger,

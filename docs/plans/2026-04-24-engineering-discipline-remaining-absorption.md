@@ -103,7 +103,7 @@ Do not copy:
 **Steps:**
 
 1. Read `engineering-discipline/skills/milestone-planning/SKILL.md` completely.
-2. Compare it to ForgeFlow's current `large_high_risk` route and `plan-ledger` model.
+2. Compare it to ForgeFlow's current `high` route and `plan-ledger` model.
 3. Write a decision doc with one of:
    - adopt now,
    - adopt later,

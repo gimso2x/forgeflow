@@ -159,7 +159,7 @@ def test_run_route_rejects_mismatched_eval_record_task_id(
         {
             "schema_version": "0.1",
             "task_id": "task-large-001",
-            "route": "large_high_risk",
+            "route": "high",
             "current_task_id": "task-1",
             "tasks": [
                 {
@@ -212,7 +212,7 @@ def test_run_route_rejects_mismatched_eval_record_task_id(
     )
 
     with pytest.raises(RuntimeViolation, match="eval-record.json task_id other-task does not match canonical task_id task-large-001"):
-        run_route(task_dir=task_dir, policy=policy, route_name="large_high_risk")
+        run_route(task_dir=task_dir, policy=policy, route_name="high")
 
 
 def test_retry_stage_rejects_mismatched_decision_log_task_id(
