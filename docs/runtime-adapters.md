@@ -1,6 +1,6 @@
 # ForgeFlow Runtime Adapters
 
-ForgeFlow keeps workflow contracts separate from execution backends. The canonical flow remains `clarify → plan → run → review → ship`; adapters only describe how a backend can execute a stage, collect evidence, and surface safety constraints.
+ForgeFlow keeps workflow contracts separate from execution backends. The canonical flow remains `clarify → plan → execute → review → ship`; adapters only describe how a backend can execute a stage, collect evidence, and surface safety constraints.
 
 ## Adapter boundary
 

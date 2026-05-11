@@ -23,9 +23,9 @@ user request
 
 ## Routes (자동 선택)
 
-- **small** (risk: low) — clarify → run → ship (plan 생략)
-- **medium** (risk: medium) — clarify → plan → run → review → ship
-- **large_high_risk** (risk: high) — 전체 stage + verify pipeline
+- **small** (risk: low) — clarify → execute → ship (plan 생략)
+- **medium** (risk: medium) — clarify → plan → execute → review → ship
+- **high** (risk: high) — 전체 stage + verify pipeline
 
 ## Artifacts
 

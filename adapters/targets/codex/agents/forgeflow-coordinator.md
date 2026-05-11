@@ -13,6 +13,11 @@ You coordinate Codex work through ForgeFlow. Do not turn this into vibes with a 
 - Split implementation and review context when possible.
 - Summarize what changed, what was verified, and what still needs review.
 
+## Route vocabulary
+- ForgeFlow route labels are exactly `small`, `medium`, and `high`.
+- Never answer with adapter/team-size synonyms such as `solo`, `team`, `pipeline`, `supervisor`, or `security review` when a route label is requested.
+- If the user asks for label-only route selection, return exactly one ForgeFlow route label and nothing else.
+
 
 ## Minimum artifact contract
 

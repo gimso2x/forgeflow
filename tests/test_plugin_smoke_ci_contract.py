@@ -27,7 +27,7 @@ def test_ci_plugin_smoke_script_documents_non_mutating_route_matrix() -> None:
         "codex_plugin_doctor.py",
         "smoke_codex_plugin.py",
         "smoke_claude_plugin.py",
-        "Final answer must be exactly one label and nothing else: no prefix, no rationale, no dry-run note.",
+        "Final answer must be exactly {route_label} and nothing else: no prefix, no rationale, no dry-run note.",
         "nothing else: no prefix, no rationale, no dry-run note.",
     ]:
         assert required in smoke
@@ -36,11 +36,20 @@ def test_ci_plugin_smoke_script_documents_non_mutating_route_matrix() -> None:
 def test_coordinator_rejects_adapter_synonyms_for_route_labels() -> None:
     coordinator = (ROOT / "prompts" / "canonical" / "coordinator.md").read_text(encoding="utf-8")
     codex = (ROOT / "adapters" / "generated" / "codex" / "CODEX.md").read_text(encoding="utf-8")
+    codex_project_coordinator = (ROOT / "adapters" / "targets" / "codex" / "agents" / "forgeflow-coordinator.md").read_text(encoding="utf-8")
 
-    for text in [coordinator, codex]:
+    for text in [coordinator, codex, codex_project_coordinator]:
         assert "ForgeFlow route labels are exactly `small`, `medium`, and `high`" in text
         assert "adapter/team-size synonyms" in text
         assert "`solo`" in text
+
+
+def test_plugin_smoke_prompts_block_non_canonical_route_labels() -> None:
+    smoke = SMOKE.read_text(encoding="utf-8")
+    assert "Valid labels: small, medium, high." in smoke
+    assert "Invalid answers: solo, team, pipeline, supervisor, security review." in smoke
+    assert "Do not translate route labels." in smoke
+    assert "Final answer must be exactly {route_label}" in smoke
 
 
 def test_readme_documents_local_disposable_nextjs_plugin_smoke() -> None:
@@ -53,3 +62,20 @@ def test_readme_documents_local_disposable_nextjs_plugin_smoke() -> None:
         "non-mutating",
     ]:
         assert required in readme
+
+
+def test_current_user_facing_docs_use_execute_and_high_labels() -> None:
+    current_docs = [
+        ROOT / "README.md",
+        ROOT / "SKILL.md",
+        ROOT / "docs" / "runtime-adapters.md",
+        ROOT / "skills" / "execute" / "SKILL.md",
+    ]
+    for path in current_docs:
+        text = path.read_text(encoding="utf-8")
+        assert "large_high_risk" not in text, path
+        assert "clarify → run" not in text, path
+        assert "plan → run" not in text, path
+        if path.name == "SKILL.md" and "skills/execute" in path.as_posix():
+            assert "execute stage" in text
+            assert "run stage" not in text

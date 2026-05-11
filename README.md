@@ -165,7 +165,7 @@ python3 scripts/smoke_codex_plugin.py --project /path/to/nextjs-app
 
 ## Plugin smoke matrix
 
-Claude/Codex 플러그인·프리셋 smoke는 CI의 `plugin-smoke-matrix` job에서 Linux/Windows, Claude/Codex, `small`/`medium`/`large_high_risk` route label 조합으로 돕니다. 실제 Claude/Codex CLI가 있는 환경에서는 route-label dry-run까지 실행하고, 없는 GitHub runner에서는 packaging, Codex project-local preset install, doctor, non-mutating guard를 검증합니다.
+Claude/Codex 플러그인·프리셋 smoke는 CI의 `plugin-smoke-matrix` job에서 Linux/Windows, Claude/Codex, `small`/`medium`/`high` route label 조합으로 돕니다. 실제 Claude/Codex CLI가 있는 환경에서는 route-label dry-run까지 실행하고, 없는 GitHub runner에서는 packaging, Codex project-local preset install, doctor, non-mutating guard를 검증합니다.
 
 로컬에서 disposable Next.js 앱으로 재현하려면:
 

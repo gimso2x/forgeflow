@@ -146,7 +146,9 @@ def run_claude_surface(project: Path, route_label: str, timeout: int) -> dict[st
     prompt = (
         f"/forgeflow:clarify Dry run only. Return only the selected route label for: {request}. "
         "Valid labels: small, medium, high. "
-        "Final answer must be exactly one label and nothing else: no prefix, no rationale, no dry-run note. "
+        "Invalid answers: solo, team, pipeline, supervisor, security review. "
+        "Do not translate route labels. "
+        f"Final answer must be exactly {route_label} and nothing else: no prefix, no rationale, no dry-run note. "
         "Do not write files. Do not run commands."
     )
     result = run(["claude", "--dangerously-skip-permissions", "-p", prompt], cwd=project, timeout=timeout, check=False)
@@ -160,6 +162,9 @@ def run_codex_surface(project: Path, route_label: str, timeout: int) -> dict[str
     prompt = (
         "Read CODEX.md and .codex/forgeflow/forgeflow-coordinator.md first. Apply ForgeFlow route criteria as dry-run. "
         "Do not write files. Do not run commands. "
+        "Valid labels: small, medium, high. "
+        "Invalid answers: solo, team, pipeline, supervisor, security review. "
+        "Do not translate route labels. "
         f"Final answer must be exactly {route_label} and nothing else: no prefix, no rationale, no dry-run note. "
         f"Request: {request}"
     )

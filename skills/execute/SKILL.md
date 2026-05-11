@@ -38,7 +38,7 @@ Use this skill to execute the selected ForgeFlow route.
 
 ### Route-aware exit requirements
 
-The run stage MUST produce `run-state.json` conforming to `schemas/run-state.schema.json`. The exit prompt and next-step guidance depend on the active route:
+The execute stage MUST produce `run-state.json` conforming to `schemas/run-state.schema.json`. The exit prompt and next-step guidance depend on the active route:
 
 - **small** route: After implementation, run at least one smoke check (build, lint, or type check — whichever is fastest). Write `run-state.json` with `status: "completed"`, then prompt the user:
   ```
@@ -54,7 +54,7 @@ The run stage MUST produce `run-state.json` conforming to `schemas/run-state.sch
   ```
   Then immediately invoke `/forgeflow:review`.
 
-Do not end the run stage without writing `run-state.json`. A run that leaves no state artifact is incomplete.
+Do not end the execute stage without writing `run-state.json`. An execute pass that leaves no state artifact is incomplete.
 
 ## File write and output discipline
 
