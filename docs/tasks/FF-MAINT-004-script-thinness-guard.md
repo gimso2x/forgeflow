@@ -28,7 +28,7 @@ Add a simple test or validation check that asserts key boundary expectations, fo
 
 - `docs/contract-map.md` names the script/runtime boundary.
 - known CLI scripts import and call runtime modules for reusable behavior.
-- high-risk policy commands remain backed by `forgeflow_runtime.evolution_*` modules.
+- high-risk policy commands remain backed by `forgeflow_runtime.evolution.*` modules.
 - scripts do not become the canonical home for generated adapter, evolution, route, or artifact policy.
 
 A light AST check is acceptable if it is simple and stable. Text assertions in `tests/test_validate_structure.py` may be enough for the first slice.

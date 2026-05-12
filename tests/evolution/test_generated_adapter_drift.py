@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parents[2]
 
 def test_generated_adapter_drift_command_uses_non_mutating_check() -> None:
     script = (ROOT / "scripts" / "generate_adapters.py").read_text(encoding="utf-8")
-    commands = (ROOT / "forgeflow_runtime" / "evolution_execution.py").read_text(encoding="utf-8")
+    commands = (ROOT / "forgeflow_runtime" / "evolution" / "execution.py").read_text(encoding="utf-8")
 
     assert "--check" in script
     assert "out_file.write_text" in script
@@ -40,7 +40,7 @@ def test_generated_adapter_drift_example_previews_non_mutating_check_command() -
 
 
 def test_generated_adapter_drift_execute_has_no_hidden_git_diff_contract() -> None:
-    commands = (ROOT / "forgeflow_runtime" / "evolution_execution.py").read_text(encoding="utf-8")
+    commands = (ROOT / "forgeflow_runtime" / "evolution" / "execution.py").read_text(encoding="utf-8")
     block = commands.split('if command_id == "generated-adapter-drift":', 1)[1].split('raise ValueError', 1)[0]
 
     assert '[sys.executable, "scripts/generate_adapters.py", "--check"]' in block

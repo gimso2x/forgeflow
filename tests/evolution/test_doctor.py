@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 
 from forgeflow_runtime.evolution import adopt_example_rule, doctor_evolution_state
-from forgeflow_runtime.evolution_doctor import _audit_log_health, _collect_rule_health
+from forgeflow_runtime.evolution.doctor import _audit_log_health, _collect_rule_health
 
 
 ROOT = Path(__file__).resolve().parents[2]

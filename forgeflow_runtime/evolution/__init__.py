@@ -6,22 +6,22 @@ from typing import Any
 
 import yaml
 
-from forgeflow_runtime.evolution_audit import (
+from forgeflow_runtime.evolution.audit import (
     AUDIT_LOG_PATH,
     append_audit_event as _append_audit_event,
     audit_events,
     effectiveness_review,
     read_audit_events as _read_audit_events,
 )
-from forgeflow_runtime.evolution_execution import (
+from forgeflow_runtime.evolution.execution import (
     execute_rule as _execute_rule,
     run_approved_command as _run_approved_command,
 )
-from forgeflow_runtime.evolution_doctor import (
+from forgeflow_runtime.evolution.doctor import (
     audit_required_field_issues as _audit_required_field_issues,
     doctor_evolution_state as _doctor_evolution_state,
 )
-from forgeflow_runtime.evolution_lifecycle import (
+from forgeflow_runtime.evolution.lifecycle import (
     adopt_example_rule,
     load_retired_rule_by_id as _load_retired_rule_by_id,
     load_retired_rules as _load_retired_rules,
@@ -30,12 +30,12 @@ from forgeflow_runtime.evolution_lifecycle import (
     restore_rule as _restore_rule,
     rule_filename as _rule_filename,
 )
-from forgeflow_runtime.evolution_promotion_plans import (
+from forgeflow_runtime.evolution.promotion_plans import (
     PROPOSAL_DIR,
     promotion_plan,
     write_promotion_plan,
 )
-from forgeflow_runtime.evolution_proposals import (
+from forgeflow_runtime.evolution.proposals import (
     PROPOSAL_APPROVAL_DIR,
     proposal_approval_path as _proposal_approval_path,
     proposal_approvals,
@@ -43,7 +43,7 @@ from forgeflow_runtime.evolution_proposals import (
     proposal_review,
     read_proposal_approval_records as _read_proposal_approval_records,
 )
-from forgeflow_runtime.evolution_promotion_gates import (
+from forgeflow_runtime.evolution.promotion_gates import (
     PROMOTION_DECISION_DIR,
     promotion_decision,
     promotion_decision_path as _promotion_decision_path,
@@ -51,7 +51,7 @@ from forgeflow_runtime.evolution_promotion_gates import (
     promotion_ready,
     read_promotion_decision_records as _read_promotion_decision_records,
 )
-from forgeflow_runtime.evolution_promotions import (
+from forgeflow_runtime.evolution.promotions import (
     PROMOTED_RULE_DIR,
     active_rule_by_id as _active_rule_by_id,
     append_promote_blocked_audit as _append_promote_blocked_audit,
@@ -60,7 +60,7 @@ from forgeflow_runtime.evolution_promotions import (
     promote_stub,
     promotion_marker_path as _promotion_marker_path,
 )
-from forgeflow_runtime.evolution_rules import (
+from forgeflow_runtime.evolution.rules import (
     APPROVED_COMMANDS,
     PROJECT_RULE_DIR,
     RETIRED_RULE_DIR,

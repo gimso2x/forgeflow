@@ -80,7 +80,23 @@ ForgeFlow artifact-first delivery harness.
 
 ---
 
-## 4. Control plane vs data plane
+## 4. Runtime package boundaries
+
+`forgeflow_runtime/` is allowed to expose compatibility imports, but new domain code should live behind explicit subpackages once a domain has multiple cooperating modules.
+
+Current split:
+- `forgeflow_runtime.evolution.*`: project-local evolution rules, audits, proposals, gates, promotions, and lifecycle commands.
+- `forgeflow_runtime.experiment.*`: experiment loops, metrics, stopping policy, and git helpers.
+- `forgeflow_runtime.orchestra.*`: multi-agent strategy, debate, consensus, and fastest-path orchestration.
+
+Boundary rules:
+1. new evolution code imports `forgeflow_runtime.evolution.<module>`, not top-level `forgeflow_runtime.evolution_<name>` modules.
+2. legacy top-level evolution module names stay as thin compatibility shims until the next breaking cleanup window.
+3. package moves need import-contract tests before behavior changes. Big-bang reorganizations are how repo archaeology becomes a full-time job.
+
+---
+
+## 5. Control plane vs data plane
 
 ### Control plane
 - `policy/canonical/`
@@ -109,7 +125,7 @@ ForgeFlow artifact-first delivery harness.
 
 ---
 
-## 5. Hard invariants
+## 6. Hard invariants
 1. artifact 없이 stage 전환 금지
 2. spec-review 실패 시 quality-review 금지
 3. review 결과 없는 finalize 금지
@@ -119,7 +135,7 @@ ForgeFlow artifact-first delivery harness.
 
 ---
 
-## 6. P0 scope boundary
+## 7. P0 scope boundary
 P0에서 반드시 들어가는 것:
 - workflow, stages, gates, routing
 - 6 core artifact schemas
@@ -151,7 +167,7 @@ P0에 들어가는 self-evolution의 정본은 `policy/canonical/evolution.yaml`
 
 ---
 
-## 7. What success looks like
+## 8. What success looks like
 설계 완료 기준은 문장이 예쁜 게 아니다.
 다음 질문에 답할 수 있어야 한다.
 

@@ -11,7 +11,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from forgeflow_runtime.evolution import adopt_example_rule, audit_events, doctor_evolution_state, dry_run_rule, effectiveness_review, execute_rule, inspect_evolution_policy, list_promotions, list_rules, promote_rule, promote_stub, promotion_decision, promotion_gate, promotion_plan, promotion_ready, proposal_approve, proposal_approvals, proposal_review, restore_rule, retire_rule, write_promotion_plan
-from forgeflow_runtime.evolution_observations import read_observations, suggest_from_task
+from forgeflow_runtime.evolution.observations import read_observations, suggest_from_task
 
 
 def _target_root(args: argparse.Namespace) -> Path:

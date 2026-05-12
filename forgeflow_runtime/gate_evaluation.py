@@ -12,7 +12,7 @@ from forgeflow_runtime.artifact_validation import (
 import json
 
 from forgeflow_runtime.errors import RuntimeViolation
-from forgeflow_runtime.evolution_observations import append_review_blocker_observation
+from forgeflow_runtime.evolution.observations import append_review_blocker_observation
 from forgeflow_runtime.executor import RunTaskResult
 from forgeflow_runtime.gate_ralf import RALFResult, ralf_config_from_policy, ralf_loop
 from forgeflow_runtime.policy_loader import RuntimePolicy

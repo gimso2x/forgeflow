@@ -5,7 +5,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from forgeflow_runtime.evolution_observations import (
+from forgeflow_runtime.evolution.observations import (
     append_review_blocker_observation,
     read_observations,
     suggest_from_task,
