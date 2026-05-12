@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib
+from pathlib import Path
 
 
 EVOLUTION_MODULES = [
@@ -61,3 +62,15 @@ def test_public_evolution_facade_still_exports_existing_api() -> None:
     ]
     for name in expected_names:
         assert hasattr(evolution, name), name
+
+
+def test_agent_instructions_document_runtime_subpackage_boundaries() -> None:
+    instructions = Path("AGENTS.md").read_text(encoding="utf-8")
+
+    assert "55 modules, 67 importable" not in instructions
+    for package_name in [
+        "forgeflow_runtime/evolution/",
+        "forgeflow_runtime/experiment/",
+        "forgeflow_runtime/orchestra/",
+    ]:
+        assert package_name in instructions

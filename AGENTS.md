@@ -9,8 +9,8 @@ ForgeFlow is an artifact-first delivery harness for AI coding agents. It provide
 ## Tech Stack
 
 - **Language**: Python 3.11+
-- **Runtime**: `forgeflow_runtime/` — 55 modules, 67 importable
-- **Tests**: pytest, 1082 tests across `tests/`
+- **Runtime**: `forgeflow_runtime/` — 84 Python import-surface files across core modules and domain subpackages
+- **Tests**: pytest, 117 test files across `tests/`
 - **No external runtime dependencies** — stdlib only (no pip install needed)
 - **Adapters**: Claude Code (marketplace plugin), Codex (CODEX.md)
 
@@ -27,6 +27,9 @@ forgeflow_runtime/       # Core runtime library
   gate_evaluation.py     # Stage gate enforcement
   gate_ralf.py           # RALF self-healing loop
   operator_routing.py    # Route selection (small/medium/high)
+  forgeflow_runtime/evolution/    # Rule lifecycle, proposals, audits, promotions
+  forgeflow_runtime/experiment/   # Experiment loop, metrics, circuit/stopping policy
+  forgeflow_runtime/orchestra/    # Consensus, debate, pipeline, fastest strategy
   ...
 tests/
   runtime/               # Runtime module tests
