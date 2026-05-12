@@ -45,6 +45,10 @@ user request
 # 테스트
 source .venv/bin/activate && python3 -m pytest -q
 
+# Evals
+make evals                         # all executable eval suites
+make adherence-evals               # workflow/stage/gate adherence only
+
 # 구조 검증
 python3 scripts/validate_structure.py
 

@@ -17,7 +17,7 @@ Skills are markdown documents that live in `skills/`. Each skill defines a bound
 | 01 | [`clarify`](clarify/SKILL.md) | Resolve ambiguity, explore codebase, emit a **Context Brief** with complexity routing. | engineering-discipline + andrej-karpathy-skills |
 | 02 | [`specify`](specify/SKILL.md) | Derive structured **requirements.md** from the brief through a decision interview. | hoyeon |
 | 03 | [`plan`](plan/SKILL.md) | Turn requirements into an executable **plan.json** with task contracts. | hoyeon + engineering-discipline + andrej-karpathy-skills |
-| 04 | [`run`](run/SKILL.md) | Execute plan tasks using **worker-validator pairs** with checkpoint/recovery. | engineering-discipline + andrej-karpathy-skills |
+| 04 | [`execute`](execute/SKILL.md) | Execute plan tasks using **worker-validator pairs** with checkpoint/recovery. | engineering-discipline + andrej-karpathy-skills |
 | 05 | [`review`](review/SKILL.md) | **Information-isolated** verification of executed work against the plan. | engineering-discipline + andrej-karpathy-skills |
 | 06 | [`ship`](ship/SKILL.md) | Final handoff/report after verification; branch disposition lives in [`finish`](finish/SKILL.md). | gstack |
 
@@ -45,7 +45,7 @@ User: "I want to build a daily briefing app"
   → clarify          → brief.json + complexity=medium
   → specify          → requirements.md
   → plan             → plan.json
-  → run              → decision-log.json + run-state.json + plan-ledger.json + code changes
+  → execute          → decision-log.json + run-state.json + plan-ledger.json + code changes
   → review           → review-report.json
   → ship             → final handoff
   → finish           → branch disposition: merge, PR, keep, or discard
@@ -59,10 +59,10 @@ User: "Refactor the entire payment module"
   → x-office-hours   → reframed goal
   → specify          → requirements.md
   → plan             → plan.json with milestone DAG
-  → run (M1)         → checkpoint-1.json + plan-ledger.json
+  → execute (M1)     → checkpoint-1.json + plan-ledger.json
   → x-spec-review    → spec-review-report-1.json
   → review (M1)      → review-report-1.json
-  → run (M2)         → checkpoint-2.json
+  → execute (M2)     → checkpoint-2.json
   → x-spec-review    → spec-review-report-2.json
   → review (M2)      → review-report-2.json
   ...

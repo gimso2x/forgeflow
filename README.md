@@ -139,7 +139,7 @@ python3 scripts/run_orchestrator.py init \
 - Generated Claude/Codex adapter instructions
 - Canonical workflow policy and JSON schemas
 - `memory/` inspectable local memory for curated, version-controlled patterns, decisions, and learnings
-- Local validation, sample fixtures, and runtime support tools
+- Local validation, eval runner, sample fixtures, and runtime support tools
 - v0.3.0 helpers for plan drafting, profile inspection, visual rendering, and Codex plugin diagnosis
 
 ForgeFlow는 hosted agent service나 SaaS runtime이 아닙니다. agent가 로컬 프로젝트에서 더 예측 가능하게 일하도록 만드는 workflow 규약과 검증 도구입니다.
@@ -164,7 +164,7 @@ python3 scripts/codex_plugin_doctor.py --project .
 python3 scripts/smoke_codex_plugin.py --project /path/to/nextjs-app
 ```
 
-세부 명령은 [scripts/README.md](scripts/README.md)에 있습니다.
+세부 명령은 [scripts/README.md](scripts/README.md)에 있습니다. Workflow eval은 [evals/README.md](evals/README.md)의 `make evals`로 실행합니다.
 
 Claude Code 플러그인 설치 직후에는 post-install smoke를 한 번 돌립니다. 이 한 줄은 generated 파일 존재, canonical route vocabulary, `claude plugin validate`, `/forgeflow:clarify` dry-run, `/forgeflow:init` disposable fixture write를 확인합니다. 실패하면 출력에 reinstall/restart/check next step이 같이 나옵니다.
 
@@ -209,6 +209,7 @@ python3 scripts/ci_plugin_smoke_matrix.py --surface claude --route-label small -
 - [docs/adapter-model.md](docs/adapter-model.md) - Claude/Codex adapter boundary
 - [docs/codex-desktop.md](docs/codex-desktop.md) - Codex Desktop 사용법
 - [scripts/README.md](scripts/README.md) - local scripts와 validation helper
+- [evals/README.md](evals/README.md) - executable workflow eval runner
 
 ## License
 

@@ -9,7 +9,7 @@ endif
 VENV_PYTHON := $(VENV_BIN)/python
 VENV_PIP := $(VENV_BIN)/pip
 
-.PHONY: setup check-env validate generate regen clean validate-samples runtime-sample adherence-evals monitor-summary monitor-summary-json orchestrator-help orchestrator-status smoke-claude-plugin validate-context-paths validate-upstream-import validate-hoyeon-import validate-skill-contracts validate-claude-hooks plan-cli-smoke evolution-policy-smoke learn-smoke claude-hook-smoke shared-recovery-smoke team-pattern-smoke agent-preset-smoke claude-agent-preset-smoke release-script-smoke verify-skill-smoke finish-skill-smoke plugin-manifest-smoke
+.PHONY: setup check-env validate generate regen clean validate-samples runtime-sample evals adherence-evals monitor-summary monitor-summary-json orchestrator-help orchestrator-status smoke-claude-plugin validate-context-paths validate-upstream-import validate-hoyeon-import validate-skill-contracts validate-claude-hooks plan-cli-smoke evolution-policy-smoke learn-smoke claude-hook-smoke shared-recovery-smoke team-pattern-smoke agent-preset-smoke claude-agent-preset-smoke release-script-smoke verify-skill-smoke finish-skill-smoke plugin-manifest-smoke
 
 setup:
 	$(PYTHON) scripts/check_environment.py --require-venv-support --skip-modules
@@ -51,6 +51,9 @@ validate:
 
 runtime-sample:
 	$(VENV_PYTHON) scripts/run_runtime_sample.py --fixture-dir examples/runtime-fixtures/small-doc-task --route small
+
+evals:
+	$(VENV_PYTHON) scripts/run_evals.py
 
 adherence-evals:
 	$(VENV_PYTHON) scripts/run_adherence_evals.py

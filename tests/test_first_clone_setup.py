@@ -179,6 +179,26 @@ def test_adherence_eval_docs_use_make_target_after_environment_setup() -> None:
     assert "python3 scripts/run_adherence_evals.py" not in command_block
 
 
+def test_top_level_eval_docs_use_make_evals_and_nonzero_contract() -> None:
+    readme = (ROOT / "evals/README.md").read_text(encoding="utf-8")
+    makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
+    runner = (ROOT / "scripts/run_evals.py").read_text(encoding="utf-8")
+    root_readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    skill = (ROOT / "SKILL.md").read_text(encoding="utf-8")
+
+    command_block = readme.split("## 실행 명령", 1)[1].split("## 현재 eval suite", 1)[0]
+    assert "make setup" in command_block
+    assert "make check-env" in command_block
+    assert "make evals" in command_block
+    assert command_block.index("make setup") < command_block.index("make check-env") < command_block.index("make evals")
+    assert "non-zero" in readme
+    assert "scripts/run_evals.py" in makefile
+    assert "scripts/run_adherence_evals.py" in runner
+    assert "return 1" in runner
+    assert "evals/README.md" in root_readme
+    assert "make evals" in skill
+
+
 def test_makefile_defines_monitor_summary_targets() -> None:
     makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
 

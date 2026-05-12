@@ -8,7 +8,7 @@ CANONICAL_SKILLS = [
     'skills/clarify/SKILL.md',
     'skills/specify/SKILL.md',
     'skills/plan/SKILL.md',
-    'skills/run/SKILL.md',
+    'skills/execute/SKILL.md',
     'skills/review/SKILL.md',
     'skills/ship/SKILL.md',
     'skills/finish/SKILL.md',
