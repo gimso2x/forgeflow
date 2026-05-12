@@ -15,6 +15,11 @@ def test_validate_workflow_has_plugin_smoke_matrix_job() -> None:
     assert "scripts/ci_plugin_smoke_matrix.py" in workflow
 
 
+def test_validate_workflow_opts_into_node24_actions_runtime() -> None:
+    workflow = WORKFLOW.read_text(encoding="utf-8")
+    assert "FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true" in workflow
+
+
 def test_ci_plugin_smoke_script_documents_non_mutating_route_matrix() -> None:
     smoke = SMOKE.read_text(encoding="utf-8")
     for required in [
