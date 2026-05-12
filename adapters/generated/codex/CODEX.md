@@ -227,6 +227,21 @@ notes:
 - 역할 분리는 on-demand로만 적용한다. planner/worker/reviewer 외 QA/UX/security 관점이 필요하면 이유와 skipped-role rationale을 artifact에 남긴다.
 - 여러 역할의 출력을 병합할 때 canonical truth는 chat이 아니라 `plan-ledger.json`, `run-state.json`, `review-report.json`이다.
 
+2-axis specialist selection (clarify 단계):
+- 기존 route(small/medium/high)는 stage 깊이만 결정한다.
+- clarify에서 brief를 작성할 때 작업 성격을 분석해 `required_specialists`와 `skipped_specialists`를 명시한다.
+- 전문 에이전트 목록: security-review, ux-review, perf-review, frontend-execute, backend-execute, infra-execute.
+- 판단 기준:
+  - 인증/권한/암호화/외부입력 → security-review
+  - UI/접근성/사용자흐름 → ux-review
+  - 응답시간/메모리/대규모데이터 → perf-review
+  - 프론트엔드 중심 작업 → frontend-execute
+  - 백엔드/API/DB 작업 → backend-execute
+  - 인프라/배포/IaC → infra-execute
+- 스킵한 전문가는 반드시 `skip_rationale`에 한 줄 이상 이유를 남긴다.
+- 예: `{"route": "high", "required_specialists": ["security-review", "backend-execute"], "skipped_specialists": ["ux-review", "perf-review"], "skip_rationale": "인증 마이그레이션이므로 UX/퍼포먼스 리뷰 불필요"}`
+- required_specialists가 없으면 기본 worker/reviewer만 사용한다.
+
 Route vocabulary:
 - ForgeFlow route labels are exactly `small`, `medium`, and `high`.
 - Never answer with adapter/team-size synonyms such as `solo`, `team`, `pipeline`, `supervisor`, or `security review` when a route label is requested.
