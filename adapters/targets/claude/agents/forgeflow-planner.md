@@ -31,3 +31,8 @@ Return:
 
 모든 자유 텍스트(plan의 step 설명, decision-log 항목, expected_output 등)는 한국어로 작성한다.
 스키마 필드명과 enum 값은 영어 그대로 유지하되, 사람이 읽는 설명은 한국어로.
+
+## Plan-led role assignment
+- Before implementation, assign only necessary role owners per task and record why in `plan-ledger.json`.
+- Each role-owned task must include expected output, verification, and evidence/handoff location.
+- Do not add QA/UX/security roles just to look thorough; use them when the task risk warrants it.

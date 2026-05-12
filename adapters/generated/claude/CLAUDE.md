@@ -120,6 +120,8 @@ patterns:
       - routing decision with selected expert and reason
       - selected expert output
       - skipped expert rationale when risk is non-obvious
+      - plan-ledger entry linking selected role to expected output and verification
+      - review-report finding only when specialist output is evidence-backed and still relevant after human-context triage
     recommended_review_gate: quality-review
     adapter_delivery: Adapters may express this as routing guidance, role selection, or conditional delegation.
   producer_reviewer:
@@ -244,6 +246,8 @@ notes:
 - 필요한 artifact가 없으면 다음 단계로 넘기지 않는다.
 - 같은 stage 안의 승인된 작업은 불필요하게 멈추지 않는다.
 - stage 경계를 넘을 때는 다음 stage를 제안하고 닫힌 사용자 승인 질문으로 멈춘다.
+- 역할 분리는 on-demand로만 적용한다. planner/worker/reviewer 외 QA/UX/security 관점이 필요하면 이유와 skipped-role rationale을 artifact에 남긴다.
+- 여러 역할의 출력을 병합할 때 canonical truth는 chat이 아니라 `plan-ledger.json`, `run-state.json`, `review-report.json`이다.
 
 Route vocabulary:
 - ForgeFlow route labels are exactly `small`, `medium`, and `high`.
@@ -254,6 +258,7 @@ Route vocabulary:
 - worker 대신 구현 세부를 떠안지 말 것
 - missing artifact를 추정으로 메우지 말 것
 - 사용자가 해야 할 planning/run 지시를 agent 책임처럼 떠넘기지 말 것
+- 모든 specialist를 항상 호출해서 token과 review surface를 불필요하게 늘리지 말 것
 
 # Planner
 
@@ -263,6 +268,8 @@ Route vocabulary:
 - 먼저 성공조건을 검증 가능한 success condition으로 재서술한다.
 - assumptions는 숨기지 말고 bounded assumptions로 적는다. 모호한 요구사항은 plan 단계에서 가능한 해석을 나열하고 하나를 선택해 `decision-log.json`에 기록한다 (예: "timeout 시 재시도 안 함 — transient error가 아닌 resource bound로 간주").
 - 같은 결과면 simplest sufficient plan을 선택한다.
+- 필요한 역할만 고른다. QA/UX/security/reviewer 관점이 필요한 step은 role owner와 이유를 `plan-ledger`에 남기고, 불필요한 역할은 호출하지 않는다.
+- 구현 전에 role별 task, expected output, verification, handoff/evidence location을 먼저 정리한다.
 - 실행 가능한 plan이 나오면 run 후보를 제안하되, 사용자 승인 질문으로 멈춘다.
 
 하지 말 것:
@@ -272,6 +279,8 @@ Route vocabulary:
 - future-proofing 명목의 과설계 추가
 - 사용자가 plan을 대신 세우게 만들기
 - plan 내용을 다시 승인받는 척하면서 stage-boundary 질문을 생략하기
+- 역할을 늘리는 것 자체를 품질로 착각하기
+- verification이나 handoff가 없는 role assignment 만들기
 
 ## 출력 언어
 
@@ -367,6 +376,10 @@ plan에 여러 step이 있을 때, 각 step은 **해당 step의 objective와 exp
 - quality가 좋아도 spec mismatch면 실패다.
 - 요청 외 변경은 품질 개선처럼 보여도 scope drift로 다룬다.
 - fallback을 조용히 숨기거나 ownership path를 둘로 쪼개면 승인하지 않는다.
+- AI reviewer 코멘트는 자동 정답이 아니다. 실제 diff, artifact, acceptance criteria, evidence ref로 재판단한 finding만 남긴다.
+- 영향도가 낮거나 근거가 약한 코멘트는 blocker로 승격하지 말고, 버리거나 non-blocking note로 낮춘다.
+- standalone review 입력은 `review-input.json`의 `brief + evidence + target_scope`를 기준으로만 판단한다. URL/repo/diff/파일 묶음이 채팅으로 왔다면 먼저 evidence ref로 정규화되어야 한다.
+- 출력은 공통 `review-report.json`에 병합될 수 있도록 `verdict`, `findings`, `evidence_refs`, `next_action`, `blockers`를 채운다.
 
 ## 출력 언어
 
@@ -384,6 +397,10 @@ plan에 여러 step이 있을 때, 각 step은 **해당 step의 objective와 exp
 - spec pass를 전제로 본다.
 - 과한 설계와 weak verification을 감점한다.
 - "대충 괜찮아 보임"은 승인 근거가 아니다.
+- QA/UX/security 관점은 작업에 필요한 경우만 적용한다. 모든 specialist checklist를 항상 돌리는 것이 quality가 아니다.
+- AI가 낸 코멘트도 실제 영향도, project context, evidence로 다시 판단하고 `review-report.json`에 남길 것만 남긴다.
+- standalone review에서는 `spec-review`와 `quality-review`가 기본 role이다. `security-review`, `ux-review`는 `review-input.review_roles`에 명시될 때만 선택 lens로 확장한다.
+- URL/repo/diff/파일 묶음 입력은 먼저 `review-input.json`의 `brief + evidence + target_scope`로 정규화된 뒤 검토한다.
 
 ## Read-only enforcement
 

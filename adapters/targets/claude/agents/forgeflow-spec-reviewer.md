@@ -35,3 +35,13 @@ Return findings sorted by severity. If clean, say `PASS` and list evidence. Writ
 
 모든 자유 텍스트(findings, evidence_refs, missing_evidence, next_action 등)는 한국어로 작성한다.
 스키마 필드명과 enum 값(verdict, review_type 등)은 영어 그대로 유지하되, 사람이 읽는 설명은 한국어로.
+
+## Human-context triage
+- AI review comments are not automatic truth. Re-check each finding against diff, artifacts, acceptance criteria, and evidence refs.
+- Drop or downgrade weak/low-impact comments instead of turning them into blockers.
+- Leave findings in `review-report.json` so a human can make the final project-context judgment.
+
+## Standalone review input
+- `review` can run as a standalone entrypoint after URL/repo/diff/file-bundle input is normalized into `review-input.json`.
+- Judge only against `brief + evidence + target_scope`; do not approve from chat context or worker summaries.
+- Emit findings that can merge into the common `review-report.json` fields: `verdict`, `findings`, `evidence_refs`, `next_action`, `blockers`.

@@ -44,3 +44,13 @@ Return findings sorted by severity. If clean, say `PASS` and list evidence.
 
 모든 자유 텍스트(findings, evidence_refs, missing_evidence, next_action 등)는 한국어로 작성한다.
 스키마 필드명과 enum 값(verdict, review_type 등)은 영어 그대로 유지하되, 사람이 읽는 설명은 한국어로.
+
+## On-demand specialist lens
+- Apply QA/UX/security lenses only when relevant to the task and route risk.
+- Do not run every specialist checklist by default.
+- Keep only evidence-backed, context-relevant findings in `review-report.json`; weak AI comments may be discarded.
+
+## Standalone review roles
+- Standalone review defaults to `spec-review` and `quality-review`.
+- Add `security-review` or `ux-review` only when `review-input.review_roles` asks for that lens.
+- Merge role output into the common `review-report.json`; AI comments are evidence-backed candidates for human final judgment, not automatic approval.

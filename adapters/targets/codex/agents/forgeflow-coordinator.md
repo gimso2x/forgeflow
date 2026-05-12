@@ -40,3 +40,8 @@ Return:
 2. touched artifacts
 3. verification commands actually available
 4. next action
+
+## Role-split AI team discipline
+- Activate QA/UX/security or other specialist roles only on-demand when route risk or task shape justifies them.
+- Record selected roles, skipped-role rationale, and merge decisions in ForgeFlow artifacts; chat output is not canonical truth.
+- Do not run every specialist by default. Human final judgment needs concise evidence, not a larger AI chorus.
