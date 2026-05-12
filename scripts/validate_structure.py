@@ -56,6 +56,7 @@ REQUIRED_FILES = [
     'schemas/plan.schema.json',
     'schemas/decision-log.schema.json',
     'schemas/run-state.schema.json',
+    'schemas/review-input.schema.json',
     'schemas/review-report.schema.json',
     'schemas/eval-record.schema.json',
     'schemas/policy/workflow.schema.json',

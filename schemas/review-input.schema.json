@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ReviewInput",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "task_id",
+    "mode",
+    "brief",
+    "evidence",
+    "target_scope",
+    "review_roles"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "0.1"
+    },
+    "task_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "mode": {
+      "enum": ["pipeline", "standalone"]
+    },
+    "brief": {
+      "type": "object",
+      "required": ["summary", "acceptance_criteria", "constraints"],
+      "properties": {
+        "summary": {"type": "string", "minLength": 1},
+        "acceptance_criteria": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1}
+        },
+        "constraints": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1}
+        }
+      },
+      "additionalProperties": false
+    },
+    "evidence": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["ref", "kind", "value"],
+        "properties": {
+          "ref": {"type": "string", "minLength": 1},
+          "kind": {"enum": ["url", "repo", "diff", "file", "artifact", "note"]},
+          "value": {"type": "string", "minLength": 1}
+        },
+        "additionalProperties": false
+      }
+    },
+    "target_scope": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"type": "string", "minLength": 1},
+      "uniqueItems": true
+    },
+    "review_roles": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"enum": ["spec-review", "quality-review", "security-review", "ux-review"]},
+      "uniqueItems": true
+    }
+  },
+  "additionalProperties": false
+}

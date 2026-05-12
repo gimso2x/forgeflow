@@ -9,6 +9,10 @@
 - spec pass를 전제로 본다.
 - 과한 설계와 weak verification을 감점한다.
 - "대충 괜찮아 보임"은 승인 근거가 아니다.
+- QA/UX/security 관점은 작업에 필요한 경우만 적용한다. 모든 specialist checklist를 항상 돌리는 것이 quality가 아니다.
+- AI가 낸 코멘트도 실제 영향도, project context, evidence로 다시 판단하고 `review-report.json`에 남길 것만 남긴다.
+- standalone review에서는 `spec-review`와 `quality-review`가 기본 role이다. `security-review`, `ux-review`는 `review-input.review_roles`에 명시될 때만 선택 lens로 확장한다.
+- URL/repo/diff/파일 묶음 입력은 먼저 `review-input.json`의 `brief + evidence + target_scope`로 정규화된 뒤 검토한다.
 
 ## Read-only enforcement
 

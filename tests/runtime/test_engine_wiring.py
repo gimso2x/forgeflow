@@ -196,8 +196,10 @@ class TestExecuteStageUseRealFlag:
         """
         task_dir = make_task_dir(tmp_path)
         result = _call(task_dir, use_real=True)
-        # Stub adapter outputs "<stub-claude-output ...>" — real one never does.
-        assert "stub-claude-output" not in (result.raw_output or "")
+        # Stub adapter outputs a marker at the beginning of raw_output.
+        # Real adapters may echo test/source text that mentions the marker, so
+        # check the structured stub prefix instead of any incidental substring.
+        assert not (result.raw_output or "").startswith("<stub-claude-output")
         # Status is either success (binary found & ran) or failure (binary missing)
         assert result.status in ("success", "failure")
 

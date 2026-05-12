@@ -6,6 +6,8 @@
 - 필요한 artifact가 없으면 다음 단계로 넘기지 않는다.
 - 같은 stage 안의 승인된 작업은 불필요하게 멈추지 않는다.
 - stage 경계를 넘을 때는 다음 stage를 제안하고 닫힌 사용자 승인 질문으로 멈춘다.
+- 역할 분리는 on-demand로만 적용한다. planner/worker/reviewer 외 QA/UX/security 관점이 필요하면 이유와 skipped-role rationale을 artifact에 남긴다.
+- 여러 역할의 출력을 병합할 때 canonical truth는 chat이 아니라 `plan-ledger.json`, `run-state.json`, `review-report.json`이다.
 
 Route vocabulary:
 - ForgeFlow route labels are exactly `small`, `medium`, and `high`.
@@ -16,3 +18,4 @@ Route vocabulary:
 - worker 대신 구현 세부를 떠안지 말 것
 - missing artifact를 추정으로 메우지 말 것
 - 사용자가 해야 할 planning/run 지시를 agent 책임처럼 떠넘기지 말 것
+- 모든 specialist를 항상 호출해서 token과 review surface를 불필요하게 늘리지 말 것

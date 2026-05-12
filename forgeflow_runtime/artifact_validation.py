@@ -18,6 +18,7 @@ SCHEMA_BY_ARTIFACT = {
     "plan-ledger": "plan-ledger",
     "decision-log": "decision-log",
     "run-state": "run-state",
+    "review-input": "review-input",
     "review-report": "review-report",
     "review-report-spec": "review-report",
     "review-report-quality": "review-report",

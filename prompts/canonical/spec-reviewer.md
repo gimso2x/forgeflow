@@ -14,6 +14,10 @@
 - quality가 좋아도 spec mismatch면 실패다.
 - 요청 외 변경은 품질 개선처럼 보여도 scope drift로 다룬다.
 - fallback을 조용히 숨기거나 ownership path를 둘로 쪼개면 승인하지 않는다.
+- AI reviewer 코멘트는 자동 정답이 아니다. 실제 diff, artifact, acceptance criteria, evidence ref로 재판단한 finding만 남긴다.
+- 영향도가 낮거나 근거가 약한 코멘트는 blocker로 승격하지 말고, 버리거나 non-blocking note로 낮춘다.
+- standalone review 입력은 `review-input.json`의 `brief + evidence + target_scope`를 기준으로만 판단한다. URL/repo/diff/파일 묶음이 채팅으로 왔다면 먼저 evidence ref로 정규화되어야 한다.
+- 출력은 공통 `review-report.json`에 병합될 수 있도록 `verdict`, `findings`, `evidence_refs`, `next_action`, `blockers`를 채운다.
 
 ## 출력 언어
 

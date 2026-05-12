@@ -86,12 +86,14 @@
 ### 4) `spec-review`
 목표:
 - 원하는 걸 맞게 만들었는지 본다.
+- `review`가 standalone entrypoint로 들어온 경우에도 입력을 먼저 `review-input`으로 정규화한 뒤 같은 기준을 적용한다.
 
 입력:
 - `brief`
 - `plan`
 - `run-state`
 - evidence
+- standalone `review-input` (`brief + evidence + target_scope`)
 
 출력:
 - `review-report` (`review_type=spec`)
@@ -100,12 +102,14 @@
 - worker 자기보고는 증거가 아니다.
 - acceptance criteria 기준으로 통과/실패를 판정한다.
 - 실패하면 quality-review로 넘어가지 않는다.
+- standalone 입력이 URL/repo/diff/파일 묶음뿐이면 reviewer가 추측하지 않고 `review-input.json`의 brief, evidence refs, target scope로 먼저 접는다.
 
 ---
 
 ### 5) `quality-review`
 목표:
 - 결과물이 유지보수 가능하고 검증 가능하며 위험이 통제되는지 본다.
+- standalone review에서는 spec-review와 함께 기본 review role로 실행된다.
 
 입력:
 - spec review 통과 결과
@@ -118,6 +122,7 @@
 규칙:
 - 구조, 단순성, 테스트/검증 품질, 잔존 리스크를 본다.
 - spec 미충족을 품질 문제로 얼버무리면 안 된다.
+- `security-review`, `ux-review`는 별도 stage가 아니라 `review-input.review_roles`로 확장되는 선택 lens이며, 결과는 같은 `review-report.json` 포맷으로 병합한다.
 
 ---
 
@@ -162,6 +167,13 @@
 기본 경로는 `clarify-first`다. 즉, 정상 진입은 항상 `clarify`에서 시작하고 여기서 brief와 route를 정한다.
 
 다만 operator가 아무 state 없이 runtime `start`/`run`에 바로 들어오면 fallback auto routing이 route를 고를 수 있다. 이 경우에도 선택된 route의 첫 stage는 여전히 `clarify`이며, auto routing은 정본 workflow를 대체하지 않는다.
+
+### Role-split execution rule
+역할 분리는 새 stage가 아니라 기존 stage를 더 엄격하게 운영하는 방식이다. `clarify`는 요청을 역할 단위로 나눌 필요가 있는지 판단하고, `plan`은 선택된 역할별 task와 handoff를 `plan-ledger`에 남기며, `execute`는 필요한 worker만 on-demand로 호출한다. `review`는 reviewer/QA/security/UX 같은 관점을 필요한 만큼 분리하되, 각 관점의 판단 근거는 `review-report`와 evidence ref로 합쳐야 한다.
+
+플랜 우선 원칙은 모든 route에 적용된다. 작은 작업도 최소 brief와 실행 근거를 남기고, medium/high-risk 작업은 구현 전에 plan-ledger task, expected output, verification, role owner를 먼저 확정한다. 구현자는 이 ledger 밖의 일을 선반영하지 않는다.
+
+사람 최종판단 원칙은 review gate를 약화하지 않는다. AI reviewer의 코멘트는 자동 정답이 아니라 evidence-backed finding 후보이며, ship/finalize 전에는 실제 영향도와 프로젝트 맥락을 사람이 판단할 수 있게 근거를 남겨야 한다.
 
 ### small
 `clarify -> execute -> quality-review -> finalize`

@@ -21,7 +21,9 @@
     "review_type": {
       "enum": [
         "spec",
-        "quality"
+        "quality",
+        "security",
+        "ux"
       ]
     },
     "verdict": {
@@ -73,6 +75,14 @@
         "minLength": 1
       },
       "uniqueItems": true
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
     }
   },
   "allOf": [
@@ -98,6 +108,9 @@
           },
           "safe_for_next_stage": {
             "const": true
+          },
+          "blockers": {
+            "maxItems": 0
           }
         }
       }

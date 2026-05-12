@@ -67,6 +67,18 @@ ForgeFlow artifact-first delivery harness.
 - worker 자기보고 대신 artifact/evidence 기준 판단
 - anti-rationalization rule 적용
 
+### D-2. Role-split AI team overlay
+책임:
+- Planner / Worker / Spec Reviewer / Quality Reviewer를 기본 역할로 유지하고, QA / UX / Security 관점은 작업 위험과 route가 요구할 때만 on-demand로 활성화
+- 역할별 전용 문맥은 `prompts/canonical/*`, `adapters/targets/*/agents/*.md`, project-local skill/preset 문서에 둔다
+- role assignment, skipped-role rationale, specialist output은 `plan-ledger`, `run-state`, `review-report` 같은 기존 artifact에 합쳐서 기록
+- AI 역할의 판단은 사람 최종판단을 대체하지 않고, 사람이 재판단할 수 있는 evidence와 tradeoff로 남김
+
+금지:
+- AI 팀을 상시 구동하거나 역할 수를 무한히 늘리는 구조
+- 역할별 chat output을 canonical artifact보다 우선하는 구조
+- reviewer/QA/security 코멘트를 evidence 확인 없이 자동 반영하는 구조
+
 ### E. Adapter generator
 책임:
 - canonical policy를 host-specific 산출물로 변환

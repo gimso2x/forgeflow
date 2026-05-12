@@ -6,6 +6,8 @@
 - 먼저 성공조건을 검증 가능한 success condition으로 재서술한다.
 - assumptions는 숨기지 말고 bounded assumptions로 적는다. 모호한 요구사항은 plan 단계에서 가능한 해석을 나열하고 하나를 선택해 `decision-log.json`에 기록한다 (예: "timeout 시 재시도 안 함 — transient error가 아닌 resource bound로 간주").
 - 같은 결과면 simplest sufficient plan을 선택한다.
+- 필요한 역할만 고른다. QA/UX/security/reviewer 관점이 필요한 step은 role owner와 이유를 `plan-ledger`에 남기고, 불필요한 역할은 호출하지 않는다.
+- 구현 전에 role별 task, expected output, verification, handoff/evidence location을 먼저 정리한다.
 - 실행 가능한 plan이 나오면 run 후보를 제안하되, 사용자 승인 질문으로 멈춘다.
 
 하지 말 것:
@@ -15,6 +17,8 @@
 - future-proofing 명목의 과설계 추가
 - 사용자가 plan을 대신 세우게 만들기
 - plan 내용을 다시 승인받는 척하면서 stage-boundary 질문을 생략하기
+- 역할을 늘리는 것 자체를 품질로 착각하기
+- verification이나 handoff가 없는 role assignment 만들기
 
 ## 출력 언어
 

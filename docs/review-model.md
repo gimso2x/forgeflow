@@ -19,6 +19,18 @@ AI 에이전트 workflow에서 제일 흔한 실패는 이거다.
 
 ForgeFlow는 이걸 막으려고 review를 stage로 분리한다.
 
+### Standalone review entrypoint
+`review`는 execute 이후 후속 stage로도 동작하지만, URL / repo / diff / 파일 묶음 같은 입력만 받아 단독 실행할 수도 있다. 이때 기존 stage/gate 구조는 바꾸지 않고 진입 방식만 확장한다.
+
+Standalone review는 먼저 입력을 `review-input.json` 형태의 표준 artifact로 정리한다.
+
+- `brief`: 무엇을 검토하는지, acceptance criteria 또는 판단 기준
+- `evidence`: URL, repo path, diff, file, artifact, note 같은 근거 ref
+- `target_scope`: 검토 대상 범위
+- `review_roles`: 기본 `spec-review`, `quality-review`; 필요 시 `security-review`, `ux-review`
+
+이 정규화가 없으면 reviewer는 채팅 맥락이나 암묵적 추측으로 승인하지 않는다. 모든 role 출력은 단일 `review-report.json` 포맷으로 모으고, 최소 `verdict`, `findings`, `evidence_refs`, `next_action`, `blockers`를 포함한다.
+
 ---
 
 ## 기본 원칙
@@ -30,6 +42,14 @@ ForgeFlow는 이걸 막으려고 review를 stage로 분리한다.
 - "요약하면 이런 변경이다"
 
 이런 건 참고 메모일 수는 있어도 승인 근거는 아니다.
+
+### 1-2. AI reviewer 코멘트도 최종판단이 아니다
+리뷰 역할을 reviewer/QA/security/UX로 분리해도 AI 코멘트는 자동 적용 대상이 아니다. 각 코멘트는 diff, artifact, test output, 경로 존재 여부, 프로젝트 맥락으로 다시 판단해야 한다.
+
+- evidence 없는 코멘트는 약한 신호로 취급한다.
+- 영향도가 낮거나 근거가 약한 코멘트는 blocker로 승격하지 않고 버릴 수 있어야 한다.
+- `review-report.json`은 사람이 최종판단할 수 있게 근거와 tradeoff를 남기는 자료이지, 사람의 책임을 대체하는 승인 버튼이 아니다.
+- 여러 역할의 reviewer가 있으면 coordinator가 중복/충돌 코멘트를 병합하고 남긴 finding마다 실제 영향도와 next action을 명시한다.
 
 ### 2. review는 stage 의미가 다르다
 - `spec-review`는 **원한 걸 맞게 만들었는지** 본다

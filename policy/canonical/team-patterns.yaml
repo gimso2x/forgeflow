@@ -51,6 +51,8 @@ patterns:
       - routing decision with selected expert and reason
       - selected expert output
       - skipped expert rationale when risk is non-obvious
+      - plan-ledger entry linking selected role to expected output and verification
+      - review-report finding only when specialist output is evidence-backed and still relevant after human-context triage
     recommended_review_gate: quality-review
     adapter_delivery: Adapters may express this as routing guidance, role selection, or conditional delegation.
   producer_reviewer:
