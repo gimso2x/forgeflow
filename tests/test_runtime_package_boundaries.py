@@ -64,6 +64,13 @@ def test_public_evolution_facade_still_exports_existing_api() -> None:
         assert hasattr(evolution, name), name
 
 
+def test_runtime_tests_share_json_file_helper_for_orchestrator_lifecycle() -> None:
+    test_source = Path("tests/runtime/test_orchestrator_lifecycle.py").read_text(encoding="utf-8")
+
+    assert "from .helpers import write_json_file" in test_source
+    assert "def _json_dump" not in test_source
+
+
 def test_agent_instructions_document_runtime_subpackage_boundaries() -> None:
     instructions = Path("AGENTS.md").read_text(encoding="utf-8")
 

@@ -10,6 +10,7 @@ from typing import Any
 
 import pytest
 
+from .helpers import write_json_file
 from forgeflow_runtime.errors import RuntimeViolation
 from forgeflow_runtime.executor import RunTaskResult
 from forgeflow_runtime.orchestrator import (
@@ -45,16 +46,12 @@ def policy() -> RuntimePolicy:
     return load_runtime_policy(REPO_ROOT)
 
 
-def _json_dump(path: Path, payload: dict) -> None:
-    path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
-
-
 def _small_task_dir(tmp_path: Path, *, task_id: str = "task-001") -> Path:
     """Create a minimal small-route task dir (brief + run-state) for tests that
     need an existing task directory without going through init_task."""
     task_dir = tmp_path / "task"
     task_dir.mkdir()
-    _json_dump(
+    write_json_file(
         task_dir / "brief.json",
         {
             "schema_version": "0.1",
@@ -67,7 +64,7 @@ def _small_task_dir(tmp_path: Path, *, task_id: str = "task-001") -> Path:
             "risk_level": "low",
         },
     )
-    _json_dump(
+    write_json_file(
         task_dir / "run-state.json",
         {
             "schema_version": "0.1",
@@ -89,7 +86,7 @@ def _small_task_dir(tmp_path: Path, *, task_id: str = "task-001") -> Path:
 def _medium_task_dir(tmp_path: Path, *, task_id: str = "task-001", route_name: str = "medium") -> Path:
     """Create a medium-route task dir with brief, run-state, plan, plan-ledger."""
     task_dir = _small_task_dir(tmp_path, task_id=task_id)
-    _json_dump(
+    write_json_file(
         task_dir / "plan.json",
         {
             "schema_version": "0.1",
@@ -108,7 +105,7 @@ def _medium_task_dir(tmp_path: Path, *, task_id: str = "task-001", route_name: s
             "verify_plan": [],
         },
     )
-    _json_dump(
+    write_json_file(
         task_dir / "plan-ledger.json",
         {
             "schema_version": "0.1",
@@ -145,7 +142,7 @@ def _add_checkpoint_and_session(
     plan_ledger: bool = False,
 ) -> None:
     """Add checkpoint.json and session-state.json for resume tests."""
-    _json_dump(
+    write_json_file(
         task_dir / "checkpoint.json",
         {
             "schema_version": "0.1",
@@ -160,7 +157,7 @@ def _add_checkpoint_and_session(
             "updated_at": "2026-01-01T00:00:00Z",
         },
     )
-    _json_dump(
+    write_json_file(
         task_dir / "session-state.json",
         {
             "schema_version": "0.1",
@@ -611,7 +608,7 @@ class TestParallelWorkerExecution:
                 "output_ref": "workers/api/output.md",
             },
         ]
-        _json_dump(task_dir / "run-state.json", run_state)
+        write_json_file(task_dir / "run-state.json", run_state)
 
         result = advance_to_next_stage(
             task_dir,
@@ -640,7 +637,7 @@ class TestParallelWorkerExecution:
 
         task_dir = repo / ".forgeflow" / "tasks" / "task-001"
         task_dir.mkdir(parents=True)
-        _json_dump(
+        write_json_file(
             task_dir / "brief.json",
             {
                 "schema_version": "0.1",
@@ -709,12 +706,12 @@ class TestParallelWorkerExecution:
             else:
                 (path / "backend.txt").write_text("base\nbackend\n", encoding="utf-8")
             worker["status"] = "completed"
-            _json_dump(task_dir / "workers" / worker["plan_task_id"] / "worker-state.json", worker)
+            write_json_file(task_dir / "workers" / worker["plan_task_id"] / "worker-state.json", worker)
 
         run_state["workers"] = workers
-        _json_dump(task_dir / "plan-ledger.json", plan_ledger)
-        _json_dump(task_dir / "run-state.json", run_state)
-        _json_dump(
+        write_json_file(task_dir / "plan-ledger.json", plan_ledger)
+        write_json_file(task_dir / "run-state.json", run_state)
+        write_json_file(
             task_dir / "review-report-quality.json",
             {
                 "schema_version": "0.1",
@@ -760,7 +757,7 @@ class TestStepBack:
         run_state = json.loads((task_dir / "run-state.json").read_text())
         run_state["spec_review_approved"] = True
         run_state["quality_review_approved"] = True
-        _json_dump(task_dir / "run-state.json", run_state)
+        write_json_file(task_dir / "run-state.json", run_state)
 
         stepped = step_back(task_dir, policy, "small", small_stages[1])
         assert stepped["current_stage"] == small_stages[0]
