@@ -67,8 +67,21 @@ def test_public_evolution_facade_still_exports_existing_api() -> None:
 def test_runtime_tests_share_json_file_helper_for_orchestrator_lifecycle() -> None:
     test_source = Path("tests/runtime/test_orchestrator_lifecycle.py").read_text(encoding="utf-8")
 
-    assert "from .helpers import write_json_file" in test_source
+    assert "from .helpers import" in test_source
+    assert "write_json_file" in test_source
     assert "def _json_dump" not in test_source
+
+
+def test_runtime_tests_share_task_directory_helpers_for_orchestrator_lifecycle() -> None:
+    test_source = Path("tests/runtime/test_orchestrator_lifecycle.py").read_text(encoding="utf-8")
+
+    assert "from .helpers import" in test_source
+    assert "small_task_dir" in test_source
+    assert "medium_task_dir" in test_source
+    assert "add_checkpoint_and_session" in test_source
+    assert "def _small_task_dir" not in test_source
+    assert "def _medium_task_dir" not in test_source
+    assert "def _add_checkpoint_and_session" not in test_source
 
 
 def test_agent_instructions_document_runtime_subpackage_boundaries() -> None:
