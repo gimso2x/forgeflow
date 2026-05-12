@@ -212,6 +212,58 @@
         "type": "integer",
         "minimum": 0
       }
+    },
+    "parallel_execution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "parallel_safe",
+        "conflicts",
+        "worker_count"
+      ],
+      "properties": {
+        "parallel_safe": {
+          "type": "boolean"
+        },
+        "worker_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "conflicts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "path",
+              "task_ids",
+              "reason"
+            ],
+            "properties": {
+              "path": {
+                "type": "string",
+                "minLength": 1
+              },
+              "task_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "minItems": 1
+              },
+              "reason": {
+                "type": "string",
+                "enum": [
+                  "shared_path",
+                  "protected_common_path",
+                  "parallel_unsafe"
+                ]
+              }
+            }
+          }
+        }
+      }
     }
   }
 }

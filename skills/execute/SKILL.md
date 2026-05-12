@@ -9,7 +9,7 @@ validate_prompt: |
   Must not treat worker self-report as final approval; review remains required.
 ---
 
-# Run
+# Execute
 
 Use this skill to execute the selected ForgeFlow route.
 

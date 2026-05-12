@@ -165,7 +165,7 @@ def test_design_interface_skill_absorbs_contract_first_pattern_as_optional_helpe
 
 
 def test_canonical_forgeflow_skills_default_to_artifact_first_mode() -> None:
-    for skill_name in ["forgeflow", "clarify", "specify", "plan", "run", "review", "ship"]:
+    for skill_name in ["forgeflow", "clarify", "specify", "plan", "execute", "review", "ship"]:
         skill = (ROOT / "skills" / skill_name / "SKILL.md").read_text(encoding="utf-8")
 
         assert "Default to **artifact-first mode**." in skill
@@ -198,7 +198,7 @@ def test_codex_plugin_accepts_forgeflow_slash_style_prompts() -> None:
         "clarify": "/forgeflow:clarify",
         "specify": "/forgeflow:specify",
         "plan": "/forgeflow:plan",
-        "run": "/forgeflow:execute",
+        "execute": "/forgeflow:execute",
         "review": "/forgeflow:review",
         "ship": "/forgeflow:ship",
         "finish": "/forgeflow:finish",
@@ -222,7 +222,7 @@ def test_codex_plugin_accepts_forgeflow_slash_style_prompts() -> None:
 
 
 def test_run_skill_has_route_aware_exit_requirements() -> None:
-    skill = (ROOT / "skills" / "run" / "SKILL.md").read_text(encoding="utf-8")
+    skill = (ROOT / "skills" / "execute" / "SKILL.md").read_text(encoding="utf-8")
 
     assert "Route-aware exit requirements" in skill
     assert "run-state.json" in skill
@@ -234,11 +234,11 @@ def test_run_skill_has_route_aware_exit_requirements() -> None:
     assert "high route 실행 완료" in skill
     assert "/forgeflow:review를 자동으로 시작합니다" in skill
     # Must not end without run-state.json
-    assert "Do not end the run stage without writing `run-state.json`" in skill
+    assert "Do not end the execute stage without writing `run-state.json`" in skill
 
 
 def test_run_skill_initializes_run_state_before_editing() -> None:
-    skill = (ROOT / "skills" / "run" / "SKILL.md").read_text(encoding="utf-8")
+    skill = (ROOT / "skills" / "execute" / "SKILL.md").read_text(encoding="utf-8")
 
     assert "Initialize `run-state.json`" in skill
     assert "current_stage: \"execute\"" in skill
@@ -248,10 +248,10 @@ def test_run_skill_initializes_run_state_before_editing() -> None:
 def test_forgeflow_stage_skills_support_non_interactive_approval_mode() -> None:
     for rel in [
         "skills/plan/SKILL.md",
-        "skills/run/SKILL.md",
+        "skills/execute/SKILL.md",
         "skills/review/SKILL.md",
         ".claude-plugin/skills/plan.md",
-        ".claude-plugin/skills/run.md",
+        ".claude-plugin/skills/execute.md",
         ".claude-plugin/skills/review.md",
     ]:
         skill = (ROOT / rel).read_text(encoding="utf-8")
@@ -263,8 +263,8 @@ def test_forgeflow_stage_skills_support_non_interactive_approval_mode() -> None:
 
 def test_worker_prompts_require_bounded_verification_fix_loop() -> None:
     for rel in [
-        "skills/run/SKILL.md",
-        ".claude-plugin/skills/run.md",
+        "skills/execute/SKILL.md",
+        ".claude-plugin/skills/execute.md",
         "adapters/targets/claude/agents/forgeflow-worker.md",
         "adapters/targets/codex/agents/forgeflow-worker.md",
     ]:
@@ -281,9 +281,9 @@ def test_worker_prompts_require_bounded_verification_fix_loop() -> None:
         assert "if failures remain, set `run-state.status` to `blocked` or `failed`" not in prompt
 
 
-def test_claude_run_surface_handles_execute_worktree_preference() -> None:
+def test_claude_execute_surface_handles_worktree_preference() -> None:
     for rel in [
-        ".claude-plugin/skills/run.md",
+        ".claude-plugin/skills/execute.md",
         "adapters/targets/claude/agents/forgeflow-worker.md",
     ]:
         prompt = (ROOT / rel).read_text(encoding="utf-8")

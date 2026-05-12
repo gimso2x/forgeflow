@@ -118,6 +118,78 @@
         "base_commit": { "type": "string" },
         "active": { "type": "boolean" }
       }
+    },
+    "parallel_execution": {
+      "type": "object",
+      "description": "Summary of whether plan tasks can safely run in parallel worktrees",
+      "additionalProperties": false,
+      "required": [
+        "parallel_safe",
+        "conflicts",
+        "worker_count"
+      ],
+      "properties": {
+        "parallel_safe": { "type": "boolean" },
+        "worker_count": { "type": "integer", "minimum": 0 },
+        "conflicts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["path", "task_ids", "reason"],
+            "properties": {
+              "path": { "type": "string" },
+              "task_ids": { "type": "array", "items": { "type": "string" } },
+              "reason": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "workers": {
+      "type": "array",
+      "description": "Worker-scoped execution artifacts allocated from plan-ledger tasks",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": ["schema_version", "task_id", "plan_task_id", "status", "owned_paths", "worktree", "output_ref"],
+        "properties": {
+          "schema_version": { "type": "string" },
+          "task_id": { "type": "string" },
+          "plan_task_id": { "type": "string" },
+          "status": { "type": "string" },
+          "owned_paths": { "type": "array", "items": { "type": "string" } },
+          "worktree": {
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "path": { "type": "string" },
+              "branch": { "type": "string" },
+              "base_commit": { "type": "string" },
+              "created_at": { "type": "string" },
+              "active": { "type": "boolean" }
+            }
+          },
+          "output_ref": { "type": "string" }
+        }
+      }
+    },
+    "worker_merge_results": {
+      "type": "array",
+      "description": "Review-approved merge results for worker-scoped worktrees",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": ["schema_version", "plan_task_id", "status", "reason", "files_changed"],
+        "properties": {
+          "schema_version": { "type": "string" },
+          "plan_task_id": { "type": ["string", "null"] },
+          "status": { "type": "string" },
+          "reason": { "type": "string" },
+          "files_changed": { "type": "array", "items": { "type": "string" } },
+          "error": { "type": ["string", "null"] }
+        }
+      }
     }
   },
   "additionalProperties": false

@@ -20,14 +20,14 @@ def test_cli_help_includes_operator_shell_examples() -> None:
     assert "Manual commands mutate the target task-dir" in result.stdout
 
 
-def test_cli_help_keeps_fallback_start_run_warning_adjacent_to_examples() -> None:
+def test_cli_help_keeps_fallback_start_execute_warning_adjacent_to_examples() -> None:
     result = _run_orchestrator_cli("--help")
 
     assert result.returncode == 0
     examples = result.stdout.split("Operator shell examples:", 1)[1].split("Notes:", 1)[0]
     fallback_section = examples.split("# Fallback entries mutate task artifacts", 1)[1].split("# Manual stage control", 1)[0]
     assert "python3 scripts/run_orchestrator.py start" in fallback_section
-    assert "python3 scripts/run_orchestrator.py run" in fallback_section
+    assert "python3 scripts/run_orchestrator.py execute" in fallback_section
     assert "can reuse persisted route" not in fallback_section
 
 
@@ -44,7 +44,7 @@ def test_cli_help_separates_read_only_status_from_mutating_manual_stage_examples
     assert manual_section.index("make setup") < manual_section.index("make check-env") < manual_section.index("make orchestrator-status")
     assert "# Mutating manual stage commands stay explicit operator commands." in manual_section
     mutating_section = manual_section.split("# Mutating manual stage commands stay explicit operator commands.", 1)[1]
-    assert "python3 scripts/run_orchestrator.py execute" in mutating_section
+    assert "python3 scripts/run_orchestrator.py exec-stage" in mutating_section
     assert "python3 scripts/run_orchestrator.py advance" in mutating_section
     assert "python3 scripts/run_orchestrator.py status" not in manual_section
 
@@ -148,6 +148,39 @@ def test_cli_init_without_task_dir_writes_under_current_project_forgeflow_tasks(
     assert not (ROOT / ".forgeflow" / "tasks" / "readme-quickstart-001").exists()
 
 
+def test_cli_init_can_infer_task_dir_and_task_id_from_objective(tmp_path: Path) -> None:
+    project_dir = tmp_path / "target-project"
+    project_dir.mkdir()
+
+    result = _run_orchestrator_cli(
+        "init",
+        "--objective",
+        "Update README quickstart",
+        "--risk",
+        "low",
+        cwd=project_dir,
+    )
+
+    assert result.returncode == 0, result.stderr
+    expected_task_dir = project_dir / ".forgeflow" / "tasks" / "update-readme-quickstart"
+    payload = json.loads(result.stdout)
+    assert payload["task_id"] == "update-readme-quickstart"
+    assert Path(payload["task_dir"]) == expected_task_dir
+    brief = json.loads((expected_task_dir / "brief.json").read_text(encoding="utf-8"))
+    assert brief["objective"] == "Update README quickstart"
+
+
+def test_cli_init_with_task_dir_can_bootstrap_without_objective(tmp_path: Path) -> None:
+    task_dir = tmp_path / ".forgeflow" / "tasks" / "manual-task"
+
+    result = _run_orchestrator_cli("init", "--task-dir", str(task_dir), "--risk", "low")
+
+    assert result.returncode == 0, result.stderr
+    payload = json.loads(result.stdout)
+    assert payload["task_id"] == "manual-task"
+    brief = json.loads((task_dir / "brief.json").read_text(encoding="utf-8"))
+    assert brief["objective"] == "Bootstrap manual-task"
+
 def test_cli_init_without_task_dir_refuses_plugin_cache_cwd(tmp_path: Path) -> None:
     plugin_cache_dir = tmp_path / ".claude" / "plugins" / "cache" / "forgeflow"
     plugin_cache_dir.mkdir(parents=True)
@@ -216,13 +249,13 @@ def test_cli_mutating_commands_refuse_explicit_task_dir_inside_plugin_cache(tmp_
     for command in [
         ("init", "--task-id", "bad-task", "--objective", "Do not write here", "--risk", "low"),
         ("start",),
-        ("run", "--route", "small"),
+        ("execute", "--route", "small"),
         ("resume",),
         ("advance", "--route", "small", "--current-stage", "clarify"),
         ("retry", "--stage", "clarify"),
         ("step-back", "--route", "small", "--current-stage", "clarify"),
         ("escalate", "--from-route", "small"),
-        ("execute", "--route", "small"),
+        ("exec-stage", "--route", "small"),
     ]:
         result = _run_orchestrator_cli(command[0], "--task-dir", str(plugin_task_dir), *command[1:])
         assert result.returncode == 1, (command, result.stderr)
@@ -267,7 +300,7 @@ def test_cli_init_refuses_to_overwrite_existing_artifacts(tmp_path: Path) -> Non
     assert result.stderr.startswith("ERROR: init refuses to overwrite existing task artifacts")
 
 
-def test_cli_run_executes_sample_fixture(tmp_path: Path) -> None:
+def test_cli_execute_runs_sample_fixture(tmp_path: Path) -> None:
     task_dir = tmp_path / "cli-task"
     task_dir.mkdir()
     _write_json(
@@ -296,7 +329,7 @@ def test_cli_run_executes_sample_fixture(tmp_path: Path) -> None:
         },
     )
 
-    result = _run_orchestrator_cli("run", "--task-dir", str(task_dir), "--route", "small")
+    result = _run_orchestrator_cli("execute", "--task-dir", str(task_dir), "--route", "small")
 
     assert result.returncode == 0
     assert (task_dir / "run-state.json").exists()
@@ -329,7 +362,7 @@ def test_cli_start_supports_min_route_override_without_explicit_route(tmp_path: 
     assert payload["route"] == "medium"
 
 
-def test_cli_run_auto_detects_small_route_and_min_route_can_raise_it(tmp_path: Path) -> None:
+def test_cli_execute_auto_detects_small_route_and_min_route_can_raise_it(tmp_path: Path) -> None:
     task_dir = tmp_path / "cli-auto-route"
     task_dir.mkdir()
     _write_json(
@@ -358,12 +391,12 @@ def test_cli_run_auto_detects_small_route_and_min_route_can_raise_it(tmp_path: P
         },
     )
 
-    auto_result = _run_orchestrator_cli("run", "--task-dir", str(task_dir))
+    auto_result = _run_orchestrator_cli("execute", "--task-dir", str(task_dir))
     assert auto_result.returncode == 0
     checkpoint = json.loads((task_dir / "checkpoint.json").read_text(encoding="utf-8"))
     assert checkpoint["route"] == "small"
 
-    raised_result = _run_orchestrator_cli("run", "--task-dir", str(task_dir), "--min-route", "medium")
+    raised_result = _run_orchestrator_cli("execute", "--task-dir", str(task_dir), "--min-route", "medium")
     assert raised_result.returncode == 1
     assert "medium route requires plan-ledger.json" in raised_result.stderr
 
@@ -404,9 +437,9 @@ def test_cli_supports_recovery_commands(tmp_path: Path) -> None:
     assert json.loads(escalate_result.stdout)["status"] == "blocked"
 
 
-def test_cli_execute_runs_current_stage_and_writes_output(tmp_path: Path) -> None:
+def test_cli_exec_stage_runs_current_stage_and_writes_output(tmp_path: Path) -> None:
     task_dir = _make_task_dir(tmp_path)
-    execute_result = _run_orchestrator_cli("execute", "--task-dir", str(task_dir), "--route", "small", "--adapter", "codex")
+    execute_result = _run_orchestrator_cli("exec-stage", "--task-dir", str(task_dir), "--route", "small", "--adapter", "codex")
 
     assert execute_result.returncode == 0
     payload = json.loads(execute_result.stdout)
@@ -443,11 +476,11 @@ def test_cli_advance_with_execute_runs_next_stage_and_updates_run_state(tmp_path
     assert (task_dir / "execute-output.md").exists()
 
 
-def test_cli_execute_reports_non_runtime_failures_cleanly(tmp_path: Path) -> None:
+def test_cli_exec_stage_reports_non_runtime_failures_cleanly(tmp_path: Path) -> None:
     task_dir = _make_task_dir(tmp_path)
 
     result = _run_orchestrator_cli(
-        "execute",
+        "exec-stage",
         "--task-dir",
         str(task_dir),
         "--route",

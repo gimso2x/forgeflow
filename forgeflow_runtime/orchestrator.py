@@ -47,7 +47,14 @@ from forgeflow_runtime.task_identity import task_id as _task_id
 from forgeflow_runtime.execute_context import build_execute_context as _build_execute_context, format_execute_prompt as _format_execute_prompt
 from forgeflow_runtime.progress_tracker import calculate_progress as _calculate_progress, detect_progress_anomaly as _detect_progress_anomaly
 from forgeflow_runtime.stuck_detector import detect_stuck as _detect_stuck, should_escalate as _should_escalate, format_stuck_report as _format_stuck_report
-from forgeflow_runtime.worktree import create_worktree as _create_worktree, remove_worktree as _remove_worktree, is_repo_clean as _is_repo_clean
+from forgeflow_runtime.worktree import (
+    create_worktree as _create_worktree,
+    create_worker_worktree as _create_worker_worktree,
+    detect_path_conflicts as _detect_path_conflicts,
+    is_repo_clean as _is_repo_clean,
+    merge_worker_worktree as _merge_worker_worktree,
+    remove_worktree as _remove_worktree,
+)
 
 
 @dataclass(frozen=True)
@@ -1303,12 +1310,13 @@ def init_task(
     task_dir: Path,
     policy: RuntimePolicy,
     *,
-    objective: str,
+    objective: str | None = None,
     task_id: str | None = None,
     risk_level: str | None = None,
     project_root: Path | None = None,
 ) -> dict[str, Any]:
-    task_id = task_id or _slugify_objective(objective)
+    task_id = task_id or _slugify_objective(objective or task_dir.name)
+    objective = objective or f"Bootstrap {task_id}"
     risk_level = risk_level or _estimate_risk(objective)
     if risk_level not in {"low", "medium", "high"}:
         raise RuntimeViolation(f"unknown risk level: {risk_level}")
@@ -1669,6 +1677,7 @@ def advance_to_next_stage(
             raise RuntimeViolation(
                 f"finalize requires run-state approval flags: {', '.join(missing_flags)}"
             )
+        _merge_completed_parallel_workers(task_dir, run_state)
 
     staged_run_state = dict(run_state)
     _sync_plan_ledger_gate(plan_ledger, stage_name=current_stage, gate_name=policy.stage_gate_map.get(current_stage))
@@ -1679,32 +1688,60 @@ def advance_to_next_stage(
 
     execution_payload: dict[str, Any] | None = None
     if execute_immediately:
-        from forgeflow_runtime.engine import execute_stage
+        from forgeflow_runtime.engine import execute_parallel_workers, execute_stage
 
         execution_role = role or role_for_stage(next_stage, violation_factory=RuntimeViolation)
-        result = execute_stage(
-            task_dir=task_dir,
-            task_id=staged_run_state.get("task_id", canonical_task_id),
-            stage=next_stage,
-            route=route_name,
-            role=execution_role,
-            adapter_target=adapter_target,
-            artifacts_to_stream=artifacts_to_stream,
-            use_real=use_real,
-            collector=collector,
-        )
-        if result.status != "success":
-            reason = result.error or f"stage execution returned status={result.status}"
-            raise RuntimeViolation(f"automatic execution failed for {next_stage}: {reason}")
-        if result.raw_output:
-            (task_dir / f"{next_stage}-output.md").write_text(result.raw_output, encoding="utf-8")
-        execution_payload = _execution_payload(
-            stage=next_stage,
-            role=execution_role,
-            adapter=adapter_target,
-            result=result,
-            use_real=use_real,
-        )
+        workers = staged_run_state.get("workers") if next_stage == "execute" else None
+        if isinstance(workers, list) and len(workers) > 1:
+            worker_results = execute_parallel_workers(
+                task_dir=task_dir,
+                task_id=staged_run_state.get("task_id", canonical_task_id),
+                route=route_name,
+                adapter_target=adapter_target,
+                workers=workers,
+                use_real=use_real,
+            )
+            failures = [item for item in worker_results if item["result"].status != "success"]
+            if failures:
+                reason = "; ".join(
+                    f"{item['plan_task_id']}: {item['result'].error or item['result'].status}"
+                    for item in failures
+                )
+                raise RuntimeViolation(f"automatic parallel worker execution failed for {next_stage}: {reason}")
+            staged_run_state["workers"] = workers
+            execution_payload = {
+                "stage": next_stage,
+                "role": "worker",
+                "adapter": adapter_target,
+                "status": "success",
+                "use_real": use_real,
+                "worker_count": len(worker_results),
+                "workers": [item["plan_task_id"] for item in worker_results],
+            }
+        else:
+            result = execute_stage(
+                task_dir=task_dir,
+                task_id=staged_run_state.get("task_id", canonical_task_id),
+                stage=next_stage,
+                route=route_name,
+                role=execution_role,
+                adapter_target=adapter_target,
+                artifacts_to_stream=artifacts_to_stream,
+                use_real=use_real,
+                collector=collector,
+            )
+            if result.status != "success":
+                reason = result.error or f"stage execution returned status={result.status}"
+                raise RuntimeViolation(f"automatic execution failed for {next_stage}: {reason}")
+            if result.raw_output:
+                (task_dir / f"{next_stage}-output.md").write_text(result.raw_output, encoding="utf-8")
+            execution_payload = _execution_payload(
+                stage=next_stage,
+                role=execution_role,
+                adapter=adapter_target,
+                result=result,
+                use_real=use_real,
+            )
 
     run_state = staged_run_state
     _write_validated_artifact(task_dir, "run-state", run_state)
@@ -1747,6 +1784,151 @@ def _write_profile_artifact(task_dir: Path, profile: Any) -> None:
     out_path = _artifact_path(task_dir, "pipeline-profile")
     out_path.parent.mkdir(parents=True, exist_ok=True)
     _write_json(out_path, payload)
+
+
+def _sync_parallel_worktree_plan(
+    plan_ledger: dict[str, Any] | None,
+    run_state: dict[str, Any],
+    decision_log: dict[str, Any],
+) -> dict[str, Any] | None:
+    """Evaluate whether plan tasks can safely fan out into worker worktrees."""
+    if plan_ledger is None:
+        return None
+
+    tasks = plan_ledger.get("tasks") or []
+    result = _detect_path_conflicts(tasks)
+    summary = {
+        "parallel_safe": result["parallel_safe"],
+        "conflicts": result["conflicts"],
+        "worker_count": len(tasks),
+    }
+    plan_ledger["parallel_execution"] = summary
+    run_state["parallel_execution"] = summary
+
+    if summary["parallel_safe"]:
+        _append_decision(
+            decision_log,
+            actor="orchestrator",
+            category="execution",
+            decision="worker worktrees are safe to create in parallel",
+            rationale=f"{summary['worker_count']} plan task(s) have no owned-path conflicts",
+        )
+    else:
+        conflict_bits = [
+            f"{conflict['reason']}:{conflict['path']} -> {', '.join(conflict['task_ids'])}"
+            for conflict in summary["conflicts"]
+        ]
+        _append_decision(
+            decision_log,
+            actor="orchestrator",
+            category="execution",
+            decision="parallel worker worktrees blocked by path conflicts",
+            rationale="; ".join(conflict_bits) or "plan tasks are not parallel safe",
+        )
+
+    return summary
+
+
+def _merge_completed_parallel_workers(task_dir: Path, run_state: dict[str, Any]) -> list[dict[str, Any]]:
+    workers = run_state.get("workers")
+    if not isinstance(workers, list) or len(workers) < 2:
+        return []
+    repo_root = _find_git_root(task_dir)
+    if repo_root is None:
+        raise RuntimeViolation("parallel worker merge requires a git repository")
+    merge_results: list[dict[str, Any]] = []
+    for index, worker in enumerate(workers):
+        result = _merge_worker_worktree(
+            repo_path=repo_root,
+            task_dir=task_dir,
+            worker=worker,
+            approved=bool(run_state.get("quality_review_approved")),
+            require_clean=(index == 0),
+        )
+        merge_results.append(result)
+    failures = [item for item in merge_results if item.get("status") != "merged"]
+    run_state["workers"] = workers
+    run_state["worker_merge_results"] = merge_results
+    if failures:
+        reason = "; ".join(
+            f"{item.get('plan_task_id')}: {item.get('reason') or item.get('status')}"
+            for item in failures
+        )
+        raise RuntimeViolation(f"parallel worker merge blocked: {reason}")
+    return merge_results
+
+
+def _brief_use_worktree(task_dir: Path) -> bool | None:
+    brief_path = task_dir / "brief.json"
+    if not brief_path.exists():
+        return None
+    try:
+        brief = json.loads(brief_path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return None
+    value = brief.get("use_worktree")
+    return value if isinstance(value, bool) else None
+
+
+def _allocate_parallel_worker_worktrees(
+    task_dir: Path,
+    plan_ledger: dict[str, Any] | None,
+    run_state: dict[str, Any],
+    decision_log: dict[str, Any],
+) -> list[dict[str, Any]]:
+    """Create worker-scoped worktrees for a parallel-safe execute plan."""
+    if plan_ledger is None:
+        return []
+    summary = run_state.get("parallel_execution") or plan_ledger.get("parallel_execution") or {}
+    if not summary.get("parallel_safe"):
+        return []
+    if _brief_use_worktree(task_dir) is not True:
+        return []
+
+    tasks = plan_ledger.get("tasks") or []
+    if len(tasks) < 2:
+        return []
+
+    repo_root = _find_git_root(task_dir)
+    if repo_root is None:
+        _append_decision(
+            decision_log,
+            actor="execute-intelligence",
+            category="execute-context",
+            decision="parallel worker worktrees skipped — not a git repo",
+            rationale="no .git directory found; proceeding without worker worktrees",
+        )
+        return []
+
+    task_id = str(run_state.get("task_id") or plan_ledger.get("task_id") or task_dir.name)
+    workers: list[dict[str, Any]] = []
+    for plan_task in tasks:
+        worker_dir = task_dir / "workers" / str(plan_task.get("id", "")).strip().replace("/", "-").replace("\\", "-")
+        existing_state = worker_dir / "worker-state.json"
+        if existing_state.exists():
+            try:
+                workers.append(json.loads(existing_state.read_text(encoding="utf-8")))
+                continue
+            except (json.JSONDecodeError, OSError):
+                pass
+        workers.append(
+            _create_worker_worktree(
+                task_dir=task_dir,
+                repo_path=repo_root,
+                task_id=task_id,
+                plan_task=plan_task,
+            )
+        )
+
+    run_state["workers"] = workers
+    _append_decision(
+        decision_log,
+        actor="orchestrator",
+        category="execution",
+        decision="parallel worker worktrees allocated",
+        rationale=f"created or reused {len(workers)} worker artifact set(s) under {task_dir / 'workers'}",
+    )
+    return workers
 
 
 def _maybe_create_worktree(
@@ -1984,7 +2166,10 @@ def run_route(task_dir: Path, policy: RuntimePolicy, route_name: str) -> dict[st
         # --- Optional git worktree isolation for execute stage ---
         _active_worktree: dict | None = None
         if stage_name == "execute":
-            _active_worktree = _maybe_create_worktree(task_dir, run_state, decision_log)
+            _sync_parallel_worktree_plan(plan_ledger, run_state, decision_log)
+            _parallel_workers = _allocate_parallel_worker_worktrees(task_dir, plan_ledger, run_state, decision_log)
+            if not _parallel_workers:
+                _active_worktree = _maybe_create_worktree(task_dir, run_state, decision_log)
 
         # --- Execute Intelligence: inject task context + progress + stuck detection ---
         if stage_name == "execute":

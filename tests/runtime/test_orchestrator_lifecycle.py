@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import subprocess
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
@@ -16,7 +17,9 @@ from forgeflow_runtime.orchestrator import (
     _artifact_ref_path,
     _execution_payload,
     _infer_route_for_recovery,
+    _allocate_parallel_worker_worktrees,
     _resolve_route,
+    _sync_parallel_worktree_plan,
     _validate_review_semantics,
     advance_to_next_stage,
     clarify_task,
@@ -392,6 +395,96 @@ class TestClarifyTask:
         assert brief_after["acceptance_criteria"] == ["task artifacts are initialized and schema-valid"]
 
 
+def test_sync_parallel_worktree_plan_records_conflicts_in_run_state_and_ledger() -> None:
+    plan_ledger = {
+        "schema_version": "0.1",
+        "task_id": "task-001",
+        "route": "medium",
+        "current_task_id": "ui",
+        "tasks": [
+            {
+                "id": "ui",
+                "title": "UI",
+                "depends_on": [],
+                "files": ["src/login.tsx"],
+                "parallel_safe": True,
+                "status": "in_progress",
+                "required_gates": ["validator"],
+                "evidence_refs": [],
+                "attempt_count": 0,
+            },
+            {
+                "id": "api",
+                "title": "API",
+                "depends_on": [],
+                "files": ["src/login.tsx"],
+                "parallel_safe": True,
+                "status": "pending",
+                "required_gates": ["validator"],
+                "evidence_refs": [],
+                "attempt_count": 0,
+            },
+        ],
+    }
+    run_state: dict[str, Any] = {}
+    decision_log = {"schema_version": "0.1", "task_id": "task-001", "entries": []}
+
+    summary = _sync_parallel_worktree_plan(plan_ledger, run_state, decision_log)
+
+    assert summary == {
+        "parallel_safe": False,
+        "worker_count": 2,
+        "conflicts": [{"path": "src/login.tsx", "task_ids": ["ui", "api"], "reason": "shared_path"}],
+    }
+    assert plan_ledger["parallel_execution"] == summary
+    assert run_state["parallel_execution"] == summary
+    assert decision_log["entries"][-1]["category"] == "execution"
+    assert "blocked" in decision_log["entries"][-1]["decision"]
+
+
+def test_allocate_parallel_worker_worktrees_creates_task_scoped_artifacts(tmp_path: Path) -> None:
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    subprocess.run(["git", "init"], cwd=repo, check=True, capture_output=True, text=True)
+    subprocess.run(["git", "config", "user.email", "forgeflow@example.test"], cwd=repo, check=True)
+    subprocess.run(["git", "config", "user.name", "ForgeFlow Test"], cwd=repo, check=True)
+    (repo / "src").mkdir()
+    (repo / "src" / "ui.tsx").write_text("export const ui = 1\n", encoding="utf-8")
+    (repo / "src" / "api.ts").write_text("export const api = 1\n", encoding="utf-8")
+    subprocess.run(["git", "add", "."], cwd=repo, check=True)
+    subprocess.run(["git", "commit", "-m", "init"], cwd=repo, check=True, capture_output=True, text=True)
+
+    task_dir = repo / ".forgeflow" / "tasks" / "task-001"
+    task_dir.mkdir(parents=True)
+    (task_dir / "brief.json").write_text(
+        json.dumps({"schema_version": "0.1", "task_id": "task-001", "use_worktree": True}),
+        encoding="utf-8",
+    )
+    plan_ledger = {
+        "schema_version": "0.1",
+        "task_id": "task-001",
+        "route": "medium",
+        "current_task_id": "ui",
+        "tasks": [
+            {"id": "ui", "files": ["src/ui.tsx"], "status": "pending"},
+            {"id": "api", "files": ["src/api.ts"], "status": "pending"},
+        ],
+    }
+    run_state = {"schema_version": "0.1", "task_id": "task-001"}
+    decision_log = {"schema_version": "0.1", "task_id": "task-001", "entries": []}
+
+    _sync_parallel_worktree_plan(plan_ledger, run_state, decision_log)
+    workers = _allocate_parallel_worker_worktrees(task_dir, plan_ledger, run_state, decision_log)
+
+    assert [worker["plan_task_id"] for worker in workers] == ["ui", "api"]
+    assert run_state["workers"] == workers
+    assert (task_dir / "workers" / "ui" / "worker-state.json").exists()
+    assert (task_dir / "workers" / "ui" / "worktree.json").exists()
+    assert (task_dir / "workers" / "ui" / "output.md").exists()
+    assert all(Path(worker["worktree"]["path"]).exists() for worker in workers)
+    assert decision_log["entries"][-1]["decision"] == "parallel worker worktrees allocated"
+
+
 # =========================================================================
 # 6–8: start_task tests
 # =========================================================================
@@ -487,6 +580,163 @@ class TestStatusSummary:
         assert result["route"] == "small"
         assert isinstance(result["required_gates"], list)
         assert isinstance(result["open_blockers"], list)
+
+
+class TestParallelWorkerExecution:
+    def test_advance_execute_immediately_dispatches_allocated_workers(self, tmp_path: Path, policy: RuntimePolicy) -> None:
+        task_dir = tmp_path / "parallel-execute"
+        start_task(task_dir, policy, "small")
+        wt_a = tmp_path / "wt-a"
+        wt_b = tmp_path / "wt-b"
+        wt_a.mkdir()
+        wt_b.mkdir()
+        run_state = json.loads((task_dir / "run-state.json").read_text())
+        run_state["workers"] = [
+            {
+                "schema_version": "1.0",
+                "task_id": run_state["task_id"],
+                "plan_task_id": "ui",
+                "status": "pending",
+                "owned_paths": ["app/page.tsx"],
+                "worktree": {"path": str(wt_a), "branch": "ff/ui", "active": True},
+                "output_ref": "workers/ui/output.md",
+            },
+            {
+                "schema_version": "1.0",
+                "task_id": run_state["task_id"],
+                "plan_task_id": "api",
+                "status": "pending",
+                "owned_paths": ["api/route.ts"],
+                "worktree": {"path": str(wt_b), "branch": "ff/api", "active": True},
+                "output_ref": "workers/api/output.md",
+            },
+        ]
+        _json_dump(task_dir / "run-state.json", run_state)
+
+        result = advance_to_next_stage(
+            task_dir,
+            policy,
+            "small",
+            "clarify",
+            execute_immediately=True,
+        )
+
+        persisted = json.loads((task_dir / "run-state.json").read_text())
+        assert result.next_stage == "execute"
+        assert result.execution["worker_count"] == 2
+        assert [worker["status"] for worker in persisted["workers"]] == ["completed", "completed"]
+        assert (task_dir / "workers" / "ui" / "output.md").exists()
+
+    def test_finalize_merges_review_approved_parallel_worker_worktrees(self, tmp_path: Path, policy: RuntimePolicy) -> None:
+        repo = tmp_path / "repo"
+        repo.mkdir()
+        subprocess.run(["git", "init"], cwd=repo, check=True, stdout=subprocess.DEVNULL)
+        subprocess.run(["git", "config", "user.email", "test@example.com"], cwd=repo, check=True)
+        subprocess.run(["git", "config", "user.name", "Test User"], cwd=repo, check=True)
+        (repo / "frontend.txt").write_text("base\n", encoding="utf-8")
+        (repo / "backend.txt").write_text("base\n", encoding="utf-8")
+        subprocess.run(["git", "add", "."], cwd=repo, check=True)
+        subprocess.run(["git", "commit", "-m", "initial"], cwd=repo, check=True, stdout=subprocess.DEVNULL)
+
+        task_dir = repo / ".forgeflow" / "tasks" / "task-001"
+        task_dir.mkdir(parents=True)
+        _json_dump(
+            task_dir / "brief.json",
+            {
+                "schema_version": "0.1",
+                "task_id": "task-001",
+                "objective": "Merge approved parallel workers",
+                "in_scope": ["parallel merge"],
+                "out_of_scope": [],
+                "constraints": ["local only"],
+                "acceptance_criteria": ["approved worker changes are merged"],
+                "risk_level": "medium",
+                "use_worktree": True,
+            },
+        )
+        plan_ledger = {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "route": "medium",
+            "completed_stages": [],
+            "completed_gates": [],
+            "retries": {},
+            "current_task_id": "frontend",
+            "tasks": [
+                {
+                    "id": "frontend",
+                    "title": "frontend",
+                    "depends_on": [],
+                    "files": ["frontend.txt"],
+                    "parallel_safe": True,
+                    "status": "done",
+                    "required_gates": ["machine"],
+                    "evidence_refs": ["workers/frontend/output.md"],
+                    "attempt_count": 0,
+                },
+                {
+                    "id": "backend",
+                    "title": "backend",
+                    "depends_on": [],
+                    "files": ["backend.txt"],
+                    "parallel_safe": True,
+                    "status": "done",
+                    "required_gates": ["machine"],
+                    "evidence_refs": ["workers/backend/output.md"],
+                    "attempt_count": 0,
+                },
+            ],
+        }
+        run_state = {
+            "schema_version": "0.1",
+            "task_id": "task-001",
+            "current_stage": "quality-review",
+            "status": "in_progress",
+            "completed_gates": ["clarification_complete", "plan_executable", "execution_evidenced"],
+            "failed_gates": [],
+            "retries": {},
+            "current_task_id": "frontend",
+            "spec_review_approved": False,
+            "quality_review_approved": True,
+        }
+        decision_log = {"schema_version": "0.1", "task_id": "task-001", "entries": []}
+        _sync_parallel_worktree_plan(plan_ledger, run_state, decision_log)
+        workers = _allocate_parallel_worker_worktrees(task_dir, plan_ledger, run_state, decision_log)
+        for worker in workers:
+            path = Path(worker["worktree"]["path"])
+            if worker["plan_task_id"] == "frontend":
+                (path / "frontend.txt").write_text("base\nfrontend\n", encoding="utf-8")
+            else:
+                (path / "backend.txt").write_text("base\nbackend\n", encoding="utf-8")
+            worker["status"] = "completed"
+            _json_dump(task_dir / "workers" / worker["plan_task_id"] / "worker-state.json", worker)
+
+        run_state["workers"] = workers
+        _json_dump(task_dir / "plan-ledger.json", plan_ledger)
+        _json_dump(task_dir / "run-state.json", run_state)
+        _json_dump(
+            task_dir / "review-report-quality.json",
+            {
+                "schema_version": "0.1",
+                "task_id": "task-001",
+                "review_type": "quality",
+                "verdict": "approved",
+                "findings": ["worker outputs are review-approved"],
+                "approved_by": "test-reviewer",
+                "next_action": "finalize",
+                "safe_for_next_stage": True,
+                "open_blockers": [],
+            },
+        )
+
+        result = advance_to_next_stage(task_dir, policy, "medium", "quality-review")
+
+        assert result.next_stage == "finalize"
+        assert (repo / "frontend.txt").read_text(encoding="utf-8") == "base\nfrontend\n"
+        assert (repo / "backend.txt").read_text(encoding="utf-8") == "base\nbackend\n"
+        persisted = json.loads((task_dir / "run-state.json").read_text(encoding="utf-8"))
+        assert [item["status"] for item in persisted["worker_merge_results"]] == ["merged", "merged"]
+        assert [worker["status"] for worker in persisted["workers"]] == ["merged", "merged"]
 
 
 # =========================================================================

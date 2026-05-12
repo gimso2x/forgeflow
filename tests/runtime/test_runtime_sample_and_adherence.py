@@ -17,7 +17,7 @@ def test_install_documents_manual_execution_flow() -> None:
     assert "make validate" in install
     assert "make runtime-sample" in install
     assert "scripts/run_orchestrator.py init" in install
-    assert "run_orchestrator.py execute" in install
+    assert "run_orchestrator.py exec-stage" in install
     assert "adapter codex" in install
     assert "adapter claude" in install
     assert "Antigravity는 CLI 실행 adapter가 아니라 IDE instruction adapter" in install
@@ -98,7 +98,7 @@ def test_cli_reports_runtime_violations_without_tracebacks(tmp_path: Path) -> No
     task_dir = _make_task_dir(tmp_path)
 
     for command_args, expected_error in [
-        (("run", "--task-dir", str(task_dir), "--route", "unknown"), "ERROR: unknown route: unknown"),
+        (("execute", "--task-dir", str(task_dir), "--route", "unknown"), "ERROR: unknown route: unknown"),
         (
             ("advance", "--task-dir", str(task_dir), "--route", "unknown", "--current-stage", "clarify"),
             "ERROR: unknown route: unknown",

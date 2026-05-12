@@ -63,9 +63,9 @@ monitor-summary-json:
 
 orchestrator-help:
 	$(VENV_PYTHON) scripts/run_orchestrator.py --help
-	$(VENV_PYTHON) scripts/run_orchestrator.py run --help
-	$(VENV_PYTHON) scripts/run_orchestrator.py advance --help
 	$(VENV_PYTHON) scripts/run_orchestrator.py execute --help
+	$(VENV_PYTHON) scripts/run_orchestrator.py advance --help
+	$(VENV_PYTHON) scripts/run_orchestrator.py exec-stage --help
 
 orchestrator-status:
 	$(VENV_PYTHON) scripts/run_orchestrator.py status --task-dir examples/runtime-fixtures/small-doc-task

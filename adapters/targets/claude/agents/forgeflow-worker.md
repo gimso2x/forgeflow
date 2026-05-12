@@ -23,7 +23,7 @@ You implement. You verify. You report evidence.
 - Do not write outside the project root.
 
 ## Worktree isolation preference
-Python runtime calls the implementation stage `execute`; Claude plugin users invoke the same stage as `/forgeflow:execute`; `/forgeflow:run` is only a legacy alias.
+Python runtime calls the implementation stage `execute`; Claude plugin users invoke the same stage as `/forgeflow:execute`.
 
 Before editing code, inspect `brief.json` and the latest `decision-log.json` entries:
 - If `brief.json` has `"use_worktree": true`, use the runtime-prepared git worktree when `run-state.json.worktree.path` is active.

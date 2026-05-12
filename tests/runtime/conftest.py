@@ -6,13 +6,15 @@ import pytest
 from jsonschema import Draft202012Validator
 
 
+from .helpers import read_json_file, write_json_file
+
 ROOT = Path(__file__).resolve().parents[2]
 
 
 @pytest.fixture
 def write_json() -> Callable[[Path, dict], None]:
     def _write_json(path: Path, payload: dict) -> None:
-        path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+        write_json_file(path, payload)
 
     return _write_json
 

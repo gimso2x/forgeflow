@@ -58,7 +58,7 @@ def main() -> int:
         command = [
             sys.executable,
             str(ROOT / "scripts" / "run_orchestrator.py"),
-            "run",
+            "execute",
             "--task-dir",
             str(task_dir),
             "--route",

@@ -15,7 +15,9 @@ from forgeflow_runtime.worktree import (
     acquire_lock,
     apply_patch,
     create_worktree,
+    create_worker_worktree,
     is_repo_clean,
+    merge_worker_worktree,
     release_lock,
     remove_worktree,
     route_patch,
@@ -238,3 +240,133 @@ class TestWorktreeIntegration:
         ok = remove_worktree(str(tmp_path), session.worktree_path)
         assert ok is True
         assert not os.path.isdir(session.worktree_path)
+
+
+def test_detect_path_conflicts_blocks_shared_owned_files() -> None:
+    from forgeflow_runtime.worktree import detect_path_conflicts
+
+    tasks = [
+        {"id": "ui", "files": ["src/login.tsx"], "parallel_safe": True},
+        {"id": "api", "owned_paths": ["src/login.tsx"], "parallel_safe": True},
+    ]
+
+    result = detect_path_conflicts(tasks)
+
+    assert result["parallel_safe"] is False
+    assert result["conflicts"] == [
+        {"path": "src/login.tsx", "task_ids": ["ui", "api"], "reason": "shared_path"}
+    ]
+
+
+def test_detect_path_conflicts_blocks_common_docs_and_config() -> None:
+    from forgeflow_runtime.worktree import detect_path_conflicts
+
+    tasks = [
+        {"id": "docs", "files": ["README.md"], "parallel_safe": True},
+        {"id": "code", "files": ["src/app.py"], "parallel_safe": True},
+    ]
+
+    result = detect_path_conflicts(tasks)
+
+    assert result["parallel_safe"] is False
+    assert result["conflicts"] == [
+        {"path": "README.md", "task_ids": ["docs"], "reason": "protected_common_path"}
+    ]
+
+
+def test_create_worker_worktree_records_worker_artifacts(tmp_path: Path) -> None:
+    from forgeflow_runtime.worktree import create_worker_worktree
+
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    subprocess.run(["git", "init"], cwd=repo, capture_output=True, check=True)
+    subprocess.run(["git", "config", "user.email", "test@test.com"], cwd=repo, capture_output=True, check=True)
+    subprocess.run(["git", "config", "user.name", "Test"], cwd=repo, capture_output=True, check=True)
+    (repo / "README.md").write_text("hello", encoding="utf-8")
+    subprocess.run(["git", "add", "."], cwd=repo, capture_output=True, check=True)
+    subprocess.run(["git", "commit", "-m", "init"], cwd=repo, capture_output=True, check=True)
+
+    task_dir = repo / ".forgeflow" / "tasks" / "task-001"
+    task_dir.mkdir(parents=True)
+
+    state = create_worker_worktree(
+        task_dir=task_dir,
+        repo_path=repo,
+        task_id="task-001",
+        plan_task={"id": "ui", "files": ["src/login.tsx"], "parallel_safe": True},
+    )
+
+    worker_dir = task_dir / "workers" / "ui"
+    assert (worker_dir / "worker-state.json").exists()
+    assert (worker_dir / "worktree.json").exists()
+    assert (worker_dir / "output.md").exists()
+    assert state["plan_task_id"] == "ui"
+    assert state["status"] == "in_progress"
+    assert state["owned_paths"] == ["src/login.tsx"]
+    assert Path(state["worktree"]["path"]).exists()
+    assert state["worktree"]["active"] is True
+
+
+def test_merge_worker_worktree_applies_owned_changes_after_review(tmp_path: Path) -> None:
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    subprocess.run(["git", "init"], cwd=repo, capture_output=True, check=True)
+    subprocess.run(["git", "config", "user.email", "test@test.com"], cwd=repo, capture_output=True, check=True)
+    subprocess.run(["git", "config", "user.name", "Test"], cwd=repo, capture_output=True, check=True)
+    (repo / "src").mkdir()
+    (repo / "src" / "login.tsx").write_text("old\n", encoding="utf-8")
+    subprocess.run(["git", "add", "."], cwd=repo, capture_output=True, check=True)
+    subprocess.run(["git", "commit", "-m", "init"], cwd=repo, capture_output=True, check=True)
+
+    task_dir = repo / ".forgeflow" / "tasks" / "task-001"
+    task_dir.mkdir(parents=True)
+    worker = create_worker_worktree(
+        task_dir=task_dir,
+        repo_path=repo,
+        task_id="task-001",
+        plan_task={"id": "ui", "files": ["src/login.tsx"], "parallel_safe": True},
+    )
+    worktree_path = Path(worker["worktree"]["path"])
+    (worktree_path / "src" / "login.tsx").write_text("new\n", encoding="utf-8")
+    worker["status"] = "completed"
+
+    result = merge_worker_worktree(repo_path=repo, task_dir=task_dir, worker=worker, approved=True)
+
+    assert result["status"] == "merged"
+    assert result["files_changed"] == ["src/login.tsx"]
+    assert (repo / "src" / "login.tsx").read_text(encoding="utf-8") == "new\n"
+    assert worker["status"] == "merged"
+    assert (task_dir / "workers" / "ui" / "merge-result.json").exists()
+
+
+def test_merge_worker_worktree_refuses_unowned_changes(tmp_path: Path) -> None:
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    subprocess.run(["git", "init"], cwd=repo, capture_output=True, check=True)
+    subprocess.run(["git", "config", "user.email", "test@test.com"], cwd=repo, capture_output=True, check=True)
+    subprocess.run(["git", "config", "user.name", "Test"], cwd=repo, capture_output=True, check=True)
+    (repo / "src").mkdir()
+    (repo / "src" / "login.tsx").write_text("old\n", encoding="utf-8")
+    (repo / "src" / "other.tsx").write_text("old\n", encoding="utf-8")
+    subprocess.run(["git", "add", "."], cwd=repo, capture_output=True, check=True)
+    subprocess.run(["git", "commit", "-m", "init"], cwd=repo, capture_output=True, check=True)
+
+    task_dir = repo / ".forgeflow" / "tasks" / "task-001"
+    task_dir.mkdir(parents=True)
+    worker = create_worker_worktree(
+        task_dir=task_dir,
+        repo_path=repo,
+        task_id="task-001",
+        plan_task={"id": "ui", "files": ["src/login.tsx"], "parallel_safe": True},
+    )
+    worktree_path = Path(worker["worktree"]["path"])
+    (worktree_path / "src" / "other.tsx").write_text("new\n", encoding="utf-8")
+    worker["status"] = "completed"
+
+    result = merge_worker_worktree(repo_path=repo, task_dir=task_dir, worker=worker, approved=True)
+
+    assert result["status"] == "blocked"
+    assert result["reason"] == "unowned_changes"
+    assert result["files_changed"] == ["src/other.tsx"]
+    assert (repo / "src" / "other.tsx").read_text(encoding="utf-8") == "old\n"
+    assert worker["status"] == "merge_blocked"

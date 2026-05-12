@@ -36,7 +36,7 @@ def test_cli_execute_real_codex_uses_binary_from_path_without_live_credentials(t
         codex.chmod(0o755)
 
     result = _run_orchestrator_cli(
-        "execute",
+        "exec-stage",
         "--task-dir",
         str(task_dir),
         "--route",
@@ -78,7 +78,7 @@ def test_cli_execute_real_claude_uses_binary_from_path_without_live_credentials(
         claude.chmod(0o755)
 
     result = _run_orchestrator_cli(
-        "execute",
+        "exec-stage",
         "--task-dir",
         str(task_dir),
         "--route",
@@ -101,7 +101,7 @@ def test_cli_execute_real_codex_missing_binary_is_actionable(tmp_path: Path) -> 
     task_dir = _make_task_dir(tmp_path)
 
     result = _run_orchestrator_cli(
-        "execute",
+        "exec-stage",
         "--task-dir",
         str(task_dir),
         "--route",

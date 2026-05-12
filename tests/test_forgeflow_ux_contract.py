@@ -22,41 +22,41 @@ def test_clarify_skill_allows_focused_requirement_questions() -> None:
     assert "바로 plan으로 간다" not in text
 
 
-def test_plan_and_run_skills_separate_stage_boundary_approval_from_reapproval() -> None:
+def test_plan_and_execute_skills_separate_stage_boundary_approval_from_reapproval() -> None:
     plan_text = (ROOT / "skills" / "plan" / "SKILL.md").read_text(encoding="utf-8")
-    run_text = (ROOT / "skills" / "run" / "SKILL.md").read_text(encoding="utf-8")
+    execute_text = (ROOT / "skills" / "execute" / "SKILL.md").read_text(encoding="utf-8")
 
     assert "계획 내용 재승인" in plan_text
     assert "다음 스텝으로 `/forgeflow:execute`을 진행하시겠습니까? (y/n)" in plan_text
     assert "Do not invoke `/forgeflow:execute`, the Skill tool, or any execution tool in the same assistant turn" in plan_text
     assert "계획 확정. 바로 run." not in plan_text
-    assert "이미 승인된 run scope 안에서는" in run_text
-    assert "Do not pause just to reconfirm the same plan before editing files." in run_text
-    assert "If `/forgeflow:execute` was reached without explicit user approval" in run_text
+    assert "이미 승인된 run scope 안에서는" in execute_text
+    assert "Do not pause just to reconfirm the same plan before editing files." in execute_text
+    assert "If `/forgeflow:execute` was reached without explicit user approval" in execute_text
 
 
 def test_review_changes_requested_blocks_run_state_and_fix_loop() -> None:
     review_text = (ROOT / "skills" / "review" / "SKILL.md").read_text(encoding="utf-8")
-    run_text = (ROOT / "skills" / "run" / "SKILL.md").read_text(encoding="utf-8")
+    execute_text = (ROOT / "skills" / "execute" / "SKILL.md").read_text(encoding="utf-8")
 
     assert "If verdict is `changes_requested` or `blocked`, update `run-state.json`" in review_text
     assert "review_blocked" in review_text
     assert "Do not call `/forgeflow:ship` unless `verdict=approved`" in review_text
-    assert "When the user asks to fix review findings" in run_text
-    assert "re-run focused verification" in run_text
-    assert "update `review-report.json`" in run_text
-    assert "open_blockers` must reflect the remaining current blockers" in run_text
+    assert "When the user asks to fix review findings" in execute_text
+    assert "re-run focused verification" in execute_text
+    assert "update `review-report.json`" in execute_text
+    assert "open_blockers` must reflect the remaining current blockers" in execute_text
 
 
 def test_canonical_workflow_skills_are_artifact_first_by_default() -> None:
     clarify = (ROOT / "skills" / "clarify" / "SKILL.md").read_text(encoding="utf-8")
     plan = (ROOT / "skills" / "plan" / "SKILL.md").read_text(encoding="utf-8")
-    run = (ROOT / "skills" / "run" / "SKILL.md").read_text(encoding="utf-8")
+    execute_skill = (ROOT / "skills" / "execute" / "SKILL.md").read_text(encoding="utf-8")
     review = (ROOT / "skills" / "review" / "SKILL.md").read_text(encoding="utf-8")
     ship = (ROOT / "skills" / "ship" / "SKILL.md").read_text(encoding="utf-8")
     forgeflow = (ROOT / "skills" / "forgeflow" / "SKILL.md").read_text(encoding="utf-8")
 
-    for text in [clarify, plan, run, review, ship, forgeflow]:
+    for text in [clarify, plan, execute_skill, review, ship, forgeflow]:
         assert "Default to **artifact-first mode**." in text
         assert "response-only mode" not in text
         assert ".forgeflow/tasks/<task-id>/" in text
@@ -64,18 +64,18 @@ def test_canonical_workflow_skills_are_artifact_first_by_default() -> None:
 
     assert "write `brief.json` under the active task directory" in clarify
     assert "write `plan.json` under the active task directory" in plan
-    assert "update `run-state.json` before and after code changes" in run
+    assert "update `run-state.json` before and after code changes" in execute_skill
     assert "write `review-report.json` under the active task directory" in review
     assert "Preserve artifacts/evidence instead of burying them in chat." in ship
 
 
 def test_run_skill_requires_incremental_step_state_updates() -> None:
-    run = (ROOT / "skills" / "run" / "SKILL.md").read_text(encoding="utf-8")
+    execute_skill = (ROOT / "skills" / "execute" / "SKILL.md").read_text(encoding="utf-8")
 
-    assert "Each plan step must move through `in_progress` before `completed`" in run
-    assert "update `run-state.json` immediately when starting and finishing each step" in run
-    assert "Do not batch-mark all steps as `completed` only at the end" in run
-    assert "step-1: pending → in_progress → completed" in run
+    assert "Each plan step must move through `in_progress` before `completed`" in execute_skill
+    assert "update `run-state.json` immediately when starting and finishing each step" in execute_skill
+    assert "Do not batch-mark all steps as `completed` only at the end" in execute_skill
+    assert "step-1: pending → in_progress → completed" in execute_skill
 
 
 def test_canonical_prompts_require_stage_boundary_approval_without_reapproval_loops() -> None:

@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from forgeflow_runtime.engine import execute_stage
+from forgeflow_runtime.engine import execute_parallel_workers, execute_stage
 from forgeflow_runtime.executor import RunTaskResult
 
 
@@ -111,3 +111,54 @@ class TestExecuteStage:
             # exceed the default 8000-token input budget (~40000 chars / 4).
             assert result.status == "blocked"
             assert "budget" in (result.error or "")
+
+
+class TestExecuteParallelWorkers:
+    def test_dispatches_each_worker_in_its_own_worktree_and_updates_outputs(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            task_dir = root / ".forgeflow" / "tasks" / "t-parallel"
+            task_dir.mkdir(parents=True)
+            (task_dir / "brief.json").write_text(json.dumps({"task_id": "t-parallel", "objective": "parallel"}))
+
+            worker_a = root / "worktrees" / "ui"
+            worker_b = root / "worktrees" / "api"
+            worker_a.mkdir(parents=True)
+            worker_b.mkdir(parents=True)
+
+            workers = [
+                {
+                    "schema_version": "1.0",
+                    "task_id": "t-parallel",
+                    "plan_task_id": "ui",
+                    "status": "pending",
+                    "owned_paths": ["app/page.tsx"],
+                    "worktree": {"path": str(worker_a), "branch": "ff/ui", "active": True},
+                    "output_ref": "workers/ui/output.md",
+                },
+                {
+                    "schema_version": "1.0",
+                    "task_id": "t-parallel",
+                    "plan_task_id": "api",
+                    "status": "pending",
+                    "owned_paths": ["api/route.ts"],
+                    "worktree": {"path": str(worker_b), "branch": "ff/api", "active": True},
+                    "output_ref": "workers/api/output.md",
+                },
+            ]
+
+            results = execute_parallel_workers(
+                task_dir=task_dir,
+                task_id="t-parallel",
+                route="medium",
+                adapter_target="claude",
+                workers=workers,
+            )
+
+            assert [item["plan_task_id"] for item in results] == ["ui", "api"]
+            assert all(item["result"].status == "success" for item in results)
+            assert workers[0]["status"] == "completed"
+            assert workers[1]["status"] == "completed"
+            assert "stub-claude-output" in (task_dir / "workers" / "ui" / "output.md").read_text()
+            assert "stub-claude-output" in (task_dir / "workers" / "api" / "output.md").read_text()
+            assert "app/page.tsx" in (task_dir / "workers" / "ui" / "output.md").read_text()

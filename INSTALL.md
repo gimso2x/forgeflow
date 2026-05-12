@@ -208,7 +208,7 @@ plugin entry와 ForgeFlow skills가 기본 사용 표면입니다. `CODEX.md`, `
 
 ## Antigravity 설치
 
-Antigravity는 CLI 실행 adapter가 아니라 IDE instruction adapter입니다. 그래서 `scripts/run_orchestrator.py execute --adapter antigravity --real` 같은 경로를 만들지 않습니다. 프로젝트 루트의 instruction file을 IDE가 읽게 하는 방식으로 연결합니다.
+Antigravity는 CLI 실행 adapter가 아니라 IDE instruction adapter입니다. 그래서 `scripts/run_orchestrator.py exec-stage --adapter antigravity --real` 같은 경로를 만들지 않습니다. 프로젝트 루트의 instruction file을 IDE가 읽게 하는 방식으로 연결합니다.
 
 ```bash
 git clone https://github.com/gimso2x/forgeflow.git /tmp/forgeflow
@@ -273,7 +273,7 @@ EOF
 ## Runtime 빠른 검증
 
 ```bash
-python3 scripts/run_orchestrator.py execute \
+python3 scripts/run_orchestrator.py exec-stage \
   --task-dir examples/runtime-fixtures/small-doc-task \
   --route small \
   --adapter codex \
@@ -344,10 +344,10 @@ python3 scripts/run_orchestrator.py init \
 
 ## 실제 CLI 실행과 stub 실행
 
-기본 `execute`는 안전한 stub입니다.
+기본 `exec-stage`는 안전한 stub입니다.
 
 ```bash
-python3 scripts/run_orchestrator.py execute \
+python3 scripts/run_orchestrator.py exec-stage \
   --task-dir examples/runtime-fixtures/small-doc-task \
   --route small \
   --adapter codex
@@ -356,7 +356,7 @@ python3 scripts/run_orchestrator.py execute \
 실제 Claude/Codex CLI를 호출하려면 `--real`을 붙입니다.
 
 ```bash
-python3 scripts/run_orchestrator.py execute \
+python3 scripts/run_orchestrator.py exec-stage \
   --task-dir examples/runtime-fixtures/small-doc-task \
   --route small \
   --adapter claude \

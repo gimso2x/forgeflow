@@ -66,18 +66,18 @@ make orchestrator-status
 python3 scripts/run_orchestrator.py start \
   --task-dir examples/runtime-fixtures/small-doc-task
 
-python3 scripts/run_orchestrator.py run \
+python3 scripts/run_orchestrator.py execute \
   --task-dir examples/runtime-fixtures/small-doc-task
 
 # Raise the minimum route floor without lowering persisted or explicit route choice.
-python3 scripts/run_orchestrator.py run \
+python3 scripts/run_orchestrator.py execute \
   --task-dir examples/runtime-fixtures/small-doc-task \
   --min-route medium
 
-# Execute the current stage with a selected adapter.
+# Execute the current single stage with a selected adapter.
 # Default execution is a safe stub; the JSON payload should report
 # "execution_mode": "stub".
-python3 scripts/run_orchestrator.py execute \
+python3 scripts/run_orchestrator.py exec-stage \
   --task-dir examples/runtime-fixtures/small-doc-task \
   --route small \
   --adapter codex
@@ -85,7 +85,7 @@ python3 scripts/run_orchestrator.py execute \
 # Opt into the real provider CLI explicitly. This requires the selected
 # binary and auth to be available on PATH, and the JSON payload should report
 # "execution_mode": "real".
-python3 scripts/run_orchestrator.py execute \
+python3 scripts/run_orchestrator.py exec-stage \
   --task-dir examples/runtime-fixtures/small-doc-task \
   --route small \
   --adapter claude \

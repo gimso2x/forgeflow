@@ -52,7 +52,7 @@ def _print_payload(payload: dict) -> None:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description=(
-            "ForgeFlow stage-machine orchestrator. Preferred entry is clarify-first; direct start/run is a fallback "
+            "ForgeFlow stage-machine orchestrator. Preferred entry is clarify-first; direct start/execute is a fallback "
             "operator path that can auto-detect a route when no state exists."
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -67,9 +67,9 @@ def build_parser() -> argparse.ArgumentParser:
   # Fallback entries mutate task artifacts, so keep them explicit operator commands.
   # Route omitted: persisted state or brief/checkpoint artifacts decide.
   python3 scripts/run_orchestrator.py start --task-dir examples/runtime-fixtures/small-doc-task
-  python3 scripts/run_orchestrator.py run --task-dir examples/runtime-fixtures/small-doc-task
+  python3 scripts/run_orchestrator.py execute --task-dir examples/runtime-fixtures/small-doc-task
   # Raise the minimum route floor without lowering persisted or explicit route choice.
-  python3 scripts/run_orchestrator.py run --task-dir examples/runtime-fixtures/small-doc-task --min-route medium
+  python3 scripts/run_orchestrator.py execute --task-dir examples/runtime-fixtures/small-doc-task --min-route medium
 
   # Manual stage control: inspect status, then execute current stage, advance, retry, rewind, or escalate.
   # Read-only status path is repo-managed for first-clone shells.
@@ -77,14 +77,14 @@ def build_parser() -> argparse.ArgumentParser:
   make check-env
   make orchestrator-status
   # Mutating manual stage commands stay explicit operator commands.
-  python3 scripts/run_orchestrator.py execute --task-dir examples/runtime-fixtures/small-doc-task --route small --adapter codex
+  python3 scripts/run_orchestrator.py exec-stage --task-dir examples/runtime-fixtures/small-doc-task --route small --adapter codex
   python3 scripts/run_orchestrator.py advance --task-dir examples/runtime-fixtures/small-doc-task --route small --current-stage clarify --execute --adapter codex
   python3 scripts/run_orchestrator.py retry --task-dir examples/runtime-fixtures/small-doc-task --stage execute --max-retries 2
   python3 scripts/run_orchestrator.py step-back --task-dir examples/runtime-fixtures/small-doc-task --route small --current-stage quality-review
   python3 scripts/run_orchestrator.py escalate --task-dir examples/runtime-fixtures/small-doc-task --from-route small
 
 Notes:
-  - clarify-first is canonical; direct start/run is only an operator fallback surface.
+  - clarify-first is canonical; direct start/execute is only an operator fallback surface.
   - --route is an explicit override. Without it, the CLI reuses persisted state or auto-detects from artifacts.
   - --min-route can raise the route floor but must not lower an explicit or persisted route.
   - Manual commands mutate the target task-dir. Use run_runtime_sample.py for disposable fixture runs.
@@ -119,13 +119,13 @@ Notes:
     clarify_parser.add_argument("--task-dir", required=True)
     clarify_parser.add_argument("--route", help=route_help)
 
-    run_parser = subparsers.add_parser(
-        "run",
+    execute_parser = subparsers.add_parser(
+        "execute",
         help="run a route end-to-end; fallback path can auto-route when no prior state exists",
     )
-    run_parser.add_argument("--task-dir", required=True)
-    run_parser.add_argument("--route", help=route_help)
-    run_parser.add_argument("--min-route", choices=ROUTE_ORDER, help=min_route_help)
+    execute_parser.add_argument("--task-dir", required=True)
+    execute_parser.add_argument("--route", help=route_help)
+    execute_parser.add_argument("--min-route", choices=ROUTE_ORDER, help=min_route_help)
 
     resume_parser = subparsers.add_parser("resume", help="reload task state from session-state and checkpoint artifacts")
     resume_parser.add_argument("--task-dir", required=True)
@@ -163,14 +163,14 @@ Notes:
     escalate_parser.add_argument("--task-dir", required=True)
     escalate_parser.add_argument("--from-route", required=True)
 
-    exec_parser = subparsers.add_parser("execute", help="execute the current stage via an LLM adapter")
-    exec_parser.add_argument("--task-dir", required=True)
-    exec_parser.add_argument("--route", help=route_help)
-    exec_parser.add_argument("--min-route", choices=ROUTE_ORDER, help=min_route_help)
-    exec_parser.add_argument("--adapter", choices=["claude", "codex"], default="claude")
-    exec_parser.add_argument("--role", default=None, help="override role (auto-detected from stage if omitted)")
-    exec_parser.add_argument("--artifacts", nargs="+", default=None, help="artifact names to stream")
-    exec_parser.add_argument("--real", action="store_true", help="use real CLI adapters instead of stubs")
+    exec_stage_parser = subparsers.add_parser("exec-stage", help="execute the current stage via an LLM adapter")
+    exec_stage_parser.add_argument("--task-dir", required=True)
+    exec_stage_parser.add_argument("--route", help=route_help)
+    exec_stage_parser.add_argument("--min-route", choices=ROUTE_ORDER, help=min_route_help)
+    exec_stage_parser.add_argument("--adapter", choices=["claude", "codex"], default="claude")
+    exec_stage_parser.add_argument("--role", default=None, help="override role (auto-detected from stage if omitted)")
+    exec_stage_parser.add_argument("--artifacts", nargs="+", default=None, help="artifact names to stream")
+    exec_stage_parser.add_argument("--real", action="store_true", help="use real CLI adapters instead of stubs")
 
     return parser
 
@@ -194,12 +194,30 @@ def _default_task_dir_for_init(task_id: str) -> Path:
     return (cwd / ".forgeflow" / "tasks" / task_id).resolve()
 
 
+def _slugify_init_objective(value: str) -> str:
+    import re
+
+    words = re.sub(r"[^a-z0-9\s-]", "", value.lower()).split()
+    slug = "-".join(words[:6]) if words else "task"
+    return slug[:64]
+
+
+def _init_task_id_from_args(task_dir: Path | None, task_id: str | None, objective: str | None) -> str:
+    if task_id:
+        return task_id
+    if objective:
+        return _slugify_init_objective(objective)
+    if task_dir is not None:
+        return task_dir.name
+    return "task"
+
+
 def _task_dir_is_plugin_cache(task_dir: Path) -> bool:
     return _cwd_is_plugin_cache(task_dir)
 
 
 def _command_mutates_task(command: str) -> bool:
-    return command in {"start", "init", "clarify", "run", "resume", "advance", "retry", "step-back", "escalate", "execute"}
+    return command in {"start", "init", "clarify", "execute", "resume", "advance", "retry", "step-back", "escalate", "exec-stage"}
 
 
 def _guard_mutating_task_dir(command: str, task_dir: Path) -> None:
@@ -218,12 +236,13 @@ def main() -> int:
 
     try:
         task_dir_arg = getattr(args, "task_dir", None)
-        if task_dir_arg:
+        init_task_id: str | None = None
+        if args.command == "init":
+            explicit_task_dir = Path(task_dir_arg).resolve() if task_dir_arg else None
+            init_task_id = _init_task_id_from_args(explicit_task_dir, getattr(args, "task_id", None), getattr(args, "objective", None))
+            task_dir = explicit_task_dir or _default_task_dir_for_init(init_task_id)
+        elif task_dir_arg:
             task_dir = Path(task_dir_arg).resolve()
-        elif args.command == "init" and getattr(args, "task_id", None):
-            task_dir = _default_task_dir_for_init(args.task_id)
-        elif args.command == "init":
-            parser.error("--task-id or --task-dir is required for init")
         else:
             parser.error("--task-dir is required for this command")
         _guard_mutating_task_dir(args.command, task_dir)
@@ -242,7 +261,7 @@ def main() -> int:
                 init_task(
                     task_dir=task_dir,
                     policy=policy,
-                    task_id=args.task_id,
+                    task_id=init_task_id,
                     objective=args.objective,
                     risk_level=args.risk,
                 )
@@ -254,7 +273,7 @@ def main() -> int:
                     policy=policy,
                 )
             )
-        elif args.command == "run":
+        elif args.command == "execute":
             _print_payload(run_route(task_dir=task_dir, policy=policy, route_name=route_name))
         elif args.command == "resume":
             _print_payload(resume_task(task_dir=task_dir, policy=policy, route_name=route_name))
@@ -284,7 +303,7 @@ def main() -> int:
             )
         elif args.command == "escalate":
             _print_payload(escalate_route(task_dir=task_dir, from_route=args.from_route))
-        elif args.command == "execute":
+        elif args.command == "exec-stage":
             run_state_path = task_dir / "run-state.json"
             if not run_state_path.exists():
                 print("ERROR: run-state.json not found; start or resume the task first.", file=sys.stderr)

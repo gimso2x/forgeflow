@@ -82,13 +82,13 @@ BUILTIN_PATTERNS: list[RationalizationPattern] = [
     RationalizationPattern(
         thought="plan 없이 바로 구현하겠다",
         reality="계획 없는 구현은 재작업의 가장 큰 원인입니다",
-        stage="run",
+        stage="execute",
         severity="high",
     ),
     RationalizationPattern(
         thought="This is just a quick fix",
         reality="Quick fixes accumulate into technical debt.",
-        stage="run",
+        stage="execute",
         severity="medium",
     ),
     # verify

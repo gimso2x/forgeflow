@@ -30,7 +30,7 @@ class TestCheckRationalization:
         results = check_rationalization(text)
         assert len(results) >= 1
         assert results[0].detected is True
-        assert results[0].pattern.stage == "run"
+        assert results[0].pattern.stage == "execute"
 
     def test_no_match_returns_empty(self) -> None:
         results = check_rationalization("This text has nothing suspicious at all.")
@@ -101,4 +101,4 @@ class TestFormatRationalizationReport:
 class TestBuiltinPatterns:
     def test_all_five_stages_present(self) -> None:
         stages = {p.stage for p in BUILTIN_PATTERNS}
-        assert stages == {"clarify", "plan", "review", "run", "verify"}
+        assert stages == {"clarify", "plan", "review", "execute", "verify"}

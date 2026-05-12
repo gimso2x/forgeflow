@@ -217,7 +217,7 @@ def test_makefile_defines_orchestrator_help_target() -> None:
 
     assert "orchestrator-help:" in makefile
     assert "$(VENV_PYTHON) scripts/run_orchestrator.py --help" in makefile
-    assert "$(VENV_PYTHON) scripts/run_orchestrator.py run --help" in makefile
+    assert "$(VENV_PYTHON) scripts/run_orchestrator.py execute --help" in makefile
     assert "$(VENV_PYTHON) scripts/run_orchestrator.py advance --help" in makefile
     assert "$(VENV_PYTHON) scripts/run_orchestrator.py execute --help" in makefile
 
@@ -234,7 +234,7 @@ def test_readme_uses_repo_managed_orchestrator_help_target_for_read_only_help() 
 
     assert "orchestrator-help:" in makefile
     assert "$(VENV_PYTHON) scripts/run_orchestrator.py --help" in makefile
-    assert "$(VENV_PYTHON) scripts/run_orchestrator.py run --help" in makefile
+    assert "$(VENV_PYTHON) scripts/run_orchestrator.py execute --help" in makefile
     assert "$(VENV_PYTHON) scripts/run_orchestrator.py advance --help" in makefile
     assert "$(VENV_PYTHON) scripts/run_orchestrator.py execute --help" in makefile
 
@@ -267,7 +267,7 @@ def test_operator_shell_doc_uses_repo_managed_orchestrator_help_target() -> None
 
     assert "orchestrator-help:" in makefile
     assert "$(VENV_PYTHON) scripts/run_orchestrator.py --help" in makefile
-    assert "$(VENV_PYTHON) scripts/run_orchestrator.py run --help" in makefile
+    assert "$(VENV_PYTHON) scripts/run_orchestrator.py execute --help" in makefile
     assert "$(VENV_PYTHON) scripts/run_orchestrator.py advance --help" in makefile
     assert "$(VENV_PYTHON) scripts/run_orchestrator.py execute --help" in makefile
     assert "make setup" in help_section
@@ -295,7 +295,7 @@ def test_operator_shell_common_commands_use_repo_managed_status_target_for_read_
     assert "python3 scripts/run_orchestrator.py status" not in common_section
     assert "python3 scripts/run_orchestrator.py init" in common_section
     assert "python3 scripts/run_orchestrator.py start" in common_section
-    assert "python3 scripts/run_orchestrator.py run" in common_section
+    assert "python3 scripts/run_orchestrator.py execute" in common_section
 
 
 def test_review_summary_decision_doc_uses_repo_managed_status_target() -> None:
@@ -351,10 +351,10 @@ def test_engineering_discipline_plan_uses_repo_managed_help_target() -> None:
 
     assert "orchestrator-help:" in makefile
     assert "$(VENV_PYTHON) scripts/run_orchestrator.py --help" in makefile
-    assert "$(VENV_PYTHON) scripts/run_orchestrator.py run --help" in makefile
+    assert "$(VENV_PYTHON) scripts/run_orchestrator.py execute --help" in makefile
     assert "- Run: `make orchestrator-help`" in verification_section.splitlines()
     assert "python3 scripts/run_orchestrator.py --help" not in verification_section
-    assert "python3 scripts/run_orchestrator.py run --help" not in verification_section
+    assert "python3 scripts/run_orchestrator.py execute --help" not in verification_section
 
 
 def test_claude_hook_recovery_plan_uses_repo_managed_validation_target() -> None:
