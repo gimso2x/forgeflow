@@ -342,14 +342,32 @@ make validate
 
 `make validate` is the deterministic validation entry point: it runs `check-env`, schema/policy/generated checks, focused pytest contracts, and static plugin smoke matrix checks in the correct order. `make check-env` remains a focused diagnostic target when you only want dependency/environment output.
 
-Windows PowerShell에서는 Unix-style `.venv/bin/python` 경로 대신 wrapper를 사용할 수 있습니다. Windows 전용 계약은 [Windows 가이드](docs/guides/windows.md)를 보세요.
+## Windows native vs WSL2 decision tree
+
+If you are inside WSL2, use the Unix path. Treat WSL2 as Linux, keep the checkout on the WSL filesystem, and run:
+
+```bash
+make setup
+make validate
+python3 scripts/run_orchestrator.py init \
+  --task-id my-task-001 \
+  --objective "Update README quickstart" \
+  --risk low
+```
+
+If you are in native Windows PowerShell, use the PowerShell wrappers. They resolve `.venv\Scripts\python.exe` and Python launcher differences for you:
 
 ```powershell
 .\scripts\setup.ps1
 .\scripts\validate.ps1
+.\scripts\run_orchestrator.ps1 init --task-id my-task-001 --objective "Update README quickstart" --risk low
 ```
 
-Task artifact를 만들거나 상태를 볼 때도 wrapper를 사용하면 `.venv\Scripts\python.exe` 경로를 직접 기억하지 않아도 됩니다. 자세한 Windows 계약은 [Windows 가이드](docs/guides/windows.md)를 보세요.
+Do not mix WSL paths and PowerShell wrappers. A checkout under `/home/...` should use `make`/`python3`; a checkout under `C:\...` should use `.\scripts\*.ps1`. Mixing them creates two virtualenvs and stupid path bugs.
+
+Windows 전용 계약은 [Windows 가이드](docs/guides/windows.md)를 보세요.
+
+Task artifact를 만들거나 상태를 볼 때도 wrapper를 사용하면 `.venv\Scripts\python.exe` 경로를 직접 기억하지 않아도 됩니다.
 
 ```powershell
 .\scripts\run_orchestrator.ps1 init --task-id my-task-001 --objective "Update README quickstart" --risk low

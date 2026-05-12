@@ -51,9 +51,17 @@ def test_windows_powershell_wrappers_are_documented_and_present() -> None:
     assert "py -3" in windows_doc
     assert "subprocess argument lists" in windows_doc
     assert "windows-smoke" in windows_doc
+    assert "## Windows native vs WSL2 decision tree" in install
+    assert "If you are inside WSL2" in install
+    assert "If you are in native Windows PowerShell" in install
+    assert "WSL2: use the Unix path" in windows_doc
+    assert "Native Windows: use the PowerShell wrappers" in windows_doc
+    assert "Do not mix WSL paths and PowerShell wrappers" in windows_doc
     # New guides structure must exist and reference PowerShell wrappers
     assert "PowerShell" in windows_guide
     assert "setup.ps1" in windows_guide
+    assert "WSL2: use the Unix path" in windows_guide
+    assert "Native Windows: use the PowerShell wrappers" in windows_guide
 
 
 def test_makefile_smoke_targets_use_repo_managed_python_environment() -> None:
