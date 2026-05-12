@@ -1,9 +1,32 @@
 # ForgeFlow 설치 가이드
 
-ForgeFlow는 두 가지 방식으로 쓸 수 있습니다.
+ForgeFlow는 세 가지 방식으로 쓸 수 있습니다.
 
 1. **프로젝트 뼈대** — 이 저장소를 clone해서 runtime, schema, generated adapter까지 직접 사용
 2. **Claude Code 플러그인** — Claude Code에서 ForgeFlow 규칙/스킬 표면을 설치해서 사용
+3. **Python 패키지** — `pip install`로 runtime CLI를 프로젝트별로 고정해서 사용
+
+## Python 패키지/runtime CLI
+
+runtime만 재현 가능하게 설치하려면 editable install이나 Git URL install을 씁니다.
+
+```bash
+# repo checkout에서 local development
+python3 -m pip install -e .
+forgeflow --help
+forgeflow status --task-dir examples/runtime-fixtures/small-doc-task
+
+# 다른 프로젝트에서 GitHub main을 직접 설치
+python3 -m pip install "forgeflow-runtime @ git+https://github.com/gimso2x/forgeflow.git"
+forgeflow-runtime --help
+```
+
+제공되는 console script는 둘입니다.
+
+- `forgeflow`: 기본 runtime orchestrator entrypoint
+- `forgeflow-runtime`: 이름 충돌을 피하고 싶을 때 쓰는 같은 entrypoint
+
+둘 다 기존 `python3 scripts/run_orchestrator.py ...`와 같은 orchestrator help/command surface를 실행합니다. plugin slash command 설치와는 별개입니다.
 
 ## Claude Code 플러그인
 

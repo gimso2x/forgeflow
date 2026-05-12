@@ -23,7 +23,18 @@ user request
 
 ## Installation
 
-ForgeFlow는 보통 Claude Code plugin이나 Codex plugin으로 설치해서 씁니다.
+ForgeFlow는 보통 Claude Code plugin이나 Codex plugin으로 설치해서 씁니다. Python runtime/CLI만 프로젝트에 고정해서 쓰려면 패키지로 설치할 수도 있습니다.
+
+```bash
+# local development
+python3 -m pip install -e .
+forgeflow --help
+forgeflow status --task-dir examples/runtime-fixtures/small-doc-task
+
+# install from GitHub
+python3 -m pip install "forgeflow-runtime @ git+https://github.com/gimso2x/forgeflow.git"
+forgeflow-runtime --help
+```
 
 수동 adapter 복사, local runtime, maintainer 검증, Windows wrapper 같은 자세한 절차는 [INSTALL.md](INSTALL.md)를 보세요.
 Native Windows PowerShell에서 local runtime까지 검증할 때는 [docs/windows.md](docs/windows.md)의 wrapper 흐름을 사용하세요.

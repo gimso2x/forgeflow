@@ -18,3 +18,4 @@ Thumbs.db
 .hermes-learnings.jsonl
 .forgeflow/
 samples/
+forgeflow_runtime.egg-info/
