@@ -8,5 +8,7 @@
   ],
   "approved_by": "spec-reviewer",
   "safe_for_next_stage": false,
-  "next_action": "quality-review 보류"
+  "next_action": "quality-review 보류",
+  "evidence_refs": [],
+  "blockers": []
 }

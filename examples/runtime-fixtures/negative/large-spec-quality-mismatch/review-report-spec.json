@@ -7,5 +7,7 @@
     "wrong review type on spec-review artifact to prove substitution is rejected"
   ],
   "approved_by": "spec-reviewer",
-  "next_action": "quality-review로 진행"
+  "next_action": "quality-review로 진행",
+  "evidence_refs": [],
+  "blockers": []
 }

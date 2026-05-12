@@ -14,5 +14,6 @@
     "docs/adapter-model.md",
     "adapters/generated/codex/HARNESS_CODEX.md",
     "scripts/validate_generated.py"
-  ]
+  ],
+  "blockers": []
 }

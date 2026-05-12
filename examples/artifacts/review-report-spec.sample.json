@@ -14,5 +14,6 @@
     "README.md",
     "docs/architecture.md",
     "docs/workflow.md"
-  ]
+  ],
+  "blockers": []
 }

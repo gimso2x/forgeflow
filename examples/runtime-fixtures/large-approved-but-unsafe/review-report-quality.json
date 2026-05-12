@@ -7,5 +7,7 @@
     "quality review approved with explicit caution that rollout should stay gated until long-run evidence is captured"
   ],
   "approved_by": "quality-reviewer",
-  "next_action": "finalize 가능"
+  "next_action": "finalize 가능",
+  "evidence_refs": [],
+  "blockers": []
 }

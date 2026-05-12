@@ -5,5 +5,7 @@
   "verdict": "approved",
   "findings": "this must be an array, not a string",
   "approved_by": "quality-reviewer",
-  "next_action": "finalize 가능"
+  "next_action": "finalize 가능",
+  "evidence_refs": [],
+  "blockers": []
 }

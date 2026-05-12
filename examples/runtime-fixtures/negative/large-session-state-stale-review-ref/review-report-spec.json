@@ -7,5 +7,7 @@
     "spec review passed for large route fixture"
   ],
   "approved_by": "spec-reviewer",
-  "next_action": "quality-review로 진행"
+  "next_action": "quality-review로 진행",
+  "evidence_refs": [],
+  "blockers": []
 }

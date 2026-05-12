@@ -7,5 +7,7 @@
     "spec review intentionally passes"
   ],
   "approved_by": "spec-reviewer",
-  "next_action": "quality-review로 진행"
+  "next_action": "quality-review로 진행",
+  "evidence_refs": [],
+  "blockers": []
 }

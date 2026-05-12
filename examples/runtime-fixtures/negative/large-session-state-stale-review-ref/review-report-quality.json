@@ -7,5 +7,7 @@
     "quality review passed for large route fixture"
   ],
   "approved_by": "quality-reviewer",
-  "next_action": "finalize 가능"
+  "next_action": "finalize 가능",
+  "evidence_refs": [],
+  "blockers": []
 }
