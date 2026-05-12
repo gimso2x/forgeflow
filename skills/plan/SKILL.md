@@ -92,7 +92,7 @@ Small documentation-only tasks may omit these fields. If the fields are present,
 
 ## Minimum plan gate
 
-Before crossing `plan → run`, the plan must make these sections explicit in `plan.json`, a sibling plan note, or the response artifact:
+Before crossing `plan → execute`, the plan must make these sections explicit in `plan.json`, a sibling plan note, or the response artifact:
 
 - `Goal`
 - `Requirements`
@@ -147,7 +147,7 @@ Do not proceed to `/forgeflow:execute` if one of those is missing for non-trivia
 - Every task has exact file paths or a justified discovery step
 - Every task has verification
 - Dependencies form a DAG
-- Medium/large routes have enough detail for `/forgeflow:execute` without guessing
+- Medium/high routes have enough detail for `/forgeflow:execute` without guessing
 - A visual plan view can be generated when useful: `python3 scripts/forgeflow_visual.py plan <task-dir>/plan.json --format markdown`; for live browser feedback, run `node scripts/visual-companion.cjs` and POST the Mermaid source to `http://127.0.0.1:8765/diagram`.
 - The minimum plan gate covers `Goal`, `Requirements`, `Implementation Steps`, and `Verification`
 - Refactor-specific checks are present only when refactor mode applies, with preserved behavior, non-goals, migration boundary, rollback or escape hatch, regression verification, and existing coverage represented in existing plan fields or sibling markdown sections
@@ -217,7 +217,7 @@ Do not code during planning unless the user explicitly asks for a tiny small-rou
 
 - Planning owns plan creation; do not ask the user to make the plan.
 - Do not ask for 계획 내용 재승인 when the plan is executable; the agent owns decomposition.
-- Do stop before crossing the `plan → run` stage boundary, because execution is a separate stage.
+- Do stop before crossing the `plan → execute` stage boundary, because execution is a separate stage.
 - End with a closed next-stage question such as `계획은 여기까지 확정됐습니다. 다음 스텝으로 `/forgeflow:execute`을 진행하시겠습니까? (y/n)`.
 - Do not invoke `/forgeflow:execute`, the Skill tool, or any execution tool in the same assistant turn after asking the closed next-stage question. The next assistant turn may proceed only after an explicit user approval such as `y`, `yes`, `진행`, or `실행`.
 - Bad: `계획 확정. run 직행.`

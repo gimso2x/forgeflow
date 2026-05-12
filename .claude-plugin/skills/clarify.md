@@ -47,7 +47,7 @@ The heavy analysis stage. Takes the raw objective from init and produces everyth
    - Generic `pyproject.toml` → Python CLI
 
 5. **Determine route**:
-   - risk=high, or change=migration/refactor/security → `large`
+   - risk=high, or change=migration/refactor/security → `high`
    - risk=medium, or objective has 2+ domains → `medium`
    - risk=low, single domain, change=bugfix/docs/cosmetic → `small`
 
@@ -91,7 +91,7 @@ The heavy analysis stage. Takes the raw objective from init and produces everyth
 
 11. **Determine next stage**:
     - Route `small`: → `/forgeflow:execute` (skip plan, go straight to execution)
-    - Route `medium` or `large`: → `/forgeflow:plan`
+    - Route `medium` or `high`: → `/forgeflow:plan`
 
 12. **Report**:
     - Clarified objective (1 sentence)

@@ -189,7 +189,7 @@ scripts/upgrade_artifact.py --artifact-name plan --path .forgeflow/tasks/<task-i
 
 ## artifact 간 관계
 - `brief` 없이 `plan`은 성립하지 않는다.
-- `plan` 없이 medium/large execution은 성립하지 않는다.
+- `plan` 없이 medium/high execution은 성립하지 않는다.
 - `run-state` 없이 finalize는 성립하지 않는다.
 - `review-report` 없이 review gate는 통과할 수 없다.
 - spec/quality 구분 없는 review는 high-risk finalize 근거가 될 수 없다.

@@ -26,9 +26,9 @@ resume 시 필요한 건 감상문이 아니라 아래다.
 small route에서는 gate/retry truth도 여기 둔다.
 
 ### `plan-ledger`
-medium/large route의 task 단위 실행 truth.
+medium/high route의 task 단위 실행 truth.
 stage 완료, gate, retry, current task progress는 여기 기준으로 본다.
-`advance`나 `run`에서 medium/large route가 이 파일 없이 진행되면 안 된다.
+`advance`나 `execute`에서 medium/high route가 이 파일 없이 진행되면 안 된다.
 
 ### `checkpoint`
 재개용 tactical pointer.

@@ -178,7 +178,7 @@
 - 여러 파일에 걸치는 기능/리팩터
 - 구현 전에 순서 분해가 필요한 작업
 
-### large/high-risk
+### high-risk
 `clarify -> plan -> execute -> spec-review -> quality-review -> finalize -> long-run`
 
 적용 대상:

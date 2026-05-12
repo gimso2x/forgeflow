@@ -89,15 +89,34 @@ def test_post_install_smoke_entrypoint_is_documented_and_actionable() -> None:
 def test_current_user_facing_docs_use_execute_and_high_labels() -> None:
     current_docs = [
         ROOT / "README.md",
+        ROOT / "INSTALL.md",
         ROOT / "SKILL.md",
+        ROOT / "AGENTS.md",
         ROOT / "docs" / "runtime-adapters.md",
+        ROOT / "docs" / "architecture.md",
+        ROOT / "docs" / "artifact-model.md",
+        ROOT / "docs" / "checkpoint-model.md",
+        ROOT / "docs" / "workflow.md",
+        ROOT / ".claude-plugin" / "skills" / "clarify.md",
         ROOT / "skills" / "execute" / "SKILL.md",
+        ROOT / "skills" / "plan" / "SKILL.md",
+    ]
+    forbidden_live_route_phrases = [
+        "large_high_risk",
+        "route=large",
+        "Route `medium` or `large`",
+        "`large` route",
+        "large route",
+        "medium/large route",
+        "medium/large routes",
+        "small/medium/large",
+        "clarify → run",
+        "plan → run",
     ]
     for path in current_docs:
         text = path.read_text(encoding="utf-8")
-        assert "large_high_risk" not in text, path
-        assert "clarify → run" not in text, path
-        assert "plan → run" not in text, path
+        for phrase in forbidden_live_route_phrases:
+            assert phrase not in text, f"{path} contains stale live route vocabulary: {phrase}"
         if path.name == "SKILL.md" and "skills/execute" in path.as_posix():
             assert "execute stage" in text
             assert "run stage" not in text

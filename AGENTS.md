@@ -26,7 +26,7 @@ forgeflow_runtime/       # Core runtime library
   plan_ledger.py         # Plan task tracking
   gate_evaluation.py     # Stage gate enforcement
   gate_ralf.py           # RALF self-healing loop
-  operator_routing.py    # Route selection (small/medium/large)
+  operator_routing.py    # Route selection (small/medium/high)
   ...
 tests/
   runtime/               # Runtime module tests
@@ -61,7 +61,7 @@ docs/                    # Design documents
 
 - **Gate enforcement**: `enforce_stage_gate()` checks artifacts before stage transitions.
 - **Artifact validation**: `assert_supported_artifact_schema_version()` + schema validators.
-- **Route selection**: `auto_route_for_task_dir()` picks small/medium/large based on risk.
+- **Route selection**: `auto_route_for_task_dir()` picks small/medium/high based on risk.
 - **Evolution**: proposals → review → approval → promotion lifecycle.
 - **Orchestration**: consensus/debate/pipeline/fastest multi-model strategies.
 
