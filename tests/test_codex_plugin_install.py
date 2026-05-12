@@ -71,6 +71,34 @@ def test_codex_plugin_installer_force_replaces_copy_and_marketplace_entry(tmp_pa
     assert marketplace["plugins"][0]["category"] == "Coding"
 
 
+def test_codex_plugin_installer_dry_run_reports_force_overwrites_without_writing(tmp_path):
+    first = run_installer(tmp_path)
+    marketplace_path = tmp_path / ".agents/plugins/marketplace.json"
+    marketplace_before = marketplace_path.read_text(encoding="utf-8")
+    sentinel = tmp_path / "plugins" / "forgeflow" / "LOCAL_CUSTOMIZATION.md"
+    sentinel.write_text("keep me\n", encoding="utf-8")
+
+    result = run_installer(tmp_path, "--dry-run")
+
+    assert first.returncode == 0, first.stderr
+    assert result.returncode == 0, result.stderr
+    assert "DRY-RUN: no files were changed" in result.stdout
+    assert "would fail: target exists" in result.stdout
+    assert "re-run with --dry-run --force" in result.stdout
+    assert sentinel.exists()
+    assert marketplace_path.read_text(encoding="utf-8") == marketplace_before
+
+    result = run_installer(tmp_path, "--force", "--dry-run")
+
+    assert result.returncode == 0, result.stderr
+    assert "DRY-RUN: no files were changed" in result.stdout
+    assert "would replace plugin copy" in result.stdout
+    assert "overwrite scope" in result.stdout
+    assert "--force would remove" in result.stdout
+    assert sentinel.exists()
+    assert marketplace_path.read_text(encoding="utf-8") == marketplace_before
+
+
 def test_codex_plugin_installer_can_update_marketplace_without_copy(tmp_path):
     plugin_root = tmp_path / "plugins" / "forgeflow"
     (plugin_root / ".codex-plugin").mkdir(parents=True)

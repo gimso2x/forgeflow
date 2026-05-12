@@ -45,8 +45,11 @@ Windows PowerShell에서는 아래 wrapper를 사용할 수 있다.
 Codex 앱에서 ForgeFlow를 local plugin entry로 노출하려면:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/gimso2x/forgeflow/main/scripts/bootstrap_codex_plugin.py | python3 - -- --force
+curl -fsSL https://raw.githubusercontent.com/gimso2x/forgeflow/main/scripts/bootstrap_codex_plugin.py | python3 - -- --dry-run
+curl -fsSL https://raw.githubusercontent.com/gimso2x/forgeflow/main/scripts/bootstrap_codex_plugin.py | python3 - --
 ```
+
+`--force`는 기존 `~/plugins/forgeflow` 디렉터리를 삭제 후 다시 복사하고, `~/.agents/plugins/marketplace.json` 안의 `forgeflow` entry만 교체한다. 커스터마이징을 넣어 둔 사용자는 먼저 `--dry-run --force`로 범위를 확인한다.
 
 이미 checkout 안에 있다면:
 
@@ -60,7 +63,7 @@ Windows PowerShell:
 .\scripts\install_codex_plugin.ps1
 ```
 
-Checkout 없이 PowerShell에서 bootstrap할 때는 `irm ... | python - -- --force`를 사용할 수 있다. `python` 대신 Windows launcher만 있는 환경에서는 checkout 안의 `install_codex_plugin.ps1` wrapper를 사용한다.
+Checkout 없이 PowerShell에서 bootstrap할 때는 `irm ... | python - -- --dry-run`으로 먼저 확인한 뒤 `irm ... | python - --`를 사용한다. 기존 copy를 교체할 때만 `--force`를 붙인다. `python` 대신 Windows launcher만 있는 환경에서는 checkout 안의 `install_codex_plugin.ps1` wrapper를 사용한다.
 
 ## Runtime sample
 make target이 repo-managed `.venv`를 사용하므로 fresh clone에서는 아래 순서로 실행한다.

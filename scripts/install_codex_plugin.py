@@ -54,6 +54,11 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help="Replace an existing home-local plugin copy or differing marketplace entry.",
     )
     parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Print the exact plugin-copy and marketplace changes without writing files.",
+    )
+    parser.add_argument(
         "--skip-copy",
         action="store_true",
         help="Only update the marketplace entry; assumes source.path already points at a valid plugin.",
@@ -103,7 +108,7 @@ def plugin_entry(source_path: str) -> dict[str, Any]:
     }
 
 
-def update_marketplace(path: Path, entry: dict[str, Any], *, force: bool) -> str:
+def marketplace_action(path: Path, entry: dict[str, Any], *, force: bool) -> str:
     marketplace = load_json(path)
     plugins = marketplace["plugins"]
     existing_index = next(
@@ -112,17 +117,27 @@ def update_marketplace(path: Path, entry: dict[str, Any], *, force: bool) -> str
     )
 
     if existing_index is None:
+        return "added"
+    if plugins[existing_index] == entry:
+        return "unchanged"
+    if force:
+        return "updated"
+    raise ValueError(f"{path} already has a different {PLUGIN_NAME} entry; re-run with --force to replace it")
+
+
+def update_marketplace(path: Path, entry: dict[str, Any], *, force: bool) -> str:
+    marketplace = load_json(path)
+    plugins = marketplace["plugins"]
+    existing_index = next(
+        (index for index, plugin in enumerate(plugins) if isinstance(plugin, dict) and plugin.get("name") == PLUGIN_NAME),
+        None,
+    )
+
+    action = marketplace_action(path, entry, force=force)
+    if existing_index is None:
         plugins.append(entry)
-        action = "added"
-    elif plugins[existing_index] == entry:
-        action = "unchanged"
-    elif force:
+    elif action == "updated":
         plugins[existing_index] = entry
-        action = "updated"
-    else:
-        raise ValueError(
-            f"{path} already has a different {PLUGIN_NAME} entry; re-run with --force to replace it"
-        )
 
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(marketplace, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
@@ -154,12 +169,46 @@ def validate_plugin_root(path: Path) -> None:
         raise ValueError(f"{manifest} name must be {PLUGIN_NAME!r}")
 
 
+def dry_run_install(plugin_parent: Path, marketplace_path: Path, *, source_path: str, force: bool, skip_copy: bool) -> int:
+    target = (plugin_parent / PLUGIN_NAME).resolve()
+    action = marketplace_action(marketplace_path, plugin_entry(source_path), force=force)
+
+    print("DRY-RUN: no files were changed")
+    print(f"Plugin root target: {target}")
+    if skip_copy:
+        print("Plugin copy: skipped (--skip-copy)")
+    elif target == ROOT:
+        print("Plugin copy: unchanged (target is this checkout)")
+    elif target.exists():
+        if not force:
+            print(f"Plugin copy: would fail: target exists at {target}")
+            print("Next step: re-run with --dry-run --force to preview replacement scope, then --force to replace it")
+        else:
+            print(f"Plugin copy: would replace plugin copy at {target}")
+            print(f"--force would remove: {target}")
+            print("overwrite scope: existing target directory is deleted, then this checkout is copied excluding .git/.venv/.forgeflow/__pycache__/.pytest_cache")
+    else:
+        print(f"Plugin copy: would copy this checkout to {target}")
+    print(f"Marketplace entry: would be {action} at {marketplace_path}")
+    if action == "updated" and force:
+        print("Marketplace overwrite scope: only the existing forgeflow entry in marketplace.json is replaced")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
     plugin_parent = Path(args.plugin_parent).expanduser().resolve()
     marketplace_path = Path(args.marketplace_path).expanduser().resolve()
 
     try:
+        if args.dry_run:
+            return dry_run_install(
+                plugin_parent,
+                marketplace_path,
+                source_path=args.source_path,
+                force=args.force,
+                skip_copy=args.skip_copy,
+            )
         if args.skip_copy:
             plugin_root = plugin_parent / PLUGIN_NAME
         else:

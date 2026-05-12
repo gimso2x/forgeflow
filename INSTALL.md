@@ -152,16 +152,27 @@ Codex에서는 ForgeFlow plugin을 설치한 뒤 Claude와 같은 slash-style pr
 Codex 앱의 local plugin marketplace에 ForgeFlow를 노출하려면 checkout 없이 bootstrap installer를 실행합니다.
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/gimso2x/forgeflow/main/scripts/bootstrap_codex_plugin.py | python3 - -- --force
+curl -fsSL https://raw.githubusercontent.com/gimso2x/forgeflow/main/scripts/bootstrap_codex_plugin.py | python3 - -- --dry-run
+curl -fsSL https://raw.githubusercontent.com/gimso2x/forgeflow/main/scripts/bootstrap_codex_plugin.py | python3 - --
 ```
 
 Windows PowerShell:
 
 ```powershell
-irm https://raw.githubusercontent.com/gimso2x/forgeflow/main/scripts/bootstrap_codex_plugin.py | python - -- --force
+irm https://raw.githubusercontent.com/gimso2x/forgeflow/main/scripts/bootstrap_codex_plugin.py | python - -- --dry-run
+irm https://raw.githubusercontent.com/gimso2x/forgeflow/main/scripts/bootstrap_codex_plugin.py | python - --
 ```
 
 이 bootstrap은 임시 디렉터리에 ForgeFlow archive를 내려받은 뒤 `scripts/install_codex_plugin.py`를 실행합니다. 설치 후 임시 checkout은 삭제됩니다.
+
+기존 plugin copy나 다른 marketplace entry를 교체해야 할 때만 `--force`를 추가합니다. 먼저 `--dry-run --force`로 삭제 범위를 확인하세요.
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/gimso2x/forgeflow/main/scripts/bootstrap_codex_plugin.py | python3 - -- --dry-run --force
+curl -fsSL https://raw.githubusercontent.com/gimso2x/forgeflow/main/scripts/bootstrap_codex_plugin.py | python3 - -- --force
+```
+
+--force deletes ~/plugins/forgeflow before copying the current ForgeFlow checkout. It excludes `.git`, `.venv`, `.forgeflow`, `__pycache__`, and `.pytest_cache`. It also replaces only the existing `forgeflow` entry inside `~/.agents/plugins/marketplace.json`; other marketplace entries are preserved.
 
 설치된 plugin 버전 확인:
 
@@ -183,9 +194,10 @@ Windows PowerShell:
 
 이 명령은 `~/plugins/forgeflow`에 plugin copy를 만들고 `~/.agents/plugins/marketplace.json`에 local source entry를 추가합니다.
 
-기존 plugin copy나 다른 marketplace entry를 교체하려면 `--force`를 명시하세요.
+기존 plugin copy나 다른 marketplace entry를 교체하려면 `--force`를 명시하세요. 이때도 먼저 dry-run으로 삭제/교체 범위를 확인합니다.
 
 ```bash
+python3 scripts/install_codex_plugin.py --dry-run --force
 python3 scripts/install_codex_plugin.py --force
 ```
 
