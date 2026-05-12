@@ -1831,24 +1831,34 @@ def _sync_parallel_worktree_plan(
 
 def _merge_completed_parallel_workers(task_dir: Path, run_state: dict[str, Any]) -> list[dict[str, Any]]:
     workers = run_state.get("workers")
-    if not isinstance(workers, list) or len(workers) < 2:
+    if not isinstance(workers, list) or not workers:
         return []
     repo_root = _find_git_root(task_dir)
     if repo_root is None:
         raise RuntimeViolation("parallel worker merge requires a git repository")
+
+    # H7: Only merge completed workers; skip others.
+    completed = [(i, w) for i, w in enumerate(workers) if w.get("status") == "completed"]
+    if not completed:
+        return []
+
     merge_results: list[dict[str, Any]] = []
-    for index, worker in enumerate(workers):
+    for merge_idx, (orig_idx, worker) in enumerate(completed):
+        # C3: After first merge the repo is dirty — skip require_clean for subsequent.
         result = _merge_worker_worktree(
             repo_path=repo_root,
             task_dir=task_dir,
             worker=worker,
             approved=bool(run_state.get("quality_review_approved")),
-            require_clean=(index == 0),
+            require_clean=(merge_idx == 0),
         )
         merge_results.append(result)
-    failures = [item for item in merge_results if item.get("status") != "merged"]
+
+    # Record merge results back, including skipped workers
     run_state["workers"] = workers
     run_state["worker_merge_results"] = merge_results
+
+    failures = [item for item in merge_results if item.get("status") != "merged"]
     if failures:
         reason = "; ".join(
             f"{item.get('plan_task_id')}: {item.get('reason') or item.get('status')}"
@@ -1902,23 +1912,44 @@ def _allocate_parallel_worker_worktrees(
 
     task_id = str(run_state.get("task_id") or plan_ledger.get("task_id") or task_dir.name)
     workers: list[dict[str, Any]] = []
-    for plan_task in tasks:
-        worker_dir = task_dir / "workers" / str(plan_task.get("id", "")).strip().replace("/", "-").replace("\\", "-")
-        existing_state = worker_dir / "worker-state.json"
-        if existing_state.exists():
-            try:
-                workers.append(json.loads(existing_state.read_text(encoding="utf-8")))
-                continue
-            except (json.JSONDecodeError, OSError):
-                pass
-        workers.append(
-            _create_worker_worktree(
+    allocated_indices: list[int] = []  # H4: track for rollback on partial failure
+    try:
+        for plan_idx, plan_task in enumerate(tasks):
+            plan_task_id = str(plan_task.get("id", "")).strip().replace("/", "-").replace("\\", "-")
+            worker_dir = task_dir / "workers" / plan_task_id
+            existing_state = worker_dir / "worker-state.json"
+            if existing_state.exists():
+                try:
+                    state_data = json.loads(existing_state.read_text(encoding="utf-8"))
+                    workers.append(state_data)
+                    continue
+                except json.JSONDecodeError:
+                    # H6: Corrupt state — back up and re-create
+                    backup = existing_state.with_suffix(".corrupt")
+                    existing_state.replace(backup)
+                except OSError:
+                    pass
+            worker = _create_worker_worktree(
                 task_dir=task_dir,
                 repo_path=repo_root,
                 task_id=task_id,
                 plan_task=plan_task,
             )
-        )
+            workers.append(worker)
+            allocated_indices.append(plan_idx)
+    except Exception:
+        # H4: Roll back newly-created worktrees on partial allocation failure
+        for idx in allocated_indices:
+            w = workers[idx] if idx < len(workers) else None
+            if w and isinstance(w.get("worktree"), dict):
+                wt_path = w["worktree"].get("path")
+                if wt_path:
+                    try:
+                        from forgeflow_runtime.worktree import remove_worktree
+                        remove_worktree(str(repo_root), wt_path)
+                    except Exception:
+                        pass
+        raise
 
     run_state["workers"] = workers
     _append_decision(

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+import logging
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
@@ -8,12 +10,36 @@ from typing import Any
 from forgeflow_runtime.executor import RunTaskRequest, RunTaskResult, dispatch
 from forgeflow_runtime.generator import PromptContext, generate_prompt
 
+logger = logging.getLogger(__name__)
+
+
+def _worker_artifact_dir(task_dir: Path, worker: dict[str, Any]) -> Path:
+    plan_task_id = str(worker.get("plan_task_id", "")).strip().replace("/", "-").replace("\\", "-")
+    if not plan_task_id:
+        plan_task_id = "unknown"
+    return task_dir / "workers" / plan_task_id
+
+
+def _persist_worker_state(task_dir: Path, worker: dict[str, Any]) -> None:
+    """Atomically write worker-state.json to disk after each worker completes."""
+    artifact_dir = _worker_artifact_dir(task_dir, worker)
+    artifact_dir.mkdir(parents=True, exist_ok=True)
+    state_path = artifact_dir / "worker-state.json"
+    tmp_path = state_path.with_suffix(".tmp")
+    tmp_path.write_text(json.dumps(worker, indent=2) + "\n", encoding="utf-8")
+    tmp_path.replace(state_path)
+
 
 def _write_worker_output(task_dir: Path, worker: dict[str, Any], result: RunTaskResult) -> None:
     output_ref = worker.get("output_ref")
     if not isinstance(output_ref, str) or not output_ref.strip():
         return
-    output_path = task_dir / output_ref
+    # Prevent path traversal — output_ref must stay under task_dir
+    resolved = (task_dir / output_ref).resolve()
+    if not str(resolved).startswith(str(task_dir.resolve())):
+        logger.warning("worker output_ref escapes task_dir, skipping: %s", output_ref)
+        return
+    output_path = resolved
     output_path.parent.mkdir(parents=True, exist_ok=True)
     owned_paths = worker.get("owned_paths") if isinstance(worker.get("owned_paths"), list) else []
     lines = [
@@ -80,6 +106,7 @@ def execute_parallel_workers(
             )
         worker["status"] = "completed" if result.status == "success" else result.status
         _write_worker_output(task_dir, worker, result)
+        _persist_worker_state(task_dir, worker)
         return {"plan_task_id": plan_task_id, "worker": worker, "result": result}
 
     ordered: dict[str, dict[str, Any]] = {}
@@ -87,7 +114,22 @@ def execute_parallel_workers(
     with ThreadPoolExecutor(max_workers=max(1, count)) as pool:
         future_to_index = {pool.submit(_run, worker): index for index, worker in enumerate(workers)}
         for future in as_completed(future_to_index):
-            ordered[str(future_to_index[future])] = future.result()
+            index = future_to_index[future]
+            try:
+                result_dict = future.result()
+                ordered[str(index)] = result_dict
+            except Exception as exc:
+                # C1: Don't let one worker's exception kill the whole batch.
+                # Record failure so the orchestrator can do partial merge.
+                worker = workers[index]
+                worker["status"] = "exception"
+                _persist_worker_state(task_dir, worker)
+                logger.error("worker %s raised: %s", worker.get("plan_task_id"), exc)
+                ordered[str(index)] = {
+                    "plan_task_id": str(worker.get("plan_task_id", "unknown")),
+                    "worker": worker,
+                    "result": RunTaskResult(status="failure", error=str(exc)),
+                }
     return [ordered[str(index)] for index in range(len(workers))]
 
 

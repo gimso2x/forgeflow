@@ -16,6 +16,7 @@ from forgeflow_runtime.worktree import (
     apply_patch,
     create_worktree,
     create_worker_worktree,
+    detect_path_conflicts,
     is_repo_clean,
     merge_worker_worktree,
     release_lock,
@@ -369,4 +370,51 @@ def test_merge_worker_worktree_refuses_unowned_changes(tmp_path: Path) -> None:
     assert result["reason"] == "unowned_changes"
     assert result["files_changed"] == ["src/other.tsx"]
     assert (repo / "src" / "other.tsx").read_text(encoding="utf-8") == "old\n"
+    assert worker["status"] == "merge_blocked"
+
+
+def test_detect_path_conflicts_blocks_empty_owned_paths() -> None:
+    result = detect_path_conflicts([
+        {"id": "ui", "files": ["src/login.tsx"]},
+        {"id": "unknown", "files": []},
+    ])
+
+    assert result["parallel_safe"] is False
+    assert result["worker_count"] == 2
+    assert result["conflicts"] == [
+        {
+            "path": "<undeclared>",
+            "task_ids": ["unknown"],
+            "reason": "undeclared_scope",
+            "blocked_by": ["ui", "unknown"],
+        }
+    ]
+
+
+def test_merge_worker_worktree_refuses_missing_base_commit(tmp_path: Path) -> None:
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    subprocess.run(["git", "init"], cwd=repo, capture_output=True, check=True)
+    subprocess.run(["git", "config", "user.email", "test@test.com"], cwd=repo, capture_output=True, check=True)
+    subprocess.run(["git", "config", "user.name", "Test"], cwd=repo, capture_output=True, check=True)
+    (repo / "src").mkdir()
+    (repo / "src" / "login.tsx").write_text("old\n", encoding="utf-8")
+    subprocess.run(["git", "add", "."], cwd=repo, capture_output=True, check=True)
+    subprocess.run(["git", "commit", "-m", "init"], cwd=repo, capture_output=True, check=True)
+
+    task_dir = repo / ".forgeflow" / "tasks" / "task-001"
+    task_dir.mkdir(parents=True)
+    worker = create_worker_worktree(
+        task_dir=task_dir,
+        repo_path=repo,
+        task_id="task-001",
+        plan_task={"id": "ui", "files": ["src/login.tsx"], "parallel_safe": True},
+    )
+    worker["worktree"]["base_commit"] = ""
+    worker["status"] = "completed"
+
+    result = merge_worker_worktree(repo_path=repo, task_dir=task_dir, worker=worker, approved=True)
+
+    assert result["status"] == "blocked"
+    assert result["reason"] == "base_commit_missing"
     assert worker["status"] == "merge_blocked"

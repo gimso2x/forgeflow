@@ -1,12 +1,13 @@
 """Tests for forgeflow_runtime.engine.execute_stage — prompt generation → executor dispatch."""
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from unittest.mock import patch
 
 import pytest
 
-from forgeflow_runtime.engine import execute_stage
+from forgeflow_runtime.engine import execute_parallel_workers, execute_stage
 from forgeflow_runtime.executor import RunTaskResult
 from forgeflow_runtime.generator import GeneratedPrompt
 
@@ -206,3 +207,76 @@ class TestExecuteStageUseRealFlag:
         result = _call(task_dir, adapter_target="unknown", use_real=True)
         assert result.status == "failure"
         assert "real adapter unsupported" in (result.error or "")
+
+
+class TestExecuteParallelWorkersRegression:
+    def test_worker_exception_is_recorded_without_aborting_batch(self, tmp_path):
+        task_dir = tmp_path / "task"
+        task_dir.mkdir()
+        ok_wt = tmp_path / "ok-worktree"
+        bad_wt = tmp_path / "bad-worktree"
+        ok_wt.mkdir()
+        bad_wt.mkdir()
+        workers = [
+            {
+                "plan_task_id": "ok",
+                "status": "allocated",
+                "owned_paths": ["ok.txt"],
+                "output_ref": "workers/ok/output.md",
+                "worktree": {"path": str(ok_wt)},
+            },
+            {
+                "plan_task_id": "bad",
+                "status": "allocated",
+                "owned_paths": ["bad.txt"],
+                "output_ref": "workers/bad/output.md",
+                "worktree": {"path": str(bad_wt)},
+            },
+        ]
+
+        def _fake_execute_stage(*, task_dir, **kwargs):
+            if task_dir == bad_wt:
+                raise RuntimeError("boom")
+            return RunTaskResult(status="success", raw_output="ok")
+
+        with patch("forgeflow_runtime.engine.execute_stage", side_effect=_fake_execute_stage):
+            results = execute_parallel_workers(
+                task_dir=task_dir,
+                task_id="task-001",
+                route="medium",
+                workers=workers,
+                max_workers=2,
+            )
+
+        assert [item["plan_task_id"] for item in results] == ["ok", "bad"]
+        assert results[0]["result"].status == "success"
+        assert results[1]["result"].status == "failure"
+        assert "boom" in (results[1]["result"].error or "")
+        assert json.loads((task_dir / "workers" / "ok" / "worker-state.json").read_text())["status"] == "completed"
+        assert json.loads((task_dir / "workers" / "bad" / "worker-state.json").read_text())["status"] == "exception"
+
+    def test_worker_output_ref_cannot_escape_task_dir(self, tmp_path):
+        task_dir = tmp_path / "task"
+        worktree = tmp_path / "worker"
+        task_dir.mkdir()
+        worktree.mkdir()
+        outside = tmp_path / "escaped.md"
+        worker = {
+            "plan_task_id": "escape",
+            "status": "allocated",
+            "owned_paths": ["x.txt"],
+            "output_ref": "../escaped.md",
+            "worktree": {"path": str(worktree)},
+        }
+
+        with patch("forgeflow_runtime.engine.execute_stage", return_value=RunTaskResult(status="success", raw_output="ok")):
+            results = execute_parallel_workers(
+                task_dir=task_dir,
+                task_id="task-001",
+                route="medium",
+                workers=[worker],
+            )
+
+        assert results[0]["result"].status == "success"
+        assert not outside.exists()
+        assert (task_dir / "workers" / "escape" / "worker-state.json").exists()

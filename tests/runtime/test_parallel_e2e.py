@@ -355,3 +355,54 @@ def test_merge_parallel_workers_after_review(
     # Verify: committed worker changes are now applied to the main repo
     assert (git_project / "a.py").exists(), "a.py not in main repo after merge"
     assert (git_project / "b.py").exists(), "b.py not in main repo after merge"
+
+
+def test_merge_parallel_workers_skips_non_completed_workers(
+    git_project: Path, policy: RuntimePolicy,
+) -> None:
+    """A failed/exception worker must not block merging completed parallel work."""
+    task_dir = git_project / ".forgeflow" / "tasks" / "partial-merge"
+    task_dir.mkdir(parents=True)
+    write_json_file(task_dir / "brief.json", {
+        "schema_version": "0.1", "task_id": "partial-merge",
+        "objective": "partial merge test", "use_worktree": True,
+        "risk_level": "medium", "route": "medium",
+    })
+    write_json_file(task_dir / "run-state.json", {
+        "schema_version": "0.1", "task_id": "partial-merge",
+        "current_stage": "finalize", "status": "in_progress",
+        "completed_gates": [], "failed_gates": [], "retries": {},
+        "quality_review_approved": True,
+        "spec_review_approved": True,
+    })
+    write_json_file(task_dir / "decision-log.json", {"schema_version": "0.1", "entries": []})
+    plan_ledger = {
+        "schema_version": "0.1", "task_id": "partial-merge",
+        "current_task_id": "t1",
+        "tasks": [
+            {"id": "done", "title": "done", "files": ["done.py"], "owned_paths": ["done.py"], "parallel_safe": True},
+            {"id": "bad", "title": "bad", "files": ["bad.py"], "owned_paths": ["bad.py"], "parallel_safe": True},
+        ],
+    }
+    run_state = read_json_file(task_dir / "run-state.json")
+    decision_log = read_json_file(task_dir / "decision-log.json")
+
+    _sync_parallel_worktree_plan(plan_ledger, run_state, decision_log)
+    workers = _allocate_parallel_worker_worktrees(task_dir, plan_ledger, run_state, decision_log)
+    done_worker = workers[0]
+    wt_path = Path(done_worker["worktree"]["path"])
+    (wt_path / "done.py").write_text("# done\n", encoding="utf-8")
+    subprocess.run(["git", "add", "."], cwd=wt_path, check=True, capture_output=True)
+    subprocess.run(["git", "commit", "-m", "done"], cwd=wt_path, check=True, capture_output=True)
+    done_worker["status"] = "completed"
+    workers[1]["status"] = "exception"
+    run_state["workers"] = workers
+
+    merge_results = _merge_completed_parallel_workers(task_dir, run_state)
+
+    assert len(merge_results) == 1
+    assert merge_results[0]["plan_task_id"] == "done"
+    assert merge_results[0]["status"] == "merged"
+    assert (git_project / "done.py").read_text(encoding="utf-8") == "# done\n"
+    assert not (git_project / "bad.py").exists()
+    assert workers[1]["status"] == "exception"

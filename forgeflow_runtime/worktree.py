@@ -222,16 +222,36 @@ def detect_path_conflicts(plan_tasks: list[dict[str, Any]]) -> dict[str, Any]:
     ownership. Shared paths and common project docs/config are deliberately
     treated as non-parallel, because merging those blind is how you summon hell.
     """
+    if not plan_tasks:
+        return {"parallel_safe": False, "conflicts": [], "worker_count": 0}
+
     by_path: dict[str, list[str]] = {}
     task_order = [str(task.get("id", "")) for task in plan_tasks]
     task_index = {task_id: idx for idx, task_id in enumerate(task_order)}
 
+    # M9: Tasks with empty owned_paths have unknown scope — treat as conflicting.
+    undeclared_tasks: list[str] = []
+
     for task in plan_tasks:
         task_id = str(task.get("id", ""))
-        for path in _normalize_owned_paths(task):
+        owned = _normalize_owned_paths(task)
+        if not owned:
+            undeclared_tasks.append(task_id)
+        for path in owned:
             by_path.setdefault(path, []).append(task_id)
 
     conflicts: list[dict[str, Any]] = []
+
+    # Undeclared-scope tasks conflict with everything
+    if undeclared_tasks:
+        all_ids = list(task_order)
+        conflicts.append({
+            "path": "<undeclared>",
+            "task_ids": sorted(undeclared_tasks, key=lambda v: task_index.get(v, 10_000)),
+            "reason": "undeclared_scope",
+            "blocked_by": all_ids,
+        })
+
     for path, task_ids in by_path.items():
         ordered_task_ids = sorted(task_ids, key=lambda value: task_index.get(value, 10_000))
         if len(ordered_task_ids) > 1:
@@ -240,7 +260,7 @@ def detect_path_conflicts(plan_tasks: list[dict[str, Any]]) -> dict[str, Any]:
             conflicts.append({"path": path, "task_ids": ordered_task_ids, "reason": "protected_common_path"})
 
     conflicts.sort(key=lambda item: (item["path"], item["reason"]))
-    return {"parallel_safe": not conflicts, "conflicts": conflicts}
+    return {"parallel_safe": not conflicts, "conflicts": conflicts, "worker_count": len(plan_tasks)}
 
 
 def _worker_dir(task_dir: Path, plan_task_id: str) -> Path:
@@ -365,11 +385,11 @@ def merge_worker_worktree(
     if require_clean and not _is_repo_clean_ignoring_forgeflow(repo):
         return blocked("target_repo_dirty")
 
-    # Compare against base_commit so committed changes are included.
-    # A bare `git diff` only shows unstaged working-tree changes, which
-    # misses everything the worker already committed.
+    # M13: base_commit must be a valid non-empty SHA.
     base_commit = str(worktree.get("base_commit", "")).strip()
-    diff_ref = base_commit if base_commit else "HEAD"
+    if not base_commit or len(base_commit) < 7:
+        return blocked("base_commit_missing", error=f"base_commit is empty or too short: {base_commit!r}")
+    diff_ref = base_commit
 
     diff_names = _run_git("diff", "--name-only", diff_ref, cwd=worktree_path)
     if diff_names.returncode != 0:
