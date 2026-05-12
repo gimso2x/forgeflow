@@ -112,3 +112,24 @@ def test_artifact_model_documents_upgrade_policy() -> None:
         "0.1 -> 0.1 no-op",
     ]:
         assert required in text
+
+
+def test_schemas_directory_exposes_migration_skeleton_policy() -> None:
+    readme = (ROOT / "schemas" / "migrations" / "README.md").read_text(encoding="utf-8")
+    skeleton = (ROOT / "schemas" / "migrations" / "artifact_migration_skeleton.py").read_text(encoding="utf-8")
+    for required in [
+        "Migration skeleton",
+        "validate_current_refuse_unknown",
+        "0.1 -> 0.1 no-op",
+        "scripts/upgrade_artifact.py",
+        "forgeflow_runtime/artifact_migrations.py",
+    ]:
+        assert required in readme
+    for required in [
+        "def transform(payload",
+        "source_version",
+        "target_version",
+        "0.1 -> 0.1 no-op",
+        "Do not import this file from runtime",
+    ]:
+        assert required in skeleton
