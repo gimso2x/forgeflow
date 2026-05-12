@@ -12,6 +12,7 @@ if str(ROOT) not in sys.path:
 
 from forgeflow_runtime.orchestrator import (  # noqa: E402
     RuntimeViolation,
+    _stub_execution_warning,
     advance_to_next_stage,
     clarify_task,
     escalate_route,
@@ -31,18 +32,31 @@ from forgeflow_runtime.generator import GenerationError  # noqa: E402
 
 
 def _execution_payload(*, stage: str, role: str, adapter: str, result, use_real: bool = False) -> dict:
+    execution_mode = "real" if use_real else "stub"
     payload = {
         "stage": stage,
         "role": role,
         "adapter": adapter,
-        "execution_mode": "real" if use_real else "stub",
+        "execution_mode": execution_mode,
         "status": result.status,
         "artifacts_produced": result.artifacts_produced,
         "token_usage": result.token_usage,
     }
+    if execution_mode == "stub":
+        payload["warning"] = _stub_execution_warning()
     if result.error:
         payload["error"] = result.error
     return payload
+
+
+def _assert_real_requested(*, use_real: bool, assert_real: bool) -> None:
+    if assert_real and not use_real:
+        raise RuntimeViolation("--assert-real requires --real; refusing to report stub execution as a real run")
+
+
+def _print_stub_warning_if_needed(*, use_real: bool) -> None:
+    if not use_real:
+        print(f"WARNING: {_stub_execution_warning()}", file=sys.stderr)
 
 
 def _print_payload(payload: dict) -> None:
@@ -147,6 +161,11 @@ Notes:
     advance_parser.add_argument("--role", default=None, help="override role when --execute is used")
     advance_parser.add_argument("--artifacts", nargs="+", default=None, help="artifact names to stream when --execute is used")
     advance_parser.add_argument("--real", action="store_true", help="use real CLI adapters when --execute is used")
+    advance_parser.add_argument(
+        "--assert-real",
+        action="store_true",
+        help="fail fast unless --real is also set when --execute is used",
+    )
 
     retry_parser = subparsers.add_parser("retry", help="retry the current stage within budget")
     retry_parser.add_argument("--task-dir", required=True)
@@ -171,6 +190,11 @@ Notes:
     exec_stage_parser.add_argument("--role", default=None, help="override role (auto-detected from stage if omitted)")
     exec_stage_parser.add_argument("--artifacts", nargs="+", default=None, help="artifact names to stream")
     exec_stage_parser.add_argument("--real", action="store_true", help="use real CLI adapters instead of stubs")
+    exec_stage_parser.add_argument(
+        "--assert-real",
+        action="store_true",
+        help="fail fast unless --real is also set; useful for CI jobs that must not silently run stubs",
+    )
 
     return parser
 
@@ -280,6 +304,8 @@ def main() -> int:
         elif args.command == "status":
             _print_payload(status_summary(task_dir=task_dir, policy=policy, route_name=route_name))
         elif args.command == "advance":
+            if args.execute:
+                _assert_real_requested(use_real=args.real, assert_real=args.assert_real)
             transition = advance_to_next_stage(
                 task_dir=task_dir,
                 policy=policy,
@@ -304,6 +330,7 @@ def main() -> int:
         elif args.command == "escalate":
             _print_payload(escalate_route(task_dir=task_dir, from_route=args.from_route))
         elif args.command == "exec-stage":
+            _assert_real_requested(use_real=args.real, assert_real=args.assert_real)
             run_state_path = task_dir / "run-state.json"
             if not run_state_path.exists():
                 print("ERROR: run-state.json not found; start or resume the task first.", file=sys.stderr)
@@ -326,6 +353,7 @@ def main() -> int:
             )
             if result.status == "success" and result.raw_output:
                 (task_dir / f"{current_stage}-output.md").write_text(result.raw_output, encoding="utf-8")
+            _print_stub_warning_if_needed(use_real=args.real)
             _print_payload(
                 _execution_payload(
                     stage=current_stage,

@@ -63,16 +63,23 @@ class TransitionResult:
     execution: dict[str, Any] | None = None
 
 
+def _stub_execution_warning() -> str:
+    return "STUB EXECUTION: no real CLI adapter ran; pass --real for live execution or --assert-real to fail fast."
+
+
 def _execution_payload(*, stage: str, role: str, adapter: str, result: Any, use_real: bool = False) -> dict[str, Any]:
+    execution_mode = "real" if use_real else "stub"
     payload = {
         "stage": stage,
         "role": role,
         "adapter": adapter,
-        "execution_mode": "real" if use_real else "stub",
+        "execution_mode": execution_mode,
         "status": result.status,
         "artifacts_produced": result.artifacts_produced,
         "token_usage": result.token_usage,
     }
+    if execution_mode == "stub":
+        payload["warning"] = _stub_execution_warning()
     if result.error:
         payload["error"] = result.error
     return payload

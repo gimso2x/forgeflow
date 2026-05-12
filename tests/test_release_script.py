@@ -10,6 +10,9 @@ SCRIPT = ROOT / "scripts" / "release.py"
 PLUGIN = ROOT / ".claude-plugin" / "plugin.json"
 MARKETPLACE = ROOT / ".claude-plugin" / "marketplace.json"
 CODEX = ROOT / ".codex-plugin" / "plugin.json"
+CODEX_TARGET = ROOT / "adapters" / "targets" / "codex" / "plugin.json"
+PYPROJECT = ROOT / "pyproject.toml"
+README = ROOT / "README.md"
 
 
 def run_release(*args: str) -> subprocess.CompletedProcess[str]:
@@ -65,6 +68,9 @@ def test_release_script_can_update_versions_only_and_write_release_notes(tmp_pat
     original_plugin = PLUGIN.read_text()
     original_marketplace = MARKETPLACE.read_text()
     original_codex = CODEX.read_text()
+    original_codex_target = CODEX_TARGET.read_text()
+    original_pyproject = PYPROJECT.read_text()
+    original_readme = README.read_text()
 
     try:
         result = run_release("0.1.14", "--write-only", "--notes-out", str(notes), "--allow-docs-only")
@@ -73,6 +79,8 @@ def test_release_script_can_update_versions_only_and_write_release_notes(tmp_pat
         assert json.loads(PLUGIN.read_text())["version"] == "0.1.14"
         assert json.loads(MARKETPLACE.read_text())["metadata"]["version"] == "0.1.14"
         assert json.loads(CODEX.read_text())["version"] == "0.1.14"
+        assert json.loads(CODEX_TARGET.read_text())["version"] == "0.1.14"
+        assert 'version = "0.1.14"' in PYPROJECT.read_text()
         assert "## v0.1.14" in notes.read_text()
         assert "pytest -q" in notes.read_text()
         assert "make validate" in notes.read_text()
@@ -80,6 +88,9 @@ def test_release_script_can_update_versions_only_and_write_release_notes(tmp_pat
         PLUGIN.write_text(original_plugin)
         MARKETPLACE.write_text(original_marketplace)
         CODEX.write_text(original_codex)
+        CODEX_TARGET.write_text(original_codex_target)
+        PYPROJECT.write_text(original_pyproject)
+        README.write_text(original_readme)
 
 
 def test_release_script_declares_supported_plugin_manifests_once():

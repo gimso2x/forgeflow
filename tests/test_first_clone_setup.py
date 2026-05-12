@@ -87,8 +87,8 @@ def test_readme_quickstart_points_to_install_guide() -> None:
     assert "make setup" in install
     assert "make check-env" in install
     assert "make validate" in install
-    assert install.index("make setup") < install.index("make check-env")
-    assert install.index("make check-env") < install.index("make validate")
+    assert install.index("make setup") < install.index("make validate")
+    assert install.index("make validate") < install.index("make check-env")
 
 
 def test_install_update_path_rechecks_first_clone_dependencies_before_validation() -> None:
@@ -109,9 +109,9 @@ def test_install_runtime_sample_uses_repo_managed_make_target() -> None:
     assert "runtime-sample:" in makefile
     assert "$(VENV_PYTHON) scripts/run_runtime_sample.py --fixture-dir examples/runtime-fixtures/small-doc-task --route small" in makefile
     assert "make setup" in sample_section
-    assert "make check-env" in sample_section
+    assert "make validate" in sample_section
     assert "make runtime-sample" in sample_section.splitlines()
-    assert sample_section.index("make setup") < sample_section.index("make check-env") < sample_section.index("make runtime-sample")
+    assert sample_section.index("make setup") < sample_section.index("make validate") < sample_section.index("make runtime-sample")
     assert "python3 scripts/run_runtime_sample.py" not in sample_section
 
 
@@ -131,7 +131,7 @@ def test_scripts_readme_recommends_repo_managed_validate_target() -> None:
     assert "make setup" in recommended_section
     assert "make check-env" in recommended_section
     assert "make validate" in recommended_section.splitlines()
-    assert recommended_section.index("make setup") < recommended_section.index("make check-env") < recommended_section.index("make validate")
+    assert recommended_section.index("make setup") < recommended_section.index("make validate") < recommended_section.index("make check-env")
     assert "python3 scripts/validate_" not in scripts_readme
     assert "python3 scripts/generate_adapters.py" not in scripts_readme
 
@@ -144,9 +144,9 @@ def test_scripts_readme_runtime_sample_uses_repo_managed_target() -> None:
     assert "runtime-sample:" in makefile
     assert "$(VENV_PYTHON) scripts/run_runtime_sample.py --fixture-dir examples/runtime-fixtures/small-doc-task --route small" in makefile
     assert "make setup" in runtime_section
-    assert "make check-env" in runtime_section
+    assert "make validate" in runtime_section
     assert "make runtime-sample" in runtime_section.splitlines()
-    assert runtime_section.index("make setup") < runtime_section.index("make check-env") < runtime_section.index("make runtime-sample")
+    assert runtime_section.index("make setup") < runtime_section.index("make validate") < runtime_section.index("make runtime-sample")
     assert "--fixture-dir`는 task fixture 디렉터리를 가리켜야 하며, 파일 경로면 명시적 `ERROR:`로 실패한다." in runtime_section
     assert "python3 scripts/run_runtime_sample.py" not in runtime_section
 
@@ -168,8 +168,8 @@ def test_install_local_runtime_section_points_to_setup_and_validate() -> None:
     assert "make setup" in runtime_section
     assert "make check-env" in runtime_section
     assert "make validate" in runtime_section
-    assert runtime_section.index("make setup") < runtime_section.index("make check-env")
-    assert runtime_section.index("make check-env") < runtime_section.index("make validate")
+    assert runtime_section.index("make setup") < runtime_section.index("make validate")
+    assert runtime_section.index("make validate") < runtime_section.index("make check-env")
 
 
 def test_adherence_eval_docs_use_make_target_after_environment_setup() -> None:
@@ -220,9 +220,9 @@ def test_install_safe_sample_uses_repo_managed_runtime_target() -> None:
     assert "runtime-sample:" in makefile
     assert "$(VENV_PYTHON) scripts/run_runtime_sample.py --fixture-dir examples/runtime-fixtures/small-doc-task --route small" in makefile
     assert "make setup" in sample_section
-    assert "make check-env" in sample_section
+    assert "make validate" in sample_section
     assert "make runtime-sample" in sample_section.splitlines()
-    assert sample_section.index("make setup") < sample_section.index("make check-env") < sample_section.index("make runtime-sample")
+    assert sample_section.index("make setup") < sample_section.index("make validate") < sample_section.index("make runtime-sample")
     assert "python3 scripts/run_runtime_sample.py" not in sample_section
 
 
@@ -278,9 +278,9 @@ def test_operator_shell_doc_uses_repo_managed_runtime_sample_target() -> None:
     assert "runtime-sample:" in makefile
     assert "$(VENV_PYTHON) scripts/run_runtime_sample.py --fixture-dir examples/runtime-fixtures/small-doc-task --route small" in makefile
     assert "make setup" in sample_section
-    assert "make check-env" in sample_section
+    assert "make validate" in sample_section
     assert "make runtime-sample" in sample_section.splitlines()
-    assert sample_section.index("make setup") < sample_section.index("make check-env") < sample_section.index("make runtime-sample")
+    assert sample_section.index("make setup") < sample_section.index("make validate") < sample_section.index("make runtime-sample")
     assert "python3 scripts/run_runtime_sample.py" not in sample_section
 
 

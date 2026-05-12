@@ -237,7 +237,7 @@ Next.js preset 설치 시 생성되는 role prompt는 `.codex/forgeflow/` 아래
 3. 새 작업에서 `/forgeflow:clarify <하고 싶은 작업>`처럼 입력합니다.
 4. 필요하면 `/forgeflow:plan`, `/forgeflow:execute`, `/forgeflow:review`, `/forgeflow:ship` 순서로 진행합니다.
 5. 프로젝트에 지속 규칙이 필요할 때만 `CODEX.md` 또는 Codex preset을 추가 설치합니다.
-6. 실제 CLI execution까지 검증할 때만 `scripts/run_orchestrator.py ... --adapter codex --real`을 사용하고, 결과 JSON의 `"execution_mode": "real"`을 확인합니다.
+6. 실제 CLI execution까지 검증할 때만 `scripts/run_orchestrator.py ... --adapter codex --real --assert-real`을 사용합니다. `--assert-real`은 `--real` 없이 실행되면 실패하므로 CI에서 stub 실행을 실수로 성공 처리하지 않습니다.
 
 plugin entry와 ForgeFlow skills가 기본 사용 표면입니다. `CODEX.md`, `.codex/forgeflow/`, `.forgeflow/tasks/`는 프로젝트에 더 강한 지속성과 artifact state가 필요할 때 쓰는 보강 표면입니다.
 
@@ -312,7 +312,8 @@ python3 scripts/run_orchestrator.py exec-stage \
   --task-dir examples/runtime-fixtures/small-doc-task \
   --route small \
   --adapter codex \
-  --real
+  --real \
+  --assert-real
 ```
 
 
@@ -324,9 +325,10 @@ ForgeFlow 자체 runtime까지 쓰려면 저장소를 clone합니다.
 git clone https://github.com/gimso2x/forgeflow.git
 cd forgeflow
 make setup
-make check-env
 make validate
 ```
+
+`make validate` is the deterministic validation entry point: it runs `check-env`, schema/policy/generated checks, focused pytest contracts, and static plugin smoke matrix checks in the correct order. `make check-env` remains a focused diagnostic target when you only want dependency/environment output.
 
 Windows PowerShell에서는 Unix-style `.venv/bin/python` 경로 대신 wrapper를 사용할 수 있습니다. Windows 전용 계약은 [Windows 가이드](docs/guides/windows.md)를 보세요.
 
@@ -342,13 +344,13 @@ Task artifact를 만들거나 상태를 볼 때도 wrapper를 사용하면 `.ven
 .\scripts\run_orchestrator.ps1 status --task-dir .\.forgeflow\tasks\my-task-001
 ```
 
-Claude plugin live smoke는 `make smoke-claude-plugin`으로 실행합니다. Unix 계열에서는 `script`가 있으면 pseudo-terminal로 Claude CLI를 감싸고, Windows처럼 `script`가 없는 환경에서는 `claude -p ... --output-format json` 직접 실행 fallback을 사용합니다. 이 smoke는 Claude CLI 로그인, quota, plugin cache 상태의 영향을 받으므로 deterministic `make validate`와 별도로 봅니다.
+Claude plugin live smoke는 `make smoke-claude-plugin`으로 실행합니다. Unix 계열에서는 `script`가 있으면 pseudo-terminal로 Claude CLI를 감싸고, Windows처럼 `script`가 없는 환경에서는 `claude -p ... --output-format json` 직접 실행 fallback을 사용합니다. 이 live smoke는 Claude CLI 로그인, quota, plugin cache 상태의 영향을 받으므로 deterministic `make validate`와 별도로 봅니다.
 
 샘플 실행:
 
 ```bash
 make setup
-make check-env
+make validate
 make runtime-sample
 ```
 
@@ -388,25 +390,27 @@ python3 scripts/run_orchestrator.py exec-stage \
   --adapter codex
 ```
 
-실제 Claude/Codex CLI를 호출하려면 `--real`을 붙입니다.
+실제 Claude/Codex CLI를 호출하려면 `--real`을 붙입니다. CI나 릴리즈 검증처럼 “반드시 real이어야 하는” 경로에서는 `--assert-real`도 같이 붙입니다.
 
 ```bash
 python3 scripts/run_orchestrator.py exec-stage \
   --task-dir examples/runtime-fixtures/small-doc-task \
   --route small \
   --adapter claude \
-  --real
+  --real \
+  --assert-real
 ```
 
-결과 JSON에서 반드시 확인하세요.
+`--assert-real`이 붙은 명령은 `--real` 없이 실행되면 즉시 실패합니다. 반대로 `--real` 없는 stub 실행은 결과 JSON과 stderr에 `STUB EXECUTION` 경고를 출력합니다.
 
 ```json
 {
-  "execution_mode": "real"
+  "execution_mode": "stub",
+  "warning": "STUB EXECUTION: no real CLI adapter ran; pass --real for live execution or --assert-real to fail fast."
 }
 ```
 
-`execution_mode` 확인 안 하고 “실제 모델이 돈다”고 믿는 건 삽질 예약입니다.
+`execution_mode` 확인을 사람 눈에만 맡기는 건 삽질 예약이라, CI에서는 `--assert-real`로 기계가 막게 하세요.
 
 ## 업데이트
 

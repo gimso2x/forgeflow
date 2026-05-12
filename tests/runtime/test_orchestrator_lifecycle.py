@@ -897,6 +897,7 @@ class TestExecutionPayload:
         )
         assert payload["error"] == "timeout"
         assert payload["execution_mode"] == "stub"
+        assert "STUB EXECUTION" in payload["warning"]
 
 
 # =========================================================================

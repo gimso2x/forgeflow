@@ -64,6 +64,23 @@ def test_readme_documents_local_disposable_nextjs_plugin_smoke() -> None:
         assert required in readme
 
 
+def test_make_validate_is_the_single_deterministic_validation_entrypoint() -> None:
+    makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
+    scripts_readme = (ROOT / "scripts" / "README.md").read_text(encoding="utf-8")
+    install = (ROOT / "INSTALL.md").read_text(encoding="utf-8")
+
+    assert "validate: check-env" in makefile
+    assert "scripts/ci_plugin_smoke_matrix.py" in makefile
+    assert "smoke-claude-plugin:" in makefile
+    assert "make setup\nmake validate" in install
+    assert "make check-env\nmake validate" not in install
+    assert "make setup\nmake validate" in scripts_readme
+    assert "make check-env\nmake validate" not in scripts_readme
+    assert "deterministic validation entry point" in install
+    assert "live smoke" in install
+    assert "make smoke-claude-plugin" in install
+
+
 def test_post_install_smoke_entrypoint_is_documented_and_actionable() -> None:
     smoke = ROOT / "scripts" / "smoke.sh"
     assert smoke.exists()

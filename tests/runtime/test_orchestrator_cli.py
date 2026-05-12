@@ -445,6 +445,9 @@ def test_cli_exec_stage_runs_current_stage_and_writes_output(tmp_path: Path) -> 
     payload = json.loads(execute_result.stdout)
     assert payload["stage"] == "clarify"
     assert payload["adapter"] == "codex"
+    assert payload["execution_mode"] == "stub"
+    assert "STUB EXECUTION" in payload["warning"]
+    assert "STUB EXECUTION" in execute_result.stderr
     output_path = task_dir / "clarify-output.md"
     assert output_path.exists()
     assert "stub-codex-output" in output_path.read_text(encoding="utf-8")

@@ -181,6 +181,11 @@ def main() -> int:
     parser.add_argument("--route-label", choices=sorted(ROUTE_REQUESTS), required=True)
     parser.add_argument("--project", help="Existing disposable Next.js project; created automatically when omitted")
     parser.add_argument("--timeout", type=int, default=180)
+    parser.add_argument(
+        "--static-only",
+        action="store_true",
+        help="Verify packaging, preset install, doctor checks, and non-mutating guards without invoking Claude/Codex CLIs.",
+    )
     args = parser.parse_args()
 
     base = Path(tempfile.mkdtemp(prefix="forgeflow-plugin-smoke-matrix-"))
@@ -192,12 +197,16 @@ def main() -> int:
         before_snapshot = project_snapshot(project)
 
         if args.surface == "claude":
-            if not shutil.which("claude"):
+            if args.static_only:
+                result = {"surface": "claude", "route_label": args.route_label, "ok": True, "skipped": "static-only packaging smoke; Claude CLI not invoked"}
+            elif not shutil.which("claude"):
                 result = {"surface": "claude", "route_label": args.route_label, "ok": True, "skipped": "claude CLI not found; static CI packaging smoke only"}
             else:
                 result = run_claude_surface(project, args.route_label, args.timeout)
         else:
-            if not shutil.which("codex"):
+            if args.static_only:
+                result = {"surface": "codex", "route_label": args.route_label, "ok": True, "skipped": "static-only packaging smoke; Codex CLI not invoked"}
+            elif not shutil.which("codex"):
                 result = {"surface": "codex", "route_label": args.route_label, "ok": True, "skipped": "codex CLI not found after preset/doctor baseline"}
             else:
                 result = run_codex_surface(project, args.route_label, args.timeout)

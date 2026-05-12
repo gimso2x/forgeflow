@@ -9,7 +9,7 @@ endif
 VENV_PYTHON := $(VENV_BIN)/python
 VENV_PIP := $(VENV_BIN)/pip
 
-.PHONY: setup check-env validate generate regen clean validate-samples runtime-sample evals adherence-evals monitor-summary monitor-summary-json orchestrator-help orchestrator-status smoke-claude-plugin validate-context-paths validate-upstream-import validate-hoyeon-import validate-skill-contracts validate-claude-hooks plan-cli-smoke evolution-policy-smoke learn-smoke claude-hook-smoke shared-recovery-smoke team-pattern-smoke agent-preset-smoke claude-agent-preset-smoke release-script-smoke verify-skill-smoke finish-skill-smoke plugin-manifest-smoke
+.PHONY: setup check-env validate generate regen clean validate-samples runtime-sample evals adherence-evals monitor-summary monitor-summary-json orchestrator-help orchestrator-status smoke-claude-plugin plugin-smoke-matrix-static validate-context-paths validate-upstream-import validate-hoyeon-import validate-skill-contracts validate-claude-hooks plan-cli-smoke evolution-policy-smoke learn-smoke claude-hook-smoke shared-recovery-smoke team-pattern-smoke agent-preset-smoke claude-agent-preset-smoke release-script-smoke verify-skill-smoke finish-skill-smoke plugin-manifest-smoke
 
 setup:
 	$(PYTHON) scripts/check_environment.py --require-venv-support --skip-modules
@@ -20,7 +20,7 @@ setup:
 check-env:
 	$(VENV_PYTHON) scripts/check_environment.py
 
-validate:
+validate: check-env
 	$(VENV_PYTHON) scripts/check_plugin_versions.py
 	$(VENV_PYTHON) scripts/validate_context_paths.py
 	$(VENV_PYTHON) scripts/validate_structure.py
@@ -48,6 +48,7 @@ validate:
 	$(VENV_PYTHON) -m pytest tests/test_verify_skill_contract.py -q
 	$(VENV_PYTHON) -m pytest tests/test_finish_skill_contract.py -q
 	$(VENV_PYTHON) -m pytest tests/test_plugin_manifests.py -q
+	$(MAKE) plugin-smoke-matrix-static
 
 runtime-sample:
 	$(VENV_PYTHON) scripts/run_runtime_sample.py --fixture-dir examples/runtime-fixtures/small-doc-task --route small
@@ -129,6 +130,10 @@ plugin-manifest-smoke:
 
 smoke-claude-plugin:
 	$(VENV_PYTHON) scripts/smoke_claude_plugin.py
+
+plugin-smoke-matrix-static:
+	$(VENV_PYTHON) scripts/ci_plugin_smoke_matrix.py --surface claude --route-label small --static-only
+	$(VENV_PYTHON) scripts/ci_plugin_smoke_matrix.py --surface codex --route-label medium --static-only
 
 generate:
 	$(VENV_PYTHON) scripts/generate_adapters.py

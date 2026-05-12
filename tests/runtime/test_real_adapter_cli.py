@@ -97,6 +97,25 @@ def test_cli_execute_real_claude_uses_binary_from_path_without_live_credentials(
     assert (task_dir / "clarify-output.md").read_text(encoding="utf-8").strip() == "FAKE_CLAUDE_REAL_OUTPUT"
 
 
+def test_cli_assert_real_refuses_stub_execution(tmp_path: Path) -> None:
+    task_dir = _make_task_dir(tmp_path)
+
+    result = _run_orchestrator_cli(
+        "exec-stage",
+        "--task-dir",
+        str(task_dir),
+        "--route",
+        "small",
+        "--adapter",
+        "codex",
+        "--assert-real",
+    )
+
+    assert result.returncode == 1
+    assert result.stdout == ""
+    assert "--assert-real requires --real" in result.stderr
+
+
 def test_cli_execute_real_codex_missing_binary_is_actionable(tmp_path: Path) -> None:
     task_dir = _make_task_dir(tmp_path)
 
