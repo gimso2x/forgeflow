@@ -23,6 +23,7 @@ POSITIVE_SAMPLES = {
 }
 
 NEGATIVE_SAMPLES = {
+    "brief-invalid-risk-level.sample.json": ROOT / "schemas/brief.schema.json",
     "run-state-invalid-stage.sample.json": ROOT / "schemas/run-state.schema.json",
     "decision-log-invalid-entry.sample.json": ROOT / "schemas/decision-log.schema.json",
     "review-report-approved-missing-approved-by.sample.json": ROOT / "schemas/review-report.schema.json",

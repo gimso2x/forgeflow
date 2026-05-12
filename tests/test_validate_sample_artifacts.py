@@ -251,6 +251,7 @@ def test_validate_sample_artifacts_tracks_positive_and_negative_fixtures() -> No
 @pytest.mark.parametrize(
     ("fixture_name", "expected_fragment"),
     [
+        ("brief-invalid-risk-level.sample.json", "risk_level"),
         ("run-state-invalid-stage.sample.json", "current_stage"),
         ("decision-log-invalid-entry.sample.json", "timestamp"),
         ("review-report-approved-missing-approved-by.sample.json", "approved_by"),
