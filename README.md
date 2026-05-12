@@ -163,6 +163,12 @@ python3 scripts/smoke_codex_plugin.py --project /path/to/nextjs-app
 
 세부 명령은 [scripts/README.md](scripts/README.md)에 있습니다.
 
+Claude Code 플러그인 설치 직후에는 post-install smoke를 한 번 돌립니다. 이 한 줄은 generated 파일 존재, canonical route vocabulary, `claude plugin validate`, `/forgeflow:clarify` dry-run, `/forgeflow:init` disposable fixture write를 확인합니다. 실패하면 출력에 reinstall/restart/check next step이 같이 나옵니다.
+
+```bash
+scripts/smoke.sh
+```
+
 ## Plugin smoke matrix
 
 Claude/Codex 플러그인·프리셋 smoke는 CI의 `plugin-smoke-matrix` job에서 Linux/Windows, Claude/Codex, `small`/`medium`/`high` route label 조합으로 돕니다. 실제 Claude/Codex CLI가 있는 환경에서는 route-label dry-run까지 실행하고, 없는 GitHub runner에서는 packaging, Codex project-local preset install, doctor, non-mutating guard를 검증합니다.

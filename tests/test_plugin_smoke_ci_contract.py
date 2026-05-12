@@ -64,6 +64,28 @@ def test_readme_documents_local_disposable_nextjs_plugin_smoke() -> None:
         assert required in readme
 
 
+def test_post_install_smoke_entrypoint_is_documented_and_actionable() -> None:
+    smoke = ROOT / "scripts" / "smoke.sh"
+    assert smoke.exists()
+    text = smoke.read_text(encoding="utf-8")
+    for required in [
+        "CLAUDE PLUGIN POST-INSTALL SMOKE: PASS",
+        ".claude-plugin/plugin.json",
+        "adapters/generated/claude/CLAUDE.md",
+        "Valid labels: small, medium, high",
+        "scripts/smoke_claude_plugin.py",
+        "claude plugin validate",
+        "reinstall/restart",
+    ]:
+        assert required in text
+
+    readme = README.read_text(encoding="utf-8")
+    install = (ROOT / "INSTALL.md").read_text(encoding="utf-8")
+    for text in [readme, install]:
+        assert "scripts/smoke.sh" in text
+        assert "post-install" in text.lower()
+
+
 def test_current_user_facing_docs_use_execute_and_high_labels() -> None:
     current_docs = [
         ROOT / "README.md",

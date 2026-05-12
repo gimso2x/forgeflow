@@ -33,6 +33,12 @@ claude plugin list
 
 설치 후 새 Claude Code 세션을 열고 slash skill을 사용하세요. 기본 입구는 `/forgeflow:clarify`지만, 새 작업 폴더와 task-local agent scaffold를 먼저 만들고 싶으면 `/forgeflow:init`으로 시작합니다. agent가 자연스럽게 다음 stage를 이어 받아야지 사용자가 매번 workflow 운영자가 될 필요는 없습니다.
 
+설치 직후 검증은 repo checkout에서 post-install smoke 한 줄로 합니다. 이 명령은 generated plugin/adapter 파일, canonical `small`/`medium`/`high` route vocabulary, `claude plugin validate`, `/forgeflow:clarify` dry-run, `/forgeflow:init` disposable fixture write를 확인합니다. 실패하면 reinstall/restart/check next step을 출력합니다.
+
+```bash
+scripts/smoke.sh
+```
+
 ```text
 /forgeflow:init --task-id <id> --objective "<objective>" --risk low|medium|high
 /forgeflow:clarify <하고 싶은 작업>
