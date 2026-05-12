@@ -38,6 +38,7 @@ adapters/targets/
 .claude-plugin/          # Claude Code marketplace plugin manifest
 scripts/                 # Utility scripts (validate, install, release)
 docs/                    # Design documents
+memory/                  # Version-controlled local memory: curated patterns, decisions, learnings
 ```
 
 ## Development Workflow
@@ -64,6 +65,7 @@ docs/                    # Design documents
 - **Route selection**: `auto_route_for_task_dir()` picks small/medium/high based on risk.
 - **Evolution**: proposals → review → approval → promotion lifecycle.
 - **Orchestration**: consensus/debate/pipeline/fastest multi-model strategies.
+- **Inspectable memory**: `memory/` is not cache or hidden chat state; commit curated patterns, decisions, and durable learnings only.
 
 ## Testing Rules
 

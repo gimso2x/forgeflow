@@ -63,6 +63,26 @@ def test_validate_structure_tracks_runtime_and_memory_scaffold() -> None:
     assert "STRUCTURE VALIDATION: PASS" in result.stdout
 
 
+def test_memory_directory_lifecycle_is_documented() -> None:
+    memory_readme = (ROOT / "memory" / "README.md").read_text(encoding="utf-8")
+    root_readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    agents = (ROOT / "AGENTS.md").read_text(encoding="utf-8")
+
+    for required_text in [
+        "project-local, inspectable memory layer",
+        "not hidden model memory, chat history, cache, or disposable runtime state",
+        "version-controlled project artifact",
+        "Commit small, curated memory files",
+        "Do not commit secrets",
+    ]:
+        assert required_text in memory_readme
+
+    assert "[memory/README.md](memory/README.md)" in root_readme
+    assert "cache or hidden agent state" in root_readme
+    assert "memory/" in agents
+    assert "not cache or hidden chat state" in agents
+
+
 def test_validate_workflow_installs_policy_validator_dependencies() -> None:
     workflow = (ROOT / ".github" / "workflows" / "validate.yml").read_text(encoding="utf-8").lower()
     makefile = (ROOT / "Makefile").read_text(encoding="utf-8").lower()

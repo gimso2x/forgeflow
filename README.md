@@ -138,10 +138,13 @@ python3 scripts/run_orchestrator.py init \
 - Codex plugin metadata and skills
 - Generated Claude/Codex adapter instructions
 - Canonical workflow policy and JSON schemas
+- `memory/` inspectable local memory for curated, version-controlled patterns, decisions, and learnings
 - Local validation, sample fixtures, and runtime support tools
 - v0.3.0 helpers for plan drafting, profile inspection, visual rendering, and Codex plugin diagnosis
 
 ForgeFlow는 hosted agent service나 SaaS runtime이 아닙니다. agent가 로컬 프로젝트에서 더 예측 가능하게 일하도록 만드는 workflow 규약과 검증 도구입니다.
+
+`memory/`는 cache or hidden agent state가 아닙니다. 장기적으로 남길 운영 패턴, 결정, 학습만 담는 project artifact이며 작은 curated 파일은 Git에 커밋합니다. 자세한 보존 기준은 [memory/README.md](memory/README.md)를 보세요.
 
 ## v0.3.0 operator helpers
 
