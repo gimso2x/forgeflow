@@ -15,6 +15,27 @@ artifact는 stage 간 handoff 계약이며, resume과 review의 최소 단위다
 
 ---
 
+## Artifact schema migration policy
+
+현재 runtime artifact schema의 current/supported version은 artifact type별로 `forgeflow_runtime/artifact_migrations.py`의 `ARTIFACT_VERSION_POLICY`가 소유합니다. 지금은 모든 core artifact가 `0.1`만 지원하며, runtime mode는 `validate_current_refuse_unknown`입니다.
+
+이 정책은 일부러 보수적입니다. runtime loader는 알 수 없는 `schema_version`을 자동으로 추측하지 않고 거부합니다. 오래된 `.forgeflow/tasks/*` artifact는 명시적으로 업그레이드한 뒤 다시 로드해야 합니다.
+
+```bash
+scripts/upgrade_artifact.py --artifact-name brief --path .forgeflow/tasks/<task-id>/brief.json
+scripts/upgrade_artifact.py --artifact-name plan --path .forgeflow/tasks/<task-id>/plan.json --check
+```
+
+첫 migration scaffold는 `0.1 -> 0.1 no-op`입니다. 별것 없어 보이지만 이게 맞습니다. version bump 전에 migration entrypoint, validation order, docs, tests를 먼저 박아두는 게 나중에 artifact를 조용히 망치는 것보다 훨씬 싸니까요.
+
+새 schema version을 추가할 때의 규칙:
+- `ARTIFACT_VERSION_POLICY`에 artifact별 supported/current version을 갱신한다.
+- `migrate_artifact_payload()`에 ordered transform을 추가한다.
+- sample migration test를 추가한다. 최소한 old payload → current payload → `validate_artifact_payload()` 통과까지 본다.
+- runtime 기본 동작은 자동 수정이 아니라 refuse/warn/upgrade 중 하나를 명시적으로 선택하고 문서에 남긴다.
+
+---
+
 ## 1. `brief`
 역할:
 - clarify 단계의 산출물

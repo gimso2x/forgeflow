@@ -71,7 +71,7 @@ def validate_artifact_payload(*, artifact_name: str, payload: dict[str, Any], so
     schema_name = schema_name_for_artifact(artifact_name)
     if schema_name is None:
         return
-    assert_supported_artifact_schema_version(payload=payload, source_name=source_name)
+    assert_supported_artifact_schema_version(payload=payload, source_name=source_name, artifact_name=artifact_name)
     errors = sorted(schema_validator(schema_name).iter_errors(payload), key=lambda err: list(err.path))
     if errors:
         details = "; ".join(
