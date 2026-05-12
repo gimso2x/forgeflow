@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 
 from release import MARKETPLACE_JSON as MARKETPLACE
-from release import PLUGIN_JSON as CLAUDE_PLUGIN
+from release import CLAUDE_PLUGIN_JSON as CLAUDE_PLUGIN
 from release import SUPPORTED_PLUGIN_MANIFESTS
 
 ROOT = Path(__file__).resolve().parents[1]

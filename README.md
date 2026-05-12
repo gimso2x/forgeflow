@@ -2,7 +2,7 @@
 
 ForgeFlow는 AI coding agent 작업을 채팅 기억이 아니라 **명시적인 stage, 로컬 artifact, gate, evidence, 독립 review**로 진행하게 만드는 artifact-first delivery harness입니다. Claude Code와 Codex에서 같은 workflow를 쓰도록 돕고, 작은 수정은 가볍게, 리스크 있는 작업은 계획과 검증을 남기게 합니다.
 
-현재 릴리즈는 **v0.3.0**입니다. 이 버전은 자연어 요구사항에서 계획 초안을 만들고, runtime/profile artifact를 읽고, Codex plugin 설치 상태를 진단하고, Mermaid/Markdown으로 작업 상태를 시각화하는 운영 보조 도구를 포함합니다.
+현재 릴리즈는 **v0.1.14**입니다. 이 버전은 자연어 요구사항에서 계획 초안을 만들고, runtime/profile artifact를 읽고, Codex plugin 설치 상태를 진단하고, Mermaid/Markdown으로 작업 상태를 시각화하는 운영 보조 도구를 포함합니다.
 
 ## How it works
 

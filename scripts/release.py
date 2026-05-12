@@ -11,12 +11,30 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-PLUGIN_JSON = ROOT / ".claude-plugin" / "plugin.json"
-MARKETPLACE_JSON = ROOT / ".claude-plugin" / "marketplace.json"
+
+# --- Version source files ------------------------------------------------
+
+CLAUDE_PLUGIN_JSON = ROOT / ".claude-plugin" / "plugin.json"
 CODEX_PLUGIN_JSON = ROOT / ".codex-plugin" / "plugin.json"
-SUPPORTED_PLUGIN_MANIFESTS = [PLUGIN_JSON, CODEX_PLUGIN_JSON]
-PLUGIN_VERSION_JSONS = SUPPORTED_PLUGIN_MANIFESTS
+CODEX_ADAPTER_PLUGIN_JSON = ROOT / "adapters" / "targets" / "codex" / "plugin.json"
+MARKETPLACE_JSON = ROOT / ".claude-plugin" / "marketplace.json"
+PYPROJECT_TOML = ROOT / "pyproject.toml"
+README_MD = ROOT / "README.md"
+
+# All plugin JSON files that carry a version field
+PLUGIN_VERSION_JSONS = [
+    CLAUDE_PLUGIN_JSON,
+    CODEX_PLUGIN_JSON,
+    CODEX_ADAPTER_PLUGIN_JSON,
+]
+
+SUPPORTED_PLUGIN_MANIFESTS = [CLAUDE_PLUGIN_JSON, CODEX_PLUGIN_JSON]
+
 SEMVER_RE = re.compile(r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:[-+][0-9A-Za-z.-]+)?$")
+README_VERSION_RE = re.compile(r"현재 릴리즈는 \*\*v[\d.]+\*\*")
+
+
+# --- Helpers --------------------------------------------------------------
 
 
 def parse_args() -> argparse.Namespace:
@@ -50,13 +68,37 @@ def dump_json(path: Path, data: dict) -> None:
 
 
 def update_versions(version: str) -> None:
+    """Update all version source files to the given version."""
+    # Plugin JSONs
     for path in PLUGIN_VERSION_JSONS:
         plugin = load_json(path)
         plugin["version"] = version
         dump_json(path, plugin)
+
+    # Marketplace metadata
     marketplace = load_json(MARKETPLACE_JSON)
     marketplace.setdefault("metadata", {})["version"] = version
     dump_json(MARKETPLACE_JSON, marketplace)
+
+    # pyproject.toml
+    toml_text = PYPROJECT_TOML.read_text(encoding="utf-8")
+    toml_text = re.sub(
+        r'^version\s*=\s*"[^"]*"',
+        f'version = "{version}"',
+        toml_text,
+        count=1,
+        flags=re.MULTILINE,
+    )
+    PYPROJECT_TOML.write_text(toml_text, encoding="utf-8")
+
+    # README current release
+    if README_MD.exists():
+        readme_text = README_MD.read_text(encoding="utf-8")
+        readme_text = README_VERSION_RE.sub(
+            f"현재 릴리즈는 **v{version}**",
+            readme_text,
+        )
+        README_MD.write_text(readme_text, encoding="utf-8")
 
 
 def release_notes(version: str) -> str:
@@ -98,7 +140,11 @@ def release_files_to_stage(notes_out: Path | None = None) -> list[str]:
     paths = [
         *[path.relative_to(ROOT) for path in SUPPORTED_PLUGIN_MANIFESTS],
         MARKETPLACE_JSON.relative_to(ROOT),
+        CODEX_ADAPTER_PLUGIN_JSON.relative_to(ROOT),
+        PYPROJECT_TOML.relative_to(ROOT),
     ]
+    if README_MD.exists():
+        paths.append(README_MD.relative_to(ROOT))
     if notes_out is not None:
         paths.append(relative_to_root(notes_out))
     return [str(path) for path in paths]
@@ -165,13 +211,16 @@ def release_plan(version: str) -> str:
             f"Release plan for {tag}",
             f"1. update plugin manifests version to {version}",
             f"2. update .claude-plugin/marketplace.json metadata.version to {version}",
-            "3. run python scripts/check_plugin_versions.py",
-            "4. run pytest -q",
-            "5. run make validate",
-            "6. run make smoke-claude-plugin",
-            f"7. create git commit: chore: release {tag}",
-            f"8. create annotated tag: {tag}",
-            f"9. push with: git push origin main {tag}",
+            f"3. update adapters/targets/codex/plugin.json version to {version}",
+            f"4. update pyproject.toml version to {version}",
+            f"5. update README current release to v{version}",
+            "6. run python scripts/check_plugin_versions.py",
+            "7. run pytest -q",
+            "8. run make validate",
+            "9. run make smoke-claude-plugin",
+            f"10. create git commit: chore: release {tag}",
+            f"11. create annotated tag: {tag}",
+            f"12. push with: git push origin main {tag}",
         ]
     )
 

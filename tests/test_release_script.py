@@ -39,12 +39,15 @@ def test_release_script_dry_run_prints_ordered_checks_without_mutating_versions(
     assert "Release plan for v0.1.14" in result.stdout
     assert "1. update plugin manifests version to 0.1.14" in result.stdout
     assert "2. update .claude-plugin/marketplace.json metadata.version to 0.1.14" in result.stdout
-    assert "3. run python scripts/check_plugin_versions.py" in result.stdout
-    assert "4. run pytest -q" in result.stdout
-    assert "5. run make validate" in result.stdout
-    assert "6. run make smoke-claude-plugin" in result.stdout
-    assert "7. create git commit: chore: release v0.1.14" in result.stdout
-    assert "8. create annotated tag: v0.1.14" in result.stdout
+    assert "3. update adapters/targets/codex/plugin.json version to 0.1.14" in result.stdout
+    assert "4. update pyproject.toml version to 0.1.14" in result.stdout
+    assert "5. update README current release to v0.1.14" in result.stdout
+    assert "6. run python scripts/check_plugin_versions.py" in result.stdout
+    assert "7. run pytest -q" in result.stdout
+    assert "8. run make validate" in result.stdout
+    assert "9. run make smoke-claude-plugin" in result.stdout
+    assert "10. create git commit: chore: release v0.1.14" in result.stdout
+    assert "11. create annotated tag: v0.1.14" in result.stdout
     assert "git commit -am" not in SCRIPT.read_text(encoding="utf-8")
     assert json.loads(PLUGIN.read_text()) == before_plugin
     assert json.loads(MARKETPLACE.read_text()) == before_marketplace
@@ -95,7 +98,10 @@ def test_release_script_stages_only_supported_plugin_manifests():
     assert ".claude-plugin/plugin.json" in paths
     assert ".codex-plugin/plugin.json" in paths
     assert ".claude-plugin/marketplace.json" in paths
-    assert len(paths) == 3
+    assert "adapters/targets/codex/plugin.json" in paths
+    assert "pyproject.toml" in paths
+    assert "README.md" in paths
+    assert len(paths) == 6
 
 
 def test_release_script_rejects_preexisting_staged_changes(tmp_path):

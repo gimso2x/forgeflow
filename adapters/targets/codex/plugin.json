@@ -1,7 +1,7 @@
 {
   "name": "forgeflow-codex",
   "description": "ForgeFlow adapter for Codex — staged workflow, gates, evidence, and independent review",
-  "version": "0.3.0",
+  "version": "0.1.14",
   "author": {
     "name": "gimso2x",
     "url": "https://github.com/gimso2x"

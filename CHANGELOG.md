@@ -7,6 +7,86 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.4] - 2026-05-11
+
+### Changed
+
+- Absorbed Karpathy engineering discipline heuristics into docs.
+
+### Fixed
+
+- Hardened plugin route label smoke tests.
+- Refreshed generated adapter prompts.
+- Aligned execute command naming convention.
+- Documented Claude worktree run preference.
+- Ask before execute worktree isolation.
+
+## [0.7.3] - 2026-05-11
+
+### Fixed
+
+- Plugin route label smoke hardening (continued).
+
+## [0.7.2] - 2026-05-11
+
+### Changed
+
+- Refreshed generated adapter prompts.
+
+### Fixed
+
+- Aligned execute command naming.
+- Documented Claude worktree run preference.
+
+## [0.7.1] - 2026-05-11
+
+### Fixed
+
+- Ask before execute worktree isolation.
+
+## [0.7.0] - 2026-05-11
+
+### Added
+
+- Optional worktree isolation for execute stage.
+
+## [0.6.1] - 2026-05-11
+
+### Added
+
+- Korean output directives — generator and all agent prompts/adapters.
+
+### Changed
+
+- Renamed route `large_high_risk` to `high` for consistency.
+- Split `init_task` into slim init + `clarify_task`.
+- Separated init (scaffold-only) from clarify (heavy analysis).
+
+### Fixed
+
+- Hardened init skill — never ask user for missing args.
+- `/forgeflow:init` now fully auto-inferable — objective, task-id, risk all optional.
+
+## [0.5.1] - 2026-05-10
+
+### Added
+
+- TanStack Start detection + route field in brief.json.
+- Domain-specific agents/skills (harness-100 style).
+- Objective-only init — auto-infer task-id (slug) and risk (keyword analysis).
+- Antigravity instruction adapter.
+- Harness absorption sample surface.
+
+### Changed
+
+- Bumped plugin version 0.3.2 → 0.4.0 → 0.4.1 → 0.5.0 → 0.5.1.
+
+### Fixed
+
+- Agents/skills written to project root instead of task dir.
+- Init skill no longer prompts when args provided.
+- Corrected version 0.4.0 → 0.5.1 (was mistakenly downgraded).
+
 ## [0.4.0] - 2026-05-08
 
 ### Added
