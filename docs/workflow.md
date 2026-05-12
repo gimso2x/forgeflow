@@ -171,6 +171,33 @@
 ### Role-split execution rule
 역할 분리는 새 stage가 아니라 기존 stage를 더 엄격하게 운영하는 방식이다. `clarify`는 요청을 역할 단위로 나눌 필요가 있는지 판단하고, `plan`은 선택된 역할별 task와 handoff를 `plan-ledger`에 남기며, `execute`는 필요한 worker만 on-demand로 호출한다. `review`는 reviewer/QA/security/UX 같은 관점을 필요한 만큼 분리하되, 각 관점의 판단 근거는 `review-report`와 evidence ref로 합쳐야 한다.
 
+#### 2-axis agent selection
+
+ForgeFlow는 **두 개의 독립적인 축**으로 에이전트를 선택한다:
+
+**Axis 1 — Route → Stage 깊이** (기존)
+- `small` / `medium` / `high` → 각 route가 실행할 stage 시퀀스를 결정
+- 예: small = clarify→execute→quality-review→finalize
+
+**Axis 2 — Spec → 전문 에이전트** (신규)
+- `brief.required_specialists` → clarify 단계에서 작업 성격에 따라 판단
+- 사용 가능 전문 에이전트:
+  - **review**: security-reviewer, ux-reviewer, perf-reviewer
+  - **execute**: frontend-worker, backend-worker, infra-worker
+- 판단 기준:
+  - 인증/권한/암호화/외부입력 → `security-review`
+  - UI/접근성/사용자흐름 → `ux-review`
+  - 응답시간/메모리/대규모데이터 → `perf-review`
+  - 프론트엔드 중심 작업 → `frontend-execute`
+  - 백엔드/API/DB 작업 → `backend-execute`
+  - 인프라/배포/IaC → `infra-execute`
+
+**핵심 원칙:**
+- 두 축은 독립적이다. route가 small이어도 security-review가 필요할 수 있고, route가 high여도 specialist가 없을 수 있다.
+- 전문 에이전트는 항상 활성화가 아니라 clarify에서 **on-demand**로만 판단한다.
+- skip한 전문가는 `brief.skipped_specialists` + `brief.skip_rationale`에 반드시 사유를 남긴다.
+- `required_specialists`가 비어 있으면 기본 worker/reviewer만 사용한다.
+
 플랜 우선 원칙은 모든 route에 적용된다. 작은 작업도 최소 brief와 실행 근거를 남기고, medium/high-risk 작업은 구현 전에 plan-ledger task, expected output, verification, role owner를 먼저 확정한다. 구현자는 이 ledger 밖의 일을 선반영하지 않는다.
 
 사람 최종판단 원칙은 review gate를 약화하지 않는다. AI reviewer의 코멘트는 자동 정답이 아니라 evidence-backed finding 후보이며, ship/finalize 전에는 실제 영향도와 프로젝트 맥락을 사람이 판단할 수 있게 근거를 남겨야 한다.

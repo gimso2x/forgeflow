@@ -14,6 +14,13 @@ STAGE_ROLE_MAP: dict[str, str] = {
     "quality-review": "quality-reviewer",
     "finalize": "coordinator",
     "long-run": "worker",
+    # specialist agents (on-demand, activated via brief.required_specialists)
+    "security-review": "security-reviewer",
+    "ux-review": "ux-reviewer",
+    "perf-review": "perf-reviewer",
+    "frontend-execute": "frontend-worker",
+    "backend-execute": "backend-worker",
+    "infra-execute": "infra-worker",
 }
 
 ROUTE_ORDER: list[str] = ["small", "medium", "high"]
@@ -33,6 +40,18 @@ def role_for_stage(
     if not role:
         raise violation_factory(f"no default role mapping for stage: {stage}")
     return role
+
+
+def specialists_from_brief(task_dir: Path) -> list[str]:
+    """Return required_specialists from brief.json, or empty list."""
+    brief_path = task_dir / "brief.json"
+    if not brief_path.exists():
+        return []
+    payload = json.loads(brief_path.read_text(encoding="utf-8"))
+    specialists = payload.get("required_specialists")
+    if not isinstance(specialists, list):
+        return []
+    return [s for s in specialists if s in STAGE_ROLE_MAP]
 
 
 def route_rank(
