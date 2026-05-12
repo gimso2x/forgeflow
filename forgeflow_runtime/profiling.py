@@ -23,10 +23,10 @@ class StageProfile:
     model: str  # adapter_target, e.g. "claude", "codex"
     status: str  # "success", "failure", "blocked"
     duration_s: float
-    input_tokens: int
-    output_tokens: int
-    total_tokens: int
-    cost_usd: float
+    input_tokens: int | None
+    output_tokens: int | None
+    total_tokens: int | None
+    cost_usd: float | None
     error: str | None = None
 
 
@@ -38,9 +38,9 @@ class PipelineProfile:
     route: str
     stages: tuple[StageProfile, ...] = ()
     total_duration_s: float = 0.0
-    total_cost_usd: float = 0.0
-    total_input_tokens: int = 0
-    total_output_tokens: int = 0
+    total_cost_usd: float | None = 0.0
+    total_input_tokens: int | None = 0
+    total_output_tokens: int | None = 0
     started_at: str = ""
     finished_at: str = ""
 

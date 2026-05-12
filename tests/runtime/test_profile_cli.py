@@ -85,6 +85,51 @@ def test_profile_summary_json_outputs_loaded_profile(tmp_path: Path) -> None:
     assert payload["stages"][0]["stage"] == "clarify"
 
 
+def test_profile_help_documents_cost_flag() -> None:
+    result = _run("--help")
+
+    assert result.returncode == 0, result.stderr
+    assert "--cost" in result.stdout
+
+
+def test_profile_summary_cost_flag_outputs_stage_and_total_cost(tmp_path: Path) -> None:
+    _write_profile(tmp_path)
+
+    result = _run("summary", str(tmp_path), "--cost")
+
+    assert result.returncode == 0, result.stderr
+    assert "Cost report:" in result.stdout
+    assert "clarify" in result.stdout
+    assert "300 in / 100 out" in result.stdout
+    assert "$0.000400" in result.stdout
+    assert "Total" in result.stdout
+    assert "1200 in / 500 out" in result.stdout
+    assert "$0.002000" in result.stdout
+
+
+def test_profile_cost_flag_handles_missing_token_and_cost_data_as_unknown(tmp_path: Path) -> None:
+    payload = {
+        "pipeline_id": "unknown-cost-run",
+        "route": "small",
+        "stages": [
+            {
+                "stage": "clarify",
+                "model": "claude",
+                "status": "success",
+                "duration_s": 1.0,
+            }
+        ],
+    }
+    (tmp_path / "pipeline-profile.json").write_text(json.dumps(payload), encoding="utf-8")
+
+    result = _run("summary", str(tmp_path), "--cost")
+
+    assert result.returncode == 0, result.stderr
+    assert "clarify" in result.stdout
+    assert "unknown" in result.stdout
+    assert "$0.000000" not in result.stdout
+
+
 def test_profile_bottlenecks_outputs_top_metrics(tmp_path: Path) -> None:
     _write_profile(tmp_path)
 
