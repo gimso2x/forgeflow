@@ -58,16 +58,16 @@ python3 scripts/policy_scan.py
 
 ## Runtime Modules
 
-`forgeflow_runtime/` — 55개 모듈, 67개 importable:
+`forgeflow_runtime/` — 84개 Python import surface. Domain packages are preferred once a domain has multiple cohesive modules; flat `evolution_*` imports remain compatibility shims only.
 
 **Core**: engine, executor, orchestrator, generator, operator_routing
 **Gates**: gate_evaluation, gate_ralf, ci_gate, constraint_checker
-**Artifacts**: artifact_validation, plan_ledger, task_identity, schema_versions
+**Artifacts**: artifact_validation, artifact_migrations, plan_ledger, task_identity, schema_versions
 **Review**: adversarial_review, anti_rationalization, evidence_qa, verify_pipeline
-**Evolution**: evolution, evolution_audit, evolution_doctor, evolution_proposals, evolution_promotions, crystallization
+**Evolution**: evolution package (`audit`, `cases`, `doctor`, `execution`, `lifecycle`, `observations`, `promotion_*`, `promotions`, `proposals`, `rules`) plus legacy shim modules
 **Intelligence**: execute_context, progress_tracker, stuck_detector, complexity, cost, telemetry
-**Experiment**: experiment/loop, experiment/circuit, experiment/metric, experiment/stopping
-**Orchestration**: orchestra/consensus, orchestra/debate, orchestra/pipeline, orchestra/fastest
+**Experiment**: experiment/loop, experiment/circuit, experiment/git_ops, experiment/metric, experiment/simplicity, experiment/stopping
+**Orchestration**: orchestra/consensus, orchestra/debate, orchestra/pipeline, orchestra/fastest, orchestra/strategy
 **Resilience**: stale_recovery, resume_validation, worktree, lightweight_mode
 **Parsing**: ears_parser, feedback_router, signal_pipeline, stage_transition
 **Utilities**: output_compression, progressive_output, versioning, enforcement_config, policy_loader, profile_detector, coordination
