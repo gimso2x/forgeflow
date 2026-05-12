@@ -37,7 +37,8 @@ def test_makefile_exposes_idempotent_setup_and_environment_check() -> None:
 def test_windows_powershell_wrappers_are_documented_and_present() -> None:
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
     install = (ROOT / "INSTALL.md").read_text(encoding="utf-8")
-    windows_doc = (ROOT / "docs/windows.md").read_text(encoding="utf-8")
+    windows_doc = (ROOT / "docs" / "windows.md").read_text(encoding="utf-8")
+    windows_guide = (ROOT / "docs" / "guides" / "windows.md").read_text(encoding="utf-8")
 
     for name in ["setup.ps1", "validate.ps1", "run_orchestrator.ps1", "install_codex_plugin.ps1"]:
         assert (ROOT / "scripts" / name).exists()
@@ -50,6 +51,9 @@ def test_windows_powershell_wrappers_are_documented_and_present() -> None:
     assert "py -3" in windows_doc
     assert "subprocess argument lists" in windows_doc
     assert "windows-smoke" in windows_doc
+    # New guides structure must exist and reference PowerShell wrappers
+    assert "PowerShell" in windows_guide
+    assert "setup.ps1" in windows_guide
 
 
 def test_makefile_smoke_targets_use_repo_managed_python_environment() -> None:

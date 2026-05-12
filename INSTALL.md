@@ -2,11 +2,13 @@
 
 ForgeFlow는 세 가지 방식으로 쓸 수 있습니다.
 
-1. **프로젝트 뼈대** — 이 저장소를 clone해서 runtime, schema, generated adapter까지 직접 사용
-2. **Claude Code 플러그인** — Claude Code에서 ForgeFlow 규칙/스킬 표면을 설치해서 사용
-3. **Python 패키지** — `pip install`로 runtime CLI를 프로젝트별로 고정해서 사용
+1. **Claude Code 플러그인** — Claude Code에서 ForgeFlow 규칙/스킬 표면을 설치해서 사용 → [상세 가이드](docs/guides/claude-code.md)
+2. **Codex 플러그인** — Codex Desktop에 plugin을 등록해서 사용 → [상세 가이드](docs/guides/codex.md)
+3. **Python 패키지 / Local CLI** — `pip install`로 runtime CLI를 프로젝트별로 고정해서 사용 → [상세 가이드](docs/guides/local-cli.md)
 
 ## Python 패키지/runtime CLI
+
+> CLI 명령어·프로필·시각화 등 상세 usage는 [Local CLI 가이드](docs/guides/local-cli.md) 참고.
 
 runtime만 재현 가능하게 설치하려면 editable install이나 Git URL install을 씁니다.
 
@@ -29,6 +31,8 @@ forgeflow-runtime --help
 둘 다 기존 `python3 scripts/run_orchestrator.py ...`와 같은 orchestrator help/command surface를 실행합니다. plugin slash command 설치와는 별개입니다.
 
 ## Claude Code 플러그인
+
+> 전체 설치·업데이트·troubleshooting은 [Claude Code 가이드](docs/guides/claude-code.md) 참고.
 
 Claude Code는 GitHub repo를 직접 `plugin install` 하는 게 아니라, 먼저 marketplace로 추가한 뒤 그 안의 plugin을 설치합니다.
 
@@ -128,6 +132,8 @@ claude -p "Read CLAUDE.md first. Reply with the ForgeFlow stage order."
 ```
 
 ## Codex 설치
+
+> 전체 설치·preset·bootstrap은 [Codex 가이드](docs/guides/codex.md) 참고.
 
 Codex에서는 ForgeFlow plugin을 설치한 뒤 Claude와 같은 slash-style prompt로 시작합니다.
 
@@ -322,14 +328,14 @@ make check-env
 make validate
 ```
 
-Windows PowerShell에서는 Unix-style `.venv/bin/python` 경로 대신 wrapper를 사용할 수 있습니다.
+Windows PowerShell에서는 Unix-style `.venv/bin/python` 경로 대신 wrapper를 사용할 수 있습니다. Windows 전용 계약은 [Windows 가이드](docs/guides/windows.md)를 보세요.
 
 ```powershell
 .\scripts\setup.ps1
 .\scripts\validate.ps1
 ```
 
-Task artifact를 만들거나 상태를 볼 때도 wrapper를 사용하면 `.venv\Scripts\python.exe` 경로를 직접 기억하지 않아도 됩니다. 자세한 Windows 계약은 [docs/windows.md](docs/windows.md)를 보세요.
+Task artifact를 만들거나 상태를 볼 때도 wrapper를 사용하면 `.venv\Scripts\python.exe` 경로를 직접 기억하지 않아도 됩니다. 자세한 Windows 계약은 [Windows 가이드](docs/guides/windows.md)를 보세요.
 
 ```powershell
 .\scripts\run_orchestrator.ps1 init --task-id my-task-001 --objective "Update README quickstart" --risk low

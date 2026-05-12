@@ -1,0 +1,124 @@
+# Schema Reference
+
+ForgeFlow의 모든 artifact는 JSON schema로 검증됩니다.
+
+## Schema 위치
+
+```text
+schemas/
+  brief.schema.json
+  plan-ledger.schema.json
+  run-state.schema.json
+  review-report.schema.json
+  checkpoint.schema.json
+  session-state.schema.json
+```
+
+## 공통 필드
+
+모든 artifact에 포함되는 필드:
+
+```json
+{
+  "schema_version": "0.1",
+  "task_id": "my-task-001"
+}
+```
+
+## brief.json
+
+`clarify` stage에서 생성.
+
+```json
+{
+  "schema_version": "0.1",
+  "task_id": "...",
+  "objective": "...",
+  "constraints": ["..."],
+  "success_criteria": ["..."],
+  "risk": "low|medium|high",
+  "route": "small|medium|high",
+  "selected_architecture": "..."
+}
+```
+
+## plan-ledger.json
+
+`plan` stage에서 생성. task 목록과 의존성 추적.
+
+```json
+{
+  "schema_version": "0.1",
+  "task_id": "...",
+  "tasks": [
+    {
+      "id": "...",
+      "description": "...",
+      "status": "pending|in_progress|done|blocked",
+      "depends_on": []
+    }
+  ]
+}
+```
+
+## run-state.json
+
+`run` stage에서 갱신.
+
+```json
+{
+  "schema_version": "0.1",
+  "task_id": "...",
+  "current_stage": "run",
+  "tasks_completed": 3,
+  "tasks_remaining": 1,
+  "evidence_refs": ["..."]
+}
+```
+
+## review-report.json
+
+`review` stage에서 생성.
+
+```json
+{
+  "schema_version": "0.1",
+  "task_id": "...",
+  "verdict": "pass|fail",
+  "findings": [
+    {
+      "severity": "critical|major|minor|info",
+      "description": "...",
+      "evidence_ref": "..."
+    }
+  ]
+}
+```
+
+## 검증 방법
+
+### 코드에서
+
+```python
+from forgeflow_runtime.artifact_validation import assert_supported_artifact_schema_version
+
+assert_supported_artifact_schema_version(artifact, "brief")
+```
+
+쓰기 시 자동 검증:
+
+```python
+from forgeflow_runtime.artifact_validation import write_validated_artifact
+
+write_validated_artifact(path, artifact)
+```
+
+### CLI에서
+
+```bash
+python3 scripts/validate_policy.py
+```
+
+## Schema 버전
+
+현재 schema version은 `0.1`입니다. `schema_version` 필드가 없거나 다르면 `RuntimeViolation`이 발생합니다.
