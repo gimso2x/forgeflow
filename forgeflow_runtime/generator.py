@@ -4,8 +4,24 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from forgeflow_runtime.preset_resolver import PresetResolver, make_preset_resolver
+
 REPO_ROOT = Path(__file__).resolve().parents[1]
 CANONICAL_PROMPT_DIR = REPO_ROOT / "prompts" / "canonical"
+
+# Shared resolver — override_dir stays None until a project context is set.
+_preset_resolver: PresetResolver = make_preset_resolver()
+
+
+def set_preset_resolver(resolver: PresetResolver) -> None:
+    """Replace the global preset resolver (e.g. with project-specific overrides)."""
+    global _preset_resolver
+    _preset_resolver = resolver
+
+
+def get_preset_resolver() -> PresetResolver:
+    """Return the current global preset resolver."""
+    return _preset_resolver
 
 ROLE_TO_FILENAME = {
     "coordinator": "coordinator.md",
@@ -56,10 +72,8 @@ def _load_role_prompt(role: str) -> str:
     filename = ROLE_TO_FILENAME.get(role)
     if filename is None:
         raise GenerationError(f"unknown role: {role}")
-    path = CANONICAL_PROMPT_DIR / filename
-    if not path.exists():
-        raise GenerationError(f"canonical prompt missing for role {role}: {path}")
-    return path.read_text(encoding="utf-8").strip()
+    # Resolve through preset system — returns core unchanged when no overrides.
+    return _preset_resolver.resolve(role)
 
 
 def _discover_artifacts(task_dir: Path) -> list[str]:
