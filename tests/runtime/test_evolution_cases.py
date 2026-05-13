@@ -3,7 +3,7 @@ from __future__ import annotations
 import dataclasses
 from datetime import UTC, datetime
 
-from forgeflow_runtime.evolution.cases import (
+from forgeflow_runtime.evolution.audit import (
     EvolutionCase,
     find_cases_by_tag,
     find_cases_by_trigger,
