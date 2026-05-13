@@ -16,16 +16,16 @@ from forgeflow_runtime.executor import (
     StubCodexAdapter,
     orchestrate,
 )
-from forgeflow_runtime.orchestra import (
+from experimental.orchestra import (
     STRATEGY_REGISTRY,
     OrchestrationConfig,
     OrchestrationResult,
     run_orchestration,
 )
-from forgeflow_runtime.orchestra.consensus import consensus_merge
-from forgeflow_runtime.orchestra.debate import _ice_score, run_debate
-from forgeflow_runtime.orchestra.fastest import run_fastest
-from forgeflow_runtime.orchestra.pipeline import run_pipeline
+from experimental.orchestra.consensus import consensus_merge
+from experimental.orchestra.debate import _ice_score, run_debate
+from experimental.orchestra.fastest import run_fastest
+from experimental.orchestra.pipeline import run_pipeline
 from forgeflow_runtime.policy_loader import RuntimePolicy
 
 
@@ -595,7 +595,7 @@ class TestTokenUsageMerge:
 
 class TestPublicAPI:
     def test_init_exports(self):
-        from forgeflow_runtime.orchestra import (
+        from experimental.orchestra import (
             OrchestrationConfig,
             OrchestrationResult,
             STRATEGY_REGISTRY,

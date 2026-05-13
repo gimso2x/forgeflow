@@ -305,7 +305,7 @@ class TestOrchestrate:
             wraps=dispatch,
         ) as mock_dispatch, \
              patch(
-            "forgeflow_runtime.orchestra.run_orchestration",
+            "experimental.orchestra.run_orchestration",
             return_value=mock_result,
         ) as mock_orch:
             result = orchestrate(req, policy=mock_policy, use_real=False)

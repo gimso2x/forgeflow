@@ -339,7 +339,7 @@ def orchestrate(
     """
     orch_config = getattr(policy, "orchestration", None)
     if isinstance(orch_config, dict) and orch_config.get("strategy"):
-        from forgeflow_runtime.orchestra import OrchestrationConfig, run_orchestration
+        from experimental.orchestra import OrchestrationConfig, run_orchestration
 
         config = OrchestrationConfig(
             strategy=orch_config["strategy"],
