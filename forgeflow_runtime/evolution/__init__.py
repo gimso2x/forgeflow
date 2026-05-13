@@ -8,10 +8,13 @@ import yaml
 
 from forgeflow_runtime.evolution.audit import (
     AUDIT_LOG_PATH,
+    PROPOSAL_DIR,
     append_audit_event as _append_audit_event,
     audit_events,
     effectiveness_review,
+    promotion_plan,
     read_audit_events as _read_audit_events,
+    write_promotion_plan,
 )
 from forgeflow_runtime.evolution.execution import (
     execute_rule as _execute_rule,
@@ -29,11 +32,6 @@ from forgeflow_runtime.evolution.lifecycle import (
     retire_rule as _retire_rule,
     restore_rule as _restore_rule,
     rule_filename as _rule_filename,
-)
-from forgeflow_runtime.evolution.promotion_plans import (
-    PROPOSAL_DIR,
-    promotion_plan,
-    write_promotion_plan,
 )
 from forgeflow_runtime.evolution.proposals import (
     PROPOSAL_APPROVAL_DIR,
