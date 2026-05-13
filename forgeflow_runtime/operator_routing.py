@@ -33,6 +33,28 @@ RISK_TO_ROUTE: dict[str, str] = {
     "high": "high",
 }
 
+# Domain vocabulary → canonical stage name mapping.
+# Brief authors use short domain names (e.g. "security", "backend");
+# the runtime maps them to the stage names recognised by STAGE_ROLE_MAP.
+DOMAIN_TO_STAGE: dict[str, str] = {
+    "security": "security-review",
+    "backend": "backend-execute",
+    "frontend": "frontend-execute",
+    "infra": "infra-execute",
+    "ux": "ux-review",
+    "perf": "perf-review",
+}
+
+
+def _normalise_specialist(name: str) -> str | None:
+    """Map a brief domain name or canonical stage name to a valid stage key.
+
+    Returns *None* when *name* is not a recognised specialist identifier.
+    """
+    if name in STAGE_ROLE_MAP:
+        return name
+    return DOMAIN_TO_STAGE.get(name)
+
 
 def role_for_stage(
     stage: str,
@@ -53,7 +75,11 @@ def role_for_stage(
 
 
 def specialists_from_brief(task_dir: Path) -> list[str]:
-    """Return required_specialists from brief.json, or empty list."""
+    """Return required_specialists from brief.json, or empty list.
+
+    Accepts both canonical stage names (``security-review``) and short
+    domain names (``security``).  Unrecognised values are silently dropped.
+    """
     brief_path = task_dir / "brief.json"
     if not brief_path.exists():
         return []
@@ -61,7 +87,12 @@ def specialists_from_brief(task_dir: Path) -> list[str]:
     specialists = payload.get("required_specialists")
     if not isinstance(specialists, list):
         return []
-    return [s for s in specialists if s in STAGE_ROLE_MAP]
+    resolved: list[str] = []
+    for name in specialists:
+        stage = _normalise_specialist(str(name))
+        if stage is not None:
+            resolved.append(stage)
+    return resolved
 
 
 def route_rank(
