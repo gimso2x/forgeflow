@@ -72,7 +72,7 @@ def test_init_skill_exposes_orchestrator_bootstrap_without_auto_chaining() -> No
 
 
 def test_canonical_forgeflow_skills_default_to_artifact_first_mode() -> None:
-    for skill_name in ["forgeflow", "clarify", "specify", "plan", "execute", "review", "ship"]:
+    for skill_name in ["forgeflow", "clarify", "plan", "execute", "review", "ship"]:
         skill = (ROOT / "skills" / skill_name / "SKILL.md").read_text(encoding="utf-8")
 
         assert "Default to **artifact-first mode**." in skill
@@ -94,6 +94,7 @@ def test_stage_skills_absorb_karpathy_discipline_without_new_stage() -> None:
     assert "drive-by refactors" in review
     assert "andrej-karpathy-skills" in index
     assert "new canonical stage" not in index.lower()
+    assert "Optional discipline, debugging, QA, and learning guidance belongs in docs" in index
 
 
 def test_codex_plugin_accepts_forgeflow_slash_style_prompts() -> None:
@@ -103,7 +104,6 @@ def test_codex_plugin_accepts_forgeflow_slash_style_prompts() -> None:
     expected = {
         "init": "/forgeflow:init",
         "clarify": "/forgeflow:clarify",
-        "specify": "/forgeflow:specify",
         "plan": "/forgeflow:plan",
         "execute": "/forgeflow:execute",
         "review": "/forgeflow:review",

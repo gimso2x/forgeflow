@@ -202,18 +202,8 @@ def test_skill_index_points_new_active_contracts_to_directory_skills() -> None:
     assert "Pick the next available number" not in skill_index
 
 
-def test_so2x_minimum_spec_and_plan_gates_are_documented() -> None:
-    specify = (ROOT / "skills" / "specify" / "SKILL.md").read_text(encoding="utf-8")
+def test_so2x_minimum_plan_gates_are_documented() -> None:
     plan = (ROOT / "skills" / "plan" / "SKILL.md").read_text(encoding="utf-8")
-
-    for required_text in [
-        "Minimum requirements gate",
-        "`Goal`",
-        "`Requirements`",
-        "`Implementation Constraints`",
-        "`Verification`",
-    ]:
-        assert required_text in specify
 
     for required_text in [
         "Minimum plan gate",

@@ -24,7 +24,7 @@ DRY_RUN_CASES = [
     ),
     (
         "specify_exact",
-        "/forgeflow:specify Dry run only. Your entire response must be exactly two numbered lines and nothing else: no preamble, no heading, no summary. List two spec questions for a README badge task. Do not write files. Do not run commands.",
+        "/forgeflow:clarify Dry run only. Your entire response must be exactly two numbered lines and nothing else: no preamble, no heading, no summary. List two requirement questions for a README badge task. Do not write files. Do not run commands.",
         "two_lines",
     ),
     (

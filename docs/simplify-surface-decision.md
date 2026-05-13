@@ -7,8 +7,8 @@ Do **not** add a first-class `/forgeflow:simplify` command now.
 Absorb the useful checklist ideas into existing surfaces:
 
 - `skills/review/SKILL.md` covers independent quality review.
-- `skills/x-deslop.md` covers behavior-preserving cleanup of generated code.
-- `skills/x-qa.md` covers functional QA.
+- Behavior-preserving cleanup of generated code belongs in the approved plan or a follow-up implementation step.
+- Functional QA belongs in the core `review` flow and verification evidence.
 
 A separate simplify command would overlap all three and increase operator ambiguity.
 
@@ -37,8 +37,8 @@ Keep the changed-code-only rule and the three review lenses as checklist languag
 - A new public slash command
 - The requirement that review always fixes code directly
 
-ForgeFlow review should remain a gate. Cleanup belongs in `x-deslop` or a follow-up implementation step.
+ForgeFlow review should remain a gate. Cleanup belongs in the approved plan or a follow-up implementation step.
 
 ## Revisit trigger
 
-Create a first-class simplify surface only if users repeatedly need an explicit post-run cleanup stage that is distinct from `x-deslop` and quality review.
+Create a first-class simplify surface only if users repeatedly need an explicit post-run cleanup stage that is distinct from quality review.
