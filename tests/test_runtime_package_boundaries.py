@@ -8,7 +8,6 @@ EVOLUTION_MODULES = [
     "audit",
     "observations",
     "rules",
-    "cases",
     "promotion_plans",
     "doctor",
     "promotions",
