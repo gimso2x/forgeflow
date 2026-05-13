@@ -7,7 +7,6 @@ from typing import Any
 import yaml
 
 from forgeflow_runtime.evolution.audit import (
-    AUDIT_LOG_PATH,
     append_audit_event as _append_audit_event,
     audit_events,
     effectiveness_review,
@@ -31,12 +30,10 @@ from forgeflow_runtime.evolution.lifecycle import (
     rule_filename as _rule_filename,
 )
 from forgeflow_runtime.evolution.promotion_plans import (
-    PROPOSAL_DIR,
     promotion_plan,
     write_promotion_plan,
 )
 from forgeflow_runtime.evolution.proposals import (
-    PROPOSAL_APPROVAL_DIR,
     proposal_approval_path as _proposal_approval_path,
     proposal_approvals,
     proposal_approve,
@@ -44,7 +41,6 @@ from forgeflow_runtime.evolution.proposals import (
     read_proposal_approval_records as _read_proposal_approval_records,
 )
 from forgeflow_runtime.evolution.promotion_gates import (
-    PROMOTION_DECISION_DIR,
     promotion_decision,
     promotion_decision_path as _promotion_decision_path,
     promotion_gate,
@@ -52,7 +48,6 @@ from forgeflow_runtime.evolution.promotion_gates import (
     read_promotion_decision_records as _read_promotion_decision_records,
 )
 from forgeflow_runtime.evolution.promotions import (
-    PROMOTED_RULE_DIR,
     active_rule_by_id as _active_rule_by_id,
     append_promote_blocked_audit as _append_promote_blocked_audit,
     list_promotions,
@@ -62,15 +57,13 @@ from forgeflow_runtime.evolution.promotions import (
 )
 from forgeflow_runtime.evolution.rules import (
     APPROVED_COMMANDS,
-    PROJECT_RULE_DIR,
-    RETIRED_RULE_DIR,
     dry_run_rule,
     _example_summary,
     failed_safety_checks as _failed_safety_checks,
     list_rules,
     load_example_rule_by_id as _load_example_rule_by_id,
     load_example_rules as _load_example_rules,
-    load_project_rules as _load_project_rules,
+    load_global_rules as _load_global_rules,
     load_rule_by_id as _load_rule_by_id,
     safety_checks as _safety_checks,
 )
@@ -100,19 +93,18 @@ def restore_rule(root: Path, rule_id: str, *, reason: str) -> dict[str, Any]:
 
 
 
-
 def execute_rule(root: Path, rule_id: str) -> dict[str, Any]:
-    """Execute a safety-validated project-local rule command."""
+    """Execute a safety-validated global evolution rule command."""
 
     return _execute_rule(root, rule_id, audit_append=_append_audit_event, command_runner=_run_approved_command)
 
 
 def doctor_evolution_state(root: Path) -> dict[str, Any]:
-    """Read-only health check for the project-local evolution lifecycle."""
+    """Read-only health check for the global evolution lifecycle."""
 
     return _doctor_evolution_state(
         root,
-        project_rule_loader=_load_project_rules,
+        project_rule_loader=_load_global_rules,
         retired_rule_loader=_load_retired_rules,
     )
 

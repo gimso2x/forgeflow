@@ -6,8 +6,7 @@ from typing import Any
 
 from forgeflow_runtime.evolution.audit import utc_timestamp as _utc_timestamp
 from forgeflow_runtime.evolution.audit import effectiveness_review
-
-PROPOSAL_DIR = Path(".forgeflow") / "evolution" / "proposals"
+from forgeflow_runtime.evolution.paths import global_proposal_dir
 
 
 def promotion_plan(root: Path, rule_id: str, *, since_days: int = 30) -> dict[str, Any]:
@@ -51,7 +50,7 @@ def write_promotion_plan(root: Path, rule_id: str, *, since_days: int = 30) -> d
 
     root = root.resolve()
     plan = promotion_plan(root, rule_id, since_days=since_days)
-    proposals_dir = root / PROPOSAL_DIR
+    proposals_dir = global_proposal_dir()
     proposals_dir.mkdir(parents=True, exist_ok=True)
     safe_rule_id = "".join(char if char.isalnum() or char in {"-", "_"} else "-" for char in rule_id).strip("-") or "rule"
     timestamp = _utc_timestamp().replace(":", "").replace("-", "")

@@ -25,7 +25,7 @@ def test_execute_rule_runs_safe_project_rule_when_explicitly_allowed(tmp_path: P
     result = execute_rule(tmp_path, "no-env-commit")
 
     assert result["rule_id"] == "no-env-commit"
-    assert result["source"] == "project"
+    assert result["source"] == "global"
     assert result["executed"] is True
     assert result["exit_code"] == 0
     assert result["expected_exit_code"] == 0
@@ -89,7 +89,7 @@ def test_list_rules_separates_examples_from_project_local_rules(tmp_path: Path) 
     registry = list_rules(tmp_path, include_examples=True, fallback_root=ROOT)
 
     assert [rule["id"] for rule in registry["project_rules"]] == ["no-env-commit"]
-    assert all(rule["source"] == "project" for rule in registry["project_rules"])
+    assert all(rule["source"] == "global" for rule in registry["project_rules"])
     assert "generated-adapter-drift" in [rule["id"] for rule in registry["example_rules"]]
     assert all(rule["source"] == "example" for rule in registry["example_rules"])
 
@@ -111,7 +111,7 @@ def test_execute_rejects_example_rule_unless_copied_to_project_registry() -> Non
     )
 
     assert result.returncode == 1
-    assert "not found in project-local registry" in result.stderr
+    assert "not found in global registry" in result.stderr
 
 
 def test_dry_run_can_read_examples_but_marks_source_example() -> None:
@@ -138,7 +138,7 @@ def test_forgeflow_evolution_list_cli_shows_project_and_example_sources(tmp_path
     assert result.returncode == 0, result.stderr
     payload = json.loads(result.stdout)
     assert payload["project_rules"][0]["id"] == "no-env-commit"
-    assert payload["project_rules"][0]["source"] == "project"
+    assert payload["project_rules"][0]["source"] == "global"
     assert payload["example_rules"][0]["source"] == "example"
 
 
@@ -198,7 +198,7 @@ def test_forgeflow_evolution_adopt_cli_then_execute_project_rule(tmp_path: Path)
 
     assert execute.returncode == 0, execute.stderr
     execute_payload = json.loads(execute.stdout)
-    assert execute_payload["source"] == "project"
+    assert execute_payload["source"] == "global"
     assert execute_payload["passed"] is True
 
 
@@ -244,7 +244,7 @@ def test_retire_cli_outputs_json_and_prevents_later_execute(tmp_path: Path) -> N
         check=False,
     )
     assert execute.returncode == 1
-    assert "not found in project-local registry" in execute.stderr
+    assert "not found in global registry" in execute.stderr
 
 
 def test_retire_cli_missing_rule_returns_clean_error(tmp_path: Path) -> None:
@@ -258,7 +258,7 @@ def test_retire_cli_missing_rule_returns_clean_error(tmp_path: Path) -> None:
 
     assert result.returncode == 1
     assert "Error:" in result.stderr
-    assert "not found in project-local registry" in result.stderr
+    assert "not found in global registry" in result.stderr
     assert "Traceback" not in result.stderr
 
 

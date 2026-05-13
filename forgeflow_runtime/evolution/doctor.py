@@ -5,10 +5,11 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable
 
-from forgeflow_runtime.evolution.audit import AUDIT_LOG_PATH
+from forgeflow_runtime.evolution.paths import global_audit_log_path, global_evolution_dir
 from forgeflow_runtime.evolution.rules import failed_safety_checks, safety_checks
 
-RuleLoader = Callable[[Path], list[tuple[dict[str, Any], Path]]]
+# Global rules loader: no root needed (reads from ~/.forgeflow/evolution/)
+GlobalRuleLoader = Callable[[], list[tuple[dict[str, Any], Path]]]
 
 
 @dataclass(frozen=True)
@@ -40,13 +41,13 @@ def audit_required_field_issues(event: dict[str, Any], *, line_number: int) -> l
     ]
 
 
-def _collect_rule_health(root: Path, *, loader: RuleLoader, source: str, issue_code: str) -> RuleHealth:
+def _collect_rule_health(*, loader: GlobalRuleLoader, source: str, issue_code: str) -> RuleHealth:
     rules: list[dict[str, Any]] = []
     rule_ids: set[str] = set()
     issues: list[dict[str, Any]] = []
 
     try:
-        loaded = loader(root)
+        loaded = loader()
     except json.JSONDecodeError as exc:
         return RuleHealth(
             rules=[],
@@ -119,20 +120,18 @@ def _audit_log_health(audit_path: Path) -> AuditLogHealth:
 def doctor_evolution_state(
     root: Path,
     *,
-    project_rule_loader: RuleLoader,
-    retired_rule_loader: RuleLoader,
+    project_rule_loader: GlobalRuleLoader,
+    retired_rule_loader: GlobalRuleLoader,
 ) -> dict[str, Any]:
-    """Read-only health check for the project-local evolution lifecycle."""
+    """Read-only health check for the global evolution lifecycle."""
 
     root = root.resolve()
     active_health = _collect_rule_health(
-        root,
         loader=project_rule_loader,
         source="active",
         issue_code="unsafe_active_rule",
     )
     retired_health = _collect_rule_health(
-        root,
         loader=retired_rule_loader,
         source="retired",
         issue_code="unsafe_retired_rule",
@@ -150,13 +149,14 @@ def doctor_evolution_state(
             }
         )
 
-    audit_path = root / AUDIT_LOG_PATH
+    audit_path = global_audit_log_path()
     audit_health = _audit_log_health(audit_path)
     issues.extend(audit_health.issues)
 
     return {
         "ok": not any(issue.get("severity") == "error" for issue in issues),
         "root": str(root),
+        "global_root": str(global_evolution_dir()),
         "summary": {
             "active_rules": len(active_rules),
             "retired_rules": len(retired_rules),

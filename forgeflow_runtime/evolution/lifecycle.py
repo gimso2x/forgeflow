@@ -5,11 +5,10 @@ from pathlib import Path
 from typing import Any, Callable
 
 from forgeflow_runtime.evolution.audit import append_audit_event
+from forgeflow_runtime.evolution.paths import global_rule_dir, global_retired_rule_dir
 from forgeflow_runtime.evolution.rules import (
-    PROJECT_RULE_DIR,
-    RETIRED_RULE_DIR,
     load_example_rule_by_id,
-    load_project_rules,
+    load_global_rules,
     load_rule_by_id,
     safety_checks,
 )
@@ -27,7 +26,7 @@ def rule_filename(rule: dict[str, Any], source_path: Path) -> str:
 
 
 def load_retired_rule_by_id(root: Path, rule_id: str) -> tuple[dict[str, Any], Path]:
-    retired_dir = root / RETIRED_RULE_DIR
+    retired_dir = global_retired_rule_dir()
     if retired_dir.is_dir():
         for path in sorted(retired_dir.glob("*.json")):
             rule = _load_json(path)
@@ -61,7 +60,7 @@ def retire_rule(
     if not reason.strip():
         raise ValueError("retire reason must be non-empty")
     rule, source, source_path = load_rule_by_id(root, rule_id, allow_examples=False)
-    destination_dir = root / RETIRED_RULE_DIR
+    destination_dir = global_retired_rule_dir()
     destination_dir.mkdir(parents=True, exist_ok=True)
     destination = destination_dir / source_path.name
     if destination.exists():
@@ -104,11 +103,11 @@ def restore_rule(
     if not reason.strip():
         raise ValueError("restore reason must be non-empty")
     rule, source_path = load_retired_rule_by_id(root, rule_id)
-    destination_dir = root / PROJECT_RULE_DIR
+    destination_dir = global_rule_dir()
     destination_dir.mkdir(parents=True, exist_ok=True)
     destination = destination_dir / source_path.name
     if destination.exists():
-        raise FileExistsError(f"project-local evolution rule already exists: {destination}")
+        raise FileExistsError(f"global evolution rule already exists: {destination}")
     checks = safety_checks(rule)
     if not all(checks.values()):
         failed = ", ".join(name for name, passed in checks.items() if not passed)
@@ -141,7 +140,7 @@ def restore_rule(
 
 
 def adopt_example_rule(root: Path, rule_id: str, *, fallback_root: Path | None = None) -> dict[str, Any]:
-    """Copy a safe example rule into the project-local registry without overwriting."""
+    """Copy a safe example rule into the global registry without overwriting."""
 
     root = root.resolve()
     examples_root = (fallback_root or root).resolve()
@@ -151,11 +150,11 @@ def adopt_example_rule(root: Path, rule_id: str, *, fallback_root: Path | None =
         failed = ", ".join(name for name, passed in checks.items() if not passed)
         raise ValueError(f"example rule {rule_id!r} failed safety checks: {failed}")
 
-    destination_dir = root / PROJECT_RULE_DIR
+    destination_dir = global_rule_dir()
     destination_dir.mkdir(parents=True, exist_ok=True)
     destination = destination_dir / rule_filename(rule, source_path)
     if destination.exists():
-        raise FileExistsError(f"project-local evolution rule already exists: {destination}")
+        raise FileExistsError(f"global evolution rule already exists: {destination}")
     destination.write_text(json.dumps(rule, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     result = {
         "adopted": True,
@@ -178,8 +177,8 @@ def adopt_example_rule(root: Path, rule_id: str, *, fallback_root: Path | None =
     return result
 
 
-def load_retired_rules(root: Path) -> list[tuple[dict[str, Any], Path]]:
-    retired_dir = root / RETIRED_RULE_DIR
+def load_retired_rules(root: Path | None = None) -> list[tuple[dict[str, Any], Path]]:
+    retired_dir = global_retired_rule_dir()
     if not retired_dir.is_dir():
         return []
     return [(_load_json(path), path) for path in sorted(retired_dir.glob("*.json"))]

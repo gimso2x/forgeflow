@@ -11,7 +11,7 @@ from forgeflow_runtime.evolution.proposals import (
     proposal_review,
 )
 
-PROMOTION_DECISION_DIR = Path(".forgeflow") / "evolution" / "promotion-decisions"
+from forgeflow_runtime.evolution.paths import global_promotion_decision_dir
 
 
 def _load_json(path: Path) -> dict[str, Any]:
@@ -100,7 +100,7 @@ def promotion_gate(root: Path, proposal_path: Path) -> dict[str, Any]:
 
 def promotion_decision_path(root: Path, proposal_path: Path) -> Path:
     safe_id = "".join(char if char.isalnum() or char in {"-", "_"} else "-" for char in proposal_path.stem).strip("-") or "proposal"
-    return root / PROMOTION_DECISION_DIR / f"{safe_id}.jsonl"
+    return global_promotion_decision_dir() / f"{safe_id}.jsonl"
 
 
 def promotion_decision(root: Path, proposal_path: Path, *, decision: str, decider: str, reason: str, write: bool = False) -> dict[str, Any]:

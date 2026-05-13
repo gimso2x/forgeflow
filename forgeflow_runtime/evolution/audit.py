@@ -5,7 +5,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-AUDIT_LOG_PATH = Path(".forgeflow") / "evolution" / "audit-log.jsonl"
+from forgeflow_runtime.evolution.paths import global_audit_log_path
 
 
 def utc_timestamp() -> str:
@@ -13,7 +13,7 @@ def utc_timestamp() -> str:
 
 
 def append_audit_event(root: Path, event: dict[str, Any]) -> None:
-    audit_path = root / AUDIT_LOG_PATH
+    audit_path = global_audit_log_path()
     audit_path.parent.mkdir(parents=True, exist_ok=True)
     payload = {"schema_version": 1, "timestamp": utc_timestamp(), **event}
     with audit_path.open("a", encoding="utf-8") as handle:
@@ -21,7 +21,7 @@ def append_audit_event(root: Path, event: dict[str, Any]) -> None:
 
 
 def read_audit_events(root: Path) -> list[dict[str, Any]]:
-    audit_path = root / AUDIT_LOG_PATH
+    audit_path = global_audit_log_path()
     if not audit_path.is_file():
         return []
     lines = [line for line in audit_path.read_text(encoding="utf-8").splitlines() if line.strip()]
@@ -30,7 +30,7 @@ def read_audit_events(root: Path) -> list[dict[str, Any]]:
 
 def audit_events(root: Path, *, limit: int = 20) -> dict[str, Any]:
     root = root.resolve()
-    audit_path = root / AUDIT_LOG_PATH
+    audit_path = global_audit_log_path()
     if limit < 1:
         raise ValueError("audit limit must be >= 1")
     events = read_audit_events(root)[-limit:]
