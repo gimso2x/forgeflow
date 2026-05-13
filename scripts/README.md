@@ -20,6 +20,7 @@ P0에서 필요한 최소 자동화를 둔다.
 - `codex_plugin_doctor.py` : Codex CLI, local marketplace, plugin root, project preset/CODEX 상태를 읽기 전용으로 진단
 - `smoke_claude_plugin.py` : Claude slash skills dry-run/write smoke를 실행하고 repo dirty-state를 검증
 - `smoke_codex_plugin.py` : project-local Codex `CODEX.md`/preset 기반 `small`/`medium`/`high` route-label smoke를 실행하고 repo dirty-state를 검증
+- `real_plugin_e2e.py` : disposable Next.js-shaped project에서 live Claude/Codex agent가 실제 파일을 쓰는 E2E 검증. Codex 경로는 일부 Linux host의 bubblewrap `RTM_NEWADDR: Operation not permitted` 문제를 피하려고 disposable project에 한해 sandbox bypass flag를 사용한다.
 - `forgeflow_profile.py` : `pipeline-profile.json` 성능 artifact를 요약/병목 분석/비교
 - `forgeflow_visual.py` : brief/plan/review artifact를 Mermaid 또는 Markdown 다이어그램으로 렌더링
 - `visual-companion.cjs` : 로컬 브라우저 Mermaid companion 서버(WebSocket + POST `/diagram`, 기본 포트 8765)

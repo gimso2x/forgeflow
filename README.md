@@ -102,6 +102,7 @@ Windows PowerShell:
 
 - **Plugin 설치 후 인식 안 됨** — Claude Code나 Codex Desktop을 재시작하세요. `scripts/smoke.sh`로 post-install smoke를 확인합니다
 - **Plugin smoke matrix** — local disposable Next.js 프로젝트(`npx create-next-app@latest`)로 non-mutating plugin integration 검증: `scripts/ci_plugin_smoke_matrix.py --surface codex --route-label medium`, `scripts/ci_plugin_smoke_matrix.py --surface claude --route-label small`
+- **Real plugin E2E** — live agent가 disposable project에 실제 파일을 쓰는 검증: `scripts/real_plugin_e2e.py --surface claude --route high`, `scripts/real_plugin_e2e.py --surface codex --route high`. 일부 Linux host에서 Codex `workspace-write` sandbox는 bubblewrap `RTM_NEWADDR: Operation not permitted`로 실패할 수 있어, 이 disposable-only script는 Codex 실행에 `--dangerously-bypass-approvals-and-sandbox`를 사용합니다. 실제 사용자 repo에 이 플래그를 무지성 복붙하지 마세요.
 - **Codex plugin doctor** — `python3 scripts/codex_plugin_doctor.py --project .` 로 CLI, marketplace, preset 상태를 점검합니다
 - **Artifact schema 오류** — `python3 scripts/validate_structure.py` 로 project 구조를 검증합니다
 - **Windows local runtime** — [Windows 가이드](docs/guides/windows.md)의 PowerShell wrapper 흐름을 사용하세요

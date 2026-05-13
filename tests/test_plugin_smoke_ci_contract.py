@@ -3,6 +3,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 WORKFLOW = ROOT / ".github" / "workflows" / "validate.yml"
 SMOKE = ROOT / "scripts" / "ci_plugin_smoke_matrix.py"
+REAL_E2E = ROOT / "scripts" / "real_plugin_e2e.py"
 README = ROOT / "README.md"
 
 
@@ -67,6 +68,29 @@ def test_readme_documents_local_disposable_nextjs_plugin_smoke() -> None:
         "non-mutating",
     ]:
         assert required in readme
+
+
+def test_real_plugin_e2e_documents_mutating_live_agent_boundary() -> None:
+    script = REAL_E2E.read_text(encoding="utf-8")
+    readme = README.read_text(encoding="utf-8")
+    scripts_readme = (ROOT / "scripts" / "README.md").read_text(encoding="utf-8")
+
+    for required in [
+        "TASKS",
+        "small",
+        "medium",
+        "high",
+        "needle.casefold() not in text.casefold()",
+        "--dangerously-bypass-approvals-and-sandbox",
+        "RTM_NEWADDR: Operation not permitted",
+        "Do not copy this flag into real user repos",
+    ]:
+        assert required in script
+
+    for text in [readme, scripts_readme]:
+        assert "real_plugin_e2e.py" in text
+        assert "bubblewrap" in text
+        assert "disposable" in text
 
 
 def test_make_validate_is_the_single_deterministic_validation_entrypoint() -> None:
