@@ -83,7 +83,7 @@ def test_small_route_runs_end_to_end_and_updates_state(
     write_json(
         task_dir / "brief.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "objective": "Run a small route",
             "in_scope": ["runtime"],
@@ -97,7 +97,7 @@ def test_small_route_runs_end_to_end_and_updates_state(
     write_json(
         task_dir / "review-report.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "review_type": "quality",
             "verdict": "approved",
@@ -151,7 +151,7 @@ def test_large_route_runs_end_to_end_and_collects_both_review_flags(
     write_json(
         task_dir / "brief.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-large-001",
             "objective": "Run a large route",
             "in_scope": ["runtime"],
@@ -164,7 +164,7 @@ def test_large_route_runs_end_to_end_and_collects_both_review_flags(
     write_json(
         task_dir / "plan.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-large-001",
             "steps": [
                 {
@@ -187,7 +187,7 @@ def test_large_route_runs_end_to_end_and_collects_both_review_flags(
     write_json(
         task_dir / "plan-ledger.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-large-001",
             "route": "high",
             "current_task_id": "task-1",
@@ -209,7 +209,7 @@ def test_large_route_runs_end_to_end_and_collects_both_review_flags(
     write_json(
         task_dir / "review-report-spec.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-large-001",
             "review_type": "spec",
             "verdict": "approved",
@@ -221,7 +221,7 @@ def test_large_route_runs_end_to_end_and_collects_both_review_flags(
     write_json(
         task_dir / "review-report-quality.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-large-001",
             "review_type": "quality",
             "verdict": "approved",
@@ -233,7 +233,7 @@ def test_large_route_runs_end_to_end_and_collects_both_review_flags(
     write_json(
         task_dir / "eval-record.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-large-001",
             "outcome": "success",
             "what_worked": ["route worked"],
@@ -269,7 +269,7 @@ def test_large_route_rejects_missing_eval_record_before_long_run(
     write_json(
         task_dir / "brief.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-large-002",
             "objective": "Run a large route",
             "in_scope": ["runtime"],
@@ -282,7 +282,7 @@ def test_large_route_rejects_missing_eval_record_before_long_run(
     write_json(
         task_dir / "plan.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-large-002",
             "steps": [
                 {
@@ -305,7 +305,7 @@ def test_large_route_rejects_missing_eval_record_before_long_run(
     write_json(
         task_dir / "plan-ledger.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-large-002",
             "route": "high",
             "current_task_id": "task-1",
@@ -327,7 +327,7 @@ def test_large_route_rejects_missing_eval_record_before_long_run(
     write_json(
         task_dir / "review-report-spec.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-large-002",
             "review_type": "spec",
             "verdict": "approved",
@@ -339,7 +339,7 @@ def test_large_route_rejects_missing_eval_record_before_long_run(
     write_json(
         task_dir / "review-report-quality.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-large-002",
             "review_type": "quality",
             "verdict": "approved",

@@ -5,8 +5,9 @@ from typing import Any
 
 from forgeflow_runtime.errors import RuntimeViolation
 
-CURRENT_ARTIFACT_SCHEMA_VERSION = "0.1"
-RUNTIME_VERSION_MODE = "validate_current_refuse_unknown"
+CURRENT_ARTIFACT_SCHEMA_VERSION = "0.2"
+MINIMUM_SUPPORTED_SCHEMA_VERSION = "0.1"
+RUNTIME_VERSION_MODE = "validate_and_migrate"
 
 
 @dataclass(frozen=True)
@@ -50,7 +51,7 @@ ARTIFACT_VERSION_POLICY: dict[str, ArtifactVersionPolicy] = {
     artifact_name: ArtifactVersionPolicy(
         artifact_name=artifact_name,
         current=CURRENT_ARTIFACT_SCHEMA_VERSION,
-        supported=(CURRENT_ARTIFACT_SCHEMA_VERSION,),
+        supported=(MINIMUM_SUPPORTED_SCHEMA_VERSION, CURRENT_ARTIFACT_SCHEMA_VERSION),
         runtime_mode=RUNTIME_VERSION_MODE,
     )
     for artifact_name in CORE_ARTIFACT_TYPES
@@ -63,7 +64,7 @@ def artifact_version_policy(artifact_name: str) -> ArtifactVersionPolicy:
         ArtifactVersionPolicy(
             artifact_name=artifact_name,
             current=CURRENT_ARTIFACT_SCHEMA_VERSION,
-            supported=(CURRENT_ARTIFACT_SCHEMA_VERSION,),
+            supported=(MINIMUM_SUPPORTED_SCHEMA_VERSION, CURRENT_ARTIFACT_SCHEMA_VERSION),
             runtime_mode=RUNTIME_VERSION_MODE,
         ),
     )
@@ -82,8 +83,8 @@ def assert_supported_artifact_schema_version(
         raise RuntimeViolation(
             f"{source_name} uses unsupported schema_version {schema_version}; "
             f"supported artifact schema_version for {policy.artifact_name} is {supported}. "
-            "Runtime policy is validate_current_refuse_unknown: run scripts/upgrade_artifact.py "
-            "before loading old .forgeflow/tasks/* artifacts."
+            f"Runtime policy is {RUNTIME_VERSION_MODE}: "
+            "use migrate_artifact_payload() to upgrade old artifacts."
         )
 
 
@@ -107,16 +108,50 @@ def migrate_artifact_payload(
             f"supported source versions are {', '.join(policy.supported)}"
         )
 
-    # First-class migration seam. The initial 0.1 -> 0.1 path is intentionally
-    # a no-op so future version bumps can add ordered, tested transforms here
-    # without changing runtime loader behavior.
+    # Ordered migration chain: 0.1 -> 0.2
     migrated = dict(payload)
+    steps: list[str] = []
+    current_v = str(from_version) if from_version is not None else "0.1"
+
+    if current_v == "0.1" and target_version in ("0.2",):
+        migrated = _migrate_0_1_to_0_2(migrated, artifact_name)
+        current_v = "0.2"
+        steps.append("0.1->0.2")
+
+    changed = from_version != target_version
     report = ArtifactMigrationReport(
         artifact_name=artifact_name,
         source_name=source_name,
         from_version=str(from_version) if from_version is not None else None,
         to_version=target_version,
-        changed=False,
-        steps=[f"{from_version}->{target_version} noop"],
+        changed=changed,
+        steps=steps if steps else [f"{from_version}->{target_version} noop"],
     )
     return migrated, report
+
+
+def _migrate_0_1_to_0_2(payload: dict[str, Any], artifact_name: str) -> dict[str, Any]:
+    """Migrate artifact from schema_version 0.1 to 0.2.
+
+    Changes in 0.2:
+    - review-report: add review_roles, review_type expanded (security, ux)
+    - brief: add required_specialists, skipped_specialists, skip_rationale
+    - All: bump schema_version to "0.2"
+    """
+    migrated = dict(payload)
+    migrated["schema_version"] = "0.2"
+
+    if artifact_name in ("review-report", "review-report-spec", "review-report-quality"):
+        migrated.setdefault("review_type", "quality")
+        if "review_roles" not in migrated:
+            migrated["review_roles"] = ["spec-review", "quality-review"]
+
+    if artifact_name == "brief":
+        if "required_specialists" not in migrated:
+            migrated["required_specialists"] = []
+        if "skipped_specialists" not in migrated:
+            migrated["skipped_specialists"] = []
+        if "skip_rationale" not in migrated:
+            migrated["skip_rationale"] = ""
+
+    return migrated

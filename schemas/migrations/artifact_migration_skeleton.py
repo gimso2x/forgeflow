@@ -11,9 +11,9 @@ from copy import deepcopy
 from typing import Any
 
 
-SOURCE_VERSION = "0.1"
-TARGET_VERSION = "0.1"
-STEP_NAME = "0.1 -> 0.1 no-op"
+SOURCE_VERSION = "0.2"
+TARGET_VERSION = "0.2"
+STEP_NAME = "0.2 -> 0.2 no-op"
 
 
 def transform(payload: dict[str, Any], *, source_version: str = SOURCE_VERSION, target_version: str = TARGET_VERSION) -> dict[str, Any]:

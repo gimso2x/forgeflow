@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.1",
+  "schema_version": "0.2",
   "task_id": "mixed-task-log-001",
   "objective": "Reject a decision log from a different task during resume/retry flows.",
   "in_scope": [

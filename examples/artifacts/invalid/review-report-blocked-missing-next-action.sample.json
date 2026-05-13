@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.1",
+  "schema_version": "0.2",
   "task_id": "task-invalid-review-002",
   "review_type": "spec",
   "verdict": "blocked",

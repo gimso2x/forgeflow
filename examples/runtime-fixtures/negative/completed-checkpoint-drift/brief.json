@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.1",
+  "schema_version": "0.2",
   "task_id": "completed-checkpoint-drift-001",
   "objective": "Reject completed checkpoint drift",
   "in_scope": ["runtime"],

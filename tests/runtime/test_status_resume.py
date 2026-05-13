@@ -14,7 +14,7 @@ def test_resume_task_reloads_session_state_and_returns_current_truth(make_task_d
     write_json(
         task_dir / "run-state.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "current_stage": "execute",
             "status": "in_progress",
@@ -29,7 +29,7 @@ def test_resume_task_reloads_session_state_and_returns_current_truth(make_task_d
     write_json(
         task_dir / "checkpoint.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "route": "small",
             "current_stage": "execute",
@@ -45,7 +45,7 @@ def test_resume_task_reloads_session_state_and_returns_current_truth(make_task_d
     write_json(
         task_dir / "review-report.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "review_type": "quality",
             "verdict": "approved",
@@ -57,7 +57,7 @@ def test_resume_task_reloads_session_state_and_returns_current_truth(make_task_d
     write_json(
         task_dir / "session-state.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "route": "small",
             "current_stage": "execute",
@@ -86,7 +86,7 @@ def test_status_summary_reports_current_truth(make_task_dir: Callable[[Path], Pa
     write_json(
         task_dir / "checkpoint.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "route": "small",
             "current_stage": "clarify",
@@ -101,7 +101,7 @@ def test_status_summary_reports_current_truth(make_task_dir: Callable[[Path], Pa
     write_json(
         task_dir / "session-state.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "route": "small",
             "current_stage": "clarify",
@@ -138,7 +138,7 @@ def test_resume_task_prefers_plan_ledger_current_task_for_medium_route(
     write_json(
         task_dir / "run-state.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "current_stage": "execute",
             "status": "in_progress",
@@ -153,7 +153,7 @@ def test_resume_task_prefers_plan_ledger_current_task_for_medium_route(
     write_json(
         task_dir / "checkpoint.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "route": "medium",
             "current_stage": "execute",
@@ -169,7 +169,7 @@ def test_resume_task_prefers_plan_ledger_current_task_for_medium_route(
     write_json(
         task_dir / "session-state.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "route": "medium",
             "current_stage": "execute",
@@ -200,7 +200,7 @@ def test_status_summary_prefers_plan_ledger_current_task_for_medium_route(
     write_json(
         task_dir / "run-state.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "current_stage": "execute",
             "status": "in_progress",
@@ -215,7 +215,7 @@ def test_status_summary_prefers_plan_ledger_current_task_for_medium_route(
     write_json(
         task_dir / "plan-ledger.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "route": "medium",
             "completed_stages": ["clarify", "plan"],
@@ -240,7 +240,7 @@ def test_status_summary_prefers_plan_ledger_current_task_for_medium_route(
     write_json(
         task_dir / "checkpoint.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "route": "medium",
             "current_stage": "execute",
@@ -256,7 +256,7 @@ def test_status_summary_prefers_plan_ledger_current_task_for_medium_route(
     write_json(
         task_dir / "session-state.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "route": "medium",
             "current_stage": "execute",

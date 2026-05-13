@@ -36,7 +36,7 @@ def test_run_route_rejects_medium_plan_ledger_out_of_order_completed_stages(
     write_json(
         task_dir / "review-report.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "review_type": "quality",
             "verdict": "approved",
@@ -61,7 +61,7 @@ def test_run_route_resumes_from_existing_checkpoint(
     write_json(
         task_dir / "run-state.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "current_stage": "execute",
             "status": "in_progress",
@@ -76,7 +76,7 @@ def test_run_route_resumes_from_existing_checkpoint(
     write_json(
         task_dir / "decision-log.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "entries": [
                 {
@@ -93,7 +93,7 @@ def test_run_route_resumes_from_existing_checkpoint(
     write_json(
         task_dir / "review-report.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "review_type": "quality",
             "verdict": "approved",
@@ -105,7 +105,7 @@ def test_run_route_resumes_from_existing_checkpoint(
     write_json(
         task_dir / "checkpoint.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "route": "small",
             "current_stage": "execute",
@@ -157,7 +157,7 @@ def test_run_route_rejects_mismatched_checkpoint_route(
     write_json(
         task_dir / "checkpoint.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "route": "medium",
             "current_stage": "clarify",
@@ -172,7 +172,7 @@ def test_run_route_rejects_mismatched_checkpoint_route(
     write_json(
         task_dir / "review-report.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "review_type": "quality",
             "verdict": "approved",
@@ -196,7 +196,7 @@ def test_run_route_rejects_checkpoint_gate_drift(
     write_json(
         task_dir / "run-state.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "current_stage": "execute",
             "status": "in_progress",
@@ -211,7 +211,7 @@ def test_run_route_rejects_checkpoint_gate_drift(
     write_json(
         task_dir / "review-report.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "review_type": "quality",
             "verdict": "approved",
@@ -235,7 +235,7 @@ def test_run_route_rejects_future_gate_checkpoint_drift(
     write_json(
         task_dir / "run-state.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "current_stage": "execute",
             "status": "in_progress",
@@ -250,7 +250,7 @@ def test_run_route_rejects_future_gate_checkpoint_drift(
     write_json(
         task_dir / "review-report.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "review_type": "quality",
             "verdict": "approved",
@@ -274,7 +274,7 @@ def test_run_route_rejects_incomplete_completed_checkpoint(
     write_json(
         task_dir / "run-state.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "current_stage": "execute",
             "status": "completed",
@@ -290,7 +290,7 @@ def test_run_route_rejects_incomplete_completed_checkpoint(
     write_json(
         task_dir / "review-report.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "review_type": "quality",
             "verdict": "approved",
@@ -332,7 +332,7 @@ def test_resume_rejects_medium_session_state_with_wrong_plan_ledger_ref(
     write_json(
         task_dir / "checkpoint.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "route": "medium",
             "current_stage": "clarify",
@@ -347,7 +347,7 @@ def test_resume_rejects_medium_session_state_with_wrong_plan_ledger_ref(
     write_json(
         task_dir / "session-state.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "route": "medium",
             "current_stage": "clarify",
@@ -374,7 +374,7 @@ def test_resume_rejects_stale_session_state_latest_review_ref(
     write_json(
         task_dir / "review-report-spec.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "review_type": "spec",
             "verdict": "approved",
@@ -386,7 +386,7 @@ def test_resume_rejects_stale_session_state_latest_review_ref(
     write_json(
         task_dir / "review-report-quality.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "review_type": "quality",
             "verdict": "approved",
@@ -398,7 +398,7 @@ def test_resume_rejects_stale_session_state_latest_review_ref(
     write_json(
         task_dir / "checkpoint.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "route": "small",
             "current_stage": "clarify",
@@ -414,7 +414,7 @@ def test_resume_rejects_stale_session_state_latest_review_ref(
     write_json(
         task_dir / "session-state.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "route": "small",
             "current_stage": "clarify",
@@ -442,7 +442,7 @@ def test_status_rejects_session_state_route_drift(
     write_json(
         task_dir / "checkpoint.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "route": "small",
             "current_stage": "clarify",
@@ -457,7 +457,7 @@ def test_status_rejects_session_state_route_drift(
     write_json(
         task_dir / "session-state.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "route": "medium",
             "current_stage": "clarify",
@@ -484,7 +484,7 @@ def test_status_rejects_session_state_stage_drift(
     write_json(
         task_dir / "checkpoint.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "route": "small",
             "current_stage": "clarify",
@@ -499,7 +499,7 @@ def test_status_rejects_session_state_stage_drift(
     write_json(
         task_dir / "session-state.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "route": "small",
             "current_stage": "execute",
@@ -526,7 +526,7 @@ def test_status_rejects_session_state_latest_review_ref_that_escapes_task_dir(
     write_json(
         task_dir / "checkpoint.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "route": "small",
             "current_stage": "clarify",
@@ -541,7 +541,7 @@ def test_status_rejects_session_state_latest_review_ref_that_escapes_task_dir(
     write_json(
         task_dir / "session-state.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "route": "small",
             "current_stage": "clarify",

@@ -50,7 +50,7 @@ def test_plan_markdown_from_plan_json(tmp_path):
     plan.write_text(
         json.dumps(
             {
-                "schema_version": "0.1",
+                "schema_version": "0.2",
                 "task_id": "visual-task",
                 "steps": [
                     {

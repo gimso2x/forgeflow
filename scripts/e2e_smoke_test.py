@@ -54,7 +54,7 @@ def smoke_lifecycle() -> tuple[list[str], list[str]]:
 
         # 1. Create brief (use risk_level key — that's what auto_route reads)
         brief = {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": task_id,
             "objective": "Smoke test — verify runtime lifecycle",
             "in_scope": ["module imports", "artifact validation", "gate enforcement"],
@@ -81,7 +81,7 @@ def smoke_lifecycle() -> tuple[list[str], list[str]]:
 
         # 3. Create plan-ledger (with route field so auto_route can read it)
         plan = {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": task_id,
             "route": "medium",
             "tasks": [
@@ -110,7 +110,7 @@ def smoke_lifecycle() -> tuple[list[str], list[str]]:
 
         # 4. Write run-state
         run_state = {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": task_id,
             "current_stage": "quality-review",
             "status": "completed",
@@ -139,7 +139,7 @@ def smoke_lifecycle() -> tuple[list[str], list[str]]:
 
         # 5. Write review-report (approved requires approved_by + next_action, no extra props)
         review = {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": task_id,
             "review_type": "quality",
             "verdict": "approved",

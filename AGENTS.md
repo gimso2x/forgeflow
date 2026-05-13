@@ -55,7 +55,7 @@ memory/                  # Version-controlled local memory: curated patterns, de
 ## Code Conventions
 
 - **No external dependencies** — stdlib only. Do not add pip requirements.
-- All artifacts use JSON with `schema_version: "0.1"`.
+- All artifacts use JSON with `schema_version` (currently `"0.2"`; `"0.1"` auto-migrated).
 - Artifact writes go through `write_json()` / `write_validated_artifact()`.
 - Use `RuntimeViolation` for rule violations.
 - Tests use `tests/runtime/conftest.py` and `tests/conftest.py` fixtures.

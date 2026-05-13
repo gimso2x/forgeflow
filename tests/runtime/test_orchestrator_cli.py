@@ -233,7 +233,7 @@ def test_cli_mutating_commands_refuse_explicit_task_dir_inside_plugin_cache(tmp_
     _write_json(
         plugin_task_dir / "run-state.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "bad-task",
             "current_stage": "clarify",
             "status": "in_progress",
@@ -306,7 +306,7 @@ def test_cli_execute_runs_sample_fixture(tmp_path: Path) -> None:
     _write_json(
         task_dir / "brief.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-cli-001",
             "objective": "Run CLI route",
             "in_scope": ["runtime"],
@@ -319,7 +319,7 @@ def test_cli_execute_runs_sample_fixture(tmp_path: Path) -> None:
     _write_json(
         task_dir / "review-report.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-cli-001",
             "review_type": "quality",
             "verdict": "approved",
@@ -368,7 +368,7 @@ def test_cli_execute_auto_detects_small_route_and_min_route_can_raise_it(tmp_pat
     _write_json(
         task_dir / "brief.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-auto-001",
             "objective": "Auto route selection",
             "in_scope": ["runtime"],
@@ -381,7 +381,7 @@ def test_cli_execute_auto_detects_small_route_and_min_route_can_raise_it(tmp_pat
     _write_json(
         task_dir / "review-report.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-auto-001",
             "review_type": "quality",
             "verdict": "approved",

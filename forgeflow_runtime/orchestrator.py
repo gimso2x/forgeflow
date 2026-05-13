@@ -305,7 +305,7 @@ def _latest_review_verdict(task_dir: Path, *, canonical_task_id: str) -> str | N
 
 def _default_checkpoint(*, task_dir: Path, route_name: str, run_state: dict[str, Any], plan_ledger: dict[str, Any] | None) -> dict[str, Any]:
     checkpoint = {
-        "schema_version": "0.1",
+        "schema_version": "0.2",
         "task_id": run_state["task_id"],
         "route": route_name,
         "current_stage": run_state["current_stage"],
@@ -347,7 +347,7 @@ def _sync_checkpoint(
         run_state=run_state,
         plan_ledger=plan_ledger,
     )
-    payload["schema_version"] = "0.1"
+    payload["schema_version"] = "0.2"
     payload["task_id"] = run_state["task_id"]
     payload["route"] = route_name
     payload["current_stage"] = run_state["current_stage"]
@@ -380,7 +380,7 @@ def _default_session_state(
     plan_ledger: dict[str, Any] | None,
 ) -> dict[str, Any]:
     payload: dict[str, Any] = {
-        "schema_version": "0.1",
+        "schema_version": "0.2",
         "task_id": run_state["task_id"],
         "route": route_name,
         "current_stage": run_state["current_stage"],
@@ -416,7 +416,7 @@ def _sync_session_state(
         checkpoint=checkpoint,
         plan_ledger=plan_ledger,
     )
-    payload["schema_version"] = "0.1"
+    payload["schema_version"] = "0.2"
     payload["task_id"] = run_state["task_id"]
     payload["route"] = route_name
     payload["current_stage"] = run_state["current_stage"]
@@ -468,7 +468,7 @@ def _assert_stage_in_route(*, route_name: str, route: list[str], stage_name: str
 
 def _default_run_state(task_dir: Path) -> dict[str, Any]:
     return {
-        "schema_version": "0.1",
+        "schema_version": "0.2",
         "task_id": _task_id(task_dir),
         "current_stage": "clarify",
         "status": "not_started",
@@ -496,7 +496,7 @@ def _ensure_decision_log(task_dir: Path, *, canonical_task_id: str | None = None
     if path.exists():
         return _load_validated_artifact(task_dir, "decision-log", expected_task_id=canonical_task_id)
     decision_log = {
-        "schema_version": "0.1",
+        "schema_version": "0.2",
         "task_id": _task_id(task_dir),
         "entries": [],
     }
@@ -551,7 +551,7 @@ def _record_gate(
 def _bootstrap_brief(task_id: str, route_name: str) -> dict[str, Any]:
     risk_level = "low" if route_name == "small" else "medium" if route_name == "medium" else "high"
     return {
-        "schema_version": "0.1",
+        "schema_version": "0.2",
         "task_id": task_id,
         "objective": f"Bootstrap {route_name} task for ForgeFlow orchestration.",
         "in_scope": ["artifact-first workflow execution"],
@@ -564,7 +564,7 @@ def _bootstrap_brief(task_id: str, route_name: str) -> dict[str, Any]:
 
 def _bootstrap_plan(task_id: str, route_name: str) -> dict[str, Any]:
     return {
-        "schema_version": "0.1",
+        "schema_version": "0.2",
         "task_id": task_id,
         "steps": [
             {
@@ -1274,7 +1274,7 @@ Run status, then execute clarify when ready. Do not skip evidence collection.
 
 def _bootstrap_plan_ledger(task_id: str, route_name: str) -> dict[str, Any]:
     return {
-        "schema_version": "0.1",
+        "schema_version": "0.2",
         "task_id": task_id,
         "route": route_name,
         "completed_stages": [],
@@ -1299,7 +1299,7 @@ def _bootstrap_plan_ledger(task_id: str, route_name: str) -> dict[str, Any]:
 
 def _initial_run_state(task_id: str, route: list[str], plan_ledger: dict[str, Any] | None = None) -> dict[str, Any]:
     return {
-        "schema_version": "0.1",
+        "schema_version": "0.2",
         "task_id": task_id,
         "current_stage": route[0],
         "status": "not_started",
@@ -1340,7 +1340,7 @@ def init_task(
     created_artifacts: list[str] = []
 
     brief_payload = {
-        "schema_version": "0.1",
+        "schema_version": "0.2",
         "task_id": task_id,
         "objective": objective,
         "in_scope": [],
@@ -1491,7 +1491,7 @@ def start_task(task_dir: Path, policy: RuntimePolicy, route_name: str) -> dict[s
         plan_ledger = None
 
     run_state = {
-        "schema_version": "0.1",
+        "schema_version": "0.2",
         "task_id": task_id,
         "current_stage": route[0],
         "status": "not_started",
@@ -1507,7 +1507,7 @@ def start_task(task_dir: Path, policy: RuntimePolicy, route_name: str) -> dict[s
     created_artifacts.append("run-state.json")
 
     decision_log = {
-        "schema_version": "0.1",
+        "schema_version": "0.2",
         "task_id": task_id,
         "entries": [],
     }

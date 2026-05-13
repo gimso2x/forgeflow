@@ -36,7 +36,7 @@ def test_run_route_rejects_schema_invalid_existing_run_state(
     write_json(
         task_dir / "run-state.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "current_stage": "invented-stage",
             "status": "in_progress",
@@ -51,7 +51,7 @@ def test_run_route_rejects_schema_invalid_existing_run_state(
     write_json(
         task_dir / "review-report.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "review_type": "quality",
             "verdict": "approved",
@@ -75,7 +75,7 @@ def test_run_route_rejects_schema_invalid_review_report(
     write_json(
         task_dir / "review-report.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "review_type": "quality",
             "verdict": "approved",
@@ -97,7 +97,7 @@ def test_run_route_rejects_mismatched_review_report_task_id(
     write_json(
         task_dir / "review-report.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "other-task",
             "review_type": "quality",
             "verdict": "approved",
@@ -121,7 +121,7 @@ def test_run_route_rejects_mismatched_eval_record_task_id(
     write_json(
         task_dir / "brief.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-large-001",
             "objective": "Run a large route",
             "in_scope": ["runtime"],
@@ -134,7 +134,7 @@ def test_run_route_rejects_mismatched_eval_record_task_id(
     write_json(
         task_dir / "plan.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-large-001",
             "steps": [
                 {
@@ -157,7 +157,7 @@ def test_run_route_rejects_mismatched_eval_record_task_id(
     write_json(
         task_dir / "plan-ledger.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-large-001",
             "route": "high",
             "current_task_id": "task-1",
@@ -179,7 +179,7 @@ def test_run_route_rejects_mismatched_eval_record_task_id(
     write_json(
         task_dir / "review-report-spec.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-large-001",
             "review_type": "spec",
             "verdict": "approved",
@@ -191,7 +191,7 @@ def test_run_route_rejects_mismatched_eval_record_task_id(
     write_json(
         task_dir / "review-report-quality.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-large-001",
             "review_type": "quality",
             "verdict": "approved",
@@ -203,7 +203,7 @@ def test_run_route_rejects_mismatched_eval_record_task_id(
     write_json(
         task_dir / "eval-record.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "other-task",
             "outcome": "success",
             "what_worked": ["route worked"],
@@ -224,7 +224,7 @@ def test_retry_stage_rejects_mismatched_decision_log_task_id(
     write_json(
         task_dir / "decision-log.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "other-task",
             "entries": [],
         },
@@ -245,7 +245,7 @@ def test_run_route_migrates_legacy_decision_log_timestamps(
     write_json(
         task_dir / "decision-log.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "entries": [
                 {
@@ -262,7 +262,7 @@ def test_run_route_migrates_legacy_decision_log_timestamps(
     write_json(
         task_dir / "review-report.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "review_type": "quality",
             "verdict": "approved",

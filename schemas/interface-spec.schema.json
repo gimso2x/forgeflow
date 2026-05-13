@@ -22,7 +22,7 @@
     "contracts_output"
   ],
   "properties": {
-    "schema_version": { "type": "string", "const": "0.1" },
+    "schema_version": { "type": "string", "const": "0.2" },
     "task_id": { "type": "string", "minLength": 1 },
     "source_refs": {
       "type": "object",

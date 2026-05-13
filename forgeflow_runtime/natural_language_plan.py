@@ -169,7 +169,7 @@ def generate_plan_from_text(task_id: str, text: str, *, issue_refs: Iterable[str
     verify_plan.append({"target": "end-to-end", "type": "journey", "gates": [step["id"] for step in steps]})
 
     plan = {
-        "schema_version": "0.1",
+        "schema_version": "0.2",
         "task_id": task_id,
         "steps": steps,
         "verify_plan": verify_plan,

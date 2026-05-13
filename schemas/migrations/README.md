@@ -3,9 +3,10 @@
 ForgeFlow artifact schemas are versioned, but runtime migration is deliberately conservative.
 
 Current policy:
-- Current artifact schema version: `0.1`
-- Current runtime mode: `validate_current_refuse_unknown`
-- Current migration path: `0.1 -> 0.1 no-op`
+- Current artifact schema version: `0.2`
+- Supported range: `0.1` – `0.2`
+- Current runtime mode: `validate_and_migrate`
+- Current migration path: `0.1 -> 0.2` (brief: specialist fields, review-report: review_roles)
 
 The real runtime entrypoint is `forgeflow_runtime/artifact_migrations.py`. The operator CLI is `scripts/upgrade_artifact.py`.
 

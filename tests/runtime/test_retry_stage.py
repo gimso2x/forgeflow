@@ -17,7 +17,7 @@ def _write_retry_checkpoint(
     write_json(
         task_dir / "checkpoint.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "route": route,
             "current_stage": stage,
@@ -99,7 +99,7 @@ def test_retry_stage_rejects_stage_outside_inferred_route(
     write_json(
         task_dir / "run-state.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "current_stage": "spec-review",
             "status": "in_progress",
@@ -114,7 +114,7 @@ def test_retry_stage_rejects_stage_outside_inferred_route(
     write_json(
         task_dir / "checkpoint.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "route": "small",
             "current_stage": "spec-review",

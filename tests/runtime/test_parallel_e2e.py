@@ -120,7 +120,7 @@ def test_allocate_workers_creates_worktrees_for_safe_plan(
 
     # Set up minimal artifacts
     write_json_file(task_dir / "brief.json", {
-        "schema_version": "0.1",
+        "schema_version": "0.2",
         "task_id": "e2e-parallel",
         "objective": "parallel e2e",
         "use_worktree": True,
@@ -128,7 +128,7 @@ def test_allocate_workers_creates_worktrees_for_safe_plan(
         "route": "medium",
     })
     write_json_file(task_dir / "run-state.json", {
-        "schema_version": "0.1",
+        "schema_version": "0.2",
         "task_id": "e2e-parallel",
         "current_stage": "execute",
         "status": "in_progress",
@@ -136,10 +136,10 @@ def test_allocate_workers_creates_worktrees_for_safe_plan(
         "failed_gates": [],
         "retries": {},
     })
-    write_json_file(task_dir / "decision-log.json", {"schema_version": "0.1", "entries": []})
+    write_json_file(task_dir / "decision-log.json", {"schema_version": "0.2", "entries": []})
 
     plan_ledger = {
-        "schema_version": "0.1",
+        "schema_version": "0.2",
         "task_id": "e2e-parallel",
         "current_task_id": "t1",
         "tasks": [
@@ -201,19 +201,19 @@ def test_parallel_workers_do_not_modify_shared_artifacts(
     task_dir.mkdir(parents=True)
 
     write_json_file(task_dir / "brief.json", {
-        "schema_version": "0.1", "task_id": "e2e-isolation",
+        "schema_version": "0.2", "task_id": "e2e-isolation",
         "objective": "isolation test", "use_worktree": True,
         "risk_level": "medium", "route": "medium",
     })
     write_json_file(task_dir / "run-state.json", {
-        "schema_version": "0.1", "task_id": "e2e-isolation",
+        "schema_version": "0.2", "task_id": "e2e-isolation",
         "current_stage": "execute", "status": "in_progress",
         "completed_gates": [], "failed_gates": [], "retries": {},
     })
-    write_json_file(task_dir / "decision-log.json", {"schema_version": "0.1", "entries": []})
+    write_json_file(task_dir / "decision-log.json", {"schema_version": "0.2", "entries": []})
 
     plan_ledger = {
-        "schema_version": "0.1", "task_id": "e2e-isolation",
+        "schema_version": "0.2", "task_id": "e2e-isolation",
         "current_task_id": "t1",
         "tasks": [
             {"id": "t1", "title": "mod A", "files": ["a.py"], "owned_paths": ["a.py"], "parallel_safe": True},
@@ -293,21 +293,21 @@ def test_merge_parallel_workers_after_review(
     task_dir.mkdir(parents=True)
 
     write_json_file(task_dir / "brief.json", {
-        "schema_version": "0.1", "task_id": "e2e-merge",
+        "schema_version": "0.2", "task_id": "e2e-merge",
         "objective": "merge test", "use_worktree": True,
         "risk_level": "medium", "route": "medium",
     })
     write_json_file(task_dir / "run-state.json", {
-        "schema_version": "0.1", "task_id": "e2e-merge",
+        "schema_version": "0.2", "task_id": "e2e-merge",
         "current_stage": "finalize", "status": "in_progress",
         "completed_gates": [], "failed_gates": [], "retries": {},
         "quality_review_approved": True,
         "spec_review_approved": True,
     })
-    write_json_file(task_dir / "decision-log.json", {"schema_version": "0.1", "entries": []})
+    write_json_file(task_dir / "decision-log.json", {"schema_version": "0.2", "entries": []})
 
     plan_ledger = {
-        "schema_version": "0.1", "task_id": "e2e-merge",
+        "schema_version": "0.2", "task_id": "e2e-merge",
         "current_task_id": "t1",
         "tasks": [
             {"id": "t1", "title": "mod A", "files": ["a.py"], "owned_paths": ["a.py"], "parallel_safe": True},
@@ -364,20 +364,20 @@ def test_merge_parallel_workers_skips_non_completed_workers(
     task_dir = git_project / ".forgeflow" / "tasks" / "partial-merge"
     task_dir.mkdir(parents=True)
     write_json_file(task_dir / "brief.json", {
-        "schema_version": "0.1", "task_id": "partial-merge",
+        "schema_version": "0.2", "task_id": "partial-merge",
         "objective": "partial merge test", "use_worktree": True,
         "risk_level": "medium", "route": "medium",
     })
     write_json_file(task_dir / "run-state.json", {
-        "schema_version": "0.1", "task_id": "partial-merge",
+        "schema_version": "0.2", "task_id": "partial-merge",
         "current_stage": "finalize", "status": "in_progress",
         "completed_gates": [], "failed_gates": [], "retries": {},
         "quality_review_approved": True,
         "spec_review_approved": True,
     })
-    write_json_file(task_dir / "decision-log.json", {"schema_version": "0.1", "entries": []})
+    write_json_file(task_dir / "decision-log.json", {"schema_version": "0.2", "entries": []})
     plan_ledger = {
-        "schema_version": "0.1", "task_id": "partial-merge",
+        "schema_version": "0.2", "task_id": "partial-merge",
         "current_task_id": "t1",
         "tasks": [
             {"id": "done", "title": "done", "files": ["done.py"], "owned_paths": ["done.py"], "parallel_safe": True},

@@ -40,14 +40,14 @@ def task_dir(git_project: Path, write_json) -> Path:
     td.mkdir(parents=True)
 
     write_json(td / "brief.json", {
-        "schema_version": "0.1",
+        "schema_version": "0.2",
         "objective": "test worktree isolation",
         "risk_level": "low",
         "route": "small",
         "use_worktree": True,
     })
     write_json(td / "run-state.json", {
-        "schema_version": "0.1",
+        "schema_version": "0.2",
         "task_id": "test-wt-001",
         "current_stage": "execute",
         "status": "not_started",
@@ -58,20 +58,20 @@ def task_dir(git_project: Path, write_json) -> Path:
         "quality_review_approved": False,
     })
     write_json(td / "decision-log.json", {
-        "schema_version": "0.1",
+        "schema_version": "0.2",
         "decisions": [],
     })
     write_json(td / "checkpoint.json", {
-        "schema_version": "0.1",
+        "schema_version": "0.2",
         "route": "small",
         "stages_completed": ["clarify", "plan"],
     })
     write_json(td / "session-state.json", {
-        "schema_version": "0.1",
+        "schema_version": "0.2",
         "route": "small",
     })
     write_json(td / "plan-ledger.json", {
-        "schema_version": "0.1",
+        "schema_version": "0.2",
         "tasks": [{"id": "t1", "title": "do stuff", "status": "pending"}],
     })
     return td
@@ -84,14 +84,14 @@ def task_dir_no_worktree(git_project: Path, write_json) -> Path:
     td.mkdir(parents=True)
 
     write_json(td / "brief.json", {
-        "schema_version": "0.1",
+        "schema_version": "0.2",
         "objective": "test worktree skip",
         "risk_level": "low",
         "route": "small",
         "use_worktree": False,
     })
     write_json(td / "run-state.json", {
-        "schema_version": "0.1",
+        "schema_version": "0.2",
         "task_id": "test-wt-no",
         "current_stage": "execute",
         "status": "not_started",
@@ -111,13 +111,13 @@ def task_dir_unset(git_project: Path, write_json) -> Path:
     td.mkdir(parents=True)
 
     write_json(td / "brief.json", {
-        "schema_version": "0.1",
+        "schema_version": "0.2",
         "objective": "test worktree ask",
         "risk_level": "low",
         "route": "small",
     })
     write_json(td / "run-state.json", {
-        "schema_version": "0.1",
+        "schema_version": "0.2",
         "task_id": "test-wt-unset",
         "current_stage": "execute",
         "status": "not_started",
@@ -158,7 +158,7 @@ def test_maybe_create_worktree_succeeds_when_enabled(task_dir: Path):
     from forgeflow_runtime.orchestrator import _maybe_create_worktree
 
     run_state = {"task_id": "test-wt-001"}
-    decision_log: dict = {"schema_version": "0.1", "entries": []}
+    decision_log: dict = {"schema_version": "0.2", "entries": []}
 
     result = _maybe_create_worktree(task_dir, run_state, decision_log)
 
@@ -189,7 +189,7 @@ def test_maybe_create_worktree_skipped_when_disabled(task_dir_no_worktree: Path)
     from forgeflow_runtime.orchestrator import _maybe_create_worktree
 
     run_state = {"task_id": "test-wt-no"}
-    decision_log: dict = {"schema_version": "0.1", "entries": []}
+    decision_log: dict = {"schema_version": "0.2", "entries": []}
 
     result = _maybe_create_worktree(task_dir_no_worktree, run_state, decision_log)
 
@@ -206,7 +206,7 @@ def test_maybe_create_worktree_asks_user_when_unset(task_dir_unset: Path):
     from forgeflow_runtime.orchestrator import _maybe_create_worktree
 
     run_state = {"task_id": "test-wt-unset"}
-    decision_log: dict = {"schema_version": "0.1", "entries": []}
+    decision_log: dict = {"schema_version": "0.2", "entries": []}
 
     result = _maybe_create_worktree(task_dir_unset, run_state, decision_log)
 
@@ -227,13 +227,13 @@ def test_maybe_create_worktree_returns_none_outside_repo(tmp_path: Path, write_j
 
     # Need brief.json with use_worktree=true to even attempt creation
     write_json(td / "brief.json", {
-        "schema_version": "0.1",
+        "schema_version": "0.2",
         "objective": "test",
         "risk_level": "low",
         "use_worktree": True,
     })
 
-    result = _maybe_create_worktree(td, {"task_id": "t1"}, {"schema_version": "0.1", "entries": []})
+    result = _maybe_create_worktree(td, {"task_id": "t1"}, {"schema_version": "0.2", "entries": []})
     assert result is None
 
 
@@ -249,7 +249,7 @@ def test_cleanup_worktree_removes_active_worktree(task_dir: Path):
     )
 
     run_state = {"task_id": "test-wt-001"}
-    decision_log: dict = {"schema_version": "0.1", "entries": []}
+    decision_log: dict = {"schema_version": "0.2", "entries": []}
 
     wt_info = _maybe_create_worktree(task_dir, run_state, decision_log)
     assert wt_info is not None
@@ -258,7 +258,7 @@ def test_cleanup_worktree_removes_active_worktree(task_dir: Path):
 
     # Clean up
     run_state_clean = {"task_id": "test-wt-001", "worktree": wt_info.copy()}
-    decision_log_clean: dict = {"schema_version": "0.1", "entries": []}
+    decision_log_clean: dict = {"schema_version": "0.2", "entries": []}
     _cleanup_worktree(task_dir, wt_info, run_state_clean, decision_log_clean)
 
     assert run_state_clean["worktree"]["active"] is False
@@ -271,7 +271,7 @@ def test_cleanup_worktree_handles_missing_path(task_dir: Path):
 
     wt_info = {"path": "", "branch": "x", "base_commit": "abc", "active": True}
     run_state = {"task_id": "test-wt-001"}
-    decision_log: dict = {"schema_version": "0.1", "entries": []}
+    decision_log: dict = {"schema_version": "0.2", "entries": []}
 
     # Should not raise; empty path means nothing to remove
     _cleanup_worktree(task_dir, wt_info, run_state, decision_log)
@@ -287,7 +287,7 @@ def test_run_state_schema_allows_worktree_field():
     from forgeflow_runtime.artifact_validation import validate_artifact_payload
 
     payload = {
-        "schema_version": "0.1",
+        "schema_version": "0.2",
         "task_id": "test-wt-001",
         "current_stage": "execute",
         "status": "in_progress",
@@ -320,7 +320,7 @@ def test_brief_schema_allows_use_worktree_field():
     from forgeflow_runtime.artifact_validation import validate_artifact_payload
 
     payload = {
-        "schema_version": "0.1",
+        "schema_version": "0.2",
         "task_id": "test-wt-001",
         "objective": "test",
         "in_scope": [],
@@ -341,7 +341,7 @@ def test_brief_schema_allows_use_worktree_false():
     from forgeflow_runtime.artifact_validation import validate_artifact_payload
 
     payload = {
-        "schema_version": "0.1",
+        "schema_version": "0.2",
         "task_id": "test-wt-001",
         "objective": "test",
         "in_scope": [],

@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[2]
 
 def _brief(task_id: str) -> dict:
     return {
-        "schema_version": "0.1",
+        "schema_version": "0.2",
         "task_id": task_id,
         "objective": "Resolve identity",
         "in_scope": ["runtime"],
@@ -26,7 +26,7 @@ def _brief(task_id: str) -> dict:
 
 def _run_state(task_id: str) -> dict:
     return {
-        "schema_version": "0.1",
+        "schema_version": "0.2",
         "task_id": task_id,
         "current_stage": "clarify",
         "status": "in_progress",
@@ -68,7 +68,7 @@ def test_start_task_rejects_existing_artifacts(
 ) -> None:
     policy = load_runtime_policy(ROOT)
     task_dir = make_task_dir(tmp_path)
-    write_json(task_dir / "brief.json", {"schema_version": "0.1", "task_id": "task-001"})
+    write_json(task_dir / "brief.json", {"schema_version": "0.2", "task_id": "task-001"})
 
     with pytest.raises(RuntimeViolation, match="start requires an empty task directory"):
         start_task(task_dir=task_dir, policy=policy, route_name="small")

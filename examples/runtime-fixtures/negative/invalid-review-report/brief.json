@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.1",
+  "schema_version": "0.2",
   "task_id": "task-invalid-review-001",
   "objective": "Exercise schema-aware runtime validation",
   "in_scope": ["runtime"],

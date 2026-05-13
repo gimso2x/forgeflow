@@ -18,7 +18,7 @@ def make_task_dir(tmp_path: Path) -> Path:
     write_json(
         task_dir / "brief.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "objective": "Run a small route",
             "in_scope": ["runtime"],
@@ -31,7 +31,7 @@ def make_task_dir(tmp_path: Path) -> Path:
     write_json(
         task_dir / "run-state.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "current_stage": "clarify",
             "status": "in_progress",

@@ -29,7 +29,7 @@ def test_run_state_schema_constrains_current_stage_enum() -> None:
     errors = sorted(
         validator.iter_errors(
             {
-                "schema_version": "0.1",
+                "schema_version": "0.2",
                 "task_id": "task-001",
                 "current_stage": "totally-made-up-stage",
                 "status": "in_progress",
@@ -54,7 +54,7 @@ def test_decision_log_schema_rejects_invalid_timestamp_and_actor() -> None:
     errors = sorted(
         validator.iter_errors(
             {
-                "schema_version": "0.1",
+                "schema_version": "0.2",
                 "task_id": "task-001",
                 "entries": [
                     {
@@ -82,7 +82,7 @@ def test_review_report_schema_requires_approved_by_for_approved_verdict() -> Non
     errors = sorted(
         validator.iter_errors(
             {
-                "schema_version": "0.1",
+                "schema_version": "0.2",
                 "task_id": "task-001",
                 "review_type": "quality",
                 "verdict": "approved",
@@ -104,7 +104,7 @@ def test_review_report_schema_requires_next_action_for_non_approved_verdict() ->
     errors = sorted(
         validator.iter_errors(
             {
-                "schema_version": "0.1",
+                "schema_version": "0.2",
                 "task_id": "task-001",
                 "review_type": "spec",
                 "verdict": "blocked",
@@ -126,7 +126,7 @@ def test_review_report_schema_accepts_safe_flag_and_open_blockers() -> None:
     errors = sorted(
         validator.iter_errors(
             {
-                "schema_version": "0.1",
+                "schema_version": "0.2",
                 "task_id": "task-001",
                 "review_type": "quality",
                 "verdict": "changes_requested",
@@ -149,7 +149,7 @@ def test_plan_ledger_schema_requires_evidence_for_done_tasks() -> None:
     errors = sorted(
         validator.iter_errors(
             {
-                "schema_version": "0.1",
+                "schema_version": "0.2",
                 "task_id": "task-001",
                 "route": "medium",
                 "tasks": [
@@ -182,7 +182,7 @@ def test_checkpoint_schema_requires_valid_timestamp() -> None:
     errors = sorted(
         validator.iter_errors(
             {
-                "schema_version": "0.1",
+                "schema_version": "0.2",
                 "task_id": "task-001",
                 "route": "medium",
                 "current_stage": "execute",
@@ -208,7 +208,7 @@ def test_session_state_schema_requires_core_refs() -> None:
     errors = sorted(
         validator.iter_errors(
             {
-                "schema_version": "0.1",
+                "schema_version": "0.2",
                 "task_id": "task-001",
                 "route": "medium",
                 "current_stage": "execute",

@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.1",
+  "schema_version": "0.2",
   "task_id": "task-medium-001",
   "objective": "Run a medium route fixture",
   "in_scope": [

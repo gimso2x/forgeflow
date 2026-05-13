@@ -300,7 +300,7 @@ def create_worker_worktree(
         "active": session.active,
     }
     worker_state = {
-        "schema_version": "0.1",
+        "schema_version": "0.2",
         "task_id": task_id,
         "plan_task_id": plan_task_id,
         "status": "in_progress",
@@ -366,7 +366,7 @@ def merge_worker_worktree(
     def blocked(reason: str, *, files_changed: list[str] | None = None, error: str | None = None) -> dict[str, Any]:
         worker["status"] = "merge_blocked"
         payload = {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "plan_task_id": worker.get("plan_task_id"),
             "status": "blocked",
             "reason": reason,
@@ -401,7 +401,7 @@ def merge_worker_worktree(
     if not files_changed:
         worker["status"] = "merged"
         payload = {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "plan_task_id": worker.get("plan_task_id"),
             "status": "merged",
             "reason": "no_changes",
@@ -430,7 +430,7 @@ def merge_worker_worktree(
 
     worker["status"] = "merged"
     payload = {
-        "schema_version": "0.1",
+        "schema_version": "0.2",
         "plan_task_id": worker.get("plan_task_id"),
         "status": "merged",
         "reason": "applied",

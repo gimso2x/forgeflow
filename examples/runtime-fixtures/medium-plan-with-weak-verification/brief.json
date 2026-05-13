@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.1",
+  "schema_version": "0.2",
   "task_id": "task-medium-weak-001",
   "objective": "Refactor a medium route task that still has thin verification notes",
   "in_scope": [

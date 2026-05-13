@@ -48,14 +48,14 @@ def test_all_artifact_schemas_pin_current_schema_version() -> None:
             continue
         schema = json.loads(schema_path.read_text(encoding="utf-8"))
         schema_version = schema["properties"]["schema_version"]
-        assert schema_version.get("const") == "0.1", schema_path.name
+        assert schema_version.get("const") == "0.2", schema_path.name
 
 
 def test_skill_examples_use_current_artifact_schema_version() -> None:
     for skill_path in [ROOT / "skills" / "plan" / "SKILL.md", ROOT / "skills" / "review" / "SKILL.md"]:
         text = skill_path.read_text(encoding="utf-8")
         assert '"schema_version": "1.0"' not in text
-        assert '"schema_version": "0.1"' in text
+        assert '"schema_version": "0.2"' in text
 
 
 def test_manifest_loader_uses_real_yaml_parser_for_quoted_scalars_and_lists() -> None:

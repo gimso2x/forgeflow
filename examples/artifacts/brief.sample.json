@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.1",
+  "schema_version": "0.2",
   "task_id": "task-ui-header-copy-001",
   "objective": "대시보드 상단 카피를 artifact-first delivery harness 표현으로 정리한다.",
   "in_scope": [

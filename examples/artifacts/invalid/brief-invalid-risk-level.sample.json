@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.1",
+  "schema_version": "0.2",
   "task_id": "task-invalid-brief-001",
   "objective": "Prove brief risk_level must stay inside the canonical low/medium/high enum.",
   "in_scope": [

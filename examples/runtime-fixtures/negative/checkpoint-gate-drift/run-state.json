@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.1",
+  "schema_version": "0.2",
   "task_id": "checkpoint-drift-001",
   "current_stage": "execute",
   "status": "in_progress",

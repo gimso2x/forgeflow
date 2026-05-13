@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.1",
+  "schema_version": "0.2",
   "task_id": "task-neg-003",
   "objective": "Fail large route before long-run when eval record is missing",
   "in_scope": [

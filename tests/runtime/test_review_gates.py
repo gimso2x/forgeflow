@@ -19,7 +19,7 @@ def test_finalize_blocks_missing_review_flags(make_task_dir: Callable[[Path], Pa
     write_json(
         task_dir / "review-report.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "review_type": "quality",
             "verdict": "approved",
@@ -39,7 +39,7 @@ def test_run_route_rejects_non_approved_quality_review(make_task_dir: Callable[[
     write_json(
         task_dir / "review-report.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "review_type": "quality",
             "verdict": "changes_requested",
@@ -77,7 +77,7 @@ def test_run_route_rejects_approved_review_with_open_blockers(make_task_dir: Cal
     write_json(
         task_dir / "review-report.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "review_type": "quality",
             "verdict": "approved",
@@ -98,7 +98,7 @@ def test_run_route_rejects_approved_quality_review_marked_unsafe(make_task_dir: 
     write_json(
         task_dir / "review-report.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "review_type": "quality",
             "verdict": "approved",
@@ -119,7 +119,7 @@ def test_run_route_rejects_approved_spec_review_marked_unsafe(make_task_dir: Cal
     write_json(
         task_dir / "review-report.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "review_type": "spec",
             "verdict": "approved",

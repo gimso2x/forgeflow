@@ -24,7 +24,7 @@ def test_run_route_requires_plan_ledger_for_medium_route(
     write_json(
         task_dir / "plan.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "steps": [
                 {
@@ -51,7 +51,7 @@ def test_advance_requires_plan_ledger_for_medium_route(
     write_json(
         task_dir / "plan.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "steps": [
                 {
@@ -85,7 +85,7 @@ def test_run_route_syncs_current_task_from_plan_ledger(
     write_json(
         task_dir / "review-report.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "review_type": "quality",
             "verdict": "approved",

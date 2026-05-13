@@ -266,7 +266,7 @@ class TestClarifyTask:
 
 def test_sync_parallel_worktree_plan_records_conflicts_in_run_state_and_ledger() -> None:
     plan_ledger = {
-        "schema_version": "0.1",
+        "schema_version": "0.2",
         "task_id": "task-001",
         "route": "medium",
         "current_task_id": "ui",
@@ -296,7 +296,7 @@ def test_sync_parallel_worktree_plan_records_conflicts_in_run_state_and_ledger()
         ],
     }
     run_state: dict[str, Any] = {}
-    decision_log = {"schema_version": "0.1", "task_id": "task-001", "entries": []}
+    decision_log = {"schema_version": "0.2", "task_id": "task-001", "entries": []}
 
     summary = _sync_parallel_worktree_plan(plan_ledger, run_state, decision_log)
 
@@ -326,11 +326,11 @@ def test_allocate_parallel_worker_worktrees_creates_task_scoped_artifacts(tmp_pa
     task_dir = repo / ".forgeflow" / "tasks" / "task-001"
     task_dir.mkdir(parents=True)
     (task_dir / "brief.json").write_text(
-        json.dumps({"schema_version": "0.1", "task_id": "task-001", "use_worktree": True}),
+        json.dumps({"schema_version": "0.2", "task_id": "task-001", "use_worktree": True}),
         encoding="utf-8",
     )
     plan_ledger = {
-        "schema_version": "0.1",
+        "schema_version": "0.2",
         "task_id": "task-001",
         "route": "medium",
         "current_task_id": "ui",
@@ -339,8 +339,8 @@ def test_allocate_parallel_worker_worktrees_creates_task_scoped_artifacts(tmp_pa
             {"id": "api", "files": ["src/api.ts"], "status": "pending"},
         ],
     }
-    run_state = {"schema_version": "0.1", "task_id": "task-001"}
-    decision_log = {"schema_version": "0.1", "task_id": "task-001", "entries": []}
+    run_state = {"schema_version": "0.2", "task_id": "task-001"}
+    decision_log = {"schema_version": "0.2", "task_id": "task-001", "entries": []}
 
     _sync_parallel_worktree_plan(plan_ledger, run_state, decision_log)
     workers = _allocate_parallel_worker_worktrees(task_dir, plan_ledger, run_state, decision_log)
@@ -512,7 +512,7 @@ class TestParallelWorkerExecution:
         write_json_file(
             task_dir / "brief.json",
             {
-                "schema_version": "0.1",
+                "schema_version": "0.2",
                 "task_id": "task-001",
                 "objective": "Merge approved parallel workers",
                 "in_scope": ["parallel merge"],
@@ -524,7 +524,7 @@ class TestParallelWorkerExecution:
             },
         )
         plan_ledger = {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "route": "medium",
             "completed_stages": [],
@@ -557,7 +557,7 @@ class TestParallelWorkerExecution:
             ],
         }
         run_state = {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "current_stage": "quality-review",
             "status": "in_progress",
@@ -568,7 +568,7 @@ class TestParallelWorkerExecution:
             "spec_review_approved": False,
             "quality_review_approved": True,
         }
-        decision_log = {"schema_version": "0.1", "task_id": "task-001", "entries": []}
+        decision_log = {"schema_version": "0.2", "task_id": "task-001", "entries": []}
         _sync_parallel_worktree_plan(plan_ledger, run_state, decision_log)
         workers = _allocate_parallel_worker_worktrees(task_dir, plan_ledger, run_state, decision_log)
         for worker in workers:
@@ -586,7 +586,7 @@ class TestParallelWorkerExecution:
         write_json_file(
             task_dir / "review-report-quality.json",
             {
-                "schema_version": "0.1",
+                "schema_version": "0.2",
                 "task_id": "task-001",
                 "review_type": "quality",
                 "verdict": "approved",

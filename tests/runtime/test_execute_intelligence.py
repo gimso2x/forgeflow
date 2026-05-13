@@ -32,7 +32,7 @@ def _make_plan_ledger(
 
 def _make_run_state(retries: dict | None = None, **overrides) -> dict:
     base = {
-        "schema_version": "0.1",
+        "schema_version": "0.2",
         "task_id": "T1",
         "current_stage": "execute",
         "status": "in_progress",

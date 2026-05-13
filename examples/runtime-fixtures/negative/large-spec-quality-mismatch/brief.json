@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.1",
+  "schema_version": "0.2",
   "task_id": "task-large-mismatch-001",
   "objective": "Run a large high-risk route fixture",
   "in_scope": [

@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.1",
+  "schema_version": "0.2",
   "task_id": "task-neg-001",
   "objective": "Fail finalize without approvals",
   "in_scope": [

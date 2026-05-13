@@ -39,7 +39,7 @@ def test_generate_plan_from_text_selects_bugfix_template_and_verification():
 def test_validate_plan_draft_reports_missing_coverage():
     quality = validate_plan_draft(
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "incomplete",
             "steps": [
                 {

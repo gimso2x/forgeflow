@@ -17,7 +17,7 @@ artifact는 stage 간 handoff 계약이며, resume과 review의 최소 단위다
 
 ## Artifact schema migration policy
 
-현재 runtime artifact schema의 current/supported version은 artifact type별로 `forgeflow_runtime/artifact_migrations.py`의 `ARTIFACT_VERSION_POLICY`가 소유합니다. 지금은 모든 core artifact가 `0.1`만 지원하며, runtime mode는 `validate_current_refuse_unknown`입니다.
+현재 runtime artifact schema의 current/supported version은 artifact type별로 `forgeflow_runtime/artifact_migrations.py`의 `ARTIFACT_VERSION_POLICY`가 소유합니다. 현재 current는 `0.2`, 지원 범위는 `("0.1", "0.2")`, runtime mode는 `validate_and_migrate`입니다.
 
 이 정책은 일부러 보수적입니다. runtime loader는 알 수 없는 `schema_version`을 자동으로 추측하지 않고 거부합니다. 오래된 `.forgeflow/tasks/*` artifact는 명시적으로 업그레이드한 뒤 다시 로드해야 합니다.
 
@@ -26,7 +26,7 @@ scripts/upgrade_artifact.py --artifact-name brief --path .forgeflow/tasks/<task-
 scripts/upgrade_artifact.py --artifact-name plan --path .forgeflow/tasks/<task-id>/plan.json --check
 ```
 
-첫 migration scaffold는 `0.1 -> 0.1 no-op`입니다. 별것 없어 보이지만 이게 맞습니다. version bump 전에 migration entrypoint, validation order, docs, tests를 먼저 박아두는 게 나중에 artifact를 조용히 망치는 것보다 훨씬 싸니까요.
+첫 real migration은 `0.1 -> 0.2`입니다. brief에 `required_specialists`/`skipped_specialists`/`skip_rationale`를 추가하고, review-report에 `review_roles`를 채웁니다. `migrate_artifact_payload()`가 `0.1` 아티팩트를 자동으로 `0.2`로 변환합니다.
 
 새 schema version을 추가할 때의 규칙:
 - `ARTIFACT_VERSION_POLICY`에 artifact별 supported/current version을 갱신한다.

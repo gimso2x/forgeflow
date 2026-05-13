@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.1",
+  "schema_version": "0.2",
   "task_id": "task-neg-002",
   "objective": "Fail advance into spec-review without run-state",
   "in_scope": [

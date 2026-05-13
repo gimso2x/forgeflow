@@ -27,7 +27,7 @@ def make_task_dir(write_json: Callable[[Path, dict], None]) -> Callable[[Path], 
         write_json(
             task_dir / "brief.json",
             {
-                "schema_version": "0.1",
+                "schema_version": "0.2",
                 "task_id": "task-001",
                 "objective": "Run a small route",
                 "in_scope": ["runtime"],
@@ -40,7 +40,7 @@ def make_task_dir(write_json: Callable[[Path, dict], None]) -> Callable[[Path], 
         write_json(
             task_dir / "run-state.json",
             {
-                "schema_version": "0.1",
+                "schema_version": "0.2",
                 "task_id": "task-001",
                 "current_stage": "clarify",
                 "status": "in_progress",
@@ -63,7 +63,7 @@ def medium_plan_artifacts(write_json: Callable[[Path, dict], None]) -> Callable[
         write_json(
             task_dir / "plan.json",
             {
-                "schema_version": "0.1",
+                "schema_version": "0.2",
                 "task_id": "task-001",
                 "steps": [
                     {
@@ -88,7 +88,7 @@ def medium_plan_artifacts(write_json: Callable[[Path, dict], None]) -> Callable[
         write_json(
             task_dir / "plan-ledger.json",
             {
-                "schema_version": "0.1",
+                "schema_version": "0.2",
                 "task_id": "task-001",
                 "route": route_name,
                 "completed_stages": [],

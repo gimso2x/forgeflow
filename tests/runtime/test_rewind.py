@@ -38,7 +38,7 @@ def test_step_back_rewinds_plan_ledger_progress_for_medium_route(
     write_json(
         task_dir / "run-state.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "current_stage": "quality-review",
             "status": "in_progress",
@@ -53,7 +53,7 @@ def test_step_back_rewinds_plan_ledger_progress_for_medium_route(
     write_json(
         task_dir / "plan-ledger.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "route": "medium",
             "completed_stages": ["clarify", "plan", "execute"],
@@ -81,7 +81,7 @@ def test_step_back_rewinds_plan_ledger_progress_for_medium_route(
     write_json(
         task_dir / "checkpoint.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "route": "medium",
             "current_stage": "quality-review",
@@ -98,7 +98,7 @@ def test_step_back_rewinds_plan_ledger_progress_for_medium_route(
     write_json(
         task_dir / "session-state.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "route": "medium",
             "current_stage": "quality-review",
@@ -115,7 +115,7 @@ def test_step_back_rewinds_plan_ledger_progress_for_medium_route(
     write_json(
         task_dir / "review-report.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "review_type": "quality",
             "verdict": "approved",
@@ -159,7 +159,7 @@ def test_step_back_large_route_preserves_spec_evidence_and_clears_quality_flag(
     write_json(
         task_dir / "run-state.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "current_stage": "long-run",
             "status": "in_progress",
@@ -174,7 +174,7 @@ def test_step_back_large_route_preserves_spec_evidence_and_clears_quality_flag(
     write_json(
         task_dir / "plan-ledger.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": "task-001",
             "route": "high",
             "completed_stages": ["clarify", "plan", "execute", "spec-review", "quality-review", "finalize"],

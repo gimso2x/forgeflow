@@ -21,7 +21,7 @@ def small_task_dir(tmp_path: Path, *, task_id: str = "task-001") -> Path:
     write_json_file(
         task_dir / "brief.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": task_id,
             "objective": "Run a small route",
             "in_scope": ["runtime"],
@@ -34,7 +34,7 @@ def small_task_dir(tmp_path: Path, *, task_id: str = "task-001") -> Path:
     write_json_file(
         task_dir / "run-state.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": task_id,
             "current_stage": "clarify",
             "status": "in_progress",
@@ -56,7 +56,7 @@ def medium_task_dir(tmp_path: Path, *, task_id: str = "task-001", route_name: st
     write_json_file(
         task_dir / "plan.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": task_id,
             "steps": [
                 {
@@ -75,7 +75,7 @@ def medium_task_dir(tmp_path: Path, *, task_id: str = "task-001", route_name: st
     write_json_file(
         task_dir / "plan-ledger.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": task_id,
             "route": route_name,
             "completed_stages": [],
@@ -112,7 +112,7 @@ def add_checkpoint_and_session(
     write_json_file(
         task_dir / "checkpoint.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": task_id,
             "route": route_name,
             "current_stage": current_stage,
@@ -127,7 +127,7 @@ def add_checkpoint_and_session(
     write_json_file(
         task_dir / "session-state.json",
         {
-            "schema_version": "0.1",
+            "schema_version": "0.2",
             "task_id": task_id,
             "route": route_name,
             "current_stage": current_stage,
