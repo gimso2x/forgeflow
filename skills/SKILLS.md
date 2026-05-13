@@ -30,10 +30,6 @@ Skills are markdown documents that live in `skills/`. Each skill defines a bound
 | [`x-debug`](x-debug.md) | Reproduce-first, root-cause tracing with reference playbooks. | engineering-discipline |
 | [`x-deslop`](x-deslop.md) | Remove LLM-specific code smells: over-commenting, unnecessary abstractions, filler. | engineering-discipline |
 | [`x-spec-review`](x-spec-review.md) | Verify correctness vs requirements **before** quality review. | superpowers |
-| [`safe-commit`](safe-commit/SKILL.md) | Pre-commit safety review: secrets, scope drift, generated files, verification evidence, final `SAFE`/`UNSAFE`. | so2x-harness |
-| [`check-harness`](check-harness/SKILL.md) | Score harness health across entry points, shared context, execution habits, verification, and maintainability. | so2x-harness |
-| [`to-issues`](to-issues/SKILL.md) | Convert approved plans into traceable issue draft bundles without publishing them. | mattpocock/skills |
-| [`design-interface`](design-interface/SKILL.md) | Define task-local interface contracts before implementation when public boundaries change. | mattpocock/skills |
 | [`x-resume`](x-resume.md) | Resume interrupted sessions from checkpoint. | engineering-discipline |
 | [`x-learn`](x-learn.md) | Capture typed learnings to `memory/learnings.json` for BM25 surfacing. | hoyeon |
 | [`x-office-hours`](x-office-hours.md) | Reframe the problem before writing code. Six forcing questions. | gstack |

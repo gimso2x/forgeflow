@@ -5,6 +5,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 CANONICAL_SKILLS = [
+    'skills/forgeflow/SKILL.md',
+    'skills/init/SKILL.md',
     'skills/clarify/SKILL.md',
     'skills/specify/SKILL.md',
     'skills/plan/SKILL.md',
