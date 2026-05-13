@@ -3,6 +3,7 @@ from __future__ import annotations
 from collections.abc import Callable
 
 from forgeflow_runtime.errors import RuntimeViolation
+from forgeflow_runtime.workflow_engine import WorkflowDefinition, next_step
 
 
 def next_stage_for_transition(
@@ -10,8 +11,15 @@ def next_stage_for_transition(
     current_stage: str,
     *,
     route_name: str,
+    workflow: WorkflowDefinition | None = None,
     violation_factory: Callable[[str], Exception] = RuntimeViolation,
 ) -> str:
+    if workflow is not None:
+        try:
+            return next_step(workflow, route_name, current_stage).id
+        except RuntimeViolation as exc:
+            raise violation_factory(str(exc)) from exc
+
     if current_stage not in route:
         raise violation_factory(f"stage {current_stage} is not part of route {route_name}")
 

@@ -4,6 +4,9 @@ import json
 from pathlib import Path
 from typing import Callable, TypeVar
 
+from forgeflow_runtime.errors import RuntimeViolation
+from forgeflow_runtime.workflow_engine import WorkflowDefinition, role_for_step
+
 ViolationT = TypeVar("ViolationT", bound=Exception)
 
 STAGE_ROLE_MAP: dict[str, str] = {
@@ -34,8 +37,15 @@ RISK_TO_ROUTE: dict[str, str] = {
 def role_for_stage(
     stage: str,
     *,
+    workflow: WorkflowDefinition | None = None,
     violation_factory: Callable[[str], ViolationT] = ValueError,
 ) -> str:
+    if workflow is not None:
+        try:
+            return role_for_step(workflow, stage)
+        except RuntimeViolation as exc:
+            raise violation_factory(str(exc)) from exc
+
     role = STAGE_ROLE_MAP.get(stage)
     if not role:
         raise violation_factory(f"no default role mapping for stage: {stage}")

@@ -43,6 +43,8 @@ from forgeflow_runtime.route_execution import build_route_result, route_entry_de
 from forgeflow_runtime.stage_transition import next_stage_for_transition
 from forgeflow_runtime.task_identity import canonical_task_id as _canonical_task_id
 from forgeflow_runtime.task_identity import task_id as _task_id
+from forgeflow_runtime.workflow_engine import resolve_route as _workflow_resolve_route
+from forgeflow_runtime.workflow_engine import workflow_from_runtime_policy as _workflow_from_runtime_policy
 
 from forgeflow_runtime.execute_context import build_execute_context as _build_execute_context, format_execute_prompt as _format_execute_prompt
 from forgeflow_runtime.progress_tracker import calculate_progress as _calculate_progress, detect_progress_anomaly as _detect_progress_anomaly
@@ -1621,7 +1623,15 @@ def _resolve_route(policy: RuntimePolicy, route_name: str) -> list[str]:
     route = policy.routes.get(route_name)
     if route is None:
         raise RuntimeViolation(f"unknown route: {route_name}")
-    return route["stages"]
+    stages = [str(stage) for stage in route["stages"]]
+    workflow = _workflow_from_runtime_policy(policy)
+    workflow_stages = [step.id for step in _workflow_resolve_route(workflow, route_name)]
+    if workflow_stages != stages:
+        raise RuntimeViolation(
+            f"workflow route {route_name} conflicts with runtime policy route: "
+            f"workflow={workflow_stages} policy={stages}"
+        )
+    return stages
 
 
 def advance_to_next_stage(
@@ -1651,7 +1661,14 @@ def advance_to_next_stage(
             f"requested current_stage {current_stage} does not match persisted run-state stage {run_state.get('current_stage')}"
         )
 
-    next_stage = next_stage_for_transition(route, current_stage, route_name=route_name, violation_factory=RuntimeViolation)
+    workflow = _workflow_from_runtime_policy(policy)
+    next_stage = next_stage_for_transition(
+        route,
+        current_stage,
+        route_name=route_name,
+        workflow=workflow,
+        violation_factory=RuntimeViolation,
+    )
     missing_artifacts = _missing_artifacts(task_dir, policy.stage_requirements.get(next_stage, []))
     if missing_artifacts:
         raise RuntimeViolation(
@@ -1697,7 +1714,7 @@ def advance_to_next_stage(
     if execute_immediately:
         from forgeflow_runtime.engine import execute_parallel_workers, execute_stage
 
-        execution_role = role or role_for_stage(next_stage, violation_factory=RuntimeViolation)
+        execution_role = role or role_for_stage(next_stage, workflow=workflow, violation_factory=RuntimeViolation)
         workers = staged_run_state.get("workers") if next_stage == "execute" else None
         if isinstance(workers, list) and len(workers) > 1:
             worker_results = execute_parallel_workers(
