@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+# Ensure forgeflow_runtime is importable when run outside the venv
+sys.path.insert(0, str(ROOT))
 
 REQUIRED_DIRS = [
     'docs',
@@ -107,10 +110,44 @@ def main() -> int:
             print(f'- missing {item}')
         return 1
 
+    # Adapter registry cross-check: verify every discovered adapter has
+    # a manifest.yaml that the runtime can parse.
+    registry_failures = _validate_adapter_registry()
+    if registry_failures:
+        print('ADAPTER REGISTRY: FAIL')
+        for item in registry_failures:
+            print(f'- {item}')
+        return 1
+
+    adapter_count = len(registry_failures)  # 0, just for summary
     print('STRUCTURE VALIDATION: PASS')
     print(f'- checked directories: {len(REQUIRED_DIRS)}')
     print(f'- checked files: {len(REQUIRED_FILES)}')
+    print(f'- adapter registry: OK')
     return 0
+
+
+def _validate_adapter_registry() -> list[str]:
+    """Use AdapterRegistry to cross-check manifest discoverability."""
+    from forgeflow_runtime.adapter_registry import AdapterRegistry
+
+    failures: list[str] = []
+    targets_dir = ROOT / 'adapters' / 'targets'
+    if not targets_dir.is_dir():
+        return ['adapters/targets/ directory not found']
+
+    registry = AdapterRegistry(targets_dir)
+
+    # Every subdirectory with a manifest.yaml should be discoverable
+    for subdir in sorted(targets_dir.iterdir()):
+        if not subdir.is_dir():
+            continue
+        has_manifest = (subdir / 'manifest.yaml').exists()
+        name = subdir.name
+        if has_manifest and not registry.has_adapter(name):
+            failures.append(f'{name}/ has manifest.yaml but registry skipped it (malformed?)')
+
+    return failures
 
 
 if __name__ == '__main__':

@@ -15,7 +15,7 @@ make evals
 ```
 
 현재 regression suite는 `make evals`에 포함되지 않은 **문서 전용** 상태다.
-runner(`scripts/run_regression_evals.py`)가 구현되면 `scripts/run_evals.py`의 suites 목록에 추가한다.
+runner 구현 시 `scripts/run_evals.py`의 suites 목록에 추가한다.
 
 ## 커버하는 회귀 시나리오
 
@@ -42,6 +42,6 @@ runner(`scripts/run_regression_evals.py`)가 구현되면 `scripts/run_evals.py`
 ## 새 회귀 테스트 추가
 
 1. `evals/regression/fixtures/`에 테스트 케이스 추가
-2. `scripts/run_regression_evals.py`에 runner 구현
+2. `scripts/run_evals.py`에 regression suite 추가로 runner 구현
 3. `scripts/run_evals.py` suites 목록에 `("regression", ...)` 추가
 4. 이 README에 시나리오 설명 추가
