@@ -16,7 +16,13 @@
     "planner",
     "worker",
     "spec-reviewer",
-    "quality-reviewer"
+    "quality-reviewer",
+    "security-reviewer",
+    "ux-reviewer",
+    "perf-reviewer",
+    "frontend-worker",
+    "backend-worker",
+    "infra-worker"
   ],
   "keywords": [
     "ai-agents",
@@ -31,7 +37,13 @@
     "adapters/targets/codex/agents/forgeflow-planner.md",
     "adapters/targets/codex/agents/forgeflow-worker.md",
     "adapters/targets/codex/agents/forgeflow-spec-reviewer.md",
-    "adapters/targets/codex/agents/forgeflow-quality-reviewer.md"
+    "adapters/targets/codex/agents/forgeflow-quality-reviewer.md",
+    "adapters/targets/codex/agents/forgeflow-security-reviewer.md",
+    "adapters/targets/codex/agents/forgeflow-ux-reviewer.md",
+    "adapters/targets/codex/agents/forgeflow-perf-reviewer.md",
+    "adapters/targets/codex/agents/forgeflow-frontend-worker.md",
+    "adapters/targets/codex/agents/forgeflow-backend-worker.md",
+    "adapters/targets/codex/agents/forgeflow-infra-worker.md"
   ],
   "rules": [
     "adapters/targets/codex/rules/forgeflow-nextjs-worker.mdc"

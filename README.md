@@ -2,7 +2,7 @@
 
 AI coding agent가 채팅 기억에 의존하지 않고, **명시적인 artifact, gate, evidence, 독립 review**로 작업하게 만드는 artifact-first delivery harness. Claude Code와 Codex에서 같은 workflow를 사용합니다.
 
-현재 릴리즈: **v0.7.4**
+현재 릴리즈: **v0.8.0**
 
 ## 누가 왜 쓰나
 
@@ -94,6 +94,7 @@ Windows PowerShell:
 - **Artifact model** — brief, plan, run-state, review-report 등 모든 단계가 검증 가능한 JSON artifact를 생성합니다 → [docs/artifact-model.md](docs/artifact-model.md)
 - **Review model** — evidence 기반 독립 review contract. 작성자와 검토자 분리 → [docs/review-model.md](docs/review-model.md)
 - **Route model (small/medium/high)** — 작업 위험도와 복잡도에 따라 실행 경로를 자동 선택합니다 → [docs/operator-shell.md](docs/operator-shell.md)
+- **2-axis specialist selection** — route 축(작업 크기)과 spec 축(전문 에이전트)이 독립 작동합니다. security/backend/frontend/infra/ux/perf 6개 도메인 → [docs/workflow.md](docs/workflow.md)
 - **Adapter boundary** — Claude Code와 Codex에서 동일한 workflow를 보장하는 adapter 계층 → [docs/adapter-model.md](docs/adapter-model.md)
 
 ## 문제 해결

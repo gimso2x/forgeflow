@@ -34,7 +34,7 @@ forgeflow init --task-id my-task --objective "..." --risk high
 
 ## Architecture 패턴
 
-high risk 작업은 자동으로 더 강건한 실행 패턴을 씁니다:
+**high** 라우트 작업은 자동으로 더 강건한 실행 패턴을 씁니다:
 
 - **fan-out/fan-in + producer-reviewer**: security, migration, refactor, architecture
 - **pipeline + producer-reviewer**: bug, fix, qa, test, regression

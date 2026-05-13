@@ -29,6 +29,13 @@ ROLE_TO_FILENAME: dict[str, str] = {
     "worker": "worker.md",
     "spec-reviewer": "spec-reviewer.md",
     "quality-reviewer": "quality-reviewer.md",
+    # specialist agents (on-demand via brief.required_specialists)
+    "security-reviewer": "security-reviewer.md",
+    "ux-reviewer": "ux-reviewer.md",
+    "perf-reviewer": "perf-reviewer.md",
+    "frontend-worker": "frontend-worker.md",
+    "backend-worker": "backend-worker.md",
+    "infra-worker": "infra-worker.md",
 }
 
 COMPOSITION_SUFFIXES: dict[str, str] = {

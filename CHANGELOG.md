@@ -13,6 +13,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add `validate_and_migrate` mode: 0.1 artifacts silently upgraded on load.
 - Implement `_migrate_0_1_to_0_2`: brief gains specialist fields, review-report gains review_roles.
 
+## [0.8.0] - 2026-05-13
+
+### Added
+
+- Wire specialist agents into runtime execution path (#135).
+- `DOMAIN_TO_STAGE` mapping: security→security-review, backend→backend-execute, frontend→frontend-execute, infra→infra-execute, ux→ux-review, perf→perf-review.
+- `specialists_from_brief()` now handles both domain names and stage names.
+- 6 specialist prompt files in `prompts/canonical/` (security-reviewer, ux-reviewer, perf-reviewer, frontend-worker, backend-worker, infra-worker).
+- 48 TDD tests for specialist wiring in `tests/runtime/test_specialist_wiring.py`.
+- Real plugin E2E harness in `scripts/real_plugin_e2e.py`.
+
+### Changed
+
+- `ROLE_TO_FILENAME` now covers 11 roles (added 6 specialist agents) in both `generator.py` and `preset_resolver.py`.
+- Codex `plugin.json` supports 6 specialist agents in `supports_roles` and `agents`.
+- `operator_routing.py` gains `_normalise_specialist()` for domain→stage conversion.
+- Route terminology cleanup: "high risk" → "high" in docs.
+
+### Stats
+
+- **1541 tests passed**, 0 failed.
+
 ## [0.7.5] - 2026-05-13
 
 ### Added
