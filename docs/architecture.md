@@ -156,3 +156,13 @@ Modules with the highest fan-in (most imported by others):
 6. **Evolution hooks**: The `evolution/` subpackage provides rule lifecycle management with audit trails. Rules can be proposed, reviewed, promoted, and retired — all artifact-tracked.
 
 7. **Multi-model orchestration**: The `orchestra/` subpackage supports consensus, debate, pipeline, and fastest strategies for multi-model workflows.
+
+## Role-split AI team overlay
+
+ForgeFlow supports on-demand role-split AI team discipline within the existing stage structure — not as separate stages.
+
+- QA / UX / Security 관점은 작업 위험과 route가 요구할 때만 on-demand로 활성화된다.
+- role assignment, skipped-role rationale, specialist output은 `plan-ledger`, `run-state`, `review-report`에 추적된다.
+- AI 팀을 상시 구동하거나 역할 수를 무한히 늘리는 구조가 아니다 — 필요한 만큼만.
+
+이 오버레이는 standalone review entrypoint와도 연동되어, `review-input.json`의 `review_roles` 필드로 전문가 렌즈를 선택적으로 적용한다.
