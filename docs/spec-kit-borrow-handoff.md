@@ -15,6 +15,25 @@ ForgeFlow는 **실행 통제 + 게이트 + 증거 추적** 중심 하네스.
 
 ---
 
+## 구현 상태
+
+완료 기준: 각 Phase는 focused 테스트와 full pytest를 통과한 뒤 `main`에 push된 커밋으로 기록한다.
+
+- **Phase 1 — AdapterRegistry**: 완료
+  - 커밋: `3073489 feat: add AdapterRegistry for manifest-based adapter discovery`
+  - 내용: `adapters/targets/*/manifest.yaml` 자동 스캔, adapter lookup, role별 prompt path 해석.
+- **Phase 2 — PresetResolver**: 완료
+  - 커밋: `e11fc6b feat: add PresetResolver for layered prompt overrides`
+  - 내용: core prompt 위에 `.forgeflow/presets/` 기반 replace/append/prepend/wrap 오버라이드 합성.
+- **Phase 3 — WorkflowEngine**: 완료
+  - 커밋: `316a706 feat: add workflow engine runtime bridge`
+  - 내용: `RuntimePolicy → WorkflowDefinition` bridge를 추가하고, `stage_transition`, `operator_routing`, `orchestrator`가 기존 policy와 workflow 계약을 병행 사용.
+  - 검증: focused runtime tests 59개 통과, full pytest `1482 passed`.
+
+현재 구현은 **기존 RuntimePolicy를 제거하지 않는다.** `workflow_engine.py`는 먼저 내부 bridge로 도입됐고, runtime은 policy route와 workflow route를 교차 검증한다. 이 결정이 맞다. 제품 표면에 `.forgeflow/workflow.yaml`을 바로 노출하기 전에 기존 게이트/증거 추적 계약을 깨지 않는지 확인해야 하기 때문이다.
+
+---
+
 ## 차용 1: YAML 워크플로우 엔진
 
 ### 현재 ForgeFlow 상태
@@ -321,33 +340,36 @@ class AdapterRegistry:
 
 ---
 
-## 구현 순서 (권장)
+## 구현 순서
 
 ```
-Phase 1: AdapterRegistry (가장 독립적, 부작용 최소)
+Phase 1: AdapterRegistry (완료: 3073489)
   ├── adapter_registry.py
   └── test_adapter_registry.py
 
-Phase 2: PresetResolver (generator.py 수정 필요)
+Phase 2: PresetResolver (완료: e11fc6b)
   ├── preset_resolver.py
   ├── generator.py 수정 (_load_role_prompt → PresetResolver)
   └── test_preset_resolver.py
 
-Phase 3: WorkflowEngine (가장 영향 범위 큼)
+Phase 3: WorkflowEngine runtime bridge (완료: 316a706)
   ├── workflow_engine.py
-  ├── stage_transition.py 수정 (YAML 기반으로 교체)
-  ├── operator_routing.py 수정 (STAGE_ROLE_MAP → WorkflowDefinition)
-  └── test_workflow_engine.py
+  ├── stage_transition.py 수정 (workflow 선택 파라미터 병행)
+  ├── operator_routing.py 수정 (workflow role mapping 선택 파라미터 병행)
+  ├── orchestrator.py 수정 (policy route와 workflow route 교차 검증)
+  └── test_workflow_engine.py + transition/routing integration tests
 ```
+
+다음 후보는 **Phase 4: user-facing workflow override**다. 단, 이건 아직 구현하지 않는다. 먼저 `.forgeflow/workflow.yaml`이 RuntimePolicy보다 우선인지, 보조 검증 레이어인지, 충돌 시 실패해야 하는지 결정해야 한다.
 
 ## 제약사항 (반드시 준수)
 
-- **stdlib only** — PyYAML 없이 YAML 파싱 필요. 옵션:
-  - JSON으로 대체 (`.forgeflow/workflows/default.json`)
-  - 또는 간단한 YAML 파서 직구현 (Spec Kit도 독자 파서 사용)
-- 기존 테스트 117개 모두 통과해야 함
+- **새 외부 의존성 추가 금지** — 현재 코드베이스에서 이미 쓰는 의존성만 사용한다.
+  - `policy_loader.py`가 이미 PyYAML을 사용하므로 Phase 3 bridge는 기존 `RuntimePolicy`를 입력으로 받는다.
+  - user-facing workflow 파일을 직접 로드하는 Phase 4를 구현할 때는 JSON 우선 또는 기존 PyYAML 사용 여부를 별도 결정한다.
+- 기존 전체 테스트가 모두 통과해야 함
 - 기존 artifact 스키마(`schema_version: "0.2"`) 변경 없음
-- `forgeflow_runtime/` 내부만 수정, `adapters/` 구조는 그대로
+- `forgeflow_runtime/` 내부 변경을 우선하고, `adapters/` 구조는 유지
 
 ## 참고 소스 (Spec Kit)
 
