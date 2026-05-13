@@ -7,10 +7,10 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from forgeflow_runtime.experiment.circuit import CircuitBreaker, CircuitState
-from forgeflow_runtime.experiment.git_ops import ExperimentGit, GitDiff
-from forgeflow_runtime.experiment.metric import MetricResult, execute_metric
-from forgeflow_runtime.experiment.simplicity import (
+from experimental.experiment.circuit import CircuitBreaker, CircuitState
+from experimental.experiment.git_ops import ExperimentGit, GitDiff
+from experimental.experiment.metric import MetricResult, execute_metric
+from experimental.experiment.simplicity import (
     improvement_efficiency,
     simplicity_score,
 )

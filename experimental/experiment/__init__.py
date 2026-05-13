@@ -5,7 +5,7 @@ Metric-driven experimentation with git isolation and circuit breaker safety.
 
 from __future__ import annotations
 
-from forgeflow_runtime.experiment.loop import (
+from experimental.experiment.loop import (
     ExperimentConfig,
     ExperimentResult,
     IterationResult,

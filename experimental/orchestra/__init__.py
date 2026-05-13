@@ -6,7 +6,7 @@ consensus, debate, pipeline, fastest.
 
 from __future__ import annotations
 
-from forgeflow_runtime.orchestra.strategy import (
+from experimental.orchestra.strategy import (
     STRATEGY_REGISTRY,
     OrchestrationConfig,
     OrchestrationResult,

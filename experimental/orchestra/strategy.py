@@ -177,15 +177,15 @@ def run_orchestration(
         )
 
     if config.strategy == "fastest":
-        from forgeflow_runtime.orchestra.fastest import run_fastest
+        from experimental.orchestra.fastest import run_fastest
         return run_fastest(request, config, use_real=use_real)
 
     if config.strategy == "debate":
-        from forgeflow_runtime.orchestra.debate import run_debate
+        from experimental.orchestra.debate import run_debate
         return run_debate(request, config, use_real=use_real)
 
     if config.strategy == "pipeline":
-        from forgeflow_runtime.orchestra.pipeline import run_pipeline
+        from experimental.orchestra.pipeline import run_pipeline
         return run_pipeline(request, config, use_real=use_real)
 
     # consensus — simple fan-out + strategy merge
@@ -217,7 +217,7 @@ def run_orchestration(
 
 # --- Strategy implementations ---
 
-from forgeflow_runtime.orchestra.consensus import consensus_merge  # noqa: E402
+from experimental.orchestra.consensus import consensus_merge  # noqa: E402
 
 STRATEGY_REGISTRY: dict[str, StrategyFunc] = {
     "consensus": consensus_merge,
