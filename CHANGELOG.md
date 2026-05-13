@@ -7,6 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Migrate artifact schema version from 0.1 to 0.2 with backward-compatible auto-migration (#129).
+- Add `validate_and_migrate` mode: 0.1 artifacts silently upgraded on load.
+- Implement `_migrate_0_1_to_0_2`: brief gains specialist fields, review-report gains review_roles.
+
+## [0.7.5] - 2026-05-13
+
+### Added
+
+- Standalone review entrypoint: review without full pipeline via review-input.json normalization.
+- `schemas/review-input.schema.json` with mode (pipeline|standalone), brief, evidence, target_scope, review_roles.
+- `review_roles` enum: spec-review, quality-review, security-review, ux-review.
+- 2-axis specialist agent selection — spec-based routing for Claude and Codex adapters.
+- Specialist agent definitions (spec-reviewer, quality-reviewer, etc.) per target agent.
+- AI-team handoff contract tests + handoff documentation.
+- 5 new schema migration tests (0.1→0.2 for brief, review-report, generic, preserve, fixtures).
+
+### Changed
+
+- Extended review-report schema with security/ux review types and blockers field.
+- Enriched 30 review-report fixtures with evidence_refs, next_action, blockers.
+- Updated canonical prompts (spec-reviewer, quality-reviewer) for standalone review roles.
+- Updated adapter docs (Claude/Codex) for standalone review input rules.
+- Refreshed generated adapter prompts and runtime module map.
+- Split evolution runtime into subpackage.
+- Opt into GitHub Node 24 actions runtime.
+
 ## [0.7.4] - 2026-05-11
 
 ### Changed
