@@ -496,6 +496,33 @@ class TestParallelWorkerExecution:
         assert [worker["status"] for worker in persisted["workers"]] == ["completed", "completed"]
         assert (task_dir / "workers" / "ui" / "output.md").exists()
 
+
+    def test_advance_execute_immediately_uses_project_workflow_role_override(self, tmp_path: Path, policy: RuntimePolicy) -> None:
+        project_root = tmp_path / "project"
+        task_dir = project_root / ".forgeflow" / "tasks" / "role-override"
+        workflow_dir = project_root / ".forgeflow"
+        workflow_dir.mkdir(parents=True)
+        (workflow_dir / "workflow.yaml").write_text(
+            """
+steps:
+  execute:
+    role: planner
+""".lstrip(),
+            encoding="utf-8",
+        )
+        start_task(task_dir, policy, "small")
+
+        result = advance_to_next_stage(
+            task_dir,
+            policy,
+            "small",
+            "clarify",
+            execute_immediately=True,
+        )
+
+        assert result.next_stage == "execute"
+        assert result.execution["role"] == "planner"
+
     def test_finalize_merges_review_approved_parallel_worker_worktrees(self, tmp_path: Path, policy: RuntimePolicy) -> None:
         repo = tmp_path / "repo"
         repo.mkdir()

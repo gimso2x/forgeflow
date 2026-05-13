@@ -45,6 +45,7 @@ from forgeflow_runtime.task_identity import canonical_task_id as _canonical_task
 from forgeflow_runtime.task_identity import task_id as _task_id
 from forgeflow_runtime.workflow_engine import resolve_route as _workflow_resolve_route
 from forgeflow_runtime.workflow_engine import workflow_from_runtime_policy as _workflow_from_runtime_policy
+from forgeflow_runtime.workflow_override import resolve_project_workflow as _resolve_project_workflow
 
 from forgeflow_runtime.execute_context import build_execute_context as _build_execute_context, format_execute_prompt as _format_execute_prompt
 from forgeflow_runtime.progress_tracker import calculate_progress as _calculate_progress, detect_progress_anomaly as _detect_progress_anomaly
@@ -1619,19 +1620,34 @@ def status_summary(task_dir: Path, policy: RuntimePolicy, route_name: str | None
     }
 
 
-def _resolve_route(policy: RuntimePolicy, route_name: str) -> list[str]:
+def _project_root_for_task_dir(task_dir: Path) -> Path:
+    resolved = task_dir.resolve()
+    parts = resolved.parts
+    if ".forgeflow" in parts:
+        index = parts.index(".forgeflow")
+        if index > 0:
+            return Path(*parts[:index])
+    return resolved.parent
+
+
+def _workflow_for_task_dir(policy: RuntimePolicy, task_dir: Path):
+    return _resolve_project_workflow(_project_root_for_task_dir(task_dir), policy)
+
+
+def _resolve_route(policy: RuntimePolicy, route_name: str, *, workflow: Any | None = None) -> list[str]:
     route = policy.routes.get(route_name)
     if route is None:
         raise RuntimeViolation(f"unknown route: {route_name}")
     stages = [str(stage) for stage in route["stages"]]
-    workflow = _workflow_from_runtime_policy(policy)
-    workflow_stages = [step.id for step in _workflow_resolve_route(workflow, route_name)]
-    if workflow_stages != stages:
+    caller_supplied_workflow = workflow is not None
+    resolved_workflow = workflow or _workflow_from_runtime_policy(policy)
+    workflow_stages = [step.id for step in _workflow_resolve_route(resolved_workflow, route_name)]
+    if not caller_supplied_workflow and workflow_stages != stages:
         raise RuntimeViolation(
             f"workflow route {route_name} conflicts with runtime policy route: "
             f"workflow={workflow_stages} policy={stages}"
         )
-    return stages
+    return workflow_stages
 
 
 def advance_to_next_stage(
@@ -1647,7 +1663,8 @@ def advance_to_next_stage(
     use_real: bool = False,
     collector: Any | None = None,
 ) -> TransitionResult:
-    route = _resolve_route(policy, route_name)
+    workflow = _workflow_for_task_dir(policy, task_dir)
+    route = _resolve_route(policy, route_name, workflow=workflow)
     canonical_task_id = _canonical_task_id(task_dir)
     plan_ledger = _require_plan_ledger_for_route(task_dir, route_name, canonical_task_id=canonical_task_id)
     run_state_path = _artifact_path(task_dir, "run-state")
@@ -1661,7 +1678,6 @@ def advance_to_next_stage(
             f"requested current_stage {current_stage} does not match persisted run-state stage {run_state.get('current_stage')}"
         )
 
-    workflow = _workflow_from_runtime_policy(policy)
     next_stage = next_stage_for_transition(
         route,
         current_stage,
@@ -2125,7 +2141,8 @@ def _find_git_root(start: Path) -> Path | None:
 def run_route(task_dir: Path, policy: RuntimePolicy, route_name: str) -> dict[str, Any]:
     from forgeflow_runtime.profiling import ProfilingCollector
 
-    route = _resolve_route(policy, route_name)
+    workflow = _workflow_for_task_dir(policy, task_dir)
+    route = _resolve_route(policy, route_name, workflow=workflow)
     canonical_task_id = _canonical_task_id(task_dir)
     plan_ledger = _require_plan_ledger_for_route(task_dir, route_name, canonical_task_id=canonical_task_id)
     run_state = _ensure_run_state(task_dir, canonical_task_id=canonical_task_id)
