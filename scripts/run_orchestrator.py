@@ -29,6 +29,7 @@ from forgeflow_runtime.operator_routing import ROUTE_ORDER, effective_route, rol
 from forgeflow_runtime.engine import execute_stage  # noqa: E402
 from forgeflow_runtime.executor import ExecutorError  # noqa: E402
 from forgeflow_runtime.generator import GenerationError  # noqa: E402
+from forgeflow_runtime.workflow_override import resolve_project_workflow  # noqa: E402
 
 
 def _execution_payload(*, stage: str, role: str, adapter: str, result, use_real: bool = False) -> dict:
@@ -196,6 +197,20 @@ Notes:
         help="fail fast unless --real is also set; useful for CI jobs that must not silently run stubs",
     )
 
+    validate_workflow_parser = subparsers.add_parser(
+        "validate-workflow",
+        help="validate a project .forgeflow/workflow.yaml overlay without executing stages",
+    )
+    validate_workflow_parser.add_argument(
+        "--project-root",
+        default=".",
+        help="project root containing .forgeflow/workflow.yaml; defaults to current directory",
+    )
+    validate_workflow_parser.add_argument(
+        "--workflow-path",
+        help="explicit workflow overlay path; defaults to <project-root>/.forgeflow/workflow.yaml",
+    )
+
     return parser
 
 
@@ -254,6 +269,30 @@ def _guard_mutating_task_dir(command: str, task_dir: Path) -> None:
         )
 
 
+def _workflow_payload(*, project_root: Path, override_path: Path, policy) -> dict:
+    workflow = resolve_project_workflow(project_root, policy, override_path=override_path)
+    return {
+        "status": "valid",
+        "project_root": str(project_root),
+        "override_path": str(override_path),
+        "workflow_name": workflow.name,
+        "schema_version": workflow.schema_version,
+        "routes": workflow.routes,
+        "steps": {
+            step_id: {
+                "id": step.id,
+                "type": step.type,
+                "role": step.role,
+                "artifact_out": step.artifact_out,
+                "required_for_entry": step.required_for_entry,
+                "gate": step.gate,
+                "non_negotiables": step.non_negotiables,
+            }
+            for step_id, step in workflow.steps.items()
+        },
+    }
+
+
 def main() -> int:
     parser = build_parser()
     args = parser.parse_args()
@@ -261,6 +300,13 @@ def main() -> int:
     try:
         task_dir_arg = getattr(args, "task_dir", None)
         init_task_id: str | None = None
+        policy = load_runtime_policy(ROOT)
+        if args.command == "validate-workflow":
+            project_root = Path(args.project_root).resolve()
+            override_path = Path(args.workflow_path).resolve() if args.workflow_path else project_root / ".forgeflow" / "workflow.yaml"
+            _print_payload(_workflow_payload(project_root=project_root, override_path=override_path, policy=policy))
+            return 0
+
         if args.command == "init":
             explicit_task_dir = Path(task_dir_arg).resolve() if task_dir_arg else None
             init_task_id = _init_task_id_from_args(explicit_task_dir, getattr(args, "task_id", None), getattr(args, "objective", None))
@@ -270,7 +316,6 @@ def main() -> int:
         else:
             parser.error("--task-dir is required for this command")
         _guard_mutating_task_dir(args.command, task_dir)
-        policy = load_runtime_policy(ROOT)
 
         route_name = effective_route(
             task_dir=task_dir,

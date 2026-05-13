@@ -14,10 +14,67 @@ def test_cli_help_includes_operator_shell_examples() -> None:
     result = _run_orchestrator_cli("--help")
 
     assert result.returncode == 0
+    assert "validate-workflow" in result.stdout
     assert "Operator shell examples:" in result.stdout
     assert "python3 scripts/run_runtime_sample.py --fixture-dir examples/runtime-fixtures/small-doc-task --route small" in result.stdout
     assert "clarify-first is canonical" in result.stdout
     assert "Manual commands mutate the target task-dir" in result.stdout
+
+
+def test_cli_validate_workflow_accepts_valid_project_overlay(tmp_path: Path) -> None:
+    project_dir = tmp_path / "target-project"
+    workflow_dir = project_dir / ".forgeflow"
+    workflow_dir.mkdir(parents=True)
+    (workflow_dir / "workflow.yaml").write_text(
+        """
+name: custom-project-workflow
+routes:
+  small:
+    - clarify
+    - spec-review
+    - execute
+    - quality-review
+steps:
+  execute:
+    role: nextjs-worker
+    non_negotiables:
+      - keep changes scoped
+""".lstrip(),
+        encoding="utf-8",
+    )
+
+    result = _run_orchestrator_cli("validate-workflow", "--project-root", str(project_dir))
+
+    assert result.returncode == 0, result.stderr
+    payload = json.loads(result.stdout)
+    assert payload["status"] == "valid"
+    assert payload["project_root"] == str(project_dir.resolve())
+    assert payload["override_path"] == str((workflow_dir / "workflow.yaml").resolve())
+    assert payload["workflow_name"] == "custom-project-workflow"
+    assert payload["routes"]["small"] == ["clarify", "spec-review", "execute", "quality-review"]
+    assert payload["steps"]["execute"]["role"] == "nextjs-worker"
+
+
+def test_cli_validate_workflow_reports_invalid_project_overlay(tmp_path: Path) -> None:
+    project_dir = tmp_path / "target-project"
+    workflow_dir = project_dir / ".forgeflow"
+    workflow_dir.mkdir(parents=True)
+    (workflow_dir / "workflow.yaml").write_text(
+        """
+routes:
+  tiny:
+    - clarify
+""".lstrip(),
+        encoding="utf-8",
+    )
+
+    result = _run_orchestrator_cli("validate-workflow", "--project-root", str(project_dir))
+
+    assert result.returncode == 1
+    assert result.stdout == ""
+    assert result.stderr.startswith("ERROR: ")
+    assert "unknown workflow route: tiny" in result.stderr
+    assert "Traceback" not in result.stderr
 
 
 def test_cli_help_keeps_fallback_start_execute_warning_adjacent_to_examples() -> None:
