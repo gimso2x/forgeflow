@@ -81,7 +81,7 @@ orchestrator.py 분해:
 ```
 현재 (13개 파일, 1,801줄):
   paths.py, rules.py, audit.py, lifecycle.py, execution.py, observations.py,
-  doctor.py, proposals.py, promotion_gates.py,
+  doctor.py, proposals.py,
   promotions.py, cases.py, __init__.py
 
 목표 (7개 파일, ~900줄):
@@ -94,7 +94,7 @@ orchestrator.py 분해:
   __init__.py       (60줄) — facade 축소
 
 삭제/흡수:
-  promotion_gates.py  (206줄) → lifecycle.py에 간단 promote 1함수로 흡수
+  promotion_gates.py  (완료: lifecycle.py로 흡수 후 삭제)
   promotion_plans.py  (완료: audit.py로 흡수 후 삭제)
   proposals.py        (175줄) → 간단 proposal만 남기거나 삭제
   promotions.py       (145줄) → lifecycle.py promote 함수로 대체

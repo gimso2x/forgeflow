@@ -11,7 +11,6 @@ EVOLUTION_MODULES = [
     "doctor",
     "promotions",
     "execution",
-    "promotion_gates",
     "proposals",
     "lifecycle",
 ]
