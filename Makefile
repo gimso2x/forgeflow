@@ -9,7 +9,7 @@ endif
 VENV_PYTHON := $(VENV_BIN)/python
 VENV_PIP := $(VENV_BIN)/pip
 
-.PHONY: setup check-env validate generate regen clean validate-samples runtime-sample evals adherence-evals monitor-summary monitor-summary-json orchestrator-help orchestrator-status smoke-claude-plugin plugin-smoke-matrix-static validate-context-paths validate-upstream-import validate-hoyeon-import validate-skill-contracts validate-claude-hooks plan-cli-smoke evolution-policy-smoke learn-smoke claude-hook-smoke shared-recovery-smoke team-pattern-smoke agent-preset-smoke claude-agent-preset-smoke release-script-smoke verify-skill-smoke finish-skill-smoke plugin-manifest-smoke
+.PHONY: setup check-env validate generate regen clean validate-samples runtime-sample evals adherence-evals monitor-summary monitor-summary-json orchestrator-help orchestrator-status smoke-claude-plugin plugin-smoke-matrix-static validate-context-paths validate-upstream-import validate-hoyeon-import validate-skill-contracts validate-claude-hooks plan-cli-smoke evolution-policy-smoke learn-smoke claude-hook-smoke shared-recovery-smoke team-pattern-smoke agent-preset-smoke claude-agent-preset-smoke release-script-smoke finish-skill-smoke plugin-manifest-smoke
 
 setup:
 	$(PYTHON) scripts/check_environment.py --require-venv-support --skip-modules
@@ -45,7 +45,6 @@ validate: check-env
 	$(VENV_PYTHON) -m pytest tests/test_codex_plugin_install.py -q
 	$(VENV_PYTHON) -m pytest tests/test_first_clone_setup.py -q
 	$(VENV_PYTHON) -m pytest tests/test_release_script.py -q
-	$(VENV_PYTHON) -m pytest tests/test_verify_skill_contract.py -q
 	$(VENV_PYTHON) -m pytest tests/test_finish_skill_contract.py -q
 	$(VENV_PYTHON) -m pytest tests/test_plugin_manifests.py -q
 	$(MAKE) plugin-smoke-matrix-static
@@ -115,9 +114,6 @@ claude-agent-preset-smoke:
 
 release-script-smoke:
 	$(VENV_PYTHON) -m pytest tests/test_release_script.py -q
-
-verify-skill-smoke:
-	$(VENV_PYTHON) -m pytest tests/test_verify_skill_contract.py -q
 
 finish-skill-smoke:
 	$(VENV_PYTHON) -m pytest tests/test_finish_skill_contract.py -q

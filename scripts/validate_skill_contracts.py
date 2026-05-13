@@ -5,22 +5,14 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 CANONICAL_SKILLS = [
+    'skills/forgeflow/SKILL.md',
+    'skills/init/SKILL.md',
     'skills/clarify/SKILL.md',
-    'skills/specify/SKILL.md',
     'skills/plan/SKILL.md',
     'skills/execute/SKILL.md',
     'skills/review/SKILL.md',
     'skills/ship/SKILL.md',
     'skills/finish/SKILL.md',
-    'skills/verify/SKILL.md',
-    'skills/x-debug.md',
-    'skills/x-deslop.md',
-    'skills/x-qa.md',
-    'skills/x-learn.md',
-    'skills/x-spec-review.md',
-    'skills/x-resume.md',
-    'skills/x-office-hours.md',
-    'skills/x-tdd.md',
 ]
 MODAL_WORDS = ('must', 'requires', 'forbid', 'never', 'only')
 

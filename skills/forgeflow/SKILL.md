@@ -20,7 +20,6 @@ Claude Code may expose native slash commands. Codex exposes plugin skills, so th
 - `/forgeflow` -> this overview workflow skill
 - `/forgeflow:init ...` -> `init`
 - `/forgeflow:clarify ...` -> `clarify`
-- `/forgeflow:specify` -> `specify`
 - `/forgeflow:plan` -> `plan`
 - `/forgeflow:execute` -> `run`
 - `/forgeflow:review` -> `review`

@@ -80,13 +80,7 @@ scripts/smoke.sh
 
 짧은 이름(`/clarify`, `/plan`, `/review`, `/ship`)도 동작할 수 있지만, 다른 Claude plugin/gstack skill과 충돌할 수 있습니다. 운영에서는 **항상 `/forgeflow:<stage>` 네임스페이스 형식**을 권장합니다. 특히 `/review`와 `/ship`은 충돌 가능성이 높습니다.
 
-요구사항을 먼저 더 단단히 뽑아야 하는 작업이면 `/forgeflow:clarify` 다음에 `/forgeflow:specify`를 끼웁니다.
-
-```text
-/forgeflow:clarify <하고 싶은 작업>
-/forgeflow:specify
-/forgeflow:plan
-```
+요구사항을 먼저 더 단단히 뽑아야 하는 작업도 별도 `specify` stage 없이 `/forgeflow:clarify`에서 brief를 보강한 뒤 `/forgeflow:plan`으로 넘어갑니다.
 
 `/forgeflow`는 전체 workflow 설명/입구입니다. 실제 작업 진행은 보통 `/forgeflow:clarify`부터 시작하지만, 그 다음 `/forgeflow:plan`/`run`을 쓰는 이유를 agent가 정리해 줘야지 사용자에게 계획 작성을 떠넘기면 안 됩니다. 사용자가 매번 workflow 운영자가 될 필요는 없습니다. 다만 stage 경계를 넘을 때는 agent가 멈추고 닫힌 질문으로 확인합니다: `다음 스텝으로 `/forgeflow:execute`을 진행하시겠습니까? (y/n)`.
 

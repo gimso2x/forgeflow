@@ -6,7 +6,7 @@ from typing import Any
 
 from forgeflow_runtime.evolution.audit import append_audit_event as _append_audit_event
 from forgeflow_runtime.evolution.audit import utc_timestamp as _utc_timestamp
-from forgeflow_runtime.evolution.promotion_gates import promotion_ready
+from forgeflow_runtime.evolution.lifecycle import promotion_ready
 from forgeflow_runtime.evolution.rules import load_project_rules as _load_project_rules
 
 PROMOTED_RULE_DIR = Path(".forgeflow") / "evolution" / "promoted-rules"

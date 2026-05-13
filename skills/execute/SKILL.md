@@ -122,7 +122,7 @@ If the user explicitly includes `--yes`, `--auto-approve`, `--non-interactive`, 
 7. Run focused verification after each meaningful change.
 8. Update `run-state.json` immediately when starting and finishing each step. Step state must be incremental: `step-1: pending → in_progress → completed`, then `step-2: pending → in_progress → completed`. Do not batch-mark all steps as `completed` only at the end. If a step cannot finish, mark it `blocked` or `failed` with evidence.
 9. After all steps complete, set `run-state.status = "completed"` and `run-state.completed_gates` to include all passed gates.
-10. Stop if requirements become ambiguous; return to `/forgeflow:clarify` or `/forgeflow:specify`.
+10. Stop if requirements become ambiguous; return to `/forgeflow:clarify`.
 11. Deliver the route-aware exit prompt (see Exit Condition above).
 
 Contract-aware execution rules:
@@ -163,7 +163,7 @@ When the orchestrator enters the `execute` stage, it automatically injects three
 - If `/forgeflow:execute` was reached without explicit user approval after the previous stage-boundary question, stop immediately and ask for approval instead of editing files. Do not infer approval from the agent's own prior question.
 - 이미 승인된 run scope 안에서는 반복적으로 계획을 다시 허락받지 않는다.
 - Do not pause just to reconfirm the same plan before editing files.
-- Only bounce back to `/forgeflow:clarify` or `/forgeflow:specify` when scope genuinely changed or a blocker invalidates the current brief/plan.
+- Only bounce back to `/forgeflow:clarify` when scope genuinely changed or a blocker invalidates the current brief/plan.
 - When the user asks to fix review findings, treat that as approval to enter a fix loop for the current review scope: read the latest `review-report.json`, fix only current `open_blockers`/major findings, re-run focused verification, and update `review-report.json` before claiming the fix loop is complete. The updated `open_blockers` must reflect the remaining current blockers, not stale blockers from the previous review.
 - Bad: `승인된 계획대로 실행하겠습니다.`만 말하고 대기.
 - Good: 바로 수정/검증을 시작하고 evidence를 남긴다.
