@@ -1,7 +1,7 @@
 @./adapters/generated/gemini/GEMINI.md
 @./skills/SKILLS.md
-@./skills/using-superpowers/SKILL.md
-@./skills/using-superpowers/references/gemini-tools.md
+@./skills/forgeflow-discipline/SKILL.md
+@./skills/forgeflow-discipline/references/gemini-tools.md
 @./skills/forgeflow/SKILL.md
 @./skills/init/SKILL.md
 @./skills/clarify/SKILL.md

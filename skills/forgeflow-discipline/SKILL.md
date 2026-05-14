@@ -1,19 +1,19 @@
 ---
-name: using-superpowers
-description: Load this skill before acting in Gemini CLI so ForgeFlow keeps the Superpowers-style discipline.
+name: forgeflow-discipline
+description: Load this skill before acting in Gemini CLI so ForgeFlow keeps the operational discipline.
 version: 0.1.0
 author: gimso2x
 validate_prompt: |
-  Must ensure ForgeFlow maintains Superpowers-style discipline in Gemini CLI.
+  Must ensure ForgeFlow maintains operational discipline in Gemini CLI.
   Must prioritize tool execution over intent description.
   Must verify work before reporting completion.
 ---
 
-# using-superpowers
+# forgeflow-discipline
 
 ## Purpose
 
-Load this skill before acting in Gemini CLI so ForgeFlow keeps the Superpowers-style discipline: discover relevant skills first, use the repo tools directly, and verify work before reporting completion.
+Load this skill before acting in Gemini CLI so ForgeFlow keeps the operational discipline: discover relevant skills first, use the repo tools directly, and verify work before reporting completion.
 
 ## Trigger
 

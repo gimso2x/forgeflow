@@ -14,8 +14,8 @@ The repo-root `GEMINI.md` is intentionally a thin bootstrap. It should include:
 
 - the generated Gemini adapter context
 - the ForgeFlow skill index
-- `using-superpowers/SKILL.md`
-- `using-superpowers/references/gemini-tools.md`
+- `forgeflow-discipline/SKILL.md`
+- `forgeflow-discipline/references/gemini-tools.md`
 - the active ForgeFlow workflow skills
 
 Do not replace the generated adapter include with duplicated instructions; regenerate adapter files through the repo scripts when adapter content changes.

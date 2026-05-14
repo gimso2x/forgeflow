@@ -23,7 +23,7 @@ Claude Code, Codex, Gemini CLI 같은 AI coding agent를 쓰는 개발자를 위
 
 **Gemini CLI:**
 ```bash
-gemini extensions install https://github.com/gimso2x/forgeflow
+gemini extensions install https://github.com/gimso2x/forgeflow --ref main --consent
 ```
 
 **Codex:**
