@@ -110,28 +110,30 @@ class StubCodexAdapter(_BaseStubAdapter):
 
 
 
-class ClaudeCodeAdapter:
-    """Real adapter that invokes the Claude Code CLI (``claude``).
 
-    Uses ``claude -p`` for non-interactive prompt mode.  Assumes the
-    ``claude`` binary is on ``$PATH`` and authenticated.
-    """
+class _BaseRealCLIAdapter:
+    """Shared subprocess/budget handling for real CLI adapters."""
 
-    name = "claude"
+    name: str
+    binary_name: str
+    missing_binary_hint: str
 
     def __init__(self, timeout: int = 300) -> None:
         self.timeout = timeout
-        self._binary = shutil.which("claude")
+        self._binary = shutil.which(self.binary_name)
 
     def estimate_tokens(self, text: str) -> int:
         return _estimate_tokens(text)
 
+    def build_command(self, request: RunTaskRequest) -> list[str]:
+        raise NotImplementedError
+
+    def _subprocess_error_prefix(self) -> str:
+        return self.binary_name
+
     def run_task(self, request: RunTaskRequest) -> RunTaskResult:
         if not self._binary:
-            return RunTaskResult(
-                status="failure",
-                error="claude binary not found on PATH; install/auth Claude Code or omit --real to use the safe stub",
-            )
+            return RunTaskResult(status="failure", error=self.missing_binary_hint)
 
         prompt_tokens = self.estimate_tokens(request.prompt)
         if prompt_tokens > request.token_budget_input:
@@ -141,131 +143,75 @@ class ClaudeCodeAdapter:
                 token_usage={"input": prompt_tokens, "output": 0},
             )
 
-        cmd = [
-            self._binary,
+        try:
+            proc = subprocess.run(
+                self.build_command(request),
+                capture_output=True,
+                text=True,
+                timeout=self.timeout,
+                cwd=str(request.task_dir),
+            )
+        except subprocess.TimeoutExpired:
+            return RunTaskResult(
+                status="failure",
+                error=f"{self._subprocess_error_prefix()} timed out after {self.timeout}s",
+                token_usage={"input": prompt_tokens, "output": 0},
+            )
+        except Exception as exc:
+            return RunTaskResult(
+                status="failure",
+                error=f"{self._subprocess_error_prefix()} subprocess error: {exc}",
+                token_usage={"input": prompt_tokens, "output": 0},
+            )
+
+        output_tokens = self.estimate_tokens(proc.stdout)
+        if output_tokens > request.token_budget_output:
+            return RunTaskResult(
+                status="blocked",
+                error=f"output tokens {output_tokens} exceed output budget {request.token_budget_output}",
+                token_usage={"input": prompt_tokens, "output": output_tokens},
+            )
+
+        status = "success" if proc.returncode == 0 else "failure"
+        error = None
+        if proc.returncode != 0:
+            error = f"{self._subprocess_error_prefix()} exited {proc.returncode}: {proc.stderr[:500]}"
+
+        return RunTaskResult(
+            status=status,
+            artifacts_produced=list(request.artifacts_to_stream or []),
+            token_usage={"input": prompt_tokens, "output": output_tokens},
+            raw_output=proc.stdout,
+            error=error,
+        )
+
+
+class ClaudeCodeAdapter(_BaseRealCLIAdapter):
+    """Real adapter that invokes the Claude Code CLI (``claude``)."""
+
+    name = "claude"
+    binary_name = "claude"
+    missing_binary_hint = "claude binary not found on PATH; install/auth Claude Code or omit --real to use the safe stub"
+
+    def build_command(self, request: RunTaskRequest) -> list[str]:
+        return [
+            self._binary or self.binary_name,
             "-p",
             "--dangerously-skip-permissions",
             "--bare",
             request.prompt,
         ]
-        try:
-            proc = subprocess.run(
-                cmd,
-                capture_output=True,
-                text=True,
-                timeout=self.timeout,
-                cwd=str(request.task_dir),
-            )
-        except subprocess.TimeoutExpired as exc:
-            return RunTaskResult(
-                status="failure",
-                error=f"claude timed out after {self.timeout}s",
-                token_usage={"input": prompt_tokens, "output": 0},
-            )
-        except Exception as exc:
-            return RunTaskResult(
-                status="failure",
-                error=f"claude subprocess error: {exc}",
-                token_usage={"input": prompt_tokens, "output": 0},
-            )
-
-        output_tokens = self.estimate_tokens(proc.stdout)
-        if output_tokens > request.token_budget_output:
-            return RunTaskResult(
-                status="blocked",
-                error=f"output tokens {output_tokens} exceed output budget {request.token_budget_output}",
-                token_usage={"input": prompt_tokens, "output": output_tokens},
-            )
-
-        artifacts = list(request.artifacts_to_stream or [])
-        status = "success" if proc.returncode == 0 else "failure"
-        error = None
-        if proc.returncode != 0:
-            error = f"claude exited {proc.returncode}: {proc.stderr[:500]}"
-
-        return RunTaskResult(
-            status=status,
-            artifacts_produced=artifacts,
-            token_usage={"input": prompt_tokens, "output": output_tokens},
-            raw_output=proc.stdout,
-            error=error,
-        )
 
 
-class CodexCLIAdapter:
-    """Real adapter that invokes the OpenAI Codex CLI (``codex``).
-
-    Uses ``codex exec`` for non-interactive execution.  Assumes the
-    ``codex`` binary is on ``$PATH`` and authenticated.
-    """
+class CodexCLIAdapter(_BaseRealCLIAdapter):
+    """Real adapter that invokes the OpenAI Codex CLI (``codex``)."""
 
     name = "codex"
+    binary_name = "codex"
+    missing_binary_hint = "codex binary not found on PATH; install/auth Codex CLI or omit --real to use the safe stub"
 
-    def __init__(self, timeout: int = 300) -> None:
-        self.timeout = timeout
-        self._binary = shutil.which("codex")
-
-    def estimate_tokens(self, text: str) -> int:
-        return _estimate_tokens(text)
-
-    def run_task(self, request: RunTaskRequest) -> RunTaskResult:
-        if not self._binary:
-            return RunTaskResult(
-                status="failure",
-                error="codex binary not found on PATH; install/auth Codex CLI or omit --real to use the safe stub",
-            )
-
-        prompt_tokens = self.estimate_tokens(request.prompt)
-        if prompt_tokens > request.token_budget_input:
-            return RunTaskResult(
-                status="blocked",
-                error=f"prompt tokens {prompt_tokens} exceed input budget {request.token_budget_input}",
-                token_usage={"input": prompt_tokens, "output": 0},
-            )
-
-        cmd = [self._binary, "exec", request.prompt]
-        try:
-            proc = subprocess.run(
-                cmd,
-                capture_output=True,
-                text=True,
-                timeout=self.timeout,
-                cwd=str(request.task_dir),
-            )
-        except subprocess.TimeoutExpired as exc:
-            return RunTaskResult(
-                status="failure",
-                error=f"codex timed out after {self.timeout}s",
-                token_usage={"input": prompt_tokens, "output": 0},
-            )
-        except Exception as exc:
-            return RunTaskResult(
-                status="failure",
-                error=f"codex subprocess error: {exc}",
-                token_usage={"input": prompt_tokens, "output": 0},
-            )
-
-        output_tokens = self.estimate_tokens(proc.stdout)
-        if output_tokens > request.token_budget_output:
-            return RunTaskResult(
-                status="blocked",
-                error=f"output tokens {output_tokens} exceed output budget {request.token_budget_output}",
-                token_usage={"input": prompt_tokens, "output": output_tokens},
-            )
-
-        artifacts = list(request.artifacts_to_stream or [])
-        status = "success" if proc.returncode == 0 else "failure"
-        error = None
-        if proc.returncode != 0:
-            error = f"codex exited {proc.returncode}: {proc.stderr[:500]}"
-
-        return RunTaskResult(
-            status=status,
-            artifacts_produced=artifacts,
-            token_usage={"input": prompt_tokens, "output": output_tokens},
-            raw_output=proc.stdout,
-            error=error,
-        )
+    def build_command(self, request: RunTaskRequest) -> list[str]:
+        return [self._binary or self.binary_name, "exec", request.prompt]
 
 
 STUB_REGISTRY: dict[str, ExecutorAdapter] = {

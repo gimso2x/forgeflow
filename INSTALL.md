@@ -343,7 +343,14 @@ make setup
 make validate
 ```
 
-`make validate` is the deterministic validation entry point: it runs `check-env`, schema/policy/generated checks, focused pytest contracts, and static plugin smoke matrix checks in the correct order. `make check-env` remains a focused diagnostic target when you only want dependency/environment output.
+`make validate` is the deterministic validation entry point: it runs `check-env`, then the separated validation lanes in order.
+
+- `make validate-structure`: plugin/release version drift, context paths, schema/policy/generated checks, sample artifacts, skill contracts, Claude hooks.
+- `make validate-fast`: fast deterministic pytest/eval/smoke contracts; no live provider execution.
+- `make validate-plugin`: static non-mutating Claude/Codex plugin smoke matrix.
+- `make validate-e2e-live`: optional mutating live-agent E2E against a disposable project; run manually, not as part of default `make validate`.
+
+`make check-env` remains a focused diagnostic target when you only want dependency/environment output.
 
 ## Windows native vs WSL2 decision tree
 

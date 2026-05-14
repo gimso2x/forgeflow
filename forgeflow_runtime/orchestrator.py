@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -37,6 +36,9 @@ from forgeflow_runtime.plan_ledger import (
     sync_plan_ledger_review as _sync_plan_ledger_review,
 )
 from forgeflow_runtime.operator_routing import role_for_stage
+from forgeflow_runtime.orchestrator_execution import TransitionResult
+from forgeflow_runtime.orchestrator_execution import execution_payload as _execution_payload
+from forgeflow_runtime.orchestrator_execution import stub_execution_warning as _stub_execution_warning
 from forgeflow_runtime.policy_loader import RuntimePolicy, load_runtime_policy
 from forgeflow_runtime.resume_validation import resume_start_index
 from forgeflow_runtime.route_execution import build_route_result, route_entry_decision, route_iteration_stages, stage_completion_status
@@ -58,36 +60,6 @@ from forgeflow_runtime.worktree import (
     merge_worker_worktree as _merge_worker_worktree,
     remove_worktree as _remove_worktree,
 )
-
-
-@dataclass(frozen=True)
-class TransitionResult:
-    next_stage: str
-    execution: dict[str, Any] | None = None
-
-
-def _stub_execution_warning() -> str:
-    return "STUB EXECUTION: no real CLI adapter ran; pass --real for live execution or --assert-real to fail fast."
-
-
-def _execution_payload(*, stage: str, role: str, adapter: str, result: Any, use_real: bool = False) -> dict[str, Any]:
-    execution_mode = "real" if use_real else "stub"
-    payload = {
-        "stage": stage,
-        "role": role,
-        "adapter": adapter,
-        "execution_mode": execution_mode,
-        "dry_run": execution_mode == "stub",
-        "status": result.status,
-        "artifacts_produced": result.artifacts_produced,
-        "token_usage": result.token_usage,
-    }
-    if execution_mode == "stub":
-        payload["warning"] = _stub_execution_warning()
-    if result.error:
-        payload["error"] = result.error
-    return payload
-
 
 def _load_plan_ledger(task_dir: Path, *, canonical_task_id: str) -> dict[str, Any] | None:
     path = _artifact_path(task_dir, "plan-ledger")

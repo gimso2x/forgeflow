@@ -98,14 +98,25 @@ def test_make_validate_is_the_single_deterministic_validation_entrypoint() -> No
     scripts_readme = (ROOT / "scripts" / "README.md").read_text(encoding="utf-8")
     install = (ROOT / "INSTALL.md").read_text(encoding="utf-8")
 
-    assert "validate: check-env" in makefile
+    assert "validate: check-env validate-structure validate-fast validate-plugin" in makefile
+    assert "validate-structure:" in makefile
+    assert "validate-fast:" in makefile
+    assert "validate-plugin: plugin-smoke-matrix-static" in makefile
+    assert "validate-e2e-live:" in makefile
     assert "scripts/ci_plugin_smoke_matrix.py" in makefile
+    assert "scripts/real_plugin_e2e.py --surface claude --route small" in makefile
     assert "smoke-claude-plugin:" in makefile
     assert "make setup\nmake validate" in install
     assert "make check-env\nmake validate" not in install
     assert "make setup\nmake validate" in scripts_readme
     assert "make check-env\nmake validate" not in scripts_readme
-    assert "deterministic validation entry point" in install
+    for text in [install, scripts_readme]:
+        assert "deterministic validation entry point" in text
+        assert "make validate-structure" in text
+        assert "make validate-fast" in text
+        assert "make validate-plugin" in text
+        assert "make validate-e2e-live" in text
+        assert "not as part of default `make validate`" in text
     assert "live smoke" in install
     assert "make smoke-claude-plugin" in install
 

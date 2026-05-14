@@ -109,6 +109,10 @@ Verification checklist:
 - `python scripts/check_plugin_versions.py`
 - `pytest -q`
 - `make validate`
+- `make validate-structure`
+- `make validate-fast`
+- `make validate-plugin`
+- Optional live E2E: `make validate-e2e-live`
 - `make smoke-claude-plugin`
 
 Release commands:
@@ -216,11 +220,12 @@ def release_plan(version: str) -> str:
             f"5. update README current release to v{version}",
             "6. run python scripts/check_plugin_versions.py",
             "7. run pytest -q",
-            "8. run make validate",
-            "9. run make smoke-claude-plugin",
-            f"10. create git commit: chore: release {tag}",
-            f"11. create annotated tag: {tag}",
-            f"12. push with: git push origin main {tag}",
+            "8. run make validate (check-env + validate-structure + validate-fast + validate-plugin)",
+            "9. optionally run make validate-e2e-live on a disposable project",
+            "10. run make smoke-claude-plugin",
+            f"11. create git commit: chore: release {tag}",
+            f"12. create annotated tag: {tag}",
+            f"13. push with: git push origin main {tag}",
         ]
     )
 

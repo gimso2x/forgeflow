@@ -47,10 +47,11 @@ def test_release_script_dry_run_prints_ordered_checks_without_mutating_versions(
     assert "5. update README current release to v0.1.14" in result.stdout
     assert "6. run python scripts/check_plugin_versions.py" in result.stdout
     assert "7. run pytest -q" in result.stdout
-    assert "8. run make validate" in result.stdout
-    assert "9. run make smoke-claude-plugin" in result.stdout
-    assert "10. create git commit: chore: release v0.1.14" in result.stdout
-    assert "11. create annotated tag: v0.1.14" in result.stdout
+    assert "8. run make validate (check-env + validate-structure + validate-fast + validate-plugin)" in result.stdout
+    assert "9. optionally run make validate-e2e-live on a disposable project" in result.stdout
+    assert "10. run make smoke-claude-plugin" in result.stdout
+    assert "11. create git commit: chore: release v0.1.14" in result.stdout
+    assert "12. create annotated tag: v0.1.14" in result.stdout
     assert "git commit -am" not in SCRIPT.read_text(encoding="utf-8")
     assert json.loads(PLUGIN.read_text()) == before_plugin
     assert json.loads(MARKETPLACE.read_text()) == before_marketplace
@@ -84,6 +85,10 @@ def test_release_script_can_update_versions_only_and_write_release_notes(tmp_pat
         assert "## v0.1.14" in notes.read_text()
         assert "pytest -q" in notes.read_text()
         assert "make validate" in notes.read_text()
+        assert "make validate-structure" in notes.read_text()
+        assert "make validate-fast" in notes.read_text()
+        assert "make validate-plugin" in notes.read_text()
+        assert "make validate-e2e-live" in notes.read_text()
     finally:
         PLUGIN.write_text(original_plugin)
         MARKETPLACE.write_text(original_marketplace)
