@@ -119,7 +119,15 @@ python3 scripts/run_orchestrator.py escalate \
 
 - `--route` is an explicit override.
 - Without `--route`, the CLI reuses route state from `session-state.json`, `checkpoint.json`, or `plan-ledger.json`.
-- If no persisted route exists, `brief.json.risk_level` maps to a route.
+- If no persisted route exists, `brief.json.risk_level` maps to a route based on the following mapping:
+
+| Risk Level (`--risk`) | Route Name (`--route`) | Description |
+|-----------------------|------------------------|-------------|
+| `low`                 | `small`                | Localized change, 1-2 files, low risk. |
+| `medium`              | `medium`               | Coordinated changes, shared state. |
+| `high`                | `high`                 | Security, data migration, high risk. |
+| `critical`            | `epic`                 | Massive scope, hierarchical milestones. |
+
 - If nothing is available, fallback route is `small`.
 - `--min-route` can raise the floor, but must not lower an explicit or persisted route.
 

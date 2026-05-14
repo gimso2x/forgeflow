@@ -23,6 +23,7 @@ Claude Code, Codex, Gemini CLI 같은 AI coding agent를 쓰는 개발자를 위
 
 **Gemini CLI:**
 ```bash
+# 이 명령은 즉시 설치됩니다. (consent 플래그로 확인 생략)
 gemini extensions install https://github.com/gimso2x/forgeflow --ref main --consent
 ```
 
@@ -131,7 +132,7 @@ Windows PowerShell:
 - Evidence over claims
 - Stage gates over vibes
 - Independent review over self-approval
-- One workflow across Claude Code and Codex
+- One workflow across Claude Code, Codex, and Gemini CLI
 
 ## License
 

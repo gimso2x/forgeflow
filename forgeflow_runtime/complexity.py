@@ -25,6 +25,7 @@ _LEVEL_TO_ROUTE: dict[str, str] = {
     "LOW": "small",
     "MEDIUM": "medium",
     "HIGH": "high",
+    "CRITICAL": "epic",
 }
 
 
@@ -50,6 +51,7 @@ class ComplexityWeights:
     risk_keyword: float = 3.0
     low_threshold: float = 10.0
     high_threshold: float = 25.0
+    critical_threshold: float = 50.0
 
 
 @dataclass(frozen=True)
@@ -57,8 +59,8 @@ class ComplexityScore:
     """Result of an adaptive complexity assessment."""
 
     raw_score: float
-    level: str  # "LOW" | "MEDIUM" | "HIGH"
-    route_name: str  # "small" | "medium" | "high"
+    level: str  # "LOW" | "MEDIUM" | "HIGH" | "CRITICAL"
+    route_name: str  # "small" | "medium" | "high" | "epic"
     factors: ComplexityFactors
     rationale: str
 
@@ -165,6 +167,8 @@ def assess_complexity(
 
     if raw_score < w.low_threshold:
         level = "LOW"
+    elif raw_score >= w.critical_threshold:
+        level = "CRITICAL"
     elif raw_score >= w.high_threshold:
         level = "HIGH"
     else:
@@ -228,4 +232,5 @@ def weights_from_policy(adaptive_routing: dict[str, Any]) -> ComplexityWeights:
         risk_keyword=float(w_map.get("risk_keyword", 3.0)),
         low_threshold=float(thresholds.get("low", 10.0)),
         high_threshold=float(thresholds.get("high", 25.0)),
+        critical_threshold=float(thresholds.get("critical", 50.0)),
     )
