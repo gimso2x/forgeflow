@@ -14,7 +14,11 @@ def test_gemini_extension_manifest_points_at_generated_context() -> None:
     assert manifest["description"] == "ForgeFlow runtime methodology and adapter guidance for Gemini CLI"
     assert manifest["contextFileName"] == "GEMINI.md"
     assert (ROOT / manifest["contextFileName"]).exists()
-    assert (ROOT / "GEMINI.md").read_text(encoding="utf-8") == "@./adapters/generated/gemini/GEMINI.md\n"
+    root_gemini = (ROOT / "GEMINI.md").read_text(encoding="utf-8")
+    assert "@./adapters/generated/gemini/GEMINI.md" in root_gemini
+    assert "@./skills/SKILLS.md" in root_gemini
+    for skill in ["forgeflow", "init", "clarify", "plan", "execute", "review", "ship", "finish"]:
+        assert f"@./skills/{skill}/SKILL.md" in root_gemini
     assert (ROOT / "adapters/generated/gemini/GEMINI.md").exists()
 
 

@@ -1,1 +1,10 @@
 @./adapters/generated/gemini/GEMINI.md
+@./skills/SKILLS.md
+@./skills/forgeflow/SKILL.md
+@./skills/init/SKILL.md
+@./skills/clarify/SKILL.md
+@./skills/plan/SKILL.md
+@./skills/execute/SKILL.md
+@./skills/review/SKILL.md
+@./skills/ship/SKILL.md
+@./skills/finish/SKILL.md

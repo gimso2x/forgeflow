@@ -25,7 +25,7 @@ Gemini CLI는 ForgeFlow를 extension으로 설치합니다. 설치 후 Gemini CL
 gemini extensions install https://github.com/gimso2x/forgeflow
 ```
 
-이미 checkout을 개발 중이면 복사 설치 대신 link로 바로 테스트합니다. root `GEMINI.md`는 Gemini extension bootstrap이고, 실제 ForgeFlow adapter context는 `@./adapters/generated/gemini/GEMINI.md`로 include합니다.
+이미 checkout을 개발 중이면 복사 설치 대신 link로 바로 테스트합니다. root `GEMINI.md`는 Gemini extension bootstrap이고, 실제 ForgeFlow adapter context는 `@./adapters/generated/gemini/GEMINI.md`로 include합니다. ForgeFlow workflow skills도 Superpowers 방식처럼 `@./skills/.../SKILL.md`로 함께 include되어 Gemini가 `/forgeflow:init`부터 `/forgeflow:finish`까지 각 stage contract를 바로 참조할 수 있습니다.
 
 ```bash
 gemini extensions link /home/ubuntu/work/forgeflow
