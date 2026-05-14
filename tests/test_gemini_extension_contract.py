@@ -11,8 +11,11 @@ def test_gemini_extension_manifest_points_at_generated_context() -> None:
     manifest = json.loads((ROOT / "gemini-extension.json").read_text(encoding="utf-8"))
 
     assert manifest["name"] == "forgeflow"
-    assert manifest["contextFileName"] == "adapters/generated/gemini/GEMINI.md"
+    assert manifest["description"] == "ForgeFlow runtime methodology and adapter guidance for Gemini CLI"
+    assert manifest["contextFileName"] == "GEMINI.md"
     assert (ROOT / manifest["contextFileName"]).exists()
+    assert (ROOT / "GEMINI.md").read_text(encoding="utf-8") == "@./adapters/generated/gemini/GEMINI.md\n"
+    assert (ROOT / "adapters/generated/gemini/GEMINI.md").exists()
 
 
 def test_gemini_extension_docs_use_native_extension_commands() -> None:

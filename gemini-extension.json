@@ -1,5 +1,6 @@
 {
   "name": "forgeflow",
+  "description": "ForgeFlow runtime methodology and adapter guidance for Gemini CLI",
   "version": "0.2.0",
-  "contextFileName": "adapters/generated/gemini/GEMINI.md"
+  "contextFileName": "GEMINI.md"
 }
