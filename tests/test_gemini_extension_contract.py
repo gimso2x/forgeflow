@@ -17,11 +17,7 @@ def test_gemini_extension_manifest_points_at_generated_context() -> None:
     root_gemini = (ROOT / "GEMINI.md").read_text(encoding="utf-8")
     assert "@./adapters/generated/gemini/GEMINI.md" in root_gemini
     assert "@./skills/SKILLS.md" in root_gemini
-    assert "@./skills/forgeflow-discipline/SKILL.md" in root_gemini
-    assert "@./skills/forgeflow-discipline/references/gemini-tools.md" in root_gemini
-    assert (ROOT / "skills/forgeflow-discipline/SKILL.md").exists()
-    assert (ROOT / "skills/forgeflow-discipline/references/gemini-tools.md").exists()
-    for skill in ["forgeflow", "init", "clarify", "plan", "execute", "review", "ship", "finish"]:
+    for skill in ["forgeflow", "init", "clarify", "plan", "milestone", "execute", "review", "ship", "finish"]:
         assert f"@./skills/{skill}/SKILL.md" in root_gemini
     assert (ROOT / "adapters/generated/gemini/GEMINI.md").exists()
 

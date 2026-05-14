@@ -7,8 +7,9 @@ Skills are markdown documents that live in `skills/`. Each skill defines a bound
 1. **One skill = one bounded operation.** No skill tries to do everything.
 2. **Every skill declares its output artifacts.** If it doesn't write to disk, it's not a skill.
 3. **Skills chain; they don't fork.** The output of skill N is the required input of skill N+1.
-4. **Trigger phrases are advisory, not magical.** The operator or an adapter decides when to invoke a skill.
-5. **Keep the active skill surface minimal.** Optional discipline, debugging, QA, and learning guidance belongs in docs, prompts, runtime policy, or tests unless it is a first-class plugin skill.
+4. **Status analysis is a runtime/reporting surface, not a workflow stage.** Read `run-state.json`, review reports, eval records, and `scripts/forgeflow_monitor.py` before deciding resume/fix/finish, but do not create a separate status skill.
+5. **Trigger phrases are advisory, not magical.** The operator or an adapter decides when to invoke a skill.
+6. **Keep the active skill surface minimal.** Optional discipline, debugging, QA, and learning guidance belongs in docs, prompts, runtime policy, or tests unless it is a first-class plugin skill.
 
 ## Workflow skills (ordered)
 
@@ -26,7 +27,7 @@ Skills are markdown documents that live in `skills/`. Each skill defines a bound
 
 ## Removed optional skills
 
-The active plugin/runtime surface intentionally excludes optional `specify`, `verify`, and `x-*` skills. Their useful ideas are absorbed into the core workflow skills, prompts, docs, runtime policy, and tests instead of remaining as separate user-facing skills.
+The active plugin/runtime surface intentionally excludes optional `specify`, `verify`, and `x-*` skills. Their useful ideas are absorbed into the core workflow skills, prompts, docs, runtime policy, and tests instead of remaining as separate user-facing skills. Tool-specific root prompts should include the active workflow skills directly instead of keeping separate adapter-only discipline shims. Use `scripts/forgeflow_monitor.py` for read-only status analysis instead of adding a separate user-facing status skill.
 
 ## Skill lifecycle in a single task
 

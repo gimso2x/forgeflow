@@ -174,7 +174,8 @@ When the orchestrator enters the `execute` stage, it automatically injects three
 
 ### How to use these as an agent
 
-- At the start of each execute turn, read `decision-log.json` for the latest `execute-context` entry — it tells you exactly what to work on.
+- At the start of each execute turn, inspect `run-state.json` first for current status, progress, blockers, and next actionable steps. If status is stale/unknown, use `python3 scripts/forgeflow_monitor.py --tasks .forgeflow/tasks --recent 10` for read-only workspace triage before editing.
+- Then read `decision-log.json` for the latest `execute-context` entry — it tells you exactly what to work on.
 - Check `run-state.json` → `progress` for overall status and `next_actionable` tasks.
 - If `run-state.status` is `"blocked"` with stuck signals, do NOT continue editing. Report the stuck condition and suggest alternatives.
 - To provide external test regression signals, call `detect_stuck(task_dir, external_signals={"test_failures_before": N, "test_failures_after": M})`.

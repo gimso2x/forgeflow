@@ -37,3 +37,8 @@ Ship reviewed work. Requires an `approved` review report.
    ```
 
 6. Report: commit SHA, files shipped, review verdict.
+
+
+## Status analysis preflight
+
+Read `run-state.json`, review/eval artifacts, and `decision-log.json` from the active `.forgeflow/tasks/<task-id>/` before acting. For multi-task triage, run `python3 scripts/forgeflow_monitor.py --tasks .forgeflow/tasks --recent 10` as read-only evidence; then inspect the selected artifacts directly.

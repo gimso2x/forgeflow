@@ -58,6 +58,10 @@ If the user explicitly asks for a dry run, exact-output response, or no-write si
 
 Use `.forgeflow/tasks/<task-id>/` for any task-local finish evidence unless the user provides another project-local artifact directory.
 
+## Status analysis preflight
+
+Before presenting finish options, reconstruct the active task status from artifacts: `run-state.json`, latest review report(s), `eval-record.json`, and `decision-log.json`. For a repo with many task dirs, run `python3 scripts/forgeflow_monitor.py --tasks .forgeflow/tasks --recent 10` as read-only status analysis, then inspect the selected artifacts directly.
+
 ## Procedure
 
 ### 1. Verify before finishing

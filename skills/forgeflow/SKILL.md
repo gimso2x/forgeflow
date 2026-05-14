@@ -11,7 +11,7 @@ validate_prompt: |
 
 # ForgeFlow
 
-ForgeFlow turns agent work into explicit stages with artifacts, gates, and independent review. It enforces **Deep Architecture Discipline** (Depth, Seam, Locality, Deletion test) and a **Grilling loop** (Socratic interviewing with recommended answers) to ensure rigorous design and maintainable code.
+ForgeFlow turns agent work into explicit stages with artifacts, gates, and independent review. It enforces **Deep Architecture Discipline** (Depth, Seam, Locality, Deletion test) and a **Grilling loop** (Socratic interviewing with recommended answers) to ensure rigorous design and maintainable code. The active skill surface stays small: status analysis is handled by runtime artifacts and `scripts/forgeflow_monitor.py`, not by a separate workflow skill.
 
 ## Slash-style entrypoints
 
@@ -55,6 +55,17 @@ The task is complete only when:
 - review gates are satisfied by evidence, not by vibes
 - verification commands have passed or failures are explicitly documented
 - final response names artifacts/evidence used for finalize
+
+## Status analysis before routing
+
+Before choosing the next stage for an existing task, inspect the active task directory when available:
+
+- `run-state.json`: current stage, status, route, progress, next actionable step, blockers.
+- `review-report.json`, `review-report-spec.json`, `review-report-quality.json`: verdicts and open blockers.
+- `eval-record.json`: final evaluation status when present.
+- `decision-log.json`: latest implementation context, failure reasons, stuck signals.
+
+For multi-task or stale workspace triage, run `python3 scripts/forgeflow_monitor.py --tasks .forgeflow/tasks --recent 10` from the target repo. Treat the monitor as read-only evidence for resume/fix/finish decisions; it does not replace stage artifacts or review gates.
 
 ## Route model
 
