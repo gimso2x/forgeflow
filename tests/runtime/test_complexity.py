@@ -116,8 +116,8 @@ class TestAssessComplexity:
             "The system must support rollback. It should handle retries. Required: audit log."
         )
         score = assess_complexity(brief)
-        assert score.level == "HIGH"
-        assert score.route_name == "high"
+        assert score.level == "CRITICAL"
+        assert score.route_name == "epic"
 
     def test_custom_weights_override_defaults(self) -> None:
         brief = "Deploy to production."
@@ -125,10 +125,11 @@ class TestAssessComplexity:
         default_score = assess_complexity(brief)
         assert default_score.level == "LOW"
 
-        # With very high risk weight, 1 keyword should push to HIGH
+        # With very high risk weight, 1 keyword should push to CRITICAL / epic
         heavy = ComplexityWeights(risk_keyword=50.0, high_threshold=25.0)
         score = assess_complexity(brief, weights=heavy)
-        assert score.level == "HIGH"
+        assert score.level == "CRITICAL"
+        assert score.route_name == "epic"
 
     def test_custom_thresholds_change_boundaries(self) -> None:
         brief = "Must fix bug. Should add test. Update src/main.py."

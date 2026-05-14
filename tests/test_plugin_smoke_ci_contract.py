@@ -12,7 +12,7 @@ def test_validate_workflow_has_plugin_smoke_matrix_job() -> None:
     assert "plugin-smoke-matrix:" in workflow
     assert "os: [ubuntu-latest, windows-latest]" in workflow
     assert "surface: [claude, codex]" in workflow
-    assert "route_label: [small, medium, high]" in workflow
+    assert "route_label: [small, medium, high, epic]" in workflow
     assert "scripts/ci_plugin_smoke_matrix.py" in workflow
 
 
@@ -45,14 +45,14 @@ def test_coordinator_rejects_adapter_synonyms_for_route_labels() -> None:
     codex_project_coordinator = (ROOT / "adapters" / "targets" / "codex" / "agents" / "forgeflow-coordinator.md").read_text(encoding="utf-8")
 
     for text in [coordinator, codex, codex_project_coordinator]:
-        assert "ForgeFlow route labels are exactly `small`, `medium`, and `high`" in text
+        assert "ForgeFlow route labels are exactly `small`, `medium`, `high`, and `epic`" in text
         assert "adapter/team-size synonyms" in text
         assert "`solo`" in text
 
 
 def test_plugin_smoke_prompts_block_non_canonical_route_labels() -> None:
     smoke = SMOKE.read_text(encoding="utf-8")
-    assert "Valid labels: small, medium, high." in smoke
+    assert "Valid labels: small, medium, high, epic." in smoke
     assert "Invalid answers: solo, team, pipeline, supervisor, security review." in smoke
     assert "Do not translate route labels." in smoke
     assert "Final answer must be exactly {route_label}" in smoke

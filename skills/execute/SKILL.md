@@ -52,7 +52,7 @@ The execute stage MUST produce `run-state.json` conforming to `schemas/run-state
   ```
   high route 실행 완료. 독립 review가 필수입니다. /forgeflow:review --type spec 으로 Spec Review를 시작합니다.
   ```
-  Then immediately invoke `/forgeflow:review --type spec`.
+  Then immediately invoke `/forgeflow:review --type spec`. /forgeflow:review를 자동으로 시작합니다.
 - **epic** route: Write `run-state.json` after each step of the current milestone completes. After the final step of the current milestone:
   ```
   마일스톤 실행 완료. 독립 review가 필수입니다. /forgeflow:review --type spec 으로 Spec Review를 시작합니다.
@@ -134,7 +134,7 @@ If the user explicitly includes `--yes`, `--auto-approve`, `--non-interactive`, 
 3. Read `contracts` metadata and sibling `contracts.md` before editing when present.
 4. For each task in the plan:
    - **TDD Red**: Write/update tests to fail.
-   - **Execute Implementation**: Implement minimal code to pass.
+   - **Execute Implementation**: Implement minimal code to pass. Prefer the smallest implementation that satisfies the acceptance criteria.
    - **TDD Refactor**: Clean up implementation.
    - **Architectural Depth**: Ensure implementation follows the plan's architectural intent (Depth, Leverage, Locality) and avoids creating new shallow modules (see `docs/refactor-planning-decision.md`).
    - If blocked, apply **Hypothesis-Driven Debugging**.

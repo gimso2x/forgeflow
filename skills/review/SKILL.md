@@ -66,7 +66,9 @@ A review that leaves no `review-report.json` is incomplete. The verdict exists o
 
 - **small** route: Single quality review. Write `review-report.json` with `review_type: "quality"`.
 - **medium** route: Single quality review. Write `review-report.json` with `review_type: "quality"`.
-- **high/epic** route: Two separate reviews are **required**:
+- **high/epic** route:
+  - **high** route and **epic** route both require independent spec and quality gates.
+ Two separate reviews are **required**:
   1. `/forgeflow:review --type spec` — Write `review-report-spec.json` with `review_type: "spec"`.
   2. `/forgeflow:review --type quality` — Write `review-report-quality.json` with `review_type: "quality"`.
 

@@ -51,7 +51,8 @@
       "enum": [
         "low",
         "medium",
-        "high"
+        "high",
+        "critical"
       ]
     },
     "route": {

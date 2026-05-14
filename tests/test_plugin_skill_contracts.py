@@ -29,7 +29,7 @@ def test_clarify_label_only_rule_overrides_normal_brief_procedure() -> None:
     assert "label-only route selection" in skill
     assert "Return only the selected route label" in skill
     assert "label only" in skill
-    assert "output exactly one of `small`, `medium`, or `high`" in skill
+    assert "output exactly one of `small`, `medium`, `high`, or `epic`" in skill
     assert "State the route and why, unless an exact-output/label-only instruction applies." in skill
     assert (
         "Produce the brief in a structured form the next skill can consume, "
@@ -219,8 +219,8 @@ def test_review_skill_has_route_aware_behavior() -> None:
     assert "Route-aware review behavior" in skill
     assert "**small** route" in skill
     assert "**medium** route" in skill
-    assert "**high** route" in skill
-    # high must produce separate spec + quality reports
+    assert "**high/epic** route" in skill
+    # high/epic must produce separate spec + quality reports
     assert "review-report-spec.json" in skill
     assert "review-report-quality.json" in skill
     assert "Two separate reviews are **required**" in skill

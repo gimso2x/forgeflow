@@ -23,6 +23,7 @@ ROUTE_REQUESTS = {
     "small": "fix one README typo in a local documentation file",
     "medium": "implement a coordinated settings feature across six files: a settings route, two presentational React components, shared client state, navigation layout, and lint/type checks; no auth, data migration, payments, production infra, or irreversible changes",
     "high": "migrate production auth, database schema, protected routing, payments data access, deployment rollback behavior, and security review",
+    "epic": "redesign a multi-service production platform across auth, billing, database migrations, deployment rollback, observability, security review, phased rollout, and post-release monitoring",
 }
 SKIP_DIRS = {".git", ".omx", "node_modules", ".next"}
 
@@ -145,7 +146,7 @@ def run_claude_surface(project: Path, route_label: str, timeout: int) -> dict[st
     request = ROUTE_REQUESTS[route_label]
     prompt = (
         f"/forgeflow:clarify Dry run only. Return only the selected route label for: {request}. "
-        "Valid labels: small, medium, high. "
+        "Valid labels: small, medium, high, epic. "
         "Invalid answers: solo, team, pipeline, supervisor, security review. "
         "Do not translate route labels. "
         f"Final answer must be exactly {route_label} and nothing else: no prefix, no rationale, no dry-run note. "
@@ -162,7 +163,7 @@ def run_codex_surface(project: Path, route_label: str, timeout: int) -> dict[str
     prompt = (
         "Read CODEX.md and .codex/forgeflow/forgeflow-coordinator.md first. Apply ForgeFlow route criteria as dry-run. "
         "Do not write files. Do not run commands. "
-        "Valid labels: small, medium, high. "
+        "Valid labels: small, medium, high, epic. "
         "Invalid answers: solo, team, pipeline, supervisor, security review. "
         "Do not translate route labels. "
         f"Final answer must be exactly {route_label} and nothing else: no prefix, no rationale, no dry-run note. "
