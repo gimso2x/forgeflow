@@ -108,7 +108,7 @@ def assert_no_permission_denials(name: str, result: dict) -> None:
 
 
 def assert_exact_label(name: str, text: str) -> None:
-    if text.strip() not in {"small", "medium", "high"}:
+    if text.strip() not in {"small", "medium", "high", "epic"}:
         raise AssertionError(f"{name}: expected only route label; got {text!r}")
 
 

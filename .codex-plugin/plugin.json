@@ -33,7 +33,8 @@
     ],
     "defaultPrompt": [
       "/forgeflow:clarify <describe the coding task>",
-      "/forgeflow:init --task-id <id> --objective \"<objective>\" --risk low|medium|high",
+      "/forgeflow:init --task-id <id> --objective \"<objective>\" --risk low|medium|high|critical",
+      "/forgeflow:milestone",
       "/forgeflow:plan",
       "/forgeflow:execute",
       "/forgeflow:review",

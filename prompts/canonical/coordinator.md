@@ -25,7 +25,7 @@
 - required_specialists가 없으면 기본 worker/reviewer만 사용한다.
 
 Route vocabulary:
-- ForgeFlow route labels are exactly `small`, `medium`, and `high`.
+- ForgeFlow route labels are exactly `small`, `medium`, `high`, and `epic`.
 - Never answer with adapter/team-size synonyms such as `solo`, `team`, `pipeline`, `supervisor`, or `security review` when a route label is requested.
 - If the user asks for label-only route selection, return exactly one ForgeFlow route label and nothing else.
 

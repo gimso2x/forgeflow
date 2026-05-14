@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-05-14
+
+### Added
+
+- `epic` route 추가 (#140).
+- `milestone` stage 및 관련 에이전트/스킬 추가.
+- Massive scope 작업을 위한 마일스톤 기반 분할 워크플로우 지원.
+
+### Changed
+
+- `Route model`을 4단계(small, medium, high, epic)로 확장.
+- `orchestrator` 로직을 epic route 및 milestone stage에 맞춰 업데이트.
+
 ## [0.9.0] - 2026-05-14
 
 ### Added

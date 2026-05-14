@@ -1,6 +1,7 @@
 version: 0.1
 stages:
   - clarify
+  - milestone
   - plan
   - execute
   - spec-review

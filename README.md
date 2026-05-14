@@ -2,7 +2,7 @@
 
 AI coding agent가 채팅 기억에 의존하지 않고, **명시적인 artifact, gate, evidence, 독립 review**로 작업하게 만드는 artifact-first delivery harness. Claude Code, Codex, 그리고 Gemini CLI에서 같은 workflow를 사용합니다.
 
-현재 릴리즈: **v0.8.1**
+현재 릴리즈: **v0.10.0**
 
 ## 누가 왜 쓰나
 
@@ -11,7 +11,7 @@ Claude Code, Codex, Gemini CLI 같은 AI coding agent를 쓰는 개발자를 위
 **핵심 가치:**
 - **Session 간 context 유실 방지** — 모든 단계가 로컬 artifact로 남습니다
 - **독립 review** — 작성자와 검토자가 분리된 evidence 기반 review
-- **Risk-based routing** — 작업 크기와 위험도에 따라 small/medium/high 경로 자동 선택
+- **Risk-based routing** — 작업 크기와 위험도에 따라 small/medium/high/epic 경로 자동 선택
 
 ## 30초 퀵스타트
 
@@ -43,16 +43,17 @@ forgeflow-runtime --help
 ## 기본 워크플로우
 
 ```text
-요청 → clarify → plan → execute → review → ship
+요청 → clarify → milestone → plan → execute → review → ship
 ```
 
 - **clarify** — 요청을 목표, 제약, 성공 조건, route로 정리합니다
+- **milestone** — epic route일 때 전체 작업을 큰 단위의 마일스톤으로 분할합니다
 - **plan** — medium 이상이거나 모호한 작업을 실행 가능한 계획으로 쪼갭니다
 - **execute** — 승인된 brief와 plan 범위 안에서 작업합니다
 - **review** — 결과를 evidence와 artifact 기준으로 독립 검토합니다
 - **ship** — handoff를 정리하고 PR/merge/keep/discard 결정을 다룹니다
 
-각 stage는 slash skill로 실행합니다: `/forgeflow:clarify`, `/forgeflow:plan`, `/forgeflow:execute`, `/forgeflow:review`, `/forgeflow:ship`. 사용자가 매번 stage를 운영해야 한다는 뜻은 아닙니다 — agent가 다음 stage를 자연스럽게 이어받고, stage 경계에서 다음 단계로 넘어갈지 확인합니다.
+각 stage는 slash skill로 실행합니다: `/forgeflow:clarify`, `/forgeflow:milestone`, `/forgeflow:plan`, `/forgeflow:execute`, `/forgeflow:review`, `/forgeflow:ship`. 사용자가 매번 stage를 운영해야 한다는 뜻은 아닙니다 — agent가 다음 stage를 자연스럽게 이어받고, stage 경계에서 다음 단계로 넘어갈지 확인합니다.
 
 자세한 stage 규칙은 [docs/workflow.md](docs/workflow.md)을 보세요.
 
@@ -96,9 +97,9 @@ Windows PowerShell:
 
 ## 핵심 개념
 
-- **Artifact model** — brief, plan, run-state, review-report 등 모든 단계가 검증 가능한 JSON artifact를 생성합니다 → [docs/artifact-model.md](docs/artifact-model.md)
+- **Artifact model** — brief, milestone, plan, run-state, review-report 등 모든 단계가 검증 가능한 JSON artifact를 생성합니다 → [docs/artifact-model.md](docs/artifact-model.md)
 - **Review model** — evidence 기반 독립 review contract. 작성자와 검토자 분리 → [docs/review-model.md](docs/review-model.md)
-- **Route model (small/medium/high)** — 작업 위험도와 복잡도에 따라 실행 경로를 자동 선택합니다 → [docs/operator-shell.md](docs/operator-shell.md)
+- **Route model (small/medium/high/epic)** — 작업 위험도와 복잡도에 따라 실행 경로를 자동 선택합니다 → [docs/operator-shell.md](docs/operator-shell.md)
 - **2-axis specialist selection** — route 축(작업 크기)과 spec 축(전문 에이전트)이 독립 작동합니다. security/backend/frontend/infra/ux/perf 6개 도메인 → [docs/workflow.md](docs/workflow.md)
 - **Adapter boundary** — Claude Code, Codex, Gemini CLI에서 동일한 workflow를 보장하는 adapter 계층 → [docs/adapter-model.md](docs/adapter-model.md)
 
