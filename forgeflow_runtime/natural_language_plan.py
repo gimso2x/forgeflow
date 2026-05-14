@@ -159,6 +159,7 @@ def generate_plan_from_text(task_id: str, text: str, *, issue_refs: Iterable[str
             "verification": _verification_for(req, template),
             "fulfills": [req.id],
             "status": "pending",
+            "source": "nlp_draft",
         }
         steps.append(step)
 

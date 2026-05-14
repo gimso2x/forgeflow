@@ -195,7 +195,7 @@ ForgeFlow는 **두 개의 독립적인 축**으로 에이전트를 선택한다:
 **핵심 원칙:**
 - 두 축은 독립적이다. route가 small이어도 security-review가 필요할 수 있고, route가 high여도 specialist가 없을 수 있다.
 - 전문 에이전트는 항상 활성화가 아니라 clarify에서 **on-demand**로만 판단한다.
-- skip한 전문가는 `brief.skipped_specialists` + `brief.skip_rationale`에 반드시 사유를 남긴다.
+- skip한 전문가는 `brief.skipped_specialists` + `brief.skip_rationale`에 반드시 사유를 남긴다. 새 brief가 `required_specialists` 또는 `skipped_specialists`를 쓰기 시작하면 `clarification_complete` gate는 모든 canonical specialist가 `required_specialists` 또는 `skipped_specialists` 중 하나에 명시되지 않으면 실패한다. legacy brief처럼 두 필드가 모두 없으면 migration compatibility를 위해 통과한다.
 - `required_specialists`가 비어 있으면 기본 worker/reviewer만 사용한다.
 
 플랜 우선 원칙은 모든 route에 적용된다. 작은 작업도 최소 brief와 실행 근거를 남기고, medium/high-risk 작업은 구현 전에 plan-ledger task, expected output, verification, role owner를 먼저 확정한다. 구현자는 이 ledger 밖의 일을 선반영하지 않는다.
@@ -274,3 +274,16 @@ Stage 규칙은 `policy/canonical/stages.yaml`의 `non_negotiables`가 정본이
 4. runtime adapter가 workflow semantics를 바꾸면 안 됨
 5. bounded recovery만 허용
 6. 작은 일까지 무조건 full process 강제 금지
+
+
+## Evolution graduation contract
+
+Proposal → promotion → crystallization은 블랙박스가 아니다. 기본 졸업 조건:
+
+1. 입력 신호: `eval-record`, review finding, repeated tool failure, manual operator note 중 하나 이상.
+2. Evidence: 재현 가능한 artifact ref와 실패/개선 전후 설명.
+3. Audit: `evolution_audit`가 scope, confidence, source_count를 기록.
+4. Promotion: hard rule은 테스트 또는 policy 검증이 붙을 때만, soft rule은 제한된 scope와 rollback note가 있을 때만.
+5. Crystallization: promoted rule이 반복 task에서 재사용 가능하고 기존 canonical stage/gate semantics를 약화하지 않는 경우만 문서/skill로 승격한다.
+
+`eval-record`는 기록으로 끝나지 않는다. evolution pipeline의 signal source이며 routing threshold나 specialist 선택을 바꾸려면 proposal/audit/promotion artifact를 통해 변경 근거를 남겨야 한다.

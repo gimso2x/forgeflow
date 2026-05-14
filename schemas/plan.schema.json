@@ -65,6 +65,16 @@
               "failed",
               "blocked"
             ]
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "nlp_draft",
+              "human",
+              "agent_refined",
+              "imported"
+            ],
+            "description": "Provenance for this step. nlp_draft means the step came from deterministic natural-language extraction and needs reviewer skepticism."
           }
         },
         "additionalProperties": false

@@ -92,7 +92,7 @@ python3 scripts/policy_scan.py
 
 ## Conventions
 
-- Artifact는 항상 JSON. schema_version `0.1`.
+- Artifact는 항상 JSON. 새 artifact schema_version은 현재 `0.2`이며 `schema_versions.py`/`schemas/*.schema.json`가 canonical입니다 (`0.1`은 migration 입력).
 - Review는 읽기 전용. 코드 수정 금지 — findings에 기록 후 worker에게 돌려보냄.
 - `progress.percentage`는 매 write 시 재계산. timestamp는 실제 ISO 8601.
 - Verification은 실제 명령 기반. hallucinated command 금지.

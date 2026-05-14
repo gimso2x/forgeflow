@@ -77,6 +77,7 @@ def _execution_payload(*, stage: str, role: str, adapter: str, result: Any, use_
         "role": role,
         "adapter": adapter,
         "execution_mode": execution_mode,
+        "dry_run": execution_mode == "stub",
         "status": result.status,
         "artifacts_produced": result.artifacts_produced,
         "token_usage": result.token_usage,
@@ -2322,13 +2323,16 @@ def run_route(task_dir: Path, policy: RuntimePolicy, route_name: str) -> dict[st
             decision=f"stage entered: {stage_name}",
             rationale=f"route {route_name} progressed to {stage_name}",
         )
+        # --- Worktree cleanup after execute stage ---
+        # Cleanup mutates run_state and decision_log, so it must happen before
+        # artifact writes. Otherwise run-state.json can incorrectly persist an
+        # active worktree after the worktree has already been removed.
+        if stage_name == "execute" and _active_worktree is not None:
+            _cleanup_worktree(task_dir, _active_worktree, run_state, decision_log)
+
         _write_validated_artifact(task_dir, "run-state", run_state)
         _write_validated_artifact(task_dir, "decision-log", decision_log)
         _write_plan_ledger_if_present(task_dir, plan_ledger)
-
-        # --- Worktree cleanup after execute stage ---
-        if stage_name == "execute" and _active_worktree is not None:
-            _cleanup_worktree(task_dir, _active_worktree, run_state, decision_log)
 
         # Profiling: record completed stage
         from forgeflow_runtime.executor import RunTaskResult

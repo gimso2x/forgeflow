@@ -1,5 +1,14 @@
 # ForgeFlow 설치 가이드
 
+## 빠른 설치 선택
+
+- Claude Code를 쓰나요? → **Claude Code plugin 설치** 섹션으로 가세요.
+- Codex Desktop/CLI를 쓰나요? → **Codex Plugin 설치** 섹션으로 가세요.
+- CLI/CI에서만 쓸 건가요? → **Python 패키지 설치** 섹션으로 가세요.
+- 그냥 프로젝트에 지침만 복사할 건가요? → **수동 복사** 섹션으로 가세요.
+- Antigravity를 쓰나요? → **Antigravity** 섹션으로 가세요.
+
+
 ForgeFlow는 세 가지 방식으로 쓸 수 있습니다.
 
 1. **Claude Code 플러그인** — Claude Code에서 ForgeFlow 규칙/스킬 표면을 설치해서 사용 → [상세 가이드](docs/guides/claude-code.md)
@@ -430,6 +439,7 @@ python3 scripts/run_orchestrator.py exec-stage \
 ```json
 {
   "execution_mode": "stub",
+  "dry_run": true,
   "warning": "STUB EXECUTION: no real CLI adapter ran; pass --real for live execution or --assert-real to fail fast."
 }
 ```

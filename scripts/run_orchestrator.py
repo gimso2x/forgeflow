@@ -44,7 +44,10 @@ def _execution_payload(*, stage: str, role: str, adapter: str, result, use_real:
         "token_usage": result.token_usage,
     }
     if execution_mode == "stub":
+        payload["dry_run"] = True
         payload["warning"] = _stub_execution_warning()
+    else:
+        payload["dry_run"] = False
     if result.error:
         payload["error"] = result.error
     return payload

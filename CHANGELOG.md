@@ -7,11 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.1] - 2026-05-14
+
+### Added
+
+- Add `plan.steps[].source` provenance for natural-language plan drafts.
+- Add `dry_run` to execution payloads so stub and real adapter runs are explicit.
+
 ### Changed
 
 - Migrate artifact schema version from 0.1 to 0.2 with backward-compatible auto-migration (#129).
 - Add `validate_and_migrate` mode: 0.1 artifacts silently upgraded on load.
 - Implement `_migrate_0_1_to_0_2`: brief gains specialist fields, review-report gains review_roles.
+- Document current artifact schema ownership and keep plugin install/release docs aligned with v0.8.1.
+
+### Fixed
+
+- Enforce specialist require/skip decisions and skip rationales for new brief artifacts while preserving legacy compatibility.
+- Preserve validated gate payloads during stage gate evaluation.
+- Persist execute worktree cleanup state before writing route artifacts.
 
 ## [0.8.0] - 2026-05-13
 

@@ -776,6 +776,7 @@ class TestExecutionPayload:
         assert payload["role"] == "coder"
         assert payload["adapter"] == "claude"
         assert payload["execution_mode"] == "real"
+        assert payload["dry_run"] is False
         assert payload["status"] == "success"
         assert payload["artifacts_produced"] == ["plan.json"]
         assert payload["token_usage"] == {"prompt": 100, "completion": 50}
@@ -793,6 +794,7 @@ class TestExecutionPayload:
         )
         assert payload["error"] == "timeout"
         assert payload["execution_mode"] == "stub"
+        assert payload["dry_run"] is True
         assert "STUB EXECUTION" in payload["warning"]
 
 

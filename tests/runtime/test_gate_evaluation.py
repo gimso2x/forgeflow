@@ -67,3 +67,105 @@ def test_enforce_stage_gate_reports_missing_gate_artifacts(tmp_path) -> None:
 
     with pytest.raises(RuntimeViolation, match="plan requires artifacts satisfying gate plan_approved: plan"):
         enforce_stage_gate(tmp_path, policy, "plan", canonical_task_id="task-1")
+
+
+def _policy_requiring_brief() -> RuntimePolicy:
+    return RuntimePolicy(
+        workflow_stages=["plan"],
+        stage_requirements={},
+        stage_gate_map={"plan": "clarification_complete"},
+        gate_requirements={"clarification_complete": ["brief"]},
+        gate_reviews={},
+        routes={},
+        finalize_flags=[],
+        review_order=[],
+    )
+
+
+def test_clarification_gate_rejects_brief_without_explicit_specialist_skip_decisions(tmp_path) -> None:
+    (tmp_path / "brief.json").write_text(
+        """{
+  "schema_version": "0.2",
+  "task_id": "task-1",
+  "objective": "small docs change",
+  "in_scope": ["docs"],
+  "out_of_scope": [],
+  "constraints": [],
+  "acceptance_criteria": ["docs updated"],
+  "risk_level": "low",
+  "required_specialists": []
+}
+""",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(RuntimeViolation, match="must explicitly require or skip every specialist"):
+        enforce_stage_gate(tmp_path, _policy_requiring_brief(), "plan", canonical_task_id="task-1")
+
+
+def test_clarification_gate_accepts_explicit_specialist_skips_with_rationale(tmp_path) -> None:
+    (tmp_path / "brief.json").write_text(
+        """{
+  "schema_version": "0.2",
+  "task_id": "task-1",
+  "objective": "small docs change",
+  "in_scope": ["docs"],
+  "out_of_scope": [],
+  "constraints": [],
+  "acceptance_criteria": ["docs updated"],
+  "risk_level": "low",
+  "required_specialists": [],
+  "skipped_specialists": ["security-review", "ux-review", "perf-review", "frontend-execute", "backend-execute", "infra-execute"],
+  "skip_rationale": "Docs-only task; no specialist domain execution needed."
+}
+""",
+        encoding="utf-8",
+    )
+
+    enforce_stage_gate(tmp_path, _policy_requiring_brief(), "plan", canonical_task_id="task-1")
+
+
+def test_clarification_gate_rejects_conflicting_specialist_decisions(tmp_path) -> None:
+    (tmp_path / "brief.json").write_text(
+        """{
+  "schema_version": "0.2",
+  "task_id": "task-1",
+  "objective": "small docs change",
+  "in_scope": ["docs"],
+  "out_of_scope": [],
+  "constraints": [],
+  "acceptance_criteria": ["docs updated"],
+  "risk_level": "low",
+  "required_specialists": ["security-review"],
+  "skipped_specialists": ["security-review", "ux-review", "perf-review", "frontend-execute", "backend-execute", "infra-execute"],
+  "skip_rationale": "Docs-only task; no specialist domain execution needed."
+}
+""",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(RuntimeViolation, match="cannot both require and skip specialists: security-review"):
+        enforce_stage_gate(tmp_path, _policy_requiring_brief(), "plan", canonical_task_id="task-1")
+
+
+def test_clarification_gate_rejects_unknown_specialists(tmp_path) -> None:
+    (tmp_path / "brief.json").write_text(
+        """{
+  "schema_version": "0.2",
+  "task_id": "task-1",
+  "objective": "small docs change",
+  "in_scope": ["docs"],
+  "out_of_scope": [],
+  "constraints": [],
+  "acceptance_criteria": ["docs updated"],
+  "risk_level": "low",
+  "required_specialists": ["unknown-review"],
+  "skipped_specialists": ["security-review", "ux-review", "perf-review", "frontend-execute", "backend-execute", "infra-execute"],
+  "skip_rationale": "Docs-only task; no specialist domain execution needed."
+}
+""",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(RuntimeViolation, match="failed schema validation: required_specialists/0"):
+        enforce_stage_gate(tmp_path, _policy_requiring_brief(), "plan", canonical_task_id="task-1")

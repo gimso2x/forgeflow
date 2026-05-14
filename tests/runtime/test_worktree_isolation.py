@@ -41,7 +41,12 @@ def task_dir(git_project: Path, write_json) -> Path:
 
     write_json(td / "brief.json", {
         "schema_version": "0.2",
+        "task_id": "test-wt-001",
         "objective": "test worktree isolation",
+        "in_scope": ["exercise execute worktree cleanup"],
+        "out_of_scope": [],
+        "constraints": [],
+        "acceptance_criteria": ["worktree cleanup is persisted"],
         "risk_level": "low",
         "route": "small",
         "use_worktree": True,
@@ -68,7 +73,15 @@ def task_dir(git_project: Path, write_json) -> Path:
     })
     write_json(td / "session-state.json", {
         "schema_version": "0.2",
+        "task_id": "test-wt-001",
         "route": "small",
+        "current_stage": "execute",
+        "plan_ref": "brief.json",
+        "plan_ledger_ref": "run-state.json",
+        "run_state_ref": "run-state.json",
+        "latest_checkpoint_ref": "checkpoint.json",
+        "next_action": "quality-review를 검증하고 finalize로 진행",
+        "updated_at": "2026-04-22T00:05:00Z",
     })
     write_json(td / "plan-ledger.json", {
         "schema_version": "0.2",
@@ -276,6 +289,62 @@ def test_cleanup_worktree_handles_missing_path(task_dir: Path):
     # Should not raise; empty path means nothing to remove
     _cleanup_worktree(task_dir, wt_info, run_state, decision_log)
     assert run_state["worktree"]["active"] is False
+
+
+def test_run_route_persists_worktree_cleanup(task_dir: Path, write_json):
+    from forgeflow_runtime.orchestrator import load_runtime_policy, run_route
+
+    write_json(task_dir / "run-state.json", {
+        "schema_version": "0.2",
+        "task_id": "test-wt-001",
+        "current_stage": "execute",
+        "status": "in_progress",
+        "completed_gates": ["clarification_complete"],
+        "failed_gates": [],
+        "retries": {},
+        "current_task_id": "",
+        "spec_review_approved": False,
+        "quality_review_approved": False,
+    })
+    write_json(task_dir / "decision-log.json", {
+        "schema_version": "0.2",
+        "task_id": "test-wt-001",
+        "entries": [],
+    })
+    write_json(task_dir / "checkpoint.json", {
+        "schema_version": "0.2",
+        "task_id": "test-wt-001",
+        "route": "small",
+        "current_stage": "execute",
+        "plan_ref": "brief.json",
+        "plan_ledger_ref": "run-state.json",
+        "run_state_ref": "run-state.json",
+        "latest_review_ref": "review-report.json",
+        "next_action": "quality-review를 검증하고 finalize로 진행",
+        "open_blockers": [],
+        "updated_at": "2026-04-22T00:05:00Z",
+    })
+    write_json(task_dir / "review-report.json", {
+        "schema_version": "0.2",
+        "task_id": "test-wt-001",
+        "review_type": "quality",
+        "verdict": "approved",
+        "findings": ["looks fine"],
+        "approved_by": "quality-reviewer",
+        "next_action": "finalize 가능",
+    })
+
+    result = run_route(task_dir=task_dir, policy=load_runtime_policy(Path(__file__).parents[2]), route_name="small")
+
+    assert result["current_stage"] == "finalize"
+    persisted_run_state = json.loads((task_dir / "run-state.json").read_text(encoding="utf-8"))
+    assert persisted_run_state["worktree"]["active"] is False
+    worktree_path = Path(persisted_run_state["worktree"]["path"])
+    assert not worktree_path.exists()
+
+    decision_log = json.loads((task_dir / "decision-log.json").read_text(encoding="utf-8"))
+    decisions = [entry["decision"] for entry in decision_log["entries"]]
+    assert "worktree removed" in decisions
 
 
 # ---------------------------------------------------------------------------
