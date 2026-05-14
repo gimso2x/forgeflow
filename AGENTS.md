@@ -78,6 +78,13 @@ memory/                  # Version-controlled local memory: curated patterns, de
 - Use `tmp_path` or `tests/runtime/conftest.py` fixtures for task directories.
 - Aim for meaningful coverage — test the contract, not just imports.
 - Run full suite before committing: `python3 -m pytest -q`
+- For route/stage/gate/artifact/review policy changes, run `make evals` or the narrow `make adherence-evals` target and include the result in the PR/handoff.
+
+## PR Checklist
+
+- Tests or evals were run for the changed contract surface.
+- `make evals` evidence is included when workflow policy, fixtures, gates, stages, routes, review reports, or artifact schemas change.
+- Documentation under `docs/` or `evals/` is updated when eval semantics or suite coverage change.
 
 ## Do NOT
 
