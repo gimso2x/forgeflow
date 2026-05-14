@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-05-14
+
+### Added
+
+- Gemini 어댑터 익스텐션 지원 추가 (#131).
+- Gemini CLI 익스텐션용 bootstrap 및 환경 검증 지원.
+
+### Changed
+
+- Gemini 익스텐션 bootstrap 로직을 기존 워크플로우와 정렬.
+
 ## [0.8.1] - 2026-05-14
 
 ### Added
