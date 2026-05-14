@@ -33,6 +33,7 @@ validate-structure:
 	$(VENV_PYTHON) scripts/validate_hoyeon_import.py
 	$(VENV_PYTHON) scripts/validate_skill_contracts.py
 	$(VENV_PYTHON) scripts/validate_claude_hooks.py
+	$(VENV_PYTHON) scripts/validate_contract_map.py
 
 validate-fast:
 	$(VENV_PYTHON) scripts/run_adherence_evals.py
