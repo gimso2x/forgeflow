@@ -36,8 +36,8 @@ def test_gate_evidence_ref_uses_run_state_for_regular_stages() -> None:
     assert gate_evidence_ref("plan", "plan_approved") == "run-state.json#gate:plan_approved"
 
 
-def test_record_completed_gate_appends_stage_gate_once() -> None:
-    run_state = {"completed_gates": []}
+def test_record_completed_gate_appends_stage_gate_once(artifact_factory) -> None:
+    run_state = artifact_factory("run-state", completed_gates=[])
 
     record_completed_gate(run_state, "plan", stage_gate_map={"plan": "plan_approved"})
     record_completed_gate(run_state, "plan", stage_gate_map={"plan": "plan_approved"})
@@ -45,8 +45,8 @@ def test_record_completed_gate_appends_stage_gate_once() -> None:
     assert run_state["completed_gates"] == ["plan_approved"]
 
 
-def test_record_completed_gate_skips_stage_without_gate() -> None:
-    run_state = {"completed_gates": []}
+def test_record_completed_gate_skips_stage_without_gate(artifact_factory) -> None:
+    run_state = artifact_factory("run-state", completed_gates=[])
 
     record_completed_gate(run_state, "execute", stage_gate_map={"plan": "plan_approved"})
 
