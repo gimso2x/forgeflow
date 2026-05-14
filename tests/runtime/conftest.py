@@ -19,6 +19,50 @@ def write_json() -> Callable[[Path, dict], None]:
     return _write_json
 
 
+DEFAULT_ARTIFACTS = {
+    "brief": {
+        "schema_version": "0.2",
+        "task_id": "task-001",
+        "objective": "Default objective",
+        "in_scope": [],
+        "out_of_scope": [],
+        "constraints": [],
+        "acceptance_criteria": [],
+        "risk_level": "low",
+    },
+    "plan": {
+        "schema_version": "0.2",
+        "task_id": "task-001",
+        "steps": [],
+        "verify_plan": [],
+    },
+    "run-state": {
+        "schema_version": "0.2",
+        "task_id": "task-001",
+        "current_stage": "clarify",
+        "status": "in_progress",
+        "completed_gates": [],
+        "failed_gates": [],
+        "retries": {},
+        "current_task_id": "",
+        "spec_review_approved": False,
+        "quality_review_approved": False,
+    },
+}
+
+
+@pytest.fixture
+def artifact_factory():
+    def _factory(artifact_type: str, **overrides):
+        if artifact_type not in DEFAULT_ARTIFACTS:
+            raise ValueError(f"Unknown artifact type: {artifact_type}")
+        base = json.loads(json.dumps(DEFAULT_ARTIFACTS[artifact_type]))
+        base.update(overrides)
+        return base
+
+    return _factory
+
+
 @pytest.fixture
 def make_task_dir(write_json: Callable[[Path, dict], None]) -> Callable[[Path], Path]:
     def _make_task_dir(tmp_path: Path) -> Path:
