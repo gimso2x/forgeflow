@@ -11,7 +11,7 @@ validate_prompt: |
 
 # ForgeFlow
 
-ForgeFlow turns agent work into explicit stages with artifacts, gates, and independent review.
+ForgeFlow turns agent work into explicit stages with artifacts, gates, and independent review. It enforces **Deep Architecture Discipline** (Depth, Seam, Locality, Deletion test) and a **Grilling loop** (Socratic interviewing with recommended answers) to ensure rigorous design and maintainable code. The active skill surface stays small: status analysis is handled by runtime artifacts and `scripts/forgeflow_monitor.py`, not by a separate workflow skill.
 
 ## Slash-style entrypoints
 
@@ -20,7 +20,6 @@ Claude Code may expose native slash commands. Codex exposes plugin skills, so th
 - `/forgeflow` -> this overview workflow skill
 - `/forgeflow:init ...` -> `init`
 - `/forgeflow:clarify ...` -> `clarify`
-- `/forgeflow:specify` -> `specify`
 - `/forgeflow:plan` -> `plan`
 - `/forgeflow:execute` -> `run`
 - `/forgeflow:review` -> `review`
@@ -41,8 +40,9 @@ Do not require `CODEX.md` before plugin use. `CODEX.md` and project presets are 
 At minimum, produce or update the artifacts appropriate for the selected route:
 
 - `brief.json` or equivalent brief: clarified objective, constraints, risk, route
+- `roadmap.json` for epic route: milestone DAG and statuses
 - `run-state.json`: current stage and completed gates
-- `plan-ledger.json` for medium/high routes: planned steps, task status, gate evidence
+- `plan-ledger.json` for medium/high/epic routes: planned steps, task status, gate evidence
 - `review-report.json`: independent review result; worker self-report is not enough
 - final summary: changed files, verification evidence, residual risks
 
@@ -50,11 +50,22 @@ At minimum, produce or update the artifacts appropriate for the selected route:
 
 The task is complete only when:
 
-- route is explicitly selected: `small`, `medium`, or `high`
+- route is explicitly selected: `small`, `medium`, `high`, or `epic`
 - required stages for that route are complete
 - review gates are satisfied by evidence, not by vibes
 - verification commands have passed or failures are explicitly documented
 - final response names artifacts/evidence used for finalize
+
+## Status analysis before routing
+
+Before choosing the next stage for an existing task, inspect the active task directory when available:
+
+- `run-state.json`: current stage, status, route, progress, next actionable step, blockers.
+- `review-report.json`, `review-report-spec.json`, `review-report-quality.json`: verdicts and open blockers.
+- `eval-record.json`: final evaluation status when present.
+- `decision-log.json`: latest implementation context, failure reasons, stuck signals.
+
+For multi-task or stale workspace triage, run `python3 scripts/forgeflow_monitor.py --tasks .forgeflow/tasks --recent 10` from the target repo. Treat the monitor as read-only evidence for resume/fix/finish decisions; it does not replace stage artifacts or review gates.
 
 ## Route model
 
@@ -62,6 +73,7 @@ The task is complete only when:
 small: clarify -> execute -> quality-review -> finalize
 medium: clarify -> plan -> execute -> quality-review -> finalize
 high: clarify -> plan -> execute -> spec-review -> quality-review -> finalize -> long-run
+epic: clarify -> milestone -> (per milestone) plan -> execute -> spec-review -> quality-review -> finalize -> long-run
 ```
 
 ## File write and output discipline
@@ -121,4 +133,10 @@ Large/high-risk task:
 
 ```text
 Use ForgeFlow. Treat this as large/high-risk. Clarify, plan, execute, run spec-review and quality-review separately, and call out residual risk before finalize.
+```
+
+Epic/massive scale task:
+
+```text
+Use ForgeFlow. Treat this as an epic. Clarify, breakdown milestones, then for each milestone: plan, execute, and review. Track progress in roadmap.json.
 ```

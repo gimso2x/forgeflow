@@ -14,7 +14,7 @@ import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-VALID_LABELS = {"small", "medium", "high"}
+VALID_LABELS = {"small", "medium", "high", "epic"}
 SNAPSHOT_SKIP_DIRS = {".git", ".omx", "node_modules"}
 CASES = [
     (

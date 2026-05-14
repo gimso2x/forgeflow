@@ -2,6 +2,8 @@ version: 0.2
 gates:
   clarification_complete:
     requires: [brief]
+  milestone_defined:
+    requires: [milestone]
   plan_executable:
     requires: [plan]
   execution_evidenced:

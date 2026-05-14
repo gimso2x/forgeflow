@@ -9,7 +9,7 @@ endif
 VENV_PYTHON := $(VENV_BIN)/python
 VENV_PIP := $(VENV_BIN)/pip
 
-.PHONY: setup check-env validate generate regen clean validate-samples runtime-sample evals adherence-evals monitor-summary monitor-summary-json orchestrator-help orchestrator-status smoke-claude-plugin plugin-smoke-matrix-static validate-context-paths validate-upstream-import validate-hoyeon-import validate-skill-contracts validate-claude-hooks plan-cli-smoke evolution-policy-smoke learn-smoke claude-hook-smoke shared-recovery-smoke team-pattern-smoke agent-preset-smoke claude-agent-preset-smoke release-script-smoke verify-skill-smoke finish-skill-smoke plugin-manifest-smoke
+.PHONY: setup check-env validate validate-fast validate-structure validate-plugin validate-e2e-live generate regen clean validate-samples runtime-sample evals adherence-evals monitor-summary monitor-summary-json orchestrator-help orchestrator-status smoke-claude-plugin plugin-smoke-matrix-static validate-context-paths validate-upstream-import validate-hoyeon-import validate-skill-contracts validate-claude-hooks plan-cli-smoke evolution-policy-smoke learn-smoke claude-hook-smoke shared-recovery-smoke team-pattern-smoke agent-preset-smoke claude-agent-preset-smoke release-script-smoke finish-skill-smoke plugin-manifest-smoke
 
 setup:
 	$(PYTHON) scripts/check_environment.py --require-venv-support --skip-modules
@@ -20,18 +20,23 @@ setup:
 check-env:
 	$(VENV_PYTHON) scripts/check_environment.py
 
-validate: check-env
+validate: check-env validate-structure validate-fast validate-plugin
+
+validate-structure:
 	$(VENV_PYTHON) scripts/check_plugin_versions.py
 	$(VENV_PYTHON) scripts/validate_context_paths.py
 	$(VENV_PYTHON) scripts/validate_structure.py
 	$(VENV_PYTHON) scripts/validate_policy.py
 	$(VENV_PYTHON) scripts/validate_generated.py
 	$(VENV_PYTHON) scripts/validate_sample_artifacts.py
-	$(VENV_PYTHON) scripts/run_adherence_evals.py
 	$(VENV_PYTHON) scripts/validate_upstream_import.py
 	$(VENV_PYTHON) scripts/validate_hoyeon_import.py
 	$(VENV_PYTHON) scripts/validate_skill_contracts.py
 	$(VENV_PYTHON) scripts/validate_claude_hooks.py
+	$(VENV_PYTHON) scripts/validate_contract_map.py
+
+validate-fast:
+	$(VENV_PYTHON) scripts/run_adherence_evals.py
 	$(VENV_PYTHON) scripts/smoke_plan_cli.py
 	$(VENV_PYTHON) -m pytest tests/evolution -q
 	$(VENV_PYTHON) -m pytest tests/runtime -q
@@ -45,10 +50,13 @@ validate: check-env
 	$(VENV_PYTHON) -m pytest tests/test_codex_plugin_install.py -q
 	$(VENV_PYTHON) -m pytest tests/test_first_clone_setup.py -q
 	$(VENV_PYTHON) -m pytest tests/test_release_script.py -q
-	$(VENV_PYTHON) -m pytest tests/test_verify_skill_contract.py -q
 	$(VENV_PYTHON) -m pytest tests/test_finish_skill_contract.py -q
 	$(VENV_PYTHON) -m pytest tests/test_plugin_manifests.py -q
-	$(MAKE) plugin-smoke-matrix-static
+
+validate-plugin: plugin-smoke-matrix-static
+
+validate-e2e-live:
+	$(VENV_PYTHON) scripts/real_plugin_e2e.py --surface claude --route small
 
 runtime-sample:
 	$(VENV_PYTHON) scripts/run_runtime_sample.py --fixture-dir examples/runtime-fixtures/small-doc-task --route small
@@ -115,9 +123,6 @@ claude-agent-preset-smoke:
 
 release-script-smoke:
 	$(VENV_PYTHON) -m pytest tests/test_release_script.py -q
-
-verify-skill-smoke:
-	$(VENV_PYTHON) -m pytest tests/test_verify_skill_contract.py -q
 
 finish-skill-smoke:
 	$(VENV_PYTHON) -m pytest tests/test_finish_skill_contract.py -q

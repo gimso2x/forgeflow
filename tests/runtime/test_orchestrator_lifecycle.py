@@ -112,7 +112,7 @@ class TestInitTask:
     def test_init_task_invalid_risk_level(self, tmp_path: Path, policy: RuntimePolicy) -> None:
         task_dir = tmp_path / "task"
         with pytest.raises(RuntimeViolation, match="unknown risk level"):
-            init_task(task_dir, policy, task_id="t-01", objective="x", risk_level="critical")
+            init_task(task_dir, policy, task_id="t-01", objective="x", risk_level="unknown")
 
     def test_init_task_creates_valid_checkpoint_and_session(self, tmp_path: Path, policy: RuntimePolicy) -> None:
         """Verify checkpoint and session-state have correct route/stage refs."""
@@ -776,6 +776,7 @@ class TestExecutionPayload:
         assert payload["role"] == "coder"
         assert payload["adapter"] == "claude"
         assert payload["execution_mode"] == "real"
+        assert payload["dry_run"] is False
         assert payload["status"] == "success"
         assert payload["artifacts_produced"] == ["plan.json"]
         assert payload["token_usage"] == {"prompt": 100, "completion": 50}
@@ -793,6 +794,7 @@ class TestExecutionPayload:
         )
         assert payload["error"] == "timeout"
         assert payload["execution_mode"] == "stub"
+        assert payload["dry_run"] is True
         assert "STUB EXECUTION" in payload["warning"]
 
 

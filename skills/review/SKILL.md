@@ -66,11 +66,13 @@ A review that leaves no `review-report.json` is incomplete. The verdict exists o
 
 - **small** route: Single quality review. Write `review-report.json` with `review_type: "quality"`.
 - **medium** route: Single quality review. Write `review-report.json` with `review_type: "quality"`.
-- **high** route: Two separate reviews are **required**:
-  1. `/forgeflow:review` (spec) — Write `review-report-spec.json` with `review_type: "spec"`.
-  2. `/forgeflow:review` (quality) — Write `review-report-quality.json` with `review_type: "quality"`.
+- **high/epic** route:
+  - **high** route and **epic** route both require independent spec and quality gates.
+ Two separate reviews are **required**:
+  1. `/forgeflow:review --type spec` — Write `review-report-spec.json` with `review_type: "spec"`.
+  2. `/forgeflow:review --type quality` — Write `review-report-quality.json` with `review_type: "quality"`.
 
-  For high, if `review-report-spec.json` does not exist or has `verdict != "approved"`, do not proceed to quality review. Each review is an independent gate.
+  For high/epic, if `review-report-spec.json` does not exist or has `verdict != "approved"`, do not proceed to quality review. Each review is an independent gate.
 
 ## File write and output discipline
 
@@ -147,6 +149,15 @@ This gate applies regardless of route size. Even small-route reviews must run te
 
 If the user explicitly includes `--yes`, `--auto-approve`, `--non-interactive`, or says to continue through ForgeFlow stages without further approval, treat that as approval for the current bounded ForgeFlow sequence. Do not pause at the normal stage-boundary y/n prompt; proceed to the next requested ForgeFlow stage after writing the required artifact for the current stage. This only applies inside the stated task scope and never overrides a blocker, failed verification, missing required artifact, or unsafe/destructive action.
 
+## Status analysis preflight
+
+Before reviewing, reconstruct the task state from artifacts instead of chat memory:
+
+- Read `run-state.json` for current stage/status, completed gates, evidence refs, and blocked/failure state.
+- Read `plan-ledger.json` when present to confirm planned tasks and requirement IDs.
+- Read `decision-log.json` for implementation decisions and stuck/escalation entries.
+- If multiple task directories exist, use `python3 scripts/forgeflow_monitor.py --tasks .forgeflow/tasks --recent 10` only as a read-only locator/status summary, then inspect the selected task artifacts directly.
+
 ## Procedure
 
 1. Read `brief.json` to determine route and expected review scope.
@@ -162,6 +173,7 @@ If the user explicitly includes `--yes`, `--auto-approve`, `--non-interactive`, 
    - Every changed line should trace directly to the user's request; anything else needs explicit scope approval.
    - Flag drive-by refactors, speculative abstractions, or unrelated cleanup as scope drift unless the plan explicitly authorized them.
    - Was the change the smallest safe change that satisfies the request?
+   - **Architectural Depth**: Did the implementation introduce **shallow modules** (pass-throughs) or miss **deepening opportunities**? Does the new structure improve **locality** and **leverage** as defined in `docs/refactor-planning-decision.md`?
    - Did the change avoid silent fallback, dual write, and shadow-path ownership drift?
    - Did the implementation follow existing codebase patterns instead of inventing a new local religion?
    - Were assumptions about types, APIs, behavior, and test coverage verified against actual files?

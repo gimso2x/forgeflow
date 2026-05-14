@@ -1,5 +1,5 @@
 # Defense-in-Depth Validation
-> ForgeFlow note: This is a debugging reference playbook, not an artifact contract. Use it from `skills/x-debug.md` when the failure mode matches.
+> ForgeFlow note: This is a debugging reference playbook, not an artifact contract or active skill. Use it from the core `execute`/`review` flow when the failure mode matches.
 
 
 ## Overview

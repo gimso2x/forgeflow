@@ -19,6 +19,7 @@ def test_generate_plan_from_text_maps_requirements_to_schema_valid_steps():
     assert draft.quality["step_count"] == 2
     assert draft.plan["task_id"] == "task-natural-plan"
     assert draft.plan["steps"][0]["fulfills"] == ["REQ-001"]
+    assert draft.plan["steps"][0]["source"] == "nlp_draft"
     assert draft.plan["steps"][1]["dependencies"] == ["step-1"]
     assert "#101" in draft.plan["steps"][0]["expected_output"]
     validate_artifact_payload(artifact_name="plan", payload=draft.plan, source_name="generated-plan")

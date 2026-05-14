@@ -6,16 +6,19 @@ GENERATED = {
     "claude": ROOT / "adapters/generated/claude/CLAUDE.md",
     "codex": ROOT / "adapters/generated/codex/CODEX.md",
     "antigravity": ROOT / "adapters/generated/antigravity/AGENTS.md",
+    "gemini": ROOT / "adapters/generated/gemini/GEMINI.md",
 }
 MANIFESTS = {
     "claude": ROOT / "adapters/targets/claude/manifest.yaml",
     "codex": ROOT / "adapters/targets/codex/manifest.yaml",
     "antigravity": ROOT / "adapters/targets/antigravity/manifest.yaml",
+    "gemini": ROOT / "adapters/targets/gemini/manifest.yaml",
 }
 DELIVERY_NOTES = {
     "claude": "Claude may deliver recovery through optional adapter hooks plus generated instructions.",
     "codex": "Codex delivers recovery through CODEX.md instruction guidance, not hooks.",
     "antigravity": "Antigravity receives recovery guidance through project instruction context, not CLI hooks or command execution.",
+    "gemini": "Gemini delivers recovery through GEMINI.md instruction guidance, not hooks.",
 }
 
 def shared_rules() -> list[str]:

@@ -55,6 +55,7 @@ memory/                  # Version-controlled local memory: curated patterns, de
 ## Code Conventions
 
 - **No external dependencies** — stdlib only. Do not add pip requirements.
+- **Architectural Depth**: Prefer deep modules (low interface complexity, high behavior leverage) over shallow ones. Identify and resolve architectural friction using the **Deletion test**, **Seams**, and **Locality** principles (see `docs/refactor-planning-decision.md`).
 - All artifacts use JSON with `schema_version` (currently `"0.2"`; `"0.1"` auto-migrated).
 - Artifact writes go through `write_json()` / `write_validated_artifact()`.
 - Use `RuntimeViolation` for rule violations.

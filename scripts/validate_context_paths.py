@@ -34,6 +34,7 @@ IGNORED_DIRS = {
 IGNORED_CONTEXT_PREFIXES = (
     "adapters/generated/",
     "docs/upstream/",
+    "examples/",
 )
 EXAMPLE_REF_PREFIXES = (
     "/path/to/",

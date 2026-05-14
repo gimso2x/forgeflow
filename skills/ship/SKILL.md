@@ -76,6 +76,10 @@ Example exact-count response must be plain text lines, not a fenced block:
 
 No heading. No preamble. No code fence. No third line.
 
+## Status analysis preflight
+
+Before preparing handoff, read `run-state.json`, latest review report(s), and `eval-record.json` when present. If the workspace has several task dirs, use `python3 scripts/forgeflow_monitor.py --tasks .forgeflow/tasks --recent 10` as read-only status analysis to pick the active task, then verify the exact artifacts yourself.
+
 ## Procedure
 
 1. Check git status and diff only if command execution is allowed.

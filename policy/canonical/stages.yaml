@@ -8,6 +8,14 @@ stages:
       - no execution before ambiguity is resolved or explicitly bounded
       - brief must name objective, scope, constraints, acceptance criteria, and risk level
       - route selection must happen from evidence, not agent confidence
+  milestone:
+    artifact_out: [milestone]
+    required_for_entry: [brief]
+    gate: milestone_defined
+    non_negotiables:
+      - must break down massive scope into ordered milestones
+      - each milestone must have a clear verifiable boundary
+      - cannot skip straight to plan without milestone breakdown for epic work
   plan:
     artifact_out: [plan]
     required_for_entry: [brief]

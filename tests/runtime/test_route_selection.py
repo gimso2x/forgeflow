@@ -5,7 +5,7 @@ from pathlib import Path
 from forgeflow_runtime.orchestrator import escalate_route
 
 
-def test_escalate_route_switches_to_high(
+def test_escalate_route_switches_to_next_route(
     tmp_path: Path,
     make_task_dir: Callable[[Path], Path],
     assert_schema_valid: Callable[[str, dict], None],
@@ -18,9 +18,9 @@ def test_escalate_route_switches_to_high(
     assert state["current_stage"] == "clarify"
     checkpoint = json.loads((task_dir / "checkpoint.json").read_text(encoding="utf-8"))
     assert_schema_valid("checkpoint", checkpoint)
-    assert checkpoint["route"] == "high"
+    assert checkpoint["route"] == "medium"
     assert checkpoint["current_stage"] == "clarify"
     assert checkpoint["next_action"] == "Resume at plan after reloading canonical artifacts."
 
     decision_log = json.loads((task_dir / "decision-log.json").read_text(encoding="utf-8"))
-    assert decision_log["entries"][-1]["decision"] == "route escalated: small -> high"
+    assert decision_log["entries"][-1]["decision"] == "route escalated: small -> medium"

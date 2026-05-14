@@ -49,7 +49,7 @@ def test_ai_team_handoff_updates_role_prompts_and_team_policy() -> None:
     assert "plan-ledger entry linking selected role to expected output and verification" in team_patterns
     assert "review-report finding only when specialist output is evidence-backed" in team_patterns
 
-    for adapter in ["claude", "codex"]:
+    for adapter in ["claude", "codex", "gemini"]:
         agents = ROOT / "adapters" / "targets" / adapter / "agents"
         assert "Role-split AI team discipline" in (agents / "forgeflow-coordinator.md").read_text(encoding="utf-8")
         assert "Plan-led role assignment" in (agents / "forgeflow-planner.md").read_text(encoding="utf-8")

@@ -7,11 +7,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-05-14
+
+### Added
+
+- `epic` route 추가 (#140).
+- `milestone` stage 및 관련 에이전트/스킬 추가.
+- Massive scope 작업을 위한 마일스톤 기반 분할 워크플로우 지원.
+
+### Changed
+
+- `Route model`을 4단계(small, medium, high, epic)로 확장.
+- `orchestrator` 로직을 epic route 및 milestone stage에 맞춰 업데이트.
+
+## [0.9.0] - 2026-05-14
+
+### Added
+
+- Gemini 어댑터 익스텐션 지원 추가 (#131).
+- Gemini CLI 익스텐션용 bootstrap 및 환경 검증 지원.
+
+### Changed
+
+- Gemini 익스텐션 bootstrap 로직을 기존 워크플로우와 정렬.
+
+## [0.8.1] - 2026-05-14
+
+### Added
+
+- Add `plan.steps[].source` provenance for natural-language plan drafts.
+- Add `dry_run` to execution payloads so stub and real adapter runs are explicit.
+
 ### Changed
 
 - Migrate artifact schema version from 0.1 to 0.2 with backward-compatible auto-migration (#129).
 - Add `validate_and_migrate` mode: 0.1 artifacts silently upgraded on load.
 - Implement `_migrate_0_1_to_0_2`: brief gains specialist fields, review-report gains review_roles.
+- Document current artifact schema ownership and keep plugin install/release docs aligned with v0.8.1.
+
+### Fixed
+
+- Enforce specialist require/skip decisions and skip rationales for new brief artifacts while preserving legacy compatibility.
+- Preserve validated gate payloads during stage gate evaluation.
+- Persist execute worktree cleanup state before writing route artifacts.
 
 ## [0.8.0] - 2026-05-13
 
@@ -320,3 +358,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Evolution engine (8 modules)
 - CI gate with GitHub Actions workflow generation
 - Agent preset installer (Claude + Codex)
+
+[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v0.10.0...HEAD
+[0.10.0]: https://github.com/gimso2x/forgeflow/compare/v0.9.0...v0.10.0
+[0.9.0]: https://github.com/gimso2x/forgeflow/compare/v0.8.1...v0.9.0
+[0.8.1]: https://github.com/gimso2x/forgeflow/compare/v0.8.0...v0.8.1
+[0.8.0]: https://github.com/gimso2x/forgeflow/compare/v0.7.5...v0.8.0
+[0.7.5]: https://github.com/gimso2x/forgeflow/compare/v0.7.4...v0.7.5
+[0.7.4]: https://github.com/gimso2x/forgeflow/compare/v0.7.3...v0.7.4
+[0.7.3]: https://github.com/gimso2x/forgeflow/compare/v0.7.2...v0.7.3
+[0.7.2]: https://github.com/gimso2x/forgeflow/compare/v0.7.1...v0.7.2
+[0.7.1]: https://github.com/gimso2x/forgeflow/compare/v0.7.0...v0.7.1
+[0.7.0]: https://github.com/gimso2x/forgeflow/compare/v0.6.1...v0.7.0
+[0.6.1]: https://github.com/gimso2x/forgeflow/compare/v0.5.1...v0.6.1
+[0.5.1]: https://github.com/gimso2x/forgeflow/compare/v0.4.0...v0.5.1
+[0.4.0]: https://github.com/gimso2x/forgeflow/compare/v0.3.2...v0.4.0

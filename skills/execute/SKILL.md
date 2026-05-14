@@ -50,9 +50,14 @@ The execute stage MUST produce `run-state.json` conforming to `schemas/run-state
   ```
 - **high** route: Write `run-state.json` after each step completes. After final step, the next stage is **mandatory** — do NOT ask whether to review:
   ```
-  high route 실행 완료. 독립 review가 필수입니다. /forgeflow:review를 자동으로 시작합니다.
+  high route 실행 완료. 독립 review가 필수입니다. /forgeflow:review --type spec 으로 Spec Review를 시작합니다.
   ```
-  Then immediately invoke `/forgeflow:review`.
+  Then immediately invoke `/forgeflow:review --type spec`. /forgeflow:review를 자동으로 시작합니다.
+- **epic** route: Write `run-state.json` after each step of the current milestone completes. After the final step of the current milestone:
+  ```
+  마일스톤 실행 완료. 독립 review가 필수입니다. /forgeflow:review --type spec 으로 Spec Review를 시작합니다.
+  ```
+  Then immediately invoke `/forgeflow:review --type spec`.
 
 Do not end the execute stage without writing `run-state.json`. An execute pass that leaves no state artifact is incomplete.
 
@@ -61,6 +66,19 @@ Do not end the execute stage without writing `run-state.json`. An execute pass t
 Default to **artifact-first mode**. Run should update `run-state.json` before and after code changes, and keep execution evidence in the active task directory unless the user explicitly asks for a dry run, exact-output response, or no-write simulation.
 
 Step state must be incremental, not a final recap. Each plan step must move through `in_progress` before `completed`, and the agent must update `run-state.json` immediately when starting and finishing each step. Example: `step-1: pending → in_progress → completed`, then `step-2: pending → in_progress → completed`. Do not batch-mark all steps as `completed` only at the end. If a step cannot finish, mark it `blocked` or `failed` with evidence instead of leaving the last known state ambiguous.
+
+**TDD (Test-Driven Development) Cycle**:
+For every implementation step:
+1. **Red**: Write a failing test that covers the objective. Run it and confirm failure.
+2. **Green**: Write the minimal code to pass the test.
+3. **Refactor**: Improve the code while keeping tests green.
+
+**Hypothesis-Driven Debugging**:
+If a bug or failure occurs during implementation/verification:
+1. Document the reproduction steps and observed issue in `decision-log.json`.
+2. List causal hypotheses.
+3. Test each hypothesis.
+4. Apply the fix only after the root cause is verified. Avoid "trial and error" coding.
 
 **Progress and timestamp discipline:**
 
@@ -114,15 +132,19 @@ If the user explicitly includes `--yes`, `--auto-approve`, `--non-interactive`, 
 1. Confirm route and current stage. Read `brief.json` to determine route.
 2. Initialize `run-state.json` in the active task directory if it does not exist. Set `current_stage: "execute"`, `status: "in_progress"`.
 3. Read `contracts` metadata and sibling `contracts.md` before editing when present.
-4. Execute only tasks that belong to the plan/scope.
-   - Prefer the smallest implementation that satisfies the acceptance criteria.
+4. For each task in the plan:
+   - **TDD Red**: Write/update tests to fail.
+   - **Execute Implementation**: Implement minimal code to pass. Prefer the smallest implementation that satisfies the acceptance criteria.
+   - **TDD Refactor**: Clean up implementation.
+   - **Architectural Depth**: Ensure implementation follows the plan's architectural intent (Depth, Leverage, Locality) and avoids creating new shallow modules (see `docs/refactor-planning-decision.md`).
+   - If blocked, apply **Hypothesis-Driven Debugging**.
    - Nothing speculative: no drive-by abstractions, unrelated cleanup, hidden migrations, or “while I’m here” rewrites unless the approved plan names them.
 5. Apply adapter-aware execution: use the chosen backend for implementation mechanics, but keep ForgeFlow artifacts, gates, and evidence paths backend-neutral. If the backend cannot produce required evidence, record that limitation in `decision-log.json` and block or downgrade the affected verification gate instead of silently proceeding.
 6. Treat `fulfills`, `journeys`, and `verify_plan` as verification obligations, not decoration.
 7. Run focused verification after each meaningful change.
 8. Update `run-state.json` immediately when starting and finishing each step. Step state must be incremental: `step-1: pending → in_progress → completed`, then `step-2: pending → in_progress → completed`. Do not batch-mark all steps as `completed` only at the end. If a step cannot finish, mark it `blocked` or `failed` with evidence.
 9. After all steps complete, set `run-state.status = "completed"` and `run-state.completed_gates` to include all passed gates.
-10. Stop if requirements become ambiguous; return to `/forgeflow:clarify` or `/forgeflow:specify`.
+10. Stop if requirements become ambiguous; return to `/forgeflow:clarify`.
 11. Deliver the route-aware exit prompt (see Exit Condition above).
 
 Contract-aware execution rules:
@@ -152,7 +174,8 @@ When the orchestrator enters the `execute` stage, it automatically injects three
 
 ### How to use these as an agent
 
-- At the start of each execute turn, read `decision-log.json` for the latest `execute-context` entry — it tells you exactly what to work on.
+- At the start of each execute turn, inspect `run-state.json` first for current status, progress, blockers, and next actionable steps. If status is stale/unknown, use `python3 scripts/forgeflow_monitor.py --tasks .forgeflow/tasks --recent 10` for read-only workspace triage before editing.
+- Then read `decision-log.json` for the latest `execute-context` entry — it tells you exactly what to work on.
 - Check `run-state.json` → `progress` for overall status and `next_actionable` tasks.
 - If `run-state.status` is `"blocked"` with stuck signals, do NOT continue editing. Report the stuck condition and suggest alternatives.
 - To provide external test regression signals, call `detect_stuck(task_dir, external_signals={"test_failures_before": N, "test_failures_after": M})`.
@@ -163,7 +186,7 @@ When the orchestrator enters the `execute` stage, it automatically injects three
 - If `/forgeflow:execute` was reached without explicit user approval after the previous stage-boundary question, stop immediately and ask for approval instead of editing files. Do not infer approval from the agent's own prior question.
 - 이미 승인된 run scope 안에서는 반복적으로 계획을 다시 허락받지 않는다.
 - Do not pause just to reconfirm the same plan before editing files.
-- Only bounce back to `/forgeflow:clarify` or `/forgeflow:specify` when scope genuinely changed or a blocker invalidates the current brief/plan.
+- Only bounce back to `/forgeflow:clarify` when scope genuinely changed or a blocker invalidates the current brief/plan.
 - When the user asks to fix review findings, treat that as approval to enter a fix loop for the current review scope: read the latest `review-report.json`, fix only current `open_blockers`/major findings, re-run focused verification, and update `review-report.json` before claiming the fix loop is complete. The updated `open_blockers` must reflect the remaining current blockers, not stale blockers from the previous review.
 - Bad: `승인된 계획대로 실행하겠습니다.`만 말하고 대기.
 - Good: 바로 수정/검증을 시작하고 evidence를 남긴다.

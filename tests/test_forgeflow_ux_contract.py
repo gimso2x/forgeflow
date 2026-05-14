@@ -188,25 +188,10 @@ def test_issue_readiness_and_git_safety_policy_have_single_owners() -> None:
     ]:
         assert required_text in review_model
 
-    to_issues_skill = (ROOT / "skills" / "to-issues" / "SKILL.md").read_text(encoding="utf-8")
-
     assert "docs/review-model.md owns git-safety policy" in review_skill
     assert "Do not redefine git safety in this skill" in review_skill
-    assert "docs/to-issues-model.md owns issue-readiness semantics" in to_issues_skill
-    assert "human-gated work from agent-ready work" in to_issues_skill
-    assert "user-facing behavior from implementation guesses" in to_issues_skill
     assert "Claude-specific hook setup" not in review_model
     assert "safe-commit" not in review_model
-
-
-def test_safe_commit_skill_applies_canonical_git_safety_policy() -> None:
-    safe_commit = (ROOT / "skills" / "safe-commit" / "SKILL.md").read_text(encoding="utf-8")
-
-    assert "docs/review-model.md owns git-safety policy" in safe_commit
-    assert "Do not redefine git safety in this skill" in safe_commit
-    assert "Broad staging is forbidden unless explicitly justified" in safe_commit
-    assert "Destructive git actions require explicit user approval" in safe_commit
-    assert "Dirty user work is preserved by default" in safe_commit
 
 
 def test_skill_index_points_new_active_contracts_to_directory_skills() -> None:
@@ -217,52 +202,8 @@ def test_skill_index_points_new_active_contracts_to_directory_skills() -> None:
     assert "Pick the next available number" not in skill_index
 
 
-def test_design_interface_skill_feeds_existing_contract_artifacts() -> None:
-    skill = (ROOT / "skills" / "design-interface" / "SKILL.md").read_text(encoding="utf-8")
-    model = (ROOT / "docs" / "contract-design-model.md").read_text(encoding="utf-8")
-
-    for required_text in [
-        "optional support skill",
-        "not a new `/forgeflow:design` stage",
-        "feeds `contracts.md` and plan artifacts",
-        "creates no separate approval gate, lifecycle state, or persistence lane",
-        "Default output is a `contracts.md` section",
-        "`interface-spec.json` is optional",
-        "at least two materially different interface options",
-        "callers, invariants, compatibility, testing surface, and migration impact",
-    ]:
-        assert required_text in skill
-
-    for required_text in [
-        "contracts.md remains the default source of truth",
-        "schemas/interface-spec.schema.json is an optional structured representation",
-        "does not replace `/forgeflow:plan`",
-        "no parallel design source of truth",
-    ]:
-        assert required_text in model
-
-    allowed_design_stage_phrases = [
-        "not a new `/forgeflow:design` stage",
-        "No new canonical `/forgeflow:design` stage",
-    ]
-    skill_without_allowed_phrases = skill
-    for phrase in allowed_design_stage_phrases:
-        skill_without_allowed_phrases = skill_without_allowed_phrases.replace(phrase, "")
-    assert "/forgeflow:design" not in skill_without_allowed_phrases
-
-
-def test_so2x_minimum_spec_and_plan_gates_are_documented() -> None:
-    specify = (ROOT / "skills" / "specify" / "SKILL.md").read_text(encoding="utf-8")
+def test_so2x_minimum_plan_gates_are_documented() -> None:
     plan = (ROOT / "skills" / "plan" / "SKILL.md").read_text(encoding="utf-8")
-
-    for required_text in [
-        "Minimum requirements gate",
-        "`Goal`",
-        "`Requirements`",
-        "`Implementation Constraints`",
-        "`Verification`",
-    ]:
-        assert required_text in specify
 
     for required_text in [
         "Minimum plan gate",

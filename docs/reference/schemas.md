@@ -20,7 +20,7 @@ schemas/
 
 ```json
 {
-  "schema_version": "0.1",
+  "schema_version": "0.2",
   "task_id": "my-task-001"
 }
 ```
@@ -31,7 +31,7 @@ schemas/
 
 ```json
 {
-  "schema_version": "0.1",
+  "schema_version": "0.2",
   "task_id": "...",
   "objective": "...",
   "constraints": ["..."],
@@ -48,7 +48,7 @@ schemas/
 
 ```json
 {
-  "schema_version": "0.1",
+  "schema_version": "0.2",
   "task_id": "...",
   "tasks": [
     {
@@ -67,7 +67,7 @@ schemas/
 
 ```json
 {
-  "schema_version": "0.1",
+  "schema_version": "0.2",
   "task_id": "...",
   "current_stage": "run",
   "tasks_completed": 3,
@@ -82,7 +82,7 @@ schemas/
 
 ```json
 {
-  "schema_version": "0.1",
+  "schema_version": "0.2",
   "task_id": "...",
   "verdict": "pass|fail",
   "findings": [
@@ -121,4 +121,4 @@ python3 scripts/validate_policy.py
 
 ## Schema 버전
 
-현재 schema version은 `0.1`입니다. `schema_version` 필드가 없거나 다르면 `RuntimeViolation`이 발생합니다.
+현재 artifact schema version은 `0.2`입니다. `0.1`은 런타임 로드 시 migration 대상이며, 새 artifact는 `forgeflow_runtime.schema_versions.CURRENT_SCHEMA_VERSION`을 사용해야 합니다. 스키마 버전은 릴리스 버전과 별개로 `schemas/*.schema.json` 및 `schema_versions.py`에서 관리됩니다.

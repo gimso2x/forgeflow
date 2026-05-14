@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from forgeflow_runtime.experiment.stopping import (
+from experimental.experiment.stopping import (
     IterationMetric,
     StopCondition,
     build_default_conditions,

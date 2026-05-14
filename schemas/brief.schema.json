@@ -51,7 +51,8 @@
       "enum": [
         "low",
         "medium",
-        "high"
+        "high",
+        "critical"
       ]
     },
     "route": {
@@ -59,7 +60,8 @@
       "enum": [
         "small",
         "medium",
-        "high"
+        "high",
+        "epic"
       ]
     },
     "assumptions": {

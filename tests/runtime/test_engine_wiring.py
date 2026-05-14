@@ -10,6 +10,7 @@ import pytest
 from forgeflow_runtime.engine import execute_parallel_workers, execute_stage
 from forgeflow_runtime.executor import RunTaskResult
 from forgeflow_runtime.generator import GeneratedPrompt
+from forgeflow_runtime.profiling import ProfilingCollector
 
 
 # ---------------------------------------------------------------------------
@@ -187,21 +188,28 @@ class TestExecuteStageBudgetEnforcement:
 
 class TestExecuteStageUseRealFlag:
     def test_use_real_dispatches_to_real_registry(self, tmp_path, make_task_dir):
-        """use_real=True routes through REAL_REGISTRY, not STUB_REGISTRY.
+        """use_real=True routes through REAL_REGISTRY without invoking live CLIs.
 
-        The real ClaudeCodeAdapter will either succeed (binary present) or
-        fail with a descriptive error (binary absent).  Either way the
-        raw_output must NOT be the stub format, proving the real path was
-        taken.
+        Live provider execution belongs in explicit smoke/e2e jobs; this unit
+        test only proves the real registry path is selected.
         """
+
+        class FakeRealAdapter:
+            name = "claude"
+
+            def run_task(self, request):
+                return RunTaskResult(status="success", raw_output=f"real-registry:{request.adapter_target}")
+
+            def estimate_tokens(self, text):
+                return 1
+
         task_dir = make_task_dir(tmp_path)
-        result = _call(task_dir, use_real=True)
-        # Stub adapter outputs a marker at the beginning of raw_output.
-        # Real adapters may echo test/source text that mentions the marker, so
-        # check the structured stub prefix instead of any incidental substring.
+        with patch.dict("forgeflow_runtime.executor.REAL_REGISTRY", {"claude": FakeRealAdapter()}):
+            result = _call(task_dir, use_real=True)
+
+        assert result.status == "success"
+        assert result.raw_output == "real-registry:claude"
         assert not (result.raw_output or "").startswith("<stub-claude-output")
-        # Status is either success (binary found & ran) or failure (binary missing)
-        assert result.status in ("success", "failure")
 
     def test_use_real_unknown_real_adapter(self, tmp_path, make_task_dir):
         """An adapter_target not in REAL_REGISTRY should fail with a descriptive error."""
@@ -209,6 +217,31 @@ class TestExecuteStageUseRealFlag:
         result = _call(task_dir, adapter_target="unknown", use_real=True)
         assert result.status == "failure"
         assert "real adapter unsupported" in (result.error or "")
+
+
+class TestExecuteStageProfiling:
+    def test_collector_records_dispatch_token_usage_and_cost(self, tmp_path, make_task_dir):
+        task_dir = make_task_dir(tmp_path)
+        collector = ProfilingCollector(pipeline_id="task-001", route="small")
+
+        result = execute_stage(
+            task_dir=task_dir,
+            task_id="task-001",
+            stage="execute",
+            route="small",
+            role="worker",
+            collector=collector,
+        )
+
+        profile = collector.build()
+        assert result.status == "success"
+        assert len(profile.stages) == 1
+        stage = profile.stages[0]
+        assert stage.stage == "execute"
+        assert stage.input_tokens == result.token_usage["input"]
+        assert stage.output_tokens == result.token_usage["output"]
+        assert stage.total_tokens == result.token_usage["input"] + result.token_usage["output"]
+        assert stage.cost_usd > 0
 
 
 class TestExecuteParallelWorkersRegression:

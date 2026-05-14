@@ -7,6 +7,7 @@ CONTRACT = ROOT / "policy/canonical/team-patterns.yaml"
 GENERATED = {
     "claude": ROOT / "adapters/generated/claude/CLAUDE.md",
     "codex": ROOT / "adapters/generated/codex/CODEX.md",
+    "gemini": ROOT / "adapters/generated/gemini/GEMINI.md",
     "antigravity": ROOT / "adapters/generated/antigravity/AGENTS.md",
 }
 

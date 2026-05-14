@@ -75,11 +75,17 @@ def enforce_stage_gate(task_dir: Path, policy: RuntimePolicy, stage_name: str, *
             f"{stage_name} requires artifacts satisfying gate {gate_name}: {', '.join(missing_gate_artifacts)}"
         )
 
+    loaded_artifacts: dict[str, dict[str, Any]] = {}
     for required_artifact in policy.gate_requirements.get(gate_name, []):
         for variant in artifact_variants(required_artifact):
             variant_path = artifact_path(task_dir, variant)
             if variant_path.exists():
-                load_validated_artifact(task_dir, variant, expected_task_id=canonical_task_id)
+                loaded_artifacts[variant] = load_validated_artifact(task_dir, variant, expected_task_id=canonical_task_id)
+
+    if "brief" in policy.gate_requirements.get(gate_name, []):
+        brief_payload = loaded_artifacts.get("brief")
+        if brief_payload is not None:
+            _validate_specialist_skip_semantics(brief_payload, source_name="brief.json")
 
     gate_review = policy.gate_reviews.get(gate_name, {})
     expected_review_type = gate_review.get("review_type")
@@ -101,6 +107,39 @@ def enforce_stage_gate(task_dir: Path, policy: RuntimePolicy, stage_name: str, *
         raise RuntimeViolation(
             f"{stage_name} requires approved {expected_review_type} review-report artifact"
         )
+
+
+def _validate_specialist_skip_semantics(payload: dict[str, Any], *, source_name: str) -> None:
+    known_specialists = {
+        "security-review",
+        "ux-review",
+        "perf-review",
+        "frontend-execute",
+        "backend-execute",
+        "infra-execute",
+    }
+    if "required_specialists" not in payload and "skipped_specialists" not in payload:
+        return
+
+    required = set(payload.get("required_specialists") or [])
+    skipped = set(payload.get("skipped_specialists") or [])
+    unknown = sorted((required | skipped) - known_specialists)
+    if unknown:
+        raise RuntimeViolation(f"{source_name} declares unknown specialists: {', '.join(unknown)}")
+
+    conflicting_decisions = sorted(required & skipped)
+    if conflicting_decisions:
+        raise RuntimeViolation(
+            f"{source_name} cannot both require and skip specialists: {', '.join(conflicting_decisions)}"
+        )
+
+    missing_decisions = sorted(known_specialists - required - skipped)
+    if missing_decisions:
+        raise RuntimeViolation(
+            f"{source_name} must explicitly require or skip every specialist; missing decisions: {', '.join(missing_decisions)}"
+        )
+    if skipped and not str(payload.get("skip_rationale") or "").strip():
+        raise RuntimeViolation(f"{source_name} declares skipped_specialists but omits skip_rationale")
 
 
 def _append_review_gate_observation(

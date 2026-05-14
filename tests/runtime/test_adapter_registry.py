@@ -223,14 +223,15 @@ class TestRealAdapterTargets:
         repo_root = Path(__file__).resolve().parents[2]
         return AdapterRegistry(repo_root / "adapters" / "targets")
 
-    def test_discovers_all_four(self, real_registry: AdapterRegistry) -> None:
+    def test_discovers_all_adapters(self, real_registry: AdapterRegistry) -> None:
         assert set(real_registry.list_adapters()) == {
-            "antigravity", "claude", "codex", "generic",
+            "antigravity", "claude", "codex", "gemini", "generic",
         }
 
     @pytest.mark.parametrize("name,filename", [
         ("claude", "CLAUDE.md"),
         ("codex", "CODEX.md"),
+        ("gemini", "GEMINI.md"),
         ("generic", "FORGEFLOW.md"),
         ("antigravity", "AGENTS.md"),
     ])

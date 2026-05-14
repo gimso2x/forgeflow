@@ -15,8 +15,9 @@ ForgeFlow는 AI coding agent 작업을 채팅 기억이 아니라 **명시적인
 ```text
 user request
   → clarify    # 요구사항 정리 → brief.json
-  → plan       # 작업 계획 → plan-ledger.json (medium/high)
-  → run        # 구현 → run-state.json
+  → milestone  # (Epic 전용) 마일스톤 분해 → roadmap.json
+  → plan       # 작업 계획 → plan-ledger.json (medium/high/epic)
+  → execute    # 구현 → run-state.json
   → review     # 독립 검증 → review-report.json
   → ship       # 배포/마무리
 ```
@@ -26,15 +27,17 @@ user request
 - **small** (risk: low) — clarify → execute → ship (plan 생략)
 - **medium** (risk: medium) — clarify → plan → execute → review → ship
 - **high** (risk: high) — 전체 stage + verify pipeline
+- **epic** (risk: critical) — milestone 기반 계층적 분해 및 점진적 실행
 
 ## Artifacts
 
 `.forgeflow/tasks/<task-id>/` 에 JSON artifact로 상태를 기록:
 
-- `brief.json` — 사용자 요구사항
+- `brief.json` — 요구사항, 전문가 선택(specialists), 제약사항
+- `roadmap.json` — Epic 전용 마일스톤 및 진행 상태
 - `plan-ledger.json` — 작업 계획 (task 분해, 우선순위)
-- `decision-log.json` — 설계 결정 이력
-- `run-state.json` — 실행 진행 상태
+- `decision-log.json` — 설계 결정 및 가설 디버깅 이력
+- `run-state.json` — 실행 진행 상태 (TDD 사이클 포함)
 - `review-report.json` — review 결과 (spec + quality)
 - `eval-record.json` — 평가 기록
 - `checkpoint.json` — 세션 체크포인트
@@ -83,6 +86,7 @@ python3 scripts/policy_scan.py
 ```text
 /forgeflow:init     — task 생성 (task-id, objective, risk)
 /forgeflow:clarify  — 요구사항 정리
+/forgeflow:milestone — Epic 전용 마일스톤 관리
 /forgeflow:plan     — 계획 수립
 /forgeflow:execute      — 구현 실행
 /forgeflow:review   — 독립 검증
@@ -92,7 +96,7 @@ python3 scripts/policy_scan.py
 
 ## Conventions
 
-- Artifact는 항상 JSON. schema_version `0.1`.
+- Artifact는 항상 JSON. 새 artifact schema_version은 현재 `0.2`이며 `schema_versions.py`/`schemas/*.schema.json`가 canonical입니다 (`0.1`은 migration 입력).
 - Review는 읽기 전용. 코드 수정 금지 — findings에 기록 후 worker에게 돌려보냄.
 - `progress.percentage`는 매 write 시 재계산. timestamp는 실제 ISO 8601.
 - Verification은 실제 명령 기반. hallucinated command 금지.

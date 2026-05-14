@@ -94,11 +94,13 @@ def test_list_rules_separates_examples_from_project_local_rules(tmp_path: Path) 
     assert all(rule["source"] == "example" for rule in registry["example_rules"])
 
 
-def test_execute_rejects_example_rule_unless_copied_to_project_registry() -> None:
+def test_execute_rejects_example_rule_unless_copied_to_project_registry(tmp_path: Path) -> None:
     result = subprocess.run(
         [
             sys.executable,
             "scripts/forgeflow_evolution.py",
+            "--root",
+            str(tmp_path),
             "execute",
             "--rule",
             "no-env-commit",
@@ -114,8 +116,8 @@ def test_execute_rejects_example_rule_unless_copied_to_project_registry() -> Non
     assert "not found in global registry" in result.stderr
 
 
-def test_dry_run_can_read_examples_but_marks_source_example() -> None:
-    result = dry_run_rule(ROOT, "generated-adapter-drift")
+def test_dry_run_can_read_examples_but_marks_source_example(tmp_path: Path) -> None:
+    result = dry_run_rule(tmp_path, "generated-adapter-drift", fallback_root=ROOT)
 
     assert result["source"] == "example"
     assert result["would_execute"] is False

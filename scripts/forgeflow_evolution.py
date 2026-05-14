@@ -18,6 +18,29 @@ def _target_root(args: argparse.Namespace) -> Path:
     return Path(args.root).resolve()
 
 
+def _print_json(result: dict) -> None:
+    print(json.dumps(result, ensure_ascii=False, indent=2))
+
+
+def _bool(value: object) -> str:
+    return str(value).lower()
+
+
+def _print_items(label: str, items: list[str]) -> None:
+    print(f"- {label}:")
+    for item in items or ["<none>"]:
+        print(f"  - {item}")
+
+
+def _print_issues(issues: list[dict]) -> None:
+    if not issues:
+        print("- issues: <none>")
+        return
+    print("- issues:")
+    for issue in issues:
+        print(f"  - {issue['severity']} {issue['code']}")
+
+
 def cmd_inspect(args: argparse.Namespace) -> int:
     report = inspect_evolution_policy(_target_root(args))
     if args.json:
@@ -65,7 +88,7 @@ def cmd_adopt(args: argparse.Namespace) -> int:
         print(f"Error: {exc}", file=sys.stderr)
         return 1
     if args.json:
-        print(json.dumps(result, ensure_ascii=False, indent=2))
+        _print_json(result)
         return 0
     print(f"Adopted evolution rule: {result['rule_id']}")
     print(f"- source: {result['source']}")
@@ -80,7 +103,7 @@ def cmd_dry_run(args: argparse.Namespace) -> int:
         print(f"Error: {exc}", file=sys.stderr)
         return 1
     if args.json:
-        print(json.dumps(result, ensure_ascii=False, indent=2))
+        _print_json(result)
         return 0
 
     print(f"ForgeFlow evolution dry-run: {result['rule_id']}")
@@ -106,7 +129,7 @@ def cmd_execute(args: argparse.Namespace) -> int:
         print(f"Error: {exc}", file=sys.stderr)
         return 1
     if args.json:
-        print(json.dumps(result, ensure_ascii=False, indent=2))
+        _print_json(result)
         return 0 if result.get("passed") else 2
 
     print(f"ForgeFlow evolution execute: {result['rule_id']}")
@@ -129,7 +152,7 @@ def cmd_retire(args: argparse.Namespace) -> int:
         print(f"Error: {exc}", file=sys.stderr)
         return 1
     if args.json:
-        print(json.dumps(result, ensure_ascii=False, indent=2))
+        _print_json(result)
         return 0
     print(f"Retired evolution rule: {result['rule_id']}")
     print(f"- source: {result['source_path']}")
@@ -145,7 +168,7 @@ def cmd_restore(args: argparse.Namespace) -> int:
         print(f"Error: {exc}", file=sys.stderr)
         return 1
     if args.json:
-        print(json.dumps(result, ensure_ascii=False, indent=2))
+        _print_json(result)
         return 0
     print(f"Restored evolution rule: {result['rule_id']}")
     print(f"- source: {result['source_path']}")
@@ -190,7 +213,7 @@ def cmd_effectiveness(args: argparse.Namespace) -> int:
         print(f"Error: {exc}", file=sys.stderr)
         return 1
     if args.json:
-        print(json.dumps(result, ensure_ascii=False, indent=2))
+        _print_json(result)
         return 0
     print(f"Evolution effectiveness: {result['rule_id']}")
     print(f"- read-only: {str(result['read_only']).lower()}")
@@ -214,25 +237,15 @@ def cmd_promotion_plan(args: argparse.Namespace) -> int:
         print(f"Error: {exc}", file=sys.stderr)
         return 1
     if args.json:
-        print(json.dumps(result, ensure_ascii=False, indent=2))
+        _print_json(result)
         return 0
     print(f"Evolution promotion plan: {result['rule_id']}")
-    print(f"- read-only: {str(result['read_only']).lower()}")
-    print(f"- would mutate: {str(result['would_mutate']).lower()}")
+    print(f"- read-only: {_bool(result['read_only'])}")
+    print(f"- would mutate: {_bool(result['would_mutate'])}")
     print(f"- recommendation: {result['recommendation']}")
     print(f"- failures: {result['evidence_summary']['failures']}")
-    print("- required approvals:")
-    if result["required_human_approvals"]:
-        for approval in result["required_human_approvals"]:
-            print(f"  - {approval}")
-    else:
-        print("  - <none>")
-    print("- risk flags:")
-    if result["risk_flags"]:
-        for flag in result["risk_flags"]:
-            print(f"  - {flag}")
-    else:
-        print("  - <none>")
+    _print_items("required approvals", result["required_human_approvals"])
+    _print_items("risk flags", result["risk_flags"])
     if result.get("suggested_next_command"):
         print(f"- suggested next command: {result['suggested_next_command']}")
     if result.get("proposal_written"):
@@ -247,20 +260,15 @@ def cmd_proposal_review(args: argparse.Namespace) -> int:
         print(f"Error: {exc}", file=sys.stderr)
         return 1
     if args.json:
-        print(json.dumps(result, ensure_ascii=False, indent=2))
+        _print_json(result)
         return 0 if result["valid"] else 1
     print(f"Evolution proposal review: {result['proposal_path']}")
     print(f"- rule: {result['rule_id']}")
-    print(f"- read-only: {str(result['read_only']).lower()}")
-    print(f"- would mutate: {str(result['would_mutate']).lower()}")
-    print(f"- active rule exists: {str(result['active_rule_exists']).lower()}")
-    print(f"- valid: {str(result['valid']).lower()}")
-    if result["issues"]:
-        print("- issues:")
-        for issue in result["issues"]:
-            print(f"  - {issue['severity']} {issue['code']}")
-    else:
-        print("- issues: <none>")
+    print(f"- read-only: {_bool(result['read_only'])}")
+    print(f"- would mutate: {_bool(result['would_mutate'])}")
+    print(f"- active rule exists: {_bool(result['active_rule_exists'])}")
+    print(f"- valid: {_bool(result['valid'])}")
+    _print_issues(result["issues"])
     return 0 if result["valid"] else 1
 
 
@@ -271,24 +279,19 @@ def cmd_promotion_gate(args: argparse.Namespace) -> int:
         print(f"Error: {exc}", file=sys.stderr)
         return 1
     if args.json:
-        print(json.dumps(result, ensure_ascii=False, indent=2))
+        _print_json(result)
         return 0 if result["ready_for_policy_gate"] else 1
     print(f"Evolution promotion gate: {result['proposal_path']}")
     print(f"- rule: {result['rule_id']}")
-    print(f"- read-only: {str(result['read_only']).lower()}")
-    print(f"- proposal valid: {str(result['proposal_valid']).lower()}")
-    print(f"- all required approvals present: {str(result['all_required_approvals_present']).lower()}")
-    print(f"- approval records complete: {str(result['approval_records_complete']).lower()}")
-    print(f"- risk flags acknowledged: {str(result['risk_flags_acknowledged']).lower()}")
-    print(f"- ready for policy gate: {str(result['ready_for_policy_gate']).lower()}")
-    print(f"- would promote: {str(result['would_promote']).lower()}")
-    print(f"- would mutate rules: {str(result['would_mutate_rules']).lower()}")
-    if result["issues"]:
-        print("- issues:")
-        for issue in result["issues"]:
-            print(f"  - {issue['severity']} {issue['code']}")
-    else:
-        print("- issues: <none>")
+    print(f"- read-only: {_bool(result['read_only'])}")
+    print(f"- proposal valid: {_bool(result['proposal_valid'])}")
+    print(f"- all required approvals present: {_bool(result['all_required_approvals_present'])}")
+    print(f"- approval records complete: {_bool(result['approval_records_complete'])}")
+    print(f"- risk flags acknowledged: {_bool(result['risk_flags_acknowledged'])}")
+    print(f"- ready for policy gate: {_bool(result['ready_for_policy_gate'])}")
+    print(f"- would promote: {_bool(result['would_promote'])}")
+    print(f"- would mutate rules: {_bool(result['would_mutate_rules'])}")
+    _print_issues(result["issues"])
     return 0 if result["ready_for_policy_gate"] else 1
 
 
@@ -302,13 +305,13 @@ def cmd_promote(args: argparse.Namespace) -> int:
         print(f"Error: {exc}", file=sys.stderr)
         return 1
     if args.json:
-        print(json.dumps(result, ensure_ascii=False, indent=2))
+        _print_json(result)
         return 0
     print(f"Evolution promote: {result['proposal_path']}")
     print(f"- rule: {result['rule_id']}")
     print(f"- mutation mode: {result['mutation_mode']}")
-    print(f"- would mutate rules: {str(result['would_mutate_rules']).lower()}")
-    print(f"- promoted: {str(result['promoted']).lower()}")
+    print(f"- would mutate rules: {_bool(result['would_mutate_rules'])}")
+    print(f"- promoted: {_bool(result['promoted'])}")
     print(f"- promotion path: {result.get('promotion_path')}")
     print("- audit event: promote")
     return 0
@@ -318,7 +321,7 @@ def cmd_promote(args: argparse.Namespace) -> int:
 def cmd_promotions(args: argparse.Namespace) -> int:
     result = list_promotions(_target_root(args))
     if args.json:
-        print(json.dumps(result, ensure_ascii=False, indent=2))
+        _print_json(result)
         return 0
     print(f"Evolution promotions: {result['promotion_dir']}")
     if not result["promotions"]:
@@ -336,24 +339,19 @@ def cmd_promotion_ready(args: argparse.Namespace) -> int:
         print(f"Error: {exc}", file=sys.stderr)
         return 1
     if args.json:
-        print(json.dumps(result, ensure_ascii=False, indent=2))
+        _print_json(result)
         return 0 if result["ready_for_promote"] else 1
     print(f"Evolution promotion ready: {result['proposal_path']}")
     print(f"- rule: {result['rule_id']}")
-    print(f"- read-only: {str(result['read_only']).lower()}")
-    print(f"- promotion gate ready: {str(result['promotion_gate_ready']).lower()}")
-    print(f"- approve policy gate decision present: {str(result['approve_policy_gate_decision_present']).lower()}")
-    print(f"- decision records complete: {str(result['decision_records_complete']).lower()}")
-    print(f"- active rule exists: {str(result['active_rule_exists']).lower()}")
-    print(f"- ready for promote: {str(result['ready_for_promote']).lower()}")
-    print(f"- would promote: {str(result['would_promote']).lower()}")
-    print(f"- would mutate rules: {str(result['would_mutate_rules']).lower()}")
-    if result["issues"]:
-        print("- issues:")
-        for issue in result["issues"]:
-            print(f"  - {issue['severity']} {issue['code']}")
-    else:
-        print("- issues: <none>")
+    print(f"- read-only: {_bool(result['read_only'])}")
+    print(f"- promotion gate ready: {_bool(result['promotion_gate_ready'])}")
+    print(f"- approve policy gate decision present: {_bool(result['approve_policy_gate_decision_present'])}")
+    print(f"- decision records complete: {_bool(result['decision_records_complete'])}")
+    print(f"- active rule exists: {_bool(result['active_rule_exists'])}")
+    print(f"- ready for promote: {_bool(result['ready_for_promote'])}")
+    print(f"- would promote: {_bool(result['would_promote'])}")
+    print(f"- would mutate rules: {_bool(result['would_mutate_rules'])}")
+    _print_issues(result["issues"])
     return 0 if result["ready_for_promote"] else 1
 
 
@@ -371,7 +369,7 @@ def cmd_promotion_decision(args: argparse.Namespace) -> int:
         print(f"Error: {exc}", file=sys.stderr)
         return 1
     if args.json:
-        print(json.dumps(result, ensure_ascii=False, indent=2))
+        _print_json(result)
         return 0
     verb = "recorded" if result["written"] else "checked"
     print(f"Evolution promotion decision {verb}: {result['decision_path']}")
@@ -379,9 +377,9 @@ def cmd_promotion_decision(args: argparse.Namespace) -> int:
     print(f"- rule: {result['rule_id']}")
     print(f"- decision: {result['decision']}")
     print(f"- decider: {result['decider']}")
-    print(f"- written: {str(result['written']).lower()}")
-    print(f"- would promote: {str(result['would_promote']).lower()}")
-    print(f"- would mutate rules: {str(result['would_mutate_rules']).lower()}")
+    print(f"- written: {_bool(result['written'])}")
+    print(f"- would promote: {_bool(result['would_promote'])}")
+    print(f"- would mutate rules: {_bool(result['would_mutate_rules'])}")
     return 0
 
 
@@ -398,16 +396,16 @@ def cmd_proposal_approve(args: argparse.Namespace) -> int:
         print(f"Error: {exc}", file=sys.stderr)
         return 1
     if args.json:
-        print(json.dumps(result, ensure_ascii=False, indent=2))
+        _print_json(result)
         return 0
     print(f"Evolution proposal approval recorded: {result['approval_path']}")
     print(f"- proposal: {result['proposal_path']}")
     print(f"- rule: {result['rule_id']}")
     print(f"- approval: {result['approval']}")
     print(f"- approver: {result['approver']}")
-    print(f"- duplicate: {str(result['duplicate']).lower()}")
-    print(f"- would promote: {str(result['would_promote']).lower()}")
-    print(f"- would mutate rules: {str(result['would_mutate_rules']).lower()}")
+    print(f"- duplicate: {_bool(result['duplicate'])}")
+    print(f"- would promote: {_bool(result['would_promote'])}")
+    print(f"- would mutate rules: {_bool(result['would_mutate_rules'])}")
     return 0
 
 
@@ -418,28 +416,20 @@ def cmd_proposal_approvals(args: argparse.Namespace) -> int:
         print(f"Error: {exc}", file=sys.stderr)
         return 1
     if args.json:
-        print(json.dumps(result, ensure_ascii=False, indent=2))
+        _print_json(result)
         return 0
     print(f"Evolution proposal approvals: {result['proposal_path']}")
     print(f"- rule: {result['rule_id']}")
     print(f"- approval ledger: {result['approval_path']}")
-    print(f"- read-only: {str(result['read_only']).lower()}")
-    print(f"- would promote: {str(result['would_promote']).lower()}")
-    print(f"- would mutate rules: {str(result['would_mutate_rules']).lower()}")
-    print(f"- ready for policy gate: {str(result['ready_for_policy_gate']).lower()}")
-    print("- required approvals:")
-    for approval in result["required_approvals"] or ["<none>"]:
-        print(f"  - {approval}")
-    print("- recorded approvals:")
-    for approval in result["recorded_approvals"] or ["<none>"]:
-        print(f"  - {approval}")
-    print("- missing approvals:")
-    for approval in result["missing_approvals"] or ["<none>"]:
-        print(f"  - {approval}")
+    print(f"- read-only: {_bool(result['read_only'])}")
+    print(f"- would promote: {_bool(result['would_promote'])}")
+    print(f"- would mutate rules: {_bool(result['would_mutate_rules'])}")
+    print(f"- ready for policy gate: {_bool(result['ready_for_policy_gate'])}")
+    _print_items("required approvals", result["required_approvals"])
+    _print_items("recorded approvals", result["recorded_approvals"])
+    _print_items("missing approvals", result["missing_approvals"])
     if result["duplicates"]:
-        print("- duplicate approvals:")
-        for approval in result["duplicates"]:
-            print(f"  - {approval}")
+        _print_items("duplicate approvals", result["duplicates"])
     return 0
 
 
@@ -450,7 +440,7 @@ def cmd_audit(args: argparse.Namespace) -> int:
         print(f"Error: {exc}", file=sys.stderr)
         return 1
     if args.json:
-        print(json.dumps(result, ensure_ascii=False, indent=2))
+        _print_json(result)
         return 0
     print(f"Evolution audit log: {result['audit_log']}")
     if not result["events"]:
@@ -467,7 +457,7 @@ def cmd_audit(args: argparse.Namespace) -> int:
 def cmd_observations(args: argparse.Namespace) -> int:
     result = read_observations(_target_root(args), args.task)
     if args.json:
-        print(json.dumps(result, ensure_ascii=False, indent=2))
+        _print_json(result)
         return 0
     print(f"Evolution observations: {result['task_id']}")
     print(f"- read-only: {str(result['read_only']).lower()}")
@@ -485,7 +475,7 @@ def cmd_observations(args: argparse.Namespace) -> int:
 def cmd_suggest(args: argparse.Namespace) -> int:
     result = suggest_from_task(_target_root(args), args.task)
     if args.json:
-        print(json.dumps(result, ensure_ascii=False, indent=2))
+        _print_json(result)
         return 0
     print(f"Evolution suggestions: {result['task_id']}")
     print(f"- read-only: {str(result['read_only']).lower()}")

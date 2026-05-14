@@ -1,10 +1,77 @@
 # ForgeFlow 설치 가이드
 
+## 빠른 설치 선택
+
+- Claude Code를 쓰나요? → **Claude Code plugin 설치** 섹션으로 가세요.
+- Codex Desktop/CLI를 쓰나요? → **Codex Plugin 설치** 섹션으로 가세요.
+- Gemini CLI를 쓰나요? → **Gemini CLI extension 설치** 섹션으로 가세요.
+- CLI/CI에서만 쓸 건가요? → **Python 패키지 설치** 섹션으로 가세요.
+- 그냥 프로젝트에 지침만 복사할 건가요? → **수동 복사** 섹션으로 가세요.
+- Antigravity를 쓰나요? → **Antigravity** 섹션으로 가세요.
+
+
 ForgeFlow는 세 가지 방식으로 쓸 수 있습니다.
 
 1. **Claude Code 플러그인** — Claude Code에서 ForgeFlow 규칙/스킬 표면을 설치해서 사용 → [상세 가이드](docs/guides/claude-code.md)
 2. **Codex 플러그인** — Codex Desktop에 plugin을 등록해서 사용 → [상세 가이드](docs/guides/codex.md)
-3. **Python 패키지 / Local CLI** — `pip install`로 runtime CLI를 프로젝트별로 고정해서 사용 → [상세 가이드](docs/guides/local-cli.md)
+3. **Gemini CLI extension** — Gemini CLI extension으로 ForgeFlow context를 설치해서 사용
+4. **Python 패키지 / Local CLI** — `pip install`로 runtime CLI를 프로젝트별로 고정해서 사용 → [상세 가이드](docs/guides/local-cli.md)
+
+## Gemini CLI extension 설치
+
+Gemini CLI는 ForgeFlow를 extension으로 설치합니다. 설치 후 Gemini CLI를 재시작해야 extension context가 로드됩니다.
+
+```bash
+gemini extensions install https://github.com/gimso2x/forgeflow
+```
+
+이미 checkout을 개발 중이면 복사 설치 대신 link로 바로 테스트합니다. root `GEMINI.md`는 Gemini extension bootstrap이고, 실제 ForgeFlow adapter context는 `@./adapters/generated/gemini/GEMINI.md`로 include합니다. ForgeFlow workflow skills도 Superpowers 방식처럼 `@./skills/.../SKILL.md`로 함께 include되어 Gemini가 `/forgeflow:init`부터 `/forgeflow:finish`까지 각 stage contract를 바로 참조할 수 있습니다.
+
+```bash
+gemini extensions link /home/ubuntu/work/forgeflow
+gemini extensions validate /home/ubuntu/work/forgeflow
+```
+
+업데이트:
+
+```bash
+gemini extensions update forgeflow
+```
+
+사용:
+
+```bash
+cd /path/to/your-project
+gemini
+```
+
+Gemini 안에서는 ForgeFlow stage를 명시해서 시작합니다.
+
+```text
+Use ForgeFlow. Start /forgeflow:clarify for: README quickstart를 현재 설치 방식에 맞게 갱신.
+Create task artifacts under .forgeflow/tasks/<task-id>/ and preserve clarify -> plan -> execute -> spec-review -> quality-review -> finalize.
+```
+
+프로젝트에 역할 preset과 root instruction도 고정하고 싶을 때만 아래 project-local 설치를 추가합니다. 기존 `GEMINI.md`는 기본 보존됩니다.
+
+```bash
+python3 /home/ubuntu/work/forgeflow/scripts/install_agent_presets.py \
+  --adapter gemini \
+  --target /path/to/your-project \
+  --profile nextjs \
+  --install-gemini-md
+```
+
+runtime에서 Gemini CLI를 실제 adapter로 호출할 때는 명시적으로 `--real --assert-real`을 씁니다.
+
+```bash
+python3 /home/ubuntu/work/forgeflow/scripts/run_orchestrator.py exec-stage \
+  --task-dir /path/to/your-project/.forgeflow/tasks/<task-id> \
+  --route small \
+  --adapter gemini \
+  --real \
+  --assert-real
+```
 
 ## Python 패키지/runtime CLI
 
@@ -80,13 +147,7 @@ scripts/smoke.sh
 
 짧은 이름(`/clarify`, `/plan`, `/review`, `/ship`)도 동작할 수 있지만, 다른 Claude plugin/gstack skill과 충돌할 수 있습니다. 운영에서는 **항상 `/forgeflow:<stage>` 네임스페이스 형식**을 권장합니다. 특히 `/review`와 `/ship`은 충돌 가능성이 높습니다.
 
-요구사항을 먼저 더 단단히 뽑아야 하는 작업이면 `/forgeflow:clarify` 다음에 `/forgeflow:specify`를 끼웁니다.
-
-```text
-/forgeflow:clarify <하고 싶은 작업>
-/forgeflow:specify
-/forgeflow:plan
-```
+요구사항을 먼저 더 단단히 뽑아야 하는 작업도 별도 `specify` stage 없이 `/forgeflow:clarify`에서 brief를 보강한 뒤 `/forgeflow:plan`으로 넘어갑니다.
 
 `/forgeflow`는 전체 workflow 설명/입구입니다. 실제 작업 진행은 보통 `/forgeflow:clarify`부터 시작하지만, 그 다음 `/forgeflow:plan`/`run`을 쓰는 이유를 agent가 정리해 줘야지 사용자에게 계획 작성을 떠넘기면 안 됩니다. 사용자가 매번 workflow 운영자가 될 필요는 없습니다. 다만 stage 경계를 넘을 때는 agent가 멈추고 닫힌 질문으로 확인합니다: `다음 스텝으로 `/forgeflow:execute`을 진행하시겠습니까? (y/n)`.
 
@@ -340,7 +401,14 @@ make setup
 make validate
 ```
 
-`make validate` is the deterministic validation entry point: it runs `check-env`, schema/policy/generated checks, focused pytest contracts, and static plugin smoke matrix checks in the correct order. `make check-env` remains a focused diagnostic target when you only want dependency/environment output.
+`make validate` is the deterministic validation entry point: it runs `check-env`, then the separated validation lanes in order.
+
+- `make validate-structure`: plugin/release version drift, context paths, schema/policy/generated checks, sample artifacts, skill contracts, Claude hooks.
+- `make validate-fast`: fast deterministic pytest/eval/smoke contracts; no live provider execution.
+- `make validate-plugin`: static non-mutating Claude/Codex plugin smoke matrix.
+- `make validate-e2e-live`: optional mutating live-agent E2E against a disposable project; run manually, not as part of default `make validate`.
+
+`make check-env` remains a focused diagnostic target when you only want dependency/environment output.
 
 ## Windows native vs WSL2 decision tree
 
@@ -436,6 +504,7 @@ python3 scripts/run_orchestrator.py exec-stage \
 ```json
 {
   "execution_mode": "stub",
+  "dry_run": true,
   "warning": "STUB EXECUTION: no real CLI adapter ran; pass --real for live execution or --assert-real to fail fast."
 }
 ```

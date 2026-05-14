@@ -27,7 +27,7 @@ from forgeflow_runtime.orchestrator import (  # noqa: E402
 )
 from forgeflow_runtime.operator_routing import ROUTE_ORDER, effective_route, role_for_stage  # noqa: E402
 from forgeflow_runtime.engine import execute_stage  # noqa: E402
-from forgeflow_runtime.executor import ExecutorError  # noqa: E402
+from forgeflow_runtime.executor import ExecutorError, SUPPORTED_REAL_ADAPTERS  # noqa: E402
 from forgeflow_runtime.generator import GenerationError  # noqa: E402
 from forgeflow_runtime.workflow_override import resolve_project_workflow  # noqa: E402
 
@@ -44,7 +44,10 @@ def _execution_payload(*, stage: str, role: str, adapter: str, result, use_real:
         "token_usage": result.token_usage,
     }
     if execution_mode == "stub":
+        payload["dry_run"] = True
         payload["warning"] = _stub_execution_warning()
+    else:
+        payload["dry_run"] = False
     if result.error:
         payload["error"] = result.error
     return payload
@@ -57,7 +60,11 @@ def _assert_real_requested(*, use_real: bool, assert_real: bool) -> None:
 
 def _print_stub_warning_if_needed(*, use_real: bool) -> None:
     if not use_real:
-        print(f"WARNING: {_stub_execution_warning()}", file=sys.stderr)
+        banner = "\n================== [STUB MODE] ==================\n"
+        banner += "No real CLI adapter ran. Output is simulated.\n"
+        banner += "Pass --real for live execution or --assert-real to fail fast.\n"
+        banner += "=================================================\n"
+        print(banner, file=sys.stderr)
 
 
 def _print_payload(payload: dict) -> None:
@@ -158,7 +165,7 @@ Notes:
     advance_parser.add_argument("--min-route", choices=ROUTE_ORDER, help=min_route_help)
     advance_parser.add_argument("--current-stage", required=True)
     advance_parser.add_argument("--execute", action="store_true", help="execute the next stage immediately after advancing")
-    advance_parser.add_argument("--adapter", choices=["claude", "codex"], default="claude")
+    advance_parser.add_argument("--adapter", choices=SUPPORTED_REAL_ADAPTERS, default="claude")
     advance_parser.add_argument("--role", default=None, help="override role when --execute is used")
     advance_parser.add_argument("--artifacts", nargs="+", default=None, help="artifact names to stream when --execute is used")
     advance_parser.add_argument("--real", action="store_true", help="use real CLI adapters when --execute is used")
@@ -187,7 +194,7 @@ Notes:
     exec_stage_parser.add_argument("--task-dir", required=True)
     exec_stage_parser.add_argument("--route", help=route_help)
     exec_stage_parser.add_argument("--min-route", choices=ROUTE_ORDER, help=min_route_help)
-    exec_stage_parser.add_argument("--adapter", choices=["claude", "codex"], default="claude")
+    exec_stage_parser.add_argument("--adapter", choices=SUPPORTED_REAL_ADAPTERS, default="claude")
     exec_stage_parser.add_argument("--role", default=None, help="override role (auto-detected from stage if omitted)")
     exec_stage_parser.add_argument("--artifacts", nargs="+", default=None, help="artifact names to stream")
     exec_stage_parser.add_argument("--real", action="store_true", help="use real CLI adapters instead of stubs")

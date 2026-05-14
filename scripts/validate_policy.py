@@ -141,6 +141,7 @@ def validate_policy_root(root: Path) -> list[str]:
     stage_policy = policy_docs["stages"]["stages"]
     required_stage_non_negotiables = {
         "clarify": ["brief", "route"],
+        "milestone": ["milestone breakdown", "boundary"],
         "plan": ["expected output", "verification"],
         "execute": ["decision-log", "run-state"],
         "spec-review": ["acceptance criteria", "worker self-report"],
@@ -177,6 +178,18 @@ def validate_policy_root(root: Path) -> list[str]:
         "long-run",
     ]:
         errors.append("high route mismatch")
+
+    if "epic" not in routes or routes["epic"] != [
+        "clarify",
+        "milestone",
+        "plan",
+        "execute",
+        "spec-review",
+        "quality-review",
+        "finalize",
+        "long-run",
+    ]:
+        errors.append("epic route mismatch")
 
     for schema_name in ["brief", "plan", "decision-log", "run-state", "review-report", "eval-record"]:
         schema_path = root / "schemas" / f"{schema_name}.schema.json"

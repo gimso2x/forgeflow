@@ -97,6 +97,48 @@ def test_cli_execute_real_claude_uses_binary_from_path_without_live_credentials(
     assert (task_dir / "clarify-output.md").read_text(encoding="utf-8").strip() == "FAKE_CLAUDE_REAL_OUTPUT"
 
 
+def test_cli_execute_real_gemini_uses_binary_from_path_without_live_credentials(tmp_path: Path) -> None:
+    task_dir = _make_task_dir(tmp_path)
+    bin_dir = tmp_path / "bin"
+    bin_dir.mkdir()
+    gemini = _fake_cli_path(bin_dir, "gemini")
+    if sys.platform == "win32":
+        gemini.write_text(
+            "@echo off\n"
+            "python -c \"import sys; assert '--prompt' in sys.argv; assert '--yolo' in sys.argv; print('FAKE_GEMINI_REAL_OUTPUT')\" %*\n",
+            encoding="utf-8",
+        )
+    else:
+        gemini.write_text(
+            "#!/usr/bin/env python3\n"
+            "import sys\n"
+            "assert '--prompt' in sys.argv\n"
+            "assert '--yolo' in sys.argv\n"
+            "print('FAKE_GEMINI_REAL_OUTPUT')\n",
+            encoding="utf-8",
+        )
+        gemini.chmod(0o755)
+
+    result = _run_orchestrator_cli(
+        "exec-stage",
+        "--task-dir",
+        str(task_dir),
+        "--route",
+        "small",
+        "--adapter",
+        "gemini",
+        "--real",
+        env={"PATH": _path_with(bin_dir)},
+    )
+
+    assert result.returncode == 0
+    payload = json.loads(result.stdout)
+    assert payload["status"] == "success"
+    assert payload["adapter"] == "gemini"
+    assert payload["execution_mode"] == "real"
+    assert (task_dir / "clarify-output.md").read_text(encoding="utf-8").strip() == "FAKE_GEMINI_REAL_OUTPUT"
+
+
 def test_cli_assert_real_refuses_stub_execution(tmp_path: Path) -> None:
     task_dir = _make_task_dir(tmp_path)
 
@@ -141,7 +183,7 @@ def test_real_adapter_boundary_doc_defines_supported_slice_and_failure_modes() -
     doc = (ROOT / "docs" / "real-adapter-boundary.md").read_text(encoding="utf-8")
 
     assert "Supported real execution slice" in doc
-    assert "Claude Code and Codex CLI" in doc
+    assert "Claude Code, Codex CLI, and Gemini CLI" in doc
     assert "Stub execution remains the default" in doc
     assert "missing CLI" in doc
     assert "auth failure" in doc

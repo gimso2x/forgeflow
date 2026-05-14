@@ -24,7 +24,7 @@ DRY_RUN_CASES = [
     ),
     (
         "specify_exact",
-        "/forgeflow:specify Dry run only. Your entire response must be exactly two numbered lines and nothing else: no preamble, no heading, no summary. List two spec questions for a README badge task. Do not write files. Do not run commands.",
+        "/forgeflow:clarify Dry run only. Your entire response must be exactly two numbered lines and nothing else: no preamble, no heading, no summary. List two requirement questions for a README badge task. Do not write files. Do not run commands.",
         "two_lines",
     ),
     (
@@ -108,7 +108,7 @@ def assert_no_permission_denials(name: str, result: dict) -> None:
 
 
 def assert_exact_label(name: str, text: str) -> None:
-    if text.strip() not in {"small", "medium", "high"}:
+    if text.strip() not in {"small", "medium", "high", "epic"}:
         raise AssertionError(f"{name}: expected only route label; got {text!r}")
 
 

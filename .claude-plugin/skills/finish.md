@@ -24,3 +24,8 @@ Finalize and clean up a completed ForgeFlow task.
 4. Report the summary to the user.
 
 5. Optionally archive or clean up the task directory if the user confirms.
+
+
+## Status analysis preflight
+
+Read `run-state.json`, review/eval artifacts, and `decision-log.json` from the active `.forgeflow/tasks/<task-id>/` before acting. For multi-task triage, run `python3 scripts/forgeflow_monitor.py --tasks .forgeflow/tasks --recent 10` as read-only evidence; then inspect the selected artifacts directly.

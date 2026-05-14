@@ -32,3 +32,10 @@ routes:
       - architecture or infra impact
       - hard rollback
       - resume/recovery important
+  epic:
+    stages: [clarify, milestone, plan, execute, spec-review, quality-review, finalize, long-run]
+    max_retries: 5
+    traits:
+      - massive scope
+      - hierarchical milestone breakdown
+      - multi-week effort

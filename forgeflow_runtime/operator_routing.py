@@ -11,6 +11,7 @@ ViolationT = TypeVar("ViolationT", bound=Exception)
 
 STAGE_ROLE_MAP: dict[str, str] = {
     "clarify": "coordinator",
+    "milestone": "planner",
     "plan": "planner",
     "execute": "worker",
     "spec-review": "spec-reviewer",
@@ -26,11 +27,12 @@ STAGE_ROLE_MAP: dict[str, str] = {
     "infra-execute": "infra-worker",
 }
 
-ROUTE_ORDER: list[str] = ["small", "medium", "high"]
+ROUTE_ORDER: list[str] = ["small", "medium", "high", "epic"]
 RISK_TO_ROUTE: dict[str, str] = {
     "low": "small",
     "medium": "medium",
     "high": "high",
+    "critical": "epic",
 }
 
 # Domain vocabulary → canonical stage name mapping.

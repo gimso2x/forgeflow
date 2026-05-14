@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -37,6 +36,9 @@ from forgeflow_runtime.plan_ledger import (
     sync_plan_ledger_review as _sync_plan_ledger_review,
 )
 from forgeflow_runtime.operator_routing import role_for_stage
+from forgeflow_runtime.orchestrator_execution import TransitionResult
+from forgeflow_runtime.orchestrator_execution import execution_payload as _execution_payload
+from forgeflow_runtime.orchestrator_execution import stub_execution_warning as _stub_execution_warning
 from forgeflow_runtime.policy_loader import RuntimePolicy, load_runtime_policy
 from forgeflow_runtime.resume_validation import resume_start_index
 from forgeflow_runtime.route_execution import build_route_result, route_entry_decision, route_iteration_stages, stage_completion_status
@@ -58,35 +60,6 @@ from forgeflow_runtime.worktree import (
     merge_worker_worktree as _merge_worker_worktree,
     remove_worktree as _remove_worktree,
 )
-
-
-@dataclass(frozen=True)
-class TransitionResult:
-    next_stage: str
-    execution: dict[str, Any] | None = None
-
-
-def _stub_execution_warning() -> str:
-    return "STUB EXECUTION: no real CLI adapter ran; pass --real for live execution or --assert-real to fail fast."
-
-
-def _execution_payload(*, stage: str, role: str, adapter: str, result: Any, use_real: bool = False) -> dict[str, Any]:
-    execution_mode = "real" if use_real else "stub"
-    payload = {
-        "stage": stage,
-        "role": role,
-        "adapter": adapter,
-        "execution_mode": execution_mode,
-        "status": result.status,
-        "artifacts_produced": result.artifacts_produced,
-        "token_usage": result.token_usage,
-    }
-    if execution_mode == "stub":
-        payload["warning"] = _stub_execution_warning()
-    if result.error:
-        payload["error"] = result.error
-    return payload
-
 
 def _load_plan_ledger(task_dir: Path, *, canonical_task_id: str) -> dict[str, Any] | None:
     path = _artifact_path(task_dir, "plan-ledger")
@@ -552,7 +525,14 @@ def _record_gate(
 
 
 def _bootstrap_brief(task_id: str, route_name: str) -> dict[str, Any]:
-    risk_level = "low" if route_name == "small" else "medium" if route_name == "medium" else "high"
+    if route_name == "small":
+        risk_level = "low"
+    elif route_name == "medium":
+        risk_level = "medium"
+    elif route_name == "high":
+        risk_level = "high"
+    else:
+        risk_level = "critical"
     return {
         "schema_version": "0.2",
         "task_id": task_id,
@@ -1328,9 +1308,9 @@ def init_task(
     task_id = task_id or _slugify_objective(objective or task_dir.name)
     objective = objective or f"Bootstrap {task_id}"
     risk_level = risk_level or _estimate_risk(objective)
-    if risk_level not in {"low", "medium", "high"}:
+    if risk_level not in {"low", "medium", "high", "critical"}:
         raise RuntimeViolation(f"unknown risk level: {risk_level}")
-    route_name = {"low": "small", "medium": "medium", "high": "high"}[risk_level]
+    route_name = {"low": "small", "medium": "medium", "high": "high", "critical": "epic"}[risk_level]
     route = _resolve_route(policy, route_name)
     # project_root defaults to 3 levels up from .forgeflow/tasks/<id>/
     if project_root is None:
@@ -2322,13 +2302,16 @@ def run_route(task_dir: Path, policy: RuntimePolicy, route_name: str) -> dict[st
             decision=f"stage entered: {stage_name}",
             rationale=f"route {route_name} progressed to {stage_name}",
         )
+        # --- Worktree cleanup after execute stage ---
+        # Cleanup mutates run_state and decision_log, so it must happen before
+        # artifact writes. Otherwise run-state.json can incorrectly persist an
+        # active worktree after the worktree has already been removed.
+        if stage_name == "execute" and _active_worktree is not None:
+            _cleanup_worktree(task_dir, _active_worktree, run_state, decision_log)
+
         _write_validated_artifact(task_dir, "run-state", run_state)
         _write_validated_artifact(task_dir, "decision-log", decision_log)
         _write_plan_ledger_if_present(task_dir, plan_ledger)
-
-        # --- Worktree cleanup after execute stage ---
-        if stage_name == "execute" and _active_worktree is not None:
-            _cleanup_worktree(task_dir, _active_worktree, run_state, decision_log)
 
         # Profiling: record completed stage
         from forgeflow_runtime.executor import RunTaskResult
@@ -2476,8 +2459,10 @@ def step_back(task_dir: Path, policy: RuntimePolicy, route_name: str, current_st
 
 
 def escalate_route(task_dir: Path, from_route: str) -> dict[str, Any]:
-    if from_route not in {"small", "medium", "high"}:
+    if from_route not in {"small", "medium", "high", "epic"}:
         raise RuntimeViolation(f"unknown route for escalation: {from_route}")
+    if from_route == "epic":
+        raise RuntimeViolation("epic route cannot be escalated further")
     canonical_task_id = _canonical_task_id(task_dir)
     run_state = _ensure_run_state(task_dir, canonical_task_id=canonical_task_id)
     decision_log = _ensure_decision_log(task_dir, canonical_task_id=canonical_task_id)
@@ -2488,26 +2473,30 @@ def escalate_route(task_dir: Path, from_route: str) -> dict[str, Any]:
         run_state["current_task_id"] = plan_ledger["current_task_id"]
     run_state["current_stage"] = "clarify"
     run_state["status"] = "blocked"
+    
+    next_route_map = {"small": "medium", "medium": "high", "high": "epic"}
+    to_route = next_route_map[from_route]
+
     _append_decision(
         decision_log,
         actor="orchestrator",
         category="routing",
-        decision=f"route escalated: {from_route} -> high",
+        decision=f"route escalated: {from_route} -> {to_route}",
         rationale="risk or recovery pressure exceeded original route",
     )
     _write_validated_artifact(task_dir, "run-state", run_state)
     _write_validated_artifact(task_dir, "decision-log", decision_log)
     checkpoint = _sync_checkpoint(
         task_dir,
-        route_name="high",
-        route=_resolve_route(load_runtime_policy(REPO_ROOT), "high"),
+        route_name=to_route,
+        route=_resolve_route(load_runtime_policy(REPO_ROOT), to_route),
         run_state=run_state,
         plan_ledger=plan_ledger,
         checkpoint=checkpoint,
     )
     _sync_session_state(
         task_dir,
-        route_name="high",
+        route_name=to_route,
         run_state=run_state,
         checkpoint=checkpoint,
         plan_ledger=plan_ledger,
