@@ -1,7 +1,5 @@
 {
   "name": "forgeflow",
-  "description": "ForgeFlow runtime methodology and adapter guidance for Gemini CLI",
-  "version": "0.9.0",
-  "contextFileName": "GEMINI.md"
+  "version": "0.9.1",
+  "description": "Artifact-first delivery harness for Gemini CLI"
 }
-
