@@ -11,7 +11,7 @@ def test_gemini_extension_manifest_points_at_generated_context() -> None:
     manifest = json.loads((ROOT / "gemini-extension.json").read_text(encoding="utf-8"))
 
     assert manifest["name"] == "forgeflow"
-    assert manifest["description"] == "ForgeFlow runtime methodology and adapter guidance for Gemini CLI"
+    assert manifest["description"] == "Artifact-first delivery harness for Gemini CLI"
     assert manifest["contextFileName"] == "GEMINI.md"
     assert (ROOT / manifest["contextFileName"]).exists()
     root_gemini = (ROOT / "GEMINI.md").read_text(encoding="utf-8")

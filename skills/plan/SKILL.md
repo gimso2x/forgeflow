@@ -60,7 +60,7 @@ Do not add non-schema fields such as `route`, `tasks`, `files_to_change`, `accep
 
 ## Contract-first traceability for medium/high or brownfield work
 
-For non-trivial work, plan the cross-module contract before task decomposition:
+For non-trivial work, plan the cross-module contract before task decomposition. Apply the **Architecture Glossary** from `docs/refactor-planning-decision.md` (Depth, Seam, Locality, etc.) to identify **deepening opportunities**—refactors that turn shallow modules into deep ones.
 
 1. Identify interfaces, invariants, data shapes, and compatibility constraints that parallel workers must not break.
 2. If any contract exists, write it into optional `contracts` metadata and/or a sibling `contracts.md` artifact.
@@ -116,6 +116,8 @@ When refactor mode applies, the plan must include:
 - tiny always-green implementation steps
 - regression verification strategy focused on public behavior over implementation-detail tests
 - note on whether existing tests cover the affected public behavior
+
+**Deepening strategy**: Apply the **Deletion test** to any module suspected of being shallow. Propose candidates that concentrate complexity rather than just moving it. Aim for high **leverage** (behavior behind a small interface) and **locality** (concentrated knowledge).
 
 Representation rules:
 

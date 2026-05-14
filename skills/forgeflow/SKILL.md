@@ -11,7 +11,7 @@ validate_prompt: |
 
 # ForgeFlow
 
-ForgeFlow turns agent work into explicit stages with artifacts, gates, and independent review.
+ForgeFlow turns agent work into explicit stages with artifacts, gates, and independent review. It enforces **Deep Architecture Discipline** (Depth, Seam, Locality, Deletion test) and a **Grilling loop** (Socratic interviewing with recommended answers) to ensure rigorous design and maintainable code.
 
 ## Slash-style entrypoints
 

@@ -155,7 +155,13 @@ Modules with the highest fan-in (most imported by others):
 
 6. **Evolution hooks**: The `evolution/` subpackage provides rule lifecycle management with audit trails. Rules can be proposed, reviewed, promoted, and retired — all artifact-tracked.
 
-7. **Multi-model orchestration**: The `orchestra/` subpackage supports consensus, debate, pipeline, and fastest strategies for multi-model workflows.
+7. **Deep Architecture Discipline**: ForgeFlow enforces architectural depth (low interface complexity, high behavior leverage) across the task lifecycle.
+   - **Glossary-driven**: Uses standard terms (Depth, Seam, Locality, Adapter, Leverage) to identify and resolve architectural friction.
+   - **Clarify stage**: Proactively identifies "shallow modules" and "pass-throughs" during repo inspection for refactors and extensions.
+   - **Plan stage**: Requires applying the **Deletion test** during task decomposition to ensure new modules concentrate complexity (deep) rather than just moving it (shallow).
+   - **Review stage**: Hardens the quality gate with an **Architectural Depth** check, ensuring the implementation avoids structural rot.
+
+8. **Multi-model orchestration**: The `orchestra/` subpackage supports consensus, debate, pipeline, and fastest strategies for multi-model workflows.
 
 ## Role-split AI team overlay
 

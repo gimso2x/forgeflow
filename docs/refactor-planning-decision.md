@@ -29,6 +29,20 @@ Refactor-specific requirements must map onto existing plan artifacts:
 
 `schemas/plan.schema.json` is unchanged. If a future refactor needs data that cannot be represented by these fields or named markdown sections, stop and create a schema/decision note first.
 
+## Architecture Glossary
+
+Use these terms to identify deepening opportunities during refactoring and planning:
+
+- **Module**: anything with an interface and an implementation (function, class, package, slice).
+- **Interface**: everything a caller must know to use the module: types, invariants, error modes, ordering, config.
+- **Implementation**: the code inside.
+- **Depth**: leverage at the interface. **Deep** = lot of behavior behind a small interface. **Shallow** = interface nearly as complex as the implementation.
+- **Seam**: where an interface lives; a place behavior can be altered without editing in place.
+- **Adapter**: a concrete thing satisfying an interface at a seam.
+- **Leverage**: what callers get from depth.
+- **Locality**: what maintainers get from depth: change, bugs, and knowledge concentrated in one place.
+- **Deletion test**: imagine deleting the module. If complexity vanishes, it was a pass-through (shallow). If complexity reappears across callers, it was earning its keep (deep).
+
 ## Policy
 
 A refactor plan should prefer public-behavior verification over implementation-detail assertions. Tests may cover internals only when the affected surface is genuinely internal and the plan says so.

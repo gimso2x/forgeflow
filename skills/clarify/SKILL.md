@@ -126,12 +126,16 @@ For exact-count, dry-run, or response-only prompts, do not force the WHERE inter
 
 1. Inspect relevant repo context before inventing scope.
    - Surface confusion instead of guessing. If the request has competing interpretations that materially change scope, say so in the brief.
+   - For brownfield refactors or extensions, specifically identify **architectural friction**: where are modules **shallow** (interface as complex as implementation), where is **locality** missing, and where are **pass-throughs** bloating the path? (See `docs/refactor-planning-decision.md`).
    - Do not silently pick one interpretation when the ambiguity affects user-visible behavior, data, security, or files to edit.
 2. Establish WHERE grounding unless the prompt is an exact-output dry run.
 3. Ask up to 5 clarifying questions when they materially improve requirements. Ask 0 if the request is already actionable, and do not pad the list with nice-to-have trivia.
    - Good questions resolve product behavior, user/audience, success criteria, data/source of truth, rollout/risk constraints, or explicit out-of-scope boundaries.
    - Bad questions ask for implementation chores the agent should infer from repo inspection, preferences that do not change the plan, or confirmations that can be recorded as bounded assumptions.
-4. Apply Socratic clarification before route selection:
+4. Apply Socratic clarification (the "grilling loop") before route selection:
+   - Walk down each branch of the design tree, resolving dependencies between decisions one-by-one.
+   - For each question asked, provide your recommended answer to reduce user cognitive load.
+   - If a question can be answered by exploring the codebase, explore the codebase instead of asking.
    - Name the hidden assumptions the request appears to rely on.
    - Separate true blocker questions from non-blocking unknowns.
    - State explicit non-goals and scope boundaries before planning.

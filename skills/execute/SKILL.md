@@ -116,6 +116,7 @@ If the user explicitly includes `--yes`, `--auto-approve`, `--non-interactive`, 
 3. Read `contracts` metadata and sibling `contracts.md` before editing when present.
 4. Execute only tasks that belong to the plan/scope.
    - Prefer the smallest implementation that satisfies the acceptance criteria.
+   - **Architectural Depth**: Ensure implementation follows the plan's architectural intent (Depth, Leverage, Locality) and avoids creating new shallow modules (see `docs/refactor-planning-decision.md`).
    - Nothing speculative: no drive-by abstractions, unrelated cleanup, hidden migrations, or “while I’m here” rewrites unless the approved plan names them.
 5. Apply adapter-aware execution: use the chosen backend for implementation mechanics, but keep ForgeFlow artifacts, gates, and evidence paths backend-neutral. If the backend cannot produce required evidence, record that limitation in `decision-log.json` and block or downgrade the affected verification gate instead of silently proceeding.
 6. Treat `fulfills`, `journeys`, and `verify_plan` as verification obligations, not decoration.

@@ -162,6 +162,7 @@ If the user explicitly includes `--yes`, `--auto-approve`, `--non-interactive`, 
    - Every changed line should trace directly to the user's request; anything else needs explicit scope approval.
    - Flag drive-by refactors, speculative abstractions, or unrelated cleanup as scope drift unless the plan explicitly authorized them.
    - Was the change the smallest safe change that satisfies the request?
+   - **Architectural Depth**: Did the implementation introduce **shallow modules** (pass-throughs) or miss **deepening opportunities**? Does the new structure improve **locality** and **leverage** as defined in `docs/refactor-planning-decision.md`?
    - Did the change avoid silent fallback, dual write, and shadow-path ownership drift?
    - Did the implementation follow existing codebase patterns instead of inventing a new local religion?
    - Were assumptions about types, APIs, behavior, and test coverage verified against actual files?
