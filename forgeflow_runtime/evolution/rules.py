@@ -4,8 +4,8 @@ import json
 from pathlib import Path
 from typing import Any
 
-PROJECT_RULE_DIR = Path(".forgeflow") / "evolution" / "rules"
-RETIRED_RULE_DIR = Path(".forgeflow") / "evolution" / "retired-rules"
+from forgeflow_runtime.evolution.paths import global_rule_dir, global_retired_rule_dir
+
 HARD_GATE_REQUIRES = {
     "project_local_enablement",
     "soft_soak_period",
@@ -62,25 +62,31 @@ def load_example_rules(root: Path) -> list[tuple[dict[str, Any], Path]]:
     return [(_load_json(path), path) for path in evolution_example_paths(root)]
 
 
-def load_project_rules(root: Path) -> list[tuple[dict[str, Any], Path]]:
-    rules_dir = root / PROJECT_RULE_DIR
+def load_global_rules() -> list[tuple[dict[str, Any], Path]]:
+    """Load rules from the global evolution directory (~/.forgeflow/evolution/rules/)."""
+    rules_dir = global_rule_dir()
     if not rules_dir.is_dir():
         return []
     return [(_load_json(path), path) for path in sorted(rules_dir.glob("*.json"))]
 
 
+def load_project_rules(root: Path) -> list[tuple[dict[str, Any], Path]]:
+    """Load rules from global dir (project-local evolution rules migrated to global)."""
+    return load_global_rules()
+
+
 def list_rules(root: Path, *, include_examples: bool = False, fallback_root: Path | None = None) -> dict[str, Any]:
     root = root.resolve()
     examples_root = (fallback_root or root).resolve()
-    project_rules = [rule_summary(rule, source="project", path=path) for rule, path in load_project_rules(root)]
+    global_rules = [rule_summary(rule, source="global", path=path) for rule, path in load_global_rules()]
     example_rules = (
         [rule_summary(rule, source="example", path=path) for rule, path in load_example_rules(examples_root)]
         if include_examples
         else []
     )
     return {
-        "project_rule_dir": str(root / PROJECT_RULE_DIR),
-        "project_rules": project_rules,
+        "global_rule_dir": str(global_rule_dir()),
+        "project_rules": global_rules,
         "example_rules": example_rules,
     }
 
@@ -94,22 +100,22 @@ def load_example_rule_by_id(root: Path, rule_id: str) -> tuple[dict[str, Any], P
 
 
 def load_rule_by_id(root: Path, rule_id: str, *, allow_examples: bool, fallback_root: Path | None = None) -> tuple[dict[str, Any], str, Path]:
-    for rule, path in load_project_rules(root):
+    for rule, path in load_global_rules():
         if rule.get("id") == rule_id:
-            return rule, "project", path
+            return rule, "global", path
     if allow_examples:
         examples_root = (fallback_root or root).resolve()
         for rule, path in load_example_rules(examples_root):
             if rule.get("id") == rule_id:
                 return rule, "example", path
-    known_project = [rule.get("id", path.name) for rule, path in load_project_rules(root)]
+    known_global = [rule.get("id", path.name) for rule, path in load_global_rules()]
     if allow_examples:
         examples_root = (fallback_root or root).resolve()
         known_examples = [rule.get("id", path.name) for rule, path in load_example_rules(examples_root)]
-        known = ", ".join(known_project + known_examples)
+        known = ", ".join(known_global + known_examples)
         raise ValueError(f"unknown evolution rule {rule_id!r}; known rules: {known}")
-    known = ", ".join(known_project) or "<none>"
-    raise ValueError(f"evolution rule {rule_id!r} not found in project-local registry {root / PROJECT_RULE_DIR}; known project rules: {known}")
+    known = ", ".join(known_global) or "<none>"
+    raise ValueError(f"evolution rule {rule_id!r} not found in global registry {global_rule_dir()}; known rules: {known}")
 
 
 def safety_checks(rule: dict[str, Any]) -> dict[str, bool]:

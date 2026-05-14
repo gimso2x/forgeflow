@@ -5,9 +5,8 @@ from pathlib import Path
 from typing import Any
 
 from forgeflow_runtime.evolution.audit import utc_timestamp as _utc_timestamp
-from forgeflow_runtime.evolution.rules import load_project_rules as _load_project_rules
-
-PROPOSAL_APPROVAL_DIR = Path(".forgeflow") / "evolution" / "proposal-approvals"
+from forgeflow_runtime.evolution.paths import global_proposal_approval_dir
+from forgeflow_runtime.evolution.rules import load_global_rules as _load_global_rules
 
 
 def _load_json(path: Path) -> dict[str, Any]:
@@ -15,7 +14,7 @@ def _load_json(path: Path) -> dict[str, Any]:
 
 
 def _active_rule_exists(root: Path, rule_id: str) -> bool:
-    return any(rule.get("id") == rule_id for rule, _path in _load_project_rules(root))
+    return any(rule.get("id") == rule_id for rule, _path in _load_global_rules())
 
 
 def proposal_review(root: Path, proposal_path: Path) -> dict[str, Any]:
@@ -71,7 +70,7 @@ def proposal_review(root: Path, proposal_path: Path) -> dict[str, Any]:
 
 def proposal_approval_path(root: Path, proposal_path: Path) -> Path:
     safe_id = "".join(char if char.isalnum() or char in {"-", "_"} else "-" for char in proposal_path.stem).strip("-") or "proposal"
-    return root / PROPOSAL_APPROVAL_DIR / f"{safe_id}.jsonl"
+    return global_proposal_approval_dir() / f"{safe_id}.jsonl"
 
 
 def read_proposal_approval_records(path: Path) -> list[dict[str, Any]]:

@@ -29,8 +29,7 @@ def test_rule_health_seam_reports_rule_safety_and_issues(tmp_path: Path) -> None
     _write_project_rule(tmp_path, rule)
 
     health = _collect_rule_health(
-        tmp_path,
-        loader=lambda root: [(rule, root / ".forgeflow" / "evolution" / "rules" / "no-env-commit-rule.json")],
+        loader=lambda: [(rule, tmp_path / ".forgeflow" / "evolution" / "rules" / "no-env-commit-rule.json")],
         source="active",
         issue_code="unsafe_active_rule",
     )

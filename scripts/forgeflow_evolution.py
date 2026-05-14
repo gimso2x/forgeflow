@@ -67,7 +67,7 @@ def cmd_list(args: argparse.Namespace) -> int:
     if args.json:
         print(json.dumps(registry, ensure_ascii=False, indent=2))
         return 0
-    print(f"Project rule dir: {registry['project_rule_dir']}")
+    print(f"Global rule dir: {registry['global_rule_dir']}")
     print("Project rules:")
     if registry["project_rules"]:
         for rule in registry["project_rules"]:

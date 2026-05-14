@@ -6,10 +6,9 @@ from typing import Any
 
 from forgeflow_runtime.evolution.audit import append_audit_event as _append_audit_event
 from forgeflow_runtime.evolution.audit import utc_timestamp as _utc_timestamp
-from forgeflow_runtime.evolution.lifecycle import promotion_ready
-from forgeflow_runtime.evolution.rules import load_project_rules as _load_project_rules
-
-PROMOTED_RULE_DIR = Path(".forgeflow") / "evolution" / "promoted-rules"
+from forgeflow_runtime.evolution.promotion_gates import promotion_ready
+from forgeflow_runtime.evolution.rules import load_global_rules as _load_global_rules
+from forgeflow_runtime.evolution.paths import global_promoted_rule_dir
 
 
 def _load_json(path: Path) -> dict[str, Any]:
@@ -18,14 +17,14 @@ def _load_json(path: Path) -> dict[str, Any]:
 
 def promotion_marker_path(root: Path, proposal_path: Path) -> Path:
     safe_id = "".join(char if char.isalnum() or char in {"-", "_"} else "-" for char in proposal_path.stem).strip("-") or "proposal"
-    return root / PROMOTED_RULE_DIR / f"{safe_id}.json"
+    return global_promoted_rule_dir() / f"{safe_id}.json"
 
 
 def active_rule_by_id(root: Path, rule_id: str) -> tuple[dict[str, Any], Path]:
-    for rule, path in _load_project_rules(root):
+    for rule, path in _load_global_rules():
         if rule.get("id") == rule_id:
             return rule, path
-    raise ValueError(f"active project-local rule not found: {rule_id}")
+    raise ValueError(f"active global rule not found: {rule_id}")
 
 
 def append_promote_blocked_audit(root: Path, proposal_path: Path, ready: dict[str, Any]) -> None:
@@ -115,7 +114,7 @@ def list_promotions(root: Path) -> dict[str, Any]:
     """Read promotion marker snapshots written by promote_rule."""
 
     root = root.resolve()
-    promotion_dir = root / PROMOTED_RULE_DIR
+    promotion_dir = global_promoted_rule_dir()
     promotions: list[dict[str, Any]] = []
     if promotion_dir.is_dir():
         for path in sorted(promotion_dir.glob("*.json")):

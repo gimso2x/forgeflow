@@ -41,6 +41,40 @@ Return:
 3. verification commands actually available
 4. next action
 
+## Evolution hook (post-stage)
+
+After each stage completes, feed observations and learnings back into the evolution system. Evolution rules and audit logs are stored globally in `~/.forgeflow/evolution/` (shared across all projects). Only observations are per-project. This is how ForgeFlow gets smarter over repeated runs — you must not skip it.
+
+### After review (any blocker)
+```
+python3 scripts/forgeflow_evolution.py observations --task <task-id> --json
+```
+If the review had blockers, the observation is already recorded by the runtime. Verify it exists.
+
+### After ship (task complete)
+1. Extract learnings from the completed task:
+```
+python3 scripts/forgeflow_learn.py extract .forgeflow/tasks/<task-id> --output memory/learnings.jsonl
+python3 scripts/forgeflow_learn.py validate memory/learnings.jsonl
+```
+2. Check observations and suggest rule improvements:
+```
+python3 scripts/forgeflow_evolution.py suggest --task <task-id> --json
+```
+3. If the project has active evolution rules, run a health check:
+```
+python3 scripts/forgeflow_evolution.py doctor --json
+```
+
+### Rule activation (one-time setup)
+If `doctor` reports 0 active rules, adopt the example rules that ship with ForgeFlow:
+```
+python3 scripts/forgeflow_evolution.py adopt --example generated-adapter-drift
+python3 scripts/forgeflow_evolution.py adopt --example no-env-commit
+```
+
+Do NOT auto-promote or auto-approve rules — the promotion pipeline requires human review at proposal-approve, promotion-decision, and promote steps.
+
 ## Role-split AI team discipline
 - Activate QA/UX/security or other specialist roles only on-demand when route risk or task shape justifies them.
 - Record selected roles, skipped-role rationale, and merge decisions in ForgeFlow artifacts; chat output is not canonical truth.
