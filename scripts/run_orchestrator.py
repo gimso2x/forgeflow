@@ -60,7 +60,11 @@ def _assert_real_requested(*, use_real: bool, assert_real: bool) -> None:
 
 def _print_stub_warning_if_needed(*, use_real: bool) -> None:
     if not use_real:
-        print(f"WARNING: {_stub_execution_warning()}", file=sys.stderr)
+        banner = "\n================== [STUB MODE] ==================\n"
+        banner += "No real CLI adapter ran. Output is simulated.\n"
+        banner += "Pass --real for live execution or --assert-real to fail fast.\n"
+        banner += "=================================================\n"
+        print(banner, file=sys.stderr)
 
 
 def _print_payload(payload: dict) -> None:

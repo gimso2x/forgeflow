@@ -27,9 +27,13 @@ from .orchestrator import (
     advance_to_next_stage,
     clarify_task,
     escalate_route,
+    init_task,
     load_runtime_policy,
+    resume_task,
     retry_stage,
     run_route,
+    start_task,
+    status_summary,
     step_back,
 )
 
@@ -55,9 +59,13 @@ __all__ = [
     "format_comparison",
     "format_summary",
     "generate_prompt",
+    "init_task",
     "list_adapters",
     "load_runtime_policy",
+    "resume_task",
     "retry_stage",
     "run_route",
+    "start_task",
+    "status_summary",
     "step_back",
 ]

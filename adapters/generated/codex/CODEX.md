@@ -259,6 +259,7 @@ Route vocabulary:
 - brief를 실행 가능한 plan으로 변환한다.
 - step별 expected output과 verification을 명시한다.
 - 먼저 성공조건을 검증 가능한 success condition으로 재서술한다.
+- **모든 구현 step은 TDD 원칙을 따르도록 계획한다.** 테스트 작성 단계를 코드 작성 단계보다 선행하거나 명시적으로 포함해야 한다.
 - assumptions는 숨기지 말고 bounded assumptions로 적는다. 모호한 요구사항은 plan 단계에서 가능한 해석을 나열하고 하나를 선택해 `decision-log.json`에 기록한다 (예: "timeout 시 재시도 안 함 — transient error가 아닌 resource bound로 간주").
 - 같은 결과면 simplest sufficient plan을 선택한다.
 - 필요한 역할만 고른다. QA/UX/security/reviewer 관점이 필요한 step은 role owner와 이유를 `plan-ledger`에 남기고, 불필요한 역할은 호출하지 않는다.
@@ -304,9 +305,15 @@ plan에 여러 step이 있을 때, 각 step은 **해당 step의 objective와 exp
 1. `run-state.json`에서 현재 step을 확인한다.
 2. `plan.json`에서 해당 step의 `objective`, `expected_output`, `dependencies`를 읽는다.
 3. dependencies에 명시된 step이 모두 completed인지 확인한다.
-4. **해당 step의 objective 범위만** 구현한다.
-5. `expected_output`의 기준을 충족하는지 검증한다.
-6. `run-state.json`을 업데이트한다.
+4. **TDD (Test-Driven Development) 사이클을 적용한다.** 코드를 수정하기 전, **반드시 실패하는 테스트(Red)**를 먼저 작성하고 실행 결과를 확인한다.
+5. **해당 step의 objective 범위만** 최소한의 코드로 구현(Green)하여 테스트를 통과시킨다. 이후 필요하다면 리팩터링(Refactor)한다.
+6. `expected_output`의 기준을 충족하는지 검증한다.
+7. 구현/검증 중 버그나 실패가 발생한 경우, **가설 기반 디버깅(Hypothesis-Driven Debugging)**을 적용한다.
+   - `decision-log.json`에 재현 조건과 관찰된 문제 상황을 문서화한다.
+   - 원인 가설을 나열한다.
+   - 하나씩 테스트하여 검증한 뒤, 진짜 원인이 파악되었을 때만 코드를 수정한다.
+   - 감으로 코드를 수정하거나 무작위로 변경하는 것을 엄격히 금지한다.
+8. `run-state.json`을 업데이트한다.
 
 하지 말 것:
 - spec을 임의로 재정의

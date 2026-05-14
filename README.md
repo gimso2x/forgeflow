@@ -122,6 +122,7 @@ Windows PowerShell:
 - [evals/README.md](evals/README.md) — eval suite 실행 가이드
 - [scripts/README.md](scripts/README.md) — local scripts, visual tooling, validation helper
 - [docs/architecture.md](docs/architecture.md) — 전체 아키텍처 개요
+- [docs/api.md](docs/api.md) — `forgeflow_runtime` 패키지의 공개 API 및 내부 모듈 경계 안내
 
 ## 철학
 

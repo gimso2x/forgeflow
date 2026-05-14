@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Milestone",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "milestone_id",
+    "title",
+    "status",
+    "tasks"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "0.2"
+    },
+    "milestone_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "objective": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["pending", "in_progress", "completed", "blocked"]
+    },
+    "tasks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["task_id", "status"],
+        "properties": {
+          "task_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "enum": ["pending", "in_progress", "completed", "blocked"]
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
