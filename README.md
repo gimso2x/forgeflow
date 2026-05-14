@@ -104,6 +104,21 @@ Windows PowerShell:
 - **2-axis specialist selection** — route 축(작업 크기)과 spec 축(전문 에이전트)이 독립 작동합니다. security/backend/frontend/infra/ux/perf 6개 도메인 → [docs/workflow.md](docs/workflow.md)
 - **Adapter boundary** — Claude Code, Codex, Gemini CLI에서 동일한 workflow를 보장하는 adapter 계층 → [docs/adapter-model.md](docs/adapter-model.md)
 
+## Evaluation
+
+ForgeFlow evals는 workflow 계약이 실제 executable check로 유지되는지 검증합니다. Unit test가 코드 동작을 보는 쪽이라면, eval은 stage/gate/artifact/review 정책이 우회되지 않는지 보는 쪽입니다.
+
+```bash
+make setup
+make check-env
+make evals
+```
+
+- 전체 eval 실행: `make evals`
+- adherence suite만 실행: `make adherence-evals`
+- 결과 해석과 suite 추가 절차: [docs/evaluation-guide.md](docs/evaluation-guide.md)
+- suite별 fixture 설명: [evals/README.md](evals/README.md)
+
 ## 문제 해결
 
 자주 묻는 질문과 해결 방법:
