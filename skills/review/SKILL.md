@@ -66,11 +66,11 @@ A review that leaves no `review-report.json` is incomplete. The verdict exists o
 
 - **small** route: Single quality review. Write `review-report.json` with `review_type: "quality"`.
 - **medium** route: Single quality review. Write `review-report.json` with `review_type: "quality"`.
-- **high** route: Two separate reviews are **required**:
-  1. `/forgeflow:review` (spec) — Write `review-report-spec.json` with `review_type: "spec"`.
-  2. `/forgeflow:review` (quality) — Write `review-report-quality.json` with `review_type: "quality"`.
+- **high/epic** route: Two separate reviews are **required**:
+  1. `/forgeflow:review --type spec` — Write `review-report-spec.json` with `review_type: "spec"`.
+  2. `/forgeflow:review --type quality` — Write `review-report-quality.json` with `review_type: "quality"`.
 
-  For high, if `review-report-spec.json` does not exist or has `verdict != "approved"`, do not proceed to quality review. Each review is an independent gate.
+  For high/epic, if `review-report-spec.json` does not exist or has `verdict != "approved"`, do not proceed to quality review. Each review is an independent gate.
 
 ## File write and output discipline
 

@@ -40,8 +40,9 @@ Do not require `CODEX.md` before plugin use. `CODEX.md` and project presets are 
 At minimum, produce or update the artifacts appropriate for the selected route:
 
 - `brief.json` or equivalent brief: clarified objective, constraints, risk, route
+- `roadmap.json` for epic route: milestone DAG and statuses
 - `run-state.json`: current stage and completed gates
-- `plan-ledger.json` for medium/high routes: planned steps, task status, gate evidence
+- `plan-ledger.json` for medium/high/epic routes: planned steps, task status, gate evidence
 - `review-report.json`: independent review result; worker self-report is not enough
 - final summary: changed files, verification evidence, residual risks
 
@@ -49,7 +50,7 @@ At minimum, produce or update the artifacts appropriate for the selected route:
 
 The task is complete only when:
 
-- route is explicitly selected: `small`, `medium`, or `high`
+- route is explicitly selected: `small`, `medium`, `high`, or `epic`
 - required stages for that route are complete
 - review gates are satisfied by evidence, not by vibes
 - verification commands have passed or failures are explicitly documented
@@ -121,4 +122,10 @@ Large/high-risk task:
 
 ```text
 Use ForgeFlow. Treat this as large/high-risk. Clarify, plan, execute, run spec-review and quality-review separately, and call out residual risk before finalize.
+```
+
+Epic/massive scale task:
+
+```text
+Use ForgeFlow. Treat this as an epic. Clarify, breakdown milestones, then for each milestone: plan, execute, and review. Track progress in roadmap.json.
 ```

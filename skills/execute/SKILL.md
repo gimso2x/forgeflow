@@ -50,9 +50,14 @@ The execute stage MUST produce `run-state.json` conforming to `schemas/run-state
   ```
 - **high** route: Write `run-state.json` after each step completes. After final step, the next stage is **mandatory** — do NOT ask whether to review:
   ```
-  high route 실행 완료. 독립 review가 필수입니다. /forgeflow:review를 자동으로 시작합니다.
+  high route 실행 완료. 독립 review가 필수입니다. /forgeflow:review --type spec 으로 Spec Review를 시작합니다.
   ```
-  Then immediately invoke `/forgeflow:review`.
+  Then immediately invoke `/forgeflow:review --type spec`.
+- **epic** route: Write `run-state.json` after each step of the current milestone completes. After the final step of the current milestone:
+  ```
+  마일스톤 실행 완료. 독립 review가 필수입니다. /forgeflow:review --type spec 으로 Spec Review를 시작합니다.
+  ```
+  Then immediately invoke `/forgeflow:review --type spec`.
 
 Do not end the execute stage without writing `run-state.json`. An execute pass that leaves no state artifact is incomplete.
 
@@ -61,6 +66,19 @@ Do not end the execute stage without writing `run-state.json`. An execute pass t
 Default to **artifact-first mode**. Run should update `run-state.json` before and after code changes, and keep execution evidence in the active task directory unless the user explicitly asks for a dry run, exact-output response, or no-write simulation.
 
 Step state must be incremental, not a final recap. Each plan step must move through `in_progress` before `completed`, and the agent must update `run-state.json` immediately when starting and finishing each step. Example: `step-1: pending → in_progress → completed`, then `step-2: pending → in_progress → completed`. Do not batch-mark all steps as `completed` only at the end. If a step cannot finish, mark it `blocked` or `failed` with evidence instead of leaving the last known state ambiguous.
+
+**TDD (Test-Driven Development) Cycle**:
+For every implementation step:
+1. **Red**: Write a failing test that covers the objective. Run it and confirm failure.
+2. **Green**: Write the minimal code to pass the test.
+3. **Refactor**: Improve the code while keeping tests green.
+
+**Hypothesis-Driven Debugging**:
+If a bug or failure occurs during implementation/verification:
+1. Document the reproduction steps and observed issue in `decision-log.json`.
+2. List causal hypotheses.
+3. Test each hypothesis.
+4. Apply the fix only after the root cause is verified. Avoid "trial and error" coding.
 
 **Progress and timestamp discipline:**
 
@@ -114,9 +132,12 @@ If the user explicitly includes `--yes`, `--auto-approve`, `--non-interactive`, 
 1. Confirm route and current stage. Read `brief.json` to determine route.
 2. Initialize `run-state.json` in the active task directory if it does not exist. Set `current_stage: "execute"`, `status: "in_progress"`.
 3. Read `contracts` metadata and sibling `contracts.md` before editing when present.
-4. Execute only tasks that belong to the plan/scope.
-   - Prefer the smallest implementation that satisfies the acceptance criteria.
+4. For each task in the plan:
+   - **TDD Red**: Write/update tests to fail.
+   - **Execute Implementation**: Implement minimal code to pass.
+   - **TDD Refactor**: Clean up implementation.
    - **Architectural Depth**: Ensure implementation follows the plan's architectural intent (Depth, Leverage, Locality) and avoids creating new shallow modules (see `docs/refactor-planning-decision.md`).
+   - If blocked, apply **Hypothesis-Driven Debugging**.
    - Nothing speculative: no drive-by abstractions, unrelated cleanup, hidden migrations, or “while I’m here” rewrites unless the approved plan names them.
 5. Apply adapter-aware execution: use the chosen backend for implementation mechanics, but keep ForgeFlow artifacts, gates, and evidence paths backend-neutral. If the backend cannot produce required evidence, record that limitation in `decision-log.json` and block or downgrade the affected verification gate instead of silently proceeding.
 6. Treat `fulfills`, `journeys`, and `verify_plan` as verification obligations, not decoration.

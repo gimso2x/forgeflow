@@ -46,14 +46,28 @@ User: "I want to build a daily briefing app"
 ```
 User: "Refactor the entire payment module"
   → init             → task workspace
-  → clarify          → brief.json + complexity=large
-  → plan             → plan.json with milestone DAG
-  → execute (M1)     → checkpoint-1.json + plan-ledger.json
-  → review (M1)      → spec + quality review artifacts
-  → execute (M2)     → checkpoint-2.json
-  → review (M2)      → review-report-2.json
-  ...
+  → clarify          → brief.json + complexity=high
+  → plan             → plan.json with verify_plan targets
+  → execute          → decision-log.json + run-state.json + plan-ledger.json
+  → review (spec)    → review-report-spec.json
+  → review (quality) → review-report-quality.json
   → ship             → final PR
+  → finish           → branch disposition
+```
+
+## Epic lifecycle (massive tasks)
+
+```
+User: "Build a complete e-commerce platform"
+  → init             → task workspace
+  → clarify          → brief.json + complexity=epic
+  → milestone        → roadmap.json (M1: Auth, M2: Cart, M3: Checkout)
+  → (per milestone)
+    → plan           → plan.json
+    → execute        → run-state.json
+    → review (spec)  → review-report-spec.json
+    → review (qual)  → review-report-quality.json
+  → ship             → final handoff
   → finish           → branch disposition
 ```
 

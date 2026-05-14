@@ -54,11 +54,11 @@ When writing `plan.json`, it **must** conform to `schemas/plan.schema.json` exac
 }
 ```
 
-`steps[].fulfills` and top-level `verify_plan` are required even for minimal written `plan.json`. For small tasks, create a simple requirement ID such as `R1` and make every step fulfill it.
+`steps[].fulfills` and top-level `verify_plan` are required even for minimal written `plan.json`. For small tasks, create a simple requirement ID such as `R1` and make every step fulfill it. For `epic` route, a separate `plan.json` is created for each milestone defined in `roadmap.json`.
 
 Do not add non-schema fields such as `route`, `tasks`, `files_to_change`, `acceptance_criteria`, `verification_commands`, or `route_selection_rationale` to `plan.json`.
 
-## Contract-first traceability for medium/high or brownfield work
+## Contract-first traceability for medium/high/epic or brownfield work
 
 For non-trivial work, plan the cross-module contract before task decomposition. Apply the **Architecture Glossary** from `docs/refactor-planning-decision.md` (Depth, Seam, Locality, etc.) to identify **deepening opportunities**—refactors that turn shallow modules into deep ones.
 
@@ -100,6 +100,8 @@ Before crossing `plan → execute`, the plan must make these sections explicit i
 - `Verification`
 
 State assumptions and success criteria before proposing tasks. If an assumption changes the implementation path, record it as a bounded assumption or return to `/forgeflow:clarify`; do not hide it inside a task title.
+
+**TDD Principle**: All implementation steps MUST follow TDD. Plan test writing steps BEFORE or EXPLICITLY alongside code writing steps. "Write failing test" should be its own objective or a clear part of a step's objective.
 
 ## Refactor mode
 
@@ -149,7 +151,7 @@ Do not proceed to `/forgeflow:execute` if one of those is missing for non-trivia
 - Every task has exact file paths or a justified discovery step
 - Every task has verification
 - Dependencies form a DAG
-- Medium/high routes have enough detail for `/forgeflow:execute` without guessing
+- Medium/high/epic routes have enough detail for `/forgeflow:execute` without guessing
 - A visual plan view can be generated when useful: `python3 scripts/forgeflow_visual.py plan <task-dir>/plan.json --format markdown`; for live browser feedback, run `node scripts/visual-companion.cjs` and POST the Mermaid source to `http://127.0.0.1:8765/diagram`.
 - The minimum plan gate covers `Goal`, `Requirements`, `Implementation Steps`, and `Verification`
 - Refactor-specific checks are present only when refactor mode applies, with preserved behavior, non-goals, migration boundary, rollback or escape hatch, regression verification, and existing coverage represented in existing plan fields or sibling markdown sections
@@ -205,7 +207,7 @@ If the user explicitly includes `--yes`, `--auto-approve`, `--non-interactive`, 
 3. Decompose into small tasks with acceptance criteria.
 4. Mark dependency order and parallel safety.
 5. Identify risky tasks and required review evidence.
-6. For `high` work, pressure-test milestone boundaries from five angles before execution:
+6. For `high/epic` work, pressure-test milestone boundaries from five angles before execution:
    - feasibility risks
    - architecture/interface boundaries
    - dependency ordering

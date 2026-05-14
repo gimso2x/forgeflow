@@ -35,7 +35,10 @@ Use this skill to convert a raw request into a ForgeFlow `brief.json`-style cont
   - hidden assumptions recorded as bounded assumptions
   - non-blocking unknowns / bounded assumptions
   - complexity score
-  - route: `small`, `medium`, or `high`
+  - route: `small`, `medium`, `high`, or `epic`
+  - required_specialists: list of specialists (security-review, ux-review, perf-review, etc.)
+  - skipped_specialists: list of specialists not used
+  - skip_rationale: explanation for skipping specialists
   - min_verification: list of required verification steps for the run stage
 
 ## Exit Condition
@@ -72,7 +75,7 @@ If writing is allowed, write only under the current project workspace or the act
 
 Exact-output instructions beat every other rule in this skill. Do not explain first and then append the answer. Do not show scoring. Do not include Markdown. Return exactly what was requested and nothing extra.
 
-If the user asks for a label-only route selection (for example "Return only the selected route label", "label only", or "route label only"), output exactly one of `small`, `medium`, or `high` and stop. The entire response must be only that label.
+If the user asks for a label-only route selection (for example "Return only the selected route label", "label only", or "route label only"), output exactly one of `small`, `medium`, `high`, or `epic` and stop. The entire response must be only that label.
 
 Bad:
 
@@ -147,14 +150,22 @@ For exact-count, dry-run, or response-only prompts, do not force the WHERE inter
    - 9-12: `medium` — several coordinated files/components, shared state/layout/navigation, moderate test/update surface, but no security/data migration/infra rollback risk.
    - 13-15: `high` — auth/security, data migration, payments, production infra, irreversible data changes, broad architecture migration, or many contracts/journeys requiring separate spec and quality review.
    - 16+: `epic` — massive scope, hierarchical milestone breakdown, multi-week effort.
-6. Set `min_verification` in the brief:
+6. Select specialists based on task nature:
+   - Auth/Encryption/External Input -> `security-review`
+   - UI/Accessibility/User Flow -> `ux-review`
+   - Response time/Memory/Large data -> `perf-review`
+   - Frontend focused -> `frontend-execute`
+   - Backend/API/DB -> `backend-execute`
+   - Infra/Deployment/IaC -> `infra-execute`
+   - List skipped specialists and provide a `skip_rationale`.
+7. Set `min_verification` in the brief:
    - `small`: at least one of `build`, `lint`, or `type_check` — whichever is available and fastest.
    - `medium`: at least `lint` and `type_check`, plus `test` if tests exist for changed files.
    - `high`: full verification suite — `build`, `lint`, `type_check`, and `test`.
    - `epic`: full verification suite, plus milestone-level integration tests.
-7. State the route and why, unless an exact-output/label-only instruction applies.
-8. Produce the brief in a structured form the next skill can consume, unless an exact-output/label-only instruction applies.
-9. If the request is actionable, record remaining non-blocking unknowns as bounded assumptions and make the next stage obvious without asking the user to do your planning work, unless an exact-output/label-only instruction applies.
+8. State the route and why, unless an exact-output/label-only instruction applies.
+9. Produce the brief in a structured form the next skill can consume, unless an exact-output/label-only instruction applies.
+10. If the request is actionable, record remaining non-blocking unknowns as bounded assumptions and make the next stage obvious without asking the user to do your planning work, unless an exact-output/label-only instruction applies.
 
 Do not implement here. Clarify is the intake gate, not the coding phase.
 
