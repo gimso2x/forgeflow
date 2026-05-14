@@ -13,12 +13,14 @@ from forgeflow_runtime.executor import (
     REAL_REGISTRY,
     ClaudeCodeAdapter,
     CodexCLIAdapter,
+    GeminiCLIAdapter,
     ExecutorError,
     ExecutorAdapter,
     RunTaskRequest,
     RunTaskResult,
     StubClaudeAdapter,
     StubCodexAdapter,
+    StubGeminiAdapter,
     _estimate_tokens,
     dispatch,
     list_adapters,
@@ -218,11 +220,11 @@ class TestDispatch:
 class TestListAdapters:
     def test_list_adapters_stub_only(self) -> None:
         adapters = list_adapters(include_real=False)
-        assert sorted(adapters) == ["claude", "codex"]
+        assert sorted(adapters) == ["claude", "codex", "gemini"]
 
     def test_list_adapters_include_real(self) -> None:
         adapters = list_adapters(include_real=True)
-        assert sorted(adapters) == ["claude", "codex"]
+        assert sorted(adapters) == ["claude", "codex", "gemini"]
 
 
 # ---------------------------------------------------------------------------
@@ -245,6 +247,14 @@ class TestRealAdaptersMissingBinary:
         result = adapter.run_task(req)
         assert result.status == "failure"
         assert "codex binary not found" in result.error
+
+    def test_gemini_cli_adapter_missing_binary(self) -> None:
+        with patch("forgeflow_runtime.executor.shutil.which", return_value=None):
+            adapter = GeminiCLIAdapter()
+        req = _make_request(adapter_target="gemini")
+        result = adapter.run_task(req)
+        assert result.status == "failure"
+        assert "gemini binary not found" in result.error
 
     def test_claude_code_adapter_budget_check(self) -> None:
         """Budget check runs even before binary is invoked."""
@@ -347,16 +357,19 @@ class TestMiscellaneous:
             raise ExecutorError("test error")
 
     def test_stub_registry_keys(self) -> None:
-        assert set(STUB_REGISTRY.keys()) == {"claude", "codex"}
+        assert set(STUB_REGISTRY.keys()) == {"claude", "codex", "gemini"}
 
     def test_real_registry_keys(self) -> None:
-        assert set(REAL_REGISTRY.keys()) == {"claude", "codex"}
+        assert set(REAL_REGISTRY.keys()) == {"claude", "codex", "gemini"}
 
     def test_stub_claude_adapter_name(self) -> None:
         assert StubClaudeAdapter().name == "claude"
 
     def test_stub_codex_adapter_name(self) -> None:
         assert StubCodexAdapter().name == "codex"
+
+    def test_stub_gemini_adapter_name(self) -> None:
+        assert StubGeminiAdapter().name == "gemini"
 
     def test_estimate_tokens_on_adapter(self) -> None:
         adapter = StubClaudeAdapter()

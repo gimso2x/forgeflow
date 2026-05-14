@@ -27,7 +27,7 @@ from forgeflow_runtime.orchestrator import (  # noqa: E402
 )
 from forgeflow_runtime.operator_routing import ROUTE_ORDER, effective_route, role_for_stage  # noqa: E402
 from forgeflow_runtime.engine import execute_stage  # noqa: E402
-from forgeflow_runtime.executor import ExecutorError  # noqa: E402
+from forgeflow_runtime.executor import ExecutorError, SUPPORTED_REAL_ADAPTERS  # noqa: E402
 from forgeflow_runtime.generator import GenerationError  # noqa: E402
 from forgeflow_runtime.workflow_override import resolve_project_workflow  # noqa: E402
 
@@ -161,7 +161,7 @@ Notes:
     advance_parser.add_argument("--min-route", choices=ROUTE_ORDER, help=min_route_help)
     advance_parser.add_argument("--current-stage", required=True)
     advance_parser.add_argument("--execute", action="store_true", help="execute the next stage immediately after advancing")
-    advance_parser.add_argument("--adapter", choices=["claude", "codex"], default="claude")
+    advance_parser.add_argument("--adapter", choices=SUPPORTED_REAL_ADAPTERS, default="claude")
     advance_parser.add_argument("--role", default=None, help="override role when --execute is used")
     advance_parser.add_argument("--artifacts", nargs="+", default=None, help="artifact names to stream when --execute is used")
     advance_parser.add_argument("--real", action="store_true", help="use real CLI adapters when --execute is used")
@@ -190,7 +190,7 @@ Notes:
     exec_stage_parser.add_argument("--task-dir", required=True)
     exec_stage_parser.add_argument("--route", help=route_help)
     exec_stage_parser.add_argument("--min-route", choices=ROUTE_ORDER, help=min_route_help)
-    exec_stage_parser.add_argument("--adapter", choices=["claude", "codex"], default="claude")
+    exec_stage_parser.add_argument("--adapter", choices=SUPPORTED_REAL_ADAPTERS, default="claude")
     exec_stage_parser.add_argument("--role", default=None, help="override role (auto-detected from stage if omitted)")
     exec_stage_parser.add_argument("--artifacts", nargs="+", default=None, help="artifact names to stream")
     exec_stage_parser.add_argument("--real", action="store_true", help="use real CLI adapters instead of stubs")

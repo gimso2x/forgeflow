@@ -11,6 +11,7 @@ from forgeflow_runtime.executor import (
     RunTaskResult,
     StubClaudeAdapter,
     StubCodexAdapter,
+    StubGeminiAdapter,
     dispatch,
     list_adapters,
 )
@@ -91,6 +92,24 @@ class TestStubCodexAdapter:
         assert "stub-codex-output" in (result.raw_output or "")
 
 
+class TestStubGeminiAdapter:
+    def test_successful_run(self):
+        adapter = StubGeminiAdapter()
+        req = RunTaskRequest(
+            prompt="print hello",
+            role="worker",
+            stage="execute",
+            task_dir=Path("."),
+            task_id="t3",
+            token_budget_input=8000,
+            token_budget_output=4000,
+            adapter_target="gemini",
+        )
+        result = adapter.run_task(req)
+        assert result.status == "success"
+        assert "stub-gemini-output" in (result.raw_output or "")
+
+
 class TestDispatch:
     def test_dispatch_claude(self):
         req = RunTaskRequest(
@@ -115,7 +134,7 @@ class TestDispatch:
             task_id="t1",
             token_budget_input=8000,
             token_budget_output=4000,
-            adapter_target="gemini",
+            adapter_target="unknown",
         )
         result = dispatch(req)
         assert result.status == "failure"
@@ -123,7 +142,7 @@ class TestDispatch:
 
     def test_list_adapters(self):
         adapters = list_adapters()
-        assert set(adapters) == {"claude", "codex"}
+        assert set(adapters) == {"claude", "codex", "gemini"}
 
 
 class TestArtifactStreaming:

@@ -4,6 +4,7 @@
 
 - Claude Code를 쓰나요? → **Claude Code plugin 설치** 섹션으로 가세요.
 - Codex Desktop/CLI를 쓰나요? → **Codex Plugin 설치** 섹션으로 가세요.
+- Gemini CLI를 쓰나요? → **Gemini CLI extension 설치** 섹션으로 가세요.
 - CLI/CI에서만 쓸 건가요? → **Python 패키지 설치** 섹션으로 가세요.
 - 그냥 프로젝트에 지침만 복사할 건가요? → **수동 복사** 섹션으로 가세요.
 - Antigravity를 쓰나요? → **Antigravity** 섹션으로 가세요.
@@ -13,7 +14,64 @@ ForgeFlow는 세 가지 방식으로 쓸 수 있습니다.
 
 1. **Claude Code 플러그인** — Claude Code에서 ForgeFlow 규칙/스킬 표면을 설치해서 사용 → [상세 가이드](docs/guides/claude-code.md)
 2. **Codex 플러그인** — Codex Desktop에 plugin을 등록해서 사용 → [상세 가이드](docs/guides/codex.md)
-3. **Python 패키지 / Local CLI** — `pip install`로 runtime CLI를 프로젝트별로 고정해서 사용 → [상세 가이드](docs/guides/local-cli.md)
+3. **Gemini CLI extension** — Gemini CLI extension으로 ForgeFlow context를 설치해서 사용
+4. **Python 패키지 / Local CLI** — `pip install`로 runtime CLI를 프로젝트별로 고정해서 사용 → [상세 가이드](docs/guides/local-cli.md)
+
+## Gemini CLI extension 설치
+
+Gemini CLI는 ForgeFlow를 extension으로 설치합니다. 설치 후 Gemini CLI를 재시작해야 extension context가 로드됩니다.
+
+```bash
+gemini extensions install https://github.com/gimso2x/forgeflow
+```
+
+이미 checkout을 개발 중이면 복사 설치 대신 link로 바로 테스트합니다.
+
+```bash
+gemini extensions link /home/ubuntu/work/forgeflow
+gemini extensions validate /home/ubuntu/work/forgeflow
+```
+
+업데이트:
+
+```bash
+gemini extensions update forgeflow
+```
+
+사용:
+
+```bash
+cd /path/to/your-project
+gemini
+```
+
+Gemini 안에서는 ForgeFlow stage를 명시해서 시작합니다.
+
+```text
+Use ForgeFlow. Start /forgeflow:clarify for: README quickstart를 현재 설치 방식에 맞게 갱신.
+Create task artifacts under .forgeflow/tasks/<task-id>/ and preserve clarify -> plan -> execute -> spec-review -> quality-review -> finalize.
+```
+
+프로젝트에 역할 preset과 root instruction도 고정하고 싶을 때만 아래 project-local 설치를 추가합니다. 기존 `GEMINI.md`는 기본 보존됩니다.
+
+```bash
+python3 /home/ubuntu/work/forgeflow/scripts/install_agent_presets.py \
+  --adapter gemini \
+  --target /path/to/your-project \
+  --profile nextjs \
+  --install-gemini-md
+```
+
+runtime에서 Gemini CLI를 실제 adapter로 호출할 때는 명시적으로 `--real --assert-real`을 씁니다.
+
+```bash
+python3 /home/ubuntu/work/forgeflow/scripts/run_orchestrator.py exec-stage \
+  --task-dir /path/to/your-project/.forgeflow/tasks/<task-id> \
+  --route small \
+  --adapter gemini \
+  --real \
+  --assert-real
+```
 
 ## Python 패키지/runtime CLI
 

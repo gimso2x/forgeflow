@@ -22,7 +22,7 @@ class RunTaskRequest:
     task_id: str
     token_budget_input: int
     token_budget_output: int
-    adapter_target: str  # e.g. "claude", "codex"
+    adapter_target: str  # e.g. "claude", "codex", "gemini"
     artifacts_to_stream: list[str] | None = None
     extra: dict[str, Any] | None = None
 
@@ -39,7 +39,7 @@ class RunTaskResult:
 
 
 class ExecutorAdapter(Protocol):
-    """Protocol for runtime-specific adapters (Claude, Codex)."""
+    """Protocol for runtime-specific adapters (Claude, Codex, Gemini)."""
 
     @property
     def name(self) -> str:
@@ -109,6 +109,13 @@ class StubCodexAdapter(_BaseStubAdapter):
         return self._run_stub(request, "stub-codex-output")
 
 
+class StubGeminiAdapter(_BaseStubAdapter):
+    """Stub adapter for Google Gemini CLI workflows."""
+
+    name = "gemini"
+
+    def run_task(self, request: RunTaskRequest) -> RunTaskResult:
+        return self._run_stub(request, "stub-gemini-output")
 
 
 class _BaseRealCLIAdapter:
@@ -214,15 +221,28 @@ class CodexCLIAdapter(_BaseRealCLIAdapter):
         return [self._binary or self.binary_name, "exec", request.prompt]
 
 
+class GeminiCLIAdapter(_BaseRealCLIAdapter):
+    """Real adapter that invokes the Google Gemini CLI (``gemini``)."""
+
+    name = "gemini"
+    binary_name = "gemini"
+    missing_binary_hint = "gemini binary not found on PATH; install/auth Gemini CLI or omit --real to use the safe stub"
+
+    def build_command(self, request: RunTaskRequest) -> list[str]:
+        return [self._binary or self.binary_name, "--prompt", "--yolo", request.prompt]
+
+
 STUB_REGISTRY: dict[str, ExecutorAdapter] = {
     "claude": StubClaudeAdapter(),
     "codex": StubCodexAdapter(),
+    "gemini": StubGeminiAdapter(),
 }
 
 
 REAL_REGISTRY: dict[str, ExecutorAdapter] = {
     "claude": ClaudeCodeAdapter(),
     "codex": CodexCLIAdapter(),
+    "gemini": GeminiCLIAdapter(),
 }
 SUPPORTED_REAL_ADAPTERS = tuple(sorted(REAL_REGISTRY))
 
@@ -233,7 +253,7 @@ def dispatch(request: RunTaskRequest, *, use_real: bool = False) -> RunTaskResul
     Args:
         request: The execution request.
         use_real: If ``True``, try to use real CLI adapters (Claude Code,
-            Codex CLI) when available.  Defaults to ``False`` (stubs) so
+            Codex CLI, Gemini CLI) when available.  Defaults to ``False`` (stubs) so
             tests and local development do not incur API costs.
     """
     if use_real:

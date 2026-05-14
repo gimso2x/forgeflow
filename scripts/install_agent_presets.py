@@ -49,6 +49,16 @@ ADAPTERS = {
         rule_root=ROOT / "adapters/targets/codex/rules",
         rule_install_subdir=Path(".codex/rules"),
     ),
+    "gemini": AdapterSpec(
+        name="gemini",
+        preset_root=ROOT / "adapters/targets/gemini/agents",
+        install_subdir=Path(".gemini/forgeflow"),
+        title="ForgeFlow Gemini Preset Initialization",
+        global_config_names=(".gemini",),
+        forbidden_suffixes=((".gemini", "forgeflow"), (".gemini", "rules")),
+        rule_root=ROOT / "adapters/targets/gemini/rules",
+        rule_install_subdir=Path(".gemini/rules"),
+    ),
 }
 
 REQUIRED_PRESETS = {
@@ -63,11 +73,17 @@ REQUIRED_PRESETS = {
             "forgeflow-nextjs-worker.md",
             "forgeflow-quality-reviewer.md",
         ],
+        "gemini": [
+            "forgeflow-coordinator.md",
+            "forgeflow-nextjs-worker.md",
+            "forgeflow-quality-reviewer.md",
+        ],
     }
 }
 REQUIRED_RULES = {
     "nextjs": {
         "codex": ["forgeflow-nextjs-worker.mdc"],
+        "gemini": ["forgeflow-nextjs-worker.mdc"],
     }
 }
 
@@ -203,15 +219,23 @@ def install_hook_bundles(target: Path, adapter: str, bundles: list[str]) -> list
     return installed
 
 
-def install_codex_md(target: Path, *, overwrite: bool = False) -> Path | None:
-    src = ROOT / "adapters" / "generated" / "codex" / "CODEX.md"
+def install_root_instruction(target: Path, adapter: str, filename: str, *, overwrite: bool = False) -> Path | None:
+    src = ROOT / "adapters" / "generated" / adapter / filename
     if not src.exists():
-        raise FileNotFoundError(f"Missing generated Codex adapter: {src}")
-    dst = target / "CODEX.md"
+        raise FileNotFoundError(f"Missing generated {adapter} adapter: {src}")
+    dst = target / filename
     if dst.exists() and not overwrite:
         return None
     shutil.copyfile(src, dst)
     return dst
+
+
+def install_codex_md(target: Path, *, overwrite: bool = False) -> Path | None:
+    return install_root_instruction(target, "codex", "CODEX.md", overwrite=overwrite)
+
+
+def install_gemini_md(target: Path, *, overwrite: bool = False) -> Path | None:
+    return install_root_instruction(target, "gemini", "GEMINI.md", overwrite=overwrite)
 
 
 def verification_lines(scripts: dict[str, str]) -> list[str]:
@@ -234,8 +258,8 @@ def write_doc(
     spec: AdapterSpec,
     starter_docs: list[Path],
     hook_bundles: list[str],
-    codex_md: Path | None,
-    codex_md_skipped: bool,
+    root_instruction: Path | None,
+    root_instruction_skipped: bool,
 ) -> Path:
     doc = target / "docs" / "forgeflow-team-init.md"
     doc.parent.mkdir(parents=True, exist_ok=True)
@@ -246,13 +270,20 @@ def write_doc(
     hook_lines = [f"- `{bundle}` — project-local opt-in Claude safety bundle." for bundle in hook_bundles]
     if not hook_lines:
         hook_lines = ["- No hook/safety bundles installed. Hooks are opt-in and project-local only."]
-    codex_lines: list[str]
-    if codex_md is not None:
-        codex_lines = [f"- `{codex_md.relative_to(target)}` — generated Codex root instruction file."]
-    elif codex_md_skipped:
-        codex_lines = ["- Existing `CODEX.md` preserved. Re-run with `--overwrite-codex-md` only when replacing it is intentional."]
+    root_instruction_lines: list[str]
+    instruction_title = {
+        "codex": "Codex root instruction file",
+        "gemini": "Gemini root instruction file",
+    }.get(adapter, "Root instruction file")
+    if root_instruction is not None:
+        root_instruction_lines = [f"- `{root_instruction.relative_to(target)}` — generated {adapter.capitalize()} root instruction file."]
+    elif root_instruction_skipped:
+        filename = "GEMINI.md" if adapter == "gemini" else "CODEX.md"
+        overwrite_flag = "--overwrite-gemini-md" if adapter == "gemini" else "--overwrite-codex-md"
+        root_instruction_lines = [f"- Existing `{filename}` preserved. Re-run with `{overwrite_flag}` only when replacing it is intentional."]
     else:
-        codex_lines = ["- `CODEX.md` was not installed in this run."]
+        filename = "GEMINI.md" if adapter == "gemini" else "CODEX.md"
+        root_instruction_lines = [f"- `{filename}` was not installed in this run."]
     content = "\n".join(
         [
             f"# {spec.title}",
@@ -294,11 +325,11 @@ def write_doc(
             "",
             "These guardrails are convenience checks, not a complete sandbox or permission model.",
             "",
-            "## Codex root instruction file",
+            f"## {instruction_title}",
             "",
-            *codex_lines,
+            *root_instruction_lines,
             "",
-            "Codex reads project-root instructions before work. Use `--install-codex-md` for project setup when the target should carry ForgeFlow stage and review semantics directly.",
+            f"{adapter.capitalize()} reads project-root instructions before work. Use the matching `--install-*-md` flag for project setup when the target should carry ForgeFlow stage and review semantics directly.",
             "",
             "## Safety boundary",
             "",
@@ -336,6 +367,8 @@ def install(
     hook_bundles: list[str] | None = None,
     install_codex_root_instruction: bool = False,
     overwrite_codex_root_instruction: bool = False,
+    install_gemini_root_instruction: bool = False,
+    overwrite_gemini_root_instruction: bool = False,
 ) -> tuple[Path, list[Path], Path, list[Path], list[str], Path | None, bool]:
     if adapter not in ADAPTERS:
         raise ValueError(f"Unsupported adapter: {adapter}")
@@ -348,13 +381,18 @@ def install(
     copied.extend(copy_rules(target, profile, spec))
     starter_docs = copy_starter_docs(target) if with_starter_docs else []
     installed_bundles = install_hook_bundles(target, adapter, bundles)
-    codex_md: Path | None = None
-    codex_md_skipped = False
+    root_instruction: Path | None = None
+    root_instruction_skipped = False
     if install_codex_root_instruction:
         if adapter != "codex":
             raise ValueError("--install-codex-md is only valid with --adapter codex")
-        codex_md = install_codex_md(target, overwrite=overwrite_codex_root_instruction)
-        codex_md_skipped = codex_md is None
+        root_instruction = install_codex_md(target, overwrite=overwrite_codex_root_instruction)
+        root_instruction_skipped = root_instruction is None
+    if install_gemini_root_instruction:
+        if adapter != "gemini":
+            raise ValueError("--install-gemini-md is only valid with --adapter gemini")
+        root_instruction = install_gemini_md(target, overwrite=overwrite_gemini_root_instruction)
+        root_instruction_skipped = root_instruction is None
     doc = write_doc(
         target,
         profile,
@@ -364,10 +402,10 @@ def install(
         spec,
         starter_docs,
         installed_bundles,
-        codex_md,
-        codex_md_skipped,
+        root_instruction,
+        root_instruction_skipped,
     )
-    return target, copied, doc, starter_docs, installed_bundles, codex_md, codex_md_skipped
+    return target, copied, doc, starter_docs, installed_bundles, root_instruction, root_instruction_skipped
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -395,11 +433,21 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Replace an existing target CODEX.md when used with --install-codex-md.",
     )
+    parser.add_argument(
+        "--install-gemini-md",
+        action="store_true",
+        help="With --adapter gemini, copy adapters/generated/gemini/GEMINI.md into the target project root.",
+    )
+    parser.add_argument(
+        "--overwrite-gemini-md",
+        action="store_true",
+        help="Replace an existing target GEMINI.md when used with --install-gemini-md.",
+    )
     args = parser.parse_args(argv)
 
     try:
         bundles = parse_hook_bundles(args.hook_bundles)
-        target, copied, doc, starter_docs, installed_bundles, codex_md, codex_md_skipped = install(
+        target, copied, doc, starter_docs, installed_bundles, root_instruction, root_instruction_skipped = install(
             args.target,
             args.adapter,
             args.profile,
@@ -407,6 +455,8 @@ def main(argv: list[str] | None = None) -> int:
             hook_bundles=bundles,
             install_codex_root_instruction=args.install_codex_md,
             overwrite_codex_root_instruction=args.overwrite_codex_md,
+            install_gemini_root_instruction=args.install_gemini_md,
+            overwrite_gemini_root_instruction=args.overwrite_gemini_md,
         )
     except Exception as exc:  # noqa: BLE001 - CLI reports concise failure
         return die(str(exc))
@@ -416,10 +466,12 @@ def main(argv: list[str] | None = None) -> int:
         print(f"Created {len(starter_docs)} starter docs under {target / 'docs'}")
     if installed_bundles:
         print(f"Installed hook bundles: {', '.join(installed_bundles)}")
-    if codex_md is not None:
-        print(f"Installed Codex root instruction file: {codex_md}")
-    elif codex_md_skipped:
-        print("Preserved existing CODEX.md; use --overwrite-codex-md to replace it intentionally.")
+    if root_instruction is not None:
+        print(f"Installed {args.adapter.capitalize()} root instruction file: {root_instruction}")
+    elif root_instruction_skipped:
+        filename = "GEMINI.md" if args.adapter == "gemini" else "CODEX.md"
+        overwrite = "--overwrite-gemini-md" if args.adapter == "gemini" else "--overwrite-codex-md"
+        print(f"Preserved existing {filename}; use {overwrite} to replace it intentionally.")
     print(f"Wrote {doc}")
     return 0
 

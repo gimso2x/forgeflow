@@ -86,7 +86,7 @@ class TestExecuteStage:
                 stage="execute",
                 route="small",
                 role="worker",
-                adapter_target="gemini",
+                adapter_target="unknown",
             )
             assert result.status == "failure"
             assert "unknown adapter target" in (result.error or "")
