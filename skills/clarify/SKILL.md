@@ -48,6 +48,7 @@ Use this skill to convert a raw request into a ForgeFlow `brief.json`-style cont
   - `small` -> `/forgeflow:execute` or direct execute path
   - `medium` -> `/forgeflow:plan`
   - `high` -> `/forgeflow:plan` with spec/quality review kept separate
+  - `epic` -> `/forgeflow:milestone`
 
 ## File write and output discipline
 
@@ -149,6 +150,7 @@ For exact-count, dry-run, or response-only prompts, do not force the WHERE inter
    - `small`: at least one of `build`, `lint`, or `type_check` — whichever is available and fastest.
    - `medium`: at least `lint` and `type_check`, plus `test` if tests exist for changed files.
    - `high`: full verification suite — `build`, `lint`, `type_check`, and `test`.
+   - `epic`: full verification suite, plus milestone-level integration tests.
 7. State the route and why, unless an exact-output/label-only instruction applies.
 8. Produce the brief in a structured form the next skill can consume, unless an exact-output/label-only instruction applies.
 9. If the request is actionable, record remaining non-blocking unknowns as bounded assumptions and make the next stage obvious without asking the user to do your planning work, unless an exact-output/label-only instruction applies.
@@ -180,6 +182,10 @@ Return only one of:
 small
 medium
 high
+```
+
+No explanation. No JSON. No file writes.
+h
 ```
 
 No explanation. No JSON. No file writes.

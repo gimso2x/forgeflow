@@ -61,6 +61,7 @@ The task is complete only when:
 small: clarify -> execute -> quality-review -> finalize
 medium: clarify -> plan -> execute -> quality-review -> finalize
 high: clarify -> plan -> execute -> spec-review -> quality-review -> finalize -> long-run
+epic: clarify -> milestone -> (per milestone) plan -> execute -> spec-review -> quality-review -> finalize -> long-run
 ```
 
 ## File write and output discipline

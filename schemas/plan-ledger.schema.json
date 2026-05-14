@@ -23,7 +23,8 @@
       "enum": [
         "small",
         "medium",
-        "high"
+        "high",
+        "epic"
       ]
     },
     "current_task_id": {

@@ -59,7 +59,8 @@
       "enum": [
         "small",
         "medium",
-        "high"
+        "high",
+        "epic"
       ]
     },
     "assumptions": {

@@ -22,6 +22,7 @@ Skills are markdown documents that live in `skills/`. Each skill defines a bound
 | 05 | [`review`](review/SKILL.md) | **Information-isolated** verification of executed work against the plan. | engineering-discipline + andrej-karpathy-skills |
 | 06 | [`ship`](ship/SKILL.md) | Final handoff/report after verification; branch disposition lives in [`finish`](finish/SKILL.md). | gstack |
 | 07 | [`finish`](finish/SKILL.md) | Close the task and handle branch/worktree disposition. | ForgeFlow |
+| 08 | [`milestone`](milestone/SKILL.md) | Create and manage project milestones. | GSD |
 
 ## Removed optional skills
 
