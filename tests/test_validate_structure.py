@@ -172,14 +172,14 @@ def test_contract_map_names_evolution_runtime_seams() -> None:
 
     for required_text in [
         "Evolution runtime seam boundaries",
-        "`forgeflow_runtime/evolution_rules.py`",
-        "`forgeflow_runtime/evolution_lifecycle.py`",
-        "`forgeflow_runtime/evolution_execution.py`",
-        "`forgeflow_runtime/evolution_doctor.py`",
-        "`forgeflow_runtime/evolution_promotion_plans.py`",
-        "`forgeflow_runtime/evolution_proposals.py`",
-        "`forgeflow_runtime/evolution_promotion_gates.py`",
-        "`forgeflow_runtime/evolution_promotions.py`",
+        "`forgeflow_runtime/evolution/rules.py`",
+        "`forgeflow_runtime/evolution/lifecycle.py`",
+        "`forgeflow_runtime/evolution/execution.py`",
+        "`forgeflow_runtime/evolution/doctor.py`",
+        "`forgeflow_runtime/evolution/proposals.py`",
+        "`forgeflow_runtime/evolution/promotions.py`",
+        "`forgeflow_runtime/evolution/audit.py`",
+        "`forgeflow_runtime/evolution/observations.py`",
         "approved command execution lives with rule execution",
         "python -m pytest tests/evolution -q",
     ]:
