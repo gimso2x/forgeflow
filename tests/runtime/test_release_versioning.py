@@ -393,6 +393,10 @@ class TestCheckVersionsMain:
         mv = "0.0.0" if drift_file == "marketplace" else version
         marketplace.write_text(json.dumps({"metadata": {"version": mv}}))
 
+        gemini_extension = tmp_path / "gemini-extension.json"
+        gv = "0.0.0" if drift_file == "gemini-extension" else version
+        gemini_extension.write_text(json.dumps({"version": gv}))
+
         pyproject = tmp_path / "pyproject.toml"
         pv = "0.0.0" if drift_file == "pyproject" else version
         pyproject.write_text(f'[project]\nname = "forgeflow"\nversion = "{pv}"\n')
@@ -406,6 +410,7 @@ class TestCheckVersionsMain:
         cv.CLAUDE_PLUGIN_JSON = claude_plugin
         cv.CODEX_PLUGIN_JSON = codex_plugin
         cv.CODEX_ADAPTER_PLUGIN_JSON = codex_adapter_plugin
+        cv.GEMINI_EXTENSION_JSON = gemini_extension
         cv.MARKETPLACE_JSON = marketplace
         cv.PYPROJECT_TOML = pyproject
         cv.README_MD = readme

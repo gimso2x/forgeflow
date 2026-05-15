@@ -139,8 +139,7 @@ def test_cli_init_bootstraps_task_from_operator_inputs(tmp_path: Path) -> None:
     assert not (task_dir / "docs" / "PRD.md").exists()
     assert not (task_dir / "CLAUDE.md").exists()
     assert "selected_architecture" not in payload
-    assert payload["next_action"] == "run clarify to analyze and generate drafts"
-
+    assert "clarify를 실행하여" in payload["next_action"]
     brief = json.loads((task_dir / "brief.json").read_text(encoding="utf-8"))
     assert brief["task_id"] == "my-task-001"
     assert brief["objective"] == "Update README quickstart"
@@ -159,18 +158,21 @@ def test_cli_init_bootstraps_task_from_operator_inputs(tmp_path: Path) -> None:
     assert clarify_payload["route"] == "small"
     assert "selected_architecture" in clarify_payload
 
+    from forgeflow_runtime.env_adapter import get_adapter_config
+    config = get_adapter_config()
+
     # drafts now exist
     for name in [
         "docs/PRD.md",
         "docs/ARCHITECTURE.md",
         "tasks/init-summary.md",
-        "CLAUDE.md",
+        config["metadata_file"],
     ]:
         assert (task_dir / name).exists(), f"{name} missing after clarify"
-    agents_dir = tmp_path / ".claude" / "agents"
-    skills_dir = tmp_path / ".claude" / "skills"
-    assert agents_dir.exists(), ".claude/agents/ missing in project_root"
-    assert skills_dir.exists(), ".claude/skills/ missing in project_root"
+    agents_dir = tmp_path / config["dot_dir"] / "agents"
+    skills_dir = tmp_path / config["dot_dir"] / "skills"
+    assert agents_dir.exists(), f"{config['dot_dir']}/agents/ missing in project_root"
+    assert skills_dir.exists(), f"{config['dot_dir']}/skills/ missing in project_root"
     assert any(agents_dir.glob("*.md")), "No agent files created"
     assert any(d.is_dir() for d in skills_dir.iterdir()), "No skill dirs created"
 

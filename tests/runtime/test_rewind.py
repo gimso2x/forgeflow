@@ -23,8 +23,7 @@ def test_step_back_rewinds_to_previous_stage(
     assert_schema_valid("checkpoint", checkpoint)
     assert checkpoint["route"] == "small"
     assert checkpoint["current_stage"] == "execute"
-    assert checkpoint["next_action"] == "Resume at quality-review after reloading canonical artifacts."
-
+    assert "재개하세요" in checkpoint["next_action"]
 
 def test_step_back_rewinds_plan_ledger_progress_for_medium_route(
     tmp_path: Path,

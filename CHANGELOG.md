@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.1] - 2026-05-15
+
+### Fixed
+
+- `brief.json`의 `required_specialists` 기반 에이전트/스킬 자동 생성 기능 수정.
+- `scripts/check_versions.py`에 `gemini-extension.json` 확인 로직 추가 및 정규식 개선.
+
 ## [0.11.0] - 2026-05-15
 
 ### Added

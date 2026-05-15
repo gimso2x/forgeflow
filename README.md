@@ -2,7 +2,7 @@
 
 AI coding agent가 채팅 기억에 의존하지 않고, **명시적인 artifact, gate, evidence, 독립 review**로 작업하게 만드는 artifact-first delivery harness. Claude Code, Codex, 그리고 Gemini CLI에서 같은 workflow를 사용합니다.
 
-현재 릴리즈: **v0.10.0**
+현재 릴리즈: **v0.11.1**
 
 ## 누가 왜 쓰나
 

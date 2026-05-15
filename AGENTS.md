@@ -4,29 +4,32 @@ Repository-level instructions for AI coding agents working on this repo.
 
 ## Project Overview
 
-ForgeFlow is an artifact-first delivery harness for AI coding agents. It provides staged workflows, gates, evidence trails, and independent review for Claude Code and Codex.
+ForgeFlow is an artifact-first delivery harness for AI coding agents. It provides staged workflows, gates, evidence trails, and independent review for Claude Code, Codex, and Gemini CLI.
 
 ## Tech Stack
 
 - **Language**: Python 3.11+
-- **Runtime**: `forgeflow_runtime/` — 84 Python import-surface files across core modules and domain subpackages
-- **Tests**: pytest, 117 test files across `tests/`
+- **Runtime**: `forgeflow_runtime/` — 92 Python import-surface files across core modules and domain subpackages
+- **Tests**: pytest, 122 test files across `tests/`
 - **No external runtime dependencies** — stdlib only (no pip install needed)
-- **Adapters**: Claude Code (marketplace plugin), Codex (CODEX.md)
+- **Adapters**: Claude Code (marketplace plugin), Codex (CODEX.md), Gemini CLI (GEMINI.md)
 
 ## Repo Structure
 
 ```
 forgeflow_runtime/       # Core runtime library
   engine.py              # Stage execution glue
-  executor.py            # Adapter dispatch
+  executor.py            # Adapter dispatch (Claude, Codex, Gemini)
   orchestrator.py        # Stage coordination + gate enforcement
   generator.py           # Prompt generation
   artifact_validation.py # JSON artifact schema + read/write
   plan_ledger.py         # Plan task tracking
   gate_evaluation.py     # Stage gate enforcement
   gate_ralf.py           # RALF self-healing loop
-  operator_routing.py    # Route selection (small/medium/high)
+  operator_routing.py    # Route selection (small/medium/high/epic)
+  progress_tracker.py    # Multi-task/milestone progress tracking
+  stuck_detector.py      # Stuck/loop signal detection
+  env_adapter.py         # Runtime environment (Vite/Next.js/Gemini/Claude) detection
   forgeflow_runtime/evolution/    # Rule lifecycle, proposals, audits, promotions
   forgeflow_runtime/experiment/   # Experiment loop, metrics, circuit/stopping policy
   forgeflow_runtime/orchestra/    # Consensus, debate, pipeline, fastest strategy
@@ -66,10 +69,12 @@ memory/                  # Version-controlled local memory: curated patterns, de
 
 - **Gate enforcement**: `enforce_stage_gate()` checks artifacts before stage transitions.
 - **Artifact validation**: `assert_supported_artifact_schema_version()` + schema validators.
-- **Route selection**: `auto_route_for_task_dir()` picks small/medium/high based on risk.
+- **Route selection**: `auto_route_for_task_dir()` picks small/medium/high/epic based on risk and scope.
+- **Milestone planning**: Large (epic) tasks are broken down into milestones in `roadmap.json` before detailed planning.
 - **Evolution**: proposals → review → approval → promotion lifecycle.
 - **Orchestration**: consensus/debate/pipeline/fastest multi-model strategies.
 - **Inspectable memory**: `memory/` is not cache or hidden chat state; commit curated patterns, decisions, and durable learnings only.
+- **Environment Awareness**: Uses `env_adapter.py` to detect if running under Gemini or Claude and adjust paths (`.gemini/` vs `.claude/`) or documentation (`GEMINI.md` vs `CLAUDE.md`) accordingly.
 
 ## Testing Rules
 

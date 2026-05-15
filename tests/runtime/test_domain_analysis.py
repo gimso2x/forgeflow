@@ -185,7 +185,8 @@ class TestAutoInference:
     def test_slugify_korean_fallback(self) -> None:
         from forgeflow_runtime.orchestrator import _slugify_objective
         slug = _slugify_objective("로그인 페이지 만들기")
-        assert slug == "task"  # no latin words → fallback
+        assert slug.startswith("task-")  # no latin words → fallback with timestamp
+        assert len(slug) > 10
 
     def test_estimate_risk_high(self) -> None:
         from forgeflow_runtime.orchestrator import _estimate_risk

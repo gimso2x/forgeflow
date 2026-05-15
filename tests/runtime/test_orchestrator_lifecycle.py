@@ -145,6 +145,9 @@ class TestClarifyTask:
         assert result["route"] == "small"
         assert "producer-reviewer" in result["selected_architecture"]
 
+        from forgeflow_runtime.env_adapter import get_adapter_config
+        config = get_adapter_config()
+
         # docs/ and tasks/ now exist after clarify
         for name in [
             "docs/PRD.md",
@@ -152,16 +155,16 @@ class TestClarifyTask:
             "docs/QA.md",
             "docs/DECISIONS.md",
             "tasks/init-summary.md",
-            "CLAUDE.md",
+            config["metadata_file"],
         ]:
             assert (task_dir / name).exists(), f"{name} missing"
 
         # agents/skills go in project_root
-        assert (project_root / ".claude" / "agents").exists()
-        assert (project_root / ".claude" / "skills").exists()
+        assert (project_root / config["dot_dir"] / "agents").exists()
+        assert (project_root / config["dot_dir"] / "skills").exists()
 
         # Verify domain-specific agents have proper structure
-        agents_dir = project_root / ".claude" / "agents"
+        agents_dir = project_root / config["dot_dir"] / "agents"
         agent_files = list(agents_dir.glob("*.md"))
         assert len(agent_files) >= 2, f"Expected ≥2 agents, got {agent_files}"
 
@@ -170,7 +173,7 @@ class TestClarifyTask:
             assert "## Input Artifacts" in text, f"{agent_file.name} missing Input Artifacts"
 
         # Verify domain-specific skills have proper structure
-        skills_dir = project_root / ".claude" / "skills"
+        skills_dir = project_root / config["dot_dir"] / "skills"
         skill_dirs = [d for d in skills_dir.iterdir() if d.is_dir()]
         assert len(skill_dirs) >= 1, f"Expected ≥1 skill, got {skill_dirs}"
 
@@ -180,7 +183,7 @@ class TestClarifyTask:
             text = skill_file.read_text()
             assert "---" in text, f"{skill_dir.name} missing frontmatter"
 
-        pointer = (task_dir / "CLAUDE.md").read_text()
+        pointer = (task_dir / config["metadata_file"]).read_text()
         assert "ForgeFlow" in pointer
         assert "Work Mode" in pointer
         assert "/forgeflow:review" in pointer

@@ -143,9 +143,8 @@ def test_run_route_resumes_from_existing_checkpoint(
     assert checkpoint["current_stage"] == "finalize"
     assert checkpoint["run_state_ref"] == "run-state.json"
     assert checkpoint["latest_review_ref"] == "review-report.json"
-    assert checkpoint["next_action"] == "Route complete. Review final artifacts and hand off results."
+    assert "작업이 완료되었습니다." in checkpoint["next_action"]
     assert checkpoint["open_blockers"] == []
-
 
 def test_run_route_rejects_mismatched_checkpoint_route(
     tmp_path: Path,

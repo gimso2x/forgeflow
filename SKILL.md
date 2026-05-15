@@ -1,9 +1,9 @@
 ---
 name: forgeflow
 description: Artifact-first delivery harness for AI coding agents — staged workflow, gates, evidence, and independent review.
-version: "0.3.0"
+version: "0.11.1"
 category: engineering
-tags: [ai-agents, workflow, harness, review, artifacts, claude-code, codex]
+tags: [ai-agents, workflow, harness, review, artifacts, claude-code, codex, gemini-cli]
 ---
 
 # ForgeFlow
@@ -61,7 +61,7 @@ python3 scripts/policy_scan.py
 
 ## Runtime Modules
 
-`forgeflow_runtime/` — 84개 Python import surface. Domain packages are preferred once a domain has multiple cohesive modules; flat `evolution_*` imports remain compatibility shims only.
+`forgeflow_runtime/` — 92개 Python import surface. Domain packages are preferred once a domain has multiple cohesive modules; flat `evolution_*` imports remain compatibility shims only.
 
 **Core**: engine, executor, orchestrator, generator, operator_routing
 **Gates**: gate_evaluation, gate_ralf, ci_gate, constraint_checker
@@ -69,17 +69,19 @@ python3 scripts/policy_scan.py
 **Review**: adversarial_review, anti_rationalization, evidence_qa, verify_pipeline
 **Evolution**: evolution package (`audit`, `cases`, `doctor`, `execution`, `lifecycle`, `observations`, `promotion_*`, `promotions`, `proposals`, `rules`) plus legacy shim modules
 **Intelligence**: execute_context, progress_tracker, stuck_detector, complexity, cost, telemetry
+**Environment**: env_adapter, profile_detector, preset_resolver, harness_profiles
 **Experiment**: experiment/loop, experiment/circuit, experiment/git_ops, experiment/metric, experiment/simplicity, experiment/stopping
 **Orchestration**: orchestra/consensus, orchestra/debate, orchestra/pipeline, orchestra/fastest, orchestra/strategy
 **Resilience**: stale_recovery, resume_validation, worktree, lightweight_mode
 **Parsing**: ears_parser, feedback_router, signal_pipeline, stage_transition
-**Utilities**: output_compression, progressive_output, versioning, enforcement_config, policy_loader, profile_detector, coordination
+**Utilities**: output_compression, progressive_output, versioning, enforcement_config, policy_loader, coordination
 
 ## Adapter Targets
 
 - **Claude Code** — `.claude-plugin/` marketplace plugin + hooks (edit recovery, large file recovery, tool tracker, output truncator, safety guard)
 - **Codex** — `CODEX.md` adapter + agent presets + rules
-- Both: coordinator, planner, worker, spec-reviewer, quality-reviewer roles
+- **Gemini CLI** — `GEMINI.md` adapter + extension context + instructions
+- All: coordinator, planner, worker, spec-reviewer, quality-reviewer roles
 
 ## Slash Skills (Claude Code Plugin)
 
