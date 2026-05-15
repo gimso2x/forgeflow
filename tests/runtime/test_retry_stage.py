@@ -48,7 +48,7 @@ def test_retry_is_bounded(
     assert_schema_valid("checkpoint", checkpoint)
     assert checkpoint["current_stage"] == "execute"
     assert checkpoint["run_state_ref"] == "run-state.json"
-    assert checkpoint["next_action"] == "Resume at quality-review after reloading canonical artifacts."
+    assert checkpoint["next_action"] == "필요한 파일을 다시 로드한 후 quality-review 단계에서 재개하세요."
 
     with pytest.raises(RuntimeViolation, match="retry budget exceeded for execute: 2/2"):
         retry_stage(task_dir=task_dir, stage_name="execute", max_retries=2)
@@ -73,7 +73,7 @@ def test_retry_stage_preserves_medium_route_checkpoint(
     assert checkpoint["route"] == "medium"
     assert checkpoint["plan_ledger_ref"] == "plan-ledger.json"
     assert checkpoint["current_task_id"] == "task-1"
-    assert checkpoint["next_action"] == "Resume at quality-review after reloading canonical artifacts."
+    assert checkpoint["next_action"] == "필요한 파일을 다시 로드한 후 quality-review 단계에서 재개하세요."
 
 
 def test_retry_stage_rejects_checkpoint_route_drift_against_plan_ledger(

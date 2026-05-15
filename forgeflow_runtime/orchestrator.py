@@ -303,9 +303,9 @@ def _default_checkpoint(*, task_dir: Path, route_name: str, run_state: dict[str,
 
 def _checkpoint_next_action(stage_name: str, route: list[str]) -> str:
     if stage_name == route[-1]:
-        return "Route complete. Review final artifacts and hand off results."
+        return "작업이 완료되었습니다. 최종 결과물을 확인하고 정리하세요."
     next_index = route.index(stage_name) + 1
-    return f"Resume at {route[next_index]} after reloading canonical artifacts."
+    return f"필요한 파일을 다시 로드한 후 {route[next_index]} 단계에서 재개하세요."
 
 
 def _sync_checkpoint(
@@ -730,7 +730,9 @@ def _slugify_objective(objective: str) -> str:
     stop = {"a", "an", "the", "to", "for", "in", "on", "of", "and", "or", "is",
             "it", "with", "from", "by", "that", "this", "be", "are", "was", "were"}
     meaningful = [w for w in words if w not in stop][:6]
-    slug = "-".join(meaningful) if meaningful else "task"
+    slug = "-".join(meaningful)
+    if not slug:
+        slug = f"task-{datetime.now().strftime('%Y%m%d-%H%M%S')}"
     return slug[:64]
 
 
@@ -1365,7 +1367,7 @@ def init_task(
         "route": route_name,
         "risk_level": risk_level,
         "created": created_artifacts,
-        "next_action": "run clarify to analyze and generate drafts",
+        "next_action": "clarify를 실행하여 분석 및 초안 생성을 시작하세요",
     }
 
 
@@ -1445,7 +1447,7 @@ def clarify_task(
         "created_drafts": created_drafts,
         "selected_architecture": architecture["pattern"],
         "current_stage": next_stage,
-        "next_action": f"stage advanced to {next_stage}; continue with execute or plan",
+        "next_action": f"{next_stage} 단계로 이동했습니다. execute 또는 plan을 계속하세요",
     }
 
 

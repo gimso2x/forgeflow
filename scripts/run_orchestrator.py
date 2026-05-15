@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from datetime import datetime
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -244,7 +245,9 @@ def _slugify_init_objective(value: str) -> str:
     import re
 
     words = re.sub(r"[^a-z0-9\s-]", "", value.lower()).split()
-    slug = "-".join(words[:6]) if words else "task"
+    slug = "-".join(words[:6])
+    if not slug:
+        slug = f"task-{datetime.now().strftime('%Y%m%d-%H%M%S')}"
     return slug[:64]
 
 
@@ -255,7 +258,7 @@ def _init_task_id_from_args(task_dir: Path | None, task_id: str | None, objectiv
         return _slugify_init_objective(objective)
     if task_dir is not None:
         return task_dir.name
-    return "task"
+    return f"task-{datetime.now().strftime('%Y%m%d-%H%M%S')}"
 
 
 def _task_dir_is_plugin_cache(task_dir: Path) -> bool:

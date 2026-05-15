@@ -15,12 +15,12 @@ Use this skill when the user asks for `/forgeflow:init`, `forgeflow init`, or wa
 
 ## Input
 
-- `--task-id`: stable task identifier, such as `add-init-plugin-command`
+- `--task-id`: stable task identifier (optional; auto-generated if omitted)
 - `--objective`: one-sentence task objective
-- `--risk low|medium|high`: initial risk estimate
+- `--risk low|medium|high`: initial risk estimate (optional; defaults to medium)
 - Optional `--task-dir`: explicit task workspace directory
 
-If any required input is missing, ask only for the missing fields. Do not invent a task id or objective when the user has not provided enough signal.
+If `--objective` is missing, ask the user for it in Korean. Do not ask for `--task-id` unless the user explicitly wants to set one; otherwise, let the system generate it automatically. All communication with the user must be in Korean.
 
 ## Action
 
