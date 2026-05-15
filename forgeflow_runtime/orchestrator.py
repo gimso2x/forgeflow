@@ -773,6 +773,11 @@ def _detect_project_type(task_dir: Path) -> dict[str, Any]:
             "dirs": ["src/components", "src/pages", "src/App.tsx", "src/App.jsx"],
             "extras": ["package.json"],
         },
+        "vite": {
+            "files": ["vite.config.js", "vite.config.ts"],
+            "dirs": ["src"],
+            "extras": ["package.json"],
+        },
         "fastapi": {
             "files": [],
             "dirs": [],
@@ -886,6 +891,9 @@ def _detect_project_type(task_dir: Path) -> dict[str, Any]:
         if "next" in deps:
             detected = ["nextjs"]
             framework = "Next.js"
+        elif "vite" in deps:
+            detected = ["vite"]
+            framework = "Vite"
         elif "@tanstack/start" in deps or "vinxi" in deps:
             detected = ["tanstack-start"]
             framework = "TanStack Start"
