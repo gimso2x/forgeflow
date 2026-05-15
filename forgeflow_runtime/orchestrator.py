@@ -1069,7 +1069,7 @@ def _write_new_text(path: Path, content: str, *, allow_existing: bool = False) -
     path.write_text(content.rstrip() + "\n", encoding="utf-8")
 
 
-def _init_markdown_drafts(*, task_dir: Path, project_root: Path, task_id: str, objective: str, risk_level: str, route_name: str) -> list[str]:
+def _init_markdown_drafts(*, task_dir: Path, project_root: Path, task_id: str, objective: str, risk_level: str, route_name: str, required_specialists: list[str] | None = None) -> list[str]:
     architecture = _select_team_architecture(objective, risk_level)
     domain_info = _analyze_objective_domain(objective)
     project_info = _detect_project_type(project_root)
@@ -1250,6 +1250,7 @@ Run status, then execute clarify when ready. Do not skip evidence collection.
         task_id=task_id,
         route=route_name,
         project_info=project_info,
+        required_specialists=required_specialists,
     )
 
     # Merge profile agents/skills/metadata into drafts
@@ -1397,6 +1398,7 @@ def clarify_task(
     task_id = brief["task_id"]
     risk_level = brief.get("risk_level", "medium")
     route_name = brief.get("route", "small")
+    required_specialists = brief.get("required_specialists")
 
     if project_root is None:
         project_root = task_dir.parent.parent.parent.resolve()
@@ -1414,6 +1416,7 @@ def clarify_task(
         objective=objective,
         risk_level=risk_level,
         route_name=route_name,
+        required_specialists=required_specialists,
     )
 
     # 3. Enrich brief with domain analysis results

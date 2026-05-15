@@ -525,6 +525,13 @@ _AGENT_GENERATORS: dict[str, Any] = {
     "backend-dev": _backend_dev_agent,
     "qa-engineer": _qa_engineer_agent,
     "devops-engineer": _devops_engineer_agent,
+    # Mapping specialists to base agents
+    "frontend-execute": _frontend_dev_agent,
+    "backend-execute": _backend_dev_agent,
+    "infra-execute": _devops_engineer_agent,
+    "ux-review": _qa_engineer_agent,
+    "security-review": _qa_engineer_agent,
+    "perf-review": _qa_engineer_agent,
 }
 
 _SKILL_GENERATORS: dict[str, Any] = {
@@ -539,6 +546,7 @@ def resolve_profile(
     task_id: str,
     route: str,
     project_info: dict[str, Any] | None = None,
+    required_specialists: list[str] | None = None,
 ) -> dict[str, Any]:
     """Resolve which agents and skills to generate for a given task.
 
@@ -556,7 +564,13 @@ def resolve_profile(
     p_info = project_info or {}
 
     mode = detect_work_mode(objective)
-    agent_names = _AGENTS_BY_MODE.get(mode, _AGENTS_BY_MODE["full"])
+    
+    # Use required_specialists if provided, otherwise fallback to mode-based agents
+    if required_specialists:
+        agent_names = required_specialists
+    else:
+        agent_names = _AGENTS_BY_MODE.get(mode, _AGENTS_BY_MODE["full"])
+        
     skill_names = _SKILLS_BY_MODE.get(mode, _SKILLS_BY_MODE["full"])
 
     agents: dict[str, str] = {}
@@ -583,7 +597,7 @@ def resolve_profile(
         "mode": mode,
         "agents": agents,
         "skills": skills,
-        "metadata": {metadata_file: metadata_content},
+        "metadata": {metadata_file: metadata_content}
     }
 
 
