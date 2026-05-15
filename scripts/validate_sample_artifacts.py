@@ -20,6 +20,12 @@ POSITIVE_SAMPLES = {
     "examples/artifacts/session-state.sample.json": ROOT / "schemas/session-state.schema.json",
     "examples/artifacts/issue-drafts.sample.json": ROOT / "schemas" / "issue-drafts.schema.json",
     "examples/artifacts/interface-spec.sample.json": ROOT / "schemas" / "interface-spec.schema.json",
+    "examples/end-to-end-nextjs-flow/brief.json": ROOT / "schemas/brief.schema.json",
+    "examples/end-to-end-nextjs-flow/plan.json": ROOT / "schemas/plan.schema.json",
+    "examples/end-to-end-nextjs-flow/plan-ledger.json": ROOT / "schemas/plan-ledger.schema.json",
+    "examples/end-to-end-nextjs-flow/run-state.json": ROOT / "schemas/run-state.schema.json",
+    "examples/end-to-end-nextjs-flow/decision-log.json": ROOT / "schemas/decision-log.schema.json",
+    "examples/end-to-end-nextjs-flow/review-report.json": ROOT / "schemas/review-report.schema.json",
 }
 
 NEGATIVE_SAMPLES = {

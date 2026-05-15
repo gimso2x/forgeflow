@@ -50,6 +50,7 @@ EXAMPLE_REF_EXACT = {
 }
 EXAMPLE_REF_CONTAINS = (
     ".forgeflow/tasks/my-task-001/",
+    ".forgeflow/tasks/dash-empty/",
 )
 
 PATH_REF_RE = re.compile(

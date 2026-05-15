@@ -11,6 +11,7 @@ PLUGIN = ROOT / ".claude-plugin" / "plugin.json"
 MARKETPLACE = ROOT / ".claude-plugin" / "marketplace.json"
 CODEX = ROOT / ".codex-plugin" / "plugin.json"
 CODEX_TARGET = ROOT / "adapters" / "targets" / "codex" / "plugin.json"
+GEMINI_EXTENSION = ROOT / "gemini-extension.json"
 PYPROJECT = ROOT / "pyproject.toml"
 README = ROOT / "README.md"
 
@@ -43,15 +44,16 @@ def test_release_script_dry_run_prints_ordered_checks_without_mutating_versions(
     assert "1. update plugin manifests version to 0.1.14" in result.stdout
     assert "2. update .claude-plugin/marketplace.json metadata.version to 0.1.14" in result.stdout
     assert "3. update adapters/targets/codex/plugin.json version to 0.1.14" in result.stdout
-    assert "4. update pyproject.toml version to 0.1.14" in result.stdout
-    assert "5. update README current release to v0.1.14" in result.stdout
-    assert "6. run python scripts/check_plugin_versions.py" in result.stdout
-    assert "7. run pytest -q" in result.stdout
-    assert "8. run make validate (check-env + validate-structure + validate-fast + validate-plugin)" in result.stdout
-    assert "9. optionally run make validate-e2e-live on a disposable project" in result.stdout
-    assert "10. run make smoke-claude-plugin" in result.stdout
-    assert "11. create git commit: chore: release v0.1.14" in result.stdout
-    assert "12. create annotated tag: v0.1.14" in result.stdout
+    assert "4. update gemini-extension.json version to 0.1.14" in result.stdout
+    assert "5. update pyproject.toml version to 0.1.14" in result.stdout
+    assert "6. update README current release to v0.1.14" in result.stdout
+    assert "7. run python scripts/check_plugin_versions.py" in result.stdout
+    assert "8. run pytest -q" in result.stdout
+    assert "9. run make validate (check-env + validate-structure + validate-fast + validate-plugin)" in result.stdout
+    assert "10. optionally run make validate-e2e-live on a disposable project" in result.stdout
+    assert "11. run make smoke-claude-plugin" in result.stdout
+    assert "12. create git commit: chore: release v0.1.14" in result.stdout
+    assert "13. create annotated tag: v0.1.14" in result.stdout
     assert "git commit -am" not in SCRIPT.read_text(encoding="utf-8")
     assert json.loads(PLUGIN.read_text()) == before_plugin
     assert json.loads(MARKETPLACE.read_text()) == before_marketplace
@@ -70,6 +72,7 @@ def test_release_script_can_update_versions_only_and_write_release_notes(tmp_pat
     original_marketplace = MARKETPLACE.read_text()
     original_codex = CODEX.read_text()
     original_codex_target = CODEX_TARGET.read_text()
+    original_gemini_extension = GEMINI_EXTENSION.read_text()
     original_pyproject = PYPROJECT.read_text()
     original_readme = README.read_text()
 
@@ -81,7 +84,9 @@ def test_release_script_can_update_versions_only_and_write_release_notes(tmp_pat
         assert json.loads(MARKETPLACE.read_text())["metadata"]["version"] == "0.1.14"
         assert json.loads(CODEX.read_text())["version"] == "0.1.14"
         assert json.loads(CODEX_TARGET.read_text())["version"] == "0.1.14"
+        assert json.loads(GEMINI_EXTENSION.read_text())["version"] == "0.1.14"
         assert 'version = "0.1.14"' in PYPROJECT.read_text()
+        assert "현재 릴리즈: **v0.1.14**" in README.read_text()
         assert "## v0.1.14" in notes.read_text()
         assert "pytest -q" in notes.read_text()
         assert "make validate" in notes.read_text()
@@ -94,6 +99,7 @@ def test_release_script_can_update_versions_only_and_write_release_notes(tmp_pat
         MARKETPLACE.write_text(original_marketplace)
         CODEX.write_text(original_codex)
         CODEX_TARGET.write_text(original_codex_target)
+        GEMINI_EXTENSION.write_text(original_gemini_extension)
         PYPROJECT.write_text(original_pyproject)
         README.write_text(original_readme)
 
@@ -115,9 +121,10 @@ def test_release_script_stages_only_supported_plugin_manifests():
     assert ".codex-plugin/plugin.json" in paths
     assert ".claude-plugin/marketplace.json" in paths
     assert "adapters/targets/codex/plugin.json" in paths
+    assert "gemini-extension.json" in paths
     assert "pyproject.toml" in paths
     assert "README.md" in paths
-    assert len(paths) == 6
+    assert len(paths) == 7
 
 
 def test_release_script_rejects_preexisting_staged_changes(tmp_path):

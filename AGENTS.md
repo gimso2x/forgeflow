@@ -4,7 +4,7 @@ Repository-level instructions for AI coding agents working on this repo.
 
 ## Project Overview
 
-ForgeFlow is an artifact-first delivery harness for AI coding agents. It provides staged workflows, gates, evidence trails, and independent review for Claude Code and Codex.
+ForgeFlow is an artifact-first workflow contract plus a lightweight enforcement runtime for Claude Code, Codex, and Gemini CLI. It provides staged workflows, gates, evidence trails, and independent review.
 
 ## Tech Stack
 

@@ -17,6 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 CLAUDE_PLUGIN_JSON = ROOT / ".claude-plugin" / "plugin.json"
 CODEX_PLUGIN_JSON = ROOT / ".codex-plugin" / "plugin.json"
 CODEX_ADAPTER_PLUGIN_JSON = ROOT / "adapters" / "targets" / "codex" / "plugin.json"
+GEMINI_EXTENSION_JSON = ROOT / "gemini-extension.json"
 MARKETPLACE_JSON = ROOT / ".claude-plugin" / "marketplace.json"
 PYPROJECT_TOML = ROOT / "pyproject.toml"
 README_MD = ROOT / "README.md"
@@ -26,12 +27,13 @@ PLUGIN_VERSION_JSONS = [
     CLAUDE_PLUGIN_JSON,
     CODEX_PLUGIN_JSON,
     CODEX_ADAPTER_PLUGIN_JSON,
+    GEMINI_EXTENSION_JSON,
 ]
 
 SUPPORTED_PLUGIN_MANIFESTS = [CLAUDE_PLUGIN_JSON, CODEX_PLUGIN_JSON]
 
 SEMVER_RE = re.compile(r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:[-+][0-9A-Za-z.-]+)?$")
-README_VERSION_RE = re.compile(r"현재 릴리즈는 \*\*v[\d.]+\*\*")
+README_VERSION_RE = re.compile(r"현재 릴리즈(?:는|:) \*\*v[\d.]+\*\*")
 
 
 # --- Helpers --------------------------------------------------------------
@@ -95,7 +97,7 @@ def update_versions(version: str) -> None:
     if README_MD.exists():
         readme_text = README_MD.read_text(encoding="utf-8")
         readme_text = README_VERSION_RE.sub(
-            f"현재 릴리즈는 **v{version}**",
+            f"현재 릴리즈: **v{version}**",
             readme_text,
         )
         README_MD.write_text(readme_text, encoding="utf-8")
@@ -145,6 +147,7 @@ def release_files_to_stage(notes_out: Path | None = None) -> list[str]:
         *[path.relative_to(ROOT) for path in SUPPORTED_PLUGIN_MANIFESTS],
         MARKETPLACE_JSON.relative_to(ROOT),
         CODEX_ADAPTER_PLUGIN_JSON.relative_to(ROOT),
+        GEMINI_EXTENSION_JSON.relative_to(ROOT),
         PYPROJECT_TOML.relative_to(ROOT),
     ]
     if README_MD.exists():
@@ -216,16 +219,17 @@ def release_plan(version: str) -> str:
             f"1. update plugin manifests version to {version}",
             f"2. update .claude-plugin/marketplace.json metadata.version to {version}",
             f"3. update adapters/targets/codex/plugin.json version to {version}",
-            f"4. update pyproject.toml version to {version}",
-            f"5. update README current release to v{version}",
-            "6. run python scripts/check_plugin_versions.py",
-            "7. run pytest -q",
-            "8. run make validate (check-env + validate-structure + validate-fast + validate-plugin)",
-            "9. optionally run make validate-e2e-live on a disposable project",
-            "10. run make smoke-claude-plugin",
-            f"11. create git commit: chore: release {tag}",
-            f"12. create annotated tag: {tag}",
-            f"13. push with: git push origin main {tag}",
+            f"4. update gemini-extension.json version to {version}",
+            f"5. update pyproject.toml version to {version}",
+            f"6. update README current release to v{version}",
+            "7. run python scripts/check_plugin_versions.py",
+            "8. run pytest -q",
+            "9. run make validate (check-env + validate-structure + validate-fast + validate-plugin)",
+            "10. optionally run make validate-e2e-live on a disposable project",
+            "11. run make smoke-claude-plugin",
+            f"12. create git commit: chore: release {tag}",
+            f"13. create annotated tag: {tag}",
+            f"14. push with: git push origin main {tag}",
         ]
     )
 

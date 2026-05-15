@@ -15,6 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 CLAUDE_PLUGIN_JSON = ROOT / ".claude-plugin" / "plugin.json"
 CODEX_PLUGIN_JSON = ROOT / ".codex-plugin" / "plugin.json"
 CODEX_ADAPTER_PLUGIN_JSON = ROOT / "adapters" / "targets" / "codex" / "plugin.json"
+GEMINI_EXTENSION_JSON = ROOT / "gemini-extension.json"
 MARKETPLACE_JSON = ROOT / ".claude-plugin" / "marketplace.json"
 PYPROJECT_TOML = ROOT / "pyproject.toml"
 README_MD = ROOT / "README.md"
@@ -34,7 +35,7 @@ def read_version_pyproject(path: Path) -> str:
 
 def read_version_readme(path: Path) -> str | None:
     text = path.read_text(encoding="utf-8")
-    m = re.search(r"현재 릴리즈는 \*\*v([^*]+)\*\*", text)
+    m = re.search(r"현재 릴리즈(?:는|:) \*\*v([^*]+)\*\*", text)
     if not m:
         return None
     return m.group(1)
@@ -46,6 +47,7 @@ def main() -> int:
     sources[".claude-plugin/plugin.json"] = read_version_json(CLAUDE_PLUGIN_JSON)
     sources[".codex-plugin/plugin.json"] = read_version_json(CODEX_PLUGIN_JSON)
     sources["adapters/targets/codex/plugin.json"] = read_version_json(CODEX_ADAPTER_PLUGIN_JSON)
+    sources["gemini-extension.json"] = read_version_json(GEMINI_EXTENSION_JSON)
     sources["pyproject.toml"] = read_version_pyproject(PYPROJECT_TOML)
 
     readme_ver = read_version_readme(README_MD)

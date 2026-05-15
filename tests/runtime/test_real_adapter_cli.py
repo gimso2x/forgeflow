@@ -105,13 +105,14 @@ def test_cli_execute_real_gemini_uses_binary_from_path_without_live_credentials(
     if sys.platform == "win32":
         gemini.write_text(
             "@echo off\n"
-            "python -c \"import sys; assert '--prompt' in sys.argv; assert '--yolo' in sys.argv; print('FAKE_GEMINI_REAL_OUTPUT')\" %*\n",
+            "python -c \"import sys; assert '--skip-trust' in sys.argv; assert '--prompt' in sys.argv; assert '--yolo' in sys.argv; print('FAKE_GEMINI_REAL_OUTPUT')\" %*\n",
             encoding="utf-8",
         )
     else:
         gemini.write_text(
             "#!/usr/bin/env python3\n"
             "import sys\n"
+            "assert '--skip-trust' in sys.argv\n"
             "assert '--prompt' in sys.argv\n"
             "assert '--yolo' in sys.argv\n"
             "print('FAKE_GEMINI_REAL_OUTPUT')\n",

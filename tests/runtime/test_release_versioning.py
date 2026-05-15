@@ -223,6 +223,8 @@ class TestReleaseFilesToStage:
         codex_plugin.write_text("{}")
         codex_adapter_plugin = codex_adapter_dir / "plugin.json"
         codex_adapter_plugin.write_text("{}")
+        gemini_extension = tmp_path / "gemini-extension.json"
+        gemini_extension.write_text("{}")
         marketplace = claude_dir / "marketplace.json"
         marketplace.write_text("{}")
         pyproject = tmp_path / "pyproject.toml"
@@ -235,6 +237,7 @@ class TestReleaseFilesToStage:
         release.CLAUDE_PLUGIN_JSON = claude_plugin
         release.CODEX_PLUGIN_JSON = codex_plugin
         release.CODEX_ADAPTER_PLUGIN_JSON = codex_adapter_plugin
+        release.GEMINI_EXTENSION_JSON = gemini_extension
         release.MARKETPLACE_JSON = marketplace
         release.PYPROJECT_TOML = pyproject
         release.README_MD = readme
@@ -248,6 +251,7 @@ class TestReleaseFilesToStage:
         assert "pyproject.toml" in result_str
         assert "README.md" in result_str
         assert "marketplace.json" in result_str
+        assert "gemini-extension.json" in result_str
 
     def test_includes_pyproject_and_readme(self, tmp_path):
         claude_dir = tmp_path / ".claude-plugin"
@@ -263,6 +267,8 @@ class TestReleaseFilesToStage:
         codex_plugin.write_text("{}")
         codex_adapter_plugin = codex_adapter_dir / "plugin.json"
         codex_adapter_plugin.write_text("{}")
+        gemini_extension = tmp_path / "gemini-extension.json"
+        gemini_extension.write_text("{}")
         marketplace = claude_dir / "marketplace.json"
         marketplace.write_text("{}")
         pyproject = tmp_path / "pyproject.toml"
@@ -275,12 +281,14 @@ class TestReleaseFilesToStage:
         release.CLAUDE_PLUGIN_JSON = claude_plugin
         release.CODEX_PLUGIN_JSON = codex_plugin
         release.CODEX_ADAPTER_PLUGIN_JSON = codex_adapter_plugin
+        release.GEMINI_EXTENSION_JSON = gemini_extension
         release.MARKETPLACE_JSON = marketplace
         release.PYPROJECT_TOML = pyproject
         release.README_MD = readme
         release.SUPPORTED_PLUGIN_MANIFESTS = [claude_plugin, codex_plugin]
 
         result = release.release_files_to_stage()
+        assert "gemini-extension.json" in result
         assert "pyproject.toml" in result
         assert "README.md" in result
 
@@ -384,10 +392,13 @@ class TestCheckVersionsMain:
         claude_plugin = claude_dir / "plugin.json"
         codex_plugin = codex_dir / "plugin.json"
         codex_adapter_plugin = codex_adapter_dir / "plugin.json"
+        gemini_extension = tmp_path / "gemini-extension.json"
 
         for p in (claude_plugin, codex_plugin, codex_adapter_plugin):
             v = "0.0.0" if (drift_file and str(p) == drift_file) else version
             p.write_text(json.dumps({"version": v}))
+        gv = "0.0.0" if drift_file == "gemini-extension" else version
+        gemini_extension.write_text(json.dumps({"version": gv}))
 
         marketplace = claude_dir / "marketplace.json"
         mv = "0.0.0" if drift_file == "marketplace" else version
@@ -406,6 +417,7 @@ class TestCheckVersionsMain:
         cv.CLAUDE_PLUGIN_JSON = claude_plugin
         cv.CODEX_PLUGIN_JSON = codex_plugin
         cv.CODEX_ADAPTER_PLUGIN_JSON = codex_adapter_plugin
+        cv.GEMINI_EXTENSION_JSON = gemini_extension
         cv.MARKETPLACE_JSON = marketplace
         cv.PYPROJECT_TOML = pyproject
         cv.README_MD = readme

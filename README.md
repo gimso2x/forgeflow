@@ -1,8 +1,8 @@
 # ForgeFlow
 
-AI coding agent가 채팅 기억에 의존하지 않고, **명시적인 artifact, gate, evidence, 독립 review**로 작업하게 만드는 artifact-first delivery harness. Claude Code, Codex, 그리고 Gemini CLI에서 같은 workflow를 사용합니다.
+ForgeFlow is an artifact-first workflow contract plus a lightweight enforcement runtime for Claude Code, Codex, and Gemini CLI. AI coding agent가 채팅 기억에 의존하지 않고, **명시적인 artifact, gate, evidence, 독립 review**로 작업하게 만듭니다.
 
-현재 릴리즈: **v0.10.0**
+현재 릴리즈: **v0.10.1**
 
 ## 누가 왜 쓰나
 
@@ -41,6 +41,37 @@ forgeflow-runtime --help
 
 자세한 가이드는 [INSTALL.md](INSTALL.md), [Claude Code 가이드](docs/guides/claude-code.md), [Codex 가이드](docs/guides/codex.md), [Gemini 가이드](docs/guides/gemini.md), [Windows 가이드](docs/guides/windows.md)을 참고하세요.
 
+## First-Run Walkthrough (5분 완성)
+
+설치 후 실제 프로젝트에서 어떻게 작동하는지 훑어봅니다.
+
+1.  **초기화 (`init`)**: 작업을 위한 독립 공간을 만듭니다.
+    ```text
+    /forgeflow:init --task-id dash-empty --objective "대시보드 empty state 추가"
+    ```
+2.  **명확화 (`clarify`)**: 요구사항을 정리하고 실행 경로(route)를 정합니다.
+    ```text
+    /forgeflow:clarify Fix the failing dashboard test
+    ```
+    *   **Artifact:** `.forgeflow/tasks/dash-empty/brief.json` (목표, 제약, route 포함)
+3.  **실행 (`execute`)**: 코드 수정과 자체 검증을 수행합니다.
+    ```text
+    /forgeflow:execute
+    ```
+    *   **Artifacts:** optional `plan.json` / `plan-ledger.json`, `run-state.json` (진행 상태), `decision-log.json` (결정 기록)
+4.  **리뷰 (`review`)**: 독립적인 evidence 기반 검토를 받습니다.
+    ```text
+    /forgeflow:review
+    ```
+    *   **Artifact:** `review-report.json` (verdict: approved)
+5.  **완료 (`ship`)**: 작업 요약과 함께 PR 준비를 마칩니다.
+    ```text
+    /forgeflow:ship
+    ```
+    *   **Output:** final ship/handoff summary (PR 준비 상태, 검증 evidence, 남은 follow-up)
+
+💡 **더 자세한 실행 흐름은 [Next.js E2E 예시](examples/end-to-end-nextjs-flow.md)를 참고하세요.**
+
 ## 기본 워크플로우
 
 ```text
@@ -56,7 +87,7 @@ forgeflow-runtime --help
 
 각 stage는 slash skill로 실행합니다: `/forgeflow:clarify`, `/forgeflow:milestone`, `/forgeflow:plan`, `/forgeflow:execute`, `/forgeflow:review`, `/forgeflow:ship`. 사용자가 매번 stage를 운영해야 한다는 뜻은 아닙니다 — agent가 다음 stage를 자연스럽게 이어받고, stage 경계에서 다음 단계로 넘어갈지 확인합니다.
 
-자세한 stage 규칙은 [docs/workflow.md](docs/workflow.md)을 보세요.
+자세한 stage 규칙은 [docs/workflow.md](docs/workflow.md)을 보세요. 실제 Next.js 작업이 처음부터 끝까지 어떻게 진행되는지는 [examples/end-to-end-nextjs-flow.md](examples/end-to-end-nextjs-flow.md)를 보세요.
 
 ## Installation
 
@@ -103,6 +134,7 @@ Windows PowerShell:
 - **Route model (small/medium/high/epic)** — 작업 위험도와 복잡도에 따라 실행 경로를 자동 선택합니다 → [docs/operator-shell.md](docs/operator-shell.md)
 - **2-axis specialist selection** — route 축(작업 크기)과 spec 축(전문 에이전트)이 독립 작동합니다. security/backend/frontend/infra/ux/perf 6개 도메인 → [docs/workflow.md](docs/workflow.md)
 - **Adapter boundary** — Claude Code, Codex, Gemini CLI에서 동일한 workflow를 보장하는 adapter 계층 → [docs/adapter-model.md](docs/adapter-model.md)
+- **Runtime module layers** — core contract, optional extensions, operator tooling의 활성화 조건 → [docs/runtime-modules.md](docs/runtime-modules.md)
 
 ## Evaluation
 
@@ -140,6 +172,8 @@ make evals
 - [scripts/README.md](scripts/README.md) — local scripts, visual tooling, validation helper
 - [docs/architecture.md](docs/architecture.md) — 전체 아키텍처 개요
 - [docs/api.md](docs/api.md) — `forgeflow_runtime` 패키지의 공개 API 및 내부 모듈 경계 안내
+- [docs/runtime-modules.md](docs/runtime-modules.md) — 런타임 모듈 계층과 활성화 조건
+- [examples/end-to-end-nextjs-flow.md](examples/end-to-end-nextjs-flow.md) — 실제 task가 clarify → plan → execute → review → ship으로 흐르는 예시
 
 ## 철학
 

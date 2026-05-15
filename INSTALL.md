@@ -10,7 +10,7 @@
 - Antigravity를 쓰나요? → **Antigravity** 섹션으로 가세요.
 
 
-ForgeFlow는 세 가지 방식으로 쓸 수 있습니다.
+ForgeFlow is an artifact-first workflow contract plus a lightweight enforcement runtime for Claude Code, Codex, and Gemini CLI.
 
 1. **Claude Code 플러그인** — Claude Code에서 ForgeFlow 규칙/스킬 표면을 설치해서 사용 → [상세 가이드](docs/guides/claude-code.md)
 2. **Codex 플러그인** — Codex Desktop에 plugin을 등록해서 사용 → [상세 가이드](docs/guides/codex.md)

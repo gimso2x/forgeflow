@@ -1,0 +1,60 @@
+{
+  "schema_version": "0.2",
+  "task_id": "dashboard-empty-state",
+  "steps": [
+    {
+      "id": "step-1",
+      "objective": "Locate dashboard rendering path and project data source.",
+      "dependencies": [],
+      "expected_output": "File paths for dashboard and relevant components identified.",
+      "verification": "Manual inspection of codebase.",
+      "fulfills": ["R1"]
+    },
+    {
+      "id": "step-2",
+      "objective": "Create EmptyState component with title, description, and link.",
+      "dependencies": ["step-1"],
+      "expected_output": "New component 'EmptyState' exists and is accessible.",
+      "verification": "Component unit test for accessibility and rendering.",
+      "fulfills": ["R1", "R2"]
+    },
+    {
+      "id": "step-3",
+      "objective": "Integrate EmptyState into dashboard rendering logic.",
+      "dependencies": ["step-2"],
+      "expected_output": "Dashboard shows EmptyState when projects list is empty.",
+      "verification": "Integration test with empty mock projects list.",
+      "fulfills": ["R1", "R3"]
+    },
+    {
+      "id": "step-4",
+      "objective": "Final verification and linting.",
+      "dependencies": ["step-3"],
+      "expected_output": "All tests pass and linter is clean.",
+      "verification": "Run 'npm test' and 'npm run lint'.",
+      "fulfills": ["R4"]
+    }
+  ],
+  "verify_plan": [
+    {
+      "target": "R1",
+      "type": "sub_req",
+      "gates": ["test", "review"]
+    },
+    {
+      "target": "R2",
+      "type": "sub_req",
+      "gates": ["test"]
+    },
+    {
+      "target": "R3",
+      "type": "sub_req",
+      "gates": ["test"]
+    },
+    {
+      "target": "R4",
+      "type": "sub_req",
+      "gates": ["lint"]
+    }
+  ]
+}

@@ -5,8 +5,8 @@
     "url": "https://github.com/gimso2x"
   },
   "metadata": {
-    "description": "Artifact-first delivery harness for AI coding agents with explicit stages, gates, evidence, and independent review",
-    "version": "0.10.0"
+    "description": "An artifact-first workflow contract plus a lightweight enforcement runtime for Claude Code: staged workflow, gates, evidence, and independent review",
+    "version": "0.10.1"
   },
   "plugins": [
     {

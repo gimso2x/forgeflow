@@ -21,6 +21,7 @@ installation_steps:
   - Run Gemini CLI in the project root so extension context, project `GEMINI.md`, and `.gemini/forgeflow` presets are in scope.
   - Preserve the canonical review order even when Gemini returns git-oriented summaries.
   - Treat Gemini recovery guidance as instruction-file UX, not as hook support.
+  - If Gemini file-read tools report `.forgeflow/tasks/...` as ignored, inspect ForgeFlow artifacts with shell commands from the project root instead of treating the artifact as missing.
 session_persistence: root instruction file persists across repo sessions until regenerated
 workspace_boundary: repo root instruction file steers CLI work while emphasizing git-visible workspace changes
 review_delivery: git-diff-centric summary plus artifact files checked in the repo
@@ -28,4 +29,6 @@ recovery_delivery_note: Gemini delivers recovery through GEMINI.md instruction g
 tooling_constraints:
   - git-oriented runtime assumptions may exist
   - generated artifacts must not redefine canonical semantics
-  - non-interactive real execution uses `gemini --prompt --yolo <prompt>` from the task directory
+  - "non-interactive real execution uses `gemini --skip-trust --prompt --yolo <prompt>` from the task directory"
+  - "`.forgeflow/tasks/<task-id>/` is the authoritative task artifact directory; if native Gemini file reads ignore it, use `python3`, `test -f`, or another read-only shell command to inspect those JSON artifacts."
+  - "If Gemini internal JSON/classifier routing fails during `/forgeflow:plan`, continue with a deterministic fallback route from `brief.risk_level` (`low -> small`, `medium -> medium`, `high -> high`, otherwise `small`) and record the fallback in `decision-log.json`."

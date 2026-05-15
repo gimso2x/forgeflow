@@ -24,6 +24,7 @@ Do not edit manually. Update canonical docs/policy/prompts and rerun `scripts/ge
 5. Run Gemini CLI in the project root so extension context, project `GEMINI.md`, and `.gemini/forgeflow` presets are in scope.
 6. Preserve the canonical review order even when Gemini returns git-oriented summaries.
 7. Treat Gemini recovery guidance as instruction-file UX, not as hook support.
+8. If Gemini file-read tools report `.forgeflow/tasks/...` as ignored, inspect ForgeFlow artifacts with shell commands from the project root instead of treating the artifact as missing.
 
 ## Target operating notes
 - surface_style: root-instruction-file
@@ -48,7 +49,9 @@ Do not edit manually. Update canonical docs/policy/prompts and rerun `scripts/ge
 ## Tooling constraints
 - git-oriented runtime assumptions may exist
 - generated artifacts must not redefine canonical semantics
-- non-interactive real execution uses `gemini --prompt --yolo <prompt>` from the task directory
+- non-interactive real execution uses `gemini --skip-trust --prompt --yolo <prompt>` from the task directory
+- `.forgeflow/tasks/<task-id>/` is the authoritative task artifact directory; if native Gemini file reads ignore it, use `python3`, `test -f`, or another read-only shell command to inspect those JSON artifacts.
+- If Gemini internal JSON/classifier routing fails during `/forgeflow:plan`, continue with a deterministic fallback route from `brief.risk_level` (`low -> small`, `medium -> medium`, `high -> high`, otherwise `small`) and record the fallback in `decision-log.json`.
 
 ## Recovery contract
 - delivery_note: Gemini delivers recovery through GEMINI.md instruction guidance, not hooks.

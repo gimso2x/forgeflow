@@ -1,7 +1,7 @@
 # Adapter Model
 
 ## 목적
-Claude, Codex 같은 런타임 차이를 코어 workflow에서 분리한다.
+ForgeFlow is an artifact-first workflow contract plus a lightweight enforcement runtime for Claude Code, Codex, and Gemini CLI. The adapter model separates Claude, Codex, and Gemini CLI runtime differences from the core workflow contract.
 
 핵심 원칙은 하나다.
 **adapter는 표면을 바꾸지만 의미를 바꾸면 안 된다.**

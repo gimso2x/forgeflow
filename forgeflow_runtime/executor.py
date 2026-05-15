@@ -229,7 +229,7 @@ class GeminiCLIAdapter(_BaseRealCLIAdapter):
     missing_binary_hint = "gemini binary not found on PATH; install/auth Gemini CLI or omit --real to use the safe stub"
 
     def build_command(self, request: RunTaskRequest) -> list[str]:
-        return [self._binary or self.binary_name, "--prompt", "--yolo", request.prompt]
+        return [self._binary or self.binary_name, "--skip-trust", "--prompt", "--yolo", request.prompt]
 
 
 STUB_REGISTRY: dict[str, ExecutorAdapter] = {

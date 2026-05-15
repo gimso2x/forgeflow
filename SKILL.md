@@ -8,7 +8,7 @@ tags: [ai-agents, workflow, harness, review, artifacts, claude-code, codex]
 
 # ForgeFlow
 
-ForgeFlow는 AI coding agent 작업을 채팅 기억이 아니라 **명시적인 stage, 로컬 artifact, gate, evidence, 독립 review**로 진행하게 만드는 artifact-first delivery harness입니다.
+ForgeFlow는 artifact-first workflow contract이자 Claude Code, Codex, Gemini CLI를 위한 경량 enforcement runtime입니다. AI coding agent 작업을 채팅 기억이 아니라 **명시적인 stage, 로컬 artifact, gate, evidence, 독립 review**로 진행하게 만듭니다.
 
 ## Core Workflow
 

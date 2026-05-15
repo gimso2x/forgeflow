@@ -1,0 +1,44 @@
+{
+  "schema_version": "0.2",
+  "task_id": "dashboard-empty-state",
+  "objective": "Add an accessible empty-state card to the dashboard when there are no projects.",
+  "in_scope": [
+    "Dashboard UI",
+    "Empty-state copy",
+    "Link to project creation",
+    "Tests and linting"
+  ],
+  "out_of_scope": [
+    "Project creation backend",
+    "Auth changes",
+    "Database migrations"
+  ],
+  "constraints": [
+    "Must be accessible (ARIA labels, semantic HTML)",
+    "Must match existing dashboard styling",
+    "No new external dependencies"
+  ],
+  "acceptance_criteria": [
+    "Empty list renders title, description, and 'Create project' link",
+    "Non-empty list still renders project list correctly",
+    "All tests pass",
+    "Linter reports no errors"
+  ],
+  "risk_level": "low",
+  "route": "medium",
+  "assumptions": [
+    "Existing dashboard component has a projects array that can be checked for length"
+  ],
+  "open_questions": [],
+  "required_specialists": [
+    "ux-review",
+    "frontend-execute"
+  ],
+  "skipped_specialists": [
+    "security-review",
+    "perf-review",
+    "backend-execute",
+    "infra-execute"
+  ],
+  "skip_rationale": "UI change only; no sensitive data, performance bottlenecks, or backend/infra changes involved."
+}

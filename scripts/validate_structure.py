@@ -28,6 +28,7 @@ REQUIRED_DIRS = [
     'examples/small-task',
     'examples/medium-task',
     'examples/large-task',
+    'examples/end-to-end-nextjs-flow',
 ]
 
 REQUIRED_FILES = [
@@ -41,6 +42,13 @@ REQUIRED_FILES = [
     'docs/evolution-model.md',
     'docs/contract-map.md',
     'docs/implementation-plan.md',
+    'examples/end-to-end-nextjs-flow/README.md',
+    'examples/end-to-end-nextjs-flow/brief.json',
+    'examples/end-to-end-nextjs-flow/plan.json',
+    'examples/end-to-end-nextjs-flow/plan-ledger.json',
+    'examples/end-to-end-nextjs-flow/run-state.json',
+    'examples/end-to-end-nextjs-flow/decision-log.json',
+    'examples/end-to-end-nextjs-flow/review-report.json',
     'runtime/README.md',
     'runtime/orchestrator/README.md',
     'runtime/ledger/README.md',

@@ -2,7 +2,7 @@
 
 ## Overview
 
-ForgeFlow is an artifact-first delivery harness for AI coding agents. The runtime is a zero-dependency Python library (`forgeflow_runtime/`) that provides staged workflows, gate enforcement, evidence trails, and multi-agent orchestration.
+ForgeFlow is an artifact-first workflow contract plus a lightweight enforcement runtime for Claude Code, Codex, and Gemini CLI. It provides staged workflows, gate enforcement, evidence trails, and multi-agent orchestration.
 
 - **84 Python files** across 4 domains
 - **stdlib only** — no pip dependencies

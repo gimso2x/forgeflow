@@ -1,7 +1,7 @@
 {
   "name": "forgeflow",
-  "version": "0.10.0",
-  "description": "Artifact-first delivery harness for AI coding agents: staged workflow, gates, evidence, and independent review",
+  "version": "0.10.1",
+  "description": "An artifact-first workflow contract plus a lightweight enforcement runtime for Codex: staged workflow, gates, evidence, and independent review",
   "author": {
     "name": "gimso2x",
     "url": "https://github.com/gimso2x"

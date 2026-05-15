@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.1] - 2026-05-15
+
+### Changed
+
+- Gemini real adapter now runs non-interactively with `gemini --skip-trust --prompt --yolo` so disposable smoke repositories do not stop on trust prompts.
+- Gemini generated instructions document `.forgeflow/tasks/...` shell-read fallback and deterministic `/forgeflow:plan` route fallback when Gemini internal JSON/classifier routing fails.
+
 ## [0.10.0] - 2026-05-14
 
 ### Added
@@ -359,7 +366,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI gate with GitHub Actions workflow generation
 - Agent preset installer (Claude + Codex)
 
-[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v0.10.0...HEAD
+[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v0.10.1...HEAD
+[0.10.1]: https://github.com/gimso2x/forgeflow/compare/v0.10.0...v0.10.1
 [0.10.0]: https://github.com/gimso2x/forgeflow/compare/v0.9.0...v0.10.0
 [0.9.0]: https://github.com/gimso2x/forgeflow/compare/v0.8.1...v0.9.0
 [0.8.1]: https://github.com/gimso2x/forgeflow/compare/v0.8.0...v0.8.1

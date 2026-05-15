@@ -1,0 +1,56 @@
+{
+  "schema_version": "0.2",
+  "task_id": "dashboard-empty-state",
+  "route": "medium",
+  "current_task_id": "step-4",
+  "contracts_ref": "examples/end-to-end-nextjs-flow/plan.json",
+  "last_review_verdict": "approved",
+  "tasks": [
+    {
+      "id": "step-1",
+      "title": "Locate dashboard rendering path and project data source",
+      "depends_on": [],
+      "files": ["app/dashboard/page.tsx", "lib/projects.ts"],
+      "parallel_safe": true,
+      "status": "done",
+      "required_gates": ["validator"],
+      "evidence_refs": ["examples/end-to-end-nextjs-flow/brief.json"],
+      "attempt_count": 0
+    },
+    {
+      "id": "step-2",
+      "title": "Create accessible dashboard empty-state component",
+      "depends_on": ["step-1"],
+      "files": ["components/dashboard/EmptyState.tsx", "components/dashboard/EmptyState.test.tsx"],
+      "parallel_safe": false,
+      "status": "done",
+      "required_gates": ["machine", "validator"],
+      "evidence_refs": ["npm test -- EmptyState"],
+      "attempt_count": 1
+    },
+    {
+      "id": "step-3",
+      "title": "Render empty state when the project list is empty",
+      "depends_on": ["step-2"],
+      "files": ["app/dashboard/page.tsx", "app/dashboard/page.test.tsx"],
+      "parallel_safe": false,
+      "status": "done",
+      "required_gates": ["machine", "validator"],
+      "evidence_refs": ["npm test -- dashboard"],
+      "attempt_count": 1
+    },
+    {
+      "id": "step-4",
+      "title": "Run final verification and record review evidence",
+      "depends_on": ["step-3"],
+      "files": ["examples/end-to-end-nextjs-flow/run-state.json", "examples/end-to-end-nextjs-flow/review-report.json"],
+      "parallel_safe": false,
+      "status": "done",
+      "required_gates": ["machine", "validator", "scenario"],
+      "evidence_refs": ["npm test", "npm run lint", "examples/end-to-end-nextjs-flow/review-report.json"],
+      "attempt_count": 0
+    }
+  ],
+  "completed_stages": ["clarify", "plan", "execute", "spec-review", "quality-review", "finalize"],
+  "completed_gates": ["machine", "validator", "scenario"]
+}
