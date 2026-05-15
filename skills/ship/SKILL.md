@@ -85,8 +85,28 @@ Before preparing handoff, read `run-state.json`, latest review report(s), and `e
 1. Check git status and diff only if command execution is allowed.
 2. Run final verification only if command execution is allowed.
 3. Ensure review passed; do not ship blocked work.
-4. Prepare the final handoff summary.
-5. Preserve artifacts/evidence instead of burying them in chat.
+
+### 4. Final Polish & Simplification Loop (Inspired by /simplify)
+
+Before generating the final manifest, perform an iterative refinement loop on the **actually changed code** (`git diff HEAD~1 HEAD` or equivalent) until the delta converges to zero.
+
+#### Principles:
+- **Phase 1: Identification**: Focus exclusively on the diff. Ignore noise from unrelated files.
+- **Phase 2: Triple-Lens Analysis**:
+    - **Lens 1 (Code Reuse)**: Replace new logic with existing utils, constants, or types. Avoid reinventing the wheel.
+    - **Lens 2 (Code Quality)**: Eliminate "stringly-typed" code, redundant wrappers, and abstraction boundary violations.
+    - **Lens 3 (Efficiency)**: Optimize hot paths, improve concurrency, and remove redundant resource reads (considering Server Component context).
+- **Phase 3: Iterative Refinement**:
+    - **Converge to Zero**: Repeat the refinement cycle until no further meaningful improvements are identified by the three lenses.
+    - **Comment Preservation**: **NEVER delete comments** during simplification. Comments are vital "Why" signals.
+    - **False Positive Filtering**: Only apply changes that have clear value "now". Avoid over-engineering for hypothetical future needs.
+
+#### Verification:
+- Run focused tests after each refinement cycle to ensure no behavioral regressions.
+- If a simplification breaks a test, immediately revert (`git restore`) and skip that specific change.
+
+5. Prepare the final handoff summary.
+6. Preserve artifacts/evidence instead of burying them in chat.
 
 Never discard, merge, PR, or destructive-clean from `ship`; hand branch disposition to `finish` and require explicit confirmation there.
 
