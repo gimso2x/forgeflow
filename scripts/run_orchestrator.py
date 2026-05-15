@@ -241,13 +241,16 @@ def _default_task_dir_for_init(task_id: str) -> Path:
     return (cwd / ".forgeflow" / "tasks" / task_id).resolve()
 
 
+_DEFAULT_TIMESTAMP_FORMAT = "%Y%m%d-%H%M%S"
+
+
 def _slugify_init_objective(value: str) -> str:
     import re
 
     words = re.sub(r"[^a-z0-9\s-]", "", value.lower()).split()
     slug = "-".join(words[:6])
     if not slug:
-        slug = f"task-{datetime.now().strftime('%Y%m%d-%H%M%S')}"
+        slug = f"task-{datetime.now().strftime(_DEFAULT_TIMESTAMP_FORMAT)}"
     return slug[:64]
 
 
@@ -258,7 +261,7 @@ def _init_task_id_from_args(task_dir: Path | None, task_id: str | None, objectiv
         return _slugify_init_objective(objective)
     if task_dir is not None:
         return task_dir.name
-    return f"task-{datetime.now().strftime('%Y%m%d-%H%M%S')}"
+    return f"task-{datetime.now().strftime(_DEFAULT_TIMESTAMP_FORMAT)}"
 
 
 def _task_dir_is_plugin_cache(task_dir: Path) -> bool:

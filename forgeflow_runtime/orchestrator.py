@@ -722,6 +722,9 @@ def _architecture_considerations(domains: list[str], pattern: str) -> str:
     return "\n".join(lines)
 
 
+_DEFAULT_TIMESTAMP_FORMAT = "%Y%m%d-%H%M%S"
+
+
 def _slugify_objective(objective: str) -> str:
     """Generate a task-id slug from the objective string."""
     import re
@@ -732,7 +735,7 @@ def _slugify_objective(objective: str) -> str:
     meaningful = [w for w in words if w not in stop][:6]
     slug = "-".join(meaningful)
     if not slug:
-        slug = f"task-{datetime.now().strftime('%Y%m%d-%H%M%S')}"
+        slug = f"task-{datetime.now().strftime(_DEFAULT_TIMESTAMP_FORMAT)}"
     return slug[:64]
 
 
