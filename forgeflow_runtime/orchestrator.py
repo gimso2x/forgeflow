@@ -1191,9 +1191,9 @@ Selected architecture: {pattern}
 - docs/DECISIONS.md
 - tasks/feature/{feature_slug}.md
 - tasks/qa/{feature_slug}.md
-- .claude/agents/*.md
-- .claude/skills/*/SKILL.md
-- CLAUDE.md
+- .gemini/agents/*.md
+- .gemini/skills/*/SKILL.md
+- GEMINI.md
 
 ## Next Command
 Run status, then execute clarify when ready. Do not skip evidence collection.
@@ -1241,14 +1241,14 @@ Run status, then execute clarify when ready. Do not skip evidence collection.
         project_info=project_info,
     )
 
-    # Merge profile agents/skills/CLAUDE.md into drafts
+    # Merge profile agents/skills/GEMINI.md into drafts
     drafts.update(profile["agents"])
     drafts.update(profile["skills"])
-    drafts["CLAUDE.md"] = profile["claude_md"]
+    drafts["GEMINI.md"] = profile["gemini_md"]
 
     created: list[str] = []
     for relative, content in drafts.items():
-        if relative.startswith(".claude/"):
+        if relative.startswith(".gemini/"):
             target = project_root / relative
             # agents/skills are shared across tasks — skip if already present
             if target.exists():
@@ -1642,7 +1642,7 @@ def advance_to_next_stage(
     current_stage: str,
     *,
     execute_immediately: bool = False,
-    adapter_target: str = "claude",
+    adapter_target: str = "gemini",
     role: str | None = None,
     artifacts_to_stream: list[str] | None = None,
     use_real: bool = False,

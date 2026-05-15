@@ -518,7 +518,7 @@ def resolve_profile(
     for name in agent_names:
         gen = _AGENT_GENERATORS.get(name)
         if gen:
-            path = f".claude/agents/{name}.md"
+            path = f".gemini/agents/{name}.md"
             agents[path] = gen(task_id, route)
 
     skills: dict[str, str] = {}
@@ -529,20 +529,20 @@ def resolve_profile(
                 content = gen(task_id, route, mode)
             else:
                 content = gen(task_id)
-            path = f".claude/skills/{name}/SKILL.md"
+            path = f".gemini/skills/{name}/SKILL.md"
             skills[path] = content
 
-    claude_md = _generate_claude_md(task_id, mode, agent_names, skill_names)
+    gemini_md = _generate_gemini_md(task_id, mode, agent_names, skill_names)
 
     return {
         "mode": mode,
         "agents": agents,
         "skills": skills,
-        "claude_md": claude_md,
+        "gemini_md": gemini_md,
     }
 
 
-def _generate_claude_md(task_id: str, mode: str, agent_names: list[str], skill_names: list[str]) -> str:
+def _generate_gemini_md(task_id: str, mode: str, agent_names: list[str], skill_names: list[str]) -> str:
     agent_list = "\n".join(f"- `{a}.md`" for a in agent_names)
     skill_list = "\n".join(f"- `{s}/skill.md`" for s in skill_names)
 
@@ -551,11 +551,11 @@ def _generate_claude_md(task_id: str, mode: str, agent_names: list[str], skill_n
 
 **Work Mode**: {mode}
 
-## Agent Team
+## Agent Team (Gemini CLI Sub-agents)
 
 {agent_list}
 
-## Skills
+## Skills (Gemini CLI Native Skills)
 
 {skill_list}
 
