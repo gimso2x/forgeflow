@@ -4,7 +4,7 @@ import json
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
-
+from forgeflow_runtime.env_adapter import get_adapter_config, get_active_adapter
 from forgeflow_runtime.artifact_validation import (
     REPO_ROOT,
     SCHEMA_BY_ARTIFACT,
@@ -1075,6 +1075,9 @@ def _init_markdown_drafts(*, task_dir: Path, project_root: Path, task_id: str, o
     project_language = project_info.get("language") or "unspecified"
     project_notes = _project_type_considerations(project_info)
     feature_slug = _slugify_file_stem(objective)[:48]
+    config = get_adapter_config()
+    dot_dir = config["dot_dir"]
+    metadata_file = config["metadata_file"]
     domain_list = ", ".join(domains)
     tech_list = ", ".join(tech_stack)
     drafts = {
@@ -1191,9 +1194,9 @@ Selected architecture: {pattern}
 - docs/DECISIONS.md
 - tasks/feature/{feature_slug}.md
 - tasks/qa/{feature_slug}.md
-- .gemini/agents/*.md
-- .gemini/skills/*/SKILL.md
-- GEMINI.md
+- {dot_dir}/agents/*.md
+- {dot_dir}/skills/*/SKILL.md
+- {metadata_file}
 
 ## Next Command
 Run status, then execute clarify when ready. Do not skip evidence collection.
@@ -1241,14 +1244,14 @@ Run status, then execute clarify when ready. Do not skip evidence collection.
         project_info=project_info,
     )
 
-    # Merge profile agents/skills/GEMINI.md into drafts
+    # Merge profile agents/skills/metadata into drafts
     drafts.update(profile["agents"])
     drafts.update(profile["skills"])
-    drafts["GEMINI.md"] = profile["gemini_md"]
+    drafts.update(profile["metadata"])
 
     created: list[str] = []
     for relative, content in drafts.items():
-        if relative.startswith(".gemini/"):
+        if relative.startswith(f"{dot_dir}/"):
             target = project_root / relative
             # agents/skills are shared across tasks — skip if already present
             if target.exists():
@@ -1642,12 +1645,14 @@ def advance_to_next_stage(
     current_stage: str,
     *,
     execute_immediately: bool = False,
-    adapter_target: str = "gemini",
+    adapter_target: str | None = None,
     role: str | None = None,
     artifacts_to_stream: list[str] | None = None,
     use_real: bool = False,
     collector: Any | None = None,
 ) -> TransitionResult:
+    if adapter_target is None:
+        adapter_target = get_active_adapter()
     workflow = _workflow_for_task_dir(policy, task_dir)
     route = _resolve_route(policy, route_name, workflow=workflow)
     canonical_task_id = _canonical_task_id(task_dir)

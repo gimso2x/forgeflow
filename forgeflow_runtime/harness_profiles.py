@@ -12,6 +12,9 @@ from pathlib import Path
 from typing import Any
 
 
+from forgeflow_runtime.env_adapter import get_adapter_config
+
+
 # ---------------------------------------------------------------------------
 # Profile definitions
 # ---------------------------------------------------------------------------
@@ -508,8 +511,12 @@ def resolve_profile(
       - mode: work mode string
       - agents: dict of {relative_path: content}
       - skills: dict of {relative_path: content}
-      - claude_md: CLAUDE.md content
+      - metadata: dict of {filename: content} (e.g. GEMINI.md or CLAUDE.md)
     """
+    config = get_adapter_config()
+    dot_dir = config["dot_dir"]
+    metadata_file = config["metadata_file"]
+
     mode = detect_work_mode(objective)
     agent_names = _AGENTS_BY_MODE.get(mode, _AGENTS_BY_MODE["full"])
     skill_names = _SKILLS_BY_MODE.get(mode, _SKILLS_BY_MODE["full"])
@@ -518,7 +525,7 @@ def resolve_profile(
     for name in agent_names:
         gen = _AGENT_GENERATORS.get(name)
         if gen:
-            path = f".gemini/agents/{name}.md"
+            path = f"{dot_dir}/agents/{name}.md"
             agents[path] = gen(task_id, route)
 
     skills: dict[str, str] = {}
@@ -529,33 +536,34 @@ def resolve_profile(
                 content = gen(task_id, route, mode)
             else:
                 content = gen(task_id)
-            path = f".gemini/skills/{name}/SKILL.md"
+            path = f"{dot_dir}/skills/{name}/SKILL.md"
             skills[path] = content
 
-    gemini_md = _generate_gemini_md(task_id, mode, agent_names, skill_names)
+    metadata_content = _generate_task_metadata(task_id, mode, agent_names, skill_names, config)
 
     return {
         "mode": mode,
         "agents": agents,
         "skills": skills,
-        "gemini_md": gemini_md,
+        "metadata": {metadata_file: metadata_content},
     }
 
 
-def _generate_gemini_md(task_id: str, mode: str, agent_names: list[str], skill_names: list[str]) -> str:
+def _generate_task_metadata(task_id: str, mode: str, agent_names: list[str], skill_names: list[str], config: dict[str, str]) -> str:
     agent_list = "\n".join(f"- `{a}.md`" for a in agent_names)
     skill_list = "\n".join(f"- `{s}/skill.md`" for s in skill_names)
+    adapter_name = config["name"]
 
     return f"""\
 # ForgeFlow — Task {task_id}
 
 **Work Mode**: {mode}
 
-## Agent Team (Gemini CLI Sub-agents)
+## Agent Team ({adapter_name} Sub-agents)
 
 {agent_list}
 
-## Skills (Gemini CLI Native Skills)
+## Skills ({adapter_name} Native Skills)
 
 {skill_list}
 
