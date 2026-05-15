@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-05-15
+
+### Added
+
+- **동적 실행 환경 감지**: `GEMINI_CLI` 및 `CLAUDE_CODE` 환경 변수를 감지하여 실행 중인 플랫폼(Gemini vs Claude)에 맞는 경로(`.gemini/` vs `.claude/`)와 메타데이터 파일(`GEMINI.md` vs `CLAUDE.md`)을 자동으로 생성하도록 개선.
+- **한국어 로컬라이징**: 오케스트레이터의 모든 안내 메시지 및 `next_action`을 자연스러운 한국어로 변경.
+- **Task ID 자동화**: 한국어 목표 입력 시에도 타임스탬프(`task-YYYYMMDD-HHMMSS`)를 활용해 고유한 Task ID를 자동으로 생성하는 기능 추가.
+- **고급 품질 정제 루프**: `ship` 스킬에 Claude Code의 `/simplify` 철학(3중 렌즈 분석, 주석 보존, 수렴 반복)을 이식하여 최종 코드 품질 강화.
+
+### Fixed
+
+- Gemini CLI 환경에서 `.claude/` 폴더가 생성되던 플랫폼 미스매치 문제 수정.
+- 한국어 메시지 변경에 따른 런타임 테스트 코드의 기대값 최신화.
+
 ## [0.10.0] - 2026-05-14
 
 ### Added
