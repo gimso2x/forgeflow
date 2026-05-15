@@ -1,6 +1,6 @@
 # Runtime API & Integration Boundary
 
-`forgeflow_runtime/` provides the core pipeline for orchestrating AI coding agents. While the library contains many submodules, **not all of them are intended for direct external use**.
+ForgeFlow is an artifact-first workflow contract plus a lightweight enforcement runtime for Claude Code, Codex, and Gemini CLI. `forgeflow_runtime/` provides the executable layer for this contract. While the library contains many submodules, **not all of them are intended for direct external use**. For the module layer/activation map, see [runtime-modules.md](runtime-modules.md). For the future package split strategy, see [runtime-package-split-plan.md](runtime-package-split-plan.md).
 
 This document outlines the public API boundary for downstream integrators and plugin developers.
 
