@@ -1,5 +1,7 @@
 # Skill: clarify
 
+> legacy/example: 이 문서는 pre-0.2 legacy skill 예시입니다. `schema_version: "0.1"`와 old route names는 migration/backward-compat 예시로만 남깁니다.
+
 ## Purpose
 
 Turn a vague user request into a scoped **Context Brief** with an assigned complexity route. This is the **only** skill allowed to guess the route.

@@ -1,5 +1,7 @@
 # Spec Kit → ForgeFlow 선택적 차용 핸드오프
 
+> legacy/example: 아래 YAML의 `schema_version: "0.1"`는 Spec Kit 차용 당시 handoff 예시입니다. 현재 ForgeFlow artifact 정본은 `0.2`이고, `0.1`은 migration 입력으로만 다룹니다.
+
 > 출처: [github/spec-kit](https://github.com/github/spec-kit) (v0.7.2) 소스 전체 분석
 > 작성: 02. Hermes 탐색 (탐색 에이전트)
 > 대상: 01. Hermes 개발 (개발 에이전트)

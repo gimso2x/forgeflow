@@ -154,7 +154,7 @@ def effective_enforcement_for_task(
 
     * HARD → always HARD
     * SOFT → always SOFT
-    * HYBRID → small→SOFT, medium/large→HARD
+    * HYBRID → small→SOFT, medium/high/epic→HARD
     """
     if config.level in (EnforcementLevel.HARD, EnforcementLevel.SOFT):
         return config.level

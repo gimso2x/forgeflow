@@ -1,5 +1,7 @@
 # Skill: plan
 
+> legacy/example: 이 문서는 pre-0.2 legacy skill 예시입니다. `schema_version: "0.1"`와 old route names는 migration/backward-compat 예시로만 남깁니다.
+
 ## Purpose
 
 Turn `requirements.md` into an executable **plan.json** with task contracts. Every task contains exact file paths, acceptance criteria, and verification steps. No placeholders allowed.

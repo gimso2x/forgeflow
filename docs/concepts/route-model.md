@@ -1,26 +1,32 @@
 # Route Model
 
-## 세 가지 Route
+## 네 가지 Route
 
-ForgeFlow는 작업의 리스크와 복잡도에 따라 세 route로 자동 분류합니다.
+ForgeFlow는 작업의 리스크와 복잡도에 따라 네 route로 자동 분류합니다.
 
 ### small
 - **대상**: 오타 수정, 간단한 설정 변경, one-liner 수정
-- **흐름**: clarify → run → finish
-- **artifact**: brief.json만 필수
-- **review**: 생략
+- **흐름**: clarify → execute → ship
+- **artifact**: brief.json, run-state.json
+- **review**: 생략 가능
 
 ### medium
 - **대상**: 기능 추가/수정, 다중 파일 변경, API 스펙 조정
-- **흐름**: clarify → plan → run → review → ship
+- **흐름**: clarify → plan → execute → review → ship
 - **artifact**: brief.json, plan-ledger.json, run-state.json, review-report.json
 - **review**: 권장
 
 ### high
 - **대상**: 아키텍처 변경, 보안 관련, 마이그레이션, 대규모 리팩토링
-- **흐름**: clarify → plan → run → review → ship (모든 gate 강제)
+- **흐름**: clarify → plan → execute → review → ship (모든 gate 강제)
 - **artifact**: 전체 세트 + 보충 문서
 - **review**: 필수 (gate 강제)
+
+### epic
+- **대상**: 장기/다단계 작업, 대규모 아키텍처 전환, 여러 specialist review가 필요한 변경
+- **흐름**: clarify → plan → execute → review → ship (checkpoint와 plan-ledger를 엄격히 유지)
+- **artifact**: 전체 세트 + checkpoint/session/eval/evidence 보강
+- **review**: 필수 (독립 review와 operator evidence 우선)
 
 ## 자동 Route 선택
 
@@ -34,7 +40,7 @@ forgeflow init --task-id my-task --objective "..." --risk high
 
 ## Architecture 패턴
 
-**high** 라우트 작업은 자동으로 더 강건한 실행 패턴을 씁니다:
+**high/epic** 라우트 작업은 자동으로 더 강건한 실행 패턴을 씁니다:
 
 - **fan-out/fan-in + producer-reviewer**: security, migration, refactor, architecture
 - **pipeline + producer-reviewer**: bug, fix, qa, test, regression
