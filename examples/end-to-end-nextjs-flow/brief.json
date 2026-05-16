@@ -1,0 +1,30 @@
+{
+  "schema_version": "0.2",
+  "task_id": "nextjs-empty-state",
+  "objective": "Add an accessible dashboard empty-state card when there are no projects.",
+  "in_scope": [
+    "Dashboard empty-state UI",
+    "Title, short description, and primary Create project link",
+    "Empty and non-empty dashboard tests"
+  ],
+  "out_of_scope": [
+    "Project creation backend",
+    "Authentication changes",
+    "Database migrations"
+  ],
+  "constraints": [
+    "Keep the existing dashboard layout for non-empty project lists",
+    "Use accessible link text and semantic markup"
+  ],
+  "acceptance_criteria": [
+    "Empty project list renders title, description, and Create project link",
+    "Non-empty project list still renders project cards",
+    "Dashboard tests and lint pass"
+  ],
+  "risk_level": "low",
+  "route": "medium",
+  "assumptions": [
+    "Dashboard project data is available in app/dashboard/page.tsx or adjacent loader"
+  ],
+  "open_questions": []
+}

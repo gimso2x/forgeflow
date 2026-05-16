@@ -1,6 +1,6 @@
 # ForgeFlow
 
-AI coding agent가 채팅 기억에 의존하지 않고, **명시적인 artifact, gate, evidence, 독립 review**로 작업하게 만드는 artifact-first delivery harness. Claude Code, Codex, 그리고 Gemini CLI에서 같은 workflow를 사용합니다.
+ForgeFlow is an artifact-first workflow contract plus a lightweight enforcement runtime for Claude Code, Codex, and Gemini CLI. AI coding agent가 채팅 기억에 의존하지 않고 **명시적인 artifact, gate, evidence, 독립 review**로 작업하게 만듭니다.
 
 현재 릴리즈: **v0.11.1**
 
@@ -57,6 +57,26 @@ forgeflow-runtime --help
 각 stage는 slash skill로 실행합니다: `/forgeflow:clarify`, `/forgeflow:milestone`, `/forgeflow:plan`, `/forgeflow:execute`, `/forgeflow:review`, `/forgeflow:ship`. 사용자가 매번 stage를 운영해야 한다는 뜻은 아닙니다 — agent가 다음 stage를 자연스럽게 이어받고, stage 경계에서 다음 단계로 넘어갈지 확인합니다.
 
 자세한 stage 규칙은 [docs/workflow.md](docs/workflow.md)을 보세요.
+
+## 첫 실행 예시
+
+설치 후 바로 작은 작업 하나를 ForgeFlow 흐름으로 실행해볼 수 있습니다.
+
+```text
+/forgeflow:clarify Fix the failing dashboard test
+/forgeflow:execute
+/forgeflow:review
+/forgeflow:ship
+```
+
+예상 결과:
+- `.forgeflow/tasks/<task-id>/brief.json` — 목표, 범위, route, acceptance criteria
+- optional `.forgeflow/tasks/<task-id>/plan.json` / `plan-ledger.json` — medium 이상이거나 모호한 작업의 실행 계획
+- `.forgeflow/tasks/<task-id>/run-state.json` — 현재 stage, gate, evidence 상태
+- `.forgeflow/tasks/<task-id>/review-report.json` 또는 role별 review report — 독립 review 결과
+- 최종 ship/handoff summary — 변경 파일, 검증, review verdict, PR/merge/keep/discard 판단
+
+더 긴 실제 흐름은 [examples/end-to-end-nextjs-flow.md](examples/end-to-end-nextjs-flow.md)를 보세요.
 
 ## Installation
 

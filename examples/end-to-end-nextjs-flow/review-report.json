@@ -1,0 +1,20 @@
+{
+  "schema_version": "0.2",
+  "task_id": "nextjs-empty-state",
+  "review_type": "quality",
+  "verdict": "approved",
+  "findings": [
+    "Empty-state behavior is covered by targeted tests.",
+    "Non-empty dashboard rendering remains covered.",
+    "Lint and dashboard tests passed."
+  ],
+  "approved_by": "forgeflow-quality-review",
+  "next_action": "ship",
+  "safe_for_next_stage": true,
+  "open_blockers": [],
+  "evidence_refs": [
+    "npm test -- app/dashboard/page.test.tsx",
+    "npm run lint"
+  ],
+  "blockers": []
+}

@@ -50,14 +50,19 @@ These modules add higher-order behavior for special situations. They should stay
 These are human-facing diagnostics, generation helpers, or CLI-backed surfaces. They are not the workflow contract itself.
 
 - `natural_language_plan.py` — converts brief issue text into schema-valid draft plans.
+  - **Controlled by:** operator/script invocation; no canonical policy key currently enables it automatically.
   - **Activation:** Invoked by operator when drafting a plan from natural language.
 - `profiling.py`, `cost.py`, `telemetry.py` — performance/cost/token reporting.
-  - **Activation:** Active when route execution records or compares runtime profiles; often controlled by `--profile` or `--telemetry` CLI flags.
+  - **Controlled by:** CLI/operator flags such as `--profile`/`--telemetry` and runtime calls that explicitly attach collectors; no default canonical policy key.
+  - **Activation:** Active when route execution records or compares runtime profiles.
 - `profile_detector.py`, `harness_profiles.py` — project/profile detection.
+  - **Controlled by:** setup/doctor command invocation; no workflow policy key.
   - **Activation:** Invoked during `init`/`setup` or `doctor`-style diagnostics (`scripts/codex_plugin_doctor.py`).
 - `progress_tracker.py`, `progressive_output.py`, `output_compression.py`, `signal_pipeline.py`, `stale_recovery.py`.
+  - **Controlled by:** operator monitoring/recovery scripts and explicit runtime calls; no always-on policy key.
   - **Activation:** Script/Operator-invoked only (e.g., `scripts/forgeflow_monitor.py`). Used for status/monitoring or stale-run recovery.
 - Scripts under `scripts/` such as `forgeflow_profile.py`, validators, smoke tests, visual/debug helpers.
+  - **Controlled by:** human, CI, or release workflow invocation; not a task-route policy.
   - **Activation:** Script-invoked only. Active only when called by a human, CI, or release workflow.
 
 ## Public import rule
