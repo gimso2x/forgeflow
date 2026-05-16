@@ -129,7 +129,7 @@ def test_post_install_smoke_entrypoint_is_documented_and_actionable() -> None:
         "CLAUDE PLUGIN POST-INSTALL SMOKE: PASS",
         ".claude-plugin/plugin.json",
         "adapters/generated/claude/CLAUDE.md",
-        "Valid labels: small, medium, high",
+        "Valid labels: small, medium, high, epic",
         "scripts/smoke_claude_plugin.py",
         "claude plugin validate",
         "reinstall/restart",

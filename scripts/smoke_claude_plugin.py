@@ -19,7 +19,7 @@ ANSI_RE = re.compile(r"\x1b\[[0-9;?]*[A-Za-z]")
 DRY_RUN_CASES = [
     (
         "clarify_exact",
-        "/forgeflow:clarify Dry run only. Return only one selected route label for: fix one README typo. Valid labels: small, medium, high. Do not write files. Do not run commands.",
+        "/forgeflow:clarify Dry run only. Return only one selected route label for: fix one README typo. Valid labels: small, medium, high, epic. Do not write files. Do not run commands.",
         "label",
     ),
     (
@@ -182,11 +182,11 @@ def main() -> int:
             ),
             (
                 "plan_write",
-                f"/forgeflow:plan Write plan.json under {task_dir} for a README badge task. Keep it minimal. Use schema_version exactly 0.1. Do not modify repository files outside that task directory.",
+                f"/forgeflow:plan Write plan.json under {task_dir} for a README badge task. Keep it minimal. Use schema_version exactly 0.2. Do not modify repository files outside that task directory.",
             ),
             (
                 "review_write",
-                f"/forgeflow:review Write review-report.json under {task_dir} for a hypothetical README badge diff. Keep it minimal. Use schema_version exactly 0.1. Do not modify repository files outside that task directory.",
+                f"/forgeflow:review Write review-report.json under {task_dir} for a hypothetical README badge diff. Keep it minimal. Use schema_version exactly 0.2. Do not modify repository files outside that task directory.",
             ),
         ]
         for name, prompt in write_cases:

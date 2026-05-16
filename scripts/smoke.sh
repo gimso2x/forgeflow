@@ -38,8 +38,8 @@ require_file ".claude-plugin/plugin.json"
 require_file "adapters/generated/claude/CLAUDE.md"
 require_file "skills/init/SKILL.md"
 require_file "skills/clarify/SKILL.md"
-# Valid labels: small, medium, high. Keep this phrase grep-visible for post-install contract tests.
-require_text "prompts/canonical/coordinator.md" "ForgeFlow route labels are exactly \`small\`, \`medium\`, and \`high\`"
+# Valid labels: small, medium, high, epic. Keep this phrase grep-visible for post-install contract tests.
+require_text "prompts/canonical/coordinator.md" "ForgeFlow route labels are exactly \`small\`, \`medium\`, \`high\`, and \`epic\`"
 require_text "skills/init/SKILL.md" "/forgeflow:init"
 require_text "skills/clarify/SKILL.md" "/forgeflow:clarify"
 
