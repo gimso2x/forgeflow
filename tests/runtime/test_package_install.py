@@ -39,7 +39,16 @@ def test_editable_install_exposes_forgeflow_entrypoint(tmp_path: Path) -> None:
     forgeflow = venv_dir / "bin" / "forgeflow"
 
     install = subprocess.run(
-        [str(python), "-m", "pip", "install", "-e", str(ROOT)],
+        [
+            str(python),
+            "-m",
+            "pip",
+            "install",
+            "-e",
+            str(ROOT),
+            "--no-build-isolation",
+            "--disable-pip-version-check",
+        ],
         cwd=ROOT,
         capture_output=True,
         text=True,
