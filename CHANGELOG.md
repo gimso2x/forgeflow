@@ -9,10 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.11.1] - 2026-05-15
 
+### Added
+
+- 첫 클론/첫 실행 검증용 disposable `make demo` 경로 추가.
+- 로컬 온보딩 smoke path와 런타임 모듈/실행 흐름 문서 보강.
+
+### Changed
+
+- 플러그인 smoke contract와 현재 route/schema vocabulary 검증 강화.
+- plan ledger evidence refs를 구조화된 계약으로 정렬.
+
 ### Fixed
 
 - `brief.json`의 `required_specialists` 기반 에이전트/스킬 자동 생성 기능 수정.
 - `scripts/check_versions.py`에 `gemini-extension.json` 확인 로직 추가 및 정규식 개선.
+- editable install smoke 테스트의 불필요한 실행 비용 축소.
 
 ## [0.11.0] - 2026-05-15
 
