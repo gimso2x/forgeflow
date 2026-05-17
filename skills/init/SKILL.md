@@ -41,6 +41,18 @@ Expected starter artifacts include:
 - `checkpoint.json`
 - `session-state.json`
 
+
+## Starter blueprint
+
+`init` remains a bootstrap boundary, but the starter artifacts should be useful enough for `/forgeflow:clarify` and `/forgeflow:plan` to continue without hidden chat context. When the objective contains enough context, seed the task workspace with draft hints for:
+
+- initial team/role split (`planning`, `implementation`, `review`, `qa`)
+- likely specialist skills or reviewers
+- architecture/documentation targets such as `docs/PRD.md`, `docs/ARCHITECTURE.md`, `docs/QA.md`, `docs/ADR.md`
+- a task-local handoff note pointing to `docs/developer-handoff-template.md`
+
+These are drafts, not approval to skip `clarify`. Keep every generated hint inside the task workspace unless the user explicitly asks to write project docs.
+
 ## Boundaries
 
 `init` is workspace/bootstrap only. It is not requirement clarification, planning, implementation, review, shipping, or branch disposition.

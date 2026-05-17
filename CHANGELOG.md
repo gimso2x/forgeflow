@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.3] - 2026-05-17
+
+### Added
+
+- 병렬 작업 안전성, structured evidence, starter blueprint, role/model routing, developer handoff 템플릿 문서 계약 보강.
+
+### Changed
+
+- README/워크플로우 문서에 새 운영 가이드 링크와 병렬 작업 규칙을 반영.
+
 ## [0.11.2] - 2026-05-17
 
 ### Fixed
@@ -411,3 +421,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [0.6.1]: https://github.com/gimso2x/forgeflow/compare/v0.5.1...v0.6.1
 [0.5.1]: https://github.com/gimso2x/forgeflow/compare/v0.4.0...v0.5.1
 [0.4.0]: https://github.com/gimso2x/forgeflow/compare/v0.3.2...v0.4.0
+[0.11.3]: https://github.com/gimso2x/forgeflow/compare/v0.11.2...v0.11.3

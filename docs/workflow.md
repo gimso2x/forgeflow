@@ -196,7 +196,7 @@ Note: `finalize` in workflow.md covers both ship and finish concerns. Current RE
 
 ## 2. Complexity routing
 
-route label canonical values: `small`, `medium`, `high`, `epic` (CHANGELOG 0.10.0 이후 기준; 0.6.0에서 `large_high_risk`는 `high`로 rename됨)
+route label canonical values: `small`, `medium`, `high`, `epic` (CHANGELOG 0.10.0 이후 기준)
 
 기본 경로는 `clarify-first`다. 즉, 정상 진입은 항상 `clarify`에서 시작하고 여기서 brief와 route를 정한다.
 
@@ -236,6 +236,10 @@ ForgeFlow는 **두 개의 독립적인 축**으로 에이전트를 선택한다:
 플랜 우선 원칙은 모든 route에 적용된다. 작은 작업도 최소 brief와 실행 근거를 남기고, medium/high/epic 작업은 구현 전에 plan-ledger task, expected output, verification, role owner를 먼저 확정한다. 구현자는 이 ledger 밖의 일을 선반영하지 않는다.
 
 사람 최종판단 원칙은 review gate를 약화하지 않는다. AI reviewer의 코멘트는 자동 정답이 아니라 evidence-backed finding 후보이며, ship/finalize 전에는 실제 영향도와 프로젝트 맥락을 사람이 판단할 수 있게 근거를 남겨야 한다.
+
+### Parallel work safety
+
+Parallel implementation is allowed only after `plan` has made task boundaries machine-readable. Each parallel task must have a distinct `plan-ledger.tasks[].id`, an explicit `files` list, and a correct `parallel_safe` value. Shared documents and release/version surfaces follow a single-writer rule; they may be read by many workers but edited by only one active task. Mutating workers should use separate git worktrees or clearly isolated terminal sessions, and final merge/ship remains serialized through review evidence. See [Parallel Work Safety](parallel-work.md) for the full operator checklist.
 
 ### small
 `clarify -> execute -> quality-review -> finalize`
@@ -318,6 +322,12 @@ Stage 규칙은 `policy/canonical/stages.yaml`의 `non_negotiables`가 정본이
 5. bounded recovery만 허용
 6. 작은 일까지 무조건 full process 강제 금지
 
+
+## Related operator docs
+
+- [Parallel Work Safety](parallel-work.md) — worktree/terminal isolation, single-writer shared docs, and `parallel_safe` rules.
+- [Developer Handoff Template](developer-handoff-template.md) — executable handoff format for developers and AI coding agents.
+- [Role / Model Routing](role-model-routing.md) — canonical planning/implementation/review/qa responsibilities and model binding guidance.
 
 ## Evolution graduation contract
 

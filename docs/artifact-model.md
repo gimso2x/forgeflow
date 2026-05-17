@@ -96,6 +96,8 @@ scripts/upgrade_artifact.py --artifact-name plan --path .forgeflow/tasks/<task-i
 - `done` task는 required gate/evidence 없이 끝난 척 못 한다
 - `blocked` task는 blocked_reason이 필요하다
 - medium 이상 작업에서 runtime은 ledger를 기준으로 상태를 판정한다
+- `evidence_refs`는 문자열 로그가 아니라 `{type, target, relation, label?}` 객체다. gate/review/artifact/checkpoint/external 근거를 기계가 해석할 수 있게 남긴다.
+- `parallel_safe`는 병렬 실행 허가 신호다. 파일 경계가 겹치거나 shared doc single-writer 원칙을 위반하면 `false`로 둔다.
 
 ---
 

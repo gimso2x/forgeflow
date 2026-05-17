@@ -2,8 +2,8 @@
 
 ForgeFlow is an artifact-first workflow contract plus a lightweight enforcement runtime for Claude Code, Codex, and Gemini CLI. AI coding agent가 채팅 기억에 의존하지 않고 **명시적인 artifact, gate, evidence, 독립 review**로 작업하게 만듭니다.
 
-현재 릴리즈: **v0.11.2**
-CHANGELOG 최신 항목도 v0.11.2 기준입니다.
+현재 릴리즈: **v0.11.3**
+CHANGELOG 최신 항목도 v0.11.3 기준입니다.
 
 ## 누가 왜 쓰나
 
@@ -168,6 +168,9 @@ Windows PowerShell:
 - **Review model** — evidence 기반 독립 review contract. 작성자와 검토자 분리 → [docs/review-model.md](docs/review-model.md)
 - **Route model (`small`, `medium`, `high`, `epic`)** — 작업 위험도와 복잡도에 따라 실행 경로를 자동 선택합니다 → [docs/operator-shell.md](docs/operator-shell.md)
 - **2-axis specialist selection** — route 축(작업 크기)과 spec 축(전문 에이전트)이 독립 작동합니다. security/backend/frontend/infra/ux/perf 6개 도메인 → [docs/workflow.md](docs/workflow.md)
+- **Parallel work safety** — task별 파일 경계, shared doc single-writer, worktree/terminal 분리 규칙 → [docs/parallel-work.md](docs/parallel-work.md)
+- **Developer handoff template** — 개발자/개발봇에게 바로 넘길 수 있는 실행형 문서 형식 → [docs/developer-handoff-template.md](docs/developer-handoff-template.md)
+- **Role/model routing** — planning/implementation/review/qa 책임 경계와 모델 바인딩 가이드 → [docs/role-model-routing.md](docs/role-model-routing.md)
 - **Adapter boundary** — Claude Code, Codex, Gemini CLI에서 동일한 workflow를 보장하는 adapter 계층 → [docs/adapter-model.md](docs/adapter-model.md)
 
 ### Artifact 빠른 지도
