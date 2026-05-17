@@ -153,10 +153,27 @@ def test_scripts_readme_runtime_sample_uses_repo_managed_target() -> None:
     assert "$(VENV_PYTHON) scripts/run_runtime_sample.py --fixture-dir examples/runtime-fixtures/small-doc-task --route small" in makefile
     assert "make setup" in runtime_section
     assert "make validate" in runtime_section
+    assert "make demo" in runtime_section.splitlines()
     assert "make runtime-sample" in runtime_section.splitlines()
-    assert runtime_section.index("make setup") < runtime_section.index("make validate") < runtime_section.index("make runtime-sample")
+    assert runtime_section.index("make setup") < runtime_section.index("make validate") < runtime_section.index("make demo") < runtime_section.index("make runtime-sample")
     assert "--fixture-dir`는 task fixture 디렉터리를 가리켜야 하며, 파일 경로면 명시적 `ERROR:`로 실패한다." in runtime_section
     assert "python3 scripts/run_runtime_sample.py" not in runtime_section
+
+
+def test_first_run_demo_target_is_disposable_and_documented() -> None:
+    makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
+    root_readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    scripts_readme = (ROOT / "scripts/README.md").read_text(encoding="utf-8")
+    demo_script = (ROOT / "scripts" / "run_first_demo.py").read_text(encoding="utf-8")
+
+    assert "demo:" in makefile
+    assert "$(VENV_PYTHON) scripts/run_first_demo.py" in makefile
+    assert "make demo" in root_readme
+    assert "make demo" in scripts_readme
+    assert "TemporaryDirectory" in demo_script
+    assert "run_orchestrator.py" in demo_script
+    assert "init" in demo_script
+    assert "status" in demo_script
 
 
 def test_install_update_path_keeps_make_commands_in_checkout_context() -> None:
