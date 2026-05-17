@@ -212,7 +212,8 @@ make evals
 자주 묻는 질문과 해결 방법:
 
 - **Plugin 설치 후 인식 안 됨** — Claude Code나 Codex Desktop을 재시작하세요. `scripts/smoke.sh`로 post-install smoke를 확인합니다
-- **Plugin smoke matrix** — local disposable Next.js 프로젝트(`npx create-next-app@latest`)로 non-mutating plugin integration 검증: `scripts/ci_plugin_smoke_matrix.py --surface codex --route-label medium`, `scripts/ci_plugin_smoke_matrix.py --surface claude --route-label small`
+- **Plugin smoke matrix** — CI verification scope: GitHub Actions runners do not have Claude or Codex CLI installed, so `plugin-smoke-matrix` verifies packaging integrity, preset install, doctor output, and non-mutation guards only. It does **not** verify slash skill execution, real model response, or plugin enable flow. For end-to-end smoke with real CLI, run `make smoke-claude-plugin` locally after `claude login`.
+  - Local disposable Next.js 프로젝트(`npx create-next-app@latest`)로 non-mutating plugin integration을 검증합니다: `scripts/ci_plugin_smoke_matrix.py --surface codex --route-label medium`, `scripts/ci_plugin_smoke_matrix.py --surface claude --route-label small`. `route-label dry-run`까지 실행하는 경로는 real Claude/Codex CLI binary가 runner에 있을 때만 동작하며, 표준 GitHub Actions runner에는 없습니다.
 - **Real plugin E2E** — live agent가 disposable project에 실제 파일을 쓰는 검증: `scripts/real_plugin_e2e.py --surface claude --route high`, `scripts/real_plugin_e2e.py --surface codex --route high`. 일부 Linux host에서 Codex `workspace-write` sandbox는 bubblewrap `RTM_NEWADDR: Operation not permitted`로 실패할 수 있어, 이 disposable-only script는 Codex 실행에 `--dangerously-bypass-approvals-and-sandbox`를 사용합니다. 실제 사용자 repo에 이 플래그를 무지성 복붙하지 마세요.
 - **Codex plugin doctor** — `python3 scripts/codex_plugin_doctor.py --project .` 로 CLI, marketplace, preset 상태를 점검합니다
 - **Artifact schema 오류** — `python3 scripts/validate_structure.py` 로 project 구조를 검증합니다
@@ -227,6 +228,7 @@ make evals
 
 - [INSTALL.md](INSTALL.md) — 상세 설치, 업데이트, Windows 절차
 - [CHANGELOG.md](CHANGELOG.md) — 버전별 변경 사항
+- [docs/ci.md](docs/ci.md) — CI smoke scope and two-tier verification strategy
 - [memory/README.md](memory/README.md) — project memory 보존 기준 (`memory/`는 cache or hidden agent state가 아닙니다)
 - [evals/README.md](evals/README.md) — eval suite 실행 가이드
 - [scripts/README.md](scripts/README.md) — local scripts, visual tooling, validation helper

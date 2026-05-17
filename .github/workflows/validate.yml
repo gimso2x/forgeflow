@@ -77,6 +77,10 @@ jobs:
         run: .\scripts\run_orchestrator.ps1 init --task-id windows-smoke --objective "Validate Windows wrapper" --risk low
 
   plugin-smoke-matrix:
+    # NOTE: This job runs WITHOUT real Claude/Codex CLI.
+    # Verifies: packaging, preset structure, doctor scripts, non-mutating guards.
+    # Does NOT verify: slash skill execution or real model invocation.
+    # For full end-to-end smoke: make smoke-claude-plugin (requires claude login)
     name: plugin-smoke-matrix (${{ matrix.os }}, ${{ matrix.surface }}, ${{ matrix.route_label }})
     runs-on: ${{ matrix.os }}
     strategy:
