@@ -51,6 +51,8 @@ def test_cli_execute_real_codex_uses_binary_from_path_without_live_credentials(t
     payload = json.loads(result.stdout)
     assert payload["status"] == "success"
     assert payload["adapter"] == "codex"
+    assert payload["execution_mode"] == "real"
+    assert "[FORGEFLOW] execution_mode: real (Claude/Codex CLI was invoked)" in result.stderr
     assert (task_dir / "clarify-output.md").read_text(encoding="utf-8").strip() == "FAKE_CODEX_REAL_OUTPUT"
 
 

@@ -65,7 +65,7 @@ User: "Build a complete e-commerce platform"
   → milestone        → roadmap.json (M1: Auth, M2: Cart, M3: Checkout)
   → (per milestone)
     → plan           → plan.json
-    → execute        → run-state.json
+    → execute        (updates run-state.json)
     → review (spec)  → review-report-spec.json
     → review (qual)  → review-report-quality.json
   → ship             → final handoff

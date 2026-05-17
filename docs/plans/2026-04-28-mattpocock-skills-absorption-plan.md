@@ -35,7 +35,7 @@ Short version: steal the good knives, not the whole kitchen.
 
 ForgeFlow already has the important pieces that `mattpocock/skills` mostly leaves to convention:
 
-- canonical stage flow: `clarify -> plan -> run -> review -> ship`
+- canonical stage flow: `clarify -> plan -> execute -> review -> ship`
 - artifact-first behavior
 - JSON schemas for durable outputs
 - generated adapter boundaries
@@ -303,7 +303,7 @@ The slices are deliberately vertical and reviewable. They avoid runtime changes 
 ## Acceptance criteria for the absorption
 
 - No new canonical ForgeFlow stage is introduced.
-- Existing `clarify -> plan -> run -> review -> ship` docs remain the source of truth.
+- Existing `clarify -> plan -> execute -> review -> ship` docs remain the source of truth.
 - New skills, if added, declare input artifacts, output artifacts, applicability threshold, and exit conditions.
 - New support skills produce or govern artifacts consumed by existing stages.
 - No new required runtime state, source of truth, approval checkpoint, or persistence lane is introduced.

@@ -1,4 +1,4 @@
-# Skill: run
+# Skill: execute
 
 ## Purpose
 

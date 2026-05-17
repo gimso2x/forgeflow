@@ -402,7 +402,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.13] - 2026-04-24
 
 ### Added
-- Initial release with canonical 5-stage workflow (clarify → plan → run → review → verify)
+- Initial release with canonical 5-stage workflow (clarify → plan → execute → review → verify)
 - Evolution engine (8 modules)
 - CI gate with GitHub Actions workflow generation
 - Agent preset installer (Claude + Codex)

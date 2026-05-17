@@ -95,7 +95,7 @@ inspect  -> read policy and examples
 list     -> show project registry and optional examples
 adopt    -> copy a safe example into .forgeflow/evolution/rules
 dry-run  -> show command and safety checks without executing
-execute  -> run only project-local adopted rules with explicit acknowledgement
+execute  -> apply only project-local adopted rules with explicit acknowledgement
 retire   -> move a project-local rule into .forgeflow/evolution/retired-rules with a reason
 restore  -> move a retired rule back into .forgeflow/evolution/rules with a reason
 doctor        -> read-only health check for active/retired rules and audit JSONL

@@ -77,6 +77,12 @@
         "type": "string"
       }
     },
+    "execution_mode": {
+      "enum": [
+        "stub",
+        "real"
+      ]
+    },
     "current_task_id": {
       "type": "string"
     },

@@ -24,7 +24,7 @@ Finalize the branch: run tests, audit coverage, present options, and hand off re
 
 ## Execution
 
-1. **Run full test suite.** If any test fails, stop and recommend returning to `run`.
+1. **Run full test suite.** If any test fails, stop and recommend returning to `execute`.
 2. **Run coverage audit.** If coverage dropped, flag it in the manifest.
 3. **Summarize changes.** List files modified, added, deleted. Reference plan tasks.
 4. **Present handoff options:**

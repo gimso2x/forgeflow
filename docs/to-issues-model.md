@@ -13,7 +13,7 @@ The model absorbs the useful part of `mattpocock/skills` `to-issues`: make work 
 Default flow:
 
 ```text
-clarify -> specify -> plan -> optional to-issues -> run -> review -> ship
+clarify -> specify -> plan -> optional to-issues -> execute -> review -> ship
 ```
 
 Artifact authority stays simple:

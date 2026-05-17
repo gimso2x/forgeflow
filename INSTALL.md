@@ -511,7 +511,14 @@ python3 scripts/run_orchestrator.py exec-stage \
   --assert-real
 ```
 
-`--assert-real`이 붙은 명령은 `--real` 없이 실행되면 즉시 실패합니다. 반대로 `--real` 없는 stub 실행은 결과 JSON과 stderr에 `STUB EXECUTION` 경고를 출력합니다.
+`--assert-real`이 붙은 명령은 `--real` 없이 실행되면 즉시 실패합니다. `exec-stage`는 실행 직후 stderr에 mode banner를 항상 출력하므로 JSON을 열어보지 않아도 stub/real 여부가 바로 보입니다.
+
+```text
+[FORGEFLOW] execution_mode: stub (no real CLI was called)
+[FORGEFLOW] execution_mode: real (Claude/Codex CLI was invoked)
+```
+
+결과 JSON에도 같은 값이 남아 자동화에서 검사할 수 있습니다.
 
 ```json
 {
@@ -521,7 +528,7 @@ python3 scripts/run_orchestrator.py exec-stage \
 }
 ```
 
-`execution_mode` 확인을 사람 눈에만 맡기는 건 삽질 예약이라, CI에서는 `--assert-real`로 기계가 막게 하세요.
+CLI가 banner로 mode를 명확히 알려주고, CI에서는 `--assert-real`로 real 실행만 통과하게 만들 수 있습니다.
 
 ### 권장 진입 순서 (stub → real)
 

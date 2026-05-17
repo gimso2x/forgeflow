@@ -17,7 +17,7 @@ user request
   → clarify    # 요구사항 정리 → brief.json
   → milestone  # (Epic 전용) 마일스톤 분해 → roadmap.json
   → plan       # 작업 계획 → plan-ledger.json (medium/high/epic)
-  → execute    # 구현 → run-state.json
+  → execute    # 구현, updates run-state.json
   → review     # 독립 검증 → review-report.json
   → ship       # 배포/마무리
 ```

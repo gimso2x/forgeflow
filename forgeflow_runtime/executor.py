@@ -36,6 +36,7 @@ class RunTaskResult:
     token_usage: dict[str, int] = field(default_factory=dict)
     raw_output: str | None = None
     error: str | None = None
+    execution_mode: str | None = None
 
 
 class ExecutorAdapter(Protocol):
@@ -256,6 +257,7 @@ def dispatch(request: RunTaskRequest, *, use_real: bool = False) -> RunTaskResul
             Codex CLI, Gemini CLI) when available.  Defaults to ``False`` (stubs) so
             tests and local development do not incur API costs.
     """
+    execution_mode = "real" if use_real else "stub"
     if use_real:
         adapter = REAL_REGISTRY.get(request.adapter_target)
         if adapter is None:
@@ -265,16 +267,34 @@ def dispatch(request: RunTaskRequest, *, use_real: bool = False) -> RunTaskResul
                     f"real adapter unsupported: {request.adapter_target}; "
                     f"supported real adapters: {', '.join(SUPPORTED_REAL_ADAPTERS)}"
                 ),
+                execution_mode=execution_mode,
             )
-        return adapter.run_task(request)
+        result = adapter.run_task(request)
+        return RunTaskResult(
+            status=result.status,
+            artifacts_produced=result.artifacts_produced,
+            token_usage=result.token_usage,
+            raw_output=result.raw_output,
+            error=result.error,
+            execution_mode=execution_mode,
+        )
 
     adapter = STUB_REGISTRY.get(request.adapter_target)
     if adapter is None:
         return RunTaskResult(
             status="failure",
             error=f"unknown adapter target: {request.adapter_target}",
+            execution_mode=execution_mode,
         )
-    return adapter.run_task(request)
+    result = adapter.run_task(request)
+    return RunTaskResult(
+        status=result.status,
+        artifacts_produced=result.artifacts_produced,
+        token_usage=result.token_usage,
+        raw_output=result.raw_output,
+        error=result.error,
+        execution_mode=execution_mode,
+    )
 
 
 def list_adapters(*, include_real: bool = False) -> list[str]:
@@ -314,7 +334,14 @@ def orchestrate(
             timeout=float(orch_config.get("timeout", 120.0)),
             consensus_threshold=float(orch_config.get("consensus_threshold", 0.6)),
         )
-        result = run_orchestration(request, config, use_real=use_real)
-        return result.to_run_task_result()
+        result = run_orchestration(request, config, use_real=use_real).to_run_task_result()
+        return RunTaskResult(
+            status=result.status,
+            artifacts_produced=result.artifacts_produced,
+            token_usage=result.token_usage,
+            raw_output=result.raw_output,
+            error=result.error,
+            execution_mode="real" if use_real else "stub",
+        )
 
     return dispatch(request, use_real=use_real)

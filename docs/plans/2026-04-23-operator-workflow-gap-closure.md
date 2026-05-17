@@ -70,7 +70,7 @@ The fix is to expose the existing semantics through better operator surfaces.
 6. `resume` — reload from session-state + checkpoint refs, not transcript vibes
 7. `review-summary` — show latest verdict, evidence refs, residual risks
 
-**Decision:** `run` alone is not enough. Users need a visible lifecycle, not a hidden state machine cosplay.
+**Decision:** `execute` alone is not enough. Users need a visible lifecycle, not a hidden state machine cosplay.
 
 ---
 

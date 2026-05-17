@@ -34,7 +34,8 @@ from forgeflow_runtime.workflow_override import resolve_project_workflow  # noqa
 
 
 def _execution_payload(*, stage: str, role: str, adapter: str, result, use_real: bool = False) -> dict:
-    execution_mode = "real" if use_real else "stub"
+    execution_mode = result.execution_mode or ("real" if use_real else "stub")
+    assert execution_mode in ("stub", "real"), f"invalid execution_mode: {execution_mode!r}"
     payload = {
         "stage": stage,
         "role": role,
@@ -59,13 +60,17 @@ def _assert_real_requested(*, use_real: bool, assert_real: bool) -> None:
         raise RuntimeViolation("--assert-real requires --real; refusing to report stub execution as a real run")
 
 
-def _print_stub_warning_if_needed(*, use_real: bool) -> None:
-    if not use_real:
-        banner = "\n================== [STUB MODE] ==================\n"
-        banner += "No real CLI adapter ran. Output is simulated.\n"
-        banner += "Pass --real for live execution or --assert-real to fail fast.\n"
-        banner += "=================================================\n"
-        print(banner, file=sys.stderr)
+def _print_execution_mode_banner(execution_mode: str) -> None:
+    assert execution_mode in ("stub", "real"), f"invalid execution_mode: {execution_mode!r}"
+    if execution_mode == "stub":
+        message = "\n[FORGEFLOW] execution_mode: stub (no real CLI was called)\n"
+        color = "\033[33m"
+    else:
+        message = "\n[FORGEFLOW] execution_mode: real (Claude/Codex CLI was invoked)\n"
+        color = "\033[32m"
+    if sys.stdout.isatty():
+        message = f"{color}{message}\033[0m"
+    print(message, file=sys.stderr)
 
 
 def _print_payload(payload: dict) -> None:
@@ -73,6 +78,30 @@ def _print_payload(payload: dict) -> None:
     # default to cp1252. Callers get the same payload via json.loads, while stdout
     # stays ASCII-safe for wrappers and CI logs.
     print(json.dumps(payload, indent=2, ensure_ascii=True))
+
+
+def _read_json_if_present(path: Path) -> dict:
+    if not path.exists():
+        return {}
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return {}
+    return data if isinstance(data, dict) else {}
+
+
+def _persist_last_execution_mode(run_state_path: Path, execution_mode: str) -> None:
+    assert execution_mode in ("stub", "real"), f"invalid execution_mode: {execution_mode!r}"
+    run_state = _read_json_if_present(run_state_path)
+    run_state["execution_mode"] = execution_mode
+    run_state_path.write_text(json.dumps(run_state, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+
+
+def _print_last_execution_mode(run_state_path: Path) -> None:
+    run_state = _read_json_if_present(run_state_path)
+    execution_mode = run_state.get("execution_mode")
+    if execution_mode in ("stub", "real"):
+        print(f"Last execution_mode: {execution_mode}", file=sys.stderr)
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -363,6 +392,7 @@ def main() -> int:
         elif args.command == "resume":
             _print_payload(resume_task(task_dir=task_dir, policy=policy, route_name=route_name))
         elif args.command == "status":
+            _print_last_execution_mode(task_dir / "run-state.json")
             _print_payload(status_summary(task_dir=task_dir, policy=policy, route_name=route_name))
         elif args.command == "advance":
             if args.execute:
@@ -414,7 +444,10 @@ def main() -> int:
             )
             if result.status == "success" and result.raw_output:
                 (task_dir / f"{current_stage}-output.md").write_text(result.raw_output, encoding="utf-8")
-            _print_stub_warning_if_needed(use_real=args.real)
+            execution_mode = result.execution_mode or ("real" if args.real else "stub")
+            assert execution_mode in ("stub", "real"), f"invalid execution_mode: {execution_mode!r}"
+            _persist_last_execution_mode(run_state_path, execution_mode)
+            _print_execution_mode_banner(execution_mode)
             _print_payload(
                 _execution_payload(
                     stage=current_stage,

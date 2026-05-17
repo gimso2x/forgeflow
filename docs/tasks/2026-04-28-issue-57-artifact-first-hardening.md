@@ -32,11 +32,11 @@ In short: the runtime was trying to be artifact-first while the plugin contract 
 - No mass cleanup of unrelated dirty files already present in the repo.
 
 ## Acceptance Criteria
-- `clarify`, `plan`, `run`, `review`, `ship`, and top-level `forgeflow` docs all describe artifact-first behavior.
+- `clarify`, `plan`, `execute`, `review`, `ship`, and top-level `forgeflow` docs all describe artifact-first behavior.
 - Plugin / marketplace cache paths reject mutating commands:
   - `start`
   - `init`
-  - `run`
+  - `execute`
   - `resume`
   - `advance`
   - `retry`

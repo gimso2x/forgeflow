@@ -184,6 +184,7 @@ def execute_stage(
     result: RunTaskResult | None = None
     try:
         result = dispatch(request, use_real=use_real)
+        assert result.execution_mode in ("stub", "real"), f"invalid execution_mode: {result.execution_mode!r}"
         return result
     finally:
         if collector is not None:

@@ -6,7 +6,7 @@ Perform an **information-isolated** post-execution verification. The reviewer re
 
 ## Trigger
 
-- After `run` completes all tasks.
+- After `execute` completes all tasks.
 - User says: `"review the work"`, `"verify the implementation"`.
 - Mandatory gate before `ship` on medium/large routes.
 
@@ -41,7 +41,7 @@ Perform an **information-isolated** post-execution verification. The reviewer re
 
 - `approved`: Zero critical/major findings.
 - `approved_with_minor`: Only minor/info findings.
-- `needs_fix`: One or more critical/major findings. Must re-run `run` for affected tasks.
+- `needs_fix`: One or more critical/major findings. Must re-run `execute` for affected tasks.
 - `needs_clarification`: Requirements ambiguity discovered. Return to `specify`.
 
 ## Constraints

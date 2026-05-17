@@ -53,7 +53,7 @@ claude plugin list
 /forgeflow:clarify README 퀵스타트 섹션 개선해줘
 ```
 
-agent가 요구사항을 정리하고 다음 단계를 제안합니다. 작은 수정은 `clarify` → `run` → `finish`로 끝나고, 리스크 있는 작업은 `plan`과 `review`를 거칩니다.
+agent가 요구사항을 정리하고 다음 단계를 제안합니다. 작은 수정은 `clarify` → `execute` → `finish`로 끝나고, 리스크 있는 작업은 `plan`과 `review`를 거칩니다.
 
 새 작업 폴더와 task-local agent scaffold를 먼저 만들고 싶으면:
 

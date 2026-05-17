@@ -4,7 +4,7 @@
 
 ## 결론
 
-Ouroboros는 ForgeFlow에 별도 기능으로 추가하지 않고, ForgeFlow의 `clarify → plan → run → review → ship` 흐름을 더 엄격하게 만드는 재료로 흡수한다.
+Ouroboros는 ForgeFlow에 별도 기능으로 추가하지 않고, ForgeFlow의 `clarify → plan → execute → review → ship` 흐름을 더 엄격하게 만드는 재료로 흡수한다.
 
 핵심은 다음 세 가지다.
 

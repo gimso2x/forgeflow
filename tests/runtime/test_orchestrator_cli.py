@@ -531,7 +531,11 @@ def test_cli_exec_stage_runs_current_stage_and_writes_output(tmp_path: Path) -> 
     assert payload["adapter"] == "codex"
     assert payload["execution_mode"] == "stub"
     assert "STUB EXECUTION" in payload["warning"]
-    assert "[STUB MODE]" in execute_result.stderr
+    assert "[FORGEFLOW] execution_mode: stub (no real CLI was called)" in execute_result.stderr
+    run_state = json.loads((task_dir / "run-state.json").read_text(encoding="utf-8"))
+    assert run_state["execution_mode"] == "stub"
+    status_result = _run_orchestrator_cli("status", "--task-dir", str(task_dir), "--route", "small")
+    assert "Last execution_mode: stub" in status_result.stderr
     output_path = task_dir / "clarify-output.md"
     assert output_path.exists()
     assert "stub-codex-output" in output_path.read_text(encoding="utf-8")

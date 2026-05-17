@@ -5,7 +5,7 @@ description: Orchestrates multi-day execution of complex tasks through milestone
 
 # Long Run Harness
 
-Orchestrates multi-day execution of complex tasks through a milestone pipeline. Each milestone passes through plan-crafting → run-plan → review-work with checkpoints between milestones for recovery from interruptions.
+Orchestrates multi-day execution of complex tasks through a milestone pipeline. Each milestone passes through plan-crafting → execute-plan → review-work with checkpoints between milestones for recovery from interruptions.
 
 ## Core Principle
 
@@ -15,7 +15,7 @@ Long-running execution must be **resumable, auditable, and fail-safe.** Every st
 
 1. **Milestones must exist before execution.** Either from `milestone-planning` skill or user-provided. Never generate milestones inline during execution.
 2. **State file must be updated before and after every milestone.** No in-memory-only state. If it's not on disk, it didn't happen.
-3. **Each milestone must complete the full pipeline.** plan-crafting → run-plan → review-work. No shortcuts. No skipping review-work "because it looked fine."
+3. **Each milestone must complete the full pipeline.** plan-crafting → execute-plan → review-work. No shortcuts. No skipping review-work "because it looked fine."
 4. **Failed milestones block dependents.** If M2 depends on M1 and M1 fails review, M2 does not start. Period.
 5. **User confirmation required at gate points.** Before starting a new milestone phase (planning, execution, review), check if the user wants to continue, pause, or abort.
 6. **Never modify completed milestones.** Once a milestone passes review-work, its files are locked. If a later milestone needs changes to earlier work, that is a new milestone.
@@ -247,7 +247,7 @@ After all milestones are completed (including the Integration Verification Miles
 4. **If Final E2E Gate fails:**
    - Diagnose: identify which milestone's output is the likely cause
    - Create a corrective milestone via Mid-Execution Correction procedure
-   - Execute corrective milestone through the full pipeline (plan-crafting → run-plan → review-work)
+   - Execute corrective milestone through the full pipeline (plan-crafting → execute-plan → review-work)
    - Re-run E2E Gate after correction
    - If 2 corrective attempts fail: escalate to user with full diagnosis
 5. **If Final E2E Gate passes:** Update state.md: set overall status to `completed`
@@ -309,7 +309,7 @@ If execution reveals that a completed milestone's output is incorrect or a new m
    - **Add corrective milestone:** Create a new milestone definition (the user writes the goal and success criteria, or re-run milestone-planning for just the new scope). Insert it into the DAG with appropriate dependencies. Resume execution from the new milestone.
    - **Re-plan from a checkpoint:** Roll back to a completed milestone's checkpoint, mark subsequent milestones as `pending`, reset their `Attempts` to 0, and restart from that point.
    - **Abort:** Set overall status to `failed` and stop.
-4. **New milestones follow the same pipeline** — plan-crafting → run-plan → review-work. No shortcuts even for "quick fixes."
+4. **New milestones follow the same pipeline** — plan-crafting → execute-plan → review-work. No shortcuts even for "quick fixes."
 5. **Completed milestones are never modified** (Hard Gate #6 still applies). The corrective milestone produces new files or overwrites with a full plan cycle.
 
 ## Skip Rules
@@ -374,7 +374,7 @@ Long-running sessions will encounter rate limits. Claude Code has built-in retry
 - [ ] Dependency DAG validated (no cycles)
 - [ ] Current position determined (fresh start or resume)
 - [ ] User confirmed continuation at session start
-- [ ] Each milestone goes through plan-crafting → run-plan → review-work
+- [ ] Each milestone goes through plan-crafting → execute-plan → review-work
 - [ ] State.md updated before and after every phase transition
 - [ ] Checkpoint written after every successful milestone
 - [ ] Failed milestones block dependents
