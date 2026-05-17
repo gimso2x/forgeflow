@@ -91,6 +91,37 @@ def test_generated_codex_adapter_satisfies_doctor_artifact_policy(tmp_path):
     assert "run-state.json" in by_name["artifact_policy"]["detail"]
 
 
+def test_codex_plugin_doctor_accepts_fresh_project_before_first_task(tmp_path):
+    plugin_root = tmp_path / "plugins" / "forgeflow"
+    marketplace = tmp_path / ".agents" / "plugins" / "marketplace.json"
+    project = tmp_path / "project"
+    _write_plugin_root(plugin_root)
+    marketplace.parent.mkdir(parents=True)
+    marketplace.write_text(
+        json.dumps({"plugins": [{"name": "forgeflow", "source": {"source": "local", "path": "./plugins/forgeflow"}}]}) + "\n",
+        encoding="utf-8",
+    )
+    project.mkdir()
+    (project / ".codex" / "forgeflow").mkdir(parents=True)
+    (project / "CODEX.md").write_text("Use .forgeflow/tasks/<task-id>/ and update run-state.json.\n", encoding="utf-8")
+
+    result = run_doctor(
+        "--marketplace-path",
+        str(marketplace),
+        "--plugin-root",
+        str(plugin_root),
+        "--project",
+        str(project),
+        "--json",
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    payload = json.loads(result.stdout)
+    by_name = {check["name"]: check for check in payload["checks"]}
+    assert by_name["project_forgeflow_dir"]["status"] == "PASS"
+    assert "will be created by the first task" in by_name["project_forgeflow_dir"]["detail"]
+
+
 def test_codex_plugin_doctor_fails_missing_marketplace_and_plugin_root(tmp_path):
     result = run_doctor(
         "--marketplace-path",

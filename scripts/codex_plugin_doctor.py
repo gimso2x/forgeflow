@@ -84,8 +84,9 @@ def project_check(project: Path) -> list[Check]:
     codex_md = project / "CODEX.md"
     forgeflow_dir = project / ".forgeflow"
     preset_dir = project / ".codex" / "forgeflow"
+    forgeflow_detail = str(forgeflow_dir) if forgeflow_dir.exists() else f"{forgeflow_dir} will be created by the first task"
     checks.append(Check("project_CODEX", _status(codex_md.exists(), warn=True), str(codex_md)))
-    checks.append(Check("project_forgeflow_dir", _status(forgeflow_dir.exists(), warn=True), str(forgeflow_dir)))
+    checks.append(Check("project_forgeflow_dir", "PASS", forgeflow_detail))
     checks.append(Check("project_codex_preset", _status(preset_dir.exists(), warn=True), str(preset_dir)))
     if codex_md.exists():
         text = codex_md.read_text(encoding="utf-8", errors="replace")
