@@ -56,7 +56,7 @@ forgeflow-runtime --help
 - **milestone** — epic route일 때 전체 작업을 큰 단위의 마일스톤으로 분할합니다
 - **plan** — medium 이상이거나 모호한 작업을 실행 가능한 계획으로 쪼갭니다
 - **execute** — 승인된 brief와 plan 범위 안에서 작업합니다
-- **review** — 결과를 evidence와 artifact 기준으로 독립 검토합니다
+- **review** — 결과를 evidence와 artifact 기준으로 독립 검토합니다. small route에서는 별도 spec-review 없이 이 단계가 `brief.json`의 acceptance criteria와 quality를 함께 확인합니다.
 - **ship** — handoff를 정리하고 PR/merge/keep/discard 결정을 다룹니다
 
 각 stage는 slash skill로 실행합니다: `/forgeflow:clarify`, `/forgeflow:milestone`, `/forgeflow:plan`, `/forgeflow:execute`, `/forgeflow:review`, `/forgeflow:ship`. 사용자가 매번 stage를 운영해야 한다는 뜻은 아닙니다 — agent가 다음 stage를 자연스럽게 이어받고, stage 경계에서 다음 단계로 넘어갈지 확인합니다.

@@ -131,6 +131,7 @@
 목표:
 - 결과물이 유지보수 가능하고 검증 가능하며 위험이 통제되는지 본다.
 - standalone review에서는 spec-review와 함께 기본 review role로 실행된다.
+- small route에서는 별도 `spec-review` stage가 없으므로 `brief.json`의 acceptance criteria 검증도 여기서 함께 수행한다.
 
 입력:
 - spec review 통과 결과
@@ -139,10 +140,12 @@
 
 출력:
 - `review-report` (`review_type=quality`)
+- small route의 경우 `review-report.json`에 `spec_absorbed: true`, acceptance criteria별 verdict/evidence, quality verdict가 함께 있어야 한다.
 
 규칙:
 - 구조, 단순성, 테스트/검증 품질, 잔존 리스크를 본다.
 - spec 미충족을 품질 문제로 얼버무리면 안 된다.
+- small route에서는 spec-review 책임을 흡수한다. 즉 quality-review gate가 spec conformance와 quality를 모두 판정하고 `review-report.json`에 둘 다 기록해야 한다.
 - `security-review`, `ux-review`는 별도 stage가 아니라 `review-input.review_roles`로 확장되는 선택 lens이며, 결과는 같은 `review-report.json` 포맷으로 병합한다.
 
 ---
@@ -243,6 +246,23 @@ Parallel implementation is allowed only after `plan` has made task boundaries ma
 ### small
 `clarify -> execute -> quality-review -> finalize`
 
+Note: `spec-review` is intentionally omitted for small routes to avoid forcing the full process onto low-risk single-scope tasks. Acceptance criteria from `brief.json` are verified inline during `quality-review`. The small-route `quality-review` gate MUST check both spec conformance and quality, and `review-report.json` MUST document both, including `spec_absorbed: true` and evidence for each acceptance criterion.
+
+Small-route `review-report.json` shape:
+
+```json
+{
+  "review_type": "quality",
+  "spec_absorbed": true,
+  "acceptance_criteria": [
+    {"criterion": "...", "verdict": "pass|fail|blocked", "evidence_refs": ["..."]}
+  ],
+  "quality_verdict": "approved|changes_requested|blocked",
+  "findings": [],
+  "blockers": []
+}
+```
+
 적용 대상:
 - 저위험 단건 수정
 - 짧은 문서 보정
@@ -301,6 +321,7 @@ Stage 규칙은 `policy/canonical/stages.yaml`의 `non_negotiables`가 정본이
 #### `quality-review`
 - maintainability, verification quality, residual risk를 판단
 - spec miss를 quality issue로 세탁 금지
+- small route에서는 acceptance criteria 검증을 함께 수행하고 `review-report.json`에 `spec_absorbed: true`와 criterion별 evidence를 기록
 - finalize 전 `run-state.quality_review_approved`가 필요
 
 #### `finalize`

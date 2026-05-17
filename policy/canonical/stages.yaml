@@ -47,6 +47,7 @@ stages:
     non_negotiables:
       - reviewer must judge maintainability, verification quality, and residual risk
       - spec misses must not be laundered as quality concerns
+      - small-route quality-review must absorb acceptance-criteria verification, set review-report.spec_absorbed true, and document criterion evidence
       - approval must set run-state.quality_review_approved before finalize
   finalize:
     artifact_out: [run-state]
