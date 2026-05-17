@@ -302,6 +302,8 @@ def _default_checkpoint(*, task_dir: Path, route_name: str, run_state: dict[str,
 
 
 def _checkpoint_next_action(stage_name: str, route: list[str]) -> str:
+    if stage_name == "clarify":
+        return "clarify를 실행하여 brief와 초안을 완성하세요."
     if stage_name == route[-1]:
         return "작업이 완료되었습니다. 최종 결과물을 확인하고 정리하세요."
     next_index = route.index(stage_name) + 1
@@ -1615,7 +1617,7 @@ def status_summary(task_dir: Path, policy: RuntimePolicy, route_name: str | None
         "open_blockers": checkpoint.get("open_blockers", []),
         "required_gates": required_gates,
         "latest_review_verdict": _latest_review_verdict(task_dir, canonical_task_id=canonical_task_id),
-        "next_action": resumed["next_action"],
+        "next_action": _checkpoint_next_action(run_state["current_stage"], route),
     }
 
 

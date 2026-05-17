@@ -20,6 +20,6 @@ def test_escalate_route_switches_to_next_route(
     assert_schema_valid("checkpoint", checkpoint)
     assert checkpoint["route"] == "medium"
     assert checkpoint["current_stage"] == "clarify"
-    assert checkpoint["next_action"] == "필요한 파일을 다시 로드한 후 plan 단계에서 재개하세요."
+    assert checkpoint["next_action"] == "clarify를 실행하여 brief와 초안을 완성하세요."
     decision_log = json.loads((task_dir / "decision-log.json").read_text(encoding="utf-8"))
     assert decision_log["entries"][-1]["decision"] == "route escalated: small -> medium"

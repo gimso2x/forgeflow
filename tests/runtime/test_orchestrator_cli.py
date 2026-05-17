@@ -181,6 +181,30 @@ def test_cli_init_bootstraps_task_from_operator_inputs(tmp_path: Path) -> None:
     status_payload = json.loads(status_result.stdout)
     assert status_payload["task_id"] == "my-task-001"
     assert status_payload["route"] == "small"
+    assert status_payload["current_stage"] == "execute"
+
+
+def test_cli_init_status_points_new_users_to_clarify(tmp_path: Path) -> None:
+    task_dir = tmp_path / ".forgeflow" / "tasks" / "new-user-task"
+    init_result = _run_orchestrator_cli(
+        "init",
+        "--task-dir",
+        str(task_dir),
+        "--task-id",
+        "new-user-task",
+        "--objective",
+        "Update README quickstart",
+        "--risk",
+        "low",
+    )
+    assert init_result.returncode == 0, init_result.stderr
+
+    status_result = _run_orchestrator_cli("status", "--task-dir", str(task_dir))
+
+    assert status_result.returncode == 0, status_result.stderr
+    status_payload = json.loads(status_result.stdout)
+    assert status_payload["current_stage"] == "clarify"
+    assert status_payload["next_action"] == "clarify를 실행하여 brief와 초안을 완성하세요."
 
 
 def test_cli_init_without_task_dir_writes_under_current_project_forgeflow_tasks(tmp_path: Path) -> None:

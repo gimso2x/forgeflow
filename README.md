@@ -69,6 +69,22 @@ forgeflow-runtime --help
 /forgeflow:ship
 ```
 
+### 5분 로컬 smoke path
+
+Plugin 설치 전에도 repo clone만 있으면 runtime artifact 흐름을 확인할 수 있습니다. 아래 명령은 현재 프로젝트 아래 `.forgeflow/tasks/demo-readme/`에만 파일을 만듭니다.
+
+```bash
+make setup
+make check-env
+python3 scripts/run_orchestrator.py init --task-id demo-readme --objective "Update README quickstart" --risk low
+python3 scripts/run_orchestrator.py status --task-dir .forgeflow/tasks/demo-readme
+```
+
+예상 흐름:
+- `init`은 `brief.json`, `run-state.json`, `checkpoint.json`, `session-state.json`을 생성합니다.
+- 첫 `status`의 `current_stage`는 `clarify`이고, `next_action`은 `clarify` 실행을 안내해야 합니다.
+- 이후 실제 agent 흐름은 `/forgeflow:clarify → /forgeflow:execute → /forgeflow:review → /forgeflow:ship` 또는 `scripts/run_orchestrator.py clarify/execute/status`로 이어갑니다.
+
 예상 결과:
 - `.forgeflow/tasks/<task-id>/brief.json` — 목표, 범위, route, acceptance criteria
 - optional `.forgeflow/tasks/<task-id>/plan.json` / `plan-ledger.json` — medium 이상이거나 모호한 작업의 실행 계획
@@ -124,6 +140,24 @@ Windows PowerShell:
 - **2-axis specialist selection** — route 축(작업 크기)과 spec 축(전문 에이전트)이 독립 작동합니다. security/backend/frontend/infra/ux/perf 6개 도메인 → [docs/workflow.md](docs/workflow.md)
 - **Adapter boundary** — Claude Code, Codex, Gemini CLI에서 동일한 workflow를 보장하는 adapter 계층 → [docs/adapter-model.md](docs/adapter-model.md)
 
+### Artifact 빠른 지도
+
+처음에는 아래 파일만 보면 됩니다. 모두 `.forgeflow/tasks/<task-id>/` 아래에 생성됩니다.
+
+- `brief.json`: 목표, 범위, 제약, acceptance criteria, route. 사용자가 가장 먼저 확인할 요구사항 파일입니다.
+- `run-state.json`: 현재 stage, gate 통과 여부, retry, review 승인 플래그. “지금 어디까지 왔나”를 봅니다.
+- `checkpoint.json`: 재개 지점과 `next_action`. agent/session이 끊겼을 때 이 파일 기준으로 이어갑니다.
+- `session-state.json`: runtime pointer. 보통 사람이 직접 수정하지 않습니다.
+- `plan.json` / `plan-ledger.json`: medium/high/epic route에서 단계별 실행 계획과 현재 task를 추적합니다.
+- `review-report.json`, `review-report-spec.json`, `review-report-quality.json`: 독립 review 결과. `approved`면 blocker가 없어야 하고 다음 stage로 안전해야 합니다.
+
+### Route와 review 의무
+
+- `small`: 짧은 변경. 최소 smoke/build/lint/type check 후 review를 선택할 수 있습니다.
+- `medium`: 계획 단위로 실행합니다. 실행 후 review가 필요합니다.
+- `high`: spec review와 quality review가 필수입니다. 실행 완료 후 독립 review로 넘어갑니다.
+- `epic`: milestone 단위로 쪼개고, 각 milestone 뒤 독립 review가 필수입니다.
+
 ## Evaluation
 
 ForgeFlow evals는 workflow 계약이 실제 executable check로 유지되는지 검증합니다. Unit test가 코드 동작을 보는 쪽이라면, eval은 stage/gate/artifact/review 정책이 우회되지 않는지 보는 쪽입니다.
@@ -148,6 +182,10 @@ make evals
 - **Real plugin E2E** — live agent가 disposable project에 실제 파일을 쓰는 검증: `scripts/real_plugin_e2e.py --surface claude --route high`, `scripts/real_plugin_e2e.py --surface codex --route high`. 일부 Linux host에서 Codex `workspace-write` sandbox는 bubblewrap `RTM_NEWADDR: Operation not permitted`로 실패할 수 있어, 이 disposable-only script는 Codex 실행에 `--dangerously-bypass-approvals-and-sandbox`를 사용합니다. 실제 사용자 repo에 이 플래그를 무지성 복붙하지 마세요.
 - **Codex plugin doctor** — `python3 scripts/codex_plugin_doctor.py --project .` 로 CLI, marketplace, preset 상태를 점검합니다
 - **Artifact schema 오류** — `python3 scripts/validate_structure.py` 로 project 구조를 검증합니다
+- **Gate에서 missing artifact로 멈춤** — `checkpoint.json`의 `current_stage`와 `next_action`을 보고 해당 stage가 요구하는 `brief.json`, `plan-ledger.json`, `run-state.json`, `review-report*.json`가 task dir에 있는지 확인하세요.
+- **task_id mismatch** — 한 task dir 안의 artifact는 모두 같은 `task_id`여야 합니다. 다른 task에서 복사한 JSON을 섞지 말고 새 task dir에서 다시 `init`하거나 artifact의 task id를 일관되게 맞추세요.
+- **approved review가 거부됨** — `verdict: "approved"`인 review report에는 `open_blockers: []`가 필요하고, `safe_for_next_stage`가 `false`이면 안 됩니다.
+- **specialist 오류** — `required_specialists`와 `skipped_specialists`에 같은 specialist를 동시에 넣을 수 없습니다. skip이 있으면 `skip_rationale`도 있어야 합니다.
 - **Windows local runtime** — [Windows 가이드](docs/guides/windows.md)의 PowerShell wrapper 흐름을 사용하세요
 - **Debug 가이드** — [docs/debugging/](docs/debugging/)에 root-cause tracing, defense-in-depth 문서가 있습니다
 

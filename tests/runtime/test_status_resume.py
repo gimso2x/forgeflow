@@ -123,7 +123,7 @@ def test_status_summary_reports_current_truth(make_task_dir: Callable[[Path], Pa
     assert result["open_blockers"] == ["need evidence"]
     assert result["required_gates"] == ["execution_evidenced", "quality_review_passed", "ready_to_finalize"]
     assert result["latest_review_verdict"] is None
-    assert result["next_action"] == "execute로 진행"
+    assert result["next_action"] == "clarify를 실행하여 brief와 초안을 완성하세요."
 
 
 def test_resume_task_prefers_plan_ledger_current_task_for_medium_route(
