@@ -146,7 +146,10 @@ scripts/smoke.sh
 /forgeflow:execute
 /forgeflow:review
 /forgeflow:ship
+/forgeflow:long-run  # Record learnings after high-risk task completion (high-risk route only)
 ```
+
+`/forgeflow:long-run`은 high-risk route 완료 후 재사용 가능한 패턴과 실패 규칙을 `eval-record.json`에 남기는 선택/자동 학습 단계입니다. small/medium route에는 필수가 아닙니다.
 
 `/forgeflow:ship`은 검증·리뷰 evidence를 묶어 final handoff/report를 만들고, merge, PR, keep, or discard 같은 branch disposition 판단까지 다루는 기본 finalize entrypoint입니다. `/forgeflow:finish`는 이전 two-step flow의 branch disposition split을 유지하는 legacy/explicit entrypoint입니다.
 
@@ -211,6 +214,7 @@ Codex에서는 ForgeFlow plugin을 설치한 뒤 Claude와 같은 slash-style pr
 - `/forgeflow:execute`
 - `/forgeflow:review`
 - `/forgeflow:ship`
+- `/forgeflow:long-run` — Record learnings after high-risk task completion (high-risk route only)
 
 사용자 입장에서는 Claude plugin과 같은 형태로 입력하면 됩니다.
 
@@ -284,6 +288,7 @@ python3 scripts/install_codex_plugin.py --force
 /forgeflow:execute
 /forgeflow:review
 /forgeflow:ship
+/forgeflow:long-run  # Record learnings after high-risk task completion (high-risk route only)
 ```
 
 plugin manifest의 default prompt도 이 흐름을 기준으로 합니다. `CODEX.md` 없이도 plugin skill로 시작할 수 있습니다. 프로젝트에 지속 규칙을 남기고 싶을 때만 아래 project install을 추가로 사용하세요.
@@ -320,7 +325,7 @@ Next.js preset 설치 시 생성되는 role prompt는 `.codex/forgeflow/` 아래
 1. ForgeFlow checkout에서 `scripts/install_codex_plugin.py`로 local marketplace entry를 등록합니다.
 2. Codex Desktop을 재시작하고 ForgeFlow plugin을 enable합니다.
 3. 새 작업에서 `/forgeflow:clarify <하고 싶은 작업>`처럼 입력합니다.
-4. 필요하면 `/forgeflow:plan`, `/forgeflow:execute`, `/forgeflow:review`, `/forgeflow:ship` 순서로 진행합니다.
+4. 필요하면 `/forgeflow:plan`, `/forgeflow:execute`, `/forgeflow:review`, `/forgeflow:ship` 순서로 진행합니다. high-risk route에서 재사용 학습이 있으면 `/forgeflow:long-run`을 실행합니다.
 5. 프로젝트에 지속 규칙이 필요할 때만 `CODEX.md` 또는 Codex preset을 추가 설치합니다.
 6. 실제 CLI execution까지 검증할 때만 `scripts/run_orchestrator.py ... --adapter codex --real --assert-real`을 사용합니다. `--assert-real`은 `--real` 없이 실행되면 실패하므로 CI에서 stub 실행을 실수로 성공 처리하지 않습니다.
 

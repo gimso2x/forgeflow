@@ -24,19 +24,9 @@ Ship reviewed work. Requires an `approved` review report.
 
 4. Push to remote.
 
-5. Write `eval-record.json`:
-   ```json
-   {
-     "schema_version": "0.1",
-     "task_id": "<task-id>",
-     "outcome": "shipped",
-     "review_verdict": "approved",
-     "commit_sha": "<sha>",
-     "shipped_at": "<ISO 8601>"
-   }
-   ```
+5. Report: commit SHA, files shipped, review verdict, and whether this was a high-risk route that should continue to `/forgeflow:long-run`.
 
-6. Report: commit SHA, files shipped, review verdict.
+6. Do not write `eval-record.json` here. That artifact belongs to `/forgeflow:long-run`, which records reusable patterns and failure rules after high-risk completion or manual learning capture.
 
 
 ## Status analysis preflight

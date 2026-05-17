@@ -169,6 +169,14 @@
 ---
 
 ### 8) `long-run`
+
+#### When does this trigger?
+
+Triggered automatically at the end of high-risk route finalize,
+or invoked manually via `/forgeflow:long-run` after any task where
+reusable patterns were identified. Not automatically triggered for small/medium routes,
+but can be invoked manually.
+
 목표:
 - 반복 가치가 있는 학습만 축적한다.
 
@@ -191,6 +199,7 @@
 | /forgeflow:ship | finalize (part 1) | evidence 묶음, final handoff/report 생성 |
 | /forgeflow:finish | finalize (part 2) | branch disposition: merge / PR / keep / discard |
 | /forgeflow:review | spec-review + quality-review | route에 따라 두 review stage를 순서대로 실행 |
+| /forgeflow:long-run | long-run | high-risk finalize 후 학습 기록 또는 수동 reusable learning 기록 |
 
 Note: finalize in workflow.md covers both ship and finish concerns. The slash commands split this into two user-facing steps for explicit control.
 
@@ -332,7 +341,7 @@ Stage 규칙은 `policy/canonical/stages.yaml`의 `non_negotiables`가 정본이
 #### `long-run`
 - reusable learning, evaluation, durable failure pattern만 축적
 - session chatter나 one-off task progress를 memory로 저장 금지
-- `eval-record`는 왜 보존 가치가 있는지 설명해야 함
+- `eval-record.json`는 왜 보존 가치가 있는지 설명해야 함
 
 ### Global rules
 1. artifact 없는 stage 전환 금지
@@ -353,10 +362,10 @@ Stage 규칙은 `policy/canonical/stages.yaml`의 `non_negotiables`가 정본이
 
 Proposal → promotion → crystallization은 블랙박스가 아니다. 기본 졸업 조건:
 
-1. 입력 신호: `eval-record`, review finding, repeated tool failure, manual operator note 중 하나 이상.
+1. 입력 신호: `eval-record.json`, review finding, repeated tool failure, manual operator note 중 하나 이상.
 2. Evidence: 재현 가능한 artifact ref와 실패/개선 전후 설명.
 3. Audit: `evolution_audit`가 scope, confidence, source_count를 기록.
 4. Promotion: hard rule은 테스트 또는 policy 검증이 붙을 때만, soft rule은 제한된 scope와 rollback note가 있을 때만.
 5. Crystallization: promoted rule이 반복 task에서 재사용 가능하고 기존 canonical stage/gate semantics를 약화하지 않는 경우만 문서/skill로 승격한다.
 
-`eval-record`는 기록으로 끝나지 않는다. evolution pipeline의 signal source이며 routing threshold나 specialist 선택을 바꾸려면 proposal/audit/promotion artifact를 통해 변경 근거를 남겨야 한다.
+`eval-record.json`는 기록으로 끝나지 않는다. evolution pipeline의 signal source이며 routing threshold나 specialist 선택을 바꾸려면 proposal/audit/promotion artifact를 통해 변경 근거를 남겨야 한다.

@@ -49,17 +49,17 @@ forgeflow-runtime --help
 ## 기본 워크플로우
 
 ```text
-요청 → clarify → milestone → plan → execute → review → ship
+요청 → clarify → milestone → plan → execute → review → ship → long-run (high-risk only)
 ```
 
-- **clarify** — 요청을 목표, 제약, 성공 조건, route로 정리합니다
-- **milestone** — epic route일 때 전체 작업을 큰 단위의 마일스톤으로 분할합니다
-- **plan** — medium 이상이거나 모호한 작업을 실행 가능한 계획으로 쪼갭니다
-- **execute** — 승인된 brief와 plan 범위 안에서 작업합니다
-- **review** — 결과를 evidence와 artifact 기준으로 독립 검토합니다. small route에서는 별도 spec-review 없이 이 단계가 `brief.json`의 acceptance criteria와 quality를 함께 확인합니다.
-- **ship** — handoff를 정리하고 PR/merge/keep/discard 결정을 다룹니다
+1. **clarify** — 요청을 목표, 제약, 성공 조건, route로 정리합니다
+2. **milestone** — epic route일 때 전체 작업을 큰 단위의 마일스톤으로 분할합니다
+3. **plan** — medium 이상이거나 모호한 작업을 실행 가능한 계획으로 쪼갭니다
+4. **execute** — 승인된 brief와 plan 범위 안에서 작업합니다
+5. **review / ship** — 결과를 evidence와 artifact 기준으로 독립 검토한 뒤 handoff와 PR/merge/keep/discard 결정을 다룹니다. small route에서는 별도 spec-review 없이 review가 `brief.json`의 acceptance criteria와 quality를 함께 확인합니다.
+6. **long-run** *(high-risk tasks only)* — extracts reusable patterns and failure rules into `eval-record.json`. Not required for small/medium routes.
 
-각 stage는 slash skill로 실행합니다: `/forgeflow:clarify`, `/forgeflow:milestone`, `/forgeflow:plan`, `/forgeflow:execute`, `/forgeflow:review`, `/forgeflow:ship`. 사용자가 매번 stage를 운영해야 한다는 뜻은 아닙니다 — agent가 다음 stage를 자연스럽게 이어받고, stage 경계에서 다음 단계로 넘어갈지 확인합니다.
+각 stage는 slash skill로 실행합니다: `/forgeflow:clarify`, `/forgeflow:milestone`, `/forgeflow:plan`, `/forgeflow:execute`, `/forgeflow:review`, `/forgeflow:ship`, `/forgeflow:long-run` (high-risk route only). 사용자가 매번 stage를 운영해야 한다는 뜻은 아닙니다 — agent가 다음 stage를 자연스럽게 이어받고, stage 경계에서 다음 단계로 넘어갈지 확인합니다.
 
 자세한 stage 규칙은 [docs/workflow.md](docs/workflow.md)을 보세요.
 
@@ -99,6 +99,7 @@ python3 scripts/run_orchestrator.py status --task-dir .forgeflow/tasks/demo-read
 - `.forgeflow/tasks/<task-id>/run-state.json` — 현재 stage, gate, evidence 상태
 - `.forgeflow/tasks/<task-id>/review-report.json` 또는 role별 review report — 독립 review 결과
 - 최종 ship/handoff summary — 변경 파일, 검증, review verdict, PR/merge/keep/discard 판단
+- high-risk route에서만 `.forgeflow/tasks/<task-id>/eval-record.json` — reusable patterns and failure rules from long-run
 
 더 긴 실제 흐름은 [examples/end-to-end-nextjs-flow.md](examples/end-to-end-nextjs-flow.md)를 보세요.
 

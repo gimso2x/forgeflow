@@ -20,6 +20,7 @@ user request
   → execute    # 구현, updates run-state.json
   → review     # 독립 검증 → review-report.json
   → ship       # 배포/마무리
+  → long-run   # (high-risk only) 재사용 학습 → eval-record.json
 ```
 
 ## Routes (자동 선택)
@@ -39,7 +40,7 @@ user request
 - `decision-log.json` — 설계 결정 및 가설 디버깅 이력
 - `run-state.json` — 실행 진행 상태 (TDD 사이클 포함)
 - `review-report.json` — review 결과 (spec + quality)
-- `eval-record.json` — 평가 기록
+- `eval-record.json` — reusable learning record (high-risk)
 - `checkpoint.json` — 세션 체크포인트
 
 ## Key Commands
@@ -93,6 +94,7 @@ python3 scripts/policy_scan.py
 /forgeflow:execute      — 구현 실행
 /forgeflow:review   — 독립 검증
 /forgeflow:ship     — 배포/마무리
+/forgeflow:long-run — Record learnings after high-risk task completion (high-risk route only)
 /forgeflow:finish   — 정리 및 종료
 ```
 
