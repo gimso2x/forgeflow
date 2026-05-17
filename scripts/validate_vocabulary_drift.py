@@ -41,6 +41,13 @@ FORBIDDEN_CURRENT_PHRASES = [
     "schema_version: \"0.1\"",
 ]
 
+FORBIDDEN_ROUTE_PHRASE_EXCEPTIONS = {
+    # CHANGELOG 0.3.2 pins the user-facing/documentation route label vocabulary
+    # as small, medium, large_high_risk. Runtime internals still keep high/epic
+    # route surfaces until the broader route-model migration is completed.
+    "large_high_risk": {"README.md", "INSTALL.md", "docs/workflow.md"},
+}
+
 REQUIRED_CURRENT_PHRASES = {
     "prompts/canonical/coordinator.md": "ForgeFlow route labels are exactly `small`, `medium`, `high`, and `epic`",
     "adapters/targets/gemini/agents/forgeflow-coordinator.md": "ForgeFlow route labels are exactly `small`, `medium`, `high`, and `epic`",
@@ -66,7 +73,7 @@ def main() -> int:
     for rel in CURRENT_ROUTE_FILES:
         text = _read(rel)
         for phrase in FORBIDDEN_CURRENT_PHRASES:
-            if phrase in text:
+            if phrase in text and rel not in FORBIDDEN_ROUTE_PHRASE_EXCEPTIONS.get(phrase, set()):
                 errors.append(f"{rel}: stale current vocabulary: {phrase}")
 
     for rel, phrase in REQUIRED_CURRENT_PHRASES.items():
