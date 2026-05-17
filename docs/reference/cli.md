@@ -15,12 +15,12 @@ console script: `forgeflow`, `forgeflow-runtime` (동일 entrypoint)
 작업 디렉터리와 초기 artifact를 생성합니다.
 
 ```bash
-forgeflow init --task-id <id> --objective "<목표>" --risk low|medium|high
+forgeflow init --task-id <id> --objective "<목표>" --risk low|medium|high|critical
 ```
 
 옵션:
 - `--task-dir <path>` — 출력 디렉터리 지정 (기본: `.forgeflow/tasks/<task-id>/`)
-- `--risk low|medium|high` — 리스크 등급
+- `--risk low|medium|high|critical` — 리스크 등급. route로는 각각 `small|medium|high|epic`에 매핑됩니다.
 
 기존 `brief.json`이 있으면 실패합니다.
 

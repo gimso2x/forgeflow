@@ -17,7 +17,7 @@ Use this skill when the user asks for `/forgeflow:init`, `forgeflow init`, or wa
 
 - `--task-id`: stable task identifier (optional; auto-generated if omitted)
 - `--objective`: one-sentence task objective
-- `--risk low|medium|high`: initial risk estimate (optional; defaults to medium)
+- `--risk low|medium|high|critical`: initial risk estimate (optional; defaults to medium). These map to route labels `small|medium|high|epic`.
 - Optional `--task-dir`: explicit task workspace directory
 
 If `--objective` is missing, ask the user for it in Korean. Do not ask for `--task-id` unless the user explicitly wants to set one; otherwise, let the system generate it automatically. All communication with the user must be in Korean.
@@ -27,7 +27,7 @@ If `--objective` is missing, ask the user for it in Korean. Do not ask for `--ta
 Run the existing orchestrator bootstrap command from the ForgeFlow repository root:
 
 ```bash
-python3 scripts/run_orchestrator.py init --task-id <task-id> --objective "<objective>" --risk low|medium|high [--task-dir <path>]
+python3 scripts/run_orchestrator.py init --task-id <task-id> --objective "<objective>" --risk low|medium|high|critical [--task-dir <path>]
 ```
 
 This bootstraps a new task workspace without overwriting existing artifacts. The default task directory is `./.forgeflow/tasks/<task-id>` **in the user's active project/workspace**, not inside a Claude/Codex plugin installation cache.

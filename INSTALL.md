@@ -140,7 +140,7 @@ scripts/smoke.sh
 ```
 
 ```text
-/forgeflow:init --task-id <id> --objective "<objective>" --risk small|medium|high|epic
+/forgeflow:init --task-id <id> --objective "<objective>" --risk small|medium|large_high_risk
 /forgeflow:clarify <하고 싶은 작업>
 /forgeflow:plan
 /forgeflow:execute
@@ -178,9 +178,11 @@ python3 scripts/run_orchestrator.py init \
 - Task-local Claude skills: `.forgeflow/tasks/my-task-001/.claude/skills/plan/SKILL.md`, `.forgeflow/tasks/my-task-001/.claude/skills/build/SKILL.md`, `.forgeflow/tasks/my-task-001/.claude/skills/qa-fix/SKILL.md`, `.forgeflow/tasks/my-task-001/.claude/skills/review/SKILL.md`
 - Pointer: `CLAUDE.md`
 
-결과 JSON에는 `selected_architecture`가 포함됩니다. 높은 리스크나 security/migration/refactor/architecture 작업은 더 엄격한 `fan-out/fan-in + producer-reviewer` 흐름을 선택합니다. init 직후 권장 다음 단계는 `status` 확인 후 `/forgeflow:clarify`입니다. 생성된 문서는 최종 명세가 아니라 시작 초안입니다.
+`init` 결과 JSON은 task workspace 생성과 다음 action을 알려주며, `selected_architecture`는 포함하지 않습니다. `/forgeflow:clarify` 또는 `scripts/run_orchestrator.py clarify` 이후 route와 architecture가 확정됩니다. 높은 리스크나 security/migration/refactor/architecture 작업은 더 엄격한 `fan-out/fan-in + producer-reviewer` 흐름을 선택합니다. init 직후 권장 다음 단계는 `status` 확인 후 `/forgeflow:clarify`입니다. 생성된 문서는 최종 명세가 아니라 시작 초안입니다.
 
 ## 수동 Claude Code 설치
+
+> **현재 권장 설치 방법입니다.**
 
 플러그인 설치가 안 되는 환경이면 generated adapter를 프로젝트 루트에 복사합니다.
 
@@ -269,7 +271,7 @@ python3 scripts/install_codex_plugin.py --force
 등록 후에는 Codex Desktop을 재시작하고, local marketplace에서 ForgeFlow를 install/enable합니다. Codex가 plugin 선택을 요구하면 ForgeFlow를 선택하고, 새 작업은 다음처럼 시작합니다.
 
 ```text
-/forgeflow:init --task-id <id> --objective "<objective>" --risk small|medium|high|epic
+/forgeflow:init --task-id <id> --objective "<objective>" --risk small|medium|large_high_risk
 /forgeflow:clarify <하고 싶은 작업>
 /forgeflow:plan
 /forgeflow:execute

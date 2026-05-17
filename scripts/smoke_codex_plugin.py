@@ -32,6 +32,11 @@ CASES = [
         "high",
         "migrate production auth, database schema, and deployment rollback behavior for payments",
     ),
+    (
+        "codex_epic",
+        "epic",
+        "redesign a multi-service production platform across auth, billing, database migrations, deployment rollback, observability, security review, phased rollout, and post-release monitoring",
+    ),
 ]
 
 
@@ -87,7 +92,7 @@ def smoke_case(project: Path, name: str, expected: str, request: str, timeout: i
     prompt = (
         "Read CODEX.md and .codex/forgeflow/forgeflow-coordinator.md first. Then apply the ForgeFlow /forgeflow:clarify route criteria as a dry-run route-label check. "
         "Do not write files. Do not run commands. "
-        "Your final answer must be exactly one route label and nothing else: small, medium, or high. "
+        "Your final answer must be exactly one route label and nothing else: small, medium, high, or epic. "
         f"Request: {request}"
     )
     before = git_status(project)

@@ -34,11 +34,12 @@ schemas/
   "schema_version": "0.2",
   "task_id": "...",
   "objective": "...",
+  "in_scope": ["..."],
+  "out_of_scope": ["..."],
   "constraints": ["..."],
-  "success_criteria": ["..."],
-  "risk": "low|medium|high",
-  "route": "small|medium|high",
-  "selected_architecture": "..."
+  "acceptance_criteria": ["..."],
+  "risk_level": "low|medium|high|critical",
+  "route": "small|medium|high|epic"
 }
 ```
 
@@ -63,15 +64,19 @@ schemas/
 
 ## run-state.json
 
-`run` stage에서 갱신.
+`execute` stage에서 갱신.
 
 ```json
 {
   "schema_version": "0.2",
   "task_id": "...",
-  "current_stage": "run",
-  "tasks_completed": 3,
-  "tasks_remaining": 1,
+  "current_stage": "execute",
+  "status": "in_progress",
+  "completed_gates": ["clarify", "plan"],
+  "failed_gates": [],
+  "retries": {"execute": 0},
+  "spec_review_approved": false,
+  "quality_review_approved": false,
   "evidence_refs": ["..."]
 }
 ```

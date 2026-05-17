@@ -5,6 +5,7 @@ WORKFLOW = ROOT / ".github" / "workflows" / "validate.yml"
 SMOKE = ROOT / "scripts" / "ci_plugin_smoke_matrix.py"
 REAL_E2E = ROOT / "scripts" / "real_plugin_e2e.py"
 README = ROOT / "README.md"
+CLAUDE_GUIDE = ROOT / "docs" / "guides" / "claude-code.md"
 
 
 def test_validate_workflow_has_plugin_smoke_matrix_job() -> None:
@@ -58,6 +59,15 @@ def test_plugin_smoke_prompts_block_non_canonical_route_labels() -> None:
     assert "Final answer must be exactly {route_label}" in smoke
 
 
+def test_legacy_codex_smoke_covers_full_current_route_vocabulary() -> None:
+    script = (ROOT / "scripts" / "smoke_codex_plugin.py").read_text(encoding="utf-8")
+    assert 'VALID_LABELS = {"small", "medium", "high", "epic"}' in script
+    for route in ["codex_small", "codex_medium", "codex_high", "codex_epic"]:
+        assert route in script
+    assert "small, medium, high, or epic" in script
+    assert "small, medium, or high" not in script
+
+
 def test_readme_documents_local_disposable_nextjs_plugin_smoke() -> None:
     readme = README.read_text(encoding="utf-8")
     for required in [
@@ -68,6 +78,16 @@ def test_readme_documents_local_disposable_nextjs_plugin_smoke() -> None:
         "non-mutating",
     ]:
         assert required in readme
+
+
+def test_claude_code_install_docs_keep_plugin_commands_but_mark_unsupported() -> None:
+    for path in [README, ROOT / "INSTALL.md"]:
+        text = path.read_text(encoding="utf-8")
+        assert "수동 Claude Code 설치" in text
+        assert "현재 권장 설치 방법입니다" in text
+        assert "현재 Claude Code에서 지원되지 않습니다" in text
+        assert "/plugin marketplace add https://github.com/gimso2x/forgeflow" in text
+        assert "claude plugin marketplace add https://github.com/gimso2x/forgeflow" in text
 
 
 def test_real_plugin_e2e_documents_mutating_live_agent_boundary() -> None:
@@ -173,8 +193,7 @@ def test_current_user_facing_docs_use_execute_and_current_route_labels() -> None
     for path in current_docs:
         text = path.read_text(encoding="utf-8")
         for phrase in forbidden_live_route_phrases:
-            if phrase == "large_high_risk" and path.name == "workflow.md":
-                # workflow.md may mention the legacy label only to document the rename to `high`.
+            if phrase == "large_high_risk" and path.name in {"README.md", "INSTALL.md", "workflow.md"}:
                 continue
             assert phrase not in text, f"{path} contains stale live route vocabulary: {phrase}"
         if path.name == "SKILL.md" and "skills/execute" in path.as_posix():

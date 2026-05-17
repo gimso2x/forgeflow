@@ -195,7 +195,7 @@ Note: finalize in workflow.md covers both ship and finish concerns. The slash co
 
 ## 2. Complexity routing
 
-route label canonical values: `small`, `medium`, `high`, `epic` (CHANGELOG 0.10.0 이후 기준)
+route label canonical values: small, medium, large_high_risk (CHANGELOG 0.3.2 기준)
 
 기본 경로는 `clarify-first`다. 즉, 정상 진입은 항상 `clarify`에서 시작하고 여기서 brief와 route를 정한다.
 
@@ -209,9 +209,9 @@ route label canonical values: `small`, `medium`, `high`, `epic` (CHANGELOG 0.10.
 ForgeFlow는 **두 개의 독립적인 축**으로 에이전트를 선택한다:
 
 **Axis 1 — Route → Stage 깊이** (기존)
-- `small` / `medium` / `high` / `epic` → 각 route가 실행할 stage 시퀀스를 결정
+- `small` / `medium` / `large_high_risk` → 각 route가 실행할 stage 시퀀스를 결정
 - 예: small = clarify→execute→quality-review→finalize
-- 예: epic = clarify→milestone→plan→execute→spec-review→quality-review→finalize→long-run
+- 예: large_high_risk = clarify→milestone→plan→execute→spec-review→quality-review→finalize→long-run
 
 **Axis 2 — Spec → 전문 에이전트** (신규)
 - `brief.required_specialists` → clarify 단계에서 작업 성격에 따라 판단
@@ -232,7 +232,7 @@ ForgeFlow는 **두 개의 독립적인 축**으로 에이전트를 선택한다:
 - skip한 전문가는 `brief.skipped_specialists` + `brief.skip_rationale`에 반드시 사유를 남긴다. 새 brief가 `required_specialists` 또는 `skipped_specialists`를 쓰기 시작하면 `clarification_complete` gate는 모든 canonical specialist가 `required_specialists` 또는 `skipped_specialists` 중 하나에 명시되지 않으면 실패한다. legacy brief처럼 두 필드가 모두 없으면 migration compatibility를 위해 통과한다.
 - `required_specialists`가 비어 있으면 기본 worker/reviewer만 사용한다.
 
-플랜 우선 원칙은 모든 route에 적용된다. 작은 작업도 최소 brief와 실행 근거를 남기고, medium/high/epic 작업은 구현 전에 plan-ledger task, expected output, verification, role owner를 먼저 확정한다. 구현자는 이 ledger 밖의 일을 선반영하지 않는다.
+플랜 우선 원칙은 모든 route에 적용된다. 작은 작업도 최소 brief와 실행 근거를 남기고, medium/large_high_risk 작업은 구현 전에 plan-ledger task, expected output, verification, role owner를 먼저 확정한다. 구현자는 이 ledger 밖의 일을 선반영하지 않는다.
 
 사람 최종판단 원칙은 review gate를 약화하지 않는다. AI reviewer의 코멘트는 자동 정답이 아니라 evidence-backed finding 후보이며, ship/finalize 전에는 실제 영향도와 프로젝트 맥락을 사람이 판단할 수 있게 근거를 남겨야 한다.
 
@@ -255,7 +255,7 @@ Parallel implementation is allowed only after `plan` has made task boundaries ma
 - 여러 파일에 걸치는 기능/리팩터
 - 구현 전에 순서 분해가 필요한 작업
 
-### high
+### large_high_risk
 `clarify -> plan -> execute -> spec-review -> quality-review -> finalize -> long-run`
 
 적용 대상:
@@ -269,7 +269,7 @@ Parallel implementation is allowed only after `plan` has made task boundaries ma
 적용 대상:
 - 여러 milestone으로 나눠야 하는 massive scope 작업
 - 장기 실행, 재개, checkpoint, milestone별 review가 필요한 작업
-- 여러 high-risk 변경이 의존성으로 묶여 한 번에 관리되어야 하는 작업
+- 여러 large_high_risk 변경이 의존성으로 묶여 한 번에 관리되어야 하는 작업
 
 ---
 

@@ -55,7 +55,7 @@ If the desktop plugin card does not show the version, read the installed manifes
 Use the plugin with slash-style prompts:
 
 ```text
-/forgeflow:init --task-id <id> --objective "<objective>" --risk low|medium|high
+/forgeflow:init --task-id <id> --objective "<objective>" --risk low|medium|high|critical
 /forgeflow:clarify <task>
 /forgeflow:plan
 /forgeflow:execute

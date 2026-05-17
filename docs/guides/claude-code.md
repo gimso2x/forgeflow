@@ -2,6 +2,25 @@
 
 ## 설치
 
+### 수동 Claude Code 설치
+
+플러그인 설치가 안 되는 환경이면 generated adapter를 프로젝트 루트에 복사합니다.
+
+```bash
+git clone https://github.com/gimso2x/forgeflow.git /tmp/forgeflow
+cp /tmp/forgeflow/adapters/generated/claude/CLAUDE.md ./CLAUDE.md
+```
+
+Claude Code는 프로젝트 루트의 `CLAUDE.md`를 읽습니다.
+
+검증:
+
+```bash
+claude -p "Read CLAUDE.md first. Reply with the ForgeFlow stage order."
+```
+
+### Claude Code plugin
+
 Claude Code에 ForgeFlow marketplace를 추가하고 plugin을 설치합니다.
 
 ```text
