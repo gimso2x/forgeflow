@@ -140,6 +140,7 @@ def test_cli_init_bootstraps_task_from_operator_inputs(tmp_path: Path) -> None:
     assert not (task_dir / "CLAUDE.md").exists()
     assert "selected_architecture" not in payload
     assert "clarify를 실행하여" in payload["next_action"]
+    assert "clarify\\ub97c" in result.stdout
     brief = json.loads((task_dir / "brief.json").read_text(encoding="utf-8"))
     assert brief["task_id"] == "my-task-001"
     assert brief["objective"] == "Update README quickstart"

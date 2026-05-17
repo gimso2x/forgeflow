@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.2] - 2026-05-17
+
+### Fixed
+
+- Windows CI에서 비-UTF-8 콘솔 인코딩(cp1252)이 Korean JSON status 문구를 출력하다 실패하던 문제 수정.
+
 ## [0.11.1] - 2026-05-15
 
 ### Added

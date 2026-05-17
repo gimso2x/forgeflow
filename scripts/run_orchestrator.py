@@ -69,7 +69,10 @@ def _print_stub_warning_if_needed(*, use_real: bool) -> None:
 
 
 def _print_payload(payload: dict) -> None:
-    print(json.dumps(payload, indent=2, ensure_ascii=False))
+    # Keep CLI JSON portable for Windows runners whose console encoding can still
+    # default to cp1252. Callers get the same payload via json.loads, while stdout
+    # stays ASCII-safe for wrappers and CI logs.
+    print(json.dumps(payload, indent=2, ensure_ascii=True))
 
 
 def build_parser() -> argparse.ArgumentParser:

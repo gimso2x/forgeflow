@@ -1,7 +1,7 @@
 ---
 name: forgeflow
 description: Artifact-first workflow contract plus lightweight enforcement runtime for AI coding agents — staged workflow, gates, evidence, and independent review.
-version: "0.11.1"
+version: "0.11.2"
 category: engineering
 tags: [ai-agents, workflow, harness, review, artifacts, claude-code, codex, gemini-cli]
 ---
