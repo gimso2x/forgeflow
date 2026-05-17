@@ -185,12 +185,11 @@
 
 | Slash command | Canonical stage | Description |
 |---|---|---|
-| /forgeflow:milestone | milestone | epic route를 milestone 단위로 분할 |
+| /forgeflow:ship | finalize (part 1) | evidence 묶음, final handoff/report 생성 |
+| /forgeflow:finish | finalize (part 2) | branch disposition: merge / PR / keep / discard |
 | /forgeflow:review | spec-review + quality-review | route에 따라 두 review stage를 순서대로 실행 |
-| /forgeflow:ship | finalize | evidence 묶음, final handoff/report 생성 + branch disposition 판단 |
-| /forgeflow:finish | finalize (legacy split) | 이전 two-step flow의 branch disposition 단계. 현재 README 기본 흐름에서는 `/forgeflow:ship`으로 흡수됨 |
 
-Note: `finalize` in workflow.md covers both ship and finish concerns. Current README exposes `/forgeflow:ship` as the default user-facing final step; `/forgeflow:finish` remains documented as a legacy/explicit split for branch disposition.
+Note: finalize in workflow.md covers both ship and finish concerns. The slash commands split this into two user-facing steps for explicit control.
 
 ---
 
