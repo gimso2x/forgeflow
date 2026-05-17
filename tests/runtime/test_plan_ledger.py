@@ -112,8 +112,18 @@ def test_run_route_syncs_current_task_from_plan_ledger(
         "quality_review_passed",
         "ready_to_finalize",
     ]
-    assert "run-state.json#gate:plan_executable" in persisted_plan_ledger["tasks"][0]["evidence_refs"]
-    assert "review-report.json#verdict:approved" in persisted_plan_ledger["tasks"][0]["evidence_refs"]
+    assert {
+        "type": "gate",
+        "target": "run-state.json#gate:plan_executable",
+        "relation": "validated_by",
+        "label": "plan/plan_executable",
+    } in persisted_plan_ledger["tasks"][0]["evidence_refs"]
+    assert {
+        "type": "review",
+        "target": "review-report.json",
+        "relation": "approved_by",
+        "label": "verdict:approved",
+    } in persisted_plan_ledger["tasks"][0]["evidence_refs"]
     assert persisted_plan_ledger["last_review_verdict"] == "approved"
     assert persisted_run_state["completed_gates"] == ["clarification_complete"]
 
@@ -156,5 +166,10 @@ def test_advance_updates_plan_ledger_gate_evidence(
     assert persisted_plan_ledger["tasks"][0]["status"] == "in_progress"
     assert persisted_plan_ledger["completed_stages"] == ["plan"]
     assert persisted_plan_ledger["completed_gates"] == ["plan_executable"]
-    assert "run-state.json#gate:plan_executable" in persisted_plan_ledger["tasks"][0]["evidence_refs"]
+    assert {
+        "type": "gate",
+        "target": "run-state.json#gate:plan_executable",
+        "relation": "validated_by",
+        "label": "plan/plan_executable",
+    } in persisted_plan_ledger["tasks"][0]["evidence_refs"]
     assert persisted_run_state["completed_gates"] == ["clarification_complete"]

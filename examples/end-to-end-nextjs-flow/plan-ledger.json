@@ -18,7 +18,11 @@
         "validator"
       ],
       "evidence_refs": [
-        "plan.json#locate-dashboard-rendering"
+        {
+          "type": "artifact",
+          "target": "plan.json#locate-dashboard-rendering",
+          "relation": "referenced_by"
+        }
       ],
       "attempt_count": 1
     },
@@ -38,7 +42,11 @@
         "machine"
       ],
       "evidence_refs": [
-        "npm test -- app/dashboard/page.test.tsx"
+        {
+          "type": "artifact",
+          "target": "npm test -- app/dashboard/page.test.tsx",
+          "relation": "referenced_by"
+        }
       ],
       "attempt_count": 1
     },
@@ -58,8 +66,16 @@
         "machine"
       ],
       "evidence_refs": [
-        "npm test -- app/dashboard/page.test.tsx",
-        "npm run lint"
+        {
+          "type": "artifact",
+          "target": "npm test -- app/dashboard/page.test.tsx",
+          "relation": "referenced_by"
+        },
+        {
+          "type": "artifact",
+          "target": "npm run lint",
+          "relation": "referenced_by"
+        }
       ],
       "attempt_count": 1
     }

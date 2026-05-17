@@ -49,7 +49,14 @@ def test_sync_plan_ledger_gate_records_stage_gate_and_evidence_once() -> None:
     assert ledger["completed_stages"] == ["plan"]
     assert ledger["completed_gates"] == ["plan_executable"]
     assert ledger["tasks"][0]["status"] == "in_progress"
-    assert ledger["tasks"][0]["evidence_refs"] == ["run-state.json#gate:plan_executable"]
+    assert ledger["tasks"][0]["evidence_refs"] == [
+        {
+            "type": "gate",
+            "target": "run-state.json#gate:plan_executable",
+            "relation": "validated_by",
+            "label": "plan/plan_executable",
+        }
+    ]
 
 
 def test_sync_plan_ledger_retry_increments_task_and_stage_retry_counts() -> None:
@@ -68,7 +75,14 @@ def test_sync_plan_ledger_review_records_latest_verdict_and_evidence() -> None:
     sync_plan_ledger_review(ledger, review_artifact="review-report.json", verdict="approved")
 
     assert ledger["last_review_verdict"] == "approved"
-    assert ledger["tasks"][0]["evidence_refs"] == ["review-report.json#verdict:approved"]
+    assert ledger["tasks"][0]["evidence_refs"] == [
+        {
+            "type": "review",
+            "target": "review-report.json",
+            "relation": "approved_by",
+            "label": "verdict:approved",
+        }
+    ]
 
 
 def test_finalize_plan_ledger_task_marks_current_task_done_with_attempt() -> None:
@@ -90,8 +104,18 @@ def test_rewind_plan_ledger_progress_removes_future_stage_gate_and_review_eviden
         }
     )
     ledger["tasks"][0]["evidence_refs"] = [
-        "run-state.json#gate:execution_evidenced",
-        "review-report.json#verdict:approved",
+        {
+            "type": "gate",
+            "target": "run-state.json#gate:execution_evidenced",
+            "relation": "validated_by",
+            "label": "execute/execution_evidenced",
+        },
+        {
+            "type": "review",
+            "target": "review-report.json",
+            "relation": "approved_by",
+            "label": "verdict:approved",
+        },
     ]
 
     rewind_plan_ledger_progress(

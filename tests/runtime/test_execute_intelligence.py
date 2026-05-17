@@ -328,14 +328,15 @@ class TestDetectStuck:
 
     def test_file_edit_loop_5plus_edits_warning(self, tmp_path: Path, write_json):
         """Same file edited 5+ times across tasks → warning."""
+        core_ref = {"type": "artifact", "target": "core.py", "relation": "referenced_by"}
         ledger = _make_plan_ledger(
             tasks=[
                 {"id": "T1", "status": "done", "depends_on": [],
-                 "evidence_refs": ["core.py", "core.py"]},
+                 "evidence_refs": [core_ref, core_ref]},
                 {"id": "T2", "status": "done", "depends_on": [],
-                 "evidence_refs": ["core.py"]},
+                 "evidence_refs": [core_ref]},
                 {"id": "T3", "status": "in_progress", "depends_on": [],
-                 "evidence_refs": ["core.py", "core.py"]},
+                 "evidence_refs": [core_ref, core_ref]},
             ],
         )
         write_json(tmp_path / "plan-ledger.json", ledger)

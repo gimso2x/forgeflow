@@ -231,7 +231,7 @@ def test_status_summary_prefers_plan_ledger_current_task_for_medium_route(
                     "parallel_safe": False,
                     "status": "in_progress",
                     "required_gates": ["machine", "validator"],
-                    "evidence_refs": ["run-state.json#gate:plan_executable"],
+                    "evidence_refs": [{"type": "gate", "target": "run-state.json#gate:plan_executable", "relation": "validated_by", "label": "plan/plan_executable"}],
                     "attempt_count": 1,
                 }
             ],

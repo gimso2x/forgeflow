@@ -17,7 +17,11 @@
         "validator"
       ],
       "evidence_refs": [
-        "plan.json"
+        {
+          "type": "artifact",
+          "target": "plan.json",
+          "relation": "referenced_by"
+        }
       ],
       "attempt_count": 0
     },

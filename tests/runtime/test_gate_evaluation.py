@@ -27,13 +27,13 @@ def test_required_finalize_flags_preserves_policy_order() -> None:
 
 
 def test_gate_evidence_ref_uses_stage_specific_review_artifacts() -> None:
-    assert gate_evidence_ref("spec-review", "spec_review_approved") == "review-report-spec.json#gate:spec_review_approved"
-    assert gate_evidence_ref("quality-review", "quality_review_approved") == "review-report.json#gate:quality_review_approved"
-    assert gate_evidence_ref("long-run", "long_run_approved") == "eval-record.json#gate:long_run_approved"
+    assert gate_evidence_ref("spec-review", "spec_review_approved") == {"type": "gate", "target": "review-report-spec.json#gate:spec_review_approved", "relation": "validated_by", "label": "spec-review/spec_review_approved"}
+    assert gate_evidence_ref("quality-review", "quality_review_approved") == {"type": "gate", "target": "review-report.json#gate:quality_review_approved", "relation": "validated_by", "label": "quality-review/quality_review_approved"}
+    assert gate_evidence_ref("long-run", "long_run_approved") == {"type": "gate", "target": "eval-record.json#gate:long_run_approved", "relation": "validated_by", "label": "long-run/long_run_approved"}
 
 
 def test_gate_evidence_ref_uses_run_state_for_regular_stages() -> None:
-    assert gate_evidence_ref("plan", "plan_approved") == "run-state.json#gate:plan_approved"
+    assert gate_evidence_ref("plan", "plan_approved") == {"type": "gate", "target": "run-state.json#gate:plan_approved", "relation": "validated_by", "label": "plan/plan_approved"}
 
 
 def test_record_completed_gate_appends_stage_gate_once(artifact_factory) -> None:

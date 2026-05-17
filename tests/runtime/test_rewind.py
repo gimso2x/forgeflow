@@ -69,8 +69,8 @@ def test_step_back_rewinds_plan_ledger_progress_for_medium_route(
                     "status": "in_progress",
                     "required_gates": ["machine", "validator"],
                     "evidence_refs": [
-                        "run-state.json#gate:plan_executable",
-                        "run-state.json#gate:execution_evidenced",
+                        {"type": "gate", "target": "run-state.json#gate:plan_executable", "relation": "validated_by", "label": "plan/plan_executable"},
+                        {"type": "gate", "target": "run-state.json#gate:execution_evidenced", "relation": "validated_by", "label": "execute/execution_evidenced"},
                     ],
                     "attempt_count": 0,
                 }
@@ -130,7 +130,7 @@ def test_step_back_rewinds_plan_ledger_progress_for_medium_route(
     persisted_plan_ledger = json.loads((task_dir / "plan-ledger.json").read_text(encoding="utf-8"))
     assert persisted_plan_ledger["completed_stages"] == ["clarify", "plan"]
     assert persisted_plan_ledger["completed_gates"] == ["clarification_complete", "plan_executable"]
-    assert persisted_plan_ledger["tasks"][0]["evidence_refs"] == ["run-state.json#gate:plan_executable"]
+    assert persisted_plan_ledger["tasks"][0]["evidence_refs"] == [{"type": "gate", "target": "run-state.json#gate:plan_executable", "relation": "validated_by", "label": "plan/plan_executable"}]
 
     result = run_route(task_dir=task_dir, policy=policy, route_name="medium")
 
@@ -198,13 +198,13 @@ def test_step_back_large_route_preserves_spec_evidence_and_clears_quality_flag(
                     "status": "in_progress",
                     "required_gates": ["machine", "validator"],
                     "evidence_refs": [
-                        "run-state.json#gate:plan_executable",
-                        "run-state.json#gate:execution_evidenced",
-                        "review-report-spec.json#verdict:approved",
-                        "review-report-quality.json#verdict:approved",
-                        "run-state.json#gate:quality_review_passed",
-                        "run-state.json#gate:ready_to_finalize",
-                        "eval-record.json#verdict:approved",
+                        {"type": "gate", "target": "run-state.json#gate:plan_executable", "relation": "validated_by", "label": "plan/plan_executable"},
+                        {"type": "gate", "target": "run-state.json#gate:execution_evidenced", "relation": "validated_by", "label": "execute/execution_evidenced"},
+                        {"type": "review", "target": "review-report-spec.json", "relation": "approved_by", "label": "verdict:approved"},
+                        {"type": "review", "target": "review-report-quality.json", "relation": "approved_by", "label": "verdict:approved"},
+                        {"type": "gate", "target": "run-state.json#gate:quality_review_passed", "relation": "validated_by", "label": "quality-review/quality_review_passed"},
+                        {"type": "gate", "target": "run-state.json#gate:ready_to_finalize", "relation": "validated_by", "label": "finalize/ready_to_finalize"},
+                        {"type": "review", "target": "eval-record.json", "relation": "approved_by", "label": "verdict:approved"},
                     ],
                     "attempt_count": 1,
                 }
@@ -218,6 +218,6 @@ def test_step_back_large_route_preserves_spec_evidence_and_clears_quality_flag(
     assert state["spec_review_approved"] is True
     assert state["quality_review_approved"] is False
     persisted_plan_ledger = json.loads((task_dir / "plan-ledger.json").read_text(encoding="utf-8"))
-    assert "review-report-spec.json#verdict:approved" in persisted_plan_ledger["tasks"][0]["evidence_refs"]
-    assert "review-report-quality.json#verdict:approved" in persisted_plan_ledger["tasks"][0]["evidence_refs"]
-    assert "eval-record.json#verdict:approved" not in persisted_plan_ledger["tasks"][0]["evidence_refs"]
+    assert {"type": "review", "target": "review-report-spec.json", "relation": "approved_by", "label": "verdict:approved"} in persisted_plan_ledger["tasks"][0]["evidence_refs"]
+    assert {"type": "review", "target": "review-report-quality.json", "relation": "approved_by", "label": "verdict:approved"} in persisted_plan_ledger["tasks"][0]["evidence_refs"]
+    assert {"type": "review", "target": "eval-record.json", "relation": "approved_by", "label": "verdict:approved"} not in persisted_plan_ledger["tasks"][0]["evidence_refs"]

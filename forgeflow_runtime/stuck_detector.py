@@ -55,6 +55,10 @@ def _count_file_edits(plan_ledger: dict[str, Any]) -> dict[str, int]:
         for ref in refs:
             if isinstance(ref, str) and ref.strip():
                 counts[ref] = counts.get(ref, 0) + 1
+            elif isinstance(ref, dict):
+                target = ref.get("target")
+                if isinstance(target, str) and target.strip():
+                    counts[target] = counts.get(target, 0) + 1
     return counts
 
 

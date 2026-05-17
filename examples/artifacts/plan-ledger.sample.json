@@ -10,21 +10,38 @@
       "id": "task-1",
       "title": "clarify acceptance criteria",
       "depends_on": [],
-      "files": ["examples/artifacts/brief.sample.json"],
+      "files": [
+        "examples/artifacts/brief.sample.json"
+      ],
       "parallel_safe": true,
       "status": "done",
-      "required_gates": ["validator"],
-      "evidence_refs": ["examples/artifacts/brief.sample.json"],
+      "required_gates": [
+        "validator"
+      ],
+      "evidence_refs": [
+        {
+          "type": "artifact",
+          "target": "examples/artifacts/brief.sample.json",
+          "relation": "referenced_by"
+        }
+      ],
       "attempt_count": 0
     },
     {
       "id": "task-2",
       "title": "draft implementation plan",
-      "depends_on": ["task-1"],
-      "files": ["examples/artifacts/plan.sample.json"],
+      "depends_on": [
+        "task-1"
+      ],
+      "files": [
+        "examples/artifacts/plan.sample.json"
+      ],
       "parallel_safe": false,
       "status": "in_progress",
-      "required_gates": ["machine", "validator"],
+      "required_gates": [
+        "machine",
+        "validator"
+      ],
       "evidence_refs": [],
       "attempt_count": 1
     }

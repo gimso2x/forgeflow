@@ -115,8 +115,65 @@
           "evidence_refs": {
             "type": "array",
             "items": {
-              "type": "string",
-              "minLength": 1
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "target",
+                "relation"
+              ],
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "gate",
+                    "review",
+                    "artifact",
+                    "checkpoint",
+                    "external"
+                  ]
+                },
+                "target": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "relation": {
+                  "type": "string",
+                  "enum": [
+                    "validated_by",
+                    "approved_by",
+                    "changes_requested_by",
+                    "blocked_by",
+                    "produced_by",
+                    "referenced_by",
+                    "snapshot_of",
+                    "custom"
+                  ]
+                },
+                "label": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "allOf": [
+                {
+                  "if": {
+                    "properties": {
+                      "relation": {
+                        "const": "custom"
+                      }
+                    },
+                    "required": [
+                      "relation"
+                    ]
+                  },
+                  "then": {
+                    "required": [
+                      "label"
+                    ]
+                  }
+                }
+              ]
             },
             "uniqueItems": true
           },

@@ -26,9 +26,14 @@ _STAGE_GATE_EVIDENCE_ARTIFACTS = {
 }
 
 
-def gate_evidence_ref(stage_name: str, gate_name: str) -> str:
+def gate_evidence_ref(stage_name: str, gate_name: str) -> dict[str, str]:
     prefix = _STAGE_GATE_EVIDENCE_ARTIFACTS.get(stage_name, "run-state.json")
-    return f"{prefix}#gate:{gate_name}"
+    return {
+        "type": "gate",
+        "target": f"{prefix}#gate:{gate_name}",
+        "relation": "validated_by",
+        "label": f"{stage_name}/{gate_name}",
+    }
 
 
 def required_finalize_flags(route: list[str], finalize_flags: list[str]) -> list[str]:

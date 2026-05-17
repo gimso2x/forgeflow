@@ -570,7 +570,7 @@ steps:
                     "parallel_safe": True,
                     "status": "done",
                     "required_gates": ["machine"],
-                    "evidence_refs": ["workers/frontend/output.md"],
+                    "evidence_refs": [{"type": "artifact", "target": "workers/frontend/output.md", "relation": "referenced_by"}],
                     "attempt_count": 0,
                 },
                 {
@@ -581,7 +581,7 @@ steps:
                     "parallel_safe": True,
                     "status": "done",
                     "required_gates": ["machine"],
-                    "evidence_refs": ["workers/backend/output.md"],
+                    "evidence_refs": [{"type": "artifact", "target": "workers/backend/output.md", "relation": "referenced_by"}],
                     "attempt_count": 0,
                 },
             ],

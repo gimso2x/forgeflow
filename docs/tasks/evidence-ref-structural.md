@@ -1,5 +1,8 @@
 # evidence_refs 구조화 — 온톨로지 관계 명시화
 
+- Status: completed
+- Completed: 2026-05-17
+
 ## 배경
 
 현재 `plan-ledger`의 `evidence_refs`는 평면 문자열 배열이다:

@@ -17,7 +17,11 @@
         "validator"
       ],
       "evidence_refs": [
-        "plan.json"
+        {
+          "type": "artifact",
+          "target": "plan.json",
+          "relation": "referenced_by"
+        }
       ],
       "attempt_count": 0
     },
@@ -39,8 +43,16 @@
         "scenario"
       ],
       "evidence_refs": [
-        "review-report-spec.json",
-        "review-report-quality.json"
+        {
+          "type": "artifact",
+          "target": "review-report-spec.json",
+          "relation": "referenced_by"
+        },
+        {
+          "type": "artifact",
+          "target": "review-report-quality.json",
+          "relation": "referenced_by"
+        }
       ],
       "attempt_count": 1
     },

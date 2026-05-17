@@ -140,6 +140,15 @@ def format_execute_prompt(context: dict[str, Any]) -> str:
     # Evidence refs (helpful context for the agent).
     evidence_refs = task.get("evidence_refs", []) or []
     if evidence_refs:
-        lines.append(f"**Evidence**: {', '.join(evidence_refs)}")
+        formatted_refs = []
+        for evidence_ref in evidence_refs:
+            if isinstance(evidence_ref, dict):
+                target = evidence_ref.get("target", "")
+                relation = evidence_ref.get("relation", "")
+                label = evidence_ref.get("label", "")
+                formatted_refs.append(f"{relation}:{target}" + (f" ({label})" if label else ""))
+            else:
+                formatted_refs.append(str(evidence_ref))
+        lines.append(f"**Evidence**: {', '.join(formatted_refs)}")
 
     return "\n".join(lines)

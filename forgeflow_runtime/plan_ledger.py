@@ -29,9 +29,13 @@ def canonical_current_task_id(run_state: dict[str, Any], plan_ledger: dict[str, 
     return ""
 
 
-def append_evidence_ref(task: dict[str, Any], evidence_ref: str) -> None:
+EvidenceRef = dict[str, str]
+
+
+def append_evidence_ref(task: dict[str, Any], evidence_ref: EvidenceRef) -> None:
     evidence_refs = task.setdefault("evidence_refs", [])
-    if evidence_ref not in evidence_refs:
+    key = (evidence_ref["type"], evidence_ref["target"], evidence_ref["relation"])
+    if not any((ref.get("type"), ref.get("target"), ref.get("relation")) == key for ref in evidence_refs):
         evidence_refs.append(evidence_ref)
 
 
@@ -68,7 +72,19 @@ def sync_plan_ledger_review(plan_ledger: dict[str, Any] | None, *, review_artifa
     task = current_plan_task(plan_ledger)
     if task is None or review_artifact is None:
         return
-    append_evidence_ref(task, f"{review_artifact}#verdict:{verdict}")
+    append_evidence_ref(
+        task,
+        {
+            "type": "review",
+            "target": review_artifact,
+            "relation": {
+                "approved": "approved_by",
+                "changes_requested": "changes_requested_by",
+                "blocked": "blocked_by",
+            }.get(verdict, "referenced_by"),
+            "label": f"verdict:{verdict}",
+        },
+    )
 
 
 def finalize_plan_ledger_task(plan_ledger: dict[str, Any] | None) -> None:
@@ -100,28 +116,18 @@ def rewind_plan_ledger_progress(
         if gate_name is not None
     ]
     removed_gate_refs = {
-        gate_evidence_ref(stage_name, gate_name)
+        (gate_evidence_ref(stage_name, gate_name)["type"], gate_evidence_ref(stage_name, gate_name)["target"], gate_evidence_ref(stage_name, gate_name)["relation"])
         for stage_name in removed_stages
         for gate_name in [stage_gate_map.get(stage_name)]
         if gate_name is not None
     }
-    removed_review_prefixes: set[str] = set()
+    removed_review_targets: set[str] = set()
     if "spec-review" in removed_stages:
-        removed_review_prefixes.update(
-            {
-                "review-report-spec.json#verdict:",
-                "review-report.json#verdict:",
-            }
-        )
+        removed_review_targets.update({"review-report-spec.json", "review-report.json"})
     if "quality-review" in removed_stages:
-        removed_review_prefixes.update(
-            {
-                "review-report-quality.json#verdict:",
-                "review-report.json#verdict:",
-            }
-        )
+        removed_review_targets.update({"review-report-quality.json", "review-report.json"})
     if "long-run" in removed_stages:
-        removed_review_prefixes.add("eval-record.json#verdict:")
+        removed_review_targets.add("eval-record.json")
 
     progress["completed_stages"] = [stage_name for stage_name in progress.get("completed_stages", []) if stage_name in preserved_stages]
     progress["completed_gates"] = [gate_name for gate_name in progress.get("completed_gates", []) if gate_name in preserved_gates]
@@ -129,8 +135,8 @@ def rewind_plan_ledger_progress(
     task["evidence_refs"] = [
         evidence_ref
         for evidence_ref in task.get("evidence_refs", [])
-        if evidence_ref not in removed_gate_refs
-        and not any(evidence_ref.startswith(prefix) for prefix in removed_review_prefixes)
+        if (evidence_ref.get("type"), evidence_ref.get("target"), evidence_ref.get("relation")) not in removed_gate_refs
+        and not (evidence_ref.get("type") == "review" and evidence_ref.get("target") in removed_review_targets)
     ]
     if any(stage_name in {"spec-review", "quality-review", "long-run"} for stage_name in removed_stages):
         progress.pop("last_review_verdict", None)
