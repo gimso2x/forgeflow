@@ -1,5 +1,9 @@
 # ForgeFlow — AGENTS.md
 
+> **대상:** 이 파일은 ForgeFlow 레포 자체를 개발하거나 수정하는 AI coding agent를 위한 instructions입니다.
+> 사용자 프로젝트에서 ForgeFlow를 *사용*할 때 생성되는 agent 파일은 `.forgeflow/tasks/<task-id>/.claude/agents/` 아래에 위치합니다.
+
+
 Repository-level instructions for AI coding agents working on this repo.
 
 ## Project Overview

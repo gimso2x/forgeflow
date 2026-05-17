@@ -143,7 +143,7 @@ def test_post_install_smoke_entrypoint_is_documented_and_actionable() -> None:
         assert "post-install" in text.lower()
 
 
-def test_current_user_facing_docs_use_execute_and_high_labels() -> None:
+def test_current_user_facing_docs_use_execute_and_large_high_risk_labels() -> None:
     current_docs = [
         ROOT / "README.md",
         ROOT / "INSTALL.md",
@@ -159,7 +159,6 @@ def test_current_user_facing_docs_use_execute_and_high_labels() -> None:
         ROOT / "skills" / "plan" / "SKILL.md",
     ]
     forbidden_live_route_phrases = [
-        "large_high_risk",
         "route=large",
         "Route `medium` or `large`",
         "`large` route",

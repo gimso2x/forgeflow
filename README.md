@@ -16,6 +16,10 @@ Claude Code, Codex, Gemini CLI 같은 AI coding agent를 쓰는 개발자를 위
 ## 30초 퀵스타트
 
 **Claude Code:**
+
+> 주의: /plugin marketplace add 및 claude plugin ... 명령어는 현재 Claude Code에서 지원되지 않습니다.
+> 현재 작동하는 설치 경로는 아래 수동 설치 섹션을 사용하세요.
+
 ```text
 /plugin marketplace add https://github.com/gimso2x/forgeflow
 /plugin install forgeflow
@@ -79,7 +83,7 @@ make check-env
 make demo
 
 # 또는 수동으로 runtime artifact를 확인하려면:
-python3 scripts/run_orchestrator.py init --task-id demo-readme --objective "Update README quickstart" --risk low
+python3 scripts/run_orchestrator.py init --task-id demo-readme --objective "Update README quickstart" --risk small
 python3 scripts/run_orchestrator.py status --task-dir .forgeflow/tasks/demo-readme
 ```
 
@@ -101,7 +105,29 @@ python3 scripts/run_orchestrator.py status --task-dir .forgeflow/tasks/demo-read
 
 자세한 설치 가이드는 [INSTALL.md](INSTALL.md)를 참고하세요.
 
+### 수동 Claude Code 설치
+
+> **현재 권장 설치 방법입니다.**
+
+플러그인 설치가 안 되는 환경이면 generated adapter를 프로젝트 루트에 복사합니다.
+
+```bash
+git clone https://github.com/gimso2x/forgeflow.git path/to/forgeflow
+cp path/to/forgeflow/adapters/generated/claude/CLAUDE.md ./CLAUDE.md
+```
+
+Claude Code는 프로젝트 루트의 `CLAUDE.md`를 읽습니다.
+
+검증:
+
+```bash
+claude -p "Read CLAUDE.md first. Reply with the ForgeFlow stage order."
+```
+
 ### Claude Code plugin
+
+> 주의: /plugin marketplace add 및 claude plugin ... 명령어는 현재 Claude Code에서 지원되지 않습니다.
+> 현재 작동하는 설치 경로는 아래 수동 설치 섹션을 사용하세요.
 
 ```bash
 claude plugin marketplace add https://github.com/gimso2x/forgeflow

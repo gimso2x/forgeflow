@@ -160,9 +160,21 @@
 - 세션 잡담을 memory로 던지지 않는다.
 - 재사용 가능한 패턴, 실패 규칙, 평가 결과만 남긴다.
 
+#### Stage name mapping (slash command → canonical stage)
+
+| Slash command | Canonical stage | Description |
+|---|---|---|
+| /forgeflow:ship | finalize (part 1) | evidence 묶음, final handoff/report 생성 |
+| /forgeflow:finish | finalize (part 2) | branch disposition: merge / PR / keep / discard |
+| /forgeflow:review | spec-review + quality-review | route에 따라 두 review stage를 순서대로 실행 |
+
+Note: finalize in workflow.md covers both ship and finish concerns. The slash commands split this into two user-facing steps for explicit control.
+
 ---
 
 ## 2. Complexity routing
+
+route label canonical values: small, medium, large_high_risk (CHANGELOG 0.3.2 기준)
 
 기본 경로는 `clarify-first`다. 즉, 정상 진입은 항상 `clarify`에서 시작하고 여기서 brief와 route를 정한다.
 
@@ -198,7 +210,7 @@ ForgeFlow는 **두 개의 독립적인 축**으로 에이전트를 선택한다:
 - skip한 전문가는 `brief.skipped_specialists` + `brief.skip_rationale`에 반드시 사유를 남긴다. 새 brief가 `required_specialists` 또는 `skipped_specialists`를 쓰기 시작하면 `clarification_complete` gate는 모든 canonical specialist가 `required_specialists` 또는 `skipped_specialists` 중 하나에 명시되지 않으면 실패한다. legacy brief처럼 두 필드가 모두 없으면 migration compatibility를 위해 통과한다.
 - `required_specialists`가 비어 있으면 기본 worker/reviewer만 사용한다.
 
-플랜 우선 원칙은 모든 route에 적용된다. 작은 작업도 최소 brief와 실행 근거를 남기고, medium/high-risk 작업은 구현 전에 plan-ledger task, expected output, verification, role owner를 먼저 확정한다. 구현자는 이 ledger 밖의 일을 선반영하지 않는다.
+플랜 우선 원칙은 모든 route에 적용된다. 작은 작업도 최소 brief와 실행 근거를 남기고, medium/large_high_risk 작업은 구현 전에 plan-ledger task, expected output, verification, role owner를 먼저 확정한다. 구현자는 이 ledger 밖의 일을 선반영하지 않는다.
 
 사람 최종판단 원칙은 review gate를 약화하지 않는다. AI reviewer의 코멘트는 자동 정답이 아니라 evidence-backed finding 후보이며, ship/finalize 전에는 실제 영향도와 프로젝트 맥락을 사람이 판단할 수 있게 근거를 남겨야 한다.
 
@@ -217,7 +229,7 @@ ForgeFlow는 **두 개의 독립적인 축**으로 에이전트를 선택한다:
 - 여러 파일에 걸치는 기능/리팩터
 - 구현 전에 순서 분해가 필요한 작업
 
-### high-risk
+### large_high_risk
 `clarify -> plan -> execute -> spec-review -> quality-review -> finalize -> long-run`
 
 적용 대상:
