@@ -96,9 +96,14 @@ def test_install_docs_offer_clone_free_codex_bootstrap_command():
     install = (ROOT / "INSTALL.md").read_text(encoding="utf-8")
 
     bootstrap = "curl -fsSL https://raw.githubusercontent.com/gimso2x/forgeflow/main/scripts/bootstrap_codex_plugin.py"
-    dry_run_command = f"{bootstrap} | python3 - -- --dry-run"
-    force_command = f"{bootstrap} | python3 - -- --force"
+    dry_run_command = f"{bootstrap} | python3 - --dry-run"
+    force_command = f"{bootstrap} | python3 - --force"
+    powershell_force_command = (
+        "irm https://raw.githubusercontent.com/gimso2x/forgeflow/main/scripts/bootstrap_codex_plugin.py "
+        "| python - --force"
+    )
     assert dry_run_command in readme
     assert dry_run_command in install
     assert force_command in install
+    assert powershell_force_command in install
     assert "--force deletes ~/plugins/forgeflow" in install

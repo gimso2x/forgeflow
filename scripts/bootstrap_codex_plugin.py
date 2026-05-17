@@ -3,7 +3,7 @@
 
 This script is meant to be safe to run from a raw GitHub URL, for example:
 
-    curl -fsSL https://raw.githubusercontent.com/gimso2x/forgeflow/main/scripts/bootstrap_codex_plugin.py | python3 - -- --force
+    curl -fsSL https://raw.githubusercontent.com/gimso2x/forgeflow/main/scripts/bootstrap_codex_plugin.py | python3 - --force
 
 Security features:
   - Optional SHA-256 checksum verification via --checksum.
@@ -59,8 +59,16 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "installer_args",
         nargs=argparse.REMAINDER,
-        help="Arguments passed to scripts/install_codex_plugin.py. Prefix with -- when needed.",
+        help=(
+            "Arguments passed to scripts/install_codex_plugin.py. "
+            "Flags can be provided directly when piping the bootstrap, for example: "
+            "python3 - --force. A leading -- separator is also accepted for backward compatibility."
+        ),
     )
+    # parse_known_args lets installer-only flags such as --force pass through even
+    # when the bootstrap is run from stdin as `python3 - --force`. Historical docs
+    # used `python3 - -- --force`; normalize_installer_args strips that separator
+    # before invoking scripts/install_codex_plugin.py.
     args, installer_args = parser.parse_known_args(argv)
     args.installer_args = [*args.installer_args, *installer_args]
     return args
