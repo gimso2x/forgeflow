@@ -143,7 +143,7 @@ def test_post_install_smoke_entrypoint_is_documented_and_actionable() -> None:
         assert "post-install" in text.lower()
 
 
-def test_current_user_facing_docs_use_execute_and_large_high_risk_labels() -> None:
+def test_current_user_facing_docs_use_execute_and_current_route_labels() -> None:
     current_docs = [
         ROOT / "README.md",
         ROOT / "INSTALL.md",
@@ -159,6 +159,7 @@ def test_current_user_facing_docs_use_execute_and_large_high_risk_labels() -> No
         ROOT / "skills" / "plan" / "SKILL.md",
     ]
     forbidden_live_route_phrases = [
+        "large_high_risk",
         "route=large",
         "Route `medium` or `large`",
         "`large` route",
@@ -172,6 +173,9 @@ def test_current_user_facing_docs_use_execute_and_large_high_risk_labels() -> No
     for path in current_docs:
         text = path.read_text(encoding="utf-8")
         for phrase in forbidden_live_route_phrases:
+            if phrase == "large_high_risk" and path.name == "workflow.md":
+                # workflow.md may mention the legacy label only to document the rename to `high`.
+                continue
             assert phrase not in text, f"{path} contains stale live route vocabulary: {phrase}"
         if path.name == "SKILL.md" and "skills/execute" in path.as_posix():
             assert "execute stage" in text

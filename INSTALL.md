@@ -25,7 +25,7 @@ Gemini CLI는 ForgeFlow를 extension으로 설치합니다. 설치 후 Gemini CL
 gemini extensions install https://github.com/gimso2x/forgeflow
 ```
 
-이미 checkout을 개발 중이면 복사 설치 대신 link로 바로 테스트합니다. root `GEMINI.md`는 Gemini extension bootstrap이고, 실제 ForgeFlow adapter context는 `@./adapters/generated/gemini/GEMINI.md`로 include합니다. ForgeFlow workflow skills도 Superpowers 방식처럼 `@./skills/.../SKILL.md`로 함께 include되어 Gemini가 `/forgeflow:init`부터 `/forgeflow:finish`까지 각 stage contract를 바로 참조할 수 있습니다.
+이미 checkout을 개발 중이면 복사 설치 대신 link로 바로 테스트합니다. root `GEMINI.md`는 Gemini extension bootstrap이고, 실제 ForgeFlow adapter context는 `@./adapters/generated/gemini/GEMINI.md`로 include합니다. ForgeFlow workflow skills도 Superpowers 방식처럼 `@./skills/.../SKILL.md`로 함께 include되어 Gemini가 `/forgeflow:init`부터 `/forgeflow:ship`까지 각 stage contract를 바로 참조할 수 있습니다.
 
 ```bash
 gemini extensions link /home/ubuntu/work/forgeflow
@@ -133,23 +133,22 @@ claude plugin list
 
 설치 후 새 Claude Code 세션을 열고 slash skill을 사용하세요. 기본 입구는 `/forgeflow:clarify`지만, 새 작업 폴더와 task-local agent scaffold를 먼저 만들고 싶으면 `/forgeflow:init`으로 시작합니다. agent가 자연스럽게 다음 stage를 이어 받아야지 사용자가 매번 workflow 운영자가 될 필요는 없습니다.
 
-설치 직후 검증은 repo checkout에서 post-install smoke 한 줄로 합니다. 이 명령은 generated plugin/adapter 파일, canonical `small`/`medium`/`high` route vocabulary, `claude plugin validate`, `/forgeflow:clarify` dry-run, `/forgeflow:init` disposable fixture write를 확인합니다. 실패하면 reinstall/restart/check next step을 출력합니다.
+설치 직후 검증은 repo checkout에서 post-install smoke 한 줄로 합니다. 이 명령은 generated plugin/adapter 파일, canonical `small`/`medium`/`high`/`epic` route vocabulary, `claude plugin validate`, `/forgeflow:clarify` dry-run, `/forgeflow:init` disposable fixture write를 확인합니다. 실패하면 reinstall/restart/check next step을 출력합니다.
 
 ```bash
 scripts/smoke.sh
 ```
 
 ```text
-/forgeflow:init --task-id <id> --objective "<objective>" --risk small|medium|large_high_risk
+/forgeflow:init --task-id <id> --objective "<objective>" --risk small|medium|high|epic
 /forgeflow:clarify <하고 싶은 작업>
 /forgeflow:plan
 /forgeflow:execute
 /forgeflow:review
 /forgeflow:ship
-/forgeflow:finish
 ```
 
-`/forgeflow:ship`은 검증·리뷰 evidence를 묶어 final handoff/report를 만드는 단계입니다. branch disposition은 여기서 하지 않습니다. `/forgeflow:finish`는 그 다음에 merge, PR, keep, or discard 같은 branch disposition을 explicit user direction으로 결정하는 단계입니다.
+`/forgeflow:ship`은 검증·리뷰 evidence를 묶어 final handoff/report를 만들고, merge, PR, keep, or discard 같은 branch disposition 판단까지 다루는 기본 finalize entrypoint입니다. `/forgeflow:finish`는 이전 two-step flow의 branch disposition split을 유지하는 legacy/explicit entrypoint입니다.
 
 짧은 이름(`/clarify`, `/plan`, `/review`, `/ship`)도 동작할 수 있지만, 다른 Claude plugin/gstack skill과 충돌할 수 있습니다. 운영에서는 **항상 `/forgeflow:<stage>` 네임스페이스 형식**을 권장합니다. 특히 `/review`와 `/ship`은 충돌 가능성이 높습니다.
 
@@ -210,7 +209,6 @@ Codex에서는 ForgeFlow plugin을 설치한 뒤 Claude와 같은 slash-style pr
 - `/forgeflow:execute`
 - `/forgeflow:review`
 - `/forgeflow:ship`
-- `/forgeflow:finish`
 
 사용자 입장에서는 Claude plugin과 같은 형태로 입력하면 됩니다.
 
@@ -271,13 +269,12 @@ python3 scripts/install_codex_plugin.py --force
 등록 후에는 Codex Desktop을 재시작하고, local marketplace에서 ForgeFlow를 install/enable합니다. Codex가 plugin 선택을 요구하면 ForgeFlow를 선택하고, 새 작업은 다음처럼 시작합니다.
 
 ```text
-/forgeflow:init --task-id <id> --objective "<objective>" --risk small|medium|large_high_risk
+/forgeflow:init --task-id <id> --objective "<objective>" --risk small|medium|high|epic
 /forgeflow:clarify <하고 싶은 작업>
 /forgeflow:plan
 /forgeflow:execute
 /forgeflow:review
 /forgeflow:ship
-/forgeflow:finish
 ```
 
 plugin manifest의 default prompt도 이 흐름을 기준으로 합니다. `CODEX.md` 없이도 plugin skill로 시작할 수 있습니다. 프로젝트에 지속 규칙을 남기고 싶을 때만 아래 project install을 추가로 사용하세요.

@@ -3,6 +3,7 @@
 ForgeFlow is an artifact-first workflow contract plus a lightweight enforcement runtime for Claude Code, Codex, and Gemini CLI. AI coding agent가 채팅 기억에 의존하지 않고 **명시적인 artifact, gate, evidence, 독립 review**로 작업하게 만듭니다.
 
 현재 릴리즈: **v0.11.2**
+CHANGELOG 최신 항목도 v0.11.2 기준입니다.
 
 ## 누가 왜 쓰나
 
@@ -11,7 +12,7 @@ Claude Code, Codex, Gemini CLI 같은 AI coding agent를 쓰는 개발자를 위
 **핵심 가치:**
 - **Session 간 context 유실 방지** — 모든 단계가 로컬 artifact로 남습니다
 - **독립 review** — 작성자와 검토자가 분리된 evidence 기반 review
-- **Risk-based routing** — 작업 크기와 위험도에 따라 small/medium/high/epic 경로 자동 선택
+- **Risk-based routing** — 작업 크기와 위험도에 따라 canonical route `small`, `medium`, `high`, `epic` 자동 선택
 
 ## 30초 퀵스타트
 
@@ -165,7 +166,7 @@ Windows PowerShell:
 
 - **Artifact model** — brief, milestone, plan, run-state, review-report 등 모든 단계가 검증 가능한 JSON artifact를 생성합니다 → [docs/artifact-model.md](docs/artifact-model.md)
 - **Review model** — evidence 기반 독립 review contract. 작성자와 검토자 분리 → [docs/review-model.md](docs/review-model.md)
-- **Route model (small/medium/high/epic)** — 작업 위험도와 복잡도에 따라 실행 경로를 자동 선택합니다 → [docs/operator-shell.md](docs/operator-shell.md)
+- **Route model (`small`, `medium`, `high`, `epic`)** — 작업 위험도와 복잡도에 따라 실행 경로를 자동 선택합니다 → [docs/operator-shell.md](docs/operator-shell.md)
 - **2-axis specialist selection** — route 축(작업 크기)과 spec 축(전문 에이전트)이 독립 작동합니다. security/backend/frontend/infra/ux/perf 6개 도메인 → [docs/workflow.md](docs/workflow.md)
 - **Adapter boundary** — Claude Code, Codex, Gemini CLI에서 동일한 workflow를 보장하는 adapter 계층 → [docs/adapter-model.md](docs/adapter-model.md)
 
