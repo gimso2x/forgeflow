@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.4] - 2026-05-17
+
+### Changed
+
+- 문서 전반의 canonical workflow stage 이름을 실제 slash command `/forgeflow:execute`와 맞춰 `execute`로 통일.
+- 릴리즈/플러그인/확장 버전 메타데이터를 v0.11.4로 동기화.
+
 ## [0.11.3] - 2026-05-17
 
 ### Added
@@ -407,7 +414,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI gate with GitHub Actions workflow generation
 - Agent preset installer (Claude + Codex)
 
-[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v0.10.0...HEAD
+[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v0.11.4...HEAD
+[0.11.4]: https://github.com/gimso2x/forgeflow/compare/v0.11.3...v0.11.4
+[0.11.3]: https://github.com/gimso2x/forgeflow/compare/v0.11.2...v0.11.3
+[0.11.2]: https://github.com/gimso2x/forgeflow/compare/v0.11.1...v0.11.2
+[0.11.1]: https://github.com/gimso2x/forgeflow/compare/v0.11.0...v0.11.1
+[0.11.0]: https://github.com/gimso2x/forgeflow/compare/v0.10.0...v0.11.0
 [0.10.0]: https://github.com/gimso2x/forgeflow/compare/v0.9.0...v0.10.0
 [0.9.0]: https://github.com/gimso2x/forgeflow/compare/v0.8.1...v0.9.0
 [0.8.1]: https://github.com/gimso2x/forgeflow/compare/v0.8.0...v0.8.1
@@ -421,4 +433,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [0.6.1]: https://github.com/gimso2x/forgeflow/compare/v0.5.1...v0.6.1
 [0.5.1]: https://github.com/gimso2x/forgeflow/compare/v0.4.0...v0.5.1
 [0.4.0]: https://github.com/gimso2x/forgeflow/compare/v0.3.2...v0.4.0
-[0.11.3]: https://github.com/gimso2x/forgeflow/compare/v0.11.2...v0.11.3
