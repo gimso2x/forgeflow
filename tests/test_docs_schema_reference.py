@@ -45,6 +45,43 @@ def test_run_state_reference_uses_current_stage_and_required_fields() -> None:
         assert stale not in text
 
 
+def test_plan_ledger_reference_uses_current_required_fields() -> None:
+    text = SCHEMAS_REF.read_text(encoding="utf-8")
+    for required in [
+        '"route": "small|medium|high|epic"',
+        '"title": "..."',
+        '"files": ["src/example.py"]',
+        '"parallel_safe": true',
+        '"required_gates": ["machine"]',
+        '"evidence_refs": []',
+        '"attempt_count": 0',
+    ]:
+        assert required in text
+
+    assert '"description": "..."' not in text
+
+
+def test_review_report_reference_uses_current_verdict_contract() -> None:
+    text = SCHEMAS_REF.read_text(encoding="utf-8")
+    for required in [
+        '"review_type": "spec|quality|security|ux"',
+        '"verdict": "approved|changes_requested|blocked"',
+        '"findings": ["..."]',
+        '"approved_by": "reviewer-id"',
+        '"next_action": "advance to next stage"',
+        '"safe_for_next_stage": true',
+        '"open_blockers": []',
+    ]:
+        assert required in text
+
+    for stale in [
+        '"verdict": "pass|fail"',
+        '"severity": "critical|major|minor|info"',
+        '"evidence_ref": "..."',
+    ]:
+        assert stale not in text
+
+
 def test_cli_docs_include_current_risk_and_route_vocabularies() -> None:
     cli = (ROOT / "docs" / "reference" / "cli.md").read_text(encoding="utf-8")
     init_skill = (ROOT / "skills" / "init" / "SKILL.md").read_text(encoding="utf-8")

@@ -51,12 +51,18 @@ schemas/
 {
   "schema_version": "0.2",
   "task_id": "...",
+  "route": "small|medium|high|epic",
   "tasks": [
     {
       "id": "...",
-      "description": "...",
+      "title": "...",
       "status": "pending|in_progress|done|blocked",
-      "depends_on": []
+      "depends_on": [],
+      "files": ["src/example.py"],
+      "parallel_safe": true,
+      "required_gates": ["machine"],
+      "evidence_refs": [],
+      "attempt_count": 0
     }
   ]
 }
@@ -89,14 +95,14 @@ schemas/
 {
   "schema_version": "0.2",
   "task_id": "...",
-  "verdict": "pass|fail",
-  "findings": [
-    {
-      "severity": "critical|major|minor|info",
-      "description": "...",
-      "evidence_ref": "..."
-    }
-  ]
+  "review_type": "spec|quality|security|ux",
+  "verdict": "approved|changes_requested|blocked",
+  "findings": ["..."],
+  "approved_by": "reviewer-id",
+  "next_action": "advance to next stage",
+  "safe_for_next_stage": true,
+  "open_blockers": [],
+  "evidence_refs": ["..."]
 }
 ```
 
