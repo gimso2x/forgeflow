@@ -189,8 +189,7 @@ def test_migrate_0_1_to_0_2_direct_function() -> None:
 
 def test_all_example_fixtures_use_current_schema_version() -> None:
     fixtures_dir = ROOT / "examples" / "runtime-fixtures"
-    if not fixtures_dir.exists():
-        pytest.skip("no runtime-fixtures directory")
+    assert fixtures_dir.exists(), "examples/runtime-fixtures must be present for schema drift coverage"
 
     stale = []
     for f in fixtures_dir.rglob("*.json"):
