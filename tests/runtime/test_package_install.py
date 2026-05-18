@@ -49,6 +49,7 @@ def test_editable_install_exposes_forgeflow_entrypoint(tmp_path: Path) -> None:
         raise AssertionError(venv_result.stderr or venv_result.stdout)
     python = venv_dir / "bin" / "python"
     forgeflow = venv_dir / "bin" / "forgeflow"
+    forgeflow_runtime = venv_dir / "bin" / "forgeflow-runtime"
 
     install = subprocess.run(
         [
@@ -68,15 +69,17 @@ def test_editable_install_exposes_forgeflow_entrypoint(tmp_path: Path) -> None:
     )
     assert install.returncode == 0, install.stderr
     assert forgeflow.exists()
+    assert forgeflow_runtime.exists()
 
-    result = subprocess.run(
-        [str(forgeflow), "--help"],
-        cwd=ROOT,
-        capture_output=True,
-        text=True,
-        check=False,
-    )
+    for entrypoint in [forgeflow, forgeflow_runtime]:
+        result = subprocess.run(
+            [str(entrypoint), "--help"],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
 
-    assert result.returncode == 0
-    assert "ForgeFlow stage-machine orchestrator" in result.stdout
-    assert "Operator shell examples:" in result.stdout
+        assert result.returncode == 0
+        assert "ForgeFlow stage-machine orchestrator" in result.stdout
+        assert "Operator shell examples:" in result.stdout
