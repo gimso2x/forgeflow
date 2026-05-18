@@ -81,7 +81,7 @@ Default to **artifact-first mode**. Review should write `review-report.json` und
 Canonical writable location:
 
 - explicit task directory provided by the user, or
-- repo-local `.forgeflow/tasks/<task-id>/` created via `/forgeflow:init` or `python3 scripts/run_orchestrator.py init ...`.
+- repo-local `.forgeflow/tasks/<task-id>/` created via `/forgeflow-init` or `python3 scripts/run_orchestrator.py init ...`.
 
 If the task directory is missing, bootstrap or recover it first. A review that leaves no artifact is just vibes with punctuation.
 

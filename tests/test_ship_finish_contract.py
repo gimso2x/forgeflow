@@ -22,7 +22,7 @@ def test_readme_and_install_explain_init_task_local_scaffold():
     combined = README.read_text(encoding="utf-8") + "\n" + INSTALL.read_text(encoding="utf-8")
     install = INSTALL.read_text(encoding="utf-8")
 
-    assert "/forgeflow:init" in combined
+    assert "/forgeflow-init" in combined
     assert "scripts/run_orchestrator.py init" in combined
     assert "task-local" in combined
     assert "`init` 결과 JSON은 task workspace 생성과 다음 action을 알려주며" in install

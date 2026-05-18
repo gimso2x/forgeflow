@@ -36,11 +36,11 @@ require_text() {
 
 require_file ".claude-plugin/plugin.json"
 require_file "adapters/generated/claude/CLAUDE.md"
-require_file "skills/init/SKILL.md"
+require_file "skills/forgeflow-init/SKILL.md"
 require_file "skills/clarify/SKILL.md"
 # Valid labels: small, medium, high, epic. Keep this phrase grep-visible for post-install contract tests.
 require_text "prompts/canonical/coordinator.md" "ForgeFlow route labels are exactly \`small\`, \`medium\`, \`high\`, and \`epic\`"
-require_text "skills/init/SKILL.md" "/forgeflow:init"
+require_text "skills/forgeflow-init/SKILL.md" "/forgeflow-init"
 require_text "skills/clarify/SKILL.md" "/forgeflow:clarify"
 
 if ! command -v claude >/dev/null 2>&1; then
@@ -53,7 +53,7 @@ if ! claude plugin validate "$ROOT" >/tmp/forgeflow-claude-plugin-validate.log 2
 fi
 pass_step "claude plugin validate"
 
-# scripts/smoke_claude_plugin.py covers /forgeflow:clarify route dry-run plus /forgeflow:init fixture writes.
+# scripts/smoke_claude_plugin.py covers /forgeflow:clarify route dry-run plus /forgeflow-init fixture writes.
 if ! "${PYTHON:-python3}" scripts/smoke_claude_plugin.py "$@"; then
   fail "scripts/smoke_claude_plugin.py failed; check Claude Code login/quota/plugin cache, then reinstall/restart"
 fi
@@ -63,5 +63,5 @@ CLAUDE PLUGIN POST-INSTALL SMOKE: PASS
 - generated files are present
 - route vocabulary is canonical
 - claude plugin validate passed
-- /forgeflow:clarify and /forgeflow:init smoke passed in a disposable temp fixture
+- /forgeflow:clarify and /forgeflow-init smoke passed in a disposable temp fixture
 EOF

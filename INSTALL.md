@@ -25,7 +25,7 @@ Gemini CLI는 ForgeFlow를 extension으로 설치합니다. 설치 후 Gemini CL
 gemini extensions install https://github.com/gimso2x/forgeflow
 ```
 
-이미 checkout을 개발 중이면 복사 설치 대신 link로 바로 테스트합니다. root `GEMINI.md`는 Gemini extension bootstrap이고, 실제 ForgeFlow adapter context는 `@./adapters/generated/gemini/GEMINI.md`로 include합니다. ForgeFlow workflow skills도 Superpowers 방식처럼 `@./skills/.../SKILL.md`로 함께 include되어 Gemini가 `/forgeflow:init`부터 `/forgeflow:ship`까지 각 stage contract를 바로 참조할 수 있습니다.
+이미 checkout을 개발 중이면 복사 설치 대신 link로 바로 테스트합니다. root `GEMINI.md`는 Gemini extension bootstrap이고, 실제 ForgeFlow adapter context는 `@./adapters/generated/gemini/GEMINI.md`로 include합니다. ForgeFlow workflow skills도 Superpowers 방식처럼 `@./skills/.../SKILL.md`로 함께 include되어 Gemini가 `/forgeflow-init`부터 `/forgeflow:ship`까지 각 stage contract를 바로 참조할 수 있습니다.
 
 ```bash
 gemini extensions link /home/ubuntu/work/forgeflow
@@ -131,16 +131,16 @@ claude plugin list
 
 `plugin update`가 "already at the latest version"이라고 나오는데 새 slash skill이 반영되지 않으면, repo의 `.claude-plugin/plugin.json` version이 올라갔는지 확인하세요. Claude Code는 plugin version 기준으로 update를 판단합니다.
 
-설치 후 새 Claude Code 세션을 열고 slash skill을 사용하세요. 기본 입구는 `/forgeflow:clarify`지만, 새 작업 폴더와 task-local agent scaffold를 먼저 만들고 싶으면 `/forgeflow:init`으로 시작합니다. agent가 자연스럽게 다음 stage를 이어 받아야지 사용자가 매번 workflow 운영자가 될 필요는 없습니다.
+설치 후 새 Claude Code 세션을 열고 slash skill을 사용하세요. 기본 입구는 `/forgeflow:clarify`지만, 새 작업 폴더와 task-local agent scaffold를 먼저 만들고 싶으면 `/forgeflow-init`으로 시작합니다. agent가 자연스럽게 다음 stage를 이어 받아야지 사용자가 매번 workflow 운영자가 될 필요는 없습니다.
 
-설치 직후 검증은 repo checkout에서 post-install smoke 한 줄로 합니다. 이 명령은 generated plugin/adapter 파일, canonical `small`/`medium`/`high`/`epic` route vocabulary, `claude plugin validate`, `/forgeflow:clarify` dry-run, `/forgeflow:init` disposable fixture write를 확인합니다. 실패하면 reinstall/restart/check next step을 출력합니다.
+설치 직후 검증은 repo checkout에서 post-install smoke 한 줄로 합니다. 이 명령은 generated plugin/adapter 파일, canonical `small`/`medium`/`high`/`epic` route vocabulary, `claude plugin validate`, `/forgeflow:clarify` dry-run, `/forgeflow-init` disposable fixture write를 확인합니다. 실패하면 reinstall/restart/check next step을 출력합니다.
 
 ```bash
 scripts/smoke.sh
 ```
 
 ```text
-/forgeflow:init --task-id <id> --objective "<objective>" --risk low|medium|high|critical
+/forgeflow-init --task-id <id> --objective "<objective>" --risk low|medium|high|critical
 /forgeflow:clarify <하고 싶은 작업>
 /forgeflow:plan
 /forgeflow:execute
@@ -161,7 +161,7 @@ scripts/smoke.sh
 
 ### Init이 만드는 것
 
-`/forgeflow:init`은 설치 작업이 아닙니다. 이미 설치된 ForgeFlow를 사용해서 현재 프로젝트 안의 `.forgeflow/tasks/<task-id>/` 또는 명시한 `--task-dir`에 task-local scaffold를 만드는 작업입니다. 그래서 plugin 설치 디렉터리, marketplace cache, 전역 Claude/Codex 설정은 건드리지 않습니다.
+`/forgeflow-init`은 설치 작업이 아닙니다. 이미 설치된 ForgeFlow를 사용해서 현재 프로젝트 안의 `.forgeflow/tasks/<task-id>/` 또는 명시한 `--task-dir`에 task-local scaffold를 만드는 작업입니다. 그래서 plugin 설치 디렉터리, marketplace cache, 전역 Claude/Codex 설정은 건드리지 않습니다.
 
 CLI로 같은 동작을 검증할 수 있습니다.
 
@@ -208,7 +208,7 @@ claude -p "Read CLAUDE.md first. Reply with the ForgeFlow stage order."
 
 Codex에서는 ForgeFlow plugin을 설치한 뒤 Claude와 같은 slash-style prompt로 시작합니다.
 
-- `/forgeflow:init`
+- `/forgeflow-init`
 - `/forgeflow:clarify`
 - `/forgeflow:plan`
 - `/forgeflow:execute`
@@ -282,7 +282,7 @@ python3 scripts/install_codex_plugin.py --force
 등록 후에는 Codex Desktop을 재시작하고, local marketplace에서 ForgeFlow를 install/enable합니다. Codex가 plugin 선택을 요구하면 ForgeFlow를 선택하고, 새 작업은 다음처럼 시작합니다.
 
 ```text
-/forgeflow:init --task-id <id> --objective "<objective>" --risk low|medium|high|critical
+/forgeflow-init --task-id <id> --objective "<objective>" --risk low|medium|high|critical
 /forgeflow:clarify <하고 싶은 작업>
 /forgeflow:plan
 /forgeflow:execute

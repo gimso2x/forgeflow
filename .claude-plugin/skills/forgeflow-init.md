@@ -2,17 +2,17 @@
 description: Bootstrap a new ForgeFlow task. Creates directory structure and saves raw objective — analysis happens in clarify.
 ---
 
-# /forgeflow:init
+# /forgeflow-init
 
 Create the task workspace. Only does scaffold + raw objective storage. No domain analysis, no drafts, no agents.
 
 ## Usage
 
 ```
-/forgeflow:init
-/forgeflow:init <objective>
-/forgeflow:init <objective> --risk <low|medium|high>
-/forgeflow:init <objective> --task-id <custom-id> --risk <high>
+/forgeflow-init
+/forgeflow-init <objective>
+/forgeflow-init <objective> --risk <low|medium|high>
+/forgeflow-init <objective> --task-id <custom-id> --risk <high>
 ```
 
 **모든 인자가 옵셔널이다.** 아무것도 안 주면 프로젝트 컨텍스트에서 자동 추론한다.

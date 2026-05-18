@@ -178,7 +178,7 @@ def main() -> int:
         write_cases = [
             (
                 "init_write",
-                f"/forgeflow:init --task-id claude-plugin-smoke --objective \"Smoke-test init slash command\" --risk low --task-dir {task_dir}. Create only the init starter artifacts in that task directory. Do not modify repository files outside that task directory.",
+                f"/forgeflow-init --task-id claude-plugin-smoke --objective \"Smoke-test init slash command\" --risk low --task-dir {task_dir}. Create only the init starter artifacts in that task directory. Do not modify repository files outside that task directory.",
             ),
             (
                 "plan_write",

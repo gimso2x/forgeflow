@@ -60,7 +60,7 @@ Default to **artifact-first mode**. Clarify should write `brief.json` under the 
 Canonical writable location:
 
 - explicit task directory provided by the user, or
-- repo-local `.forgeflow/tasks/<task-id>/` created via `/forgeflow:init` or `python3 scripts/run_orchestrator.py init ...`.
+- repo-local `.forgeflow/tasks/<task-id>/` created via `/forgeflow-init` or `python3 scripts/run_orchestrator.py init ...`.
 
 If the task directory is missing, stop pretending chat is state. Bootstrap the workspace first instead of returning a pseudo-brief in chat only.
 

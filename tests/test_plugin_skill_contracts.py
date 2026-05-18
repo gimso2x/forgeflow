@@ -53,12 +53,12 @@ def test_review_evidence_discipline_distinguishes_observed_from_reported() -> No
 
 
 def test_init_skill_exposes_orchestrator_bootstrap_without_auto_chaining() -> None:
-    skill_path = ROOT / "skills" / "init" / "SKILL.md"
+    skill_path = ROOT / "skills" / "forgeflow-init" / "SKILL.md"
     assert skill_path.exists()
     skill = skill_path.read_text(encoding="utf-8")
 
     for required_text in [
-        "name: init",
+        "name: forgeflow-init",
         "scripts/run_orchestrator.py init",
         "--task-id",
         "--objective",
@@ -103,7 +103,7 @@ def test_codex_plugin_accepts_forgeflow_slash_style_prompts() -> None:
     assert "Codex exposes plugin skills" in forgeflow
 
     expected = {
-        "init": "/forgeflow:init",
+        "forgeflow-init": "/forgeflow-init",
         "clarify": "/forgeflow:clarify",
         "plan": "/forgeflow:plan",
         "execute": "/forgeflow:execute",
@@ -117,11 +117,11 @@ def test_codex_plugin_accepts_forgeflow_slash_style_prompts() -> None:
         assert "response-only mode" not in skill
         assert "return their content in the chat response" not in skill
         assert "work/my-task" not in skill
-        if skill_name == "init":
+        if skill_name == "forgeflow-init":
             assert "Plugin-cache safety rule" in skill
         else:
             assert "Never write inside the plugin installation directory, marketplace cache" in skill
-        if skill_name != "init":
+        if skill_name != "forgeflow-init":
             assert "explicitly asks for a dry run" in skill
         assert ".forgeflow/tasks/<task-id>" in skill
 

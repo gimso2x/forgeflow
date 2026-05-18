@@ -34,7 +34,7 @@ Gemini CLI에서 `/forgeflow`로 시작하는 명령어를 입력하면 ForgeFlo
 
 ForgeFlow는 다음의 슬래시 명령어를 지원합니다:
 
-- `/forgeflow:init` — 태스크 워크스페이스 초기화
+- `/forgeflow-init` — 태스크 워크스페이스 초기화
 - `/forgeflow:clarify` — 요구사항 명확화 및 Brief 작성
 - `/forgeflow:plan` — 실행 계획 수립
 - `/forgeflow:execute` — 계획 실행 및 구현

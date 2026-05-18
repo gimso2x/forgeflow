@@ -16,7 +16,7 @@ Skills are markdown documents that live in `skills/`. Each skill defines a bound
 | # | Skill | Purpose | Borrowed from |
 |---|-------|---------|---------------|
 | 00 | [`forgeflow`](forgeflow/SKILL.md) | Overview router for slash-style ForgeFlow prompts. | ForgeFlow |
-| 01 | [`init`](init/SKILL.md) | Bootstrap a task workspace without auto-chaining. | ForgeFlow runtime |
+| 01 | [`forgeflow-init`](forgeflow-init/SKILL.md) | Bootstrap a task workspace without auto-chaining. | ForgeFlow runtime |
 | 02 | [`clarify`](clarify/SKILL.md) | Resolve ambiguity, explore codebase, emit a **Context Brief** with complexity routing. | engineering-discipline + andrej-karpathy-skills |
 | 03 | [`plan`](plan/SKILL.md) | Turn requirements into an executable **plan.json** with task contracts. | hoyeon + engineering-discipline + andrej-karpathy-skills |
 | 04 | [`execute`](execute/SKILL.md) | Execute plan tasks using **worker-validator pairs** with checkpoint/recovery. | engineering-discipline + andrej-karpathy-skills |

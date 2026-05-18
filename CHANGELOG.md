@@ -214,7 +214,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Hardened init skill — never ask user for missing args.
-- `/forgeflow:init` now fully auto-inferable — objective, task-id, risk all optional.
+- `/forgeflow-init` now fully auto-inferable — objective, task-id, risk all optional.
 
 ## [0.5.1] - 2026-05-10
 

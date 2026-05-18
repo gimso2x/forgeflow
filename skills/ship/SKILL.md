@@ -47,7 +47,7 @@ Default to **artifact-first mode**. Ship should preserve the final handoff evide
 Canonical writable location:
 
 - explicit task directory provided by the user, or
-- repo-local `.forgeflow/tasks/<task-id>/` created via `/forgeflow:init` or `python3 scripts/run_orchestrator.py init ...`.
+- repo-local `.forgeflow/tasks/<task-id>/` created via `/forgeflow-init` or `python3 scripts/run_orchestrator.py init ...`.
 
 If the task directory is missing, bootstrap or recover it first. Shipping without persisted evidence is how people end up debugging ghosts.
 

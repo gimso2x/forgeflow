@@ -161,5 +161,5 @@ python3 -m pytest tests/test_plugin_skill_contracts.py -q
 
 - `docs/decisions/0002-harness-absorption-boundary.md` — 흡수 경계 결정
 - `forgeflow_runtime/orchestrator.py` L581-741 — 실제 구현 (`_select_team_architecture`, `_init_markdown_drafts`)
-- `skills/init/SKILL.md` — init 스킬 정의
-- `.claude-plugin/skills/init.md` — 플러그인 init 명령
+- `skills/forgeflow-init/SKILL.md` — init 스킬 정의
+- `.claude-plugin/skills/forgeflow-init.md` — 플러그인 init 명령

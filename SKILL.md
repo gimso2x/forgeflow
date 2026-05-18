@@ -87,7 +87,7 @@ python3 scripts/policy_scan.py
 ## Slash Skills (Claude Code Plugin)
 
 ```text
-/forgeflow:init     — task 생성 (task-id, objective, risk)
+/forgeflow-init     — task 생성 (task-id, objective, risk)
 /forgeflow:clarify  — 요구사항 정리
 /forgeflow:milestone — Epic 전용 마일스톤 관리
 /forgeflow:plan     — 계획 수립

@@ -18,7 +18,7 @@ ForgeFlow turns agent work into explicit stages with artifacts, gates, and indep
 Claude Code may expose native slash commands. Codex exposes plugin skills, so these same strings are prompt triggers that dispatch to the matching ForgeFlow skill:
 
 - `/forgeflow` -> this overview workflow skill
-- `/forgeflow:init ...` -> `init`
+- `/forgeflow-init ...` -> `forgeflow-init`
 - `/forgeflow:clarify ...` -> `clarify`
 - `/forgeflow:plan` -> `plan`
 - `/forgeflow:execute` -> `run`
@@ -83,9 +83,9 @@ Default to **artifact-first mode**. ForgeFlow is not a chat-only ritual. Unless 
 Canonical writable location:
 
 - explicit task directory provided by the user, or
-- repo-local `.forgeflow/tasks/<task-id>/` resolved by `/forgeflow:init` or the orchestrator runtime.
+- repo-local `.forgeflow/tasks/<task-id>/` resolved by `/forgeflow-init` or the orchestrator runtime.
 
-If the task directory does not exist yet, bootstrap it first with `/forgeflow:init` or `python3 scripts/run_orchestrator.py init ...` before clarify/plan/run/review/ship. Do not skip straight to source edits when the artifact workspace is missing.
+If the task directory does not exist yet, bootstrap it first with `/forgeflow-init` or `python3 scripts/run_orchestrator.py init ...` before clarify/plan/run/review/ship. Do not skip straight to source edits when the artifact workspace is missing.
 
 If the user says "do not write files", "return only", "dry run", "just list", or asks for a label/summary only, obey that output constraint exactly and do not attempt any filesystem mutation.
 

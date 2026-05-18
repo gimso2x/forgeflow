@@ -64,7 +64,7 @@ def test_developer_handoff_template_is_executable() -> None:
 
 
 def test_init_skill_seeds_blueprint_without_crossing_stage_boundary() -> None:
-    skill = _read("skills/init/SKILL.md")
+    skill = _read("skills/forgeflow-init/SKILL.md")
 
     assert "Starter blueprint" in skill
     assert "initial team/role split" in skill

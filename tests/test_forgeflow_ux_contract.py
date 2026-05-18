@@ -126,7 +126,7 @@ def test_install_documents_plugin_cache_guard_and_smoke() -> None:
     assert "make smoke-claude-plugin" in install
     assert "plugin cache" in install
     assert "make validate" in install
-    assert "/forgeflow:init" in install
+    assert "/forgeflow-init" in install
 
 
 def test_makefile_defines_policy_scan_target() -> None:

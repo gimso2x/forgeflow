@@ -55,7 +55,7 @@ If the desktop plugin card does not show the version, read the installed manifes
 Use the plugin with slash-style prompts:
 
 ```text
-/forgeflow:init --task-id <id> --objective "<objective>" --risk low|medium|high|critical
+/forgeflow-init --task-id <id> --objective "<objective>" --risk low|medium|high|critical
 /forgeflow:clarify <task>
 /forgeflow:plan
 /forgeflow:execute
@@ -90,7 +90,7 @@ If `CODEX.md` already exists, the installer preserves it. Use `--overwrite-codex
 ## Operating Model
 
 - Use the local plugin marketplace entry as the default Codex entrypoint.
-- Start new work with `/forgeflow:clarify <task>` or `/forgeflow:init ...`.
+- Start new work with `/forgeflow:clarify <task>` or `/forgeflow-init ...`.
 - Install `CODEX.md` only when a project needs persistent local rules in addition to the plugin.
 - Keep task artifacts under `.forgeflow/tasks/<task-id>/` when artifact-backed state is needed.
 - Use `.codex/forgeflow` presets as role prompts, not as a second runtime.

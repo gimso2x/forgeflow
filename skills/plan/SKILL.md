@@ -166,7 +166,7 @@ Default to **artifact-first mode**. Plan should write `plan.json` under the acti
 Canonical writable location:
 
 - explicit task directory provided by the user, or
-- repo-local `.forgeflow/tasks/<task-id>/` created via `/forgeflow:init` or `python3 scripts/run_orchestrator.py init ...`.
+- repo-local `.forgeflow/tasks/<task-id>/` created via `/forgeflow-init` or `python3 scripts/run_orchestrator.py init ...`.
 
 If the task directory is missing, bootstrap it first. Do not downgrade planning into a chat transcript when the workflow contract expects artifacts.
 
