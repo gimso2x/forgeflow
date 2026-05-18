@@ -84,7 +84,7 @@ make check-env
 make demo
 
 # 또는 수동으로 runtime artifact를 확인하려면:
-python3 scripts/run_orchestrator.py init --task-id demo-readme --objective "Update README quickstart" --risk small
+python3 scripts/run_orchestrator.py init --task-id demo-readme --objective "Update README quickstart" --risk low
 python3 scripts/run_orchestrator.py status --task-dir .forgeflow/tasks/demo-readme
 ```
 

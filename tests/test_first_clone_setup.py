@@ -99,6 +99,15 @@ def test_readme_quickstart_points_to_install_guide() -> None:
     assert install.index("make validate") < install.index("make check-env")
 
 
+def test_readme_manual_orchestrator_init_uses_risk_level_not_route_label() -> None:
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    manual_section = readme.split("# 또는 수동으로 runtime artifact를 확인하려면:", 1)[1].split("```", 1)[0]
+
+    assert "scripts/run_orchestrator.py init" in manual_section
+    assert "--risk low" in manual_section
+    assert "--risk small" not in manual_section
+
+
 def test_install_update_path_rechecks_first_clone_dependencies_before_validation() -> None:
     install = (ROOT / "INSTALL.md").read_text(encoding="utf-8")
     update_section = install.split("## 업데이트", 1)[1]
