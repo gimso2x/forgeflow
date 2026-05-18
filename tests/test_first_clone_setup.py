@@ -108,6 +108,15 @@ def test_readme_manual_orchestrator_init_uses_risk_level_not_route_label() -> No
     assert "--risk small" not in manual_section
 
 
+def test_install_init_examples_use_risk_levels_not_route_labels() -> None:
+    install = (ROOT / "INSTALL.md").read_text(encoding="utf-8")
+
+    assert "--risk low|medium|high|critical" in install
+    assert "--risk low" in install
+    assert "--risk small|medium|large_high_risk" not in install
+    assert "--risk small" not in install
+
+
 def test_install_update_path_rechecks_first_clone_dependencies_before_validation() -> None:
     install = (ROOT / "INSTALL.md").read_text(encoding="utf-8")
     update_section = install.split("## 업데이트", 1)[1]
