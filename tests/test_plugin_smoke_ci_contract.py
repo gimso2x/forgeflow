@@ -31,6 +31,8 @@ def test_ci_plugin_smoke_script_documents_non_mutating_route_matrix() -> None:
         "project_snapshot",
         "git status --short",
         "install_agent_presets.py",
+        "install_claude_baseline",
+        "install_codex_baseline",
         "codex_plugin_doctor.py",
         "smoke_codex_plugin.py",
         "smoke_claude_plugin.py",

@@ -98,6 +98,35 @@ def create_disposable_nextjs_project(base: Path) -> Path:
     return project
 
 
+def install_claude_baseline(project: Path) -> None:
+    # Keep these command names in source so contract tests and operators can grep them:
+    # install_agent_presets.py, smoke_claude_plugin.py
+    run(
+        [
+            sys.executable,
+            "scripts/install_agent_presets.py",
+            "--adapter",
+            "claude",
+            "--target",
+            str(project),
+            "--profile",
+            "nextjs",
+        ],
+        cwd=ROOT,
+    )
+    expected = [
+        project / ".claude" / "agents" / "forgeflow-coordinator.md",
+        project / ".claude" / "agents" / "forgeflow-nextjs-worker.md",
+        project / ".claude" / "agents" / "forgeflow-quality-reviewer.md",
+        project / "docs" / "forgeflow-team-init.md",
+    ]
+    missing = [path.relative_to(project).as_posix() for path in expected if not path.exists()]
+    if missing:
+        raise RuntimeError(f"claude preset baseline missing expected files: {missing}")
+    run(["git", "add", ".claude", "docs/forgeflow-team-init.md"], cwd=project)
+    run(["git", "commit", "-m", "install forgeflow claude preset baseline"], cwd=project)
+
+
 def install_codex_baseline(project: Path) -> None:
     # Keep these command names in source so contract tests and operators can grep them:
     # install_agent_presets.py, codex_plugin_doctor.py, smoke_codex_plugin.py
@@ -201,7 +230,9 @@ def main() -> int:
     base = Path(tempfile.mkdtemp(prefix="forgeflow-plugin-smoke-matrix-"))
     try:
         project = Path(args.project).resolve() if args.project else create_disposable_nextjs_project(base)
-        if args.surface == "codex":
+        if args.surface == "claude":
+            install_claude_baseline(project)
+        elif args.surface == "codex":
             install_codex_baseline(project)
         before_status = git_status_short(project)
         before_snapshot = project_snapshot(project)
