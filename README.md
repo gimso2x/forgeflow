@@ -28,8 +28,7 @@ Claude Code, Codex, Gemini CLI 같은 AI coding agent를 쓰는 개발자를 위
 
 **Gemini CLI:**
 ```bash
-# 이 명령은 즉시 설치됩니다. (consent 플래그로 확인 생략)
-gemini extensions install https://github.com/gimso2x/forgeflow --ref main --consent
+gemini extensions install https://github.com/gimso2x/forgeflow
 ```
 
 **Codex:**

@@ -23,14 +23,17 @@ def test_gemini_extension_manifest_points_at_generated_context() -> None:
 
 
 def test_gemini_extension_docs_use_native_extension_commands() -> None:
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
     install = (ROOT / "INSTALL.md").read_text(encoding="utf-8")
     generated = (ROOT / "adapters/generated/gemini/GEMINI.md").read_text(encoding="utf-8")
 
+    assert "gemini extensions install https://github.com/gimso2x/forgeflow" in readme
     assert "gemini extensions install https://github.com/gimso2x/forgeflow" in install
     assert "gemini extensions update forgeflow" in install
     assert "gemini extensions link /home/ubuntu/work/forgeflow" in install
     assert "gemini extensions install https://github.com/gimso2x/forgeflow" in generated
     assert "gemini extensions update forgeflow" in generated
+    assert "--consent" not in readme
 
 
 def test_gemini_project_local_preset_remains_optional() -> None:
