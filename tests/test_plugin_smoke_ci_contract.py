@@ -80,6 +80,20 @@ def test_readme_documents_local_disposable_nextjs_plugin_smoke() -> None:
         assert required in readme
 
 
+def test_ci_plugin_smoke_script_pins_disposable_nextjs_dependency_versions() -> None:
+    smoke = SMOKE.read_text(encoding="utf-8")
+    assert '"next": "latest"' not in smoke
+    assert '"react": "latest"' not in smoke
+    assert '"react-dom": "latest"' not in smoke
+    assert '"typescript": "latest"' not in smoke
+    assert '"eslint": "latest"' not in smoke
+    assert '"next": "14.0.0"' in smoke
+    assert '"react": "18.2.0"' in smoke
+    assert '"react-dom": "18.2.0"' in smoke
+    assert '"typescript": "5.3.0"' in smoke
+    assert '"eslint": "8.57.0"' in smoke
+
+
 def test_claude_code_install_docs_keep_plugin_commands_but_mark_unsupported() -> None:
     for path in [README, ROOT / "INSTALL.md"]:
         text = path.read_text(encoding="utf-8")

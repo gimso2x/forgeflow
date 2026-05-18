@@ -3,6 +3,8 @@ import sys
 import tomllib
 from pathlib import Path
 
+import pytest
+
 from tests.runtime.cli_helpers import ROOT
 
 
@@ -34,7 +36,17 @@ def test_console_script_target_can_run_orchestrator_help() -> None:
 
 def test_editable_install_exposes_forgeflow_entrypoint(tmp_path: Path) -> None:
     venv_dir = tmp_path / "venv"
-    subprocess.run([sys.executable, "-m", "venv", str(venv_dir)], check=True)
+    venv_result = subprocess.run(
+        [sys.executable, "-m", "venv", str(venv_dir)],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if venv_result.returncode != 0:
+        details = "\n".join(part for part in [venv_result.stdout.strip(), venv_result.stderr.strip()] if part).casefold()
+        if any(marker in details for marker in ["ensurepip", "python3-venv", "no module named venv"]):
+            pytest.skip("stdlib venv unavailable in this environment")
+        raise AssertionError(venv_result.stderr or venv_result.stdout)
     python = venv_dir / "bin" / "python"
     forgeflow = venv_dir / "bin" / "forgeflow"
 

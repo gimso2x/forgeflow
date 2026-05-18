@@ -89,6 +89,21 @@ def test_safe_extract_rejects_path_traversal(tmp_path: Path):
     zf.close()
 
 
+def test_safe_extract_rejects_sibling_prefix_traversal(tmp_path: Path):
+    from scripts.bootstrap_codex_plugin import safe_extract
+
+    zip_data = _make_zip({"../out-evil/payload.txt": "surprise\n"})
+    buf = io.BytesIO(zip_data)
+    zf = zipfile.ZipFile(buf)
+
+    dest = tmp_path / "out"
+    dest.mkdir()
+
+    with pytest.raises(ValueError, match="[Pp]ath traversal"):
+        safe_extract(zf, dest)
+    zf.close()
+
+
 def test_safe_extract_rejects_oversized_single_file(tmp_path: Path):
     from scripts.bootstrap_codex_plugin import safe_extract, MAX_SINGLE_FILE_BYTES
 

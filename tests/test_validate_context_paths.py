@@ -77,6 +77,32 @@ def test_context_path_validator_accepts_existing_hidden_dir_refs(tmp_path: Path)
     assert validator.find_broken_references(tmp_path) == []
 
 
+def test_context_path_validator_reports_missing_repo_internal_absolute_refs(tmp_path: Path) -> None:
+    validator = _load_validator_module()
+    missing = tmp_path / "docs" / "missing-guide.md"
+    (tmp_path / "README.md").write_text(
+        f"Use `{missing.resolve().as_posix()}` for local setup.\n",
+        encoding="utf-8",
+    )
+
+    broken = validator.find_broken_references(tmp_path)
+
+    assert [item.render() for item in broken] == [f"README.md:1: {missing.resolve().as_posix()}"]
+
+
+def test_context_path_validator_accepts_existing_repo_internal_absolute_refs(tmp_path: Path) -> None:
+    validator = _load_validator_module()
+    guide = tmp_path / "docs" / "guide.md"
+    guide.parent.mkdir(parents=True)
+    guide.write_text("# Guide\n", encoding="utf-8")
+    (tmp_path / "README.md").write_text(
+        f"Use `{guide.resolve().as_posix()}` for local setup.\n",
+        encoding="utf-8",
+    )
+
+    assert validator.find_broken_references(tmp_path) == []
+
+
 def test_context_path_validator_ignores_generated_and_upstream_context(tmp_path: Path) -> None:
     validator = _load_validator_module()
     generated = tmp_path / "adapters" / "generated" / "claude"

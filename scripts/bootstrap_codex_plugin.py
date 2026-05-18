@@ -104,11 +104,13 @@ def verify_checksum(archive_path: Path, expected_hex: str) -> None:
 def safe_extract(zf: zipfile.ZipFile, dest: Path) -> None:
     """Extract with zip bomb protection and path traversal guard."""
     total = 0
+    dest_resolved = dest.resolve()
     for info in zf.infolist():
-        # Path traversal guard
         target = (dest / info.filename).resolve()
-        if not str(target).startswith(str(dest.resolve())):
-            raise ValueError(f"Path traversal detected: {info.filename}")
+        try:
+            target.relative_to(dest_resolved)
+        except ValueError as exc:
+            raise ValueError(f"Path traversal detected: {info.filename}") from exc
 
         if info.file_size > MAX_SINGLE_FILE_BYTES:
             raise ValueError(

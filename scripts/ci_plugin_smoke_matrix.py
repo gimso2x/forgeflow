@@ -26,6 +26,15 @@ ROUTE_REQUESTS = {
     "epic": "redesign a multi-service production platform across auth, billing, database migrations, deployment rollback, observability, security review, phased rollout, and post-release monitoring",
 }
 SKIP_DIRS = {".git", ".omx", "node_modules", ".next"}
+DISPOSABLE_NEXTJS_DEPENDENCIES = {
+    "next": "14.0.0",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+}
+DISPOSABLE_NEXTJS_DEV_DEPENDENCIES = {
+    "typescript": "5.3.0",
+    "eslint": "8.57.0",
+}
 
 
 def run(command: list[str], cwd: Path, timeout: int = 180, check: bool = True) -> subprocess.CompletedProcess[str]:
@@ -68,8 +77,8 @@ def create_disposable_nextjs_project(base: Path) -> Path:
         json.dumps(
             {
                 "scripts": {"lint": "next lint", "build": "next build", "dev": "next dev"},
-                "dependencies": {"next": "latest", "react": "latest", "react-dom": "latest"},
-                "devDependencies": {"typescript": "latest", "eslint": "latest"},
+                "dependencies": DISPOSABLE_NEXTJS_DEPENDENCIES,
+                "devDependencies": DISPOSABLE_NEXTJS_DEV_DEPENDENCIES,
             },
             indent=2,
         )
