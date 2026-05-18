@@ -224,14 +224,14 @@ Codex 앱의 local plugin marketplace에 ForgeFlow를 노출하려면 checkout �
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/gimso2x/forgeflow/main/scripts/bootstrap_codex_plugin.py | python3 - --dry-run
-curl -fsSL https://raw.githubusercontent.com/gimso2x/forgeflow/main/scripts/bootstrap_codex_plugin.py | python3 -
+curl -fsSL https://raw.githubusercontent.com/gimso2x/forgeflow/main/scripts/bootstrap_codex_plugin.py | python3 - --force
 ```
 
 Windows PowerShell:
 
 ```powershell
 irm https://raw.githubusercontent.com/gimso2x/forgeflow/main/scripts/bootstrap_codex_plugin.py | python - --dry-run
-irm https://raw.githubusercontent.com/gimso2x/forgeflow/main/scripts/bootstrap_codex_plugin.py | python -
+irm https://raw.githubusercontent.com/gimso2x/forgeflow/main/scripts/bootstrap_codex_plugin.py | python - --force
 ```
 
 이 bootstrap은 임시 디렉터리에 ForgeFlow archive를 내려받은 뒤 `scripts/install_codex_plugin.py`를 실행합니다. 설치 후 임시 checkout은 삭제됩니다.

@@ -108,13 +108,17 @@ def test_install_docs_offer_clone_free_codex_bootstrap_command():
         "| python - --force"
     )
     assert dry_run_command in readme
+    assert force_command in readme
     assert dry_run_command in install
     assert force_command in install
     assert powershell_force_command in install
+    assert force_command in scripts_readme
     assert force_command in codex_guide
     assert force_command in codex_desktop
     assert powershell_force_command in codex_guide
     assert powershell_force_command in codex_desktop
+    assert powershell_force_command in windows_doc
+    assert powershell_force_command in windows_guide
     assert "python3 - -- --force" not in codex_guide
     assert "python3 - -- --force" not in codex_desktop
     assert "python - -- --force" not in codex_guide

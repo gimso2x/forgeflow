@@ -46,7 +46,7 @@ Python runtime은 subprocess argument list로 로컬 체크를 실행합니다. 
 
 # checkout 없이 bootstrap: 역시 preview 먼저
 irm https://raw.githubusercontent.com/gimso2x/forgeflow/main/scripts/bootstrap_codex_plugin.py | python - --dry-run
-irm https://raw.githubusercontent.com/gimso2x/forgeflow/main/scripts/bootstrap_codex_plugin.py | python -
+irm https://raw.githubusercontent.com/gimso2x/forgeflow/main/scripts/bootstrap_codex_plugin.py | python - --force
 ```
 
 `python`이 PATH에 없어도 `py -3`이 있으면 checkout에서 `.\scripts\install_codex_plugin.ps1`로 설치할 수 있습니다.
