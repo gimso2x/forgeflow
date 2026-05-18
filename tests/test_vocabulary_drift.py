@@ -28,3 +28,8 @@ def test_validator_has_no_current_route_vocabulary_exceptions() -> None:
     text = SCRIPT.read_text(encoding="utf-8")
     assert "FORBIDDEN_ROUTE_PHRASE_EXCEPTIONS" not in text
     assert '\"large_high_risk\": {\"README.md\", \"INSTALL.md\"}' not in text
+
+
+def test_validator_locks_route_model_to_brief_risk_level_field() -> None:
+    text = SCRIPT.read_text(encoding="utf-8")
+    assert '"docs/concepts/route-model.md": "`brief.json`의 `risk_level` 필드"' in text

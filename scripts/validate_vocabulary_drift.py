@@ -45,7 +45,7 @@ FORBIDDEN_CURRENT_PHRASES = [
 REQUIRED_CURRENT_PHRASES = {
     "prompts/canonical/coordinator.md": "ForgeFlow route labels are exactly `small`, `medium`, `high`, and `epic`",
     "adapters/targets/gemini/agents/forgeflow-coordinator.md": "ForgeFlow route labels are exactly `small`, `medium`, `high`, and `epic`",
-    "docs/concepts/route-model.md": "네 가지 Route",
+    "docs/concepts/route-model.md": "`brief.json`의 `risk_level` 필드",
     "docs/concepts/review-model.md": "execute",
     "docs/architecture.md": "Current version: `0.2`, minimum supported: `0.1`.",
 }
