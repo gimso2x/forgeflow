@@ -132,6 +132,10 @@ For exact-count, dry-run, or response-only prompts, do not force the WHERE inter
    - Surface confusion instead of guessing. If the request has competing interpretations that materially change scope, say so in the brief.
    - For brownfield refactors or extensions, specifically identify **architectural friction**: where are modules **shallow** (interface as complex as implementation), where is **locality** missing, and where are **pass-throughs** bloating the path? (See `docs/refactor-planning-decision.md`).
    - Do not silently pick one interpretation when the ambiguity affects user-visible behavior, data, security, or files to edit.
+   - **Environment preflight**: Run these checks and record results in brief.json under `"environment_preflight"`:
+     - `git rev-parse --is-inside-work-tree 2>/dev/null` → if not a git repo, add `"environment_warnings": ["not_a_git_repo"]`
+     - Check for lockfile + dependency directory mismatch (e.g., `pnpm-lock.yaml` exists but no `node_modules`): add to `open_questions.blocker_questions`: "종속성이 설치되지 않았습니다. execute 전에 설치를 진행하시겠습니까?"
+     - If neither lockfile nor dependency directory exists: new project, skip silently.
 2. Establish WHERE grounding unless the prompt is an exact-output dry run.
 3. Ask up to 5 clarifying questions when they materially improve requirements. Ask 0 if the request is already actionable, and do not pad the list with nice-to-have trivia.
    - Good questions resolve product behavior, user/audience, success criteria, data/source of truth, rollout/risk constraints, or explicit out-of-scope boundaries.

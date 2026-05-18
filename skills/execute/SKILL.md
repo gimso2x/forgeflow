@@ -132,9 +132,11 @@ If the user explicitly includes `--yes`, `--auto-approve`, `--non-interactive`, 
 1. Confirm route and current stage. Read `brief.json` to determine route.
 2. Initialize `run-state.json` in the active task directory if it does not exist. Set `current_stage: "execute"`, `status: "in_progress"`.
 3. Read `contracts` metadata and sibling `contracts.md` before editing when present.
+   - **Environment safety net**: If `brief.json` lacks `environment_preflight`, run: `git rev-parse --is-inside-work-tree 2>/dev/null; ls node_modules .venv vendor 2>/dev/null | head -3`. If dependencies are missing and a package manager is detected, stop and ask: "종속성이 설치되지 않았습니다. 설치를 먼저 진행하시겠습니까?" Do NOT attempt installation yourself. If no git and route is medium/high, warn that ship cannot commit/PR, then continue.
 4. For each task in the plan:
    - **TDD Red**: Write/update tests to fail.
    - **Execute Implementation**: Implement minimal code to pass. Prefer the smallest implementation that satisfies the acceptance criteria.
+   - **Context budget**: Do not re-read a file already in context unless it was edited since. Before reading a file, ask: "Do I need the full content, or just a specific section?" If the latter, read only the relevant lines using offset/limit. Batch multiple file inspections into parallel tool calls where possible.
    - **TDD Refactor**: Clean up implementation.
    - **Architectural Depth**: Ensure implementation follows the plan's architectural intent (Depth, Leverage, Locality) and avoids creating new shallow modules (see `docs/refactor-planning-decision.md`).
    - If blocked, apply **Hypothesis-Driven Debugging**.
@@ -143,9 +145,15 @@ If the user explicitly includes `--yes`, `--auto-approve`, `--non-interactive`, 
 6. Treat `fulfills`, `journeys`, and `verify_plan` as verification obligations, not decoration.
 7. Run focused verification after each meaningful change.
 8. Update `run-state.json` immediately when starting and finishing each step. Step state must be incremental: `step-1: pending → in_progress → completed`, then `step-2: pending → in_progress → completed`. Do not batch-mark all steps as `completed` only at the end. If a step cannot finish, mark it `blocked` or `failed` with evidence.
+   - **Contract checkpoint**: Before marking any plan task complete, verify: "Does this code violate a stated contract from contracts.md or DECISIONS.md?" Record in evidence as `contract_check:PASS <task>` or `contract_check:FAIL <task> reason="..."`.
 9. After all steps complete, set `run-state.status = "completed"` and `run-state.completed_gates` to include all passed gates.
 10. Stop if requirements become ambiguous; return to `/forgeflow:clarify`.
-11. Deliver the route-aware exit prompt (see Exit Condition above).
+11. Deliver the route-aware exit prompt (see Exit Condition above). **완료 보고를 반드시 사용자에게 출력**:
+    1. 완료 요약 (1-2문장, 한국어)
+    2. 검증 결과: lint/build/test 각각 pass/fail + 숫자
+    3. 변경 파일 목록
+    4. 주의사항 (있는 경우): contract_check 실패, environment warning, 미해결 decisions
+    Do NOT auto-proceed to the next stage. 반드시 사용자가 다음 단계를 실행하도록 대기.
 
 Contract-aware execution rules:
 

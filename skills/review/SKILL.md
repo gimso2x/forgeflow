@@ -181,7 +181,11 @@ Before reviewing, reconstruct the task state from artifacts instead of chat memo
 10. Classify findings: critical, major, minor, info.
 11. **Write `review-report.json`** (or `review-report-spec.json` / `review-report-quality.json` for high) to the active task directory. The verdict in the file is the only valid verdict.
 12. Return a clear verdict in chat that matches the file. If verdict is `changes_requested` or `blocked`, update `run-state.json` in the active task directory so status reflects the review gate, for example `review_blocked`.
-13. Do not call `/forgeflow:ship` unless `verdict=approved`, `safe_for_next_stage=true`, and `open_blockers=[]` are all true in the **written** `review-report.json`.
+13. **다음 단계 안내** — 반드시 사용자에게 출력:
+    - If `approved`: "리뷰 통과. 출하 준비 완료. `/forgeflow:ship`을 실행해주세요."
+    - If `changes_requested`: "수정이 필요합니다:" + 각 P0/P1 이슈를 `file:line — description` 형태로 나열 + "`/forgeflow:execute`로 수정 후 다시 `/forgeflow:review`를 요청해주세요."
+    - Do NOT auto-proceed to ship. 반드시 사용자가 다음 단계를 실행하도록 대기.
+14. Do not call `/forgeflow:ship` unless `verdict=approved`, `safe_for_next_stage=true`, and `open_blockers=[]` are all true in the **written** `review-report.json`.
 
 Do not merge spec-review and quality-review for large/high-risk work.
 
