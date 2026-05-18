@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import textwrap
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
@@ -18,7 +19,10 @@ from forgeflow_runtime.constraint_checker import (
     max_file_lines_check,
 )
 from forgeflow_runtime.gate_evaluation import check_quality_constraints
-from forgeflow_runtime.policy_loader import RuntimePolicy
+from forgeflow_runtime.policy_loader import load_runtime_policy
+
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
 
 
 # ---------------------------------------------------------------------------
@@ -68,6 +72,11 @@ def _make_sample_dir(tmp_path: Path) -> Path:
         """,
     )
     return tmp_path
+
+
+def _policy_with_constraints(constraints: dict[str, object] | None):
+    """Return the canonical runtime policy with test-specific constraints overlaid."""
+    return replace(load_runtime_policy(REPO_ROOT), constraints=constraints)
 
 
 def _make_registry_file(tmp_path: Path) -> Path:
@@ -303,16 +312,7 @@ class TestCheckWithRegistry:
 class TestIntegration:
     def test_policy_without_constraints_returns_empty(self, tmp_path: Path) -> None:
         _write_file(tmp_path / "a.py", "# TODO stuff\n")
-        policy = RuntimePolicy(
-            workflow_stages=[],
-            stage_requirements={},
-            stage_gate_map={},
-            gate_requirements={},
-            gate_reviews={},
-            routes={},
-            finalize_flags=[],
-            review_order=[],
-        )
+        policy = _policy_with_constraints(None)
         violations = check_quality_constraints(
             tmp_path, policy, canonical_task_id="task-001",
         )
@@ -320,17 +320,7 @@ class TestIntegration:
 
     def test_policy_constraints_disabled_returns_empty(self, tmp_path: Path) -> None:
         _write_file(tmp_path / "a.py", "# TODO stuff\n")
-        policy = RuntimePolicy(
-            workflow_stages=[],
-            stage_requirements={},
-            stage_gate_map={},
-            gate_requirements={},
-            gate_reviews={},
-            routes={},
-            finalize_flags=[],
-            review_order=[],
-            constraints={"enabled": False},
-        )
+        policy = _policy_with_constraints({"enabled": False})
         violations = check_quality_constraints(
             tmp_path, policy, canonical_task_id="task-001",
         )
@@ -338,17 +328,7 @@ class TestIntegration:
 
     def test_policy_constraints_enabled_finds_violations(self, tmp_path: Path) -> None:
         _write_file(tmp_path / "a.py", "# TODO stuff\n")
-        policy = RuntimePolicy(
-            workflow_stages=[],
-            stage_requirements={},
-            stage_gate_map={},
-            gate_requirements={},
-            gate_reviews={},
-            routes={},
-            finalize_flags=[],
-            review_order=[],
-            constraints={"enabled": True},
-        )
+        policy = _policy_with_constraints({"enabled": True})
         violations = check_quality_constraints(
             tmp_path, policy, canonical_task_id="task-001",
         )
@@ -357,17 +337,7 @@ class TestIntegration:
 
     def test_policy_with_max_file_lines(self, tmp_path: Path) -> None:
         d = _make_sample_dir(tmp_path)
-        policy = RuntimePolicy(
-            workflow_stages=[],
-            stage_requirements={},
-            stage_gate_map={},
-            gate_requirements={},
-            gate_reviews={},
-            routes={},
-            finalize_flags=[],
-            review_order=[],
-            constraints={"enabled": True, "max_file_lines": 300},
-        )
+        policy = _policy_with_constraints({"enabled": True, "max_file_lines": 300})
         violations = check_quality_constraints(
             d, policy, canonical_task_id="task-001",
         )
