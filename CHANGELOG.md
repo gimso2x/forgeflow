@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.5] - 2026-05-18
+
+### Fixed
+
+- 릴리즈/플러그인/확장 버전 메타데이터를 v0.11.5로 재동기화.
+
 ## [0.11.4] - 2026-05-17
 
 ### Changed
@@ -414,7 +420,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI gate with GitHub Actions workflow generation
 - Agent preset installer (Claude + Codex)
 
-[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v0.11.4...HEAD
+[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v0.11.5...HEAD
+[0.11.5]: https://github.com/gimso2x/forgeflow/compare/v0.11.4...v0.11.5
 [0.11.4]: https://github.com/gimso2x/forgeflow/compare/v0.11.3...v0.11.4
 [0.11.3]: https://github.com/gimso2x/forgeflow/compare/v0.11.2...v0.11.3
 [0.11.2]: https://github.com/gimso2x/forgeflow/compare/v0.11.1...v0.11.2
