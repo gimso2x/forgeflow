@@ -28,15 +28,28 @@ The heavy analysis stage. Takes the raw objective from init and produces everyth
 
    # Existing ForgeFlow tasks
    ls .forgeflow/tasks/ 2>/dev/null
+
+   # Environment preflight
+   git rev-parse --is-inside-work-tree 2>/dev/null && echo "GIT: yes" || echo "GIT: no"
+   ls pnpm-lock.yaml package-lock.json yarn.lock bun.lockb 2>/dev/null | head -3
+   test -d node_modules && echo "NODE_MODULES: yes" || echo "NODE_MODULES: no"
+   test -d .venv && echo "VENV: yes" || echo "VENV: no"
+   test -d vendor && echo "VENDOR: yes" || echo "VENDOR: no"
    ```
 
-3. **Analyze objective → extract**:
+3. **Environment preflight check** — act on the results from step 2:
+   - If `GIT: no`: add `"environment_warnings": ["not_a_git_repo"]` to brief.json.
+   - If lockfile exists but no dependency directory (e.g., `pnpm-lock.yaml` present but no `node_modules`): add to `open_questions.blocker_questions`: "종속성이 설치되지 않았습니다. execute 전에 `<install command>`을 실행하시겠습니까?"
+   - If neither lockfile nor dependency directory exists: new project, skip silently.
+   - Record findings in brief.json under `"environment_preflight": { "git": bool, "dependencies_installed": bool, "warnings": [] }`.
+
+4. **Analyze objective → extract**:
    - **Domains**: api, frontend, backend, data, auth, infra, testing, security
    - **Tech stack signals**: python, typescript, go, rust
    - **Change type**: feature, bugfix, refactor, migration, security, testing
    - **Work mode**: frontend | backend | devops | full (based on keywords)
 
-4. **Detect project type** from filesystem markers:
+5. **Detect project type** from filesystem markers:
    - `package.json` + `"next"` → Next.js
    - `package.json` + `"react"` → React
    - `pyproject.toml` + `"fastapi"` → FastAPI
@@ -46,12 +59,12 @@ The heavy analysis stage. Takes the raw objective from init and produces everyth
    - `Cargo.toml` → Rust project
    - Generic `pyproject.toml` → Python CLI
 
-5. **Determine route**:
+6. **Determine route**:
    - risk=high, or change=migration/refactor/security → `high`
    - risk=medium, or objective has 2+ domains → `medium`
    - risk=low, single domain, change=bugfix/docs/cosmetic → `small`
 
-6. **Write draft documents** under `docs/`:
+7. **Write draft documents** under `docs/`:
 
    - `docs/PRD.md` — Product Requirements Document:
      - Objective (clarified, testable)
@@ -71,7 +84,7 @@ The heavy analysis stage. Takes the raw objective from init and produces everyth
 
    - `docs/DECISIONS.md` — ADR template (empty, for plan/execute stages)
 
-7. **Deploy agents and skills** to project root `.claude/`:
+8. **Deploy agents and skills** to project root `.claude/`:
 
    Based on work mode:
    - frontend: `architect.md`, `frontend-dev.md`, `qa-engineer.md` + `component-patterns` skill
@@ -81,31 +94,32 @@ The heavy analysis stage. Takes the raw objective from init and produces everyth
 
    Write to `.claude/agents/` and `.claude/skills/` at **project root** (not task dir). Skip if file already exists.
 
-8. **Write CLAUDE.md** in task dir — pointer to brief, PRD, architecture entry point + trigger rules.
+9. **Write CLAUDE.md** in task dir — pointer to brief, PRD, architecture entry point + trigger rules.
 
-9. **Update brief.json**:
+10. **Update brief.json**:
    - Add: `domains`, `tech_stack`, `change_type`, `work_mode`, `project_type`, `route`
    - Set `status: "clarified"`
 
-10. **Update run-state.json**: set `current_stage: "clarify"` (next advance goes to plan or run)
+11. **Update run-state.json**: set `current_stage: "clarify"` (next advance goes to plan or run)
 
-11. **Determine next stage**:
+12. **Determine next stage**:
     - Route `small`: → `/forgeflow:execute` (skip plan, go straight to execution)
     - Route `medium` or `high`: → `/forgeflow:plan`
 
-12. **Report**:
+13. **Report**:
     - Clarified objective (1 sentence)
     - Detected: domains, project type, work mode
     - Route and next stage
     - Files created
+    - **Environment warnings** (if any): "주의: <warning list>"
 
-13. **Handle blocker questions** (if any exist in brief.json):
+14. **Handle blocker questions** (if any exist in brief.json):
     - If `open_questions.blocker_questions` is non-empty, you MUST ask the user these questions before proceeding.
     - Present each blocker question with your recommended answer. Wait for user response.
     - After all blockers are resolved, update brief.json with the decided answers and set `ambiguity_score` accordingly.
     - Do NOT proceed to the next stage until all blockers are resolved.
 
-14. **Close the stage**:
+15. **Close the stage**:
     - If no blocker questions remain, end with a closed next-stage question: `요구사항 충분. <route> route입니다. 다음 스텝으로 /forgeflow:<plan|execute>을 진행하시겠습니까? (y/n)`
     - Do NOT auto-proceed to the next stage without user confirmation.
 

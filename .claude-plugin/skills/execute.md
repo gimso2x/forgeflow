@@ -18,11 +18,13 @@ Implement the task. Updates `run-state.json` with progress and verification evid
    - If `brief.json` has `"use_worktree": false`, execute in the current working tree.
    - If `use_worktree` is missing/null, or `decision-log.json` contains `worktree preference not set — ask user`, ask the user whether to isolate execute in a git worktree. Then write `"use_worktree": true` or `"use_worktree": false` to `brief.json` and re-run `/forgeflow:execute`. Do not continue implementation until that preference is recorded.
    - If the project is not a git repo, worktree isolation is non-fatal; continue in the current working tree.
+   - **Environment safety net**: If `brief.json` lacks `environment_preflight`, run: `git rev-parse --is-inside-work-tree 2>/dev/null; ls node_modules .venv vendor 2>/dev/null | head -3`. If dependencies are missing and a package manager is detected, stop and ask: "종속성이 설치되지 않았습니다. 설치를 먼저 진행하시겠습니까?" Do NOT attempt installation yourself. If no git and route is medium/high, warn that ship cannot commit/PR, then continue.
 
 4. For each sub-task or implementation step:
    - Make the smallest useful change
    - Run verification commands (lint, build, test) that actually exist
    - Record results in `run-state.json`
+   - **Context budget**: Do not re-read a file already in context unless it was edited since. Before reading a file, ask: "Do I need the full content, or just a specific section?" If the latter, read only the relevant lines using offset/limit. Batch multiple file inspections into parallel tool calls where possible.
 
 5. `run-state.json` format:
    ```json
@@ -54,6 +56,7 @@ Implement the task. Updates `run-state.json` with progress and verification evid
    - Do not add features or edge-case handling not in the brief. Only implement what is explicitly required.
 
 7. **Scope gate**: Before implementing, list each requirement from brief/plan. Every line of code must trace to a stated requirement. Remove any feature not in the brief immediately.
+   **Contract checkpoint**: If task directory contains contract invariants (contracts.md, DECISIONS.md), read them before implementation. Before marking any plan task complete, verify: "Does this code violate a stated contract?" Record in evidence as `contract_check:PASS <task>` or `contract_check:FAIL <task> reason="..."`.
 
 8. **Test isolation**: Tests must pass independently via `python -m pytest tests/ -v` in a fresh shell.
    - Use `tmp_path` fixtures for files/DBs. No shared `reset_database()` patterns.
@@ -71,7 +74,18 @@ Implement the task. Updates `run-state.json` with progress and verification evid
    - Add `# DESIGN DECISION: ...` comments with rationale for unstated choices (retry behavior, defaults, error strategy).
    - Record in `decision-log.json`. Include "why", not just "what".
 
-11. When all tasks are done: set status `"completed"`, report files changed and verification summary.
+11. When all tasks are done:
+    - Set `run-state.json` status to `"completed"`.
+    - **완료 보고** (반드시 사용자에게 출력):
+      1. 완료 요약 (1-2문장, 한국어)
+      2. 검증 결과: lint/build/test 각각 pass/fail + 숫자
+      3. 변경 파일 목록
+      4. **다음 단계 안내** (route별):
+         - `small` route: "리뷰를 진행하시겠습니까? `/forgeflow:review`를 실행해주세요."
+         - `medium`/`high` route: "독립 리뷰가 필요합니다. `/forgeflow:review`를 실행해주세요."
+         - 이미 review를 통과한 경우: "`/forgeflow:ship`으로 출하를 진행해주세요."
+      5. 주의사항 (있는 경우): contract_check 실패, environment warning, 미해결 decisions
+    - Do NOT auto-proceed to the next stage. 반드시 사용자가 다음 단계를 실행하도록 대기.
 
 ## Bounded verification fix loop
 

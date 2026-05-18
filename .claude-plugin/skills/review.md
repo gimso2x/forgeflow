@@ -60,7 +60,12 @@ Review completed work independently. **Read-only — do not modify code.**
 7. If `changes_requested`: set `safe_for_next_stage: false` and list required fixes.
    The implementer must address findings and re-submit.
 
-8. **Hard rule**: Do not use Write/Edit tools during review. Read, Grep, and Bash (verification only).
+8. **다음 단계 안내** — review-report.json 작성 후 반드시 사용자에게 출력:
+   - If `approved`: "리뷰 통과 (`<P0>/<P1>/<P2> 발견 수>`개 이슈 확인 완료). 출하 준비 완료. `/forgeflow:ship`을 실행해주세요."
+   - If `changes_requested`: "수정이 필요합니다 (<P0> P0, <P1> P1개 이슈):" + 각 P0/P1 이슈를 `file:line — description` 형태로 나열 + "`/forgeflow:execute`로 수정 후 다시 `/forgeflow:review`를 요청해주세요."
+   - Do NOT auto-proceed to ship. 반드시 사용자가 다음 단계를 실행하도록 대기.
+
+9. **Hard rule**: Do not use Write/Edit tools during review. Read, Grep, and Bash (verification only).
 
 ## Automation / non-interactive approval mode
 
