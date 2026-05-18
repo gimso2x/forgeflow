@@ -20,11 +20,14 @@ def test_readme_and_install_explain_ship_and_finish_lifecycle_boundary():
 
 def test_readme_and_install_explain_init_task_local_scaffold():
     combined = README.read_text(encoding="utf-8") + "\n" + INSTALL.read_text(encoding="utf-8")
+    install = INSTALL.read_text(encoding="utf-8")
 
     assert "/forgeflow:init" in combined
     assert "scripts/run_orchestrator.py init" in combined
     assert "task-local" in combined
-    assert "selected_architecture" in combined
+    assert "`init` 결과 JSON은 task workspace 생성과 다음 action을 알려주며" in install
+    assert "`selected_architecture`는 포함하지 않습니다" in install
+    assert "clarify` 이후 route와 architecture가 확정됩니다" in install
     assert ".claude/agents/planner.md" in combined
     assert ".claude/skills/plan/SKILL.md" in combined
     assert "plugin 설치 디렉터리" in combined or "installation directory" in combined
