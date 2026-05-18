@@ -29,6 +29,15 @@ def test_readme_and_install_explain_init_task_local_scaffold():
     assert ".claude/skills/plan/SKILL.md" in combined
     assert "plugin 설치 디렉터리" in combined or "installation directory" in combined
 
+
+def test_install_docs_use_execute_stage_name_not_legacy_run_alias():
+    install = INSTALL.read_text(encoding="utf-8")
+
+    assert "/forgeflow:plan`/`/forgeflow:execute`" in install
+    assert "/forgeflow:plan`/`run`" not in install
+    assert "다음 스텝으로 `/forgeflow:execute`" in install
+
+
 def test_ship_skill_is_handoff_not_branch_disposition():
     ship_text = SHIP_SKILL.read_text(encoding="utf-8")
     finish_text = FINISH_SKILL.read_text(encoding="utf-8")
