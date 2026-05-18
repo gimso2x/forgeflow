@@ -49,7 +49,7 @@ forgeflow execute --task-dir .forgeflow/tasks/<task-id>
 ```
 
 옵션:
-- `--adapter claude|codex|generic` — 어댑터 선택
+- `--adapter claude|codex|gemini` — 어댑터 선택
 - `--real` — 실제 CLI 실행 모드
 
 ## 보조 스크립트

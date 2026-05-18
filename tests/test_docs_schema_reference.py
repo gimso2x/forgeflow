@@ -57,3 +57,10 @@ def test_cli_docs_include_current_risk_and_route_vocabularies() -> None:
 
     for text in [cli, init_skill]:
         assert "small|medium|high|epic" in text
+
+
+def test_cli_docs_include_current_adapter_vocabulary() -> None:
+    cli = (ROOT / "docs" / "reference" / "cli.md").read_text(encoding="utf-8")
+
+    assert "--adapter claude|codex|gemini" in cli
+    assert "--adapter claude|codex|generic" not in cli
