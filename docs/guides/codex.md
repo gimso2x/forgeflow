@@ -5,13 +5,13 @@
 bootstrap 스크립트로 로컬 plugin marketplace에 ForgeFlow를 등록합니다.
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/gimso2x/forgeflow/main/scripts/bootstrap_codex_plugin.py | python3 - -- --force
+curl -fsSL https://raw.githubusercontent.com/gimso2x/forgeflow/main/scripts/bootstrap_codex_plugin.py | python3 - --force
 ```
 
 Windows PowerShell:
 
 ```powershell
-irm https://raw.githubusercontent.com/gimso2x/forgeflow/main/scripts/bootstrap_codex_plugin.py | python - -- --force
+irm https://raw.githubusercontent.com/gimso2x/forgeflow/main/scripts/bootstrap_codex_plugin.py | python - --force
 ```
 
 기존 ForgeFlow checkout이 있으면:

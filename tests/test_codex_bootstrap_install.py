@@ -94,6 +94,8 @@ def test_codex_bootstrap_passes_installer_flags_without_separator(tmp_path):
 def test_install_docs_offer_clone_free_codex_bootstrap_command():
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
     install = (ROOT / "INSTALL.md").read_text(encoding="utf-8")
+    codex_guide = (ROOT / "docs" / "guides" / "codex.md").read_text(encoding="utf-8")
+    codex_desktop = (ROOT / "docs" / "codex-desktop.md").read_text(encoding="utf-8")
 
     bootstrap = "curl -fsSL https://raw.githubusercontent.com/gimso2x/forgeflow/main/scripts/bootstrap_codex_plugin.py"
     dry_run_command = f"{bootstrap} | python3 - --dry-run"
@@ -106,4 +108,12 @@ def test_install_docs_offer_clone_free_codex_bootstrap_command():
     assert dry_run_command in install
     assert force_command in install
     assert powershell_force_command in install
+    assert force_command in codex_guide
+    assert force_command in codex_desktop
+    assert powershell_force_command in codex_guide
+    assert powershell_force_command in codex_desktop
+    assert "python3 - -- --force" not in codex_guide
+    assert "python3 - -- --force" not in codex_desktop
+    assert "python - -- --force" not in codex_guide
+    assert "python - -- --force" not in codex_desktop
     assert "--force deletes ~/plugins/forgeflow" in install
