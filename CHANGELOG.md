@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.7] - 2026-05-19
+
+### Fixed
+
+- 전체 pytest CI에서 `forgeflow-init` 스킬 경로 변경을 반영하지 못한 docs schema contract 테스트 수정.
+- 릴리즈/플러그인/확장 버전 메타데이터를 v0.11.7로 동기화.
+
 ## [0.11.6] - 2026-05-19
 
 ### Changed
@@ -427,7 +434,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI gate with GitHub Actions workflow generation
 - Agent preset installer (Claude + Codex)
 
-[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v0.11.6...HEAD
+[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v0.11.7...HEAD
+[0.11.7]: https://github.com/gimso2x/forgeflow/compare/v0.11.6...v0.11.7
 [0.11.6]: https://github.com/gimso2x/forgeflow/compare/v0.11.5...v0.11.6
 [0.11.5]: https://github.com/gimso2x/forgeflow/compare/v0.11.4...v0.11.5
 [0.11.4]: https://github.com/gimso2x/forgeflow/compare/v0.11.3...v0.11.4

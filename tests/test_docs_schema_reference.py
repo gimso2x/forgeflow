@@ -84,7 +84,7 @@ def test_review_report_reference_uses_current_verdict_contract() -> None:
 
 def test_cli_docs_include_current_risk_and_route_vocabularies() -> None:
     cli = (ROOT / "docs" / "reference" / "cli.md").read_text(encoding="utf-8")
-    init_skill = (ROOT / "skills" / "init" / "SKILL.md").read_text(encoding="utf-8")
+    init_skill = (ROOT / "skills" / "forgeflow-init" / "SKILL.md").read_text(encoding="utf-8")
     codex_desktop = (ROOT / "docs" / "codex-desktop.md").read_text(encoding="utf-8")
 
     for text in [cli, init_skill, codex_desktop]:

@@ -2,8 +2,8 @@
 
 ForgeFlow is an artifact-first workflow contract plus a lightweight enforcement runtime for Claude Code, Codex, and Gemini CLI. AI coding agent가 채팅 기억에 의존하지 않고 **명시적인 artifact, gate, evidence, 독립 review**로 작업하게 만듭니다.
 
-현재 릴리즈: **v0.11.6**
-CHANGELOG 최신 항목도 v0.11.6 기준입니다.
+현재 릴리즈: **v0.11.7**
+CHANGELOG 최신 항목도 v0.11.7 기준입니다.
 
 ## 누가 왜 쓰나
 
