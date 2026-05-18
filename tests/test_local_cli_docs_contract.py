@@ -7,6 +7,7 @@ ROOT = Path(__file__).resolve().parents[1]
 README = ROOT / "README.md"
 INSTALL = ROOT / "INSTALL.md"
 CLI_REFERENCE = ROOT / "docs" / "reference" / "cli.md"
+LOCAL_CLI_GUIDE = ROOT / "docs" / "guides" / "local-cli.md"
 PYPROJECT = ROOT / "pyproject.toml"
 
 
@@ -21,6 +22,7 @@ def test_local_cli_docs_reference_packaged_console_scripts() -> None:
         "README.md": README.read_text(encoding="utf-8"),
         "INSTALL.md": INSTALL.read_text(encoding="utf-8"),
         "docs/reference/cli.md": CLI_REFERENCE.read_text(encoding="utf-8"),
+        "docs/guides/local-cli.md": LOCAL_CLI_GUIDE.read_text(encoding="utf-8"),
     }
 
     assert scripts["forgeflow"] == scripts["forgeflow-runtime"]
