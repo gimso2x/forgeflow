@@ -41,10 +41,6 @@ FORBIDDEN_CURRENT_PHRASES = [
     "schema_version: \"0.1\"",
 ]
 
-FORBIDDEN_ROUTE_PHRASE_EXCEPTIONS = {
-    "large_high_risk": {"README.md", "INSTALL.md"},
-}
-
 REQUIRED_CURRENT_PHRASES = {
     "prompts/canonical/coordinator.md": "ForgeFlow route labels are exactly `small`, `medium`, `high`, and `epic`",
     "adapters/targets/gemini/agents/forgeflow-coordinator.md": "ForgeFlow route labels are exactly `small`, `medium`, `high`, and `epic`",
@@ -70,7 +66,7 @@ def main() -> int:
     for rel in CURRENT_ROUTE_FILES:
         text = _read(rel)
         for phrase in FORBIDDEN_CURRENT_PHRASES:
-            if phrase in text and rel not in FORBIDDEN_ROUTE_PHRASE_EXCEPTIONS.get(phrase, set()):
+            if phrase in text:
                 errors.append(f"{rel}: stale current vocabulary: {phrase}")
 
     for rel, phrase in REQUIRED_CURRENT_PHRASES.items():

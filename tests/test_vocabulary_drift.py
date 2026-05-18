@@ -21,3 +21,9 @@ def test_validator_scans_gemini_and_current_concept_docs() -> None:
         "medium/large",
     ]:
         assert required in text
+
+
+def test_validator_has_no_current_route_vocabulary_exceptions() -> None:
+    text = SCRIPT.read_text(encoding="utf-8")
+    assert "FORBIDDEN_ROUTE_PHRASE_EXCEPTIONS" not in text
+    assert '\"large_high_risk\": {\"README.md\", \"INSTALL.md\"}' not in text

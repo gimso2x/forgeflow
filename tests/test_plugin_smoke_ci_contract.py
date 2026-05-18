@@ -209,8 +209,6 @@ def test_current_user_facing_docs_use_execute_and_current_route_labels() -> None
     for path in current_docs:
         text = path.read_text(encoding="utf-8")
         for phrase in forbidden_live_route_phrases:
-            if phrase == "large_high_risk" and path.name in {"README.md", "INSTALL.md"}:
-                continue
             assert phrase not in text, f"{path} contains stale live route vocabulary: {phrase}"
         if path.name == "SKILL.md" and "skills/execute" in path.as_posix():
             assert "execute stage" in text
