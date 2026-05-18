@@ -48,8 +48,8 @@ This writes under `~/plugins/forgeflow` and `~/.agents/plugins/marketplace.json`
 For checkout-free bootstrap from PowerShell, use dry-run first:
 
 ```powershell
-irm https://raw.githubusercontent.com/gimso2x/forgeflow/main/scripts/bootstrap_codex_plugin.py | python - -- --dry-run
-irm https://raw.githubusercontent.com/gimso2x/forgeflow/main/scripts/bootstrap_codex_plugin.py | python - --
+irm https://raw.githubusercontent.com/gimso2x/forgeflow/main/scripts/bootstrap_codex_plugin.py | python - --dry-run
+irm https://raw.githubusercontent.com/gimso2x/forgeflow/main/scripts/bootstrap_codex_plugin.py | python -
 ```
 
 If `python` is not on PATH but the Windows launcher is, clone the repo and use `.\scripts\install_codex_plugin.ps1` so the wrapper can fall back to `py -3`.

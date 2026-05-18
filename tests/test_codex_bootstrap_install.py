@@ -96,6 +96,9 @@ def test_install_docs_offer_clone_free_codex_bootstrap_command():
     install = (ROOT / "INSTALL.md").read_text(encoding="utf-8")
     codex_guide = (ROOT / "docs" / "guides" / "codex.md").read_text(encoding="utf-8")
     codex_desktop = (ROOT / "docs" / "codex-desktop.md").read_text(encoding="utf-8")
+    scripts_readme = (ROOT / "scripts" / "README.md").read_text(encoding="utf-8")
+    windows_doc = (ROOT / "docs" / "windows.md").read_text(encoding="utf-8")
+    windows_guide = (ROOT / "docs" / "guides" / "windows.md").read_text(encoding="utf-8")
 
     bootstrap = "curl -fsSL https://raw.githubusercontent.com/gimso2x/forgeflow/main/scripts/bootstrap_codex_plugin.py"
     dry_run_command = f"{bootstrap} | python3 - --dry-run"
@@ -116,4 +119,8 @@ def test_install_docs_offer_clone_free_codex_bootstrap_command():
     assert "python3 - -- --force" not in codex_desktop
     assert "python - -- --force" not in codex_guide
     assert "python - -- --force" not in codex_desktop
+    assert "python3 - -- --dry-run" not in scripts_readme
+    assert "python - -- --dry-run" not in scripts_readme
+    assert "python - -- --dry-run" not in windows_doc
+    assert "python - -- --dry-run" not in windows_guide
     assert "--force deletes ~/plugins/forgeflow" in install
