@@ -176,9 +176,10 @@ Do not implement here. Clarify is the intake gate, not the coding phase.
 - Do not ask the user to write the plan for you.
 - Do not ask the user to approve the brief content again when the request is already sufficient.
 - Do stop at the stage boundary before starting `/forgeflow:plan` or `/forgeflow:execute`.
-- When the request is already sufficient, end with a closed next-stage question: `요구사항 충분. medium route입니다. 다음 스텝으로 `/forgeflow:plan`을 진행하시겠습니까? (y/n)`
-- Bad: `route=medium. plan 직행.`
-- Good: `요구사항 충분. medium route입니다. 다음 스텝으로 `/forgeflow:plan`을 진행하시겠습니까? (y/n)`
+- **If brief.json has blocker_questions, you MUST ask the user those questions interactively before closing the stage.** Present each blocker with your recommended answer. Wait for user response. Update the brief with decided answers afterward. Do NOT skip this step and do NOT embed questions only in the file.
+- When the request is already sufficient and all blockers are resolved, end with a closed next-stage question: `요구사항 충분. <route> route입니다. 다음 스텝으로 /forgeflow:<plan|execute>을 진행하시겠습니까? (y/n)`
+- Bad: writing blocker questions to brief.json and immediately reporting "next stage: plan" without asking.
+- Good: presenting blocker questions to the user, getting answers, updating the brief, then asking to proceed.
 
 ## Output mode examples
 

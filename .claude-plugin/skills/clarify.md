@@ -98,7 +98,16 @@ The heavy analysis stage. Takes the raw objective from init and produces everyth
     - Detected: domains, project type, work mode
     - Route and next stage
     - Files created
-    - Any open questions / ambiguities that need user input
+
+13. **Handle blocker questions** (if any exist in brief.json):
+    - If `open_questions.blocker_questions` is non-empty, you MUST ask the user these questions before proceeding.
+    - Present each blocker question with your recommended answer. Wait for user response.
+    - After all blockers are resolved, update brief.json with the decided answers and set `ambiguity_score` accordingly.
+    - Do NOT proceed to the next stage until all blockers are resolved.
+
+14. **Close the stage**:
+    - If no blocker questions remain, end with a closed next-stage question: `요구사항 충분. <route> route입니다. 다음 스텝으로 /forgeflow:<plan|execute>을 진행하시겠습니까? (y/n)`
+    - Do NOT auto-proceed to the next stage without user confirmation.
 
 ## What clarify creates
 
