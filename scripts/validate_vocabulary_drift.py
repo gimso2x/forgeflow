@@ -42,10 +42,7 @@ FORBIDDEN_CURRENT_PHRASES = [
 ]
 
 FORBIDDEN_ROUTE_PHRASE_EXCEPTIONS = {
-    # CHANGELOG 0.3.2 pins the user-facing/documentation route label vocabulary
-    # as small, medium, large_high_risk. Runtime internals still keep high/epic
-    # route surfaces until the broader route-model migration is completed.
-    "large_high_risk": {"README.md", "INSTALL.md", "docs/workflow.md"},
+    "large_high_risk": {"README.md", "INSTALL.md"},
 }
 
 REQUIRED_CURRENT_PHRASES = {
