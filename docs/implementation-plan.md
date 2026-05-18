@@ -67,7 +67,7 @@
 - policy와 schema 존재 여부 검사 가능
 
 ### Task 6: Example scenarios and evals
-**Objective:** small/medium/large 예시 흐름과 adherence eval을 연결한다.
+**Objective:** small/medium/high/epic 예시 흐름과 adherence eval을 연결한다.
 
 **Files:**
 - Verify: `examples/*`

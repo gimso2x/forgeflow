@@ -16,6 +16,7 @@ CURRENT_ROUTE_FILES = [
     "docs/artifact-model.md",
     "docs/checkpoint-model.md",
     "docs/workflow.md",
+    "docs/implementation-plan.md",
     "docs/concepts/route-model.md",
     "docs/concepts/review-model.md",
     ".claude-plugin/skills/clarify.md",

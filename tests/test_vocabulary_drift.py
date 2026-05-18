@@ -14,6 +14,7 @@ def test_validator_scans_gemini_and_current_concept_docs() -> None:
     text = SCRIPT.read_text(encoding="utf-8")
     for required in [
         "adapters/targets/gemini/agents/forgeflow-coordinator.md",
+        "docs/implementation-plan.md",
         "docs/concepts/route-model.md",
         "docs/concepts/review-model.md",
         "schema_version 0.1",
