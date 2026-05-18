@@ -99,8 +99,14 @@ def is_example_reference(reference: str) -> bool:
 
 def reference_exists(root: Path, context_file: Path, reference: str) -> bool:
     if reference.startswith("/"):
-        # Absolute sample paths are not repo-local evidence.
-        return is_example_reference(reference)
+        if is_example_reference(reference):
+            return True
+        absolute_reference = Path(reference).resolve()
+        try:
+            absolute_reference.relative_to(root.resolve())
+        except ValueError:
+            return False
+        return absolute_reference.exists()
 
     normalized = reference.removeprefix("./")
     candidates = [root / normalized, context_file.parent / reference]
