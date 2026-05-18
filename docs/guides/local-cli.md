@@ -21,6 +21,13 @@ python3 -m pip install -e .
 
 둘 다 `python3 scripts/run_orchestrator.py`와 같은 surface를 실행합니다.
 
+설치 확인:
+
+```bash
+forgeflow --help
+forgeflow-runtime --help
+```
+
 ## 기본 명령어
 
 ### 작업 초기화

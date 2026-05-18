@@ -8,6 +8,13 @@ python3 -m pip install "forgeflow-runtime @ git+https://github.com/gimso2x/forge
 
 console script: `forgeflow`, `forgeflow-runtime` (동일 entrypoint)
 
+설치 확인:
+
+```bash
+forgeflow --help
+forgeflow-runtime --help
+```
+
 ## 명령어
 
 ### init

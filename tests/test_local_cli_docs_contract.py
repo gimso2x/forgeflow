@@ -33,8 +33,14 @@ def test_local_cli_docs_reference_packaged_console_scripts() -> None:
 
 def test_local_cli_quickstart_help_commands_use_packaged_entrypoints() -> None:
     scripts = set(_console_scripts())
-    combined = README.read_text(encoding="utf-8") + "\n" + INSTALL.read_text(encoding="utf-8")
-    help_commands = set(re.findall(r"^\s*(forgeflow(?:-runtime)?) --help\s*$", combined, flags=re.MULTILINE))
+    docs = {
+        "README.md": README.read_text(encoding="utf-8"),
+        "INSTALL.md": INSTALL.read_text(encoding="utf-8"),
+        "docs/reference/cli.md": CLI_REFERENCE.read_text(encoding="utf-8"),
+        "docs/guides/local-cli.md": LOCAL_CLI_GUIDE.read_text(encoding="utf-8"),
+    }
 
-    assert help_commands
-    assert help_commands <= scripts
+    for name, text in docs.items():
+        help_commands = set(re.findall(r"^\s*(forgeflow(?:-runtime)?) --help\s*$", text, flags=re.MULTILINE))
+        assert help_commands, name
+        assert help_commands <= scripts, name
