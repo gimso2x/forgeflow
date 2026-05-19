@@ -190,7 +190,7 @@ def test_current_user_facing_docs_use_execute_and_current_route_labels() -> None
         ROOT / "docs" / "artifact-model.md",
         ROOT / "docs" / "checkpoint-model.md",
         ROOT / "docs" / "workflow.md",
-        ROOT / ".claude-plugin" / "skills" / "clarify.md",
+        ROOT / "skills" / "clarify" / "SKILL.md",
         ROOT / "skills" / "execute" / "SKILL.md",
         ROOT / "skills" / "plan" / "SKILL.md",
     ]

@@ -322,3 +322,45 @@ def test_harness_absorption_decision_records_forgeflow_boundary() -> None:
     assert "Status: completed" in task
     assert "Obsidian: `Inbox/2026-05-08 [개발전] 하네스 흡수 반영.md`" in task
     assert "Hermes Follow-up Boundary" in task
+
+
+def test_execute_skill_defines_implementation_notes_artifact() -> None:
+    skill = (ROOT / "skills" / "execute" / "SKILL.md").read_text(encoding="utf-8")
+
+    for required_text in [
+        "implementation-notes.md",
+        "Design Decisions",
+        "Spec Deviations",
+        "Tradeoffs",
+        "Open Questions",
+        "real-time log",
+        "append an entry to `implementation-notes.md` immediately",
+    ]:
+        assert required_text in skill, f"execute skill missing: {required_text}"
+
+
+def test_review_skill_checks_implementation_notes() -> None:
+    skill = (ROOT / "skills" / "review" / "SKILL.md").read_text(encoding="utf-8")
+
+    for required_text in [
+        "implementation-notes.md",
+        "design decisions, spec deviations",
+        "Unjustified deviations are scope drift",
+        "Open questions with `status: open` are blockers",
+        "missing entirely, note it as a minor finding",
+    ]:
+        assert required_text in skill, f"review skill missing: {required_text}"
+
+
+def test_plan_skill_provides_implementation_notes_template() -> None:
+    skill = (ROOT / "skills" / "plan" / "SKILL.md").read_text(encoding="utf-8")
+
+    for required_text in [
+        "`implementation-notes.md` template",
+        "empty scaffold for execute to fill",
+        "## Design Decisions",
+        "## Spec Deviations",
+        "## Tradeoffs",
+        "## Open Questions",
+    ]:
+        assert required_text in skill, f"plan skill missing: {required_text}"

@@ -25,8 +25,35 @@ Use this skill to execute the selected ForgeFlow route.
 - Code changes
 - `run-state.json` or equivalent stage/gate state
 - `decision-log.json` with key implementation decisions
+- `implementation-notes.md` — real-time log of design decisions, spec deviations, tradeoffs, and open questions (see below)
 - Updated `plan-ledger.json` for medium/high routes
 - Verification output summary
+
+### implementation-notes.md
+
+Maintain this file **throughout execution**, not as a post-hoc summary. Append entries as decisions arise. Use this structure:
+
+```markdown
+# Implementation Notes: <task-id>
+
+## Design Decisions
+- [DECISION] <what was decided> — <why> (when: <timestamp or step-id>)
+
+## Spec Deviations
+- [DEVIATION] <what differs from plan/spec> — <reason> (when: <step-id>)
+
+## Tradeoffs
+- [TRADEOFF] <chosen approach> over <alternative> — <why> (when: <step-id>)
+
+## Open Questions
+- [QUESTION] <unresolved item needing user confirmation> (status: open/resolved)
+```
+
+Guidelines:
+- Every entry must state **why** — not just what changed.
+- Record a deviation even if you consider it minor; review will judge severity.
+- Open questions that block execution should be escalated immediately via `decision-log.json` stuck detection.
+- This artifact is reviewed during `/forgeflow:review` and ships with the task evidence.
 
 ## Exit Condition
 
@@ -145,9 +172,10 @@ If the user explicitly includes `--yes`, `--auto-approve`, `--non-interactive`, 
 4. For each task in the plan:
    - **TDD Red**: Write/update tests to fail.
    - **Execute Implementation**: Implement minimal code to pass. Prefer the smallest implementation that satisfies the acceptance criteria.
-   - **Context budget**: Do not re-read a file already in context unless it was edited since. Before reading a file, ask: "Do I need the full content, or just a specific section?" If the latter, read only the relevant lines using offset/limit. Batch multiple file inspections into parallel tool calls where possible.
+   - **Context budget**: Do not re-read a file already in context unless it was edited since. Before reading a file, ask: “Do I need the full content, or just a specific section?” If the latter, read only the relevant lines using offset/limit. Batch multiple file inspections into parallel tool calls where possible.
+   - **Implementation Notes**: When a decision is made that was not in the plan, when the implementation deviates from the spec, when a tradeoff is chosen, or when an open question arises — **append an entry to `implementation-notes.md` immediately**. Do not batch these until the end.
    - **TDD Refactor**: Clean up implementation.
-   - **Architectural Depth**: Ensure implementation follows the plan's architectural intent (Depth, Leverage, Locality) and avoids creating new shallow modules (see `docs/refactor-planning-decision.md`).
+   - **Architectural Depth**: Ensure implementation follows the plan’s architectural intent (Depth, Leverage, Locality) and avoids creating new shallow modules (see `docs/refactor-planning-decision.md`).
    - If blocked, apply **Hypothesis-Driven Debugging**.
    - Nothing speculative: no drive-by abstractions, unrelated cleanup, hidden migrations, or “while I’m here” rewrites unless the approved plan names them.
 5. Apply adapter-aware execution: use the chosen backend for implementation mechanics, but keep ForgeFlow artifacts, gates, and evidence paths backend-neutral. If the backend cannot produce required evidence, record that limitation in `decision-log.json` and block or downgrade the affected verification gate instead of silently proceeding.

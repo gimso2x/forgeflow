@@ -160,6 +160,7 @@ Before reviewing, reconstruct the task state from artifacts instead of chat memo
 - Read `run-state.json` for current stage/status, completed gates, evidence refs, and blocked/failure state.
 - Read `plan-ledger.json` when present to confirm planned tasks and requirement IDs.
 - Read `decision-log.json` for implementation decisions and stuck/escalation entries.
+- Read `implementation-notes.md` for design decisions, spec deviations, tradeoffs, and open questions recorded during execution.
 - If multiple task directories exist, use `python3 scripts/forgeflow_monitor.py --tasks .forgeflow/tasks --recent 10` only as a read-only locator/status summary, then inspect the selected task artifacts directly.
 
 ## Procedure
@@ -172,6 +173,11 @@ Before reviewing, reconstruct the task state from artifacts instead of chat memo
 6. Run or inspect other verification (lint, type check, build) if the user allowed command execution.
 7. Separate observed evidence from reported or missing evidence before choosing a verdict.
 8. **Check for stuck signals**: review `decision-log.json` for entries with actor `stuck-detector` or category `escalation`. If the worker hit a stuck condition but continued editing anyway, that's a major finding — the worker ignored an escalation signal.
+8b. **Review implementation-notes.md**: Check every recorded deviation and open question:
+    - Each deviation must be justified. Unjustified deviations are scope drift.
+    - Open questions with `status: open` are blockers until resolved.
+    - Tradeoffs should be evaluated: was the chosen alternative the smallest safe option?
+    - If `implementation-notes.md` is missing entirely, note it as a minor finding (the execute stage should have created it).
 9. For quality review, apply discipline heuristics without creating a separate stage:
    - Every changed line should trace directly to the approved request, the user's request, and the approved plan.
    - Every changed line should trace directly to the user's request; anything else needs explicit scope approval.

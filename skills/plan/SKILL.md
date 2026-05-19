@@ -30,6 +30,18 @@ Use this skill to turn a ForgeFlow brief or requirements document into an execut
   - verification commands
   - risk notes
 - `plan-ledger.json` starter shape for medium/high routes when useful
+- `implementation-notes.md` template (created as empty scaffold for execute to fill):
+  ```markdown
+  # Implementation Notes: <task-id>
+
+  ## Design Decisions
+
+  ## Spec Deviations
+
+  ## Tradeoffs
+
+  ## Open Questions
+  ```
 
 When writing `plan.json`, it **must** conform to `schemas/plan.schema.json` exactly:
 
