@@ -1,0 +1,44 @@
+{
+  "skill_name": "forgeflow",
+  "evals": [
+    {
+      "id": 0,
+      "name": "active-rule-clarify",
+      "prompt": "A user asks ForgeFlow to clarify a medium task. The repository has an active project evolution rule: Rule ID artifact-first-no-chat-only, Scope project, Lifecycle active, Trigger when preparing ForgeFlow task artifacts or handoff notes, Application Stage clarify, Expected Behavior create or reference the active task directory and record Applied Evolution Rules instead of keeping evidence chat-only. Produce only the clarify-stage brief artifact content for task id eval-active-rule-clarify.",
+      "expected_output": "A brief artifact that includes Applied Evolution Rules, treats the project active rule as required, names the task directory, and avoids chat-only evidence.",
+      "files": [],
+      "assertions": [
+        "Output includes an Applied Evolution Rules section.",
+        "Output references artifact-first-no-chat-only as a project active rule or required constraint.",
+        "Output identifies a concrete task artifact path under .forgeflow/tasks/.",
+        "Output does not treat the project active rule as merely advisory."
+      ]
+    },
+    {
+      "id": 1,
+      "name": "propose-rule-long-run",
+      "prompt": "A long-run retrospective found the same mistake in three ForgeFlow tasks: final evidence was reported in chat but no ship-summary.md or implementation-notes.md was updated. Create the long-run evolution output that should propose a reusable rule. Produce the eval-record Evolution Rule Candidates section and one proposed evolution-rule.md candidate for this pattern. Keep it pure Markdown; do not mention Python runtime or JSON schema restoration.",
+      "expected_output": "An eval-record candidate plus proposed rule content with trigger, application stage, expected behavior, evidence, false-positive guard, rollback/retirement, and review status.",
+      "files": [],
+      "assertions": [
+        "Output includes an Evolution Rule Candidates section.",
+        "Output includes all required evolution-rule template fields: Rule ID, Scope, Lifecycle, Trigger, Expected Behavior, Application Stage, Enforcement Mode, Evidence, False Positive Guard, Rollback / Retirement, Review Status.",
+        "Output uses proposed lifecycle and unreviewed review status.",
+        "Output avoids Python runtime or JSON schema restoration."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "review-rule-boundary",
+      "prompt": "Review this proposed ForgeFlow evolution rule: Scope global-advisory, Enforcement Mode required_project_rule, Trigger any failed test, Application Stage execute, Expected Behavior block every future task until the exact same command passes, Evidence vague: 'it happened before', False Positive Guard empty, Review Status unreviewed. Produce only the Evolution Rule Review section of review-report.md.",
+      "expected_output": "A review section that rejects or requests changes because global-advisory cannot hard block, evidence is insufficient, and the false-positive guard is missing.",
+      "files": [],
+      "assertions": [
+        "Output marks the rule as changes_requested or rejected rather than approved.",
+        "Output identifies the invalid global-advisory hard enforcement boundary.",
+        "Output identifies missing or insufficient evidence.",
+        "Output identifies the missing false-positive guard."
+      ]
+    }
+  ]
+}

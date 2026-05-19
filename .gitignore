@@ -19,3 +19,4 @@ Thumbs.db
 .forgeflow/
 samples/
 forgeflow_runtime.egg-info/
+forgeflow-eval-workspace/
