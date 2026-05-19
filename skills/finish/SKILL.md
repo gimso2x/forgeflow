@@ -231,6 +231,8 @@ Never delete unrelated dirty working tree files. If unrelated dirty working tree
 
 After the user selects a finish option and the action completes, run the evolution and learning pipeline to capture reusable patterns from the completed task. This is how ForgeFlow improves over repeated runs.
 
+Before extracting learnings, inspect task evidence for repeated failures. A reusable learning should include the failure layer and revalidation evidence when available, using Instructions, Tools, Environment, State, Feedback, or Implementation as the cause layer. Do not promote raw logs or session text; promote only patterns with conditions, a reusable response, and concrete evidence.
+
 ### Step 1: Extract learnings
 
 ```bash

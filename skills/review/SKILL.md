@@ -124,6 +124,10 @@ Review evidence is not fan fiction. Use a blocker-first verdict: unresolved bloc
 - Do not approve a review that treats nonexistent files, schemas, commands, or evidence refs as observed facts. Path hallucination is a blocker, not a typo.
 - When command execution is disallowed, use manual inspection language only: "not run", "manual inspection", "requires verification".
 
+## Harness consistency check
+
+Before approving, check whether the work kept Instructions, Tools, Environment, State, and Feedback consistent across artifacts and code. Requirement/contract drift, nonexistent verification tools, ignored environment blockers, stale `run-state.json`/`plan-ledger.json`, or unclosed feedback from failures are review findings. Label verification evidence as observed, reported, or missing before deciding whether it can support approval.
+
 ## Test verification gate
 
 Review MUST independently verify test results before approving. This is a hard gate:

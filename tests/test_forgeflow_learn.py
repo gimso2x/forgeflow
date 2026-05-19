@@ -48,6 +48,20 @@ def write_task_artifacts(task_dir: Path, *, secret: bool = False) -> None:
     (task_dir / "review-report.json").write_text(json.dumps(review_report), encoding="utf-8")
 
 
+def write_harness_failure_artifacts(task_dir: Path) -> None:
+    task_dir.mkdir(parents=True, exist_ok=True)
+    run_state = {
+        "task_id": "learn-task-002",
+        "status": "completed",
+        "evidence_refs": [
+            'verification:FAIL attempt=1 command="npm run lint" exit=1 layer=Environment reason="missing dependency directory"',
+            'verification:PASS attempt=2 command="npm run lint" exit=0 layer=Environment reason="dependencies installed"',
+        ],
+        "retries": {"execute": 2},
+    }
+    (task_dir / "run-state.json").write_text(json.dumps(run_state), encoding="utf-8")
+
+
 def read_jsonl(path: Path) -> list[dict]:
     return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
 
@@ -81,6 +95,24 @@ def test_extract_skips_duplicate_learning_ids(tmp_path: Path) -> None:
     assert second.returncode == 0, second.stderr
     assert len(read_jsonl(output)) == 1
     assert "skipped_duplicates=1" in second.stdout
+
+
+def test_extracts_learning_from_harness_failure_revalidation(tmp_path: Path) -> None:
+    task_dir = tmp_path / "task"
+    output = tmp_path / "learnings.jsonl"
+    write_harness_failure_artifacts(task_dir)
+
+    result = run_cli("extract", str(task_dir), "--output", str(output))
+
+    assert result.returncode == 0, result.stderr
+    entries = read_jsonl(output)
+    assert len(entries) == 1
+    entry = entries[0]
+    assert entry["type"] == "verification"
+    assert "Environment" in entry["cause"]
+    assert "re-run the same verification gate" in entry["rule"]
+    assert "verification:FAIL" in entry["evidence"][0]
+    assert "verification:PASS" in entry["evidence"][1]
 
 
 def test_extract_rejects_secret_like_evidence(tmp_path: Path) -> None:

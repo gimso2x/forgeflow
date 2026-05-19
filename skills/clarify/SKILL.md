@@ -40,6 +40,7 @@ Use this skill to convert a raw request into a ForgeFlow `brief.json`-style cont
   - skipped_specialists: list of specialists not used
   - skip_rationale: explanation for skipping specialists
   - min_verification: list of required verification steps for the run stage
+  - Harness context capture mapped through existing fields, not a new harness artifact
 
 ## Exit Condition
 
@@ -129,6 +130,8 @@ For exact-count, dry-run, or response-only prompts, do not force the WHERE inter
 ## Procedure
 
 1. Inspect relevant repo context before inventing scope.
+   - **Harness context capture**: Map Instructions, Tools, Environment, State, and Feedback into existing `brief.json` fields. Use environment_preflight, tech_stack, open_questions, min_verification for missing environment/tool/feedback context instead of creating a separate harness artifact.
+   - If an Environment or Tools gap prevents execution, add it to `open_questions.blocker_questions` and ask before routing to plan or execute.
    - Surface confusion instead of guessing. If the request has competing interpretations that materially change scope, say so in the brief.
    - For brownfield refactors or extensions, specifically identify **architectural friction**: where are modules **shallow** (interface as complex as implementation), where is **locality** missing, and where are **pass-throughs** bloating the path? (See `docs/refactor-planning-decision.md`).
    - Do not silently pick one interpretation when the ambiguity affects user-visible behavior, data, security, or files to edit.

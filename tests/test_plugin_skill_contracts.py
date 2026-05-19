@@ -158,9 +158,6 @@ def test_forgeflow_stage_skills_support_non_interactive_approval_mode() -> None:
         "skills/plan/SKILL.md",
         "skills/execute/SKILL.md",
         "skills/review/SKILL.md",
-        ".claude-plugin/skills/plan.md",
-        ".claude-plugin/skills/execute.md",
-        ".claude-plugin/skills/review.md",
     ]:
         skill = (ROOT / rel).read_text(encoding="utf-8")
         assert "Automation / non-interactive approval mode" in skill
@@ -172,7 +169,6 @@ def test_forgeflow_stage_skills_support_non_interactive_approval_mode() -> None:
 def test_worker_prompts_require_bounded_verification_fix_loop() -> None:
     for rel in [
         "skills/execute/SKILL.md",
-        ".claude-plugin/skills/execute.md",
         "adapters/targets/claude/agents/forgeflow-worker.md",
         "adapters/targets/codex/agents/forgeflow-worker.md",
     ]:
@@ -191,15 +187,35 @@ def test_worker_prompts_require_bounded_verification_fix_loop() -> None:
 
 def test_claude_execute_surface_handles_worktree_preference() -> None:
     for rel in [
-        ".claude-plugin/skills/execute.md",
+        "skills/execute/SKILL.md",
         "adapters/targets/claude/agents/forgeflow-worker.md",
     ]:
         prompt = (ROOT / rel).read_text(encoding="utf-8")
-        assert "Worktree isolation preference" in prompt
         assert "use_worktree" in prompt
-        assert "worktree preference not set — ask user" in prompt
         assert "brief.json" in prompt
-        assert "re-run `/forgeflow:execute`" in prompt
+
+
+def test_stage_skills_capture_harness_layers_without_new_stage() -> None:
+    index = (ROOT / "skills" / "SKILLS.md").read_text(encoding="utf-8")
+    clarify = (ROOT / "skills" / "clarify" / "SKILL.md").read_text(encoding="utf-8")
+    plan = (ROOT / "skills" / "plan" / "SKILL.md").read_text(encoding="utf-8")
+    execute = (ROOT / "skills" / "execute" / "SKILL.md").read_text(encoding="utf-8")
+    review = (ROOT / "skills" / "review" / "SKILL.md").read_text(encoding="utf-8")
+    ship = (ROOT / "skills" / "ship" / "SKILL.md").read_text(encoding="utf-8")
+    finish = (ROOT / "skills" / "finish" / "SKILL.md").read_text(encoding="utf-8")
+
+    assert "Instructions/Tools/Environment/State/Feedback" in index
+    assert "Do not create a separate harness stage" in index
+    assert "Harness context capture" in clarify
+    assert "environment_preflight, tech_stack, open_questions, min_verification" in clarify
+    assert "Harness mapping uses existing plan schema fields" in plan
+    assert "Do not add non-schema fields such as `harness`, `failure_layer`, or `environment`" in plan
+    assert "Classify the failure layer" in execute
+    assert "Instructions, Tools, Environment, State, Feedback" in execute
+    assert "Harness consistency check" in review
+    assert "observed, reported, or missing" in review
+    assert "unresolved Environment/Tools/State blocker" in ship
+    assert "failure layer and revalidation evidence" in finish
 
 
 def test_codex_prompts_require_minimum_artifact_contract_for_small_tasks() -> None:

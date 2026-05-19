@@ -85,6 +85,7 @@ Before preparing handoff, read `run-state.json`, latest review report(s), and `e
 1. Check git status and diff only if command execution is allowed.
 2. Run final verification only if command execution is allowed.
 3. Ensure review passed; do not ship blocked work.
+4. Confirm there is no unresolved Environment/Tools/State blocker, and that handoff evidence is preserved in the active task directory before preparing the final summary.
 
 ### 4. Final Polish & Simplification Loop (Inspired by /simplify)
 

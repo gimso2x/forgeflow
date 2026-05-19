@@ -58,6 +58,8 @@ When writing `plan.json`, it **must** conform to `schemas/plan.schema.json` exac
 
 Do not add non-schema fields such as `route`, `tasks`, `files_to_change`, `acceptance_criteria`, `verification_commands`, or `route_selection_rationale` to `plan.json`.
 
+Do not add non-schema fields such as `harness`, `failure_layer`, or `environment` to `plan.json`. Harness mapping uses existing plan schema fields: requirements and contracts for Instructions, `steps[].verification` and `verify_plan` for Tools/Feedback, bounded assumptions for Environment, and task/artifact paths for State.
+
 ## Contract-first traceability for medium/high/epic or brownfield work
 
 For non-trivial work, plan the cross-module contract before task decomposition. Apply the **Architecture Glossary** from `docs/refactor-planning-decision.md` (Depth, Seam, Locality, etc.) to identify **deepening opportunities**—refactors that turn shallow modules into deep ones.
@@ -122,6 +124,8 @@ Before crossing `plan → execute`, the plan must make these sections explicit i
 - `Verification`
 
 State assumptions and success criteria before proposing tasks. If an assumption changes the implementation path, record it as a bounded assumption or return to `/forgeflow:clarify`; do not hide it inside a task title.
+
+Before crossing the gate, verify the harness mapping is represented without schema drift: Instructions map to `fulfills`/contracts, Tools map to executable or explicitly manual verification gates, Environment assumptions are bounded or sent back to clarify, State names the task artifacts and files, and Feedback is covered by `verify_plan`.
 
 **TDD Principle**: All implementation steps MUST follow TDD. Plan test writing steps BEFORE or EXPLICITLY alongside code writing steps. "Write failing test" should be its own objective or a clear part of a step's objective.
 

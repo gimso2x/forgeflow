@@ -76,7 +76,14 @@ def extract_entries(task_dir: Path) -> list[dict[str, Any]]:
     decision_log = load_json_if_exists(task_dir / "decision-log.json") or {}
     review_report = load_json_if_exists(task_dir / "review-report.json") or {}
     eval_record = load_json_if_exists(task_dir / "eval-record.json") or {}
-    task_id = review_report.get("task_id") or decision_log.get("task_id") or eval_record.get("task_id") or task_dir.name
+    run_state = load_json_if_exists(task_dir / "run-state.json") or {}
+    task_id = (
+        review_report.get("task_id")
+        or decision_log.get("task_id")
+        or eval_record.get("task_id")
+        or run_state.get("task_id")
+        or task_dir.name
+    )
     timestamp = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
     entries: list[dict[str, Any]] = []
 
@@ -117,6 +124,34 @@ def extract_entries(task_dir: Path) -> list[dict[str, Any]]:
             "evidence": evidence_list,
             "tags": infer_tags(str(problem), str(rule), evidence_list),
         }
+        entry["id"] = stable_id(entry)
+        entries.append(entry)
+
+    verification_refs = [str(item) for item in run_state.get("evidence_refs", []) or []]
+    failed_refs = [item for item in verification_refs if "verification:FAIL" in item]
+    passed_refs = [item for item in verification_refs if "verification:PASS" in item]
+    if failed_refs and passed_refs:
+        fail_ref = failed_refs[-1]
+        pass_ref = passed_refs[-1]
+        layer = "Implementation"
+        for candidate in ["Instructions", "Tools", "Environment", "State", "Feedback"]:
+            if f"layer={candidate}" in fail_ref or f"layer={candidate}" in pass_ref:
+                layer = candidate
+                break
+        entry = {
+            "id": "",
+            "timestamp": timestamp,
+            "source": {"task_id": task_id, "artifact": "run-state.json"},
+            "type": "verification",
+            "problem": "Verification failed during execution and required a scoped revalidation loop.",
+            "cause": f"{layer} failure during bounded verification fix loop.",
+            "rule": f"When a {layer} verification failure recurs, fix the layer cause and re-run the same verification gate before marking work complete.",
+            "evidence": [fail_ref, pass_ref],
+            "tags": infer_tags("verification failure", f"{layer} re-run the same verification gate", [fail_ref, pass_ref]),
+        }
+        layer_tag = layer.lower()
+        if layer_tag not in entry["tags"]:
+            entry["tags"].append(layer_tag)
         entry["id"] = stable_id(entry)
         entries.append(entry)
 
@@ -173,6 +208,8 @@ def cmd_extract(args: argparse.Namespace) -> int:
     if errors:
         for error in errors:
             print(f"Warning: {error}", file=sys.stderr)
+        if any("secret-like evidence" in error for error in errors):
+            return 1
     valid_entries = [entry for entry in entries if not validate_entry(entry)]
     skipped_invalid = len(entries) - len(valid_entries)
 

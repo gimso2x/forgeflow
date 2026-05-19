@@ -10,6 +10,7 @@ Skills are markdown documents that live in `skills/`. Each skill defines a bound
 4. **Status analysis is a runtime/reporting surface, not a workflow stage.** Read `run-state.json`, review reports, eval records, and `scripts/forgeflow_monitor.py` before deciding resume/fix/finish, but do not create a separate status skill.
 5. **Trigger phrases are advisory, not magical.** The operator or an adapter decides when to invoke a skill.
 6. **Keep the active skill surface minimal.** Optional discipline, debugging, QA, and learning guidance belongs in docs, prompts, runtime policy, or tests unless it is a first-class plugin skill.
+7. **Harness concepts stay inside the existing workflow.** ForgeFlow handles Instructions/Tools/Environment/State/Feedback through stage artifacts and evidence; Do not create a separate harness stage or parallel source of truth.
 
 ## Workflow skills (ordered)
 

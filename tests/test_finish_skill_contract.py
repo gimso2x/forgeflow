@@ -34,6 +34,15 @@ def test_finish_skill_protects_destructive_actions():
     assert "unrelated dirty working tree" in text
 
 
+def test_finish_skill_captures_harness_learning_evidence():
+    text = FINISH_SKILL.read_text(encoding="utf-8")
+
+    assert "failure layer and revalidation evidence" in text
+    assert "reusable learning" in text
+    assert "Instructions, Tools, Environment, State, Feedback" in text
+    assert "Do NOT store raw session text" in text
+
+
 def test_finish_skill_is_part_of_canonical_skill_validation():
     text = VALIDATOR.read_text(encoding="utf-8")
 
