@@ -89,7 +89,7 @@ raw_score = file_count*1.0 + estimated_lines*0.1 + requirement_count*2.0 + depen
 
 ## Release version policy
 
-README 본문에는 현재 릴리즈 버전을 고정하지 않습니다. 릴리즈 버전은 Git tag와 플러그인 manifest(`SKILL.md`, `.codex-plugin/plugin.json`, `gemini-extension.json`)에서 관리합니다.
+루트 `VERSION` 파일을 단일 버전 기준으로 사용합니다. README 본문에는 현재 릴리즈 버전을 고정하지 않고, CI가 `VERSION`, `CHANGELOG.md`, `SKILL.md`, `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json`, `.codex-plugin/plugin.json`, `gemini-extension.json`, 선택적 `pyproject.toml`의 정합성을 검사합니다.
 
 ## Evolution rule lifecycle
 

@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- 루트 `VERSION` 파일을 추가하고, CI에서 release version 정합성을 검사하도록 보강.
+
+### Fixed
+
+- `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json` 버전을 현재 릴리즈와 동기화.
+
 ## [1.0.2] - 2026-05-19
 
 ### Added
