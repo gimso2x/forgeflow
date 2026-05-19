@@ -90,6 +90,28 @@ Optional contract-aware `plan.json` fields:
 
 Small documentation-only tasks may omit these fields. If the fields are present, they must be internally consistent and pass sample artifact validation.
 
+## Auto-detectable verification gates
+
+When constructing `verify_plan`, prefer automated gates over `manual_review` wherever the verification can be expressed as a machine-checkable assertion. Use `manual_review` only for qualitative judgments that cannot be automated.
+
+### Available automated gates
+
+| Gate | Description | Applicable when |
+|------|-------------|-----------------|
+| `screen_count_check` | Verify row counts match expected numbers | Documents with screen/page catalogs |
+| `cross_document_consistency_check` | Verify terminology/version consistency across files | Multi-document deliverables |
+| `document_validation` | Lint, build, test on document-only workspace | Any documentation task |
+| `contract_check` | Verify step output against stated contracts | Tasks with contracts.md |
+| `version_consistency_check` | Verify version strings match across artifacts | Tasks referencing package versions |
+| `total_preservation_check` | Verify aggregate values (effort, count) unchanged | Tasks with summary totals |
+| `scope_boundary_check` | Verify no unintended files changed via git diff | All tasks |
+
+### Gate selection rules
+
+1. **Documentation-only tasks** (`tech_stack: documentation-only`): Use at least `scope_boundary_check` + `version_consistency_check` or `total_preservation_check` alongside `manual_review`. Do not use `manual_review` as the sole gate.
+2. **Code tasks**: Use `contract_check` for every step. Add `screen_count_check` or `cross_document_consistency_check` when the task affects UI catalogs or cross-file references.
+3. **Mixed tasks**: Apply documentation gates to documentation steps and code gates (`build`, `lint`, `test`, `type_check`) to code steps.
+
 ## Minimum plan gate
 
 Before crossing `plan → execute`, the plan must make these sections explicit in `plan.json`, a sibling plan note, or the response artifact:

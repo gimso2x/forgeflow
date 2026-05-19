@@ -106,7 +106,8 @@ Before generating the final manifest, perform an iterative refinement loop on th
 - If a simplification breaks a test, immediately revert (`git restore`) and skip that specific change.
 
 5. Prepare the final handoff summary.
-6. Preserve artifacts/evidence instead of burying them in chat.
+6. **Update checkpoint.json**: Set `current_stage: "shipped"`, `next_action` to "완료. 후속 작업이 필요하면 새 태스크를 생성하세요.", `open_blockers: []`, and `updated_at` to the current timestamp. This prevents stale checkpoint state from confusing future sessions.
+7. Preserve artifacts/evidence instead of burying them in chat.
 
 Never discard, merge, PR, or destructive-clean from `ship`; hand branch disposition to `finish` and require explicit confirmation there.
 

@@ -133,9 +133,23 @@ For exact-count, dry-run, or response-only prompts, do not force the WHERE inter
    - For brownfield refactors or extensions, specifically identify **architectural friction**: where are modules **shallow** (interface as complex as implementation), where is **locality** missing, and where are **pass-throughs** bloating the path? (See `docs/refactor-planning-decision.md`).
    - Do not silently pick one interpretation when the ambiguity affects user-visible behavior, data, security, or files to edit.
    - **Environment preflight**: Run these checks and record results in brief.json under `"environment_preflight"`:
+     - `git rev-parse --show-toplevel 2>/dev/null` → confirm the correct git root matches the target project directory. If a parent directory is detected as the repo root instead, add `"environment_warnings": ["git_root_mismatch"]` and record `"git_root_detected"` vs `"git_root_expected"`.
      - `git rev-parse --is-inside-work-tree 2>/dev/null` → if not a git repo, add `"environment_warnings": ["not_a_git_repo"]`
      - Check for lockfile + dependency directory mismatch (e.g., `pnpm-lock.yaml` exists but no `node_modules`): add to `open_questions.blocker_questions`: "종속성이 설치되지 않았습니다. execute 전에 설치를 진행하시겠습니까?"
      - If neither lockfile nor dependency directory exists: new project, skip silently.
+   - **Tech stack detection**: Auto-detect the framework/build tool from project files and record in brief.json under `"tech_stack"`. Check for:
+     - `package.json` → read `dependencies` and `devDependencies` for framework signals:
+       - `next` → Next.js (record `appRouter: true` if `app/` dir exists)
+       - `react` + `vite` → React + Vite
+       - `react` + (`webpack` | no bundler) → React (CRA or custom)
+       - `vue` → Vue
+       - `svelte` → Svelte
+       - `nuxt` → Nuxt
+     - `pyproject.toml` or `requirements.txt` → Python (FastAPI/Django/Flask)
+     - `Cargo.toml` → Rust
+     - `go.mod` → Go
+     - If no framework signals found but the request mentions a specific stack, record it as `"tech_stack": {"source": "user_specified"}`.
+     - If the detected tech stack contradicts the user's request or CLAUDE.md defaults, add to `open_questions.blocker_questions` with the detected vs stated conflict.
 2. Establish WHERE grounding unless the prompt is an exact-output dry run.
 3. Ask up to 5 clarifying questions when they materially improve requirements. Ask 0 if the request is already actionable, and do not pad the list with nice-to-have trivia.
    - Good questions resolve product behavior, user/audience, success criteria, data/source of truth, rollout/risk constraints, or explicit out-of-scope boundaries.

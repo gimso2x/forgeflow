@@ -26,7 +26,9 @@ Ship reviewed work. Requires an `approved` review report.
 
 5. Report: commit SHA, files shipped, review verdict, and whether this was a high-risk route that should continue to `/forgeflow:long-run`.
 
-6. Do not write `eval-record.json` here. That artifact belongs to `/forgeflow:long-run`, which records reusable patterns and failure rules after high-risk completion or manual learning capture.
+6. **Update checkpoint.json**: Set `current_stage: "shipped"`, `next_action` to "완료. 후속 작업이 필요하면 새 태스크를 생성하세요.", `open_blockers: []`, and `updated_at` to the current timestamp. This prevents stale checkpoint state from confusing future sessions.
+
+7. Do not write `eval-record.json` here. That artifact belongs to `/forgeflow:long-run`, which records reusable patterns and failure rules after high-risk completion or manual learning capture.
 
 
 ## Status analysis preflight

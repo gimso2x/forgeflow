@@ -38,10 +38,11 @@ The heavy analysis stage. Takes the raw objective from init and produces everyth
    ```
 
 3. **Environment preflight check** — act on the results from step 2:
+   - `git rev-parse --show-toplevel` → confirm the git root matches the target project directory. If a parent directory is the repo root, add `"environment_warnings": ["git_root_mismatch"]` and record `"git_root_detected"` vs `"git_root_expected"`. This prevents executing commits in the wrong repository scope.
    - If `GIT: no`: add `"environment_warnings": ["not_a_git_repo"]` to brief.json.
    - If lockfile exists but no dependency directory (e.g., `pnpm-lock.yaml` present but no `node_modules`): add to `open_questions.blocker_questions`: "종속성이 설치되지 않았습니다. execute 전에 `<install command>`을 실행하시겠습니까?"
    - If neither lockfile nor dependency directory exists: new project, skip silently.
-   - Record findings in brief.json under `"environment_preflight": { "git": bool, "dependencies_installed": bool, "warnings": [] }`.
+   - Record findings in brief.json under `"environment_preflight": { "git": bool, "git_root": "<path>", "dependencies_installed": bool, "warnings": [] }`.
 
 4. **Analyze objective → extract**:
    - **Domains**: api, frontend, backend, data, auth, infra, testing, security
@@ -50,14 +51,20 @@ The heavy analysis stage. Takes the raw objective from init and produces everyth
    - **Work mode**: frontend | backend | devops | full (based on keywords)
 
 5. **Detect project type** from filesystem markers:
-   - `package.json` + `"next"` → Next.js
-   - `package.json` + `"react"` → React
+   - `package.json` + `"next"` → Next.js (record `appRouter: true` if `app/` dir exists)
+   - `package.json` + `"react"` + `"vite"` → React + Vite
+   - `package.json` + `"react"` (no `vite`) → React (CRA or custom)
+   - `package.json` + `"vue"` → Vue
+   - `package.json` + `"svelte"` → Svelte
+   - `package.json` + `"nuxt"` → Nuxt
    - `pyproject.toml` + `"fastapi"` → FastAPI
    - `pyproject.toml` + `"flask"` → Flask
    - `manage.py` → Django
    - `go.mod` → Go service
    - `Cargo.toml` → Rust project
    - Generic `pyproject.toml` → Python CLI
+   - No framework signals but deliverables/docs only → `documentation-only` (skip build/lint/test gates)
+   - **Conflict detection**: If the detected tech stack contradicts the user's request or CLAUDE.md defaults, add to `open_questions.blocker_questions` with the detected vs stated conflict. Do not silently proceed with a wrong stack assumption.
 
 6. **Determine route**:
    - risk=high, or change=migration/refactor/security → `high`
