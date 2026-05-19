@@ -23,7 +23,8 @@ Skills are markdown documents that live in `skills/`. Each skill defines a bound
 | 05 | [`review`](review/SKILL.md) | **Information-isolated** verification of executed work against the plan. | engineering-discipline + andrej-karpathy-skills |
 | 06 | [`ship`](ship/SKILL.md) | Final handoff/report after verification; branch disposition lives in [`finish`](finish/SKILL.md). | gstack |
 | 07 | [`finish`](finish/SKILL.md) | Close the task and handle branch/worktree disposition. | ForgeFlow |
-| 08 | [`milestone`](milestone/SKILL.md) | Create and manage project milestones. | GSD |
+| 08 | [`milestone`](milestone/SKILL.md) | Create and manage project milestones with dependency DAG and integration verification. | GSD + Ultraplan |
+| 09 | [`long-run`](long-run/SKILL.md) | Record reusable learnings after high-risk task completion. Produces eval-record.json. | ForgeFlow |
 
 ## Removed optional skills
 
@@ -62,7 +63,7 @@ User: "Refactor the entire payment module"
 User: "Build a complete e-commerce platform"
   → init             → task workspace
   → clarify          → brief.json + complexity=epic
-  → milestone        → roadmap.json (M1: Auth, M2: Cart, M3: Checkout)
+  → milestone        → roadmap.json (M1: Auth, M2: Cart, M3: Checkout, M_final: Integration)
   → (per milestone)
     → plan           → plan.json
     → execute        (updates run-state.json)
@@ -70,6 +71,7 @@ User: "Build a complete e-commerce platform"
     → review (qual)  → review-report-quality.json
   → ship             → final handoff
   → finish           → branch disposition
+  → long-run         → eval-record.json (reusable patterns, failure rules)
 ```
 
 ## Adding a new skill

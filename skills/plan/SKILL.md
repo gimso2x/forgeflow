@@ -224,20 +224,88 @@ If the user explicitly includes `--yes`, `--auto-approve`, `--non-interactive`, 
 
 ## Procedure
 
-1. Read the brief/requirements fully.
-2. Inspect the repo for existing conventions.
-3. Decompose into small tasks with acceptance criteria.
-4. Mark dependency order and parallel safety.
-5. Identify risky tasks and required review evidence.
-6. For `high/epic` work, pressure-test milestone boundaries from five angles before execution:
+### Phase 1: Load and map
+
+1. Read the brief/requirements fully. Map Context Brief fields to plan header:
+
+   | Brief Field | Plan Mapping |
+   |-------------|-------------|
+   | Goal | `plan.json` task_id + step objectives |
+   | Scope (In/Out) | Work scope section |
+   | Technical Context | Architecture + tech stack + file structure basis |
+   | Constraints | Reflected during task decomposition |
+   | Success Criteria | Self-review checklist |
+   | Open Questions | Recorded as bounded assumptions |
+
+2. Inspect the repo for existing conventions, test patterns, and file structure. Use `fd`/`rg` to map relevant files.
+
+3. **File Structure Mapping**: Before writing tasks, determine exactly which files will be created or modified:
+   - Each file should have one clear responsibility
+   - Files that change together should live together
+   - Follow existing codebase patterns — don't unilaterally restructure
+   - File structure informs task decomposition: each task should produce a self-contained change
+
+### Phase 2: Task decomposition
+
+4. Decompose into small tasks following these heuristics:
+
+   **Parallelism and Dependencies** — design for maximum parallel execution. Tasks require sequential ordering only when:
+   - They modify the same file (prevents file conflicts)
+   - One task's output is referenced by another (interface dependency)
+   - They modify shared state (DB schema, config files)
+
+   Mark each task's dependency status explicitly in `steps[].dependencies`:
+   - Empty array `[]` = parallelizable
+   - List of step IDs = runs after those steps
+
+   **Worker-Validator Structure** — each task should be executable by an independent worker (subagent) and verifiable by a separate validator:
+   - Worker: executes steps exactly as written, no judgments beyond the plan
+   - Validator: checks test pass/fail, code quality, spec compliance
+
+   **Task Granularity** — each step is one action (2-5 minutes of work):
+   - "Write the failing test" — one step
+   - "Run it to confirm it fails" — one step
+   - "Write the minimal code to pass" — one step
+   - "Run tests to confirm they pass" — one step
+   - "Commit" — one step
+
+5. For every step, write `expected_output` and `verification` fields. Never leave a step that assumes "the worker will figure it out."
+
+6. Apply contract-first traceability (see above) for medium/high/epic or brownfield work.
+
+7. For `high/epic` work, pressure-test milestone boundaries from five angles before execution:
    - feasibility risks
    - architecture/interface boundaries
    - dependency ordering
    - regression and recovery risks
    - verification strategy
-7. Propose `/forgeflow:execute` as the next stage and stop for explicit user approval.
+
+### Phase 3: Self-review and validate
+
+8. **Self-review** before presenting to the user:
+   - Every requirement from the brief maps to at least one step
+   - Every step has `fulfills`, `expected_output`, `verification`, and `rollback_note`
+   - Dependencies form a valid DAG (no cycles, no orphans)
+   - No placeholder tasks remain
+   - `verify_plan` covers every `fulfills` target
+   - Schema validation passes against `schemas/plan.schema.json`
+
+9. Identify risky tasks and required review evidence.
+
+10. Propose `/forgeflow:execute` as the next stage and stop for explicit user approval.
 
 Do not code during planning unless the user explicitly asks for a tiny small-route direct execution.
+
+### Anti-patterns
+
+| Anti-Pattern | Why It Fails |
+|---|---|
+| Marking tasks that modify the same file as parallel | File conflicts, unmergeable changes |
+| Listing tasks without dependencies | Execution order tangles, interface mismatches |
+| Steps that assume "the worker will figure it out" | Worker's arbitrary interpretation → spec drift |
+| Approving a plan with placeholders | Blocked at execution stage, must return to planning |
+| Skipping self-review | Missing spec coverage, type mismatches, dependency errors go undetected |
+| Writing tasks before mapping files | Task boundaries don't match file boundaries |
 
 ## UX guardrails
 
