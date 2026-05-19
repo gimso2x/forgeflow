@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.2] - 2026-05-19
+
+### Added
+
+- 진화 규칙 자동 적용 흐름 추가.
+- `templates/evolution-rule.md`와 clarify/plan/execute/review/long-run 단계 연결 보강.
+
+### Changed
+
+- README에서 현재 릴리즈 버전 하드코딩을 제거하고, release version policy를 문서화.
+- medium route의 weighted scoring 기준과 `17.0` mid threshold 근거 문서화.
+- evolution rule lifecycle 진입점과 승격 흐름 문서화.
+- 실제 외부 실행 adapter 재도입 시 stderr 경고와 `[y/N]` 확인 프롬프트를 필수 안전 계약으로 명시.
+
+## [1.0.1] - 2026-05-19
+
+### Added
+
+- v1.0.0 마이그레이션 중 유실된 `run-ledger`, `checkpoint`, 역할 분리, evolution pipeline, 실행 패턴 개념 복구.
+
 ## [1.0.0] - 2026-05-19
 
 ### Breaking Changes

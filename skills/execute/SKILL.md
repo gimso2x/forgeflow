@@ -135,6 +135,18 @@ For exact-count list prompts, output numbered lines only. No heading, preamble, 
 
 If the user explicitly includes `--yes`, `--auto-approve`, `--non-interactive`, or says to continue through ForgeFlow stages without further approval, treat that as approval for the current bounded ForgeFlow sequence. Do not pause at the normal stage-boundary y/n prompt; proceed to the next requested ForgeFlow stage after writing the required artifact for the current stage. This only applies inside the stated task scope and never overrides a blocker, failed verification, missing required artifact, or unsafe/destructive action.
 
+## Real external execution safety
+
+ForgeFlow v1.x does not ship the old Python `exec-stage --real` runtime. If a live adapter or `--real` path is reintroduced, stub/dry-run must remain the default. Before any actual Claude/Codex/Gemini CLI call, API call, billing event, or shared-system mutation, the executor must print a visible stderr warning and require an explicit `[y/N]` confirmation unless the user already approved that exact live action in the current scope.
+
+Minimum warning contract:
+
+```text
+[WARNING] --real: 실제 외부 CLI/API 호출이 실행됩니다. 계속하시겠습니까? [y/N]
+```
+
+`--auto-approve` and `--non-interactive` do not bypass this safety contract for new live external execution paths.
+
 ## Procedure
 
 1. Confirm route and current stage. Read `brief.md` to determine route.

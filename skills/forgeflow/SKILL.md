@@ -40,12 +40,21 @@ ForgeFlow turns agent work into explicit stages with Markdown artifacts, gates, 
 
 Complexity thresholds (rough guide, not rigid):
 
+The route score keeps the v0.x weighted model as a documentation contract after the Python runtime removal:
+
+```text
+raw_score = file_count*1.0 + estimated_lines*0.1 + requirement_count*2.0 + dependency_count*1.5 + risk_keywords*3.0
+```
+
 | Score | Route |
 |-------|-------|
-| 5-8 | small |
-| 9-16 | medium (light 9-12, full 13-16) |
-| 17-24 | high |
-| 25+ | epic |
+| `< 10` | small |
+| `10-16.9` | medium-light: few files, scoped changes |
+| `17-24.9` | medium-full: cross-module or service-level changes |
+| `25-49.9` | high |
+| `>= 50` | epic |
+
+`17.0` is the `mid_threshold` that separates medium-light from medium-full. If a project wants different thresholds, update this file, `skills/clarify/SKILL.md`, and README together.
 
 ## Output Artifacts
 
@@ -141,11 +150,15 @@ Plans for high/epic routes should explicitly name the execution pattern in the A
 
 ForgeFlow turns repeated patterns and mistakes into Markdown rules without restoring the old Python runtime:
 
-1. `long-run` records evidence-backed candidates in `eval-record.md` and `.forgeflow/evolution/proposed/*.md` using `templates/evolution-rule.md`.
-2. `review` validates candidate evidence, false-positive guard, scope, enforcement mode, and rollback/retirement path.
-3. Approved project rules move to `.forgeflow/evolution/active/` and are loaded automatically by future `clarify`, `plan`, and `execute` stages.
-4. Global rules live under `~/.forgeflow/evolution/active/*.md`, but they are advisory only and cannot hard block a project task.
-5. Retired rules move to `.forgeflow/evolution/retired/` with a retirement reason.
+| Stage | Trigger | Artifact / location | Next state |
+|-------|---------|---------------------|------------|
+| `long-run` | High/epic completion leaves evidence of a repeated mistake, review finding, eval failure, or operator note | `eval-record.md`, `.forgeflow/evolution/proposed/*.md` using `templates/evolution-rule.md` | `proposed` |
+| `proposed` | Candidate rule has trigger, expected behavior, stage, evidence, false-positive guard, rollback path | `Lifecycle: proposed`, `Review Status: unreviewed` | `review` |
+| `review` | Reviewer validates evidence, scope, enforcement mode, false-positive guard, and retirement path | `review-report.md` Evolution Rule Review | `active` or rejected |
+| `active` | Approved project rule is moved to `.forgeflow/evolution/active/` | Markdown rule file | Loaded by future `clarify`, `plan`, and `execute` when trigger/stage match |
+| `retired` | Rule becomes harmful, obsolete, or too noisy | `.forgeflow/evolution/retired/` with reason | Not loaded |
+
+Global rules live under `~/.forgeflow/evolution/active/*.md`, but they are advisory only and cannot hard block a project task.
 
 ## Strict response constraints
 
