@@ -1,8 +1,6 @@
 ---
 name: forgeflow
 description: Artifact-first delivery workflow for AI coding agents. Use when a user types /forgeflow, /forgeflow:<stage>, or asks to implement, refactor, debug, review, or ship code through clarify, route selection, artifacts, gates, and independent review.
-version: 0.1.0
-author: gimso2x
 validate_prompt: |
   Must route work through explicit ForgeFlow stages and artifact-backed gates.
   Must preserve stage boundaries, verification evidence, and independent review semantics.
@@ -11,11 +9,9 @@ validate_prompt: |
 
 # ForgeFlow
 
-ForgeFlow turns agent work into explicit stages with artifacts, gates, and independent review. It enforces **Deep Architecture Discipline** (Depth, Seam, Locality, Deletion test) and a **Grilling loop** (Socratic interviewing with recommended answers) to ensure rigorous design and maintainable code. The active skill surface stays small: status analysis is handled by runtime artifacts and `scripts/forgeflow_monitor.py`, not by a separate workflow skill.
+ForgeFlow turns agent work into explicit stages with Markdown artifacts, gates, and independent review. It enforces **Deep Architecture Discipline** (Depth, Seam, Locality, Deletion test) and a **Grilling loop** (Socratic interviewing with recommended answers) to ensure rigorous design and maintainable code.
 
 ## Slash-style entrypoints
-
-Claude Code may expose native slash commands. Codex exposes plugin skills, so these same strings are prompt triggers that dispatch to the matching ForgeFlow skill:
 
 - `/forgeflow` -> this overview workflow skill
 - `/forgeflow-init ...` -> `forgeflow-init`
@@ -26,8 +22,6 @@ Claude Code may expose native slash commands. Codex exposes plugin skills, so th
 - `/forgeflow:ship` -> `ship`
 - `/forgeflow:finish` -> `finish`
 
-Do not require `CODEX.md` before plugin use. `CODEX.md` and project presets are optional project-local hardening surfaces.
-
 ## Input
 
 - User request or issue
@@ -35,71 +29,51 @@ Do not require `CODEX.md` before plugin use. `CODEX.md` and project presets are 
 - Constraints, acceptance criteria, and risk notes if available
 - Existing artifacts if the task is already in progress
 
+## Route model
+
+| Route | Stages | When |
+|-------|--------|------|
+| small | clarify -> execute -> quality-review -> ship | 1-2 files, low risk, easy rollback |
+| medium | clarify -> plan -> execute -> quality-review -> ship | Several coordinated files, shared state, moderate test surface |
+| high | clarify -> plan -> execute -> spec-review -> quality-review -> ship | Auth/security, data migration, infra, irreversible changes |
+| epic | clarify -> milestone -> (per milestone) plan -> execute -> spec-review -> quality-review -> ship | Massive scope, hierarchical milestones, multi-week effort |
+
+Complexity thresholds (rough guide, not rigid):
+
+| Score | Route |
+|-------|-------|
+| 5-8 | small |
+| 9-16 | medium (light 9-12, full 13-16) |
+| 17-24 | high |
+| 25+ | epic |
+
 ## Output Artifacts
 
-At minimum, produce or update the artifacts appropriate for the selected route:
+All artifacts are Markdown files written to `.forgeflow/tasks/<task-id>/`:
 
-- `brief.json` or equivalent brief: clarified objective, constraints, risk, route
-- `roadmap.json` for epic route: milestone DAG and statuses
-- `run-state.json`: current stage and completed gates
-- `plan-ledger.json` for medium/high/epic routes: planned steps, task status, gate evidence
-- `review-report.json`: independent review result; worker self-report is not enough
-- final summary: changed files, verification evidence, residual risks
-
-## Exit Condition
-
-The task is complete only when:
-
-- route is explicitly selected: `small`, `medium`, `high`, or `epic`
-- required stages for that route are complete
-- review gates are satisfied by evidence, not by vibes
-- verification commands have passed or failures are explicitly documented
-- final response names artifacts/evidence used for finalize
+- `brief.md` — clarified objective, constraints, risk, route (template: `templates/brief.md`)
+- `plan.md` — task decomposition with steps, verification, contracts (template: `templates/plan.md`)
+- `implementation-notes.md` — real-time execution log (template: `templates/implementation-notes.md`)
+- `review-report.md` — independent review result (template: `templates/review-report.md`)
+- `roadmap.md` for epic route: milestone DAG and statuses (template: `templates/roadmap.md`)
 
 ## Status analysis before routing
 
-Before choosing the next stage for an existing task, inspect the active task directory when available:
-
-- `run-state.json`: current stage, status, route, progress, next actionable step, blockers.
-- `review-report.json`, `review-report-spec.json`, `review-report-quality.json`: verdicts and open blockers.
-- `eval-record.json`: final evaluation status when present.
-- `decision-log.json`: latest implementation context, failure reasons, stuck signals.
-
-For multi-task or stale workspace triage, run `python3 scripts/forgeflow_monitor.py --tasks .forgeflow/tasks --recent 10` from the target repo. Treat the monitor as read-only evidence for resume/fix/finish decisions; it does not replace stage artifacts or review gates.
-
-## Route model
-
-```text
-small: clarify -> execute -> quality-review -> finalize
-medium: clarify -> plan -> execute -> quality-review -> finalize
-high: clarify -> plan -> execute -> spec-review -> quality-review -> finalize -> long-run
-epic: clarify -> milestone -> (per milestone) plan -> execute -> spec-review -> quality-review -> finalize -> long-run
-```
+Before choosing the next stage for an existing task, inspect the active task directory (`<task-dir>/implementation-notes.md`) for current stage, status, progress, and blockers. Check `review-report.md` for verdicts and open blockers.
 
 ## File write and output discipline
 
-Default to **artifact-first mode**. ForgeFlow is not a chat-only ritual. Unless the user explicitly asks for a dry run, exact-output response, or no-write simulation, create/update the canonical task artifacts under the active task directory.
+Default to **artifact-first mode**. Unless the user explicitly asks for a dry run, exact-output response, or no-write simulation, create/update Markdown artifacts under `.forgeflow/tasks/<task-id>/`.
 
-Canonical writable location:
-
-- explicit task directory provided by the user, or
-- repo-local `.forgeflow/tasks/<task-id>/` resolved by `/forgeflow-init` or the orchestrator runtime.
-
-If the task directory does not exist yet, bootstrap it first with `/forgeflow-init` or `python3 scripts/run_orchestrator.py init ...` before clarify/plan/run/review/ship. Do not skip straight to source edits when the artifact workspace is missing.
+If the task directory does not exist yet, bootstrap it first (create `.forgeflow/tasks/<task-id>/` with the appropriate template). Do not skip straight to source edits when the artifact workspace is missing.
 
 If the user says "do not write files", "return only", "dry run", "just list", or asks for a label/summary only, obey that output constraint exactly and do not attempt any filesystem mutation.
 
-When a user names artifacts such as `brief.json`, `plan.json`, or `review-report.json` without a path, assume the active task directory, not chat-only fallback. Do not guess a repo-root artifact path outside `.forgeflow/tasks/<task-id>/`.
-
-If writing is allowed, write only under the current project workspace or the active task directory. Never write inside the plugin installation directory, marketplace cache, or `skills/<skill>/`.
-
+When artifacts are mentioned without an explicit path, assume `.forgeflow/tasks/<task-id>/`, not chat-only fallback. Write only under the current project workspace or the active task directory. Never write inside `skills/<skill>/`.
 
 ## Strict response constraints
 
 When the user asks for an exact count, exact format, or "only" output, that instruction overrides the normal artifact template. Return exactly what was requested and nothing extra.
-
-Bad: adding verdicts, JSON artifacts, rationale sections, or extra warnings after the requested list.
-Good: if asked for exactly two checks, return exactly two checks.
 
 When the user says "do not run commands", do not propose command execution as if it happened. You may name a manual check, but label it as manual inspection, not a command result.
 
@@ -108,12 +82,11 @@ When the user says "do not run commands", do not propose command execution as if
 1. Start with clarify unless the user provides a complete brief.
 2. Pick the smallest route that honestly covers the risk.
 3. Do not skip plan for medium or high work.
-4. Do not merge `spec-review` and `quality-review`.
+4. Do not merge spec-review and quality-review.
 5. Do not treat the implementer's own summary as approval.
 6. Keep state in artifacts/files, not just chat history.
-7. If using ForgeFlow's local runtime, remember default `execute` is stub; real provider CLI execution requires `--real` and `execution_mode: real` in the payload.
-8. **Run (execute) step scope**: Each plan step implements only its own `objective` scope. Do not implement future steps early. If a previous step already covers the current step's scope, perform incremental edits instead of skipping with an empty turn.
-9. **Review read-only**: The review stage is read-only verification. Use only `Read`, `Bash` (for verification), and `Grep`. Do not use `Write` or `Edit` during review. Record required fixes in `review-report.json` findings and hand back to the worker.
+7. Each plan step implements only its own scope. Do not implement future steps early.
+8. The review stage is read-only verification. Do not use Write or Edit during review. Record required fixes in `review-report.md` findings and hand back to the worker.
 
 ## Operator prompts
 
@@ -138,5 +111,5 @@ Use ForgeFlow. Treat this as large/high-risk. Clarify, plan, execute, run spec-r
 Epic/massive scale task:
 
 ```text
-Use ForgeFlow. Treat this as an epic. Clarify, breakdown milestones, then for each milestone: plan, execute, and review. Track progress in roadmap.json.
+Use ForgeFlow. Treat this as an epic. Clarify, breakdown milestones, then for each milestone: plan, execute, and review. Track progress in roadmap.md.
 ```

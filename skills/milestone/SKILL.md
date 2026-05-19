@@ -1,10 +1,10 @@
 ---
 name: milestone
 description: Create and manage hierarchical milestones for a project using parallel reviewer analysis. Decomposes epic-scale work into independently deliverable milestones with dependency DAG, success criteria, and integration verification. Use when the user types /forgeflow:milestone, or when clarify routes to epic.
-version: 0.2.0
+version: 0.3.0
 author: gimso2x
 validate_prompt: |
-  Must produce schema-valid roadmap.json conforming to schemas/milestone.schema.json.
+  Must produce roadmap.md conforming to the templates/roadmap.md format.
   Must include measurable success criteria for each milestone.
   Must append an Integration Verification milestone as the final node.
   Must not create more than 10 milestones without explicit user approval.
@@ -24,27 +24,27 @@ Break large, multi-day tasks into optimized milestones with dependency ordering 
 
 | Artifact | Source |
 |----------|--------|
-| `brief.json` | Active task workspace |
-| Codebase context | Explore agent or direct inspection |
+| `brief.md` | Active task workspace |
+| Codebase context | Direct inspection |
 
 ## Output Artifacts
 
-| Artifact | Schema | Description |
+| Artifact | Format | Description |
 |----------|--------|-------------|
-| `roadmap.json` | `schemas/milestone.schema.json` | Milestone definitions, dependency DAG, statuses |
+| `roadmap.md` | `templates/roadmap.md` | Milestone definitions, dependency DAG, statuses |
 | Reviewer outputs | Per-milestone notes | Feasibility, architecture, risk, dependency, user-value analysis |
 
 ## Procedure
 
 ### Phase 1: Problem framing
 
-1. Read `brief.json` and identify: goal, scope boundaries, technical constraints, success criteria.
+1. Read `brief.md` and identify: goal, scope boundaries, technical constraints, success criteria.
 2. If a codebase is involved, inspect relevant architecture and file structure.
-3. Compose a **Problem Brief** — a self-contained summary that guides decomposition:
+3. Compose a **Problem Brief** -- a self-contained summary that guides decomposition:
 
    Include: Goal, Scope (In/Out), Technical Context, Constraints, Success Criteria, and Verification Strategy (the highest-level verification command and what passing it proves).
 
-4. Run verification discovery: search for e2e tests → integration tests → test suite → build+lint. Record the best available verification.
+4. Run verification discovery: search for e2e tests, integration tests, test suite, build+lint. Record the best available verification.
 
 ### Phase 2: Five-angle pressure test
 
@@ -52,11 +52,11 @@ Analyze the problem from five independent angles. For each angle, produce a stru
 
 1. **Feasibility**: Can each component be built with the stated tech stack? Classify effort as Small (1-3 tasks), Medium (4-8 tasks), Large (9+ tasks), or Uncertain (needs spike). Flag components with hidden complexity.
 
-2. **Architecture**: Identify shared interfaces, state mutations, and module boundaries. Map which files are touched by which work. Flag files touched by multiple streams — these create ordering constraints.
+2. **Architecture**: Identify shared interfaces, state mutations, and module boundaries. Map which files are touched by which work. Flag files touched by multiple streams -- these create ordering constraints.
 
 3. **Risk**: Rate each component for technical risk and risk of underestimation. Identify components needing prototype before planning. Flag blast radius of potential failures.
 
-4. **Dependency**: Map all ordering constraints — file conflicts, interface dependencies, shared state. Identify parallelizable groups (zero dependencies between them). Draw the dependency DAG.
+4. **Dependency**: Map all ordering constraints -- file conflicts, interface dependencies, shared state. Identify parallelizable groups (zero dependencies between them). Draw the dependency DAG.
 
 5. **User value**: Rank work by user-visible impact. Identify the minimum milestone that delivers standalone value.
 
@@ -71,17 +71,21 @@ Analyze the problem from five independent angles. For each angle, produce a stru
 
 3. **Append Integration Verification milestone** as the final node (`M_final`):
    - Depends on ALL other milestones
-   - Read-only verification — no new code
+   - Read-only verification -- no new code
    - Runs the highest-level verification discovered in Phase 1
    - Validates cross-milestone interfaces end-to-end
 
-4. Write `roadmap.json` conforming to `schemas/milestone.schema.json`.
+4. Write `roadmap.md` following the format in `templates/roadmap.md`:
+   - Each milestone section includes: name, objective, success criteria, depends on, status
+   - Include a Tasks per Milestone section with checkboxes
+   - Include the Integration Verification section
+   - Include a Progress Summary section
 
 5. Present the milestone plan to the user for approval.
 
 ### Phase 4: Progress tracking (when invoked with `progress`)
 
-1. Read `roadmap.json` and `run-state.json` (or equivalent state artifacts).
+1. Read `roadmap.md` and any state artifacts from the active task directory.
 2. Report: completion percentage, current milestone, next actionable milestone.
 3. If a milestone has failed, recommend whether to retry, adjust, or escalate.
 
@@ -99,11 +103,11 @@ Analyze the problem from five independent angles. For each angle, produce a stru
 
 ## File write and output discipline
 
-Write `roadmap.json` to the active task directory. If the task directory is missing, bootstrap it first. If a roadmap already exists, update status instead of overwriting unless the user requests a fresh decomposition.
+Write `roadmap.md` to the active task directory. If the task directory is missing, bootstrap it first. If a roadmap already exists, update status instead of overwriting unless the user requests a fresh decomposition.
 
 ## Exit Condition
 
-- `roadmap.json` is written conforming to `schemas/milestone.schema.json`
+- `roadmap.md` is written following `templates/roadmap.md` format
 - Every milestone has a name, goal, measurable success criteria, and dependencies
 - Integration Verification milestone is present as the final node
 - Dependency DAG is valid (no cycles, no orphans)
@@ -114,4 +118,4 @@ Write `roadmap.json` to the active task directory. If the task directory is miss
 
 - Milestone planning is the entry point for epic routes. For smaller work, use `/forgeflow:plan` directly.
 - The milestone phase does not write code. It decomposes and orders work.
-- Each milestone will later get its own `plan.json` during the plan stage.
+- Each milestone will later get its own `plan.md` during the plan stage.

@@ -25,7 +25,7 @@ description: "시스템 아키텍트. 요구사항 분석, 아키텍처 설계, 
 
 ## Input Artifacts
 
-- `brief.json` — task metadata and objective
+- `brief.md` — task metadata and objective
 - `docs/PRD.md` — scope and acceptance criteria
 
 ## Output Artifacts

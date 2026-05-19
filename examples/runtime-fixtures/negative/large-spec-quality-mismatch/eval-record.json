@@ -1,9 +1,0 @@
-{
-  "schema_version": "0.2",
-  "task_id": "task-large-mismatch-001",
-  "outcome": "success",
-  "what_worked": [
-    "route completed to long-run"
-  ],
-  "what_failed": []
-}

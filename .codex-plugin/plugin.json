@@ -1,45 +1,21 @@
 {
   "name": "forgeflow",
-  "version": "0.13.1",
-  "description": "Artifact-first delivery harness for AI coding agents: staged workflow, gates, evidence, and independent review",
-  "author": {
-    "name": "gimso2x",
-    "url": "https://github.com/gimso2x"
-  },
-  "homepage": "https://github.com/gimso2x/forgeflow",
-  "repository": "https://github.com/gimso2x/forgeflow",
-  "license": "MIT",
-  "keywords": [
-    "ai-agents",
-    "workflow",
-    "harness",
-    "review",
-    "artifacts",
-    "claude-code",
-    "codex",
-    "engineering-discipline"
-  ],
+  "version": "1.0.0",
+  "description": "Artifact-first delivery workflow for Codex: clarify, plan, execute, review, ship through markdown artifacts",
   "skills": "./skills/",
   "interface": {
     "displayName": "ForgeFlow",
-    "shortDescription": "Artifact-first planning, execution, review, verification, and finish workflows for coding agents",
-    "longDescription": "Use ForgeFlow to guide coding agents through artifact-backed clarify, plan, execute, review, verify, ship, and finish workflows with explicit gates and evidence instead of chat-memory vibes. After installing the plugin, use slash-style prompts such as /forgeflow-init, /forgeflow:clarify, /forgeflow:plan, /forgeflow:execute, /forgeflow:review, /forgeflow:ship, /forgeflow:long-run (high-risk route only), and /forgeflow:finish.",
+    "shortDescription": "Artifact-first delivery workflow for coding agents",
+    "longDescription": "ForgeFlow guides coding agents through an artifact-backed pipeline: clarify requirements into a design brief, plan execution steps, implement with evidence tracking, review independently, then ship. All artifacts are markdown files. No runtime dependencies.",
     "developerName": "gimso2x",
     "category": "Coding",
-    "capabilities": [
-      "Interactive",
-      "Read",
-      "Write"
-    ],
+    "capabilities": ["Interactive", "Read", "Write"],
     "defaultPrompt": [
       "/forgeflow:clarify <describe the coding task>",
-      "/forgeflow-init --task-id <id> --objective \"<objective>\" --risk low|medium|high|critical",
-      "/forgeflow:milestone",
       "/forgeflow:plan",
       "/forgeflow:execute",
       "/forgeflow:review",
       "/forgeflow:ship",
-      "/forgeflow:long-run  # Record learnings after high-risk task completion (high-risk route only)",
       "/forgeflow:finish"
     ],
     "brandColor": "#111827",

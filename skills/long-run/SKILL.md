@@ -1,18 +1,18 @@
 ---
 name: long-run
-description: Record reusable learnings after high-risk task completion. Produces eval-record.json with evidence-backed reusable patterns, failure rules, and improvement suggestions. High-risk route only unless manually invoked. Use when the user types /forgeflow:long-run.
-version: 0.2.0
+description: Record reusable learnings after high-risk task completion. Produces eval-record.md with evidence-backed reusable patterns, failure rules, and improvement suggestions. High-risk route only unless manually invoked. Use when the user types /forgeflow:long-run.
+version: 0.3.0
 author: gimso2x
 validate_prompt: |
   Must preserve only learning that can improve future tasks.
   Must not store session chatter, one-off progress, or user-private context.
-  Must produce schema-valid eval-record.json only when reusable patterns or failure rules are identified.
-  Must point every pattern or rule back to evidence — no evidence, no memory.
+  Must produce eval-record.md following templates/eval-record.md format only when reusable patterns or failure rules are identified.
+  Must point every pattern or rule back to evidence -- no evidence, no memory.
 ---
 
 # Long-run
 
-Capture durable signal from high-risk or repeatedly useful work. This is not a summary tool — it is a memory gate that decides what is worth preserving for future tasks.
+Capture durable signal from high-risk or repeatedly useful work. This is not a summary tool -- it is a memory gate that decides what is worth preserving for future tasks.
 
 ## When to run
 
@@ -34,36 +34,25 @@ Only capture:
 
 Do not capture:
 
-- Task status ("Feature X was completed") — belongs in run-state artifacts
+- Task status ("Feature X was completed") -- belongs in task artifacts
 - Chat summaries or session chatter
 - One-off progress notes
 - Raw logs or verbose output
-- Worker self-congratulation — the most useless artifact genre yet invented
-- Vague sentiments ("The approach worked well") — if there is no evidence and no reusable rule, it is just a scented candle
+- Worker self-congratulation -- the most useless artifact genre yet invented
+- Vague sentiments ("The approach worked well") -- if there is no evidence and no reusable rule, it is just a scented candle
 
 ## Output
 
-Write `.forgeflow/tasks/<task-id>/eval-record.json` conforming to `schemas/eval-record.schema.json`:
+Write `.forgeflow/tasks/<task-id>/eval-record.md` following the format in `templates/eval-record.md`:
 
-```json
-{
-  "schema_version": "0.2",
-  "task_id": "<task-id>",
-  "outcome": "success|partial|failed",
-  "what_worked": [
-    "Specific pattern with evidence reference."
-  ],
-  "what_failed": [
-    "Specific failure mode with root cause."
-  ],
-  "reusable_rule_candidates": [
-    "Concrete rule that can be applied to future tasks."
-  ],
-  "follow_up_worth": true
-}
-```
+- **Outcome**: success | partial | failed
+- **What Worked**: specific patterns with evidence references
+- **What Failed**: specific failure modes with root causes
+- **Reusable Patterns**: patterns worth reusing in future tasks
+- **Failure Rules**: anti-patterns or mistakes to avoid
+- **Recommendations**: for future tasks of similar nature
 
-Every entry in `what_worked`, `what_failed`, and `reusable_rule_candidates` must be specific enough that a future agent can act on it without additional context.
+Every entry must be specific enough that a future agent can act on it without additional context.
 
 ## Relationship to memory
 
@@ -71,32 +60,24 @@ ForgeFlow memory is inspectable local storage:
 
 - `memory/patterns/` stores reusable workflow patterns
 - `memory/decisions/` stores durable project-level operating decisions
-- `eval-record.json` is the gate artifact that justifies whether anything should move there
+- `eval-record.md` is the gate artifact that justifies whether anything should move there
 
 The long-run stage may recommend a memory write, but the recommendation must point back to evidence. No evidence, no memory.
 
-## Relationship to evolution
-
-If the project has active evolution rules in `forgeflow_runtime/evolution/`, the long-run stage may suggest rule candidates based on observed patterns. These candidates must:
-
-1. Reference specific evidence from `eval-record.json`
-2. Describe the trigger condition and expected behavior
-3. Not be committed automatically — they require review through the evolution pipeline
-
 ## Procedure
 
-1. Review the task's `run-state.json`, review reports, and decision log.
+1. Review the task's `brief.md`, review reports, and any decision artifacts.
 2. Extract only patterns/failures that are reusable outside this task.
 3. For each candidate, verify it has concrete evidence (command output, test result, code diff, decision reference).
-4. Write `eval-record.json` with the structured findings.
-5. If patterns warrant memory writes, note them in `follow_up_worth: true` and suggest target paths.
+4. Write `eval-record.md` following `templates/eval-record.md` format.
+5. If patterns warrant memory writes, note them in the Recommendations section with target paths.
 6. Report what was captured and why it matters for future work.
 
 ## Anti-patterns
 
 | Anti-Pattern | Why It Fails |
 |---|---|
-| Capturing task status | Belongs in run-state, not long-run memory |
+| Capturing task status | Belongs in task artifacts, not long-run memory |
 | Capturing vibes without evidence | No actionable signal; wastes future context |
 | Capturing everything | Noise drowns signal; becomes useless |
 | Skipping this after high-risk work | Reusable lessons are lost; same mistakes recur |
@@ -104,7 +85,7 @@ If the project has active evolution rules in `forgeflow_runtime/evolution/`, the
 
 ## Exit condition
 
-- `eval-record.json` is written to the active task directory with at least one evidence-backed entry, **or**
-- `eval-record.json` records that no durable lesson should be retained and explains why.
+- `eval-record.md` is written to the active task directory with at least one evidence-backed entry, **or**
+- `eval-record.md` records that no durable lesson should be retained and explains why.
 
 Either way, the decision is explicit. No ghost memory. No vibes ledger.

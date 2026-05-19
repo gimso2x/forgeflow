@@ -1,10 +1,10 @@
 ---
 name: forgeflow-init
-description: Bootstrap a new ForgeFlow task workspace by calling the orchestrator init command without crossing into clarify/plan/run automatically. Use when the user types /forgeflow-init.
-version: 0.1.0
+description: Bootstrap a new ForgeFlow task workspace with a minimal brief.md stub. Does not cross into clarify/plan/run automatically. Use when the user types /forgeflow-init.
+version: 0.2.0
 author: gimso2x
 validate_prompt: |
-  Must expose scripts/run_orchestrator.py init with task-id, objective, risk, and optional task-dir.
+  Must create .forgeflow/tasks/<task-id>/ directory and write a minimal brief.md stub.
   Must not overwrite existing task artifacts.
   Must stop at the stage boundary with a closed approval question before clarify.
 ---
@@ -20,38 +20,88 @@ Use this skill when the user asks for `/forgeflow-init`, `forgeflow init`, or wa
 - `--risk low|medium|high|critical`: initial risk estimate (optional; defaults to medium). These map to route labels `small|medium|high|epic`.
 - Optional `--task-dir`: explicit task workspace directory
 
-If `--objective` is missing, ask the user for it in Korean. Do not ask for `--task-id` unless the user explicitly wants to set one; otherwise, let the system generate it automatically. All communication with the user must be in Korean.
+If `--objective` is missing, ask the user for it. Do not ask for `--task-id` unless the user explicitly wants to set one; otherwise, generate it automatically. All communication with the user must be in Korean.
+
+## Task ID generation
+
+When `--task-id` is not provided, generate one using this pattern:
+
+```
+<type>-<short-slug>-<3-char-hash>
+```
+
+- `type`: feature, fix, refactor, docs, or task
+- `short-slug`: 2-4 word kebab-case slug derived from the objective
+- `3-char-hash`: first 3 characters of a timestamp-based hex string
+
+Example: `feature-auth-redir-a3f`
+
+Check that `.forgeflow/tasks/<task-id>/` does not already exist. If it does, append a numeric suffix.
 
 ## Action
 
-Run the existing orchestrator bootstrap command from the ForgeFlow repository root:
+1. Create the task directory:
 
 ```bash
-python3 scripts/run_orchestrator.py init --task-id <task-id> --objective "<objective>" --risk low|medium|high|critical [--task-dir <path>]
+mkdir -p .forgeflow/tasks/<task-id>
 ```
 
-This bootstraps a new task workspace without overwriting existing artifacts. The default task directory is `./.forgeflow/tasks/<task-id>` **in the user's active project/workspace**, not inside a Claude/Codex plugin installation cache.
+This must be **in the user's active project/workspace**, not inside a plugin installation cache.
 
-Plugin-cache safety rule: never create task artifacts under a path containing `.claude/plugins/cache`, `.codex/plugins`, or any plugin marketplace/cache directory. If the slash command runtime resolves `.` to the plugin install/cache directory and the user did not provide `--task-dir`, stop and ask for an explicit `--task-dir` instead of writing there. If the user provides `--task-dir`, use that path exactly.
+Plugin-cache safety rule: never create task artifacts under a path containing `.claude/plugins/cache`, `.codex/plugins`, or any plugin marketplace/cache directory. If the working directory resolves to a plugin install/cache directory and the user did not provide `--task-dir`, stop and ask for an explicit `--task-dir` instead of writing there. If the user provides `--task-dir`, use that path exactly.
 
-Expected starter artifacts include:
+2. Write a minimal `brief.md` stub following `templates/brief.md` format:
 
-- `brief.json`
-- `run-state.json`
-- `checkpoint.json`
-- `session-state.json`
+```markdown
+# Context Brief
 
+<!-- ForgeFlow brief template. Fill each section during clarify. -->
 
-## Starter blueprint
+## Objective
+<!-- One-sentence description of what this task accomplishes -->
+<objective from input, or placeholder>
 
-`init` remains a bootstrap boundary, but the starter artifacts should be useful enough for `/forgeflow:clarify` and `/forgeflow:plan` to continue without hidden chat context. When the objective contains enough context, seed the task workspace with draft hints for:
+## Route
+<!-- small | medium | high | epic -->
+<!-- Will be determined during clarify -->
 
-- initial team/role split (`planning`, `implementation`, `review`, `qa`)
-- likely specialist skills or reviewers
-- architecture/documentation targets such as `docs/PRD.md`, `docs/ARCHITECTURE.md`, `docs/QA.md`, `docs/ADR.md`
-- a task-local handoff note pointing to `docs/developer-handoff-template.md`
+## In Scope
+-
 
-These are drafts, not approval to skip `clarify`. Keep every generated hint inside the task workspace unless the user explicitly asks to write project docs.
+## Out of Scope
+-
+
+## Constraints
+-
+
+## Acceptance Criteria
+- [ ]
+
+## Risk Level
+<!-- low | medium | high | critical -->
+<risk from input, or "medium">
+
+## Assumptions
+-
+
+## Open Questions
+-
+
+## Specialists
+<!-- Required: (none | list) -->
+<!-- Skipped: (none | list) -->
+
+## Verification Gates
+<!-- Auto-detected from tech stack -->
+- [ ]
+
+## Environment Notes
+<!-- git repo status, dependency check results, etc. -->
+```
+
+Fill in `Objective` and `Risk Level` from the input arguments. Leave all other sections as placeholders for `/forgeflow:clarify` to fill.
+
+3. Do not overwrite if `brief.md` already exists. Report that it was kept as-is.
 
 ## Boundaries
 
@@ -61,9 +111,10 @@ Do not automatically continue into `/forgeflow:clarify`, `/forgeflow:plan`, or `
 
 ## Exit Condition
 
-- Required starter artifacts exist in the task workspace.
-- Existing artifacts were not overwritten.
-- The response reports the task directory and created/kept artifacts.
+- `.forgeflow/tasks/<task-id>/` directory exists
+- `brief.md` stub exists in the task directory
+- Existing artifacts were not overwritten
+- The response reports the task directory and created/kept artifacts
 - The final line is exactly a closed approval question for the next stage:
 
 ```text

@@ -1,7 +1,7 @@
 {
   "name": "forgeflow",
-  "description": "Artifact-first delivery harness for AI coding agents: staged workflow, gates, evidence, and independent review",
-  "version": "0.13.1",
+  "version": "1.0.0",
+  "description": "Artifact-first delivery workflow for AI coding agents: clarify, plan, execute, review, ship through markdown artifacts and prompt-driven gates",
   "author": {
     "name": "gimso2x",
     "url": "https://github.com/gimso2x"
@@ -11,11 +11,9 @@
   "keywords": [
     "ai-agents",
     "workflow",
-    "harness",
-    "review",
     "artifacts",
     "claude-code",
     "codex",
-    "engineering-discipline"
+    "gemini"
   ]
 }

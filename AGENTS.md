@@ -1,103 +1,59 @@
 # ForgeFlow — AGENTS.md
 
 > **대상:** 이 파일은 ForgeFlow 레포 자체를 개발하거나 수정하는 AI coding agent를 위한 instructions입니다.
-> 사용자 프로젝트에서 ForgeFlow를 *사용*할 때 생성되는 agent 파일은 `.forgeflow/tasks/<task-id>/.claude/agents/` 아래에 위치합니다.
-
 
 Repository-level instructions for AI coding agents working on this repo.
 
 ## Project Overview
 
-ForgeFlow is an artifact-first delivery harness for AI coding agents. It provides staged workflows, gates, evidence trails, and independent review for Claude Code, Codex, and Gemini CLI.
+ForgeFlow는 AI coding agent를 위한 artifact-first delivery workflow입니다. clarify, plan, execute, review, ship 파이프라인을 markdown 산출물과 프롬프트 기반 강제로 제공합니다. Claude Code, Codex, Gemini CLI를 지원합니다.
 
 ## Tech Stack
 
-- **Language**: Python 3.11+
-- **Runtime**: `forgeflow_runtime/` — 92 Python import-surface files across core modules and domain subpackages
-- **Tests**: pytest, 122 test files across `tests/`
-- **No external runtime dependencies** — stdlib only (no pip install needed)
-- **Adapters**: Claude Code (marketplace plugin), Codex (CODEX.md), Gemini CLI (GEMINI.md)
+- **Skills**: 순수 Markdown (SKILL.md + YAML frontmatter)
+- **Templates**: Markdown artifact templates (`templates/`)
+- **No runtime dependencies** — Python, Node.js 등 외부 의존성 없음
+- **Adapters**: Claude Code (`.claude-plugin/`), Codex (`.codex-plugin/`), Gemini CLI (`GEMINI.md`)
 
 ## Repo Structure
 
 ```
-forgeflow_runtime/       # Core runtime library
-  engine.py              # Stage execution glue
-  executor.py            # Adapter dispatch (Claude, Codex, Gemini)
-  orchestrator.py        # Stage coordination + gate enforcement
-  generator.py           # Prompt generation
-  artifact_validation.py # JSON artifact schema + read/write
-  plan_ledger.py         # Plan task tracking
-  gate_evaluation.py     # Stage gate enforcement
-  gate_ralf.py           # RALF self-healing loop
-  operator_routing.py    # Route selection (small/medium/high/epic)
-  progress_tracker.py    # Multi-task/milestone progress tracking
-  stuck_detector.py      # Stuck/loop signal detection
-  env_adapter.py         # Runtime environment (Vite/Next.js/Gemini/Claude) detection
-  forgeflow_runtime/evolution/    # Rule lifecycle, proposals, audits, promotions
-  forgeflow_runtime/experiment/   # Experiment loop, metrics, circuit/stopping policy
-  forgeflow_runtime/orchestra/    # Consensus, debate, pipeline, fastest strategy
-  ...
-tests/
-  runtime/               # Runtime module tests
-  evolution/             # Evolution framework tests
-  *.py                   # Integration / install / contract tests
-adapters/targets/
-  claude/                # Claude Code adapter (hooks, agents, manifest)
-  codex/                 # Codex adapter (agents, rules, manifest)
-.claude-plugin/          # Claude Code marketplace plugin manifest
-scripts/                 # Utility scripts (validate, install, release)
-docs/                    # Design documents
-memory/                  # Version-controlled local memory: curated patterns, decisions, learnings
+skills/                   # 각 스킬 디렉토리 (SKILL.md 포함)
+  forgeflow/              # 메인 라우터
+  forgeflow-init/         # 작업 공간 초기화
+  clarify/                # 요구사항 정리 → brief.md
+  plan/                   # 계획 수립 → plan.md
+  execute/                # 구현 실행 → implementation-notes.md
+  review/                 # 독립 검증 → review-report.md
+  ship/                   # 배포/마무리
+  finish/                 # 브랜치 정리
+  milestone/              # Epic 마일스톤 → roadmap.md
+  long-run/               # 학습 기록 → eval-record.md
+templates/                # Markdown 산출물 템플릿
+.claude-plugin/           # Claude Code 플러그인 설정
+.codex-plugin/            # Codex 플러그인 설정
+GEMINI.md                 # Gemini CLI 어댑터
 ```
 
 ## Development Workflow
 
-1. **Edit code** in `forgeflow_runtime/`
-2. **Write/update tests** in `tests/`
-3. **Run tests**: `source .venv/bin/activate && python3 -m pytest -q`
-4. **Validate structure**: `python3 scripts/validate_structure.py`
-5. **Commit** with conventional messages: `feat:`, `fix:`, `chore:`, `docs:`
+1. **스킬 수정** — `skills/<name>/SKILL.md` 편집
+2. **템플릿 수정** — `templates/<name>.md` 편집
+3. **플러그인 설정** — `.claude-plugin/`, `.codex-plugin/` 업데이트
+4. **수동 테스트** — Claude Code에서 해당 스킬 실행하여 산출물 확인
 
 ## Code Conventions
 
-- **No external dependencies** — stdlib only. Do not add pip requirements.
-- **Architectural Depth**: Prefer deep modules (low interface complexity, high behavior leverage) over shallow ones. Identify and resolve architectural friction using the **Deletion test**, **Seams**, and **Locality** principles (see `docs/refactor-planning-decision.md`).
-- All artifacts use JSON with `schema_version` (currently `"0.2"`; `"0.1"` auto-migrated).
-- Artifact writes go through `write_json()` / `write_validated_artifact()`.
-- Use `RuntimeViolation` for rule violations.
-- Tests use `tests/runtime/conftest.py` and `tests/conftest.py` fixtures.
-- New modules must be importable: `python3 -c "import forgeflow_runtime.<module>"`
+- 모든 산출물은 Markdown. `templates/` 디렉토리에 템플릿이 있습니다.
+- 스킬은 YAML frontmatter (`name`, `description`, `validate_prompt`)로 시작.
+- 산출물은 `.forgeflow/tasks/<task-id>/` 아래에 작성.
+- Review는 읽기 전용. 코드 수정 금지.
+- Verification은 실제 명령 기반. hallucinated command 금지.
+- 외부 의존성 추가 금지.
 
 ## Key Patterns
 
-- **Gate enforcement**: `enforce_stage_gate()` checks artifacts before stage transitions.
-- **Artifact validation**: `assert_supported_artifact_schema_version()` + schema validators.
-- **Route selection**: `auto_route_for_task_dir()` picks small/medium/high/epic based on risk and scope.
-- **Milestone planning**: Large (epic) tasks are broken down into milestones in `roadmap.json` before detailed planning.
-- **Evolution**: proposals → review → approval → promotion lifecycle.
-- **Orchestration**: consensus/debate/pipeline/fastest multi-model strategies.
-- **Inspectable memory**: `memory/` is not cache or hidden chat state; commit curated patterns, decisions, and durable learnings only.
-- **Environment Awareness**: Uses `env_adapter.py` to detect if running under Gemini or Claude and adjust paths (`.gemini/` vs `.claude/`) or documentation (`GEMINI.md` vs `CLAUDE.md`) accordingly.
-
-## Testing Rules
-
-- Every new module gets a corresponding `tests/runtime/test_<module>.py`.
-- Test functions use `def test_` prefix.
-- Use `tmp_path` or `tests/runtime/conftest.py` fixtures for task directories.
-- Aim for meaningful coverage — test the contract, not just imports.
-- Run full suite before committing: `python3 -m pytest -q`
-- For route/stage/gate/artifact/review policy changes, run `make evals` or the narrow `make adherence-evals` target and include the result in the PR/handoff.
-
-## PR Checklist
-
-- Tests or evals were run for the changed contract surface.
-- `make evals` evidence is included when workflow policy, fixtures, gates, stages, routes, review reports, or artifact schemas change.
-- Documentation under `docs/` or `evals/` is updated when eval semantics or suite coverage change.
-
-## Do NOT
-
-- Add third-party pip dependencies.
-- Write to `~/.claude/agents` or `~/.codex` — project-local only.
-- Hallucinate commands — verify they exist in package.json or scripts.
-- Modify code during review stage — read-only enforcement.
+- **Route selection**: clarify 스킬이 small/medium/high/epic 라우트 선택
+- **Milestone planning**: Epic 태스크는 roadmap.md로 마일스톤 분해 후 상세 계획
+- **Evidence discipline**: review는 파일 경로와 구체적 증거로 판단
+- **Prompt-driven enforcement**: 게이트와 규칙은 프롬프트로 강제, 스크립트 없음

@@ -1,11 +1,9 @@
 ---
 name: plan
 description: Create an executable ForgeFlow plan with exact tasks, files, acceptance criteria, and verification steps. Use when the user types /forgeflow:plan.
-version: 0.1.0
-author: gimso2x
 validate_prompt: |
   Must preserve exact-output and dry-run constraints when requested.
-  Must default to artifact-first behavior and produce schema-valid `plan.json` in the active task directory unless the user explicitly requests dry-run or no-write output.
+  Must default to artifact-first behavior and produce `plan.md` in the active task directory unless the user explicitly requests dry-run or no-write output.
   Must keep contracts, fulfills, journeys, and verify_plan consistent when present.
 ---
 
@@ -15,98 +13,41 @@ Use this skill to turn a ForgeFlow brief or requirements document into an execut
 
 ## Input
 
-- `brief.json` or equivalent brief
+- `brief.md` from `/forgeflow:clarify`
 - `requirements.md` if available
 - Codebase context
 - Route selected by `/forgeflow:clarify`
 
 ## Output Artifacts
 
-- `plan.json` or equivalent plan containing:
-  - task IDs
-  - exact files to change
-  - dependencies
-  - acceptance criteria
-  - verification commands
-  - risk notes
-- `plan-ledger.json` starter shape for medium/high routes when useful
-- `implementation-notes.md` template (created as empty scaffold for execute to fill):
-  ```markdown
-  # Implementation Notes: <task-id>
+Write `plan.md` to the active task directory using `templates/plan.md` as the structure. The plan must capture:
 
-  ## Design Decisions
+- Route
+- Dependencies (what must exist before execution starts)
+- Tasks with: objective, exact files, dependencies on other tasks, expected output, verification, fulfills (which acceptance criteria)
+- Verification Plan with typed targets and gates
+- Contracts (interfaces, invariants) when applicable
+- Journeys (end-to-end flow verification) when applicable
+- Parallelism notes (which tasks can run concurrently)
 
-  ## Spec Deviations
-
-  ## Tradeoffs
-
-  ## Open Questions
-  ```
-
-When writing `plan.json`, it **must** conform to `schemas/plan.schema.json` exactly:
-
-```json
-{
-  "schema_version": "0.2",
-  "task_id": "readme-badge-task",
-  "steps": [
-    {
-      "id": "step-1",
-      "objective": "Identify the README badge location and desired badge text.",
-      "dependencies": [],
-      "expected_output": "Badge location and target badge content are known.",
-      "verification": "Manual inspection of README badge location and requested badge content.",
-      "rollback_note": "No repository files changed during planning.",
-      "fulfills": ["R1"]
-    }
-  ],
-  "verify_plan": [
-    {"target": "R1", "type": "sub_req", "gates": ["manual_review"]}
-  ]
-}
-```
-
-`steps[].fulfills` and top-level `verify_plan` are required even for minimal written `plan.json`. For small tasks, create a simple requirement ID such as `R1` and make every step fulfill it. For `epic` route, a separate `plan.json` is created for each milestone defined in `roadmap.json`.
-
-Do not add non-schema fields such as `route`, `tasks`, `files_to_change`, `acceptance_criteria`, `verification_commands`, or `route_selection_rationale` to `plan.json`.
-
-Do not add non-schema fields such as `harness`, `failure_layer`, or `environment` to `plan.json`. Harness mapping uses existing plan schema fields: requirements and contracts for Instructions, `steps[].verification` and `verify_plan` for Tools/Feedback, bounded assumptions for Environment, and task/artifact paths for State.
+Also create an empty `implementation-notes.md` scaffold (from `templates/implementation-notes.md`) for the execute stage to fill.
 
 ## Contract-first traceability for medium/high/epic or brownfield work
 
-For non-trivial work, plan the cross-module contract before task decomposition. Apply the **Architecture Glossary** from `docs/refactor-planning-decision.md` (Depth, Seam, Locality, etc.) to identify **deepening opportunities**—refactors that turn shallow modules into deep ones.
+For non-trivial work, plan the cross-module contract before task decomposition. Apply the **Architecture Glossary** (Depth, Seam, Locality, etc.) to identify **deepening opportunities** — refactors that turn shallow modules into deep ones.
 
 1. Identify interfaces, invariants, data shapes, and compatibility constraints that parallel workers must not break.
-2. If any contract exists, write it into optional `contracts` metadata and/or a sibling `contracts.md` artifact.
-3. Add `fulfills` links on steps when requirements or sub-requirements are known.
-4. Add `verify_plan` entries for each fulfilled requirement/sub-requirement and each journey.
-5. Add `journeys` for multi-step user or system flows that require end-to-end verification.
-6. Preserve the clarify-stage non-goals and bounded assumptions in a sibling plan note when they affect execution boundaries.
+2. If any contract exists, write it into the Contracts section of plan.md and/or a sibling `contracts.md` artifact.
+3. Add fulfills links on tasks when requirements or sub-requirements are known.
+4. Add Verification Plan entries for each fulfilled requirement/sub-requirement and each journey.
+5. Add Journeys for multi-step user or system flows that require end-to-end verification.
+6. Preserve the clarify-stage non-goals and bounded assumptions in the plan when they affect execution boundaries.
 
-Optional contract-aware `plan.json` fields:
-
-```json
-{
-  "contracts": {
-    "artifact": "contracts.md",
-    "interfaces": ["StorageAPI accepts normalized records"],
-    "invariants": ["Existing public CLI flags remain backward compatible"]
-  },
-  "journeys": [
-    {"id": "J1", "description": "User completes the changed flow", "composes": ["R1.1", "R2.1"]}
-  ],
-  "verify_plan": [
-    {"target": "R1.1", "type": "sub_req", "gates": ["test", "review"]},
-    {"target": "J1", "type": "journey", "gates": ["e2e"]}
-  ]
-}
-```
-
-Small documentation-only tasks may omit these fields. If the fields are present, they must be internally consistent and pass sample artifact validation.
+Small documentation-only tasks may omit these sections. If present, they must be internally consistent.
 
 ## Auto-detectable verification gates
 
-When constructing `verify_plan`, prefer automated gates over `manual_review` wherever the verification can be expressed as a machine-checkable assertion. Use `manual_review` only for qualitative judgments that cannot be automated.
+When constructing the Verification Plan, prefer automated gates over manual review wherever the verification can be expressed as a machine-checkable assertion. Use manual review only for qualitative judgments that cannot be automated.
 
 ### Available automated gates
 
@@ -122,22 +63,20 @@ When constructing `verify_plan`, prefer automated gates over `manual_review` whe
 
 ### Gate selection rules
 
-1. **Documentation-only tasks** (`tech_stack: documentation-only`): Use at least `scope_boundary_check` + `version_consistency_check` or `total_preservation_check` alongside `manual_review`. Do not use `manual_review` as the sole gate.
+1. **Documentation-only tasks**: Use at least `scope_boundary_check` + `version_consistency_check` or `total_preservation_check` alongside manual review. Do not use manual review as the sole gate.
 2. **Code tasks**: Use `contract_check` for every step. Add `screen_count_check` or `cross_document_consistency_check` when the task affects UI catalogs or cross-file references.
 3. **Mixed tasks**: Apply documentation gates to documentation steps and code gates (`build`, `lint`, `test`, `type_check`) to code steps.
 
 ## Minimum plan gate
 
-Before crossing `plan → execute`, the plan must make these sections explicit in `plan.json`, a sibling plan note, or the response artifact:
+Before crossing `plan -> execute`, the plan must make these sections explicit:
 
-- `Goal`
-- `Requirements`
-- `Implementation Steps`
-- `Verification`
+- Goal
+- Requirements
+- Implementation Steps
+- Verification
 
 State assumptions and success criteria before proposing tasks. If an assumption changes the implementation path, record it as a bounded assumption or return to `/forgeflow:clarify`; do not hide it inside a task title.
-
-Before crossing the gate, verify the harness mapping is represented without schema drift: Instructions map to `fulfills`/contracts, Tools map to executable or explicitly manual verification gates, Environment assumptions are bounded or sent back to clarify, State names the task artifacts and files, and Feedback is covered by `verify_plan`.
 
 **TDD Principle**: All implementation steps MUST follow TDD. Plan test writing steps BEFORE or EXPLICITLY alongside code writing steps. "Write failing test" should be its own objective or a clear part of a step's objective.
 
@@ -145,7 +84,7 @@ Before crossing the gate, verify the harness mapping is represented without sche
 
 Use refactor mode inside this existing plan flow when the requested work is primarily a behavior-preserving structural change across an existing public surface, a migration-sensitive internal reorganization, test-sensitive decomposition work, or removal/replacement of implementation machinery while preserving user-visible behavior.
 
-Refactor mode is a planning branch, not a new `/forgeflow:refactor-plan` command, stage, approval gate, schema lane, or separate source of truth. `schemas/plan.schema.json` remains authoritative unless a separate decision proves a schema change is needed. If a refactor-specific requirement cannot be represented by existing `plan.json` fields or a named sibling markdown section, stop and produce a schema/decision note before execution.
+Refactor mode is a planning branch, not a separate stage or command.
 
 When refactor mode applies, the plan must include:
 
@@ -161,28 +100,26 @@ When refactor mode applies, the plan must include:
 
 Representation rules:
 
-- preserved behavior maps to `Requirements`, `steps[].objective`, `steps[].fulfills`, and `verify_plan`
-- non-goals live in a sibling plan note section named `Non-goals`
-- migration boundaries live in a sibling plan note section named `Migration boundary`, or in `contracts.interfaces` / `contracts.invariants` for cross-module seams
-- rollback or escape hatch lives in `steps[].rollback_note`
-- regression verification lives in `steps[].verification` and top-level `verify_plan`
-- existing test coverage lives in a sibling plan note section named `Existing coverage`
-
-See `docs/refactor-planning-decision.md` for the canonical representation decision.
+- preserved behavior maps to Requirements, task objectives, fulfills, and Verification Plan
+- non-goals live in a plan section named "Non-goals"
+- migration boundaries live in a plan section named "Migration boundary", or in Contracts
+- rollback or escape hatch lives in each task's notes
+- regression verification lives in each task's Verification field and the top-level Verification Plan
+- existing test coverage lives in a plan section named "Existing coverage"
 
 ### Requirement traceability
 
 For non-trivial work, carry the requirement map through the executable plan instead of leaving it as prose:
 
 - Assign stable requirement IDs (`R1`, `R2`, or `R1.1`) before decomposing implementation steps.
-- Each non-trivial step must include `fulfills` with requirement or sub-requirement IDs when requirements are known.
-- Every `fulfills` target must have a matching `verify_plan` entry.
+- Each non-trivial step must include fulfills with requirement or sub-requirement IDs when requirements are known.
+- Every fulfills target must have a matching Verification Plan entry.
 - Every acceptance criterion from the brief must map to at least one requirement ID, step, or verify target; otherwise record it as intentionally out of scope.
-- Use `type: "sub_req"` for requirement-level targets and `type: "step"` only when the verification target is the step itself.
-- If a step intentionally has no requirement reference, say why in the sibling plan note or response artifact; do not silently create orphan work.
-- If a verification target is not executable by the chosen backend, record the adapter limitation and a fallback manual/evidence gate before run starts.
+- Use `sub_req` for requirement-level targets and `step` only when the verification target is the step itself.
+- If a step intentionally has no requirement reference, say why in the plan; do not silently create orphan work.
+- If a verification target is not executable, record the limitation and a fallback manual/evidence gate before execution starts.
 
-Do not proceed to `/forgeflow:execute` if one of those is missing for non-trivial work. For tiny exact-output prompts, preserve the requested format but keep the same information density in the listed steps.
+Do not proceed to `/forgeflow:execute` if one of those is missing for non-trivial work.
 
 ## Exit Condition
 
@@ -190,49 +127,29 @@ Do not proceed to `/forgeflow:execute` if one of those is missing for non-trivia
 - Every task has verification
 - Dependencies form a DAG
 - Medium/high/epic routes have enough detail for `/forgeflow:execute` without guessing
-- A visual plan view can be generated when useful: `python3 scripts/forgeflow_visual.py plan <task-dir>/plan.json --format markdown`; for live browser feedback, run `node scripts/visual-companion.cjs` and POST the Mermaid source to `http://127.0.0.1:8765/diagram`.
-- The minimum plan gate covers `Goal`, `Requirements`, `Implementation Steps`, and `Verification`
-- Refactor-specific checks are present only when refactor mode applies, with preserved behavior, non-goals, migration boundary, rollback or escape hatch, regression verification, and existing coverage represented in existing plan fields or sibling markdown sections
+- The minimum plan gate covers Goal, Requirements, Implementation Steps, and Verification
+- Refactor-specific checks are present only when refactor mode applies
 - Contract metadata is present for cross-module work, or explicitly unnecessary
-- `fulfills`, `journeys`, and `verify_plan` links are consistent when present
+- Fulfills, journeys, and Verification Plan links are consistent when present
 - No placeholder tasks remain
 
 ## File write and output discipline
 
-Default to **artifact-first mode**. Plan should write `plan.json` under the active task directory unless the user explicitly asks for a dry run, exact-output response, or no-write simulation.
+Default to **artifact-first mode**. Write `plan.md` under `.forgeflow/tasks/<task-id>/` unless the user explicitly asks for a dry run, exact-output response, or no-write simulation.
 
-Canonical writable location:
-
-- explicit task directory provided by the user, or
-- repo-local `.forgeflow/tasks/<task-id>/` created via `/forgeflow-init` or `python3 scripts/run_orchestrator.py init ...`.
-
-If the task directory is missing, bootstrap it first. Do not downgrade planning into a chat transcript when the workflow contract expects artifacts.
+If the task directory is missing, bootstrap it first. Do not downgrade planning into a chat transcript when the workflow expects artifacts.
 
 If the user says "do not write files", "return only", "dry run", "just list", or asks for a label/summary only, obey that output constraint exactly and do not attempt any filesystem mutation.
 
-When artifacts such as `plan.json` are mentioned without an explicit path, write them to the active task directory, not the repository root and not chat-only fallback.
-
-If writing is allowed, write only under the current project workspace or the active task directory. Never write inside the plugin installation directory, marketplace cache, or `skills/<skill>/`.
-
+Write only under the current project workspace or the active task directory. Never write inside `skills/<skill>/`.
 
 ## Strict response constraints
 
 When the user asks for an exact count, exact format, or "only" output, that instruction overrides the normal artifact template. Return exactly what was requested and nothing extra.
 
-Bad: adding verdicts, JSON artifacts, rationale sections, or extra warnings after the requested list.
-Good: if asked for exactly two checks, return exactly two checks.
-
 When the user says "do not run commands", do not propose command execution as if it happened. You may name a manual check, but label it as manual inspection, not a command result.
 
-For exact-count list prompts, output numbered lines only. Do not output an empty response, heading, preamble, fenced block, summary, artifact JSON, or verdict. A fenced code block is a format violation for exact-count list prompts.
-
-Example exact-count response must be plain text lines, not a fenced block:
-
-1. Identify the README badge location and desired badge text.
-2. Update the badge markdown and verify the rendered preview manually.
-
-No heading. No preamble. No code fence. No third line.
-
+For exact-count list prompts, output numbered lines only. No heading, preamble, fenced block, summary, or extra lines.
 
 ## Automation / non-interactive approval mode
 
@@ -242,18 +159,18 @@ If the user explicitly includes `--yes`, `--auto-approve`, `--non-interactive`, 
 
 ### Phase 1: Load and map
 
-1. Read the brief/requirements fully. Map Context Brief fields to plan header:
+1. Read the brief/requirements fully. Map Context Brief fields to plan sections:
 
    | Brief Field | Plan Mapping |
    |-------------|-------------|
-   | Goal | `plan.json` task_id + step objectives |
+   | Objective | Plan task IDs + step objectives |
    | Scope (In/Out) | Work scope section |
    | Technical Context | Architecture + tech stack + file structure basis |
    | Constraints | Reflected during task decomposition |
-   | Success Criteria | Self-review checklist |
+   | Acceptance Criteria | Self-review checklist |
    | Open Questions | Recorded as bounded assumptions |
 
-2. Inspect the repo for existing conventions, test patterns, and file structure. Use `fd`/`rg` to map relevant files.
+2. Inspect the repo for existing conventions, test patterns, and file structure.
 
 3. **File Structure Mapping**: Before writing tasks, determine exactly which files will be created or modified:
    - Each file should have one clear responsibility
@@ -270,9 +187,9 @@ If the user explicitly includes `--yes`, `--auto-approve`, `--non-interactive`, 
    - One task's output is referenced by another (interface dependency)
    - They modify shared state (DB schema, config files)
 
-   Mark each task's dependency status explicitly in `steps[].dependencies`:
-   - Empty array `[]` = parallelizable
-   - List of step IDs = runs after those steps
+   Mark each task's dependency status explicitly:
+   - `(none)` = parallelizable
+   - List of task names = runs after those tasks
 
    **Worker-Validator Structure** — each task should be executable by an independent worker (subagent) and verifiable by a separate validator:
    - Worker: executes steps exactly as written, no judgments beyond the plan
@@ -285,7 +202,7 @@ If the user explicitly includes `--yes`, `--auto-approve`, `--non-interactive`, 
    - "Run tests to confirm they pass" — one step
    - "Commit" — one step
 
-5. For every step, write `expected_output` and `verification` fields. Never leave a step that assumes "the worker will figure it out."
+5. For every step, write expected output and verification. Never leave a step that assumes "the worker will figure it out."
 
 6. Apply contract-first traceability (see above) for medium/high/epic or brownfield work.
 
@@ -300,11 +217,10 @@ If the user explicitly includes `--yes`, `--auto-approve`, `--non-interactive`, 
 
 8. **Self-review** before presenting to the user:
    - Every requirement from the brief maps to at least one step
-   - Every step has `fulfills`, `expected_output`, `verification`, and `rollback_note`
+   - Every step has fulfills, expected output, verification, and rollback note
    - Dependencies form a valid DAG (no cycles, no orphans)
    - No placeholder tasks remain
-   - `verify_plan` covers every `fulfills` target
-   - Schema validation passes against `schemas/plan.schema.json`
+   - Verification Plan covers every fulfills target
 
 9. Identify risky tasks and required review evidence.
 
@@ -318,7 +234,7 @@ Do not code during planning unless the user explicitly asks for a tiny small-rou
 |---|---|
 | Marking tasks that modify the same file as parallel | File conflicts, unmergeable changes |
 | Listing tasks without dependencies | Execution order tangles, interface mismatches |
-| Steps that assume "the worker will figure it out" | Worker's arbitrary interpretation → spec drift |
+| Steps that assume "the worker will figure it out" | Worker's arbitrary interpretation -> spec drift |
 | Approving a plan with placeholders | Blocked at execution stage, must return to planning |
 | Skipping self-review | Missing spec coverage, type mismatches, dependency errors go undetected |
 | Writing tasks before mapping files | Task boundaries don't match file boundaries |
@@ -326,13 +242,10 @@ Do not code during planning unless the user explicitly asks for a tiny small-rou
 ## UX guardrails
 
 - Planning owns plan creation; do not ask the user to make the plan.
-- Do not ask for 계획 내용 재승인 when the plan is executable; the agent owns decomposition.
-- Do stop before crossing the `plan → execute` stage boundary, because execution is a separate stage.
-- End with a closed next-stage question such as `계획은 여기까지 확정됐습니다. 다음 스텝으로 `/forgeflow:execute`을 진행하시겠습니까? (y/n)`.
-- Do not invoke `/forgeflow:execute`, the Skill tool, or any execution tool in the same assistant turn after asking the closed next-stage question. The next assistant turn may proceed only after an explicit user approval such as `y`, `yes`, `진행`, or `실행`.
-- Bad: `계획 확정. run 직행.`
-- Bad: `내가 계획을 세워?`
-- Good: `아니요. 계획은 내가 세운다. 아래처럼 진행.`
+- Do not ask for re-approval when the plan is executable; the agent owns decomposition.
+- Do stop before crossing the `plan -> execute` stage boundary, because execution is a separate stage.
+- End with: `계획은 여기까지 확정됐습니다. 다음 스텝으로 /forgeflow:execute을 진행하시겠습니까? (y/n)`
+- Do not invoke `/forgeflow:execute` in the same assistant turn after asking the closed next-stage question. The next assistant turn may proceed only after an explicit user approval such as `y`, `yes`, `진행`, or `실행`.
 
 ## Output mode examples
 
@@ -342,12 +255,12 @@ If asked:
 /forgeflow:plan For route small, list exactly two plan steps. Do not write files.
 ```
 
-Return exactly the requested steps in the response. Do **not** create `plan.json` for this dry-run variant.
+Return exactly the requested steps in the response. Do not create `plan.md` for this dry-run variant.
 
 If asked:
 
 ```text
-/forgeflow:plan Write plan.json under .forgeflow/tasks/<task-id>
+/forgeflow:plan Write plan.md under .forgeflow/tasks/<task-id>
 ```
 
-Then and only then write `.forgeflow/tasks/<task-id>/plan.json`.
+Then and only then write `.forgeflow/tasks/<task-id>/plan.md`.

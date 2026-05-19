@@ -1,7 +1,7 @@
 ---
 name: finish
 description: Finish a ForgeFlow development branch safely after implementation and review by verifying evidence, presenting merge/PR/keep/discard options, and protecting destructive actions. Use when the user types /forgeflow:finish.
-version: 0.1.0
+version: 0.2.0
 author: gimso2x
 validate_prompt: |
   Must require fresh verification, git status, git diff, review evidence, and residual risk review before presenting finish options.
@@ -25,13 +25,13 @@ This is not the same as `ship`:
 - `git status` output
 - `git diff` / `git diff --stat` scope
 - Fresh verification evidence
-- Approved `review-report` or equivalent review verdict, if required
+- Approved `review-report.md` or equivalent review verdict, if required
 - Residual risks and unrelated dirty working tree changes
 - User preference for local merge vs PR vs keep
 
 ## Output Artifacts
 
-Return a finish decision report containing:
+Present a finish decision report containing:
 
 - Branch and base branch
 - Verification command and result
@@ -60,18 +60,19 @@ Use `.forgeflow/tasks/<task-id>/` for any task-local finish evidence unless the 
 
 ## Status analysis preflight
 
-Before presenting finish options, reconstruct the active task status from artifacts: `run-state.json`, latest review report(s), `eval-record.json`, and `decision-log.json`. For a repo with many task dirs, run `python3 scripts/forgeflow_monitor.py --tasks .forgeflow/tasks --recent 10` as read-only status analysis, then inspect the selected artifacts directly.
+Before presenting finish options, reconstruct the active task status from artifacts: read `brief.md`, latest `review-report.md`, `eval-record.md`, and `implementation-notes.md` from the active task directory. Identify the active task by inspecting `.forgeflow/tasks/` directories.
 
 ## Procedure
 
 ### 0. Worktree cleanup (before verification)
 
-If the task used worktree isolation (`run-state.json` contains a `worktree` key or `brief.json` has `use_worktree: true`):
+If the task used worktree isolation (check `brief.md` for worktree references or look for a `.worktree` marker file in the task directory):
 
-1. **Check for active git worktree**: Read `run-state.json.worktree.path` to find the worktree location.
-2. **Merge completed worker worktrees**: If `run-state.json` or worker artifacts under `.forgeflow/tasks/<id>/workers/` show completed workers, the runtime should merge them back via `merge_worker_worktree()`. This applies the diff as a patch to the original repo:
+1. **Check for active git worktree**: `git worktree list` to find the worktree location.
+2. **Merge completed worker worktrees**: If worker artifacts under `.forgeflow/tasks/<id>/workers/` show completed workers, merge the worktree branch back to the main working directory:
    ```bash
-   python3 scripts/forgeflow_monitor.py --tasks .forgeflow/tasks --recent 10
+   cd <main-repo>
+   git merge <worktree-branch>
    ```
 3. **Verify merge succeeded**: After merge, check that the original repo has the expected changes:
    ```bash
@@ -82,7 +83,7 @@ If the task used worktree isolation (`run-state.json` contains a `worktree` key 
    ```bash
    git worktree remove <worktree-path>
    ```
-5. **If user chose "keep"**: Leave the worktree in place but record it as preserved in `run-state.json`.
+5. **If user chose "keep"**: Leave the worktree in place but note it as preserved in the task directory.
 
 ### 1. Verify before finishing
 
@@ -96,9 +97,11 @@ git diff --stat
 Then run the project-specific check, for example:
 
 ```bash
+pnpm test
+pnpm lint
+npm test
 pytest -q
 make validate
-npm test
 ```
 
 If verification fails, stop. Do not offer merge/PR as if the branch is ready.
@@ -107,11 +110,11 @@ If verification fails, stop. Do not offer merge/PR as if the branch is ready.
 
 Check:
 
-- `review-report` approved if this workflow requires review
-- intended files changed
-- generated artifacts updated if relevant
-- residual risks are named
-- unrelated dirty working tree changes are preserved and not swept into the finish action
+- `review-report.md` approved if this workflow requires review
+- Intended files changed
+- Generated artifacts updated if relevant
+- Residual risks are named
+- Unrelated dirty working tree changes are preserved and not swept into the finish action
 
 ### 3. Determine base branch
 
@@ -152,7 +155,7 @@ The option labels must remain recognizable:
 - Keep the branch as-is
 - Discard this work
 
-Do not add a fifth “surprise me” path. That is how branches become archaeology.
+Do not add a fifth path. That is how branches become archaeology.
 
 ## Option handling
 
@@ -225,50 +228,7 @@ Never delete unrelated dirty working tree files. If unrelated dirty working tree
 - Never run `git clean -fd` unless the user explicitly named the exact disposable paths.
 - Never force-push as part of finish unless explicitly requested.
 - Never include unrelated dirty working tree changes in a commit or PR.
-- Never infer discard approval from “ok”, “sure”, “go”, or “yes”. Require the exact word `discard`.
-
-## Evolution and learning capture (post-finish)
-
-After the user selects a finish option and the action completes, run the evolution and learning pipeline to capture reusable patterns from the completed task. This is how ForgeFlow improves over repeated runs.
-
-Before extracting learnings, inspect task evidence for repeated failures. A reusable learning should include the failure layer and revalidation evidence when available, using Instructions, Tools, Environment, State, Feedback, or Implementation as the cause layer. Do not promote raw logs or session text; promote only patterns with conditions, a reusable response, and concrete evidence.
-
-### Step 1: Extract learnings
-
-```bash
-python3 scripts/forgeflow_learn.py extract .forgeflow/tasks/<task-id> --output .forgeflow/evolution/learnings.jsonl
-python3 scripts/forgeflow_learn.py validate .forgeflow/evolution/learnings.jsonl
-```
-
-### Step 2: Record evolution observations
-
-```bash
-python3 scripts/forgeflow_evolution.py observations --task <task-id> --json
-```
-
-### Step 3: Get improvement suggestions
-
-```bash
-python3 scripts/forgeflow_evolution.py suggest --task <task-id> --json
-```
-
-### Step 4: Health check (if project has active rules)
-
-```bash
-python3 scripts/forgeflow_evolution.py doctor --json
-```
-
-### When to run
-
-- **Always** after a task reaches finish, regardless of route (small/medium/high/epic).
-- Skip only if the user explicitly says “skip evolution” or if the scripts are not installed.
-- Report the results concisely: learnings extracted, suggestions generated, any issues from doctor.
-
-### What NOT to do
-
-- Do NOT auto-promote or auto-approve evolution rules.
-- Do NOT run `forgeflow_evolution.py execute` — that requires explicit human acknowledgement.
-- Do NOT store raw session text — only structured learning entries.
+- Never infer discard approval from "ok", "sure", "go", or "yes". Require the exact word `discard`.
 
 ## Blocked finish examples
 

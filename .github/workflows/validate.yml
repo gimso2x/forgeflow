@@ -5,99 +5,49 @@ on:
     branches: [main]
   pull_request:
 
-env:
-  # Exercise GitHub's upcoming Node 24 JavaScript action runtime before it becomes mandatory.
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
 jobs:
-  repo-validation:
+  structure-check:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
+      - name: Verify no Python files remain
+        run: |
+          count=$(find . -name '*.py' -not -path './.git/*' | wc -l)
+          if [ "$count" -gt 0 ]; then
+            echo "ERROR: Found $count Python files (should be 0)"
+            find . -name '*.py' -not -path './.git/*'
+            exit 1
+          fi
+          echo "OK: No Python files found"
 
-      - name: Install Python dependencies
-        run: make setup
+      - name: Verify all skills have SKILL.md
+        run: |
+          for dir in skills/*/; do
+            if [ ! -f "${dir}SKILL.md" ]; then
+              echo "ERROR: Missing SKILL.md in $dir"
+              exit 1
+            fi
+          done
+          echo "OK: All skills have SKILL.md"
 
-      - name: Check ForgeFlow environment
-        run: make check-env
+      - name: Verify plugin configs are valid JSON
+        run: |
+          for f in .claude-plugin/plugin.json .claude-plugin/marketplace.json .codex-plugin/plugin.json gemini-extension.json; do
+            if ! python3 -c "import json; json.load(open('$f'))" 2>/dev/null; then
+              echo "ERROR: Invalid JSON in $f"
+              exit 1
+            fi
+          done
+          echo "OK: All plugin configs are valid JSON"
 
-      - name: Run full repo validation
-        run: make validate
-
-      - name: Run full pytest suite
-        run: .venv/bin/python -m pytest -q
-
-  generated-drift:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Install Python dependencies
-        run: make setup
-
-      - name: Check ForgeFlow environment
-        run: make check-env
-
-      - name: Regenerate adapters and fail on drift
-        run: .venv/bin/python scripts/validate_generated.py
-
-  windows-smoke:
-    runs-on: windows-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Install Python dependencies
-        shell: pwsh
-        run: .\scripts\setup.ps1
-
-      - name: Run Windows validation smoke
-        shell: pwsh
-        run: .\scripts\validate.ps1
-
-      - name: Smoke task init
-        shell: pwsh
-        run: .\scripts\run_orchestrator.ps1 init --task-id windows-smoke --objective "Validate Windows wrapper" --risk low
-
-  plugin-smoke-matrix:
-    # NOTE: This job runs WITHOUT real Claude/Codex CLI.
-    # Verifies: packaging, preset structure, doctor scripts, non-mutating guards.
-    # Does NOT verify: slash skill execution or real model invocation.
-    # For full end-to-end smoke: make smoke-claude-plugin (requires claude login)
-    name: plugin-smoke-matrix (${{ matrix.os }}, ${{ matrix.surface }}, ${{ matrix.route_label }})
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-        surface: [claude, codex]
-        route_label: [small, medium, high, epic]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Run plugin smoke matrix
-        shell: bash
-        run: python scripts/ci_plugin_smoke_matrix.py --surface "${{ matrix.surface }}" --route-label "${{ matrix.route_label }}"
+      - name: Verify templates exist
+        run: |
+          for t in brief.md plan.md review-report.md implementation-notes.md eval-record.md roadmap.md; do
+            if [ ! -f "templates/$t" ]; then
+              echo "ERROR: Missing template templates/$t"
+              exit 1
+            fi
+          done
+          echo "OK: All templates exist"

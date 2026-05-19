@@ -7,7 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.11.7] - 2026-05-19
+## [1.0.0] - 2026-05-19
+
+### Breaking Changes
+
+- Python 런타임(`forgeflow_runtime/`) 전체 제거
+- JSON 스키마(`schemas/`) 전체 제거
+- Python 스크립트(`scripts/`) 전체 제거
+- Python 테스트(`tests/`) 전체 제거
+- 샘플 산출물(`examples/`) 전체 제거
+- 정책 파일(`policy/`) 전체 제거
+- 어댑터 생성 파일(`adapters/`) 전체 제거
+- 기존 JSON 산출물 포맷(brief.json 등)이 Markdown(brief.md 등)으로 교체됨
+- v0.x의 `.forgeflow/tasks/` 디렉토리와 호환되지 않음
+
+### Changed
+
+- 산출물 포맷: JSON → Markdown (templates/에 템플릿 제공)
+- 강제 방식: Python 스크립트 → 프롬프트 기반 지시
+- 673개 파일에서 ~40개 파일로 축소
+- 외부 의존성 제로 (Python, Node.js 불필요)
+
+## [0.13.1] - 2026-05-19
 
 ### Fixed
 

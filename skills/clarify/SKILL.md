@@ -1,18 +1,16 @@
 ---
 name: clarify
 description: Turn a vague request into a scoped ForgeFlow brief and route decision. Use when the user types /forgeflow:clarify, or first for new implementation/refactor/debug requests unless the user already provided a complete brief.
-version: 0.1.0
-author: gimso2x
 validate_prompt: |
   Must preserve exact-output and dry-run constraints when requested.
   Must return a clear route or brief artifact only when the prompt asks for it.
-  Must default to artifact-first behavior and write `brief.json` to the active task directory unless the user explicitly requests dry-run or no-write output.
+  Must default to artifact-first behavior and write `brief.md` to the active task directory unless the user explicitly requests dry-run or no-write output.
   Must include WHERE/risk grounding for non-trivial work when artifact writing is allowed.
 ---
 
 # Clarify
 
-Use this skill to convert a raw request into a ForgeFlow `brief.json`-style context brief and route decision.
+Use this skill to convert a raw request into a ForgeFlow context brief (`brief.md`) and route decision.
 
 ## Input
 
@@ -23,31 +21,26 @@ Use this skill to convert a raw request into a ForgeFlow `brief.json`-style cont
 
 ## Output Artifacts
 
-- `brief.json` or equivalent brief containing:
-  - goal
-  - where/context grounding for non-trivial work
-  - constraints
-  - acceptance criteria
-  - scope boundary
-  - non-goals
-  - ambiguity score and ambiguity notes
-  - open questions split into blocker questions vs non-blocking unknowns
-  - hidden assumptions recorded as bounded assumptions
-  - non-blocking unknowns / bounded assumptions
-  - complexity score
-  - route: `small`, `medium`, `high`, or `epic`
-  - required_specialists: list of specialists (security-review, ux-review, perf-review, etc.)
-  - skipped_specialists: list of specialists not used
-  - skip_rationale: explanation for skipping specialists
-  - min_verification: list of required verification steps for the run stage
-  - Harness context capture mapped through existing fields, not a new harness artifact
+Write `brief.md` to the active task directory using `templates/brief.md` as the structure. The brief must capture:
+
+- Objective (one-sentence goal)
+- WHERE/context grounding for non-trivial work
+- In Scope / Out of Scope boundary
+- Constraints
+- Acceptance Criteria
+- Risk Level
+- Assumptions (including bounded assumptions for non-blocking unknowns)
+- Open Questions (blocker vs non-blocking)
+- Specialists (required, skipped, skip rationale)
+- Verification Gates (auto-detected from tech stack)
+- Environment Notes (git status, dependency check, tech stack detected)
+- Route selection and rationale
 
 ## Exit Condition
 
 - The request has a clear goal and scope boundary
 - True blocker questions are answered; non-blocking unknowns are recorded as bounded assumptions
 - A route is selected and justified
-- Optional visual artifact is available when useful for design feedback: run `python3 scripts/forgeflow_visual.py clarify <task-dir>/brief.json --format markdown`, or pipe Mermaid output to `node scripts/visual-companion.cjs` via `POST /diagram`.
 - Next skill is named:
   - `small` -> `/forgeflow:execute` or direct execute path
   - `medium` -> `/forgeflow:plan`
@@ -56,25 +49,17 @@ Use this skill to convert a raw request into a ForgeFlow `brief.json`-style cont
 
 ## File write and output discipline
 
-Default to **artifact-first mode**. Clarify should write `brief.json` under the active task directory unless the user explicitly asks for a dry run, exact-output response, or no-write simulation.
+Default to **artifact-first mode**. Write `brief.md` under `.forgeflow/tasks/<task-id>/` unless the user explicitly asks for a dry run, exact-output response, or no-write simulation.
 
-Canonical writable location:
-
-- explicit task directory provided by the user, or
-- repo-local `.forgeflow/tasks/<task-id>/` created via `/forgeflow-init` or `python3 scripts/run_orchestrator.py init ...`.
-
-If the task directory is missing, stop pretending chat is state. Bootstrap the workspace first instead of returning a pseudo-brief in chat only.
+If the task directory is missing, create `.forgeflow/tasks/<task-id>/` first. Do not return a pseudo-brief in chat only when the workflow expects artifacts.
 
 If the user says "do not write files", "return only", "dry run", "just list", or asks for a label/summary only, obey that output constraint exactly and do not attempt any filesystem mutation.
 
-When artifacts such as `brief.json` are mentioned without an explicit path, write them to the active task directory, not the repository root and not chat-only fallback.
-
-If writing is allowed, write only under the current project workspace or the active task directory. Never write inside the plugin installation directory, marketplace cache, or `skills/<skill>/`.
-
+Write only under the current project workspace or the active task directory. Never write inside `skills/<skill>/`.
 
 ## Strict response constraints
 
-Exact-output instructions beat every other rule in this skill. Do not explain first and then append the answer. Do not show scoring. Do not include Markdown. Return exactly what was requested and nothing extra.
+Exact-output instructions beat every other rule in this skill. Do not explain first and then append the answer. Do not show scoring. Do not include Markdown formatting around the answer. Return exactly what was requested and nothing extra.
 
 If the user asks for a label-only route selection (for example "Return only the selected route label", "label only", or "route label only"), output exactly one of `small`, `medium`, `high`, or `epic` and stop. The entire response must be only that label.
 
@@ -91,7 +76,7 @@ Good:
 medium
 ```
 
-Bad: adding verdicts, JSON artifacts, rationale sections, headings, scoring, or extra warnings after the requested label/list.
+Bad: adding verdicts, rationale sections, headings, scoring, or extra warnings after the requested label/list.
 Good: if asked for exactly two checks, return exactly two checks.
 
 When the user says "do not run commands", do not propose command execution as if it happened. You may name a manual check, but label it as manual inspection, not a command result.
@@ -104,12 +89,12 @@ If the user asks to list questions, list them in the response. Do **not** call a
 
 Before routing anything non-trivial, calibrate WHERE so intake is neither too heavy for toys nor too light for dangerous work.
 
-Capture these fields in `brief.json` when the user has not already provided them:
+Capture these dimensions in the brief when the user has not already provided them:
 
-- `project_type`: user-facing app, API/service, dev tool/library, or infrastructure
-- `situation`: greenfield, brownfield extension, brownfield refactor, or hybrid
-- `ambition`: toy/experiment, feature/MVP, or product
-- `risk_modifiers`: sensitive data, external exposure, irreversible ops, high scale
+- **project_type**: user-facing app, API/service, dev tool/library, or infrastructure
+- **situation**: greenfield, brownfield extension, brownfield refactor, or hybrid
+- **ambition**: toy/experiment, feature/MVP, or product
+- **risk_modifiers**: sensitive data, external exposure, irreversible ops, high scale
 
 Risk escalation rules:
 
@@ -130,33 +115,29 @@ For exact-count, dry-run, or response-only prompts, do not force the WHERE inter
 ## Procedure
 
 1. Inspect relevant repo context before inventing scope.
-   - **Harness context capture**: Map Instructions, Tools, Environment, State, and Feedback into existing `brief.json` fields. Use environment_preflight, tech_stack, open_questions, min_verification for missing environment/tool/feedback context instead of creating a separate harness artifact.
-   - If an Environment or Tools gap prevents execution, add it to `open_questions.blocker_questions` and ask before routing to plan or execute.
+   - Map Instructions, Tools, Environment, State, and Feedback into brief fields. Use Environment Notes, tech stack, Open Questions, and Verification Gates for missing context instead of creating a separate harness artifact.
+   - If an Environment or Tools gap prevents execution, add it to Open Questions as a blocker and ask before routing to plan or execute.
    - Surface confusion instead of guessing. If the request has competing interpretations that materially change scope, say so in the brief.
-   - For brownfield refactors or extensions, specifically identify **architectural friction**: where are modules **shallow** (interface as complex as implementation), where is **locality** missing, and where are **pass-throughs** bloating the path? (See `docs/refactor-planning-decision.md`).
+   - For brownfield refactors or extensions, specifically identify **architectural friction**: where are modules **shallow** (interface as complex as implementation), where is **locality** missing, and where are **pass-throughs** bloating the path?
    - Do not silently pick one interpretation when the ambiguity affects user-visible behavior, data, security, or files to edit.
-   - **Environment preflight**: Run these checks and record results in brief.json under `"environment_preflight"`:
-     - `git rev-parse --show-toplevel 2>/dev/null` → confirm the correct git root matches the target project directory. If a parent directory is detected as the repo root instead, add `"environment_warnings": ["git_root_mismatch"]` and record `"git_root_detected"` vs `"git_root_expected"`.
-     - `git rev-parse --is-inside-work-tree 2>/dev/null` → if not a git repo, add `"environment_warnings": ["not_a_git_repo"]`
-     - Check for lockfile + dependency directory mismatch (e.g., `pnpm-lock.yaml` exists but no `node_modules`): add to `open_questions.blocker_questions`: "종속성이 설치되지 않았습니다. execute 전에 설치를 진행하시겠습니까?"
+   - **Environment preflight**: Run these checks and record results in the Environment Notes section of brief.md:
+     - `git rev-parse --show-toplevel 2>/dev/null` -> confirm the correct git root matches the target project directory. If mismatched, note the warning.
+     - `git rev-parse --is-inside-work-tree 2>/dev/null` -> if not a git repo, note the warning.
+     - Check for lockfile + dependency directory mismatch (e.g., `pnpm-lock.yaml` exists but no `node_modules`): add to Open Questions: "종속성이 설치되지 않았습니다. execute 전에 설치를 진행하시겠습니까?"
      - If neither lockfile nor dependency directory exists: new project, skip silently.
-   - **Tech stack detection**: Auto-detect the framework/build tool from project files and record in brief.json under `"tech_stack"`. Check for:
-     - `package.json` → read `dependencies` and `devDependencies` for framework signals:
-       - `next` → Next.js (record `appRouter: true` if `app/` dir exists)
-       - `react` + `vite` → React + Vite
-       - `react` + (`webpack` | no bundler) → React (CRA or custom)
-       - `vue` → Vue
-       - `svelte` → Svelte
-       - `nuxt` → Nuxt
-     - `pyproject.toml` or `requirements.txt` → Python (FastAPI/Django/Flask)
-     - `Cargo.toml` → Rust
-     - `go.mod` → Go
-     - If no framework signals found but the request mentions a specific stack, record it as `"tech_stack": {"source": "user_specified"}`.
-     - If the detected tech stack contradicts the user's request or CLAUDE.md defaults, add to `open_questions.blocker_questions` with the detected vs stated conflict.
+   - **Tech stack detection**: Auto-detect the framework/build tool from project files and record in brief.md. Check for:
+     - `package.json` -> read dependencies for framework signals (next, react, vue, svelte, nuxt)
+     - `pyproject.toml` or `requirements.txt` -> Python (FastAPI/Django/Flask)
+     - `Cargo.toml` -> Rust
+     - `go.mod` -> Go
+     - If detected tech stack contradicts the user's request, add to Open Questions as a blocker.
+
 2. Establish WHERE grounding unless the prompt is an exact-output dry run.
+
 3. Ask up to 5 clarifying questions when they materially improve requirements. Ask 0 if the request is already actionable, and do not pad the list with nice-to-have trivia.
    - Good questions resolve product behavior, user/audience, success criteria, data/source of truth, rollout/risk constraints, or explicit out-of-scope boundaries.
    - Bad questions ask for implementation chores the agent should infer from repo inspection, preferences that do not change the plan, or confirmations that can be recorded as bounded assumptions.
+
 4. Apply Socratic clarification (the "grilling loop") before route selection:
    - Walk down each branch of the design tree, resolving dependencies between decisions one-by-one.
    - For each question asked, provide your recommended answer to reduce user cognitive load.
@@ -166,11 +147,13 @@ For exact-count, dry-run, or response-only prompts, do not force the WHERE inter
    - State explicit non-goals and scope boundaries before planning.
    - Assign an ambiguity score from `0.0` to `1.0`; above `0.2`, either ask blocker questions or record why execution can proceed safely with bounded assumptions.
    - Do not let ambiguity disappear into prose. It must be visible in the brief artifact or response artifact.
+
 5. Score complexity:
    - 5-8: `small` — one localized change, usually 1-2 files, low ambiguity, no cross-cutting behavior.
-   - 9-12: `medium` — several coordinated files/components, shared state/layout/navigation, moderate test/update surface, but no security/data migration/infra rollback risk.
-   - 13-15: `high` — auth/security, data migration, payments, production infra, irreversible data changes, broad architecture migration, or many contracts/journeys requiring separate spec and quality review.
-   - 16+: `epic` — massive scope, hierarchical milestone breakdown, multi-week effort.
+   - 9-16: `medium` — several coordinated files/components, shared state/layout/navigation, moderate test/update surface, but no security/data migration/infra rollback risk. Light (9-12) for few scoped files; full (13-16) for cross-module changes.
+   - 17-24: `high` — auth/security, data migration, payments, production infra, irreversible data changes, broad architecture migration, or many contracts/journeys requiring separate spec and quality review.
+   - 25+: `epic` — massive scope, hierarchical milestone breakdown, multi-week effort.
+
 6. Select specialists based on task nature:
    - Auth/Encryption/External Input -> `security-review`
    - UI/Accessibility/User Flow -> `ux-review`
@@ -178,28 +161,58 @@ For exact-count, dry-run, or response-only prompts, do not force the WHERE inter
    - Frontend focused -> `frontend-execute`
    - Backend/API/DB -> `backend-execute`
    - Infra/Deployment/IaC -> `infra-execute`
-   - List skipped specialists and provide a `skip_rationale`.
-7. Set `min_verification` in the brief:
+   - List skipped specialists and provide a skip rationale.
+
+7. Set verification gates in the brief:
    - `small`: at least one of `build`, `lint`, or `type_check` — whichever is available and fastest.
    - `medium`: at least `lint` and `type_check`, plus `test` if tests exist for changed files.
    - `high`: full verification suite — `build`, `lint`, `type_check`, and `test`.
    - `epic`: full verification suite, plus milestone-level integration tests.
+
 8. State the route and why, unless an exact-output/label-only instruction applies.
-9. Produce the brief in a structured form the next skill can consume, unless an exact-output/label-only instruction applies.
+
+9. Produce `brief.md` using `templates/brief.md` as the structure, unless an exact-output/label-only instruction applies.
+
 10. If the request is actionable, record remaining non-blocking unknowns as bounded assumptions and make the next stage obvious without asking the user to do your planning work, unless an exact-output/label-only instruction applies.
 
 Do not implement here. Clarify is the intake gate, not the coding phase.
 
+## Contract-first traceability for medium/high/epic or brownfield work
+
+For non-trivial work, identify cross-module contracts before route selection:
+
+1. Identify interfaces, invariants, data shapes, and compatibility constraints that parallel workers must not break.
+2. If any contract exists, note it in the brief's Constraints section.
+3. Record `fulfills` targets for traceability.
+4. Identify journeys (multi-step user or system flows that require end-to-end verification).
+5. Preserve non-goals and bounded assumptions when they affect execution boundaries.
+
+Small documentation-only tasks may omit these.
+
+## Auto-detectable verification gates
+
+When constructing verification gates, prefer automated gates over manual review wherever possible.
+
+| Gate | Description | Applicable when |
+|------|-------------|-----------------|
+| `scope_boundary_check` | Verify no unintended files changed via git diff | All tasks |
+| `contract_check` | Verify step output against stated contracts | Tasks with cross-module contracts |
+| `version_consistency_check` | Verify version strings match across artifacts | Tasks referencing package versions |
+| `build` | Build passes | Code tasks |
+| `lint` | Linter passes | Code tasks |
+| `type_check` | Type checker passes | Typed code tasks |
+| `test` | Test suite passes | Code tasks with tests |
+
 ## UX guardrails
 
 - Do repo inspection before saying the scope is unclear.
-- Do not manufacture open questions just to prolong intake; `non-blocking unknowns` are artifact notes, not questions the user must answer.
+- Do not manufacture open questions just to prolong intake; non-blocking unknowns are artifact notes, not questions the user must answer.
 - Do not ask the user to write the plan for you.
 - Do not ask the user to approve the brief content again when the request is already sufficient.
 - Do stop at the stage boundary before starting `/forgeflow:plan` or `/forgeflow:execute`.
-- **If brief.json has blocker_questions, you MUST ask the user those questions interactively before closing the stage.** Present each blocker with your recommended answer. Wait for user response. Update the brief with decided answers afterward. Do NOT skip this step and do NOT embed questions only in the file.
-- When the request is already sufficient and all blockers are resolved, end with a closed next-stage question: `요구사항 충분. <route> route입니다. 다음 스텝으로 /forgeflow:<plan|execute>을 진행하시겠습니까? (y/n)`
-- Bad: writing blocker questions to brief.json and immediately reporting "next stage: plan" without asking.
+- **If brief.md has blocker questions, you MUST ask the user those questions interactively before closing the stage.** Present each blocker with your recommended answer. Wait for user response. Update the brief with decided answers afterward. Do NOT skip this step.
+- When the request is already sufficient and all blockers are resolved, end with: `요구사항 충분. <route> route입니다. 다음 스텝으로 /forgeflow:<plan|execute>을 진행하시겠습니까? (y/n)`
+- Bad: writing blocker questions to brief.md and immediately reporting "next stage: plan" without asking.
 - Good: presenting blocker questions to the user, getting answers, updating the brief, then asking to proceed.
 
 ## Output mode examples
@@ -218,8 +231,4 @@ medium
 high
 ```
 
-No explanation. No JSON. No file writes.
-h
-```
-
-No explanation. No JSON. No file writes.
+No explanation. No file writes.

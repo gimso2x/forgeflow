@@ -13,13 +13,13 @@ One sentence describing what this skill does and why it exists.
 
 | Artifact | Source |
 |----------|--------|
-| `artifact.json` | Where this comes from |
+| `artifact.md` | Where this comes from |
 
 ## Output Artifacts
 
-| Artifact | Schema | Description |
-|----------|--------|-------------|
-| `artifact.json` | `schemas/artifact.schema.json` | What this artifact contains. |
+| Artifact | Template | Description |
+|----------|----------|-------------|
+| `artifact.md` | `templates/artifact.md` | What this artifact contains. |
 
 ## Execution
 

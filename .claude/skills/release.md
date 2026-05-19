@@ -18,19 +18,20 @@ ForgeFlow plugin release workflow. Syncs version across all metadata files, comm
 
 ## Version files
 
-These three files must always have identical versions:
+These files must always have identical versions:
 
 | File | Field |
 |------|-------|
 | `.claude-plugin/plugin.json` | `"version": "X.Y.Z"` |
 | `.claude-plugin/marketplace.json` | `"metadata"."version": "X.Y.Z"` |
-| `pyproject.toml` | `version = "X.Y.Z"` |
+| `.codex-plugin/plugin.json` | `"version": "X.Y.Z"` |
+| `gemini-extension.json` | `"version": "X.Y.Z"` |
 
 ## Instructions
 
 ### 1. Determine version bump
 
-- Read current version from `pyproject.toml`.
+- Read current version from `.claude-plugin/plugin.json`.
 - Ask the user: patch (default), minor, or major? If the user already specified, use that.
 - Bump version following semver:
   - patch: Z+1 (bug fixes, small improvements)
@@ -39,7 +40,7 @@ These three files must always have identical versions:
 
 ### 2. Sync version across files
 
-Update all three version files with the new version number. Use Edit tool — do not rewrite entire files.
+Update all version files with the new version number. Use Edit tool — do not rewrite entire files.
 
 ### 3. Generate changelog
 
@@ -49,7 +50,7 @@ Update all three version files with the new version number. Use Edit tool — do
 
 ### 4. Stage and commit
 
-- Stage only the three version files explicitly: `git add .claude-plugin/plugin.json .claude-plugin/marketplace.json pyproject.toml`
+- Stage only the version files explicitly: `git add .claude-plugin/plugin.json .claude-plugin/marketplace.json .codex-plugin/plugin.json gemini-extension.json`
 - Commit message format: `[main] v<X.Y.Z> 릴리즈` or `[main] <change summary> 및 v<X.Y.Z> 릴리즈`
 
 ### 5. Push
@@ -77,4 +78,4 @@ Output a summary:
 - Never force push.
 - Never commit files the user didn't approve.
 - If `gh release create` fails, report the error and suggest manual retry.
-- If the three version files are already out of sync, warn the user before proceeding.
+- If the version files are already out of sync, warn the user before proceeding.

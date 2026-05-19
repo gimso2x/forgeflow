@@ -1,6 +1,3 @@
-# ForgeFlow Gemini Extension
-
-@./adapters/generated/gemini/GEMINI.md
 @./skills/SKILLS.md
 @./skills/forgeflow/SKILL.md
 @./skills/forgeflow-init/SKILL.md
