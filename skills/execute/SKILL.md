@@ -133,6 +133,15 @@ If the user explicitly includes `--yes`, `--auto-approve`, `--non-interactive`, 
 2. Initialize `run-state.json` in the active task directory if it does not exist. Set `current_stage: "execute"`, `status: "in_progress"`.
 3. Read `contracts` metadata and sibling `contracts.md` before editing when present.
    - **Environment safety net**: If `brief.json` lacks `environment_preflight`, run: `git rev-parse --is-inside-work-tree 2>/dev/null; ls node_modules .venv vendor 2>/dev/null | head -3`. If dependencies are missing and a package manager is detected, stop and ask: "종속성이 설치되지 않았습니다. 설치를 먼저 진행하시겠습니까?" Do NOT attempt installation yourself. If no git and route is medium/high, warn that ship cannot commit/PR, then continue.
+3b. **Git worktree isolation**:
+    - If `brief.json` has `"use_worktree": true`, the Python runtime creates a git worktree via `git worktree add --detach` and records it in `run-state.json.worktree.path`.
+    - The worktree is a real git worktree (not a Claude Code `EnterWorktree`). The agent must work in the worktree directory using the **absolute path** from `run-state.json.worktree.path`.
+    - **File operations**: Use the worktree path as the base directory for all edits. Example: if `run-state.json.worktree.path` is `/tmp/ff-worktree-abc123`, edit files at `/tmp/ff-worktree-abc123/src/foo.ts` instead of `./src/foo.ts`.
+    - **Git commands**: Run git commands with `cwd` set to the worktree path, not the original repo.
+    - **Verification**: Run lint/build/test from the worktree directory.
+    - **Agent delegation**: When spawning sub-agents for parallel steps, pass the worktree path as the working directory in the prompt.
+    - If `use_worktree` is `false` or missing, execute in the current working tree.
+    - After execute completes, the runtime's `merge_worker_worktree()` applies the diff back via patch. The agent should NOT attempt manual merge — only the runtime handles merge.
 4. For each task in the plan:
    - **TDD Red**: Write/update tests to fail.
    - **Execute Implementation**: Implement minimal code to pass. Prefer the smallest implementation that satisfies the acceptance criteria.
@@ -163,6 +172,56 @@ Contract-aware execution rules:
 - If `verify_plan` exists and a target cannot be verified, mark the task blocked instead of pretending it is done.
 
 Worker self-report is not approval. `/forgeflow:review` still has to happen.
+
+## Agent delegation for specialist work
+
+When `brief.json` includes `required_specialists` and the task scope justifies delegation, use the Agent tool to spawn specialist sub-agents for independent plan steps. This prevents context exhaustion and enables parallel execution.
+
+### When to delegate
+
+Delegate to a sub-agent when ALL of these conditions are met:
+1. `brief.required_specialists` lists a relevant specialist (e.g., `frontend-execute`, `backend-execute`)
+2. The plan step has no unresolved dependencies on other in-progress steps
+3. The step involves isolated file changes that won't conflict with parallel work
+4. The main context is getting large enough that delegating preserves quality
+
+Do NOT delegate when:
+- The step modifies shared files that other steps also touch
+- The step is step-1 (environment setup) or the final verification step
+- The plan has `parallel_safe: false` and path conflicts exist
+- The task is `small` route (overhead exceeds benefit)
+
+### How to delegate
+
+Use the Agent tool with `subagent_type: "general-purpose"` and provide the specialist's domain instructions from the corresponding agent definition file under `adapters/targets/<adapter>/agents/forgeflow-<specialist>-worker.md`:
+
+```
+Agent({
+  description: "Frontend specialist: implement <step objective>",
+  prompt: "You are a ForgeFlow frontend worker. Task: <step objective>.
+           Working directory: <worktree-path from run-state.json.worktree.path>
+           Files to change: <exact paths relative to worktree>. Acceptance criteria: <from plan step>.
+           Write run-state evidence as contract_check:PASS <step-id>.
+           Do not modify files outside the listed scope.
+           Run verification from the worktree directory."
+})
+```
+
+### Agent result handling
+
+After the agent returns:
+1. Verify the claimed changes exist (`git diff --stat`)
+2. Run verification commands to confirm the agent's evidence
+3. Update `run-state.json` with the verified result — agent self-report alone is not evidence
+4. Record the delegation in `decision-log.json` with `category: "agent-delegation"`
+
+### Parallel delegation
+
+For steps with no mutual dependencies (check `plan.json` → `steps[].dependencies`):
+- Spawn multiple agents in a single message with parallel Agent tool calls
+- Each agent must receive its exact file scope to prevent conflicts
+- After ALL agents return, run cross-document consistency checks
+- Mark steps completed only after verification, not when agents report done
 
 ## Execute Intelligence (v0.2)
 

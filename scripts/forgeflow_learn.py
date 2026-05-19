@@ -81,16 +81,31 @@ def extract_entries(task_dir: Path) -> list[dict[str, Any]]:
     entries: list[dict[str, Any]] = []
 
     for finding in review_report.get("findings", []) or []:
-        problem = finding.get("problem") or finding.get("summary") or finding.get("message")
-        cause = finding.get("cause") or finding.get("rationale") or "Review identified a reusable implementation risk."
-        rule = finding.get("recommendation") or finding.get("rule") or finding.get("next_action")
-        evidence = finding.get("evidence") or finding.get("file") or finding.get("path")
-        if not (problem and rule and evidence):
-            continue
-        if isinstance(evidence, str):
-            evidence_list = [evidence]
+        if isinstance(finding, str):
+            severity = "info"
+            text = finding.strip()
+            for prefix in ("approved: ", "minor: ", "info: ", "warning: ", "error: ", "critical: "):
+                if text.lower().startswith(prefix):
+                    severity = prefix.rstrip(": ").lower()
+                    text = text[len(prefix):]
+                    break
+            problem = text
+            cause = f"Review finding ({severity})."
+            rule = "Record for pattern analysis."
+            evidence_list = [f"review-report.json: {finding[:200]}"]
+        elif isinstance(finding, dict):
+            problem = finding.get("problem") or finding.get("summary") or finding.get("message")
+            cause = finding.get("cause") or finding.get("rationale") or "Review identified a reusable implementation risk."
+            rule = finding.get("recommendation") or finding.get("rule") or finding.get("next_action")
+            evidence = finding.get("evidence") or finding.get("file") or finding.get("path")
+            if not (problem and rule and evidence):
+                continue
+            if isinstance(evidence, str):
+                evidence_list = [evidence]
+            else:
+                evidence_list = [str(item) for item in evidence]
         else:
-            evidence_list = [str(item) for item in evidence]
+            continue
         entry = {
             "id": "",
             "timestamp": timestamp,
@@ -157,18 +172,19 @@ def cmd_extract(args: argparse.Namespace) -> int:
             errors.extend(f"{entry['id'] or '<new>'}: {error}" for error in entry_errors)
     if errors:
         for error in errors:
-            print(f"Error: {error}", file=sys.stderr)
-        return 1
+            print(f"Warning: {error}", file=sys.stderr)
+    valid_entries = [entry for entry in entries if not validate_entry(entry)]
+    skipped_invalid = len(entries) - len(valid_entries)
 
     existing = read_existing_ids(output)
-    new_entries = [entry for entry in entries if entry["id"] not in existing]
+    new_entries = [entry for entry in valid_entries if entry["id"] not in existing]
     skipped = len(entries) - len(new_entries)
     if new_entries:
         output.parent.mkdir(parents=True, exist_ok=True)
         with output.open("a", encoding="utf-8") as handle:
             for entry in new_entries:
                 handle.write(json.dumps(entry, ensure_ascii=False, sort_keys=True) + "\n")
-    print(f"LEARNING EXTRACT: PASS added={len(new_entries)} skipped_duplicates={skipped}")
+    print(f"LEARNING EXTRACT: PASS added={len(new_entries)} skipped_duplicates={skipped} skipped_invalid={skipped_invalid}")
     return 0
 
 

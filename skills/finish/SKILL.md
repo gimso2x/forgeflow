@@ -64,6 +64,26 @@ Before presenting finish options, reconstruct the active task status from artifa
 
 ## Procedure
 
+### 0. Worktree cleanup (before verification)
+
+If the task used worktree isolation (`run-state.json` contains a `worktree` key or `brief.json` has `use_worktree: true`):
+
+1. **Check for active git worktree**: Read `run-state.json.worktree.path` to find the worktree location.
+2. **Merge completed worker worktrees**: If `run-state.json` or worker artifacts under `.forgeflow/tasks/<id>/workers/` show completed workers, the runtime should merge them back via `merge_worker_worktree()`. This applies the diff as a patch to the original repo:
+   ```bash
+   python3 scripts/forgeflow_monitor.py --tasks .forgeflow/tasks --recent 10
+   ```
+3. **Verify merge succeeded**: After merge, check that the original repo has the expected changes:
+   ```bash
+   git diff --stat
+   git status --short
+   ```
+4. **Remove worktree**: After successful merge (or if user chose "discard"), clean up the git worktree:
+   ```bash
+   git worktree remove <worktree-path>
+   ```
+5. **If user chose "keep"**: Leave the worktree in place but record it as preserved in `run-state.json`.
+
 ### 1. Verify before finishing
 
 Run or inspect fresh verification before presenting success language:
@@ -206,6 +226,47 @@ Never delete unrelated dirty working tree files. If unrelated dirty working tree
 - Never force-push as part of finish unless explicitly requested.
 - Never include unrelated dirty working tree changes in a commit or PR.
 - Never infer discard approval from “ok”, “sure”, “go”, or “yes”. Require the exact word `discard`.
+
+## Evolution and learning capture (post-finish)
+
+After the user selects a finish option and the action completes, run the evolution and learning pipeline to capture reusable patterns from the completed task. This is how ForgeFlow improves over repeated runs.
+
+### Step 1: Extract learnings
+
+```bash
+python3 scripts/forgeflow_learn.py extract .forgeflow/tasks/<task-id> --output .forgeflow/evolution/learnings.jsonl
+python3 scripts/forgeflow_learn.py validate .forgeflow/evolution/learnings.jsonl
+```
+
+### Step 2: Record evolution observations
+
+```bash
+python3 scripts/forgeflow_evolution.py observations --task <task-id> --json
+```
+
+### Step 3: Get improvement suggestions
+
+```bash
+python3 scripts/forgeflow_evolution.py suggest --task <task-id> --json
+```
+
+### Step 4: Health check (if project has active rules)
+
+```bash
+python3 scripts/forgeflow_evolution.py doctor --json
+```
+
+### When to run
+
+- **Always** after a task reaches finish, regardless of route (small/medium/high/epic).
+- Skip only if the user explicitly says “skip evolution” or if the scripts are not installed.
+- Report the results concisely: learnings extracted, suggestions generated, any issues from doctor.
+
+### What NOT to do
+
+- Do NOT auto-promote or auto-approve evolution rules.
+- Do NOT run `forgeflow_evolution.py execute` — that requires explicit human acknowledgement.
+- Do NOT store raw session text — only structured learning entries.
 
 ## Blocked finish examples
 

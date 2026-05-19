@@ -14,10 +14,12 @@ Implement the task. Updates `run-state.json` with progress and verification evid
    For `medium`/`high`: work through plan tasks in dependency order.
 
 3. **Worktree isolation preference**: Python runtime calls this stage `execute`; Claude plugin users invoke it as `/forgeflow:execute`. Before editing code, inspect `brief.json` and the latest `decision-log.json` entries.
-   - If `brief.json` has `"use_worktree": true`, use the runtime-prepared git worktree for execution when `run-state.json.worktree.path` is active.
+   - If `brief.json` has `"use_worktree": true`, the runtime creates a **git worktree** via `git worktree add --detach` and records the path in `run-state.json.worktree.path`.
+   - The agent must work in the worktree's absolute path for all file operations. Example: if `run-state.json.worktree.path` is `/tmp/ff-worktree-abc123`, edit files at that path, run git commands with `cwd=<worktree-path>`, and run verification from that directory.
    - If `brief.json` has `"use_worktree": false`, execute in the current working tree.
-   - If `use_worktree` is missing/null, or `decision-log.json` contains `worktree preference not set — ask user`, ask the user whether to isolate execute in a git worktree. Then write `"use_worktree": true` or `"use_worktree": false` to `brief.json` and re-run `/forgeflow:execute`. Do not continue implementation until that preference is recorded.
+   - If `use_worktree` is missing/null, ask the user whether to isolate execute in a git worktree. Then write `"use_worktree": true` or `false` to `brief.json` and re-run `/forgeflow:execute`.
    - If the project is not a git repo, worktree isolation is non-fatal; continue in the current working tree.
+   - The runtime's `merge_worker_worktree()` handles merging the worktree diff back via patch. The agent should NOT attempt manual merge.
    - **Environment safety net**: If `brief.json` lacks `environment_preflight`, run: `git rev-parse --is-inside-work-tree 2>/dev/null; ls node_modules .venv vendor 2>/dev/null | head -3`. If dependencies are missing and a package manager is detected, stop and ask: "종속성이 설치되지 않았습니다. 설치를 먼저 진행하시겠습니까?" Do NOT attempt installation yourself. If no git and route is medium/high, warn that ship cannot commit/PR, then continue.
 
 4. For each sub-task or implementation step:
@@ -99,3 +101,15 @@ If the user explicitly includes `--yes`, `--auto-approve`, `--non-interactive`, 
 ## Status analysis preflight
 
 Read `run-state.json`, review/eval artifacts, and `decision-log.json` from the active `.forgeflow/tasks/<task-id>/` before acting. For multi-task triage, run `python3 scripts/forgeflow_monitor.py --tasks .forgeflow/tasks --recent 10` as read-only evidence; then inspect the selected artifacts directly.
+
+## Agent delegation for specialist work
+
+When `brief.json` includes `required_specialists` and the task scope justifies delegation, use the Agent tool to spawn specialist sub-agents for independent plan steps.
+
+**Delegate when**: `required_specialists` lists a relevant specialist, the step has no unresolved dependencies, files are isolated, and context is getting large.
+
+**Do NOT delegate**: shared files between steps, step-1 or final verification, `parallel_safe: false`, or `small` route.
+
+**Pattern**: Spawn with `subagent_type: "general-purpose"`, include the specialist agent instructions from `adapters/targets/claude/agents/forgeflow-<specialist>-worker.md`, specify exact file scope, and verify results independently after return.
+
+**Parallel**: Spawn multiple agents in one message for independent steps. Run cross-checks after ALL return. Agent self-report is not evidence — verify with `git diff` and verification commands before marking complete.
