@@ -1989,7 +1989,7 @@ def _allocate_parallel_worker_worktrees(
                 if wt_path:
                     try:
                         from forgeflow_runtime.worktree import remove_worktree
-                        remove_worktree(str(repo_root), wt_path)
+                        remove_worktree(str(repo_root), wt_path, force=True)
                     except Exception:
                         pass
         raise
@@ -2112,7 +2112,7 @@ def _cleanup_worktree(
         return
 
     try:
-        success = _remove_worktree(str(repo_root), wt_path)
+        success = _remove_worktree(str(repo_root), wt_path, force=True)
         status = "removed" if success else "remove failed (manual cleanup needed)"
     except Exception as exc:
         status = f"remove failed: {exc}"

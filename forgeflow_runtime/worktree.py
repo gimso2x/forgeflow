@@ -81,9 +81,13 @@ def create_worktree(repo_path: str, branch: str) -> WorktreeSession:
     )
 
 
-def remove_worktree(repo_path: str, worktree_path: str) -> bool:
+def remove_worktree(repo_path: str, worktree_path: str, *, force: bool = False) -> bool:
     """Remove a worktree, returning success status."""
-    result = _run_git("worktree", "remove", worktree_path, cwd=repo_path)
+    args = ["worktree", "remove"]
+    if force:
+        args.append("--force")
+    args.append(worktree_path)
+    result = _run_git(*args, cwd=repo_path)
     return result.returncode == 0
 
 
@@ -390,6 +394,9 @@ def merge_worker_worktree(
     if not base_commit or len(base_commit) < 7:
         return blocked("base_commit_missing", error=f"base_commit is empty or too short: {base_commit!r}")
     diff_ref = base_commit
+
+    # Stage all changes (including new untracked files) so the diff captures them.
+    _run_git("add", "--all", cwd=worktree_path)
 
     diff_names = _run_git("diff", "--name-only", diff_ref, cwd=worktree_path)
     if diff_names.returncode != 0:
