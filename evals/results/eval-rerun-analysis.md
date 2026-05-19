@@ -96,5 +96,4 @@
 
 ## 결론
 
-정적 대조상 eval assertions는 현재 스킬/템플릿과 **대체로 align**.  
-단, eval-1이 전제하는 `ship-summary.md` 계약과 template gap은 **실행 eval 재현 시 with_skill 실패 가능성**을 높임. canonical·template 수정 후 재실행 권장.
+정적 대조상 eval assertions는 v1.0.3 스킬/템플릿과 align. ship-summary template gap은 v1.0.3에서 해소됨.
