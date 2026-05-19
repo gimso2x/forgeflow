@@ -9,6 +9,7 @@ adaptive_routing:
     risk_keyword: 3.0
   thresholds:
     low: 10.0
+    mid: 17.0
     high: 25.0
 routes:
   small:
@@ -22,8 +23,8 @@ routes:
     stages: [clarify, plan, execute, quality-review, finalize]
     max_retries: 3
     traits:
-      - multiple steps
-      - moderate scope
+      - "light (score 10-17): few files, scoped changes"
+      - "full (score 17-25): cross-module or service-level changes"
       - verification needed
   high:
     stages: [clarify, plan, execute, spec-review, quality-review, finalize, long-run]

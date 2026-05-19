@@ -27,6 +27,7 @@
           "additionalProperties": {"type": "number"},
           "properties": {
             "low": {"type": "number"},
+            "mid": {"type": "number"},
             "high": {"type": "number"}
           }
         }

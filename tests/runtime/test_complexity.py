@@ -93,7 +93,7 @@ class TestAssessComplexity:
         assert score.route_name == "small"
         assert score.raw_score < 10.0
 
-    def test_medium_complexity_brief(self) -> None:
+    def test_light_complexity_brief(self) -> None:
         brief = (
             "The module must handle errors. It should log failures. "
             "Update src/main.py, src/utils.py, src/config.py. "
@@ -101,8 +101,22 @@ class TestAssessComplexity:
             "from pathlib import Path"
         )
         score = assess_complexity(brief)
+        assert score.level == "LIGHT"
+        assert score.route_name == "medium"
+        assert score.raw_score >= 10.0
+        assert score.raw_score < 17.0
+
+    def test_medium_complexity_brief(self) -> None:
+        brief = (
+            "The module must handle errors. It should log failures. "
+            "Update src/main.py, src/utils.py, src/config.py, src/api.py, src/db.py. "
+            "Required: rate limiting. Need to add retries. Must preserve backwards compatibility."
+            "from pathlib import Path import sys import os"
+        )
+        score = assess_complexity(brief)
         assert score.level == "MEDIUM"
         assert score.route_name == "medium"
+        assert score.raw_score >= 17.0
 
     def test_high_complexity_brief(self) -> None:
         brief = (
@@ -272,6 +286,8 @@ class TestIntegration:
         assert w.risk_keyword == 5.0
         assert w.low_threshold == 8.0
         assert w.high_threshold == 20.0
+        # mid defaults when not specified
+        assert w.mid_threshold == 17.0
         # defaults preserved
         assert w.estimated_lines == 0.1
         assert w.requirement_count == 2.0
