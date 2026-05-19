@@ -17,6 +17,12 @@
 ## Architecture Notes
 <!-- Key design decisions affecting execution order -->
 
+## Applied Evolution Rules
+<!-- Carry forward rules from brief.md and state how this plan applies them. -->
+- **Project active rules**:
+- **Global advisory rules**:
+- **Plan impact**:
+
 ## Tasks
 
 ### Task 1: <!-- name -->

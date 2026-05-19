@@ -44,6 +44,7 @@ user request
 - `implementation-notes.md` — 실행 진행 상태, 결정 기록, 편차
 - `review-report.md` — review 결과 (spec + quality)
 - `eval-record.md` — 재사용 학습 기록 (high-risk)
+- `evolution-rule.md` — 반복 패턴/실수를 다음 작업에 적용하는 규칙 (template: `templates/evolution-rule.md`)
 
 ## Slash Skills
 
@@ -65,4 +66,5 @@ user request
 - Review는 읽기 전용. 코드 수정 금지 — findings에 기록 후 worker에게 돌려보냄.
 - Verification은 실제 명령 기반. hallucinated command 금지.
 - 역할 분리: 구현 세션과 리뷰 세션은 분리. 구현자의 자체 승인은 승인이 아님.
-- 진화 규칙: `.forgeflow/evolution/`에 저장. 자동 커밋 금지, 리뷰 후에만 활성화.
+- 진화 규칙: `.forgeflow/evolution/`에 저장. long-run이 `proposed/`에 후보를 만들고, review 승인 후 `active/`로 활성화합니다.
+- Active project rules는 다음 clarify/plan/execute에서 자동으로 읽어 적용합니다. Global rules(`~/.forgeflow/evolution/active/*.md`)는 advisory only이며 hard block하지 않습니다.

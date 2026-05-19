@@ -87,9 +87,7 @@ Before preparing handoff, read the latest `review-report.md`, `brief.md`, and `e
 3. Ensure review passed; do not ship blocked work.
 4. Confirm there is no unresolved blocker, and that handoff evidence is preserved in the active task directory before preparing the final summary.
 
-### 5. Final Polish and Simplification Loop
-
-Analyze the **actually changed code** (`git diff HEAD~1 HEAD` or equivalent) for quality before shipping. This is a read-first analysis: if modifications are needed, hand back to execute rather than editing code during ship.
+5. **Final Polish and Simplification Loop**: Analyze the **actually changed code** (`git diff HEAD~1 HEAD` or equivalent) for quality before shipping. This is a read-first analysis: if modifications are needed, hand back to execute rather than editing code during ship.
 
 #### Analysis (read-only)
 

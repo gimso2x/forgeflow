@@ -75,9 +75,9 @@ observe → propose → validate → activate → retire
 ```
 
 1. **Observe**: During long-run, a reusable pattern or failure rule is identified with concrete evidence.
-2. **Propose**: Write a rule candidate to `.forgeflow/evolution/proposed/<rule-name>.md` with: trigger condition, expected behavior, evidence reference from `eval-record.md`.
+2. **Propose**: Write each rule candidate using `templates/evolution-rule.md` to `.forgeflow/evolution/proposed/<rule-name>.md` with trigger, application stage, expected behavior, enforcement mode, false-positive guard, and evidence reference from `eval-record.md`.
 3. **Validate**: The rule candidate must be reviewed through a normal review cycle. Do not auto-commit rules.
-4. **Activate**: Move validated rules to `.forgeflow/evolution/active/`. Active rules are referenced by future clarify/plan stages.
+4. **Activate**: Move validated project rules to `.forgeflow/evolution/active/`. Future clarify/plan/execute stages load active project rules automatically. Global rules remain advisory and require explicit user approval before writing outside the repository.
 5. **Retire**: When a rule no longer applies or causes friction, move it to `.forgeflow/evolution/retired/` with a retirement reason.
 
 ### Scope boundary
@@ -93,6 +93,7 @@ A pattern or failure rule is a valid evolution candidate only when:
 2. It describes a trigger condition and expected behavior, not just a vague sentiment.
 3. It is not already covered by an active rule.
 4. It is not project-specific trivia disguised as a general rule.
+5. It defines whether the scope is `project` or `global-advisory`; global candidates must not become hard enforcement rules.
 
 ### Anti-patterns
 
@@ -107,9 +108,11 @@ A pattern or failure rule is a valid evolution candidate only when:
 1. Review the task's `brief.md`, review reports, and any decision artifacts.
 2. Extract only patterns/failures that are reusable outside this task.
 3. For each candidate, verify it has concrete evidence (command output, test result, code diff, decision reference).
-4. Write `eval-record.md` following `templates/eval-record.md` format.
-5. If patterns warrant memory writes, note them in the Recommendations section with target paths.
-6. Report what was captured and why it matters for future work.
+4. Write `eval-record.md` following `templates/eval-record.md` format, including `Evolution Rule Candidates` when a rule is warranted.
+5. For each warranted rule candidate, create or update `.forgeflow/evolution/proposed/<rule-name>.md` from `templates/evolution-rule.md`; create the proposed directory first if it is missing.
+6. If a candidate is suggested for global reuse, keep `Scope: global-advisory` and `Enforcement Mode: advisory`; do not write outside the repository unless the user explicitly approves it.
+7. If patterns warrant memory writes, note them in the Recommendations section with target paths.
+8. Report what was captured and why it matters for future work.
 
 ## Anti-patterns
 

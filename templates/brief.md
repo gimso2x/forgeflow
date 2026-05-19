@@ -44,6 +44,12 @@
 <!-- Bounded assumptions for non-blocking unknowns -->
 -
 
+## Applied Evolution Rules
+<!-- Rules loaded during clarify. Project active rules are required; global rules are advisory. -->
+- **Project active rules**: <!-- .forgeflow/evolution/active/*.md that matched -->
+- **Global advisory rules**: <!-- ~/.forgeflow/evolution/active/*.md that matched -->
+- **Ignored rules**: <!-- rules checked but not applicable, with reason -->
+
 ## Open Questions
 <!-- Blockers that must be resolved before proceeding -->
 -

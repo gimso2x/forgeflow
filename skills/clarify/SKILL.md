@@ -66,6 +66,19 @@ When the user requests an exact output (label only, list only, dry run), return 
 - List questions: list them inline. Do not call interactive tools unless the user asks.
 - "Do not run commands": name manual checks as "manual inspection", not as if they ran.
 
+## Evolution preflight
+
+Unless the prompt is exact-output, label-only, dry-run, or says not to inspect files, check evolution rules before route selection:
+
+1. Load project active rules from `.forgeflow/evolution/active/*.md` if the directory exists.
+2. Load global advisory rules from `~/.forgeflow/evolution/active/*.md` if available.
+3. Match rules by their `Trigger` and `Application Stage` fields.
+4. Record matching rules in the brief's `Applied Evolution Rules` section.
+5. Project active rules are required constraints for this repository. Global rules are advisory only: they may guide clarify/plan, but they must not block or force hard enforcement.
+6. If a project active rule conflicts with the user request, surface it as a blocker question with a recommended resolution.
+
+This is how ForgeFlow learns from prior work: long-run proposes rules, review validates them, active rules are loaded automatically by future clarify/plan/execute stages.
+
 ## WHERE grounding
 
 Before routing anything non-trivial, calibrate WHERE so intake is neither too heavy for toys nor too light for dangerous work.
@@ -96,6 +109,7 @@ For exact-count, dry-run, or response-only prompts, do not force the WHERE inter
 ## Procedure
 
 1. Inspect relevant repo context before inventing scope.
+   - Run the Evolution preflight first when allowed, then map matched rules into brief.md.
    - Map Instructions, Tools, Environment, State, and Feedback into brief fields. Use Environment Notes, tech stack, Open Questions, and Verification Gates for missing context instead of creating a separate harness artifact.
    - If an Environment or Tools gap prevents execution, add it to Open Questions as a blocker and ask before routing to plan or execute.
    - Surface confusion instead of guessing. If the request has competing interpretations that materially change scope, say so in the brief.

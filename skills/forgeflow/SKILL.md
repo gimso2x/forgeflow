@@ -58,6 +58,7 @@ All artifacts are Markdown files written to `.forgeflow/tasks/<task-id>/`:
 - `roadmap.md` for epic route: milestone DAG and statuses (template: `templates/roadmap.md`)
 - `ship-summary.md` — final handoff summary (created by ship)
 - `eval-record.md` — reusable learnings for high/epic routes (template: `templates/eval-record.md`)
+- `evolution-rule.md` — reusable rule candidate or active rule (template: `templates/evolution-rule.md`)
 
 ## Status analysis before routing
 
@@ -136,6 +137,16 @@ worker C ──┘
 
 Plans for high/epic routes should explicitly name the execution pattern in the Architecture Notes section.
 
+## Evolution rule flow
+
+ForgeFlow turns repeated patterns and mistakes into Markdown rules without restoring the old Python runtime:
+
+1. `long-run` records evidence-backed candidates in `eval-record.md` and `.forgeflow/evolution/proposed/*.md` using `templates/evolution-rule.md`.
+2. `review` validates candidate evidence, false-positive guard, scope, enforcement mode, and rollback/retirement path.
+3. Approved project rules move to `.forgeflow/evolution/active/` and are loaded automatically by future `clarify`, `plan`, and `execute` stages.
+4. Global rules live under `~/.forgeflow/evolution/active/*.md`, but they are advisory only and cannot hard block a project task.
+5. Retired rules move to `.forgeflow/evolution/retired/` with a retirement reason.
+
 ## Strict response constraints
 
 When the user asks for an exact count, exact format, or "only" output, that instruction overrides the normal artifact template. Return exactly what was requested and nothing extra.
@@ -152,6 +163,7 @@ When the user says "do not run commands", do not propose command execution as if
 6. Keep state in artifacts/files, not just chat history.
 7. Each plan step implements only its own scope. Do not implement future steps early.
 8. The review stage is read-only verification. Do not use Write or Edit during review. Record required fixes in `review-report.md` findings and hand back to the worker.
+9. Project active evolution rules are required constraints when their trigger and application stage match. Global evolution rules are advisory only.
 
 ## Operator prompts
 

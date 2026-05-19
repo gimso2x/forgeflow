@@ -57,6 +57,13 @@
 ## Safe for Next Stage
 <!-- yes | no -->
 
+## Evolution Rule Review
+<!-- approved | changes_requested | not_applicable -->
+- **Candidates Reviewed**:
+- **Activation Guidance**:
+- **Scope Check**:
+- **Evidence Check**:
+
 ## Next Action
 <!-- What should happen next -->
 

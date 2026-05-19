@@ -71,6 +71,20 @@ When constructing the Verification Plan, prefer automated gates over manual revi
 2. **Code tasks**: Use `contract_check` for every step. Add `screen_count_check` or `cross_document_consistency_check` when the task affects UI catalogs or cross-file references.
 3. **Mixed tasks**: Apply documentation gates to documentation steps and code gates (`build`, `lint`, `test`, `type_check`) to code steps.
 
+## Evolution rule application
+
+Before decomposing tasks, read the brief's `Applied Evolution Rules` section and, if command/file inspection is allowed, re-check active rule directories:
+
+- Project active: `.forgeflow/evolution/active/*.md`
+- Global advisory: `~/.forgeflow/evolution/active/*.md`
+
+Apply rules this way:
+
+1. Project active rules whose trigger matches the task become plan constraints, verification gates, or explicit non-goals.
+2. Global advisory rules may shape the plan but cannot block execution by themselves.
+3. If a project active rule changes task ordering, file scope, or verification, record that under `Applied Evolution Rules` in plan.md.
+4. If no active rules apply, record `none` instead of silently skipping this section.
+
 ## Minimum plan gate
 
 Before crossing `plan -> execute`, the plan must make these sections explicit:
@@ -163,7 +177,7 @@ If the user explicitly includes `--yes`, `--auto-approve`, `--non-interactive`, 
 
 ### Phase 1: Load and map
 
-1. Read the brief/requirements fully. Map Context Brief fields to plan sections:
+1. Read the brief/requirements fully. Apply Evolution rule application before task decomposition. Map Context Brief fields to plan sections:
 
    | Brief Field | Plan Mapping |
    |-------------|-------------|
@@ -171,6 +185,7 @@ If the user explicitly includes `--yes`, `--auto-approve`, `--non-interactive`, 
    | Scope (In/Out) | Work scope section |
    | Technical Context | Architecture + tech stack + file structure basis |
    | Constraints | Reflected during task decomposition |
+   | Applied Evolution Rules | Plan constraints, verification gates, or advisory notes |
    | Acceptance Criteria | Self-review checklist |
    | Open Questions | Recorded as bounded assumptions |
 

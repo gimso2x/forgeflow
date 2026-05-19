@@ -75,6 +75,21 @@ The exit prompt and next-step guidance depend on the active route:
 
 Do not end the execute stage without updating `implementation-notes.md`. An execute pass that leaves no state artifact is incomplete.
 
+## Evolution rule enforcement
+
+Before editing files, load active evolution rules when file inspection is allowed:
+
+- Project active rules: `.forgeflow/evolution/active/*.md`
+- Global advisory rules: `~/.forgeflow/evolution/active/*.md`
+
+Apply them this way:
+
+1. Project active rules whose `Trigger` and `Application Stage` match the task are required execution constraints.
+2. Global advisory rules may guide execution, but they must not block or force hard enforcement.
+3. Record applied rules and any ignored advisory rules in `implementation-notes.md` under Decisions or Evidence.
+4. If a project active rule would be violated, stop before editing and mark the step `blocked` with the rule id and expected behavior.
+5. If the plan omitted an applicable active rule, treat it as a plan deviation and record why before continuing.
+
 ## File write and output discipline
 
 Default to **artifact-first mode**. Keep execution evidence in `.forgeflow/tasks/<task-id>/implementation-notes.md` and update it before and after code changes unless the user explicitly asks for a dry run, exact-output response, or no-write simulation.
@@ -123,12 +138,13 @@ If the user explicitly includes `--yes`, `--auto-approve`, `--non-interactive`, 
 ## Procedure
 
 1. Confirm route and current stage. Read `brief.md` to determine route.
-2. Initialize `implementation-notes.md` in the active task directory if it does not exist (use `templates/implementation-notes.md`). Set `Current Stage: execute`, `Status: in_progress`.
-3. Initialize `run-ledger.md` from `templates/run-ledger.md` if it does not exist. Set all task statuses from `plan.md` as `pending`.
-4. Write `checkpoint.md` from `templates/checkpoint.md` with `Current Stage: execute`, `Active Task: first pending task`, `Next Action: begin first plan step`.
-5. Read Contracts section from `plan.md` before editing when present.
+2. Run Evolution rule enforcement before editing files.
+3. Initialize `implementation-notes.md` in the active task directory if it does not exist (use `templates/implementation-notes.md`). Set `Current Stage: execute`, `Status: in_progress`.
+4. Initialize `run-ledger.md` from `templates/run-ledger.md` if it does not exist. Set all task statuses from `plan.md` as `pending`.
+5. Write `checkpoint.md` from `templates/checkpoint.md` with `Current Stage: execute`, `Active Task: first pending task`, `Next Action: begin first plan step`.
+6. Read Contracts section from `plan.md` before editing when present.
    - **Environment safety net**: If `brief.md` lacks environment notes, run: `git rev-parse --is-inside-work-tree 2>/dev/null; ls node_modules .venv vendor 2>/dev/null | head -3`. If dependencies are missing and a package manager is detected, stop and ask: "종속성이 설치되지 않았습니다. 설치를 먼저 진행하시겠습니까?" Do NOT attempt installation yourself. If no git and route is medium/high, warn that ship cannot commit/PR, then continue.
-4. For each task in the plan:
+7. For each task in the plan:
    - **TDD Red**: Write/update tests to fail.
    - **Execute Implementation**: Implement minimal code to pass. Prefer the smallest implementation that satisfies the acceptance criteria.
    - **Context budget**: Do not re-read a file already in context unless it was edited since. Before reading a file, ask: "Do I need the full content, or just a specific section?" If the latter, read only the relevant lines. Batch multiple file inspections into parallel tool calls where possible.
@@ -140,14 +156,14 @@ If the user explicitly includes `--yes`, `--auto-approve`, `--non-interactive`, 
    - **Architectural Depth**: Ensure implementation follows the plan's architectural intent (Depth, Leverage, Locality) and avoids creating new shallow modules.
    - If blocked, apply **Hypothesis-Driven Debugging**.
    - Nothing speculative: no drive-by abstractions, unrelated cleanup, hidden migrations, or "while I'm here" rewrites unless the approved plan names them.
-5. Apply adapter-aware execution: keep ForgeFlow artifacts, gates, and evidence paths backend-neutral. If the backend cannot produce required evidence, record that limitation in implementation-notes.md and block or downgrade the affected verification gate instead of silently proceeding.
-6. Treat fulfills, journeys, and verify_plan as verification obligations, not decoration.
-7. Run focused verification after each meaningful change.
-8. Update `implementation-notes.md` immediately when starting and finishing each step. Step state must be incremental: `pending -> in_progress -> completed`. Do not batch-mark all steps as `completed` only at the end. If a step cannot finish, mark it `blocked` with evidence.
+8. Apply adapter-aware execution: keep ForgeFlow artifacts, gates, and evidence paths backend-neutral. If the backend cannot produce required evidence, record that limitation in implementation-notes.md and block or downgrade the affected verification gate instead of silently proceeding.
+9. Treat fulfills, journeys, and verify_plan as verification obligations, not decoration.
+10. Run focused verification after each meaningful change.
+11. Update `implementation-notes.md` immediately when starting and finishing each step. Step state must be incremental: `pending -> in_progress -> completed`. Do not batch-mark all steps as `completed` only at the end. If a step cannot finish, mark it `blocked` with evidence.
    - **Contract checkpoint**: Before marking any plan task complete, verify: "Does this code violate a stated contract?" Record in evidence as `contract_check:PASS <task>` or `contract_check:FAIL <task> reason="..."`.
-9. After all steps complete, update implementation-notes.md to `Status: completed` with all passed gates in Evidence.
-10. Stop if requirements become ambiguous; return to `/forgeflow:clarify`.
-11. Deliver the route-aware exit prompt (see Exit Condition above). **완료 보고를 반드시 사용자에게 출력**:
+12. After all steps complete, update implementation-notes.md to `Status: completed` with all passed gates in Evidence.
+13. Stop if requirements become ambiguous; return to `/forgeflow:clarify`.
+14. Deliver the route-aware exit prompt (see Exit Condition above). **완료 보고를 반드시 사용자에게 출력**:
     1. 완료 요약 (1-2문장, 한국어)
     2. 검증 결과: lint/build/test 각각 pass/fail + 숫자
     3. 변경 파일 목록

@@ -17,6 +17,7 @@ Use this skill to review completed ForgeFlow work independently.
 - `plan.md` from plan stage
 - `implementation-notes.md` from execute stage
 - `run-ledger.md` from execute stage
+- `.forgeflow/evolution/proposed/*.md` when long-run proposed evolution rules
 - `requirements.md` if available
 - Final codebase state
 - Verification commands/results
@@ -33,6 +34,7 @@ Write `review-report.md` to the active task directory using `templates/review-re
 - Quality Assessment checklist (for quality review)
 - Open Blockers (list or "none")
 - Safe for Next Stage (yes | no)
+- Evolution Rule Review (approved | changes_requested | not_applicable)
 - Next Action
 - Approved By (only if verdict is approved)
 
@@ -149,6 +151,17 @@ This gate applies regardless of route size. Even small-route reviews must run te
 - Name verification evidence: commands run, artifacts inspected, or missing evidence.
 - Treat broad staging, destructive git actions, and dirty unrelated user work as review risks unless explicitly justified and approved.
 
+## Evolution rule validation
+
+When `.forgeflow/evolution/proposed/*.md` exists or `eval-record.md` contains `Evolution Rule Candidates`, review the candidate before activation:
+
+1. Confirm every proposed rule follows `templates/evolution-rule.md`.
+2. Confirm `Trigger`, `Application Stage`, `Expected Behavior`, `Evidence`, `False Positive Guard`, `Rollback / Retirement`, and `Review Status` are present.
+3. Confirm the rule has concrete evidence from `eval-record.md`, `review-report.md`, command output, code diff, or decision records.
+4. Confirm `Scope: global-advisory` rules use `Enforcement Mode: advisory` and cannot hard block future tasks.
+5. If approved, record `Review Status: approved` in review output and instruct activation by moving project rules to `.forgeflow/evolution/active/`; do not move files during read-only review.
+6. If rejected or under-specified, record `Review Status: changes_requested` with the missing evidence or false-positive risk.
+
 ## Automation / non-interactive approval mode
 
 If the user explicitly includes `--yes`, `--auto-approve`, `--non-interactive`, or says to continue through ForgeFlow stages without further approval, treat that as approval for the current bounded ForgeFlow sequence. Do not pause at the normal stage-boundary y/n prompt; proceed to the next requested ForgeFlow stage after writing the required artifact for the current stage. This only applies inside the stated task scope and never overrides a blocker, failed verification, missing required artifact, or unsafe/destructive action.
@@ -159,6 +172,7 @@ Before reviewing, reconstruct the task state from artifacts instead of chat memo
 
 - Read `implementation-notes.md` for current stage/status, decisions, deviations, progress, evidence, and blockers.
 - Read `run-ledger.md` for per-task execution status (pending/running/done/blocked), evidence refs, and blockers. Cross-check claimed completion against ledger entries.
+- Read `.forgeflow/evolution/proposed/*.md` when present and validate candidates against `templates/evolution-rule.md`.
 - Read `plan.md` to confirm planned tasks, requirements, contracts, and verification plan.
 - Read `brief.md` for route, scope, acceptance criteria, and constraints.
 
@@ -177,7 +191,8 @@ Before reviewing, reconstruct the task state from artifacts instead of chat memo
     - Tradeoffs should be evaluated: was the chosen alternative the smallest safe option?
     - If `implementation-notes.md` is missing entirely, note it as a minor finding (the execute stage should have created it).
 9. **Cross-check run-ledger.md**: Verify that claimed task completions in implementation-notes match the run-ledger status. If a task is marked `done` in implementation-notes but `running` or `pending` in run-ledger, flag it as an inconsistency. The run-ledger is the execution truth.
-10. Apply the appropriate review rubric (Spec or Quality — see Review Rubrics section above). For quality review, also apply these discipline heuristics:
+10. **Validate evolution rule candidates**: If proposed rules exist, check them against Evolution rule validation. Approval may authorize project-local activation, but review remains read-only and must not move files itself.
+11. Apply the appropriate review rubric (Spec or Quality — see Review Rubrics section above). For quality review, also apply these discipline heuristics:
    - Every changed line should trace directly to the user's request; anything else needs explicit scope approval.
    - Flag drive-by refactors, speculative abstractions, or unrelated cleanup as scope drift unless the plan explicitly authorized them.
    - Was the change the smallest safe change that satisfies the request?
@@ -186,14 +201,14 @@ Before reviewing, reconstruct the task state from artifacts instead of chat memo
    - Did the implementation follow existing codebase patterns instead of inventing a new local religion?
    - Were assumptions about types, APIs, behavior, and test coverage verified against actual files?
    - If performance was touched, was the bottleneck measured before and after the change?
-11. Classify findings by severity: blocker, major, minor, nit.
-12. **Write `review-report.md`** (or `review-report-spec.md` / `review-report-quality.md` for high/epic) to the active task directory. The verdict in the file is the only valid verdict.
-13. Return a clear verdict in chat that matches the file. If verdict is `changes_requested` or `blocked`, update `implementation-notes.md` so status reflects the review gate.
-14. **다음 단계 안내** — 반드시 사용자에게 출력:
+12. Classify findings by severity: blocker, major, minor, nit.
+13. **Write `review-report.md`** (or `review-report-spec.md` / `review-report-quality.md` for high/epic) to the active task directory. The verdict in the file is the only valid verdict.
+14. Return a clear verdict in chat that matches the file. If verdict is `changes_requested` or `blocked`, update `implementation-notes.md` so status reflects the review gate.
+15. **다음 단계 안내** — 반드시 사용자에게 출력:
     - If `approved`: "리뷰 통과. 출하 준비 완료. `/forgeflow:ship`을 실행해주세요."
     - If `changes_requested`: "수정이 필요합니다:" + 각 P0/P1 이슈를 `file:line — description` 형태로 나열 + "`/forgeflow:execute`로 수정 후 다시 `/forgeflow:review`를 요청해주세요."
     - Do NOT auto-proceed to ship. 반드시 사용자가 다음 단계를 실행하도록 대기.
-15. Do not call `/forgeflow:ship` unless verdict=approved, safe_for_next_stage=yes, and open_blockers=none are all true in the **written** `review-report.md`.
+16. Do not call `/forgeflow:ship` unless verdict=approved, safe_for_next_stage=yes, and open_blockers=none are all true in the **written** `review-report.md`.
 
 Do not merge spec-review and quality-review for high/epic work.
 
