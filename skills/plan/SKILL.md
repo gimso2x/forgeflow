@@ -199,6 +199,11 @@ If the user explicitly includes `--yes`, `--auto-approve`, `--non-interactive`, 
    - Worker: executes steps exactly as written, no judgments beyond the plan
    - Validator: checks test pass/fail, code quality, spec compliance
 
+   **Execution Pattern Selection** — for high/epic routes, explicitly choose and record the execution pattern in Architecture Notes:
+   - **pipeline + producer-reviewer** (default): sequential steps with gates between them. Use when steps have data or state dependencies.
+   - **fan-out/fan-in + producer-reviewer**: parallel workers, single reviewer. Use when 3+ tasks touch independent file groups with no shared state.
+   - Medium routes default to pipeline. High/epic routes should consider fan-out/fan-in when the plan has 3+ independent parallel tasks.
+
    **Task Granularity** — each step is one action (2-5 minutes of work):
    - "Write the failing test" — one step
    - "Run it to confirm it fails" — one step

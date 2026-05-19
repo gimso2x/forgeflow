@@ -22,6 +22,8 @@ Use this skill to execute the selected ForgeFlow route.
 
 - Code changes matching the plan
 - `implementation-notes.md` — real-time log maintained throughout execution (template: `templates/implementation-notes.md`)
+- `run-ledger.md` — execution truth tracking per-task status (template: `templates/run-ledger.md`)
+- `checkpoint.md` — tactical resume pointer updated at stage entry/exit (template: `templates/checkpoint.md`)
 - Verification output summary
 
 ### implementation-notes.md
@@ -122,7 +124,9 @@ If the user explicitly includes `--yes`, `--auto-approve`, `--non-interactive`, 
 
 1. Confirm route and current stage. Read `brief.md` to determine route.
 2. Initialize `implementation-notes.md` in the active task directory if it does not exist (use `templates/implementation-notes.md`). Set `Current Stage: execute`, `Status: in_progress`.
-3. Read Contracts section from `plan.md` before editing when present.
+3. Initialize `run-ledger.md` from `templates/run-ledger.md` if it does not exist. Set all task statuses from `plan.md` as `pending`.
+4. Write `checkpoint.md` from `templates/checkpoint.md` with `Current Stage: execute`, `Active Task: first pending task`, `Next Action: begin first plan step`.
+5. Read Contracts section from `plan.md` before editing when present.
    - **Environment safety net**: If `brief.md` lacks environment notes, run: `git rev-parse --is-inside-work-tree 2>/dev/null; ls node_modules .venv vendor 2>/dev/null | head -3`. If dependencies are missing and a package manager is detected, stop and ask: "종속성이 설치되지 않았습니다. 설치를 먼저 진행하시겠습니까?" Do NOT attempt installation yourself. If no git and route is medium/high, warn that ship cannot commit/PR, then continue.
 4. For each task in the plan:
    - **TDD Red**: Write/update tests to fail.
@@ -130,6 +134,9 @@ If the user explicitly includes `--yes`, `--auto-approve`, `--non-interactive`, 
    - **Context budget**: Do not re-read a file already in context unless it was edited since. Before reading a file, ask: "Do I need the full content, or just a specific section?" If the latter, read only the relevant lines. Batch multiple file inspections into parallel tool calls where possible.
    - **Implementation Notes**: When a decision is made that was not in the plan, when the implementation deviates from the spec, when a tradeoff is chosen, or when an open question arises — **append an entry to `implementation-notes.md` immediately**. Do not batch these until the end.
    - **TDD Refactor**: Clean up implementation.
+   - **Run Ledger**: When starting a task, set its status to `running` in `run-ledger.md`. When completing, set to `done` with evidence refs. When blocked, set to `blocked` with blocker description. Update incrementally, not in batch.
+   - **Checkpoint**: Update `checkpoint.md` after each task completes: set `Active Task` to the next task, update `Latest Artifacts` table. Ensures resume capability after context compaction.
+   - **Role awareness**: You are the implementation role. You edit code and update artifacts, but you do not approve your own work. Review is a separate stage with a separate role boundary. Do not merge implementation and review in the same turn.
    - **Architectural Depth**: Ensure implementation follows the plan's architectural intent (Depth, Leverage, Locality) and avoids creating new shallow modules.
    - If blocked, apply **Hypothesis-Driven Debugging**.
    - Nothing speculative: no drive-by abstractions, unrelated cleanup, hidden migrations, or "while I'm here" rewrites unless the approved plan names them.

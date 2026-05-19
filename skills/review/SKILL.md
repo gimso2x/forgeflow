@@ -16,6 +16,7 @@ Use this skill to review completed ForgeFlow work independently.
 - `brief.md` from clarify stage
 - `plan.md` from plan stage
 - `implementation-notes.md` from execute stage
+- `run-ledger.md` from execute stage
 - `requirements.md` if available
 - Final codebase state
 - Verification commands/results
@@ -114,6 +115,8 @@ For exact-count list prompts, output numbered lines only. No preamble, heading, 
 
 Review evidence is not fan fiction. Use a blocker-first verdict: unresolved blocker, missing required artifact, failed required verification, or uninspected claimed evidence prevents approval before any quality praise matters.
 
+**Role separation principle**: The implementing session's self-report is input for review, not a substitute. Do not approve work based solely on the implementer's summary. Cross-check claimed evidence against `run-ledger.md` and `implementation-notes.md`. If the implementer says a test passed, verify it independently. The reviewer is an independent role with a separate responsibility boundary.
+
 - Claim only what you directly observed in this review turn or what is explicitly present in provided artifacts.
 - If a worker, previous assistant, or user says a command passed, cite it explicitly with the phrase `reported evidence` unless you personally ran or inspected the command output in this turn.
 - Use `observed evidence` only for command outputs, artifacts, files, or diffs you directly inspected in this review turn.
@@ -155,6 +158,7 @@ If the user explicitly includes `--yes`, `--auto-approve`, `--non-interactive`, 
 Before reviewing, reconstruct the task state from artifacts instead of chat memory:
 
 - Read `implementation-notes.md` for current stage/status, decisions, deviations, progress, evidence, and blockers.
+- Read `run-ledger.md` for per-task execution status (pending/running/done/blocked), evidence refs, and blockers. Cross-check claimed completion against ledger entries.
 - Read `plan.md` to confirm planned tasks, requirements, contracts, and verification plan.
 - Read `brief.md` for route, scope, acceptance criteria, and constraints.
 
@@ -172,7 +176,8 @@ Before reviewing, reconstruct the task state from artifacts instead of chat memo
     - Open questions with status `open` are blockers until resolved.
     - Tradeoffs should be evaluated: was the chosen alternative the smallest safe option?
     - If `implementation-notes.md` is missing entirely, note it as a minor finding (the execute stage should have created it).
-9. Apply the appropriate review rubric (Spec or Quality — see Review Rubrics section above). For quality review, also apply these discipline heuristics:
+9. **Cross-check run-ledger.md**: Verify that claimed task completions in implementation-notes match the run-ledger status. If a task is marked `done` in implementation-notes but `running` or `pending` in run-ledger, flag it as an inconsistency. The run-ledger is the execution truth.
+10. Apply the appropriate review rubric (Spec or Quality — see Review Rubrics section above). For quality review, also apply these discipline heuristics:
    - Every changed line should trace directly to the user's request; anything else needs explicit scope approval.
    - Flag drive-by refactors, speculative abstractions, or unrelated cleanup as scope drift unless the plan explicitly authorized them.
    - Was the change the smallest safe change that satisfies the request?
@@ -181,14 +186,14 @@ Before reviewing, reconstruct the task state from artifacts instead of chat memo
    - Did the implementation follow existing codebase patterns instead of inventing a new local religion?
    - Were assumptions about types, APIs, behavior, and test coverage verified against actual files?
    - If performance was touched, was the bottleneck measured before and after the change?
-10. Classify findings by severity: blocker, major, minor, nit.
-11. **Write `review-report.md`** (or `review-report-spec.md` / `review-report-quality.md` for high/epic) to the active task directory. The verdict in the file is the only valid verdict.
-12. Return a clear verdict in chat that matches the file. If verdict is `changes_requested` or `blocked`, update `implementation-notes.md` so status reflects the review gate.
-13. **다음 단계 안내** — 반드시 사용자에게 출력:
+11. Classify findings by severity: blocker, major, minor, nit.
+12. **Write `review-report.md`** (or `review-report-spec.md` / `review-report-quality.md` for high/epic) to the active task directory. The verdict in the file is the only valid verdict.
+13. Return a clear verdict in chat that matches the file. If verdict is `changes_requested` or `blocked`, update `implementation-notes.md` so status reflects the review gate.
+14. **다음 단계 안내** — 반드시 사용자에게 출력:
     - If `approved`: "리뷰 통과. 출하 준비 완료. `/forgeflow:ship`을 실행해주세요."
     - If `changes_requested`: "수정이 필요합니다:" + 각 P0/P1 이슈를 `file:line — description` 형태로 나열 + "`/forgeflow:execute`로 수정 후 다시 `/forgeflow:review`를 요청해주세요."
     - Do NOT auto-proceed to ship. 반드시 사용자가 다음 단계를 실행하도록 대기.
-14. Do not call `/forgeflow:ship` unless verdict=approved, safe_for_next_stage=yes, and open_blockers=none are all true in the **written** `review-report.md`.
+15. Do not call `/forgeflow:ship` unless verdict=approved, safe_for_next_stage=yes, and open_blockers=none are all true in the **written** `review-report.md`.
 
 Do not merge spec-review and quality-review for high/epic work.
 

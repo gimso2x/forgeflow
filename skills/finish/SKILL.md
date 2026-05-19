@@ -60,7 +60,9 @@ Use `.forgeflow/tasks/<task-id>/` for any task-local finish evidence unless the 
 
 ## Status analysis preflight
 
-Before presenting finish options, reconstruct the active task status from artifacts: read `brief.md`, latest `review-report.md`, `eval-record.md`, and `implementation-notes.md` from the active task directory. Identify the active task by inspecting `.forgeflow/tasks/` directories.
+Before presenting finish options, reconstruct the active task status from artifacts: read `brief.md`, latest `review-report.md`, `eval-record.md`, `run-ledger.md`, `checkpoint.md`, and `implementation-notes.md` from the active task directory. Identify the active task by inspecting `.forgeflow/tasks/` directories.
+
+Cross-check `run-ledger.md`: all tasks must be `done` or explicitly `blocked` (with documented rationale). If any task is still `running` or `pending`, flag it as incomplete before presenting finish options. The run-ledger is the execution truth.
 
 ## Procedure
 

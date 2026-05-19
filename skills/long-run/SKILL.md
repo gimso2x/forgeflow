@@ -64,6 +64,44 @@ ForgeFlow memory is inspectable local storage:
 
 The long-run stage may recommend a memory write, but the recommendation must point back to evidence. No evidence, no memory.
 
+## Relationship to evolution
+
+ForgeFlow supports an evolution pipeline that turns observed patterns into enforceable workflow rules. Evolution rules are stored as Markdown files in `.forgeflow/evolution/`.
+
+### Rule lifecycle
+
+```
+observe → propose → validate → activate → retire
+```
+
+1. **Observe**: During long-run, a reusable pattern or failure rule is identified with concrete evidence.
+2. **Propose**: Write a rule candidate to `.forgeflow/evolution/proposed/<rule-name>.md` with: trigger condition, expected behavior, evidence reference from `eval-record.md`.
+3. **Validate**: The rule candidate must be reviewed through a normal review cycle. Do not auto-commit rules.
+4. **Activate**: Move validated rules to `.forgeflow/evolution/active/`. Active rules are referenced by future clarify/plan stages.
+5. **Retire**: When a rule no longer applies or causes friction, move it to `.forgeflow/evolution/retired/` with a retirement reason.
+
+### Scope boundary
+
+- **Project scope**: Rules that apply to the current repository. Stored in the repo's `.forgeflow/evolution/`.
+- **Global scope**: Rules that apply across projects. Stored in the user's global ForgeFlow config. Requires explicit user approval to promote.
+
+### Capture criteria for rule candidates
+
+A pattern or failure rule is a valid evolution candidate only when:
+
+1. It has concrete evidence from `eval-record.md` (command output, test result, code diff, or decision reference).
+2. It describes a trigger condition and expected behavior, not just a vague sentiment.
+3. It is not already covered by an active rule.
+4. It is not project-specific trivia disguised as a general rule.
+
+### Anti-patterns
+
+| Anti-Pattern | Why It Fails |
+|---|---|
+| Auto-committing rules without review | Unvalidated rules become technical debt |
+| Proposing rules without evidence | Rules without grounding become cargo cult |
+| Retiring rules silently | Lost history makes the same mistake recur |
+
 ## Procedure
 
 1. Review the task's `brief.md`, review reports, and any decision artifacts.

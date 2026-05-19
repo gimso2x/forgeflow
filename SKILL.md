@@ -39,6 +39,8 @@ user request
 - `brief.md` — 요구사항, 라우트, 제약사항
 - `roadmap.md` — Epic 전용 마일스톤 및 진행 상태
 - `plan.md` — 작업 계획 (task 분해, 검증, 의존성)
+- `run-ledger.md` — 실행 truth (task별 pending/running/done/blocked 상태)
+- `checkpoint.md` — 재개용 전술 포인터 (context compaction 후 복구)
 - `implementation-notes.md` — 실행 진행 상태, 결정 기록, 편차
 - `review-report.md` — review 결과 (spec + quality)
 - `eval-record.md` — 재사용 학습 기록 (high-risk)
@@ -62,3 +64,5 @@ user request
 - Artifact는 항상 Markdown. templates/ 디렉토리에 템플릿이 있습니다.
 - Review는 읽기 전용. 코드 수정 금지 — findings에 기록 후 worker에게 돌려보냄.
 - Verification은 실제 명령 기반. hallucinated command 금지.
+- 역할 분리: 구현 세션과 리뷰 세션은 분리. 구현자의 자체 승인은 승인이 아님.
+- 진화 규칙: `.forgeflow/evolution/`에 저장. 자동 커밋 금지, 리뷰 후에만 활성화.

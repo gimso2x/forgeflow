@@ -15,6 +15,9 @@
 - **Context**:
 - **Choice**:
 - **Rationale**:
+- **Alternatives Considered**: <!-- what else was evaluated -->
+- **Tradeoff**: <!-- what was gained vs sacrificed -->
+- **Rollback Implication**: <!-- what happens if this is reversed, or "irreversible" -->
 
 ## Deviations from Plan
 <!-- Any deviations from the approved plan and why -->

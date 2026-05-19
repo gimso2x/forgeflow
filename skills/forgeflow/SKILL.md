@@ -73,6 +73,69 @@ If the user says "do not write files", "return only", "dry run", "just list", or
 
 When artifacts are mentioned without an explicit path, assume `.forgeflow/tasks/<task-id>/`, not chat-only fallback. Write only under the current project workspace or the active task directory. Never write inside `skills/<skill>/`.
 
+## Role Boundaries
+
+ForgeFlow separates responsibilities across stages. The implementing session must not approve its own work.
+
+### Canonical responsibilities
+
+| Role | Stages | Responsibility |
+|------|--------|----------------|
+| planning | clarify, plan, milestone | scope, decompose, write/update artifacts, define file boundaries |
+| implementation | execute | edit code only inside assigned scope, run validation, update evidence |
+| review | review | inspect artifacts independently, separate reported from observed evidence |
+| learning | long-run | extract reusable patterns, propose evolution rule candidates |
+
+### Role separation principles
+
+1. **Implementation does not self-approve.** The implementer's summary is input for review, not a substitute.
+2. **Review is read-only.** Review records findings in `review-report.md` and hands back to the worker. It never edits code.
+3. **If only one session is available**, keep the role boundary by using separate turns with artifact handoffs. Do not blur implementation and review in the same turn.
+4. **Model binding**: When the shell supports role-specific model selection, prefer the strongest reasoning model for planning/review and a coding-optimized model for execution. The artifact contract records the role boundary; it does not require a central model database.
+
+## Execution Patterns
+
+Different routes use different execution strategies for parallel workers and reviewers.
+
+### Pattern: producer-reviewer (default, all routes)
+
+The implementer (producer) writes code. A separate review pass (reviewer) inspects the result. Every route uses this at minimum.
+
+```
+producer → artifact → reviewer → verdict
+```
+
+### Pattern: pipeline (sequential gates)
+
+Steps execute in order with verification gates between them. Used when steps have data or state dependencies.
+
+```
+step 1 → gate → step 2 → gate → step 3 → final gate
+```
+
+Applied by default for medium routes and all routes with ordered plan steps.
+
+### Pattern: fan-out/fan-in (parallel workers)
+
+Multiple independent workers execute in parallel, then a single reviewer consolidates. Used for high/epic routes when plan tasks touch different files with no shared state.
+
+```
+worker A ──┐
+worker B ──┤ → reviewer → verdict
+worker C ──┘
+```
+
+### When to use which pattern
+
+| Route | Default pattern | When to upgrade |
+|-------|----------------|-----------------|
+| small | pipeline + producer-reviewer | Never — single worker is sufficient |
+| medium | pipeline + producer-reviewer | Upgrade to fan-out when 3+ independent file groups |
+| high | fan-out/fan-in + producer-reviewer | Always — separate spec and quality reviews |
+| epic | fan-out/fan-in per milestone | Always — milestone-level parallel execution |
+
+Plans for high/epic routes should explicitly name the execution pattern in the Architecture Notes section.
+
 ## Strict response constraints
 
 When the user asks for an exact count, exact format, or "only" output, that instruction overrides the normal artifact template. Return exactly what was requested and nothing extra.
