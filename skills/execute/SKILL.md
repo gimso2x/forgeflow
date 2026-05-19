@@ -62,16 +62,14 @@ The exit prompt and next-step guidance depend on the active route:
   ```
   모든 계획 단계 실행 완료. /forgeflow:review를 진행해야 합니다. (y/n)
   ```
-- **high** route: Update progress after each step completes. After final step, the next stage is **mandatory** — do NOT ask whether to review:
+- **high** route: Update progress after each step completes. After final step, review is mandatory — output this prompt and wait for user confirmation:
   ```
-  high route 실행 완료. 독립 review가 필수입니다. /forgeflow:review --type spec 으로 Spec Review를 시작합니다.
+  high route 실행 완료. 독립 review가 필수입니다. /forgeflow:review --type spec 을 진행하시겠습니까? (y/n)
   ```
-  Then immediately invoke `/forgeflow:review --type spec`.
 - **epic** route: Update progress after each step of the current milestone completes. After the final step of the current milestone:
   ```
-  마일스톤 실행 완료. 독립 review가 필수입니다. /forgeflow:review --type spec 으로 Spec Review를 시작합니다.
+  마일스톤 실행 완료. 독립 review가 필수입니다. /forgeflow:review --type spec 을 진행하시겠습니까? (y/n)
   ```
-  Then immediately invoke `/forgeflow:review --type spec`.
 
 Do not end the execute stage without updating `implementation-notes.md`. An execute pass that leaves no state artifact is incomplete.
 

@@ -34,7 +34,11 @@ Also create an empty `implementation-notes.md` scaffold (from `templates/impleme
 
 ## Contract-first traceability for medium/high/epic or brownfield work
 
-For non-trivial work, plan the cross-module contract before task decomposition. Apply the **Architecture Glossary** (Depth, Seam, Locality, etc.) to identify **deepening opportunities** — refactors that turn shallow modules into deep ones.
+For non-trivial work, plan the cross-module contract before task decomposition. Apply the **Architecture Glossary** to identify **deepening opportunities** — refactors that turn shallow modules into deep ones:
+
+- **Depth**: Module's interface should be simpler than its implementation. Prefer deep modules (simple API, complex internals) over shallow ones (interface as complex as implementation).
+- **Seam**: Identify points where behavior can be changed without modifying existing code (interfaces, dependency injection, strategy patterns). These are natural task boundaries.
+- **Locality**: Keep related code together. If a change requires touching many files, consider refactoring for better locality first.
 
 1. Identify interfaces, invariants, data shapes, and compatibility constraints that parallel workers must not break.
 2. If any contract exists, write it into the Contracts section of plan.md and/or a sibling `contracts.md` artifact.

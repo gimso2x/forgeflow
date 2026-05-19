@@ -5,8 +5,17 @@
 ## Route
 <!-- small | medium | high | epic -->
 
+## Requirements
+<!-- Derived from brief.md acceptance criteria -->
+
+## Non-goals
+<!-- Explicitly out-of-scope items from clarify -->
+
 ## Dependencies
 <!-- What must exist before execution starts -->
+
+## Architecture Notes
+<!-- Key design decisions affecting execution order -->
 
 ## Tasks
 
@@ -17,6 +26,7 @@
 - **Expected output**:
 - **Verification**:
 - **Fulfills**: <!-- which acceptance criteria -->
+- **Rollback note**: <!-- if applicable, how to revert -->
 
 ### Task 2: <!-- name -->
 <!-- Copy pattern above -->

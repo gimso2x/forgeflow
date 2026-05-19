@@ -11,6 +11,9 @@
 ## Reviewer
 <!-- Role or identifier -->
 
+## Route Compliance
+<!-- Did execution follow the selected route stages? -->
+
 ## Findings
 
 ### Finding 1: <!-- title -->
@@ -18,6 +21,9 @@
 - **Category**: <!-- spec-compliance | quality | maintainability | risk | security -->
 - **Description**:
 - **Evidence**:
+  - Observed:
+  - Expected:
+  - Missing:
 - **Remediation**:
 
 ## Spec Compliance
@@ -27,6 +33,7 @@
 - [ ] Execution stayed inside scope
 - [ ] No silent fallback or dual-write drift
 - [ ] Evidence sufficient for completion claim
+- [ ] Route stages followed correctly
 
 ## Quality Assessment
 <!-- For quality review -->
@@ -35,6 +42,14 @@
 - [ ] Residual risks documented
 - [ ] Maintainability acceptable for task size
 - [ ] Smallest safe change
+- [ ] No unnecessary abstractions added
+- [ ] TDD cycle followed (red → green → refactor)
+
+## Evidence Classification
+<!-- Summarize evidence quality -->
+- **Observed evidence**: <!-- what was directly verified -->
+- **Reported evidence**: <!-- what the executor claimed -->
+- **Missing evidence**: <!-- what should exist but doesn't -->
 
 ## Open Blockers
 <!-- List blockers or "none" -->
@@ -47,3 +62,7 @@
 
 ## Approved By
 <!-- Name/role, only if verdict is approved -->
+
+## Residual Risks
+<!-- Risks that remain after this review -->
+-
