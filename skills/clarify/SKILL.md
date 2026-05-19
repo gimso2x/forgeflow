@@ -143,11 +143,17 @@ For exact-count, dry-run, or response-only prompts, do not force the WHERE inter
    - Assign an ambiguity score from `0.0` to `1.0`; above `0.2`, either ask blocker questions or record why execution can proceed safely with bounded assumptions.
    - Do not let ambiguity disappear into prose. It must be visible in the brief artifact or response artifact.
 
-5. Score complexity:
-   - 5-8: `small` — one localized change, usually 1-2 files, low ambiguity, no cross-cutting behavior.
-   - 9-16: `medium` — several coordinated files/components, shared state/layout/navigation, moderate test/update surface, but no security/data migration/infra rollback risk. Light (9-12) for few scoped files; full (13-16) for cross-module changes.
-   - 17-24: `high` — auth/security, data migration, payments, production infra, irreversible data changes, broad architecture migration, or many contracts/journeys requiring separate spec and quality review.
-   - 25+: `epic` — massive scope, hierarchical milestone breakdown, multi-week effort.
+5. Score complexity using the documented weighted model:
+   ```text
+   raw_score = file_count*1.0 + estimated_lines*0.1 + requirement_count*2.0 + dependency_count*1.5 + risk_keywords*3.0
+   ```
+   - `< 10`: `small` — one localized change, usually 1-2 files, low ambiguity, no cross-cutting behavior.
+   - `10-16.9`: `medium-light` — several coordinated files/components, scoped state/layout/navigation, moderate test/update surface, but no security/data migration/infra rollback risk.
+   - `17-24.9`: `medium-full` — cross-module or service-level changes that still avoid high-risk auth/security/data/infra boundaries.
+   - `25-49.9`: `high` — auth/security, data migration, payments, production infra, irreversible data changes, broad architecture migration, or many contracts/journeys requiring separate spec and quality review.
+   - `>= 50`: `epic` — massive scope, hierarchical milestone breakdown, multi-week effort.
+
+   Return route label `medium` for both `medium-light` and `medium-full`; record the sub-band in route rationale. The `17.0` mid threshold exists to decide how deep the plan/review detail should be inside the medium route, not to create a separate slash route.
 
 6. Select specialists based on task nature:
    - Auth/Encryption/External Input -> `security-review`

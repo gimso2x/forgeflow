@@ -1,7 +1,7 @@
 ---
 name: forgeflow
 description: Artifact-first delivery workflow for AI coding agents — clarify, plan, execute, review, ship through markdown artifacts and prompt-driven gates
-version: "1.0.0"
+version: "1.0.2"
 category: engineering
 tags: [ai-agents, workflow, artifacts, claude-code, codex, gemini]
 ---
@@ -31,6 +31,24 @@ user request
 | medium  | clarify → plan → execute → review → ship            | 범위 명확, 검증 필요       |
 | high    | clarify → plan → execute → review → ship → long-run | 아키텍처 영향, 롤백 어려움 |
 | epic    | clarify → milestone → plan → execute → review → ship → long-run | 대규모, 멀티윅       |
+
+## Route scoring 기준
+
+v1.x는 Python 런타임을 제거했지만 route 판단은 v0.x의 weighted scoring 기준을 문서 계약으로 유지합니다.
+
+```text
+raw_score = file_count*1.0 + estimated_lines*0.1 + requirement_count*2.0 + dependency_count*1.5 + risk_keywords*3.0
+```
+
+| Score | Route 판단 |
+|---:|---|
+| `< 10` | small |
+| `10-16.9` | medium-light |
+| `17-24.9` | medium-full |
+| `25-49.9` | high |
+| `>= 50` | epic |
+
+`17.0`은 medium 내부의 light/full 경계입니다. Python `complexity.py`가 없으므로 이 값을 바꾸면 `skills/clarify/SKILL.md`, `skills/forgeflow/SKILL.md`, README의 기준을 함께 갱신해야 합니다.
 
 ## Artifacts
 
@@ -68,3 +86,14 @@ user request
 - 역할 분리: 구현 세션과 리뷰 세션은 분리. 구현자의 자체 승인은 승인이 아님.
 - 진화 규칙: `.forgeflow/evolution/`에 저장. long-run이 `proposed/`에 후보를 만들고, review 승인 후 `active/`로 활성화합니다.
 - Active project rules는 다음 clarify/plan/execute에서 자동으로 읽어 적용합니다. Global rules(`~/.forgeflow/evolution/active/*.md`)는 advisory only이며 hard block하지 않습니다.
+- 실제 외부 호출: v1.x에는 Python `exec-stage --real` 런타임이 없습니다. 향후 `--real` 또는 live adapter 경로를 추가하면 기본값은 stub/dry-run이고, 실제 CLI/API 호출 전 stderr 경고와 `[y/N]` 확인 프롬프트가 필수입니다.
+
+## Evolution rule lifecycle
+
+| 단계 | 생성/진입 조건 | 산출물 | 승인/적용 조건 |
+|---|---|---|---|
+| long-run | high/epic 완료 후 반복 실수, review finding, eval failure, operator note가 evidence로 남음 | `eval-record.md`, `.forgeflow/evolution/proposed/*.md` | 후보 규칙은 `Review Status: unreviewed`로 시작 |
+| proposed | `templates/evolution-rule.md`의 필수 필드가 채워짐 | `Lifecycle: proposed` | review가 evidence와 false-positive guard를 검증 |
+| review | reviewer가 read-only로 후보 규칙을 평가 | `review-report.md` Evolution Rule Review | approved면 active로 승격, rejected면 폐기 |
+| active | 프로젝트 규칙으로 승인됨 | `.forgeflow/evolution/active/*.md` | 다음 clarify/plan/execute에서 trigger/stage가 맞으면 required constraint |
+| retired | 규칙이 해롭거나 더 이상 맞지 않음 | `.forgeflow/evolution/retired/*.md` | retirement reason과 rollback 근거 필요 |
