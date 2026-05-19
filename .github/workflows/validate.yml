@@ -42,6 +42,62 @@ jobs:
           done
           echo "OK: All plugin configs are valid JSON"
 
+      - name: Verify release versions are consistent
+        run: |
+          python3 - <<'PY'
+          import json
+          import pathlib
+          import re
+          import sys
+
+          root = pathlib.Path.cwd()
+          expected = (root / "VERSION").read_text(encoding="utf-8").strip()
+          failures = []
+
+          def require(label, actual):
+              if actual != expected:
+                  failures.append(f"{label}: expected {expected}, got {actual or '<missing>'}")
+
+          skill = (root / "SKILL.md").read_text(encoding="utf-8")
+          match = re.search(r'^version:\s*["\']?([^"\'\n]+)["\']?\s*$', skill, re.MULTILINE)
+          require("SKILL.md", match.group(1) if match else None)
+
+          for path in [
+              ".claude-plugin/plugin.json",
+              ".codex-plugin/plugin.json",
+              "gemini-extension.json",
+          ]:
+              data = json.loads((root / path).read_text(encoding="utf-8"))
+              require(path, data.get("version"))
+
+          marketplace = json.loads((root / ".claude-plugin/marketplace.json").read_text(encoding="utf-8"))
+          require(".claude-plugin/marketplace.json metadata.version", marketplace.get("metadata", {}).get("version"))
+
+          changelog = (root / "CHANGELOG.md").read_text(encoding="utf-8")
+          if f"## [{expected}]" not in changelog:
+              failures.append(f"CHANGELOG.md: missing ## [{expected}] section")
+
+          readme = (root / "README.md").read_text(encoding="utf-8")
+          if "현재 릴리즈:" in readme:
+              failures.append("README.md: remove hardcoded current release line")
+          if "VERSION" not in readme:
+              failures.append("README.md: release policy must reference VERSION")
+
+          pyproject = root / "pyproject.toml"
+          if pyproject.exists():
+              text = pyproject.read_text(encoding="utf-8")
+              match = re.search(r'^version\s*=\s*["\']([^"\']+)["\']', text, re.MULTILINE)
+              require("pyproject.toml", match.group(1) if match else None)
+
+          if failures:
+              print("ERROR: Version consistency check failed")
+              for failure in failures:
+                  print(f"- {failure}")
+              sys.exit(1)
+
+          print(f"OK: Release versions match VERSION={expected}")
+          PY
+
       - name: Verify templates exist
         run: |
           for t in brief.md plan.md review-report.md implementation-notes.md eval-record.md roadmap.md; do
