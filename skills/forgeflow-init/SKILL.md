@@ -50,56 +50,7 @@ This must be **in the user's active project/workspace**, not inside a plugin ins
 
 Plugin-cache safety rule: never create task artifacts under a path containing `.claude/plugins/cache`, `.codex/plugins`, or any plugin marketplace/cache directory. If the working directory resolves to a plugin install/cache directory and the user did not provide `--task-dir`, stop and ask for an explicit `--task-dir` instead of writing there. If the user provides `--task-dir`, use that path exactly.
 
-2. Write a minimal `brief.md` stub following `templates/brief.md` format:
-
-```markdown
-# Context Brief
-
-<!-- ForgeFlow brief template. Fill each section during clarify. -->
-
-## Objective
-<!-- One-sentence description of what this task accomplishes -->
-<objective from input, or placeholder>
-
-## Route
-<!-- small | medium | high | epic -->
-<!-- Will be determined during clarify -->
-
-## In Scope
--
-
-## Out of Scope
--
-
-## Constraints
--
-
-## Acceptance Criteria
-- [ ]
-
-## Risk Level
-<!-- low | medium | high | critical -->
-<risk from input, or "medium">
-
-## Assumptions
--
-
-## Open Questions
--
-
-## Specialists
-<!-- Required: (none | list) -->
-<!-- Skipped: (none | list) -->
-
-## Verification Gates
-<!-- Auto-detected from tech stack -->
-- [ ]
-
-## Environment Notes
-<!-- git repo status, dependency check results, etc. -->
-```
-
-Fill in `Objective` and `Risk Level` from the input arguments. Leave all other sections as placeholders for `/forgeflow:clarify` to fill.
+2. Write a minimal `brief.md` stub using `templates/brief.md` as the format. Fill in `Objective` and `Risk Level` from the input arguments. Leave all other sections as placeholders for `/forgeflow:clarify` to fill.
 
 3. Do not overwrite if `brief.md` already exists. Report that it was kept as-is.
 

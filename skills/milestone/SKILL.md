@@ -51,14 +51,19 @@ Break large, multi-day tasks into optimized milestones with dependency ordering 
 Analyze the problem from five independent angles. For each angle, produce a structured assessment:
 
 1. **Feasibility**: Can each component be built with the stated tech stack? Classify effort as Small (1-3 tasks), Medium (4-8 tasks), Large (9+ tasks), or Uncertain (needs spike). Flag components with hidden complexity.
+   - Example: "OAuth integration → Medium. Standard flow but need to verify provider-specific quirks. Third-party billing → Large, needs spike for webhooks."
 
 2. **Architecture**: Identify shared interfaces, state mutations, and module boundaries. Map which files are touched by which work. Flag files touched by multiple streams -- these create ordering constraints.
+   - Example: "M1 (Auth) touches `middleware.ts` and `session.ts`. M2 (Dashboard) also reads `session.ts` → M2 must wait for M1's session interface to stabilize."
 
 3. **Risk**: Rate each component for technical risk and risk of underestimation. Identify components needing prototype before planning. Flag blast radius of potential failures.
+   - Example: "Data migration: High risk. Schema change affects all reads. Rollback requires dual-write period. Low blast radius: CSS refactor, easily revertible."
 
 4. **Dependency**: Map all ordering constraints -- file conflicts, interface dependencies, shared state. Identify parallelizable groups (zero dependencies between them). Draw the dependency DAG.
+   - Example: "M1 (Auth) → M3 (Profile) [auth required]. M2 (Landing) has zero dependency on M1 → parallelizable. M4 (Payments) depends on M1 + M3."
 
 5. **User value**: Rank work by user-visible impact. Identify the minimum milestone that delivers standalone value.
+   - Example: "M2 (Landing page) delivers standalone value — users can see the product. M1 (Auth) alone is invisible without M3 (Profile). Ship M2 first for early feedback."
 
 ### Phase 3: Synthesis
 

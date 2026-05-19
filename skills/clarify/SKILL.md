@@ -59,31 +59,12 @@ Write only under the current project workspace or the active task directory. Nev
 
 ## Strict response constraints
 
-Exact-output instructions beat every other rule in this skill. Do not explain first and then append the answer. Do not show scoring. Do not include Markdown formatting around the answer. Return exactly what was requested and nothing extra.
+When the user requests an exact output (label only, list only, dry run), return exactly that — nothing extra. Exact-output instructions override all other formatting rules. The user asked for precision; give them precision.
 
-If the user asks for a label-only route selection (for example "Return only the selected route label", "label only", or "route label only"), output exactly one of `small`, `medium`, `high`, or `epic` and stop. The entire response must be only that label.
-
-Bad:
-
-```text
-This is medium because it touches shared state.
-medium
-```
-
-Good:
-
-```text
-medium
-```
-
-Bad: adding verdicts, rationale sections, headings, scoring, or extra warnings after the requested label/list.
-Good: if asked for exactly two checks, return exactly two checks.
-
-When the user says "do not run commands", do not propose command execution as if it happened. You may name a manual check, but label it as manual inspection, not a command result.
-
-For exact-count question prompts, start directly with `1.`. Do not explain that you will generate questions, do not mention the skill/procedure, and do not add any preamble before the numbered list.
-
-If the user asks to list questions, list them in the response. Do **not** call an interactive question tool unless the user explicitly asks for an interactive clarification flow.
+- Label-only route: output exactly `small`, `medium`, `high`, or `epic` and stop.
+- Exact-count questions: start directly with `1.` — no preamble.
+- List questions: list them inline. Do not call interactive tools unless the user asks.
+- "Do not run commands": name manual checks as "manual inspection", not as if they ran.
 
 ## WHERE grounding
 
@@ -205,30 +186,22 @@ When constructing verification gates, prefer automated gates over manual review 
 
 ## UX guardrails
 
-- Do repo inspection before saying the scope is unclear.
-- Do not manufacture open questions just to prolong intake; non-blocking unknowns are artifact notes, not questions the user must answer.
-- Do not ask the user to write the plan for you.
-- Do not ask the user to approve the brief content again when the request is already sufficient.
-- Do stop at the stage boundary before starting `/forgeflow:plan` or `/forgeflow:execute`.
-- **If brief.md has blocker questions, you MUST ask the user those questions interactively before closing the stage.** Present each blocker with your recommended answer. Wait for user response. Update the brief with decided answers afterward. Do NOT skip this step.
-- When the request is already sufficient and all blockers are resolved, end with: `요구사항 충분. <route> route입니다. 다음 스텝으로 /forgeflow:<plan|execute>을 진행하시겠습니까? (y/n)`
-- Bad: writing blocker questions to brief.md and immediately reporting "next stage: plan" without asking.
-- Good: presenting blocker questions to the user, getting answers, updating the brief, then asking to proceed.
+The goal is to gather just enough information to route correctly — not to run an interrogation. The user came to build something, not to fill out forms.
+
+- Inspect the repo before saying the scope is unclear. Most factual questions can be answered by reading code.
+- Don't manufacture open questions to prolong intake. Non-blocking unknowns go into the brief as bounded assumptions.
+- Don't ask the user to write the plan for you. That's your job.
+- If the request is already actionable, skip directly to route selection and brief output.
+- Stop at the stage boundary. Do not proceed to plan/execute without user confirmation.
+
+**Blocker handling**: If brief.md has unresolved blockers, present each one to the user with your recommended answer. Wait for their response. Update the brief. Only then close the stage.
+
+When all blockers are resolved, end with:
+```
+요구사항 충분. <route> route입니다. 다음 스텝으로 /forgeflow:<plan|execute>을 진행하시겠습니까? (y/n)
+```
 
 ## Output mode examples
 
-If asked:
-
-```text
-/forgeflow:clarify Add a README badge. Return only the selected route label. Do not write files.
-```
-
-Return only one of:
-
-```text
-small
-medium
-high
-```
-
-No explanation. No file writes.
+For label-only requests like `/forgeflow:clarify Add a README badge. Return only the selected route label.`:
+Return exactly one of `small`, `medium`, `high`, or `epic`. No explanation, no file writes.
