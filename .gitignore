@@ -10,7 +10,6 @@ venv/
 # OS/editor junk
 .DS_Store
 Thumbs.db
-.vscode/
 .idea/
 
 # Generated local noise

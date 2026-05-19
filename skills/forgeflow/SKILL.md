@@ -1,6 +1,6 @@
 ---
 name: forgeflow
-description: Artifact-first delivery workflow for AI coding agents. Use when a user types /forgeflow, /forgeflow:<stage>, or asks to implement, refactor, debug, review, or ship code through clarify, route selection, artifacts, gates, and independent review.
+description: Artifact-first delivery workflow for AI coding agents.
 validate_prompt: |
   Must route work through explicit ForgeFlow stages and artifact-backed gates.
   Must preserve stage boundaries, verification evidence, and independent review semantics.
@@ -9,7 +9,9 @@ validate_prompt: |
 
 # ForgeFlow
 
-ForgeFlow turns agent work into explicit stages with Markdown artifacts, gates, and independent review. It enforces **Deep Architecture Discipline** (Depth, Seam, Locality, Deletion test) and a **Grilling loop** (Socratic interviewing with recommended answers) to ensure rigorous design and maintainable code.
+ForgeFlow turns agent work into explicit stages with Markdown artifacts, gates, and independent review.
+It enforces **Deep Architecture Discipline** (Depth, Seam, Locality, Deletion test) and a **Grilling loop**.
+Use Socratic interviewing with recommended answers to ensure rigorous design and maintainable code.
 
 ## Slash-style entrypoints
 
@@ -31,12 +33,18 @@ ForgeFlow turns agent work into explicit stages with Markdown artifacts, gates, 
 
 ## Route model
 
-| Route | Stages | When |
-|-------|--------|------|
-| small | clarify -> execute -> quality-review -> ship -> finish | 1-2 files, low risk, easy rollback |
-| medium | clarify -> plan -> execute -> quality-review -> ship -> finish | Several coordinated files, shared state, moderate test surface |
-| high | clarify -> plan -> execute -> spec-review -> quality-review -> ship -> long-run -> finish | Auth/security, data migration, infra, irreversible changes |
-| epic | clarify -> milestone -> (per milestone) plan -> execute -> spec-review -> quality-review -> ship -> long-run -> finish | Massive scope, hierarchical milestones, multi-week effort |
+- `small`
+  - Stages: clarify -> execute -> quality-review -> ship -> finish
+  - When: 1-2 files, low risk, easy rollback
+- `medium`
+  - Stages: clarify -> plan -> execute -> quality-review -> ship -> finish
+  - When: several coordinated files, shared state, moderate test surface
+- `high`
+  - Stages: clarify -> plan -> execute -> spec-review -> quality-review -> ship -> long-run -> finish
+  - When: auth/security, data migration, infra, irreversible changes
+- `epic`
+  - Stages: clarify -> milestone -> per-milestone plan -> execute -> spec-review -> quality-review -> ship -> long-run -> finish
+  - When: massive scope, hierarchical milestones, multi-week effort
 
 Complexity thresholds (rough guide, not rigid):
 
@@ -54,7 +62,8 @@ raw_score = file_count*1.0 + estimated_lines*0.1 + requirement_count*2.0 + depen
 | `25-49.9` | high |
 | `>= 50` | epic |
 
-`17.0` is the `mid_threshold` that separates medium-light from medium-full. If a project wants different thresholds, update this file, `skills/clarify/SKILL.md`, and README together.
+`17.0` is the `mid_threshold` that separates medium-light from medium-full.
+If a project wants different thresholds, update this file, `skills/clarify/SKILL.md`, and README together.
 
 ## Output Artifacts
 
@@ -71,17 +80,25 @@ All artifacts are Markdown files written to `.forgeflow/tasks/<task-id>/`:
 
 ## Status analysis before routing
 
-Before choosing the next stage for an existing task, inspect the active task directory (`<task-dir>/implementation-notes.md`) for current stage, status, progress, and blockers. Check `review-report.md` for verdicts and open blockers.
+Before choosing the next stage for an existing task, inspect the active task directory.
+Use `<task-dir>/implementation-notes.md` for current stage, status, progress, and blockers.
+Check `review-report.md` for verdicts and open blockers.
 
 ## File write and output discipline
 
-Default to **artifact-first mode**. Unless the user explicitly asks for a dry run, exact-output response, or no-write simulation, create/update Markdown artifacts under `.forgeflow/tasks/<task-id>/`.
+Default to **artifact-first mode**.
+Unless the user explicitly asks for a dry run, exact-output response, or no-write simulation, create/update Markdown artifacts under `.forgeflow/tasks/<task-id>/`.
 
-If the task directory does not exist yet, bootstrap it first (create `.forgeflow/tasks/<task-id>/` with the appropriate template). Do not skip straight to source edits when the artifact workspace is missing.
+If the task directory does not exist yet, bootstrap it first.
+Create `.forgeflow/tasks/<task-id>/` with the appropriate template.
+Do not skip straight to source edits when the artifact workspace is missing.
 
-If the user says "do not write files", "return only", "dry run", "just list", or asks for a label/summary only, obey that output constraint exactly and do not attempt any filesystem mutation.
+If the user says "do not write files", "return only", "dry run", "just list", or asks for a label/summary only, obey that output constraint exactly.
+Do not attempt any filesystem mutation in that mode.
 
-When artifacts are mentioned without an explicit path, assume `.forgeflow/tasks/<task-id>/`, not chat-only fallback. Write only under the current project workspace or the active task directory. Never write inside `skills/<skill>/`.
+When artifacts are mentioned without an explicit path, assume `.forgeflow/tasks/<task-id>/`, not chat-only fallback.
+Write only under the current project workspace or the active task directory.
+Never write inside `skills/<skill>/`.
 
 ## Role Boundaries
 
@@ -101,7 +118,9 @@ ForgeFlow separates responsibilities across stages. The implementing session mus
 1. **Implementation does not self-approve.** The implementer's summary is input for review, not a substitute.
 2. **Review is read-only.** Review records findings in `review-report.md` and hands back to the worker. It never edits code.
 3. **If only one session is available**, keep the role boundary by using separate turns with artifact handoffs. Do not blur implementation and review in the same turn.
-4. **Model binding**: When the shell supports role-specific model selection, prefer the strongest reasoning model for planning/review and a coding-optimized model for execution. The artifact contract records the role boundary; it does not require a central model database.
+4. **Model binding**: When the shell supports role-specific model selection, prefer the strongest reasoning model for planning/review.
+   Prefer a coding-optimized model for execution.
+   The artifact contract records the role boundary; it does not require a central model database.
 
 ## Execution Patterns
 
@@ -127,7 +146,8 @@ Applied by default for medium routes and all routes with ordered plan steps.
 
 ### Pattern: fan-out/fan-in (parallel workers)
 
-Multiple independent workers execute in parallel, then a single reviewer consolidates. Used for high/epic routes when plan tasks touch different files with no shared state.
+Multiple independent workers execute in parallel, then a single reviewer consolidates.
+Use this for high/epic routes when plan tasks touch different files with no shared state.
 
 ```
 worker A ──┐
@@ -150,21 +170,36 @@ Plans for high/epic routes should explicitly name the execution pattern in the A
 
 ForgeFlow turns repeated patterns and mistakes into Markdown rules without restoring the old Python runtime:
 
-| Stage | Trigger | Artifact / location | Next state |
-|-------|---------|---------------------|------------|
-| `long-run` | High/epic completion leaves evidence of a repeated mistake, review finding, eval failure, or operator note | `eval-record.md`, `.forgeflow/evolution/proposed/*.md` using `templates/evolution-rule.md` | `proposed` |
-| `proposed` | Candidate rule has trigger, expected behavior, stage, evidence, false-positive guard, rollback path | `Lifecycle: proposed`, `Review Status: unreviewed` | `review` |
-| `review` | Reviewer validates evidence, scope, enforcement mode, false-positive guard, and retirement path | `review-report.md` Evolution Rule Review | `active` or rejected |
-| `active` | Approved project rule is moved to `.forgeflow/evolution/active/` | Markdown rule file | Loaded by future `clarify`, `plan`, and `execute` when trigger/stage match |
-| `retired` | Rule becomes harmful, obsolete, or too noisy | `.forgeflow/evolution/retired/` with reason | Not loaded |
+- `long-run`
+  - Trigger: high/epic completion leaves evidence of a repeated mistake, review finding, eval failure, or operator note
+  - Artifact/location: `eval-record.md`, `.forgeflow/evolution/proposed/*.md` using `templates/evolution-rule.md`
+  - Next state: `proposed`
+- `proposed`
+  - Trigger: candidate rule has trigger, expected behavior, stage, evidence, false-positive guard, rollback path
+  - Artifact/location: `Lifecycle: proposed`, `Review Status: unreviewed`
+  - Next state: `review`
+- `review`
+  - Trigger: reviewer validates evidence, scope, enforcement mode, false-positive guard, and retirement path
+  - Artifact/location: `review-report.md` Evolution Rule Review
+  - Next state: `active` or rejected
+- `active`
+  - Trigger: approved project rule is moved to `.forgeflow/evolution/active/`
+  - Artifact/location: Markdown rule file
+  - Next state: loaded by future `clarify`, `plan`, and `execute` when trigger/stage match
+- `retired`
+  - Trigger: rule becomes harmful, obsolete, or too noisy
+  - Artifact/location: `.forgeflow/evolution/retired/` with reason
+  - Next state: not loaded
 
 Global rules live under `~/.forgeflow/evolution/active/*.md`, but they are advisory only and cannot hard block a project task.
 
 ## Strict response constraints
 
-When the user asks for an exact count, exact format, or "only" output, that instruction overrides the normal artifact template. Return exactly what was requested and nothing extra.
+When the user asks for an exact count, exact format, or "only" output, that instruction overrides the normal artifact template.
+Return exactly what was requested and nothing extra.
 
-When the user says "do not run commands", do not propose command execution as if it happened. You may name a manual check, but label it as manual inspection, not a command result.
+When the user says "do not run commands", do not propose command execution as if it happened.
+You may name a manual check, but label it as manual inspection, not a command result.
 
 ## Rules
 
@@ -175,31 +210,38 @@ When the user says "do not run commands", do not propose command execution as if
 5. Do not treat the implementer's own summary as approval.
 6. Keep state in artifacts/files, not just chat history.
 7. Each plan step implements only its own scope. Do not implement future steps early.
-8. The review stage is read-only verification. Do not use Write or Edit during review. Record required fixes in `review-report.md` findings and hand back to the worker.
-9. Project active evolution rules are required constraints when their trigger and application stage match. Global evolution rules are advisory only.
+8. The review stage is read-only verification.
+   Do not use Write or Edit during review.
+   Record required fixes in `review-report.md` findings and hand back to the worker.
+9. Project active evolution rules are required constraints when their trigger and application stage match.
+   Global evolution rules are advisory only.
 
 ## Operator prompts
 
 Small task:
 
 ```text
-Use ForgeFlow. Clarify this request, choose the route, execute the smallest safe change, then state what evidence justifies quality-review and finalize.
+Use ForgeFlow. Clarify this request, choose the route, execute the smallest safe change,
+then state what evidence justifies quality-review and finalize.
 ```
 
 Medium task:
 
 ```text
-Use ForgeFlow. Clarify first, select the route, write a concrete plan with expected artifacts and verification, then execute only after the plan is clear.
+Use ForgeFlow. Clarify first, select the route, write a concrete plan with expected artifacts and verification,
+then execute only after the plan is clear.
 ```
 
 Large/high-risk task:
 
 ```text
-Use ForgeFlow. Treat this as large/high-risk. Clarify, plan, execute, run spec-review and quality-review separately, and call out residual risk before finalize.
+Use ForgeFlow. Treat this as large/high-risk. Clarify, plan, execute,
+run spec-review and quality-review separately, and call out residual risk before finalize.
 ```
 
 Epic/massive scale task:
 
 ```text
-Use ForgeFlow. Treat this as an epic. Clarify, breakdown milestones, then for each milestone: plan, execute, and review. Track progress in roadmap.md.
+Use ForgeFlow. Treat this as an epic. Clarify, breakdown milestones,
+then for each milestone: plan, execute, and review. Track progress in roadmap.md.
 ```

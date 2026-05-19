@@ -6,7 +6,9 @@ Repository-level instructions for AI coding agents working on this repo.
 
 ## Project Overview
 
-ForgeFlow는 AI coding agent를 위한 artifact-first delivery workflow입니다. clarify, plan, execute, review, ship 파이프라인을 markdown 산출물과 프롬프트 기반 강제로 제공합니다. Claude Code, Codex, Gemini CLI를 지원합니다.
+ForgeFlow는 AI coding agent를 위한 artifact-first delivery workflow입니다.
+clarify, plan, execute, review, ship 파이프라인을 markdown 산출물과 프롬프트 기반 강제로 제공합니다.
+Claude Code, Codex, Gemini CLI를 지원합니다.
 
 ## Tech Stack
 

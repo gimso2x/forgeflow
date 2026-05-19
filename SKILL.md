@@ -1,6 +1,6 @@
 ---
 name: forgeflow
-description: Artifact-first delivery workflow for AI coding agents — clarify, plan, execute, review, ship through markdown artifacts and prompt-driven gates
+description: Artifact-first delivery workflow for AI coding agents
 version: "1.0.2"
 category: engineering
 tags: [ai-agents, workflow, artifacts, claude-code, codex, gemini]
@@ -8,7 +8,8 @@ tags: [ai-agents, workflow, artifacts, claude-code, codex, gemini]
 
 # ForgeFlow
 
-ForgeFlow는 Claude Code, Codex, Gemini CLI를 위한 artifact-first delivery workflow입니다. AI coding agent 작업을 채팅 기억이 아니라 **명시적인 stage, markdown 산출물, 프롬프트 기반 gate, 독립 review**로 진행하게 만듭니다.
+ForgeFlow는 Claude Code, Codex, Gemini CLI를 위한 artifact-first delivery workflow입니다.
+AI coding agent 작업을 채팅 기억이 아니라 **명시적인 stage, markdown 산출물, 프롬프트 기반 gate, 독립 review**로 진행하게 만듭니다.
 
 ## Core Workflow
 
@@ -48,7 +49,8 @@ raw_score = file_count*1.0 + estimated_lines*0.1 + requirement_count*2.0 + depen
 | `25-49.9` | high |
 | `>= 50` | epic |
 
-`17.0`은 medium 내부의 light/full 경계입니다. Python `complexity.py`가 없으므로 이 값을 바꾸면 `skills/clarify/SKILL.md`, `skills/forgeflow/SKILL.md`, README의 기준을 함께 갱신해야 합니다.
+`17.0`은 medium 내부의 light/full 경계입니다.
+Python `complexity.py`가 없으므로 이 값을 바꾸면 `skills/clarify/SKILL.md`, `skills/forgeflow/SKILL.md`, README의 기준을 함께 갱신해야 합니다.
 
 ## Artifacts
 
@@ -85,15 +87,30 @@ raw_score = file_count*1.0 + estimated_lines*0.1 + requirement_count*2.0 + depen
 - Verification은 실제 명령 기반. hallucinated command 금지.
 - 역할 분리: 구현 세션과 리뷰 세션은 분리. 구현자의 자체 승인은 승인이 아님.
 - 진화 규칙: `.forgeflow/evolution/`에 저장. long-run이 `proposed/`에 후보를 만들고, review 승인 후 `active/`로 활성화합니다.
-- Active project rules는 다음 clarify/plan/execute에서 자동으로 읽어 적용합니다. Global rules(`~/.forgeflow/evolution/active/*.md`)는 advisory only이며 hard block하지 않습니다.
-- 실제 외부 호출: v1.x에는 Python `exec-stage --real` 런타임이 없습니다. 향후 `--real` 또는 live adapter 경로를 추가하면 기본값은 stub/dry-run이고, 실제 CLI/API 호출 전 stderr 경고와 `[y/N]` 확인 프롬프트가 필수입니다.
+- Active project rules는 다음 clarify/plan/execute에서 자동으로 읽어 적용합니다.
+- Global rules(`~/.forgeflow/evolution/active/*.md`)는 advisory only이며 hard block하지 않습니다.
+- 실제 외부 호출: v1.x에는 Python `exec-stage --real` 런타임이 없습니다.
+- 향후 `--real` 또는 live adapter 경로를 추가하면 기본값은 stub/dry-run이고, 실제 CLI/API 호출 전 stderr 경고와 `[y/N]` 확인 프롬프트가 필수입니다.
 
 ## Evolution rule lifecycle
 
-| 단계 | 생성/진입 조건 | 산출물 | 승인/적용 조건 |
-|---|---|---|---|
-| long-run | high/epic 완료 후 반복 실수, review finding, eval failure, operator note가 evidence로 남음 | `eval-record.md`, `.forgeflow/evolution/proposed/*.md` | 후보 규칙은 `Review Status: unreviewed`로 시작 |
-| proposed | `templates/evolution-rule.md`의 필수 필드가 채워짐 | `Lifecycle: proposed` | review가 evidence와 false-positive guard를 검증 |
-| review | reviewer가 read-only로 후보 규칙을 평가 | `review-report.md` Evolution Rule Review | approved면 active로 승격, rejected면 폐기 |
-| active | 프로젝트 규칙으로 승인됨 | `.forgeflow/evolution/active/*.md` | 다음 clarify/plan/execute에서 trigger/stage가 맞으면 required constraint |
-| retired | 규칙이 해롭거나 더 이상 맞지 않음 | `.forgeflow/evolution/retired/*.md` | retirement reason과 rollback 근거 필요 |
+- `long-run`
+  - 생성/진입 조건: high/epic 완료 후 반복 실수, review finding, eval failure, operator note가 evidence로 남음
+  - 산출물: `eval-record.md`, `.forgeflow/evolution/proposed/*.md`
+  - 승인/적용 조건: 후보 규칙은 `Review Status: unreviewed`로 시작
+- `proposed`
+  - 생성/진입 조건: `templates/evolution-rule.md`의 필수 필드가 채워짐
+  - 산출물: `Lifecycle: proposed`
+  - 승인/적용 조건: review가 evidence와 false-positive guard를 검증
+- `review`
+  - 생성/진입 조건: reviewer가 read-only로 후보 규칙을 평가
+  - 산출물: `review-report.md` Evolution Rule Review
+  - 승인/적용 조건: approved면 active로 승격, rejected면 폐기
+- `active`
+  - 생성/진입 조건: 프로젝트 규칙으로 승인됨
+  - 산출물: `.forgeflow/evolution/active/*.md`
+  - 승인/적용 조건: 다음 clarify/plan/execute에서 trigger/stage가 맞으면 required constraint
+- `retired`
+  - 생성/진입 조건: 규칙이 해롭거나 더 이상 맞지 않음
+  - 산출물: `.forgeflow/evolution/retired/*.md`
+  - 승인/적용 조건: retirement reason과 rollback 근거 필요
