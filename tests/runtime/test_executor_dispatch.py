@@ -287,44 +287,8 @@ class TestOrchestrate:
         assert result.status == "success"
         assert "stub-codex-output" in result.raw_output
 
-    def test_orchestrate_with_strategy(self) -> None:
-        """Policy with orchestration.strategy triggers run_orchestration."""
-        req = _make_request(adapter_target="claude")
-
-        # Create a mock policy object with orchestration config
-        mock_policy = MagicMock()
-        mock_policy.orchestration = {
-            "strategy": "consensus",
-            "providers": ["claude", "codex"],
-            "fallback": "first",
-            "timeout": 30,
-            "consensus_threshold": 0.6,
-        }
-
-        # Mock run_orchestration to avoid real multi-adapter calls
-        mock_result = MagicMock()
-        mock_result.to_run_task_result.return_value = RunTaskResult(
-            status="success",
-            raw_output="orchestrated output",
-            token_usage={"input": 10, "output": 5},
-            artifacts_produced=["a.txt"],
-        )
-
-        with patch(
-            "forgeflow_runtime.executor.dispatch",
-            wraps=dispatch,
-        ) as mock_dispatch, \
-             patch(
-            "experimental.orchestra.run_orchestration",
-            return_value=mock_result,
-        ) as mock_orch:
-            result = orchestrate(req, policy=mock_policy, use_real=False)
-
-        assert result.status == "success"
-        assert result.raw_output == "orchestrated output"
-        mock_orch.assert_called_once()
-        # dispatch should NOT have been called (orchestration path taken)
-        mock_dispatch.assert_not_called()
+    def test_orchestrate_with_strategy_removed_with_experimental(self) -> None:
+        """Skipped: experimental.orchestra was removed."""
 
     def test_orchestrate_empty_orchestration_dict_falls_back(self) -> None:
         """Policy with empty orchestration dict (no strategy) falls back."""

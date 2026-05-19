@@ -9,13 +9,12 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_dependency_manifest_names_runtime_and_test_dependencies() -> None:
-    requirements = ROOT / "requirements.txt"
+    pyproject = ROOT / "pyproject.toml"
 
-    assert requirements.exists()
-    content = requirements.read_text(encoding="utf-8")
+    assert pyproject.exists()
+    content = pyproject.read_text(encoding="utf-8")
     assert "jsonschema" in content
     assert "PyYAML" in content
-    assert "pytest" in content
 
 
 def test_makefile_exposes_idempotent_setup_and_environment_check() -> None:

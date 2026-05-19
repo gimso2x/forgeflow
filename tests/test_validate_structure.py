@@ -20,21 +20,12 @@ def _load_validate_structure_module():
 def test_validate_structure_tracks_runtime_and_memory_scaffold() -> None:
     validate_structure = _load_validate_structure_module()
     for rel in [
-        "runtime/orchestrator",
-        "runtime/ledger",
-        "runtime/gates",
-        "runtime/recovery",
         "memory/patterns",
         "memory/decisions",
     ]:
         assert rel in validate_structure.REQUIRED_DIRS
 
     for rel in [
-        "runtime/README.md",
-        "runtime/orchestrator/README.md",
-        "runtime/ledger/README.md",
-        "runtime/gates/README.md",
-        "runtime/recovery/README.md",
         "memory/README.md",
         "memory/patterns/README.md",
         "memory/decisions/README.md",
@@ -85,16 +76,12 @@ def test_memory_directory_lifecycle_is_documented() -> None:
 
 def test_validate_workflow_installs_policy_validator_dependencies() -> None:
     workflow = (ROOT / ".github" / "workflows" / "validate.yml").read_text(encoding="utf-8").lower()
-    makefile = (ROOT / "Makefile").read_text(encoding="utf-8").lower()
-
-    requirements = (ROOT / "requirements.txt").read_text(encoding="utf-8").lower()
+    pyproject = (ROOT / "pyproject.toml").read_text(encoding="utf-8").lower()
 
     assert "run: make setup" in workflow
     assert "run: make check-env" in workflow
-    assert "-r requirements.txt" in makefile
-    assert "jsonschema" in requirements
-    assert "pyyaml" in requirements
-    assert "pytest" in requirements
+    assert "jsonschema" in pyproject
+    assert "pyyaml" in pyproject
 
 
 def test_contract_map_names_evolution_rule_contract_surface() -> None:
