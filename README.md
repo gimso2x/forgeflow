@@ -1,6 +1,7 @@
 # ForgeFlow
 
-ForgeFlow는 AI coding agent를 위한 artifact-first delivery workflow입니다. 채팅 기억에 의존하지 않고 **명시적인 markdown 산출물, 프롬프트 기반 게이트, 독립 review**로 작업하게 만듭니다.
+ForgeFlow는 AI coding agent를 위한 artifact-first delivery workflow입니다.
+채팅 기억에 의존하지 않고 **명시적인 markdown 산출물, 프롬프트 기반 게이트, 독립 review**로 작업하게 만듭니다.
 
 ## 누가 왜 쓰나
 
@@ -18,11 +19,13 @@ ForgeFlow는 AI coding agent를 위한 artifact-first delivery workflow입니다
 ```
 
 **Gemini CLI:**
+
 ```
 gemini extensions install https://github.com/gimso2x/forgeflow
 ```
 
 **Codex:**
+
 ```
 # .codex-plugin/plugin.json을 프로젝트에 복사
 ```
@@ -42,12 +45,12 @@ gemini extensions install https://github.com/gimso2x/forgeflow
 
 clarify 스킬이 복잡도를 평가하여 자동으로 라우트를 선택합니다:
 
-| Route   | Stages                                              | When                      |
-|---------|-----------------------------------------------------|---------------------------|
-| small   | clarify → execute → review → ship                   | 저위험, 소규모, 쉬운 롤백  |
-| medium  | clarify → plan → execute → review → ship            | 범위 명확, 검증 필요       |
-| high    | clarify → plan → execute → review → ship → long-run | 아키텍처 영향, 롤백 어려움 |
-| epic    | clarify → milestone → plan → execute → review → ship → long-run | 대규모, 멀티윅       |
+| Route  | Stages                                                          | When                       |
+| ------ | --------------------------------------------------------------- | -------------------------- |
+| small  | clarify → execute → review → ship                               | 저위험, 소규모, 쉬운 롤백  |
+| medium | clarify → plan → execute → review → ship                        | 범위 명확, 검증 필요       |
+| high   | clarify → plan → execute → review → ship → long-run             | 아키텍처 영향, 롤백 어려움 |
+| epic   | clarify → milestone → plan → execute → review → ship → long-run | 대규모, 멀티윅             |
 
 ### Route scoring 기준
 
@@ -57,28 +60,29 @@ v1.x는 Python 런타임을 제거했지만, route 판단 기준은 v0.x의 weig
 raw_score = file_count*1.0 + estimated_lines*0.1 + requirement_count*2.0 + dependency_count*1.5 + risk_keywords*3.0
 ```
 
-| Score | Route 판단 |
-|---:|---|
-| `< 10` | small |
-| `10-16.9` | medium-light: scoped multi-file change |
+|     Score | Route 판단                                     |
+| --------: | ---------------------------------------------- |
+|    `< 10` | small                                          |
+| `10-16.9` | medium-light: scoped multi-file change         |
 | `17-24.9` | medium-full: cross-module/service-level change |
-| `25-49.9` | high |
-| `>= 50` | epic |
+| `25-49.9` | high                                           |
+|   `>= 50` | epic                                           |
 
-`17.0`은 medium을 light/full로 가르는 `mid_threshold`입니다. 프로젝트별 조정이 필요하면 `skills/clarify/SKILL.md`의 scoring 기준과 관련 템플릿을 함께 바꿉니다.
+`17.0`은 medium을 light/full로 가르는 `mid_threshold`입니다.
+프로젝트별 조정이 필요하면 `skills/clarify/SKILL.md`의 scoring 기준과 관련 템플릿을 함께 바꿉니다.
 
 ## Artifacts
 
 모든 산출물은 `.forgeflow/tasks/<task-id>/` 아래에 markdown 파일로 기록됩니다:
 
-| 산출물 | 설명 | 라우트 |
-|---|---|---|
-| `brief.md` | 요구사항, 라우트, 제약사항 | 전체 |
-| `plan.md` | 작업 계획, 태스크 분해, 검증 | medium+ |
-| `implementation-notes.md` | 실행 진행, 결정 기록, 편차 | 전체 |
-| `review-report.md` | 독립 검증 결과 | 전체 |
-| `roadmap.md` | 마일스톤 분해 | epic |
-| `eval-record.md` | 학습 기록 | high+ |
+| 산출물                    | 설명                         | 라우트  |
+| ------------------------- | ---------------------------- | ------- |
+| `brief.md`                | 요구사항, 라우트, 제약사항   | 전체    |
+| `plan.md`                 | 작업 계획, 태스크 분해, 검증 | medium+ |
+| `implementation-notes.md` | 실행 진행, 결정 기록, 편차   | 전체    |
+| `review-report.md`        | 독립 검증 결과               | 전체    |
+| `roadmap.md`              | 마일스톤 분해                | epic    |
+| `eval-record.md`          | 학습 기록                    | high+   |
 
 ## 특징
 
@@ -89,22 +93,45 @@ raw_score = file_count*1.0 + estimated_lines*0.1 + requirement_count*2.0 + depen
 
 ## Release version policy
 
-루트 `VERSION` 파일을 단일 버전 기준으로 사용합니다. README 본문에는 현재 릴리즈 버전을 고정하지 않고, CI가 `VERSION`, `CHANGELOG.md`, `SKILL.md`, `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json`, `.codex-plugin/plugin.json`, `gemini-extension.json`, 선택적 `pyproject.toml`의 정합성을 검사합니다.
+루트 `VERSION` 파일을 단일 버전 기준으로 사용합니다.
+README 본문에는 현재 릴리즈 버전을 고정하지 않습니다.
+CI가 다음 파일의 정합성을 검사합니다.
+
+- `VERSION`
+- `CHANGELOG.md`
+- `SKILL.md`
+- `.claude-plugin/plugin.json`
+- `.claude-plugin/marketplace.json`
+- `.codex-plugin/plugin.json`
+- `gemini-extension.json`
 
 ## Evolution rule lifecycle
 
-| 단계 | 트리거 | 산출물/위치 | 다음 단계 |
-|---|---|---|---|
-| `long-run` | high/epic 작업 완료 후 반복 실수, 리뷰 finding, eval 실패가 evidence로 남음 | `eval-record.md`, `.forgeflow/evolution/proposed/*.md` | review |
-| `proposed` | `templates/evolution-rule.md`로 후보 규칙 작성 | `Lifecycle: proposed`, `Review Status: unreviewed` | review |
-| `review` | 후보 규칙의 evidence, false-positive guard, scope, rollback이 검증됨 | `review-report.md`의 Evolution Rule Review | active 또는 rejected |
-| `active` | review 승인 후 프로젝트 규칙으로 승격 | `.forgeflow/evolution/active/*.md` | 다음 clarify/plan/execute에서 자동 적용 |
+- `long-run`
+  - 트리거: high/epic 작업 완료 후 반복 실수, 리뷰 finding, eval 실패가 evidence로 남음
+  - 산출물/위치: `eval-record.md`, `.forgeflow/evolution/proposed/*.md`
+  - 다음 단계: review
+- `proposed`
+  - 트리거: `templates/evolution-rule.md`로 후보 규칙 작성
+  - 산출물/위치: `Lifecycle: proposed`, `Review Status: unreviewed`
+  - 다음 단계: review
+- `review`
+  - 트리거: 후보 규칙의 evidence, false-positive guard, scope, rollback이 검증됨
+  - 산출물/위치: `review-report.md`의 Evolution Rule Review
+  - 다음 단계: active 또는 rejected
+- `active`
+  - 트리거: review 승인 후 프로젝트 규칙으로 승격
+  - 산출물/위치: `.forgeflow/evolution/active/*.md`
+  - 다음 단계: 다음 clarify/plan/execute에서 자동 적용
 
-Project active rule은 해당 repository의 필수 제약입니다. Global rule(`~/.forgeflow/evolution/active/*.md`)은 advisory only이며 hard block으로 쓰지 않습니다.
+Project active rule은 해당 repository의 필수 제약입니다.
+Global rule(`~/.forgeflow/evolution/active/*.md`)은 advisory only이며 hard block으로 쓰지 않습니다.
 
 ## 실제 외부 실행 안전 기준
 
-v1.x는 Python `exec-stage --real` 런타임을 포함하지 않습니다. 향후 실제 Claude/Codex/Gemini CLI를 호출하는 adapter나 `--real` 경로를 다시 추가한다면, 기본값은 stub/dry-run이어야 하고 실제 외부 호출 전에는 stderr 경고와 `[y/N]` 확인 프롬프트가 필수입니다.
+v1.x는 Python `exec-stage --real` 런타임을 포함하지 않습니다.
+향후 실제 Claude/Codex/Gemini CLI를 호출하는 adapter나 `--real` 경로를 다시 추가한다면 기본값은 stub/dry-run이어야 합니다.
+실제 외부 호출 전에는 stderr 경고와 `[y/N]` 확인 프롬프트가 필수입니다.
 
 ## 첫 실행 예시
 
