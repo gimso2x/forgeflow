@@ -22,10 +22,15 @@ These files must always have identical versions:
 
 | File | Field |
 |------|-------|
+| `VERSION` | plain text `X.Y.Z` |
+| `SKILL.md` | `version: "X.Y.Z"` in frontmatter |
 | `.claude-plugin/plugin.json` | `"version": "X.Y.Z"` |
 | `.claude-plugin/marketplace.json` | `"metadata"."version": "X.Y.Z"` |
 | `.codex-plugin/plugin.json` | `"version": "X.Y.Z"` |
+| `.cursor-plugin/plugin.json` | `"version": "X.Y.Z"` |
 | `gemini-extension.json` | `"version": "X.Y.Z"` |
+
+Also add a `## [X.Y.Z] - YYYY-MM-DD` section to `CHANGELOG.md` before release.
 
 ## Instructions
 
@@ -50,7 +55,7 @@ Update all version files with the new version number. Use Edit tool — do not r
 
 ### 4. Stage and commit
 
-- Stage only the version files explicitly: `git add .claude-plugin/plugin.json .claude-plugin/marketplace.json .codex-plugin/plugin.json gemini-extension.json`
+- Stage only the version files explicitly: `git add VERSION SKILL.md CHANGELOG.md .claude-plugin/plugin.json .claude-plugin/marketplace.json .codex-plugin/plugin.json .cursor-plugin/plugin.json gemini-extension.json`
 - Commit message format: `[main] v<X.Y.Z> 릴리즈` or `[main] <change summary> 및 v<X.Y.Z> 릴리즈`
 
 ### 5. Push

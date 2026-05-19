@@ -1,6 +1,6 @@
 ---
 name: ship
-description: "Finalize ForgeFlow work after review: summarize, verify, prepare PR/commit handoff, and preserve evidence. Use when the user types /forgeflow:ship."
+description: "Finalize ForgeFlow work after review: summarize, verify, prepare PR/commit handoff, and preserve evidence. Use when the user types /ship or /forgeflow:ship."
 version: 0.2.0
 author: gimso2x
 validate_prompt: |
@@ -25,7 +25,7 @@ Use this skill to prepare the final handoff after review passes.
 
 ## Output Artifacts
 
-Write a `ship-summary.md` in the active task directory containing:
+Write a `ship-summary.md` in the active task directory using `templates/ship-summary.md` as the structure. The summary must capture:
 
 - Changed files
 - Verification commands and results
@@ -56,7 +56,7 @@ If the user says "do not write files", "return only", "dry run", "just list", or
 
 When artifacts such as `review-report.md` or final handoff notes are mentioned without an explicit path, preserve them under the active task directory, not the repository root and not chat-only fallback.
 
-If writing is allowed, write only under the current project workspace or the active task directory. Never write inside the plugin installation directory, marketplace cache, or `skills/<skill>/`.
+If writing is allowed, write only under the current project workspace or the active task directory. Never write inside the plugin installation directory, marketplace cache (including `.claude/plugins/cache`, `.codex/plugins`, `.cursor/plugins`, or `~/.cursor/plugins/local`), or `skills/<skill>/`.
 
 ## Strict response constraints
 

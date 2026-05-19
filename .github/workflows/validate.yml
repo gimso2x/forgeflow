@@ -34,7 +34,7 @@ jobs:
 
       - name: Verify plugin configs are valid JSON
         run: |
-          for f in .claude-plugin/plugin.json .claude-plugin/marketplace.json .codex-plugin/plugin.json gemini-extension.json; do
+          for f in .claude-plugin/plugin.json .claude-plugin/marketplace.json .codex-plugin/plugin.json .cursor-plugin/plugin.json gemini-extension.json; do
             if ! python3 -c "import json; json.load(open('$f'))" 2>/dev/null; then
               echo "ERROR: Invalid JSON in $f"
               exit 1
@@ -65,6 +65,7 @@ jobs:
           for path in [
               ".claude-plugin/plugin.json",
               ".codex-plugin/plugin.json",
+              ".cursor-plugin/plugin.json",
               "gemini-extension.json",
           ]:
               data = json.loads((root / path).read_text(encoding="utf-8"))
@@ -100,10 +101,252 @@ jobs:
 
       - name: Verify templates exist
         run: |
-          for t in brief.md plan.md review-report.md implementation-notes.md eval-record.md roadmap.md; do
+          for t in brief.md plan.md review-report.md implementation-notes.md eval-record.md roadmap.md checkpoint.md run-ledger.md evolution-rule.md ship-summary.md; do
             if [ ! -f "templates/$t" ]; then
               echo "ERROR: Missing template templates/$t"
               exit 1
             fi
           done
           echo "OK: All templates exist"
+
+      - name: Verify skill frontmatter contract
+        run: |
+          python3 - <<'PY'
+          import pathlib
+          import re
+          import sys
+
+          root = pathlib.Path("skills")
+          required = ("name:", "description:", "validate_prompt:")
+          failures = []
+
+          for skill_md in sorted(root.glob("*/SKILL.md")):
+              text = skill_md.read_text(encoding="utf-8")
+              if not text.startswith("---"):
+                  failures.append(f"{skill_md}: missing YAML frontmatter")
+                  continue
+              fm = text.split("---", 2)[1]
+              for field in required:
+                  if field not in fm:
+                      failures.append(f"{skill_md}: missing {field.rstrip(':')}")
+              match = re.search(r"^name:\s*(.+)$", fm, re.MULTILINE)
+              if match:
+                  name = match.group(1).strip().strip('"').strip("'")
+                  if name != skill_md.parent.name:
+                      failures.append(f"{skill_md}: name {name} != dir {skill_md.parent.name}")
+
+          if failures:
+              print("ERROR: Skill frontmatter check failed")
+              for failure in failures:
+                  print(f"- {failure}")
+              sys.exit(1)
+
+          print("OK: Skill frontmatter contract satisfied")
+          PY
+
+      - name: Verify template cross-references
+        run: |
+          python3 - <<'PY'
+          import pathlib
+          import re
+          import sys
+
+          root = pathlib.Path(".")
+          refs = set()
+          for skill_md in (root / "skills").glob("*/SKILL.md"):
+              text = skill_md.read_text(encoding="utf-8")
+              for match in re.finditer(r"templates/([a-zA-Z0-9_-]+\.md)", text):
+                  refs.add(match.group(1))
+
+          missing = sorted(t for t in refs if not (root / "templates" / t).exists())
+          if missing:
+              print("ERROR: Missing template files referenced by skills:")
+              for item in missing:
+                  print(f"- {item}")
+              sys.exit(1)
+
+          print(f"OK: {len(refs)} template references resolve")
+          PY
+
+      - name: Verify route scoring parity
+        run: |
+          python3 - <<'PY'
+          import pathlib
+          import sys
+
+          snippet = (
+              "raw_score = file_count*1.0 + estimated_lines*0.1 + "
+              "requirement_count*2.0 + dependency_count*1.5 + risk_keywords*3.0"
+          )
+          docs = [
+              "README.md",
+              "SKILL.md",
+              "skills/forgeflow/SKILL.md",
+              "skills/clarify/SKILL.md",
+          ]
+          failures = []
+          for doc in docs:
+              text = (pathlib.Path(doc)).read_text(encoding="utf-8")
+              if snippet not in text:
+                  failures.append(doc)
+
+          if failures:
+              print("ERROR: Route scoring formula missing in:")
+              for failure in failures:
+                  print(f"- {failure}")
+              sys.exit(1)
+
+          print("OK: Route scoring formula present in core docs")
+          PY
+
+      - name: Verify review and ship artifact contract
+        run: |
+          python3 - <<'PY'
+          import pathlib
+          import sys
+
+          root = pathlib.Path(".")
+          failures = []
+
+          forbidden = ["review-report-spec.md", "review-report-quality.md"]
+          for skill_md in (root / "skills").rglob("*.md"):
+              text = skill_md.read_text(encoding="utf-8")
+              for name in forbidden:
+                  if name in text:
+                      failures.append(f"{skill_md}: references deprecated {name}")
+
+          ship = (root / "skills/ship/SKILL.md").read_text(encoding="utf-8")
+          if "templates/ship-summary.md" not in ship:
+              failures.append("skills/ship/SKILL.md: missing templates/ship-summary.md reference")
+          if not (root / "templates/ship-summary.md").exists():
+              failures.append("templates/ship-summary.md: missing")
+
+          for path in ["skills/review/SKILL.md", "skills/ship/SKILL.md", "skills/finish/SKILL.md"]:
+              if "review-report.md" not in (root / path).read_text(encoding="utf-8"):
+                  failures.append(f"{path}: missing review-report.md reference")
+
+          if failures:
+              print("ERROR: Review/ship artifact contract failed")
+              for failure in failures:
+                  print(f"- {failure}")
+              sys.exit(1)
+
+          print("OK: Review/ship artifact contract satisfied")
+          PY
+
+      - name: Verify SKILLS.md inventory sync
+        run: |
+          python3 - <<'PY'
+          import pathlib
+          import re
+          import sys
+
+          root = pathlib.Path(".")
+          skills_md = (root / "skills/SKILLS.md").read_text(encoding="utf-8")
+          table_rows = set(re.findall(r"\|\s*\d+\s*\|\s*\[`([^`]+)`\]", skills_md))
+          dir_names = {
+              d.name
+              for d in (root / "skills").iterdir()
+              if d.is_dir() and not d.name.startswith("_")
+          }
+          if table_rows != dir_names:
+              print("ERROR: SKILLS.md table mismatch")
+              print("missing_in_table:", sorted(dir_names - table_rows))
+              print("extra_in_table:", sorted(table_rows - dir_names))
+              sys.exit(1)
+          print(f"OK: SKILLS.md lists {len(dir_names)} skills")
+          PY
+
+      - name: Verify GEMINI.md imports
+        run: |
+          python3 - <<'PY'
+          import pathlib
+          import re
+          import sys
+
+          root = pathlib.Path(".")
+          gemini = (root / "GEMINI.md").read_text(encoding="utf-8")
+          imports = re.findall(r"@(\./skills/[^\s]+)", gemini)
+          missing = [p for p in imports if not (root / p.lstrip("./")).exists()]
+          if missing:
+              print("ERROR: GEMINI.md broken imports:")
+              for item in missing:
+                  print(f"- {item}")
+              sys.exit(1)
+          print(f"OK: GEMINI.md {len(imports)} imports valid")
+          PY
+
+      - name: Verify evals.json schema
+        run: |
+          python3 - <<'PY'
+          import json
+          import pathlib
+          import sys
+
+          data = json.loads((pathlib.Path("evals/evals.json")).read_text(encoding="utf-8"))
+          failures = []
+          if not isinstance(data.get("skill_name"), str):
+              failures.append("skill_name missing")
+          evals = data.get("evals")
+          if not isinstance(evals, list) or not evals:
+              failures.append("evals must be non-empty list")
+          else:
+              for i, item in enumerate(evals):
+                  for key in ("id", "name", "prompt", "assertions"):
+                      if key not in item:
+                          failures.append(f"eval[{i}] missing {key}")
+                  if not isinstance(item.get("assertions"), list) or not item["assertions"]:
+                      failures.append(f"eval[{i}] assertions must be non-empty list")
+
+          if failures:
+              print("ERROR: evals/evals.json schema invalid")
+              for failure in failures:
+                  print(f"- {failure}")
+              sys.exit(1)
+          print(f"OK: evals/evals.json schema valid ({len(evals)} cases)")
+          PY
+
+      - name: Verify workflow skills have Exit Condition
+        run: |
+          python3 - <<'PY'
+          import pathlib
+          import sys
+
+          root = pathlib.Path("skills")
+          skip = {"forgeflow"}
+          failures = []
+          for skill_md in sorted(root.glob("*/SKILL.md")):
+              if skill_md.parent.name in skip:
+                  continue
+              if "## Exit Condition" not in skill_md.read_text(encoding="utf-8"):
+                  failures.append(str(skill_md))
+          if failures:
+              print("ERROR: Missing ## Exit Condition:")
+              for failure in failures:
+                  print(f"- {failure}")
+              sys.exit(1)
+          print("OK: Workflow skills include Exit Condition")
+          PY
+
+      - name: Verify CHANGELOG release links
+        run: |
+          python3 - <<'PY'
+          import pathlib
+          import sys
+
+          expected = (pathlib.Path("VERSION")).read_text(encoding="utf-8").strip()
+          changelog = (pathlib.Path("CHANGELOG.md")).read_text(encoding="utf-8")
+          failures = []
+          if f"## [{expected}]" not in changelog:
+              failures.append(f"missing section ## [{expected}]")
+          if f"[{expected}]:" not in changelog:
+              failures.append(f"missing compare link [{expected}]:")
+          if "[Unreleased]:" not in changelog:
+              failures.append("missing [Unreleased]: compare link")
+          if failures:
+              print("ERROR: CHANGELOG release hygiene failed")
+              for failure in failures:
+                  print(f"- {failure}")
+              sys.exit(1)
+          print("OK: CHANGELOG release links present")
+          PY

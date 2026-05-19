@@ -1,6 +1,6 @@
 ---
 name: plan
-description: Create an executable ForgeFlow plan with exact tasks, files, acceptance criteria, and verification steps. Use when the user types /forgeflow:plan.
+description: Create an executable ForgeFlow plan with exact tasks, files, acceptance criteria, and verification steps. Use when the user types /plan or /forgeflow:plan.
 validate_prompt: |
   Must preserve exact-output and dry-run constraints when requested.
   Must default to artifact-first behavior and produce `plan.md` in the active task directory unless the user explicitly requests dry-run or no-write output.

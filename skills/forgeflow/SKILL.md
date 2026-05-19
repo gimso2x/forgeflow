@@ -15,14 +15,34 @@ Use Socratic interviewing with recommended answers to ensure rigorous design and
 
 ## Slash-style entrypoints
 
-- `/forgeflow` -> this overview workflow skill
-- `/forgeflow-init ...` -> `forgeflow-init`
-- `/forgeflow:clarify ...` -> `clarify`
-- `/forgeflow:plan` -> `plan`
-- `/forgeflow:execute` -> `run`
-- `/forgeflow:review` -> `review`
-- `/forgeflow:ship` -> `ship`
-- `/forgeflow:finish` -> `finish`
+| Stage | Claude / Codex / Gemini | Cursor |
+|-------|-------------------------|--------|
+| Overview | `/forgeflow` | `/forgeflow` |
+| Init | `/forgeflow-init` | `/forgeflow-init` |
+| Clarify | `/forgeflow:clarify` | `/clarify` |
+| Plan | `/forgeflow:plan` | `/plan` |
+| Execute | `/forgeflow:execute` | `/execute` |
+| Review | `/forgeflow:review` | `/review` |
+| Ship | `/forgeflow:ship` | `/ship` |
+| Finish | `/forgeflow:finish` | `/finish` |
+| Milestone | `/forgeflow:milestone` | `/milestone` |
+| Long-run | `/forgeflow:long-run` | `/long-run` |
+
+Cursor skill names cannot contain `:`. Use the Cursor column when invoking skills in Cursor; other adapters keep the `/forgeflow:*` form.
+
+## Template resolution (all adapters)
+
+Skills reference paths like `templates/brief.md`. Resolve the template root before reading or copying any template:
+
+1. If `<workspace>/templates/<file>.md` exists, use that path.
+2. Otherwise search for the ForgeFlow plugin `templates/` directory (first match wins):
+   - `~/.cursor/plugins/local/forgeflow/templates/`
+   - Any `~/.cursor/plugins/**/forgeflow/templates/`
+   - Any `~/.claude/plugins/cache/forgeflow/**/templates/`
+   - Any path under `.codex/plugins` that ends with `forgeflow/templates/`
+3. When a template root is found, read `templates/<file>.md` relative to that root using the resolved absolute path.
+4. If no template root is found, stop and tell the user to install ForgeFlow locally or add `templates/` to the workspace. Do not invent artifact structure.
+5. Always write task artifacts under `<workspace>/.forgeflow/tasks/<task-id>/`, never under a plugin install or cache directory.
 
 ## Input
 
@@ -34,16 +54,16 @@ Use Socratic interviewing with recommended answers to ensure rigorous design and
 ## Route model
 
 - `small`
-  - Stages: clarify -> execute -> quality-review -> ship -> finish
+  - Stages: clarify -> execute -> review -> ship -> finish
   - When: 1-2 files, low risk, easy rollback
 - `medium`
-  - Stages: clarify -> plan -> execute -> quality-review -> ship -> finish
+  - Stages: clarify -> plan -> execute -> review -> ship -> finish
   - When: several coordinated files, shared state, moderate test surface
 - `high`
-  - Stages: clarify -> plan -> execute -> spec-review -> quality-review -> ship -> long-run -> finish
+  - Stages: clarify -> plan -> execute -> review (spec) -> review (quality) -> ship -> long-run -> finish
   - When: auth/security, data migration, infra, irreversible changes
 - `epic`
-  - Stages: clarify -> milestone -> per-milestone plan -> execute -> spec-review -> quality-review -> ship -> long-run -> finish
+  - Stages: clarify -> milestone -> plan -> execute -> review (spec) -> review (quality) -> ship -> long-run -> finish
   - When: massive scope, hierarchical milestones, multi-week effort
 
 Complexity thresholds (rough guide, not rigid):
@@ -72,11 +92,13 @@ All artifacts are Markdown files written to `.forgeflow/tasks/<task-id>/`:
 - `brief.md` — clarified objective, constraints, risk, route (template: `templates/brief.md`)
 - `plan.md` — task decomposition with steps, verification, contracts (template: `templates/plan.md`)
 - `implementation-notes.md` — real-time execution log (template: `templates/implementation-notes.md`)
-- `review-report.md` — independent review result (template: `templates/review-report.md`)
+- `run-ledger.md` — execution truth per plan task (template: `templates/run-ledger.md`)
+- `checkpoint.md` — tactical resume pointer (template: `templates/checkpoint.md`)
+- `review-report.md` — independent review result (template: `templates/review-report.md`; high/epic uses spec then quality passes on this file)
 - `roadmap.md` for epic route: milestone DAG and statuses (template: `templates/roadmap.md`)
-- `ship-summary.md` — final handoff summary (created by ship)
+- `ship-summary.md` — final handoff summary (template: `templates/ship-summary.md`)
 - `eval-record.md` — reusable learnings for high/epic routes (template: `templates/eval-record.md`)
-- `evolution-rule.md` — reusable rule candidate or active rule (template: `templates/evolution-rule.md`)
+- Evolution rule candidates and active rules live under `.forgeflow/evolution/` using `templates/evolution-rule.md` — not as a standalone task artifact unless copying a snapshot for reference
 
 ## Status analysis before routing
 
@@ -206,7 +228,7 @@ You may name a manual check, but label it as manual inspection, not a command re
 1. Start with clarify unless the user provides a complete brief.
 2. Pick the smallest route that honestly covers the risk.
 3. Do not skip plan for medium or high work.
-4. Do not merge spec-review and quality-review.
+4. Do not merge spec and quality review passes into one turn for high/epic work.
 5. Do not treat the implementer's own summary as approval.
 6. Keep state in artifacts/files, not just chat history.
 7. Each plan step implements only its own scope. Do not implement future steps early.
@@ -222,7 +244,7 @@ Small task:
 
 ```text
 Use ForgeFlow. Clarify this request, choose the route, execute the smallest safe change,
-then state what evidence justifies quality-review and finalize.
+then state what evidence justifies review and finalize.
 ```
 
 Medium task:
@@ -232,11 +254,11 @@ Use ForgeFlow. Clarify first, select the route, write a concrete plan with expec
 then execute only after the plan is clear.
 ```
 
-Large/high-risk task:
+Large/high route task:
 
 ```text
-Use ForgeFlow. Treat this as large/high-risk. Clarify, plan, execute,
-run spec-review and quality-review separately, and call out residual risk before finalize.
+Use ForgeFlow. Treat this as high route. Clarify, plan, execute,
+run spec and quality review passes separately on review-report.md, and call out residual risk before finalize.
 ```
 
 Epic/massive scale task:

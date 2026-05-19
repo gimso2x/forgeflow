@@ -12,6 +12,8 @@ Skills are markdown documents that live in `skills/`. Each skill defines a bound
 
 ## Workflow skills (ordered)
 
+Table numbers reflect skill index, not strict runtime order. For epic work, run `milestone` before `plan`.
+
 | # | Skill | Purpose |
 |---|-------|---------|
 | 00 | [`forgeflow`](forgeflow/SKILL.md) | Overview router for slash-style ForgeFlow prompts. |
@@ -23,7 +25,7 @@ Skills are markdown documents that live in `skills/`. Each skill defines a bound
 | 06 | [`ship`](ship/SKILL.md) | Final handoff/report after verification. |
 | 07 | [`finish`](finish/SKILL.md) | Close the task and handle branch/worktree disposition. |
 | 08 | [`milestone`](milestone/SKILL.md) | Create and manage project milestones with dependency DAG. |
-| 09 | [`long-run`](long-run/SKILL.md) | Record reusable learnings after high-risk task completion. |
+| 09 | [`long-run`](long-run/SKILL.md) | Record reusable learnings after high/epic route completion. |
 
 ## Skill lifecycle in a single task
 
@@ -63,7 +65,8 @@ User: "Build a complete e-commerce platform"
   → (per milestone)
     → plan           → plan.md
     → execute        → implementation-notes.md
-    → review         → review-report.md
+    → review (spec)  → review-report.md (spec section)
+    → review (quality) → review-report.md (quality section)
   → ship             → final handoff
   → finish           → branch disposition
   → long-run         → eval-record.md

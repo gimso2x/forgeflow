@@ -1,6 +1,6 @@
 ---
 name: milestone
-description: Create and manage hierarchical milestones for a project using parallel reviewer analysis. Decomposes epic-scale work into independently deliverable milestones with dependency DAG, success criteria, and integration verification. Use when the user types /forgeflow:milestone, or when clarify routes to epic.
+description: Create and manage hierarchical milestones for a project using parallel reviewer analysis. Decomposes epic-scale work into independently deliverable milestones with dependency DAG, success criteria, and integration verification. Use when the user types /milestone or /forgeflow:milestone, or when clarify routes to epic.
 version: 0.3.0
 author: gimso2x
 validate_prompt: |

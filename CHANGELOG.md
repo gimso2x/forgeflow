@@ -7,13 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.3] - 2026-05-20
+
 ### Added
 
-- 루트 `VERSION` 파일을 추가하고, CI에서 release version 정합성을 검사하도록 보강.
+- Cursor 로컬 플러그인 어댑터 (`.cursor-plugin/plugin.json`) 및 README 로컬 설치 가이드.
+- `skills/forgeflow/SKILL.md`에 플러그인 `templates/` 경로 해석 규칙과 Cursor 슬래시 명령 매핑.
+- `templates/ship-summary.md` 템플릿 추가.
+- CI 검사 확장: template 10종, frontmatter contract, template xref, route scoring parity, review/ship artifact contract, SKILLS.md inventory, GEMINI import, evals schema, Exit Condition, CHANGELOG release links.
+- `GEMINI.md`에 `long-run` 스킬 import 추가.
 
 ### Fixed
 
-- `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json` 버전을 현재 릴리즈와 동기화.
+- 감사 drift 수정: review 산출물 단일 `review-report.md` 계약 (high/epic spec→quality 순차 pass).
+- README/SKILL.md route 표에 `finish` 및 dual review 단계 반영.
+- Artifacts 표에 `run-ledger`, `checkpoint`, `ship-summary` 추가.
+- clarify epic next-step (`/forgeflow:milestone`), evolution `retired` README 반영.
+- Codex `defaultPrompt`에 init/milestone/long-run slash 추가.
+- release skill VERSION/SKILL.md/CHANGELOG/cursor-plugin 동기화 목록 보강.
 
 ## [1.0.2] - 2026-05-19
 
@@ -483,7 +494,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI gate with GitHub Actions workflow generation
 - Agent preset installer (Claude + Codex)
 
-[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v1.0.2...HEAD
+[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v1.0.3...HEAD
+[1.0.3]: https://github.com/gimso2x/forgeflow/compare/v1.0.2...v1.0.3
 [1.0.2]: https://github.com/gimso2x/forgeflow/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/gimso2x/forgeflow/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/gimso2x/forgeflow/compare/v0.13.1...v1.0.0
