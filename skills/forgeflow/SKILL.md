@@ -33,10 +33,10 @@ ForgeFlow turns agent work into explicit stages with Markdown artifacts, gates, 
 
 | Route | Stages | When |
 |-------|--------|------|
-| small | clarify -> execute -> quality-review -> ship | 1-2 files, low risk, easy rollback |
-| medium | clarify -> plan -> execute -> quality-review -> ship | Several coordinated files, shared state, moderate test surface |
-| high | clarify -> plan -> execute -> spec-review -> quality-review -> ship | Auth/security, data migration, infra, irreversible changes |
-| epic | clarify -> milestone -> (per milestone) plan -> execute -> spec-review -> quality-review -> ship | Massive scope, hierarchical milestones, multi-week effort |
+| small | clarify -> execute -> quality-review -> ship -> finish | 1-2 files, low risk, easy rollback |
+| medium | clarify -> plan -> execute -> quality-review -> ship -> finish | Several coordinated files, shared state, moderate test surface |
+| high | clarify -> plan -> execute -> spec-review -> quality-review -> ship -> long-run -> finish | Auth/security, data migration, infra, irreversible changes |
+| epic | clarify -> milestone -> (per milestone) plan -> execute -> spec-review -> quality-review -> ship -> long-run -> finish | Massive scope, hierarchical milestones, multi-week effort |
 
 Complexity thresholds (rough guide, not rigid):
 
@@ -56,6 +56,8 @@ All artifacts are Markdown files written to `.forgeflow/tasks/<task-id>/`:
 - `implementation-notes.md` — real-time execution log (template: `templates/implementation-notes.md`)
 - `review-report.md` — independent review result (template: `templates/review-report.md`)
 - `roadmap.md` for epic route: milestone DAG and statuses (template: `templates/roadmap.md`)
+- `ship-summary.md` — final handoff summary (created by ship)
+- `eval-record.md` — reusable learnings for high/epic routes (template: `templates/eval-record.md`)
 
 ## Status analysis before routing
 

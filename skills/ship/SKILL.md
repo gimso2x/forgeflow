@@ -89,24 +89,26 @@ Before preparing handoff, read the latest `review-report.md`, `brief.md`, and `e
 
 ### 5. Final Polish and Simplification Loop
 
-Before generating the final manifest, perform an iterative refinement loop on the **actually changed code** (`git diff HEAD~1 HEAD` or equivalent) until the delta converges to zero.
+Analyze the **actually changed code** (`git diff HEAD~1 HEAD` or equivalent) for quality before shipping. This is a read-first analysis: if modifications are needed, hand back to execute rather than editing code during ship.
 
-#### Principles
+#### Analysis (read-only)
 
 - **Phase 1: Identification**: Focus exclusively on the diff. Ignore noise from unrelated files.
 - **Phase 2: Triple-Lens Analysis**:
-    - **Lens 1 (Code Reuse)**: Replace new logic with existing utils, constants, or types. Avoid reinventing the wheel.
-    - **Lens 2 (Code Quality)**: Eliminate stringly-typed code, redundant wrappers, and abstraction boundary violations.
-    - **Lens 3 (Efficiency)**: Optimize hot paths, improve concurrency, and remove redundant resource reads.
-- **Phase 3: Iterative Refinement**:
-    - **Converge to Zero**: Repeat the refinement cycle until no further meaningful improvements are identified by the three lenses.
-    - **Comment Preservation**: Never delete comments during simplification. Comments are vital "Why" signals.
-    - **False Positive Filtering**: Only apply changes that have clear value now. Avoid over-engineering for hypothetical future needs.
+    - **Lens 1 (Code Reuse)**: Identify new logic that duplicates existing utils, constants, or types.
+    - **Lens 2 (Code Quality)**: Identify stringly-typed code, redundant wrappers, and abstraction boundary violations.
+    - **Lens 3 (Efficiency)**: Identify hot-path inefficiencies, missed concurrency, and redundant resource reads.
 
-#### Verification
+#### If issues found
 
-- Run focused tests after each refinement cycle to ensure no behavioral regressions.
-- If a simplification breaks a test, immediately revert (`git restore`) and skip that specific change.
+If the Triple-Lens analysis identifies meaningful improvements:
+- Record each finding in `ship-summary.md` under a "Simplification candidates" section.
+- Ask the user: "품질 개선 후보가 발견되었습니다. `/forgeflow:execute`로 돌아가 수정하시겠습니까? (y/n)"
+- Do NOT modify code during ship. Ship is verification + handoff, not implementation.
+
+#### If no issues found
+
+Proceed to step 6 directly.
 
 6. Write `ship-summary.md` to the active task directory.
 7. Preserve artifacts/evidence instead of burying them in chat.

@@ -67,7 +67,18 @@ Analyze the problem from five independent angles. For each angle, produce a stru
 
 ### Phase 3: Synthesis
 
-1. Define milestone boundaries based on the five-angle analysis:
+Apply these synthesis heuristics to convert five-angle analysis into milestone boundaries:
+
+| Signal from analysis | Synthesis action |
+|---|---|
+| Feasibility = Uncertain | Extract as a spike milestone (time-boxed exploration, no production code) |
+| Risk = High + blast radius = wide | Isolate behind an interface milestone; dependents wait for interface stabilization |
+| Dependency = zero between two groups | Mark as parallelizable; assign different milestone numbers |
+| User value = standalone | Ship first for early feedback, even if technically dependent on nothing |
+| Architecture = shared file touched by multiple streams | Create a "foundation" milestone that stabilizes the shared surface before dependents |
+| Component = Large (9+ tasks) | Split into "core" + "extensions" milestones; core ships first |
+
+1. Define milestone boundaries based on the synthesis:
    - Each milestone should be independently deliverable and testable
    - Target 3-8 tasks per milestone (sweet spot for a single plan-execute-review cycle)
    - Milestones that are too large (>12 tasks) should split; too small (1-2 tasks) should merge
