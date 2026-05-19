@@ -9,13 +9,18 @@ endif
 VENV_PYTHON := $(VENV_BIN)/python
 VENV_PIP := $(VENV_BIN)/pip
 
-.PHONY: setup check-env validate validate-fast validate-structure validate-plugin validate-e2e-live generate regen clean validate-samples demo runtime-sample evals adherence-evals monitor-summary monitor-summary-json orchestrator-help orchestrator-status smoke-claude-plugin plugin-smoke-matrix-static validate-context-paths validate-upstream-import validate-hoyeon-import validate-skill-contracts validate-claude-hooks plan-cli-smoke evolution-policy-smoke learn-smoke claude-hook-smoke shared-recovery-smoke team-pattern-smoke agent-preset-smoke claude-agent-preset-smoke release-script-smoke finish-skill-smoke plugin-manifest-smoke
+.PHONY: setup test ci check-env validate validate-fast validate-structure validate-plugin validate-e2e-live generate regen clean validate-samples demo runtime-sample evals adherence-evals monitor-summary monitor-summary-json orchestrator-help orchestrator-status smoke-claude-plugin plugin-smoke-matrix-static validate-context-paths validate-upstream-import validate-hoyeon-import validate-skill-contracts validate-claude-hooks plan-cli-smoke evolution-policy-smoke learn-smoke claude-hook-smoke shared-recovery-smoke team-pattern-smoke agent-preset-smoke claude-agent-preset-smoke release-script-smoke finish-skill-smoke plugin-manifest-smoke
 
 setup:
 	$(PYTHON) scripts/check_environment.py --require-venv-support --skip-modules
 	$(PYTHON) -m venv $(VENV)
 	$(VENV_PYTHON) -m pip install --upgrade pip
-	$(VENV_PYTHON) -m pip install -r requirements.txt
+	$(VENV_PYTHON) -m pip install .
+
+test:
+	$(VENV_PYTHON) -m pytest -q
+
+ci: check-env validate test
 
 check-env:
 	$(VENV_PYTHON) scripts/check_environment.py
