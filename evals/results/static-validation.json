@@ -1,0 +1,38 @@
+{
+  "checks": [
+    {
+      "status": "PASS",
+      "name": "skill_skill_md",
+      "detail": "10 skills"
+    },
+    {
+      "status": "PASS",
+      "name": "release_version",
+      "detail": "VERSION=1.0.2 (bump to 1.0.3 pending)"
+    },
+    {
+      "status": "PASS",
+      "name": "template_xref",
+      "detail": "10 refs OK incl ship-summary.md"
+    },
+    {
+      "status": "PASS",
+      "name": "review_canonical",
+      "detail": "single review-report.md contract"
+    },
+    {
+      "status": "PASS",
+      "name": "ship_summary_template",
+      "detail": ""
+    },
+    {
+      "status": "PASS",
+      "name": "gemini_imports",
+      "detail": "11 imports incl long-run"
+    }
+  ],
+  "failures": [],
+  "warnings": [],
+  "generated_at": "2026-05-20-post-fix-v1.0.3",
+  "release": "1.0.3"
+}

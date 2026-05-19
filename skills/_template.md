@@ -1,3 +1,10 @@
+---
+name: example-skill
+description: One sentence describing when to use this skill.
+validate_prompt: |
+  Must state the hard constraints an agent must obey when running this skill.
+---
+
 # Skill: <name>
 
 ## Purpose
@@ -13,13 +20,13 @@ One sentence describing what this skill does and why it exists.
 
 | Artifact | Source |
 |----------|--------|
-| `artifact.md` | Where this comes from |
+| `<input-artifact>.md` | Prior stage or user |
 
 ## Output Artifacts
 
 | Artifact | Template | Description |
 |----------|----------|-------------|
-| `artifact.md` | `templates/artifact.md` | What this artifact contains. |
+| `<output-artifact>.md` | `templates/<output-artifact>.md` | What this artifact contains |
 
 ## Execution
 

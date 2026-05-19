@@ -7,15 +7,15 @@ Repository-level instructions for AI coding agents working on this repo.
 ## Project Overview
 
 ForgeFlow는 AI coding agent를 위한 artifact-first delivery workflow입니다.
-clarify, plan, execute, review, ship 파이프라인을 markdown 산출물과 프롬프트 기반 강제로 제공합니다.
-Claude Code, Codex, Gemini CLI를 지원합니다.
+forgeflow-init, clarify, plan, milestone, execute, review, ship, long-run, finish 파이프라인을 markdown 산출물과 프롬프트 기반 강제로 제공합니다.
+Claude Code, Codex, Gemini CLI, Cursor(로컬 플러그인)를 지원합니다.
 
 ## Tech Stack
 
 - **Skills**: 순수 Markdown (SKILL.md + YAML frontmatter)
 - **Templates**: Markdown artifact templates (`templates/`)
 - **No runtime dependencies** — Python, Node.js 등 외부 의존성 없음
-- **Adapters**: Claude Code (`.claude-plugin/`), Codex (`.codex-plugin/`), Gemini CLI (`GEMINI.md`)
+- **Adapters**: Claude Code (`.claude-plugin/`), Codex (`.codex-plugin/`), Gemini CLI (`GEMINI.md`), Cursor (`.cursor-plugin/`)
 
 ## Repo Structure
 
@@ -34,6 +34,7 @@ skills/                   # 각 스킬 디렉토리 (SKILL.md 포함)
 templates/                # Markdown 산출물 템플릿
 .claude-plugin/           # Claude Code 플러그인 설정
 .codex-plugin/            # Codex 플러그인 설정
+.cursor-plugin/           # Cursor 로컬 플러그인 설정
 GEMINI.md                 # Gemini CLI 어댑터
 ```
 
@@ -41,13 +42,13 @@ GEMINI.md                 # Gemini CLI 어댑터
 
 1. **스킬 수정** — `skills/<name>/SKILL.md` 편집
 2. **템플릿 수정** — `templates/<name>.md` 편집
-3. **플러그인 설정** — `.claude-plugin/`, `.codex-plugin/` 업데이트
+3. **플러그인 설정** — `.claude-plugin/`, `.codex-plugin/`, `.cursor-plugin/` 업데이트
 4. **수동 테스트** — Claude Code에서 해당 스킬 실행하여 산출물 확인
 
 ## Code Conventions
 
 - 모든 산출물은 Markdown. `templates/` 디렉토리에 템플릿이 있습니다.
-- 스킬은 YAML frontmatter (`name`, `description`, `validate_prompt`)로 시작.
+- 스킬은 YAML frontmatter (`name`, `description`, `validate_prompt`)로 시작. 일부 스킬은 스키마 버전용 `version`/`author` 필드를 추가할 수 있으며, 이는 릴리즈 `VERSION`과 별개입니다.
 - 산출물은 `.forgeflow/tasks/<task-id>/` 아래에 작성.
 - Review는 읽기 전용. 코드 수정 금지.
 - Verification은 실제 명령 기반. hallucinated command 금지.

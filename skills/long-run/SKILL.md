@@ -1,6 +1,6 @@
 ---
 name: long-run
-description: Record reusable learnings after high-risk task completion. Produces eval-record.md with evidence-backed reusable patterns, failure rules, and improvement suggestions. High-risk route only unless manually invoked. Use when the user types /forgeflow:long-run.
+description: Record reusable learnings after high or epic route completion. Produces eval-record.md with evidence-backed reusable patterns, failure rules, and improvement suggestions. High/epic route only unless manually invoked. Use when the user types /long-run or /forgeflow:long-run.
 version: 0.3.0
 author: gimso2x
 validate_prompt: |
@@ -12,11 +12,11 @@ validate_prompt: |
 
 # Long-run
 
-Capture durable signal from high-risk or repeatedly useful work. This is not a summary tool -- it is a memory gate that decides what is worth preserving for future tasks.
+Capture durable signal from high or epic route work. This is not a summary tool -- it is a memory gate that decides what is worth preserving for future tasks.
 
 ## When to run
 
-- Automatically after high-risk route finalize completes.
+- Automatically after high or epic route finalize completes.
 - Manually via `/forgeflow:long-run` when reusable implementation patterns, verification patterns, or durable failure rules were identified.
 - Do **not** require this for small or medium routes unless patterns are genuinely reusable.
 
@@ -121,10 +121,10 @@ A pattern or failure rule is a valid evolution candidate only when:
 | Capturing task status | Belongs in task artifacts, not long-run memory |
 | Capturing vibes without evidence | No actionable signal; wastes future context |
 | Capturing everything | Noise drowns signal; becomes useless |
-| Skipping this after high-risk work | Reusable lessons are lost; same mistakes recur |
+| Skipping this after high/epic work | Reusable lessons are lost; same mistakes recur |
 | Auto-committing to memory without review | Unvalidated patterns pollute the knowledge base |
 
-## Exit condition
+## Exit Condition
 
 - `eval-record.md` is written to the active task directory with at least one evidence-backed entry, **or**
 - `eval-record.md` records that no durable lesson should be retained and explains why.

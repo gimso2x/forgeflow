@@ -1,6 +1,6 @@
 ---
 name: finish
-description: Finish a ForgeFlow development branch safely after implementation and review by verifying evidence, presenting merge/PR/keep/discard options, and protecting destructive actions. Use when the user types /forgeflow:finish.
+description: Finish a ForgeFlow development branch safely after implementation and review by verifying evidence, presenting merge/PR/keep/discard options, and protecting destructive actions. Use when the user types /finish or /forgeflow:finish.
 version: 0.2.0
 author: gimso2x
 validate_prompt: |
@@ -52,7 +52,7 @@ Present a finish decision report containing:
 
 ## File write and output discipline
 
-If writing is allowed, write only under the current project workspace or the active task directory. Never write inside the plugin installation directory, marketplace cache, or `skills/<skill>/`.
+If writing is allowed, write only under the current project workspace or the active task directory. Never write inside the plugin installation directory, marketplace cache (including `.claude/plugins/cache`, `.codex/plugins`, `.cursor/plugins`, or `~/.cursor/plugins/local`), or `skills/<skill>/`.
 
 If the user explicitly asks for a dry run, exact-output response, or no-write simulation, obey that output constraint exactly and do not mutate branch state or task artifacts.
 
@@ -113,6 +113,7 @@ If verification fails, stop. Do not offer merge/PR as if the branch is ready.
 Check:
 
 - `review-report.md` approved if this workflow requires review
+- For **high/epic** routes: `review-report.md` must show both Spec Compliance and Quality Assessment completed with no open blockers from either pass
 - Intended files changed
 - Generated artifacts updated if relevant
 - Residual risks are named

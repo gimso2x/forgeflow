@@ -1,14 +1,14 @@
 ---
 name: forgeflow
 description: Artifact-first delivery workflow for AI coding agents
-version: "1.0.2"
+version: "1.0.3"
 category: engineering
-tags: [ai-agents, workflow, artifacts, claude-code, codex, gemini]
+tags: [ai-agents, workflow, artifacts, claude-code, codex, gemini, cursor]
 ---
 
 # ForgeFlow
 
-ForgeFlow는 Claude Code, Codex, Gemini CLI를 위한 artifact-first delivery workflow입니다.
+ForgeFlow는 Claude Code, Codex, Gemini CLI, Cursor를 위한 artifact-first delivery workflow입니다.
 AI coding agent 작업을 채팅 기억이 아니라 **명시적인 stage, markdown 산출물, 프롬프트 기반 gate, 독립 review**로 진행하게 만듭니다.
 
 ## Core Workflow
@@ -21,17 +21,18 @@ user request
   → execute    # 구현, updates implementation-notes.md
   → review     # 독립 검증 → review-report.md
   → ship       # 배포/마무리
-  → long-run   # (high-risk only) 재사용 학습 → eval-record.md
+  → long-run   # (high/epic only) 재사용 학습 → eval-record.md
+  → finish     # 브랜치 정리
 ```
 
 ## Routes (자동 선택)
 
-| Route   | Stages                                              | When                      |
-|---------|-----------------------------------------------------|---------------------------|
-| small   | clarify → execute → review → ship                   | 저위험, 소규모, 쉬운 롤백  |
-| medium  | clarify → plan → execute → review → ship            | 범위 명확, 검증 필요       |
-| high    | clarify → plan → execute → review → ship → long-run | 아키텍처 영향, 롤백 어려움 |
-| epic    | clarify → milestone → plan → execute → review → ship → long-run | 대규모, 멀티윅       |
+| Route   | Stages                                                                                    | When                      |
+|---------|-------------------------------------------------------------------------------------------|---------------------------|
+| small   | clarify → execute → review → ship → finish                                                | 저위험, 소규모, 쉬운 롤백  |
+| medium  | clarify → plan → execute → review → ship → finish                                         | 범위 명확, 검증 필요       |
+| high    | clarify → plan → execute → review (spec) → review (quality) → ship → long-run → finish | 아키텍처 영향, 롤백 어려움 |
+| epic    | clarify → milestone → plan → execute → review (spec) → review (quality) → ship → long-run → finish | 대규모, 멀티윅       |
 
 ## Route scoring 기준
 
@@ -62,9 +63,10 @@ Python `complexity.py`가 없으므로 이 값을 바꾸면 `skills/clarify/SKIL
 - `run-ledger.md` — 실행 truth (task별 pending/running/done/blocked 상태)
 - `checkpoint.md` — 재개용 전술 포인터 (context compaction 후 복구)
 - `implementation-notes.md` — 실행 진행 상태, 결정 기록, 편차
-- `review-report.md` — review 결과 (spec + quality)
-- `eval-record.md` — 재사용 학습 기록 (high-risk)
-- `evolution-rule.md` — 반복 패턴/실수를 다음 작업에 적용하는 규칙 (template: `templates/evolution-rule.md`)
+- `review-report.md` — review 결과 (high/epic: spec + quality passes, single file)
+- `ship-summary.md` — ship handoff 요약 (template: `templates/ship-summary.md`)
+- `eval-record.md` — 재사용 학습 기록 (high/epic)
+- Project evolution rules live under `.forgeflow/evolution/` (proposed/active/retired), not in the task directory. Use `templates/evolution-rule.md` when creating candidates.
 
 ## Slash Skills
 
@@ -76,7 +78,7 @@ Python `complexity.py`가 없으므로 이 값을 바꾸면 `skills/clarify/SKIL
 /forgeflow:execute  — 구현 실행
 /forgeflow:review   — 독립 검증
 /forgeflow:ship     — 배포/마무리
-/forgeflow:long-run — 학습 기록 (high-risk route only)
+/forgeflow:long-run — 학습 기록 (high/epic route only)
 /forgeflow:finish   — 정리 및 종료
 ```
 

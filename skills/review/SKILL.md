@@ -1,6 +1,6 @@
 ---
 name: review
-description: Perform independent ForgeFlow review against requirements, plan, and code. Use when the user types /forgeflow:review, after /forgeflow:execute and before /forgeflow:ship.
+description: Perform independent ForgeFlow review against requirements, plan, and code. Use when the user types /review or /forgeflow:review, after execute and before ship.
 validate_prompt: |
   Must preserve exact-output and dry-run constraints when requested.
   Must separate spec compliance findings from quality findings.
@@ -87,13 +87,15 @@ A review that leaves no `review-report.md` is incomplete. The verdict exists onl
 
 ### Route-aware review behavior
 
-- **small** route: Single quality review. Write `review-report.md` with Review Type: quality.
-- **medium** route: Single quality review. Write `review-report.md` with Review Type: quality.
-- **high/epic** route: Two separate reviews are **required**:
-  1. `/forgeflow:review --type spec` — Write `review-report-spec.md` with Review Type: spec.
-  2. `/forgeflow:review --type quality` — Write `review-report-quality.md` with Review Type: quality.
+All routes write a **single** `review-report.md` using `templates/review-report.md`.
 
-  For high/epic, if `review-report-spec.md` does not exist or has verdict != approved, do not proceed to quality review. Each review is an independent gate.
+- **small** route: Single quality review. Set Review Type: quality. Complete Quality Assessment; Spec Compliance may be not_applicable.
+- **medium** route: Single quality review. Set Review Type: quality. Complete Quality Assessment.
+- **high/epic** route: Two separate review **passes** are **required** (same file, sequential gates):
+  1. `/forgeflow:review --type spec` — Create or update `review-report.md`. Set Review Type: spec. Complete Spec Compliance and Evolution Rule Review. Record spec verdict. Do not proceed to quality until spec verdict is approved.
+  2. `/forgeflow:review --type quality` — Update the same `review-report.md`. Set Review Type: quality (or note both passes in Findings). Complete Quality Assessment. Final verdict must reflect quality pass.
+
+  For high/epic, if Spec Compliance is missing, incomplete, or spec verdict != approved, do not proceed to the quality pass. Each pass is an independent gate; do not merge both passes into one review turn.
 
 ## File write and output discipline
 
@@ -202,7 +204,7 @@ Before reviewing, reconstruct the task state from artifacts instead of chat memo
    - Were assumptions about types, APIs, behavior, and test coverage verified against actual files?
    - If performance was touched, was the bottleneck measured before and after the change?
 12. Classify findings by severity: blocker, major, minor, nit.
-13. **Write `review-report.md`** (or `review-report-spec.md` / `review-report-quality.md` for high/epic) to the active task directory. The verdict in the file is the only valid verdict.
+13. **Write or update `review-report.md`** to the active task directory. For high/epic, spec and quality passes update the same file. The verdict in the file is the only valid verdict.
 14. Return a clear verdict in chat that matches the file. If verdict is `changes_requested` or `blocked`, update `implementation-notes.md` so status reflects the review gate.
 15. **다음 단계 안내** — 반드시 사용자에게 출력:
     - If `approved`: "리뷰 통과. 출하 준비 완료. `/forgeflow:ship`을 실행해주세요."
@@ -210,7 +212,7 @@ Before reviewing, reconstruct the task state from artifacts instead of chat memo
     - Do NOT auto-proceed to ship. 반드시 사용자가 다음 단계를 실행하도록 대기.
 16. Do not call `/forgeflow:ship` unless verdict=approved, safe_for_next_stage=yes, and open_blockers=none are all true in the **written** `review-report.md`.
 
-Do not merge spec-review and quality-review for high/epic work.
+Do not merge spec and quality review passes into a single turn for high/epic work. Use one `review-report.md` with sequential passes.
 
 ## Output mode examples
 

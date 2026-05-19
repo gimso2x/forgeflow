@@ -1,6 +1,6 @@
 ---
 name: clarify
-description: Turn a vague request into a scoped ForgeFlow brief and route decision. Use when the user types /forgeflow:clarify, or first for new implementation/refactor/debug requests unless the user already provided a complete brief.
+description: Turn a vague request into a scoped ForgeFlow brief and route decision. Use when the user types /clarify or /forgeflow:clarify, or first for new implementation/refactor/debug requests unless the user already provided a complete brief.
 validate_prompt: |
   Must preserve exact-output and dry-run constraints when requested.
   Must return a clear route or brief artifact only when the prompt asks for it.
@@ -216,10 +216,10 @@ The goal is to gather just enough information to route correctly — not to run 
 
 **Blocker handling**: If brief.md has unresolved blockers, present each one to the user with your recommended answer. Wait for their response. Update the brief. Only then close the stage.
 
-When all blockers are resolved, end with:
-```
-요구사항 충분. <route> route입니다. 다음 스텝으로 /forgeflow:<plan|execute>을 진행하시겠습니까? (y/n)
-```
+When all blockers are resolved, end with a route-specific next step:
+- `small`: `요구사항 충분. small route입니다. 다음 스텝으로 /forgeflow:execute을 진행하시겠습니까? (y/n)`
+- `medium` or `high`: `요구사항 충분. <route> route입니다. 다음 스텝으로 /forgeflow:plan을 진행하시겠습니까? (y/n)`
+- `epic`: `요구사항 충분. epic route입니다. 다음 스텝으로 /forgeflow:milestone을 진행하시겠습니까? (y/n)`
 
 ## Output mode examples
 

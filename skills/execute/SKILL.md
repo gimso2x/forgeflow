@@ -1,6 +1,6 @@
 ---
 name: execute
-description: Execute a ForgeFlow plan with verification and runtime evidence. Use when the user types /forgeflow:execute or asks to implement after clarify/plan.
+description: Execute a ForgeFlow plan with verification and runtime evidence. Use when the user types /execute or /forgeflow:execute, or asks to implement after clarify/plan.
 validate_prompt: |
   Must preserve exact-output and dry-run constraints when requested.
   Must execute only scoped plan tasks and respect contracts or verify_plan obligations when present.
