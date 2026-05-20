@@ -1,4 +1,4 @@
-.PHONY: validate validate-json validate-no-python validate-skills validate-templates validate-versions validate-changelog-links validate-gemini-imports validate-plugin-prompts validate-evals-json validate-workflow-vocab validate-markdown-links
+.PHONY: validate validate-json validate-no-python validate-skills validate-templates validate-versions validate-changelog-links validate-gemini-imports validate-plugin-prompts validate-evals-json validate-workflow-vocab validate-adapter-config validate-markdown-links
 
 PYTHON ?= python3
 
@@ -21,7 +21,7 @@ TEMPLATES := \
 	evolution-rule.md \
 	ship-summary.md
 
-validate: validate-no-python validate-json validate-versions validate-changelog-links validate-skills validate-templates validate-gemini-imports validate-plugin-prompts validate-evals-json validate-workflow-vocab validate-markdown-links
+validate: validate-no-python validate-json validate-versions validate-changelog-links validate-skills validate-templates validate-gemini-imports validate-plugin-prompts validate-evals-json validate-workflow-vocab validate-adapter-config validate-markdown-links
 	@echo "OK: local validation passed"
 
 validate-no-python:
@@ -111,6 +111,9 @@ validate-evals-json:
 
 validate-workflow-vocab:
 	@$(PYTHON) -c "exec("'"'"import pathlib, sys\nfailures = []\nchecks = {pathlib.Path('skills/SKILLS.md'): ['→ init             → task workspace']}\nfor path, stale_terms in checks.items():\n    text = path.read_text(encoding='utf-8')\n    for stale in stale_terms:\n        if stale in text:\n            failures.append(f'{path}: use forgeflow-init for user-facing workflow bootstrap, not init')\nstale_route_terms = ('large_high_risk', 'medium/large')\nscan_roots = [pathlib.Path('README.md'), pathlib.Path('GEMINI.md'), pathlib.Path('SKILL.md'), pathlib.Path('AGENTS.md'), pathlib.Path('docs'), pathlib.Path('skills'), pathlib.Path('templates')]\nfor root in scan_roots:\n    paths = [root] if root.is_file() else sorted(root.rglob('*.md'))\n    for path in paths:\n        text = path.read_text(encoding='utf-8')\n        for stale in stale_route_terms:\n            if stale in text:\n                failures.append(f'{path}: stale route vocabulary {stale!r}; use small/medium/high/epic')\nif failures:\n    print('ERROR: Workflow vocabulary drift found')\n    [print(f'- {failure}') for failure in failures]\n    sys.exit(1)\nprint('OK: Workflow examples use forgeflow-init and current route vocabulary')\n"'"'")"
+
+validate-adapter-config:
+	@$(PYTHON) -c "exec("'"'"import pathlib, sys\ntext = pathlib.Path('docs/adapter-config.md').read_text(encoding='utf-8')\nrequired = {\n    'Claude Code': ['claude -p', '--dangerously-skip-permissions', 'CLAUDE_CODE_SESSION=1'],\n    'Codex CLI': ['codex exec', 'danger-full-access', 'CODEX_SESSION=1'],\n    'Gemini CLI': ['gemini -p', '--yolo', '--skip-trust', 'GEMINI_CLI=1'],\n    'Cursor': ['~/.cursor/plugins/local/forgeflow', '/clarify', '<workspace>/.forgeflow/tasks/<task-id>/'],\n}\nfailures = []\nfor adapter, needles in required.items():\n    if f'### {adapter}' not in text:\n        failures.append(f'docs/adapter-config.md: missing section ### {adapter}')\n    for needle in needles:\n        if needle not in text:\n            failures.append(f'docs/adapter-config.md: {adapter} missing {needle!r}')\nroute_labels = ('small', 'medium', 'high', 'epic')\nfor label in route_labels:\n    if f'| {label} |' not in text:\n        failures.append(f'docs/adapter-config.md: timeout table missing route {label!r}')\nif failures:\n    print('ERROR: Adapter config contract failed')\n    [print(f'- {failure}') for failure in failures]\n    sys.exit(1)\nprint('OK: Adapter config covers CLI flags, env signals, and route timeouts')\n"'"'")"
 
 validate-markdown-links:
 	@$(PYTHON) -c "exec("'"'"import pathlib, re, sys, urllib.parse\nroot = pathlib.Path('.')\nfailures = []\nfor path in sorted(root.rglob('*.md')):\n    if '.git' in path.parts or '.venv' in path.parts:\n        continue\n    text = path.read_text(encoding='utf-8')\n    for match in re.finditer(r'(?<!!)\\[[^\\]]+\\]\\(([^)]+)\\)', text):\n        raw = match.group(1).strip()\n        target = raw.split('#', 1)[0].strip()\n        if not target or '://' in target or target.startswith(('mailto:', 'tel:')):\n            continue\n        parsed = urllib.parse.urlparse(target)\n        if parsed.scheme:\n            continue\n        candidate = (path.parent / urllib.parse.unquote(target)).resolve()\n        try:\n            candidate.relative_to(root.resolve())\n        except ValueError:\n            pass\n        if not candidate.exists():\n            failures.append(f'{path}:{match.start(1)} broken markdown link -> {raw}')\nif failures:\n    print('ERROR: Broken markdown links found')\n    [print(f'- {failure}') for failure in failures]\n    sys.exit(1)\nprint('OK: Markdown relative links resolve')\n"'"'")"
