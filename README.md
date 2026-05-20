@@ -29,12 +29,14 @@ gemini extensions update forgeflow
 
 **Codex:**
 
+대상 프로젝트 루트에서 실행하세요. ForgeFlow repo나 Codex plugin cache 안에서 실행하면 산출물이 잘못된 위치에 생길 수 있습니다.
+
 ```bash
 mkdir -p .codex/plugins/forgeflow
 cp -R /path/to/forgeflow/.codex-plugin/plugin.json /path/to/forgeflow/skills /path/to/forgeflow/templates .codex/plugins/forgeflow/
 ```
 
-로컬 checkout을 플러그인으로 복사하는 방식입니다. 업데이트할 때는 같은 `cp -R` 명령을 다시 실행해 `plugin.json`, `skills/`, `templates/`를 함께 갱신합니다.
+로컬 checkout을 대상 프로젝트의 플러그인 폴더로 복사하는 방식입니다. 업데이트할 때는 같은 `cp -R` 명령을 다시 실행해 `plugin.json`, `skills/`, `templates/`를 함께 갱신합니다.
 
 **Cursor (로컬 플러그인):**
 
