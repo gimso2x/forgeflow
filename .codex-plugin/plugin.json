@@ -9,7 +9,11 @@
     "longDescription": "ForgeFlow guides coding agents through an artifact-backed pipeline: clarify requirements into a design brief, plan execution steps, implement with evidence tracking, review independently, then ship. All artifacts are markdown files. No runtime dependencies.",
     "developerName": "gimso2x",
     "category": "Coding",
-    "capabilities": ["Interactive", "Read", "Write"],
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
     "defaultPrompt": [
       "/forgeflow-init <task-id> <objective>",
       "/forgeflow:clarify <describe the coding task>",
