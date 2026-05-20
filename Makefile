@@ -1,4 +1,4 @@
-.PHONY: validate demo validate-json validate-no-python validate-skills validate-agent-docs validate-templates validate-template-refs validate-versions validate-changelog-links validate-gemini-imports validate-plugin-prompts validate-evals-json validate-eval-files validate-workflow-vocab validate-adapter-config validate-markdown-links
+.PHONY: validate demo validate-demo validate-json validate-no-python validate-skills validate-agent-docs validate-templates validate-template-refs validate-versions validate-changelog-links validate-gemini-imports validate-plugin-prompts validate-evals-json validate-eval-files validate-workflow-vocab validate-adapter-config validate-markdown-links
 
 PYTHON ?= python3
 
@@ -21,7 +21,7 @@ TEMPLATES := \
 	evolution-rule.md \
 	ship-summary.md
 
-validate: validate-no-python validate-json validate-versions validate-changelog-links validate-skills validate-agent-docs validate-templates validate-template-refs validate-gemini-imports validate-plugin-prompts validate-evals-json validate-eval-files validate-workflow-vocab validate-adapter-config validate-markdown-links
+validate: validate-no-python validate-json validate-versions validate-changelog-links validate-skills validate-agent-docs validate-templates validate-template-refs validate-demo validate-gemini-imports validate-plugin-prompts validate-evals-json validate-eval-files validate-workflow-vocab validate-adapter-config validate-markdown-links
 	@echo "OK: local validation passed"
 
 demo:
@@ -36,6 +36,22 @@ demo:
 	printf 'Task artifacts:\n'; \
 	find "$$task_dir" -maxdepth 1 -type f | sort; \
 	printf '\nNext: open the temp workspace and run /forgeflow-init, then /forgeflow:clarify for a real task.\n'
+
+validate-demo:
+	@tmp="$$(mktemp -d)"; \
+	trap 'rm -rf "$$tmp"' EXIT; \
+	task_dir="$$tmp/.forgeflow/tasks/demo-small"; \
+	mkdir -p "$$task_dir"; \
+	for artifact in brief.md implementation-notes.md review-report.md ship-summary.md; do \
+		cp "templates/$$artifact" "$$task_dir/$$artifact"; \
+		test -s "$$task_dir/$$artifact" || { echo "ERROR: demo artifact missing or empty: $$artifact"; exit 1; }; \
+	done; \
+	count="$$(find "$$task_dir" -maxdepth 1 -type f | wc -l)"; \
+	if [ "$$count" -ne 4 ]; then \
+		echo "ERROR: demo workspace expected 4 artifacts, got $$count"; \
+		exit 1; \
+	fi
+	@echo "OK: demo workspace creates first-run artifacts"
 
 validate-no-python:
 	@count=$$(find . -name '*.py' -not -path './.git/*' -not -path './.venv/*' | wc -l); \
