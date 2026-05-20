@@ -210,6 +210,16 @@ python3 -m json.tool gemini-extension.json >/dev/null
 
 출력이 없어야 하는 첫 번째 명령을 제외하고, JSON 명령은 exit code 0이면 통과입니다. 전체 release/version/skill 계약은 push/PR에서 `validate` workflow가 검사합니다.
 
+### 첫 성공 데모
+
+로컬 checkout만으로 산출물 위치와 템플릿 구성을 빠르게 확인하려면 다음을 실행합니다. 실제 provider/plugin E2E가 아니라, 임시 workspace에 대표 산출물 템플릿을 복사해 첫 실행 결과의 파일 구조를 보여주는 안전한 데모입니다.
+
+```bash
+make demo
+```
+
+이 명령은 `mktemp -d` 아래에 `.forgeflow/tasks/demo-small/`을 만들고 `brief.md`, `implementation-notes.md`, `review-report.md`, `ship-summary.md` 경로를 출력합니다. 생성된 임시 workspace를 열어 실제 작업에서는 `/forgeflow-init`부터 시작하세요.
+
 ## 실제 외부 실행 안전 기준
 
 v1.x는 Python `exec-stage --real` 런타임을 포함하지 않습니다.

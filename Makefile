@@ -1,4 +1,4 @@
-.PHONY: validate validate-json validate-no-python validate-skills validate-agent-docs validate-templates validate-template-refs validate-versions validate-changelog-links validate-gemini-imports validate-plugin-prompts validate-evals-json validate-eval-files validate-workflow-vocab validate-adapter-config validate-markdown-links
+.PHONY: validate demo validate-json validate-no-python validate-skills validate-agent-docs validate-templates validate-template-refs validate-versions validate-changelog-links validate-gemini-imports validate-plugin-prompts validate-evals-json validate-eval-files validate-workflow-vocab validate-adapter-config validate-markdown-links
 
 PYTHON ?= python3
 
@@ -23,6 +23,19 @@ TEMPLATES := \
 
 validate: validate-no-python validate-json validate-versions validate-changelog-links validate-skills validate-agent-docs validate-templates validate-template-refs validate-gemini-imports validate-plugin-prompts validate-evals-json validate-eval-files validate-workflow-vocab validate-adapter-config validate-markdown-links
 	@echo "OK: local validation passed"
+
+demo:
+	@tmp="$$(mktemp -d)"; \
+	task_dir="$$tmp/.forgeflow/tasks/demo-small"; \
+	mkdir -p "$$task_dir"; \
+	cp templates/brief.md "$$task_dir/brief.md"; \
+	cp templates/implementation-notes.md "$$task_dir/implementation-notes.md"; \
+	cp templates/review-report.md "$$task_dir/review-report.md"; \
+	cp templates/ship-summary.md "$$task_dir/ship-summary.md"; \
+	printf 'ForgeFlow demo workspace: %s\n' "$$tmp"; \
+	printf 'Task artifacts:\n'; \
+	find "$$task_dir" -maxdepth 1 -type f | sort; \
+	printf '\nNext: open the temp workspace and run /forgeflow-init, then /forgeflow:clarify for a real task.\n'
 
 validate-no-python:
 	@count=$$(find . -name '*.py' -not -path './.git/*' -not -path './.venv/*' | wc -l); \
