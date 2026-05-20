@@ -17,7 +17,6 @@ Use this skill to execute the selected ForgeFlow route.
 
 - `plan.md` or a clear small-route brief
 - `brief.md` from `/forgeflow:clarify`
-- `requirements.md` if available
 - Target repository
 
 ## Output Artifacts

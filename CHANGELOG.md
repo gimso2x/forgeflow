@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.4] - 2026-05-20
+
 ### Added
 
 - **Opt-in `subagent-execute` skill** — high/epic per-plan-step loop: implementer → spec micro-review → quality micro-review (`/forgeflow:subagent-execute`, `/subagent-execute`, or `/forgeflow:execute --subagent-per-task`).
@@ -16,18 +18,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **run-ledger Assignee discipline** — `worker` | `specialist` | `spec-reviewer` | `quality-reviewer`.
 - **Eval cases** `fan-out-execute-ledger`, `review-micro-gates-table` in `evals/evals.json`.
 - **CI P12–P13** — execute reference prompts; review-report Execute Micro-Gates contract for template, review skill, high/epic smoke.
+- **`docs/adapter-config.md` Cursor 섹션** — IDE slash, template resolution, 타임아웃 가이드.
+- **medium-light / medium-full 실행 계약** — brief, plan, review 스킬·템플릿에 sub-band depth 연결.
+- **CI adapter-config parity, GEMINI inventory, docs link** 검사.
 
 ### Changed
 
 - `skills/execute`, `skills/review`, `skills/forgeflow` — review depth by route, delegation red flags, stage vs micro-gate boundaries.
 - `templates/review-report.md`, `templates/run-ledger.md` — micro-gate handoff and assignee guidance.
-- `GEMINI.md`, `.codex-plugin/plugin.json` — `subagent-execute` entrypoint.
+- `GEMINI.md`, `.codex-plugin/plugin.json`, `.cursor-plugin/plugin.json` — `subagent-execute`, `benchmark` entrypoint parity.
 - `skills/SKILLS.md` — inventory row for `subagent-execute`.
+- **어댑터 감지 표** — `docs/adapter-config.md`를 canonical source로 통합; forgeflow SKILL은 참조만.
+- **루트 `SKILL.md`** — 한국어 요약 + `skills/forgeflow/SKILL.md` 위임으로 축소.
+- `plan` / `execute` / `review` Input — `requirements.md` 제거, `brief.md` 단일 소스.
+- `README.md`, `AGENTS.md` — docs 링크 및 레포 구조 갱신.
 
 ### Removed
 
 - Unused eval artifacts: historical `evals/results/*` reports, route/smoke snapshots, `evals/scenarios/`, smoke fixture dirs except CI-checked high/epic `review-report.md`.
 - Root `benchmark-report.md` (unreferenced one-off report).
+- Orphan `templates/evolution.md` (superseded by `templates/evolution-rule.md`).
 
 ## [1.0.3] - 2026-05-20
 
@@ -516,7 +526,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI gate with GitHub Actions workflow generation
 - Agent preset installer (Claude + Codex)
 
-[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v1.0.3...HEAD
+[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v1.0.4...HEAD
+[1.0.4]: https://github.com/gimso2x/forgeflow/compare/v1.0.3...v1.0.4
 [1.0.3]: https://github.com/gimso2x/forgeflow/compare/v1.0.2...v1.0.3
 [1.0.2]: https://github.com/gimso2x/forgeflow/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/gimso2x/forgeflow/compare/v1.0.0...v1.0.1

@@ -17,22 +17,16 @@ Use Socratic interviewing with recommended answers to ensure rigorous design and
 
 ## Adapter detection
 
-Skills may need adapter-specific behavior. Detect the current adapter using:
+Skills may need adapter-specific behavior. Use the canonical detection table in `docs/adapter-config.md` (env var → adapter directory signals). Do not duplicate adapter flags or timeout tables here — link to `docs/adapter-config.md` instead.
 
-| Method | Signal |
-|--------|--------|
-| Claude Code | `CLAUDE_CODE_SESSION` env var, or `.claude/` directory present |
-| Codex CLI | `CODEX_SESSION` env var, or `.codex/` directory present |
-| Gemini CLI | `GEMINI_CLI` env var, or `.gemini/` directory present |
-| Cursor | `.cursor/` directory present |
+Adapter-specific usage examples:
 
-Usage in skills: check for the adapter-specific signal and adjust behavior. Examples:
-
-- Codex output normalization: strip raw diff before artifact parsing
-- Gemini: enforce `import type` for `verbatimModuleSyntax` compliance
+- Codex output normalization: strip raw diff before artifact parsing (see `docs/adapter-config.md` → Output normalization)
+- Gemini: leverage 1M+ token context for project-wide "WHERE grounding" and consistency checks. Enforce `import type` for `verbatimModuleSyntax` compliance.
 - Claude: expect structured table-format reports
+- Cursor: use slash names without `:` (`/clarify`, not `/forgeflow:clarify`); resolve templates per Template resolution below
 
-Adapter-specific CLI flags and timeout guides are in `docs/adapter-config.md`.
+Adapter-specific CLI flags and timeout guides: `docs/adapter-config.md`.
 
 ## Slash-style entrypoints
 
@@ -245,18 +239,9 @@ Global rules live under `~/.forgeflow/evolution/active/*.md`, but they are advis
 
 ## Adapter performance guide
 
-Adapter execution time varies significantly. When orchestrating or benchmarking multi-adapter workflows, use these timeout guides:
-
-| Route | Gemini | Claude | Codex | Safety ceiling |
-|-------|--------|--------|-------|----------------|
-| small | 120s | 120s | 180s | 300s |
-| medium | 180s | 360s | 240s | 600s |
-| high | 300s | 600s | 480s | 900s |
-| epic | 600s | 1200s | 900s | 1800s |
+Adapter execution time varies significantly. Timeout guides and per-adapter ceilings are in `docs/adapter-config.md` (including Cursor). When orchestrating or benchmarking multi-adapter workflows, use those values.
 
 If an adapter exceeds the safety ceiling, terminate the process and record the timeout in `implementation-notes.md` as a blocker. Do not silently wait indefinitely.
-
-Adapter CLI flags for non-interactive execution are documented in `docs/adapter-config.md`.
 
 ## Strict response constraints
 

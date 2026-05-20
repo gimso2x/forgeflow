@@ -397,3 +397,103 @@ jobs:
               sys.exit(1)
           print("OK: CHANGELOG release links present")
           PY
+
+      - name: Verify adapter-config contract
+        run: |
+          python3 - <<'PY'
+          import pathlib
+          import sys
+
+          root = pathlib.Path(".")
+          failures = []
+          adapter = (root / "docs/adapter-config.md").read_text(encoding="utf-8")
+          forgeflow = (root / "skills/forgeflow/SKILL.md").read_text(encoding="utf-8")
+
+          for signal in ("CLAUDE_CODE_SESSION", "CODEX_SESSION", "GEMINI_CLI", ".cursor/"):
+              if signal not in adapter:
+                  failures.append(f"docs/adapter-config.md: missing {signal}")
+
+          if "### Cursor" not in adapter:
+              failures.append("docs/adapter-config.md: missing Cursor section")
+
+          if "docs/adapter-config.md" not in forgeflow:
+              failures.append("skills/forgeflow/SKILL.md: must reference docs/adapter-config.md")
+
+          if "| Claude Code | `CLAUDE_CODE_SESSION` env var, or `.claude/`" in forgeflow:
+              failures.append("skills/forgeflow/SKILL.md: duplicate adapter table; link to docs/adapter-config.md only")
+
+          readme = (root / "README.md").read_text(encoding="utf-8")
+          if "docs/adapter-config.md" not in readme:
+              failures.append("README.md: missing docs/adapter-config.md link")
+
+          if failures:
+              print("ERROR: Adapter-config contract failed")
+              for failure in failures:
+                  print(f"- {failure}")
+              sys.exit(1)
+          print("OK: Adapter-config contract satisfied")
+          PY
+
+      - name: Verify GEMINI.md imports all workflow skills
+        run: |
+          python3 - <<'PY'
+          import pathlib
+          import re
+          import sys
+
+          root = pathlib.Path(".")
+          skills_md = (root / "skills/SKILLS.md").read_text(encoding="utf-8")
+          table_rows = set(re.findall(r"\|\s*\d+\s*\|\s*\[`([^`]+)`\]", skills_md))
+          gemini = (root / "GEMINI.md").read_text(encoding="utf-8")
+          imports = set(re.findall(r"@\./skills/([^/\s]+)/SKILL\.md", gemini))
+          missing = sorted(table_rows - imports - {"forgeflow"})
+          if missing:
+              print("ERROR: GEMINI.md missing skill imports:")
+              for item in missing:
+                  print(f"- {item}")
+              sys.exit(1)
+          print(f"OK: GEMINI.md imports all {len(table_rows)} workflow skills")
+          PY
+
+      - name: Verify no requirements.md ghost references
+        run: |
+          python3 - <<'PY'
+          import pathlib
+          import sys
+
+          root = pathlib.Path("skills")
+          failures = []
+          for skill_md in root.rglob("SKILL.md"):
+              if "requirements.md" in skill_md.read_text(encoding="utf-8"):
+                  failures.append(str(skill_md))
+          if failures:
+              print("ERROR: requirements.md still referenced in:")
+              for failure in failures:
+                  print(f"- {failure}")
+              sys.exit(1)
+          print("OK: No requirements.md ghost references")
+          PY
+
+      - name: Verify medium sub-band template fields
+        run: |
+          python3 - <<'PY'
+          import pathlib
+          import sys
+
+          checks = [
+              ("templates/brief.md", "Route Sub-band"),
+              ("templates/plan.md", "Route Sub-band"),
+              ("skills/plan/SKILL.md", "medium-light"),
+              ("skills/review/SKILL.md", "medium-full"),
+          ]
+          failures = []
+          for path, needle in checks:
+              if needle not in (pathlib.Path(path)).read_text(encoding="utf-8"):
+                  failures.append(f"{path}: missing {needle}")
+          if failures:
+              print("ERROR: Medium sub-band contract failed")
+              for failure in failures:
+                  print(f"- {failure}")
+              sys.exit(1)
+          print("OK: Medium sub-band template/skill contract satisfied")
+          PY

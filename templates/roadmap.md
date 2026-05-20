@@ -7,6 +7,16 @@
 
 ## Milestones
 
+## Milestone DAG
+
+```mermaid
+graph LR
+    M1[M1: Name] --> M2[M2: Name]
+    M1 --> M3[M3: Name]
+    M2 --> M4[M4: Name]
+    M3 --> M4
+```
+
 ### M1: <!-- name -->
 - **Objective**:
 - **Success criteria**:

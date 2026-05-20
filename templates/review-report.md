@@ -5,6 +5,7 @@
 
 ## Review Type
 <!-- spec | quality | security | ux -->
+<!-- small/medium: quality only. high/epic: spec pass then quality pass (same file). -->
 
 ## Verdict
 <!-- approved | changes_requested | blocked -->
@@ -44,7 +45,7 @@
 - [ ] Maintainability acceptable for task size
 - [ ] Smallest safe change
 - [ ] No unnecessary abstractions added
-- [ ] TDD cycle followed (red → green → refactor)
+- [ ] TDD cycle followed (red → green → refactor) <!-- only when plan step required TDD -->
 
 ## Execute Micro-Gates
 <!-- high/epic only. Per-step gates from execute; NOT a substitute for this review pass. -->

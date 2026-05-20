@@ -7,13 +7,14 @@ Repository-level instructions for AI coding agents working on this repo.
 ## Project Overview
 
 ForgeFlow는 AI coding agent를 위한 artifact-first delivery workflow입니다.
-forgeflow-init, clarify, plan, milestone, execute, review, ship, long-run, finish 파이프라인을 markdown 산출물과 프롬프트 기반 강제로 제공합니다.
+forgeflow-init, clarify, plan, milestone, execute, subagent-execute (opt-in), review, ship, long-run, finish, benchmark 파이프라인을 markdown 산출물과 프롬프트 기반 강제로 제공합니다.
 Claude Code, Codex, Gemini CLI, Cursor(로컬 플러그인)를 지원합니다.
 
 ## Tech Stack
 
 - **Skills**: 순수 Markdown (SKILL.md + YAML frontmatter)
 - **Templates**: Markdown artifact templates (`templates/`)
+- **Docs**: 어댑터 참조 (`docs/adapter-config.md`)
 - **No runtime dependencies** — Python, Node.js 등 외부 의존성 없음
 - **Adapters**: Claude Code (`.claude-plugin/`), Codex (`.codex-plugin/`), Gemini CLI (`GEMINI.md`), Cursor (`.cursor-plugin/`)
 
@@ -21,7 +22,7 @@ Claude Code, Codex, Gemini CLI, Cursor(로컬 플러그인)를 지원합니다.
 
 ```
 skills/                   # 각 스킬 디렉토리 (SKILL.md 포함)
-  forgeflow/              # 메인 라우터
+  forgeflow/              # 메인 라우터 (canonical contract, 영문)
   forgeflow-init/         # 작업 공간 초기화
   clarify/                # 요구사항 정리 → brief.md
   plan/                   # 계획 수립 → plan.md
@@ -32,19 +33,24 @@ skills/                   # 각 스킬 디렉토리 (SKILL.md 포함)
   finish/                 # 브랜치 정리
   milestone/              # Epic 마일스톤 → roadmap.md
   long-run/               # 학습 기록 → eval-record.md
+  benchmark/              # cross-adapter 벤치마크
 templates/                # Markdown 산출물 템플릿
+docs/                     # adapter-config 등 참조 문서
 .claude-plugin/           # Claude Code 플러그인 설정
 .codex-plugin/            # Codex 플러그인 설정
 .cursor-plugin/           # Cursor 로컬 플러그인 설정
-GEMINI.md                 # Gemini CLI 어댑터
+GEMINI.md                 # Gemini CLI 어댑터 (skill imports)
+SKILL.md                  # Claude marketplace entry (한국어 요약 → skills/forgeflow 위임)
 ```
 
 ## Development Workflow
 
-1. **스킬 수정** — `skills/<name>/SKILL.md` 편집
+1. **스킬 수정** — `skills/<name>/SKILL.md` 편집 (canonical contract 변경 시 `skills/forgeflow/SKILL.md` 우선)
 2. **템플릿 수정** — `templates/<name>.md` 편집
-3. **플러그인 설정** — `.claude-plugin/`, `.codex-plugin/`, `.cursor-plugin/` 업데이트
-4. **수동 테스트** — Claude Code에서 해당 스킬 실행하여 산출물 확인
+3. **어댑터 문서** — `docs/adapter-config.md` (감지·CLI·타임아웃 canonical)
+4. **플러그인 설정** — `.claude-plugin/`, `.codex-plugin/`, `.cursor-plugin/`, `GEMINI.md` 동기화
+5. **수동 테스트** — 해당 스킬 실행하여 산출물 확인
+6. **릴리즈** — `VERSION` + plugin manifests + `CHANGELOG.md` + 루트 `SKILL.md`
 
 ## Code Conventions
 
@@ -54,10 +60,13 @@ GEMINI.md                 # Gemini CLI 어댑터
 - Review는 읽기 전용. 코드 수정 금지.
 - Verification은 실제 명령 기반. hallucinated command 금지.
 - 외부 의존성 추가 금지.
+- Evolution rules: `templates/evolution-rule.md` + `.forgeflow/evolution/{proposed,active,retired}/`
 
 ## Key Patterns
 
-- **Route selection**: clarify 스킬이 small/medium/high/epic 라우트 선택
+- **Route selection**: clarify 스킬이 small/medium/high/epic 라우트 선택; medium은 medium-light/full sub-band 기록
+- **Canonical contract**: `skills/forgeflow/SKILL.md` — 루트 `SKILL.md`는 marketplace 요약만
+- **Adapter config**: `docs/adapter-config.md` — forgeflow SKILL은 중복 표 대신 참조
 - **Milestone planning**: Epic 태스크는 roadmap.md로 마일스톤 분해 후 상세 계획
 - **Evidence discipline**: review는 파일 경로와 구체적 증거로 판단
 - **Prompt-driven enforcement**: 게이트와 규칙은 프롬프트로 강제, 스크립트 없음

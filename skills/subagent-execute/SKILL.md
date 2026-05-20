@@ -1,6 +1,8 @@
 ---
 name: subagent-execute
 description: Opt-in per-plan-step subagent loop for high/epic execute — implementer then spec micro-review then quality micro-review per task. Use when the user types /subagent-execute, /forgeflow:subagent-execute, or /forgeflow:execute --subagent-per-task after an approved plan.
+version: 0.1.0
+author: gimso2x
 validate_prompt: |
   Must only run on high or epic routes with an approved plan.md.
   Must use skills/execute/references prompts and write the same execute artifacts as /forgeflow:execute.
@@ -46,13 +48,15 @@ Do **not** write `review-report.md` during this skill. Stage review remains `/fo
 
 ## Reference prompts
 
-| Step | Template |
-|------|----------|
-| Implementer | `skills/execute/references/implementer-prompt.md` |
-| Spec micro-reviewer | `skills/execute/references/spec-reviewer-prompt.md` |
-| Quality micro-reviewer | `skills/execute/references/quality-reviewer-prompt.md` |
+| Step | Template | Dispatch tag |
+|------|----------|-------------|
+| Implementer | `skills/execute/references/implementer-prompt.md` | `implementer-prompt.md` |
+| Spec micro-reviewer | `skills/execute/references/spec-reviewer-prompt.md` | `spec-reviewer-prompt.md` |
+| Quality micro-reviewer | `skills/execute/references/quality-reviewer-prompt.md` | `quality-reviewer-prompt.md` |
 
 Paste **full plan step text** into each dispatch. Subagents must not read `plan.md` directly.
+
+Each dispatch must record the **Dispatch tag** (prompt filename) in the run-ledger Assignee entry so the audit trail shows which reference prompt drove each subagent. This makes the workflow reproducible and verifies that the correct prompt was used.
 
 ## Per-task loop (strict order)
 
@@ -60,14 +64,17 @@ For each plan step in dependency order:
 
 ```text
 1. Controller sets run-ledger: running, Assignee worker
+   → Record dispatch: "implementer-prompt.md"
 2. Dispatch implementer subagent (references/implementer-prompt.md)
 3. If NEEDS_CONTEXT → provide context and re-dispatch
    If BLOCKED → ledger blocked; stop or escalate to user
 4. Controller verifies: git diff --stat + step verification commands
 5. Dispatch spec micro-reviewer OR controller spec micro-check
+   → Record dispatch: "spec-reviewer-prompt.md"
    → micro_spec:PASS|FAIL in implementation-notes
 6. If spec not approved → implementer fixes → re-review spec (loop)
 7. Dispatch quality micro-reviewer OR controller quality micro-check
+   → Record dispatch: "quality-reviewer-prompt.md"
    → micro_quality:PASS|FAIL in implementation-notes
 8. If quality not approved → implementer fixes → re-review quality (loop)
 9. Mark step done in run-ledger only after steps 4–8 pass

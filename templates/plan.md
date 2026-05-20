@@ -4,6 +4,10 @@
 
 ## Route
 <!-- small | medium | high | epic -->
+<!-- medium sub-band: medium-light | medium-full (from brief.md) -->
+
+## Route Sub-band
+<!-- medium-light | medium-full | n/a -->
 
 ## Requirements
 <!-- Derived from brief.md acceptance criteria -->
@@ -16,12 +20,24 @@
 
 ## Architecture Notes
 <!-- Key design decisions affecting execution order -->
+<!-- high/epic: record Execution Pattern (pipeline | fan-out/fan-in) here -->
+<!-- medium-full: contract-first traceability required; medium-light: contracts optional unless brownfield -->
 
 ## Applied Evolution Rules
 <!-- Carry forward rules from brief.md and state how this plan applies them. -->
 - **Project active rules**:
 - **Global advisory rules**:
 - **Plan impact**:
+
+## Task Dependency Graph
+
+```mermaid
+graph TD
+    T1[Task 1] --> T2[Task 2]
+    T1 --> T3[Task 3]
+    T2 --> T4[Task 4]
+    T3 --> T4
+```
 
 ## Tasks
 

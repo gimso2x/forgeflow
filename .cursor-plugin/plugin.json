@@ -1,6 +1,6 @@
 {
   "name": "forgeflow",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Artifact-first delivery workflow for Cursor: clarify, plan, execute, review, ship through markdown artifacts",
   "author": {
     "name": "gimso2x",
@@ -14,5 +14,26 @@
     "artifacts",
     "cursor"
   ],
-  "skills": "./skills/"
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "ForgeFlow",
+    "shortDescription": "Artifact-first delivery workflow for coding agents",
+    "longDescription": "ForgeFlow guides coding agents through an artifact-backed pipeline: clarify requirements into a design brief, plan execution steps, implement with evidence tracking, review independently, then ship. All artifacts are markdown files. No runtime dependencies.",
+    "developerName": "gimso2x",
+    "category": "Coding",
+    "capabilities": ["Interactive", "Read", "Write"],
+    "defaultPrompt": [
+      "/forgeflow-init <task-id> <objective>",
+      "/clarify <describe the coding task>",
+      "/milestone",
+      "/plan",
+      "/execute",
+      "/subagent-execute",
+      "/review",
+      "/ship",
+      "/long-run",
+      "/finish",
+      "/benchmark"
+    ]
+  }
 }

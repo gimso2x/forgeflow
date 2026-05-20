@@ -16,7 +16,6 @@ Use this skill to turn a ForgeFlow brief or requirements document into an execut
 ## Input
 
 - `brief.md` from `/forgeflow:clarify`
-- `requirements.md` if available
 - Codebase context
 - Route selected by `/forgeflow:clarify`
 
@@ -35,6 +34,20 @@ Write `plan.md` to the active task directory using `templates/plan.md` as the st
 Also create empty scaffolds for the execute stage to fill:
 - `implementation-notes.md` (from `templates/implementation-notes.md`) — decisions, deviations, evidence
 - `run-ledger.md` (from `templates/run-ledger.md`) — per-task execution truth
+
+## Medium route sub-band depth
+
+Read **Route Sub-band** from `brief.md` (clarify records `medium-light` or `medium-full` from raw_score; route label stays `medium`).
+
+- **medium-light** (`10-16.9`):
+  - Task decomposition and Verification Plan are required.
+  - Contracts and Journeys are **optional** unless brownfield extension/refactor or cross-module interfaces are in scope.
+  - Default execution pattern: pipeline + producer-reviewer.
+  - Parallelism notes only when 2+ independent file groups exist.
+- **medium-full** (`17-24.9`):
+  - Apply **contract-first traceability** (below) — Contracts and Verification Plan with typed targets are required.
+  - Add Journeys when 2+ plan tasks compose an end-to-end flow.
+  - Consider fan-out/fan-in in Architecture Notes when 3+ independent file groups exist.
 
 ## Contract-first traceability for medium/high/epic or brownfield work
 

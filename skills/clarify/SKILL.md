@@ -37,6 +37,7 @@ Write `brief.md` to the active task directory using `templates/brief.md` as the 
 - Verification Gates (auto-detected from tech stack)
 - Environment Notes (git status, dependency check, tech stack detected)
 - Route selection and rationale
+- Route Sub-band (`medium-light` | `medium-full` | `n/a`) when route is medium
 
 ## Exit Condition
 
@@ -111,6 +112,7 @@ For exact-count, dry-run, or response-only prompts, do not force the WHERE inter
    - Run the Evolution preflight first when allowed, then map matched rules into brief.md.
    - Map Instructions, Tools, Environment, State, and Feedback into brief fields. Use Environment Notes, tech stack, Open Questions, and Verification Gates for missing context instead of creating a separate harness artifact.
    - If an Environment or Tools gap prevents execution, add it to Open Questions as a blocker and ask before routing to plan or execute.
+   - **Gemini optimization**: Leverage Gemini's ability to run parallel tool calls. When exploring the codebase, batch multiple `ls`, `grep`, or `cat` operations into a single turn to minimize latency.
    - Surface confusion instead of guessing. If the request has competing interpretations that materially change scope, say so in the brief.
    - For brownfield refactors or extensions, specifically identify **architectural friction**: where are modules **shallow** (interface as complex as implementation), where is **locality** missing, and where are **pass-throughs** bloating the path?
    - Do not silently pick one interpretation when the ambiguity affects user-visible behavior, data, security, or files to edit.
@@ -151,6 +153,13 @@ For exact-count, dry-run, or response-only prompts, do not force the WHERE inter
    - `17-24.9`: `medium-full` — cross-module or service-level changes that still avoid high-risk auth/security/data/infra boundaries.
    - `25-49.9`: `high` — auth/security, data migration, payments, production infra, irreversible data changes, broad architecture migration, or many contracts/journeys requiring separate spec and quality review.
    - `>= 50`: `epic` — massive scope, hierarchical milestone breakdown, multi-week effort.
+
+   **Scoring Calibration**:
+   - `file_count`: Count of existing files to modify + new files to create.
+   - `estimated_lines`: Total net change in lines (additions + modifications).
+   - `requirement_count`: Number of distinct items in the Acceptance Criteria list.
+   - `dependency_count`: Number of external libraries or internal modules impacted.
+   - `risk_keywords`: Presence of keywords like `auth`, `payment`, `migration`, `security`, `infra`, `delete`.
 
    Return route label `medium` for both `medium-light` and `medium-full`; record the sub-band in route rationale. The `17.0` mid threshold exists to decide how deep the plan/review detail should be inside the medium route, not to create a separate slash route.
 

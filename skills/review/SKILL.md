@@ -20,7 +20,6 @@ Use this skill to review completed ForgeFlow work independently.
 - `implementation-notes.md` from execute stage
 - `run-ledger.md` from execute stage
 - `.forgeflow/evolution/proposed/*.md` when long-run proposed evolution rules
-- `requirements.md` if available
 - Final codebase state
 - Verification commands/results
 
@@ -94,6 +93,8 @@ All routes write a **single** `review-report.md` using `templates/review-report.
 
 - **small** route: Single quality review. Set Review Type: quality. Complete Quality Assessment; Spec Compliance may be not_applicable.
 - **medium** route: Single quality review. Set Review Type: quality. Complete Quality Assessment.
+  - **medium-light** (brief sub-band): Verify task coverage and verification gates; Contracts/Journeys in plan are optional unless present.
+  - **medium-full** (brief sub-band): Verify contract-first traceability — every acceptance criterion maps to plan tasks; Contracts and Verification Plan targets must be checked if present in `plan.md`.
 - **high/epic** route: Two separate review **passes** are **required** (same file, sequential gates):
   1. `/forgeflow:review --type spec` — Create or update `review-report.md`. Set Review Type: spec. Complete Spec Compliance and Evolution Rule Review. Record spec verdict. Do not proceed to quality until spec verdict is approved.
   2. `/forgeflow:review --type quality` — Update the same `review-report.md`. Set Review Type: quality (or note both passes in Findings). Complete Quality Assessment. Final verdict must reflect quality pass.

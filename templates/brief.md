@@ -7,7 +7,11 @@
 
 ## Route
 <!-- small | medium | high | epic -->
+<!-- Route sub-band (medium only): medium-light | medium-full — from brief.md raw_score -->
 <!-- Route selection rationale -->
+
+## Route Sub-band
+<!-- medium-light (10-16.9) | medium-full (17-24.9) | n/a for other routes -->
 
 ## WHERE Grounding
 <!-- Project context for calibrating intake depth -->

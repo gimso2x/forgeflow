@@ -134,6 +134,8 @@ raw_score = file_count*1.0 + estimated_lines*0.1 + requirement_count*2.0 + depen
 - **프롬프트 기반** — 스크립트가 아닌 프롬프트 지시로 강제
 - **멀티 플랫폼** — Claude Code, Codex, Gemini CLI, Cursor(로컬 플러그인) 지원
 
+어댑터별 CLI 플래그, 타임아웃, 감지 방법: [docs/adapter-config.md](docs/adapter-config.md)
+
 ## Release version policy
 
 루트 `VERSION` 파일을 단일 버전 기준으로 사용합니다.

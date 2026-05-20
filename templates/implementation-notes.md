@@ -23,6 +23,7 @@
 <!-- Any deviations from the approved plan and why -->
 
 ## Progress
+<!-- [██████░░░░] 60% -->
 <!-- Checkpoint tracking -->
 - [ ] Task 1: <!-- status -->
 - [ ] Task 2: <!-- status -->
