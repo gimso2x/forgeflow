@@ -76,8 +76,16 @@ validate-skills:
 			echo "ERROR: $$skill_file name must be $$name (got $${actual:-<missing>})"; \
 			exit 1; \
 		fi; \
+		if ! grep -Eq '^description: .+' "$$skill_file"; then \
+			echo "ERROR: $$skill_file must define a non-empty description in frontmatter"; \
+			exit 1; \
+		fi; \
+		if ! grep -Fxq 'validate_prompt: |' "$$skill_file"; then \
+			echo "ERROR: $$skill_file must define validate_prompt: | in frontmatter"; \
+			exit 1; \
+		fi; \
 	done
-	@echo "OK: All public skills have SKILL.md with matching names"
+	@echo "OK: All public skills have SKILL.md with name, description, and validate_prompt"
 
 validate-templates:
 	@for t in $(TEMPLATES); do \
