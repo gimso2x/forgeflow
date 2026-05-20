@@ -24,9 +24,14 @@
           "value": ".forgeflow/tasks/"
         },
         {
-          "text": "Output includes brief template required sections: Objective, Route, and at least one of (WHERE Grounding, Acceptance Criteria, Risk Level).",
+          "text": "Output includes brief template required sections Objective and Route.",
           "type": "contains_all",
           "values": ["Objective", "Route"]
+        },
+        {
+          "text": "Output includes at least one grounding or acceptance section from the brief template.",
+          "type": "contains_any",
+          "values": ["WHERE Grounding", "Acceptance Criteria", "Risk Level"]
         },
         {
           "text": "Output selects route as medium (medium-light or medium-full acceptable).",
