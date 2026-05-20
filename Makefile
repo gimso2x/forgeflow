@@ -66,12 +66,18 @@ validate-skills:
 	@for dir in skills/*/; do \
 		name=$$(basename "$$dir"); \
 		case "$$name" in _*) continue ;; esac; \
-		if [ ! -f "$${dir}SKILL.md" ]; then \
+		skill_file="$${dir}SKILL.md"; \
+		if [ ! -f "$$skill_file" ]; then \
 			echo "ERROR: Missing SKILL.md in $$dir"; \
 			exit 1; \
 		fi; \
+		actual="$$( $(PYTHON) -c 'import pathlib, sys; lines=pathlib.Path(sys.argv[1]).read_text(encoding="utf-8").splitlines(); print(next((line.split(":", 1)[1].strip().strip("\"'"'"'") for line in lines if line.startswith("name:")), ""))' "$$skill_file" )"; \
+		if [ "$$actual" != "$$name" ]; then \
+			echo "ERROR: $$skill_file name must be $$name (got $${actual:-<missing>})"; \
+			exit 1; \
+		fi; \
 	done
-	@echo "OK: All public skills have SKILL.md"
+	@echo "OK: All public skills have SKILL.md with matching names"
 
 validate-templates:
 	@for t in $(TEMPLATES); do \
