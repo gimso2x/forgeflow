@@ -43,6 +43,7 @@ Adapter-specific CLI flags and timeout guides are in `docs/adapter-config.md`.
 | Clarify | `/forgeflow:clarify` | `/clarify` |
 | Plan | `/forgeflow:plan` | `/plan` |
 | Execute | `/forgeflow:execute` | `/execute` |
+| Subagent execute (opt-in) | `/forgeflow:subagent-execute` | `/subagent-execute` |
 | Review | `/forgeflow:review` | `/review` |
 | Ship | `/forgeflow:ship` | `/ship` |
 | Finish | `/forgeflow:finish` | `/finish` |

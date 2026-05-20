@@ -8,7 +8,7 @@ Skills are markdown documents that live in `skills/`. Each skill defines a bound
 2. **Every skill declares its output artifacts.** If it doesn't write to disk, it's not a skill.
 3. **Skills chain; they don't fork.** The output of skill N is the required input of skill N+1.
 4. **Trigger phrases are advisory, not magical.** The operator or an adapter decides when to invoke a skill.
-5. **Keep the active skill surface minimal.** Optional discipline, debugging, QA, and learning guidance belongs in docs or prompts unless it is a first-class plugin skill.
+5. **Keep the active skill surface minimal.** Optional discipline, debugging, QA, and learning guidance belongs in docs or prompts unless it is a first-class plugin skill. `subagent-execute` is opt-in and does not replace default `execute`.
 
 ## Workflow skills (ordered)
 
@@ -27,6 +27,7 @@ Table numbers reflect skill index, not strict runtime order. For epic work, run 
 | 08 | [`milestone`](milestone/SKILL.md) | Create and manage project milestones with dependency DAG. |
 | 09 | [`long-run`](long-run/SKILL.md) | Record reusable learnings after high/epic route completion. |
 | 10 | [`benchmark`](benchmark/SKILL.md) | Cross-adapter benchmark: same prompt → multiple agents → comparison report. |
+| 11 | [`subagent-execute`](subagent-execute/SKILL.md) | **Opt-in:** high/epic per-plan-step subagent loop (implementer → spec micro → quality micro). |
 
 ## Skill lifecycle in a single task
 

@@ -22,6 +22,7 @@
 | P11 | CHANGELOG release links (`[Unreleased]`, `[VERSION]`) | Done |
 | P12 | Execute subagent reference prompts (`skills/execute/references/`) | Done |
 | P13 | review-report Execute Micro-Gates + high/epic smoke parity | Done |
+| P14 | `subagent-execute` skill + SKILLS/GEMINI/Codex inventory | Done |
 
 ---
 
@@ -54,3 +55,4 @@
 14. CHANGELOG release links
 15. Execute subagent reference prompts
 16. review-report Execute Micro-Gates contract
+17. SKILLS.md ↔ subagent-execute (via inventory sync)

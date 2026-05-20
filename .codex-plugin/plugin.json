@@ -16,6 +16,7 @@
       "/forgeflow:milestone",
       "/forgeflow:plan",
       "/forgeflow:execute",
+      "/forgeflow:subagent-execute",
       "/forgeflow:review",
       "/forgeflow:ship",
       "/forgeflow:long-run",

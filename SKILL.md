@@ -62,8 +62,8 @@ Python `complexity.py`가 없으므로 이 값을 바꾸면 `skills/clarify/SKIL
 - `plan.md` — 작업 계획 (task 분해, 검증, 의존성)
 - `run-ledger.md` — 실행 truth (task별 pending/running/done/blocked 상태)
 - `checkpoint.md` — 재개용 전술 포인터 (context compaction 후 복구)
-- `implementation-notes.md` — 실행 진행 상태, 결정 기록, 편차
-- `review-report.md` — review 결과 (high/epic: spec + quality passes, single file)
+- `implementation-notes.md` — 실행 진행, 결정, 편차; high/epic 시 `micro_spec:*`, `micro_quality:*` per-step 증거
+- `review-report.md` — review 결과 (high/epic: spec + quality passes, single file; Execute Micro-Gates 테이블)
 - `ship-summary.md` — ship handoff 요약 (template: `templates/ship-summary.md`)
 - `eval-record.md` — 재사용 학습 기록 (high/epic)
 - Project evolution rules live under `.forgeflow/evolution/` (proposed/active/retired), not in the task directory. Use `templates/evolution-rule.md` when creating candidates.
@@ -76,6 +76,7 @@ Python `complexity.py`가 없으므로 이 값을 바꾸면 `skills/clarify/SKIL
 /forgeflow:milestone — Epic 전용 마일스톤 관리
 /forgeflow:plan     — 계획 수립
 /forgeflow:execute  — 구현 실행
+/forgeflow:subagent-execute — (opt-in) plan step마다 subagent + micro-review 루프 (high/epic)
 /forgeflow:review   — 독립 검증
 /forgeflow:ship     — 배포/마무리
 /forgeflow:long-run — 학습 기록 (high/epic route only)

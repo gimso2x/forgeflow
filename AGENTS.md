@@ -25,7 +25,8 @@ skills/                   # 각 스킬 디렉토리 (SKILL.md 포함)
   forgeflow-init/         # 작업 공간 초기화
   clarify/                # 요구사항 정리 → brief.md
   plan/                   # 계획 수립 → plan.md
-  execute/                # 구현 실행 → implementation-notes.md
+  execute/                # 구현 실행 → implementation-notes.md (+ references/ subagent prompts)
+  subagent-execute/       # (opt-in) high/epic per-step subagent loop
   review/                 # 독립 검증 → review-report.md
   ship/                   # 배포/마무리
   finish/                 # 브랜치 정리

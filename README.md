@@ -107,6 +107,26 @@ raw_score = file_count*1.0 + estimated_lines*0.1 + requirement_count*2.0 + depen
 | `roadmap.md`              | 마일스톤 분해                | epic    |
 | `eval-record.md`          | 학습 기록                    | high+   |
 
+`review-report.md`의 **Execute Micro-Gates** 테이블(high/epic)은 execute 단계의 `micro_spec` / `micro_quality` 증거를 stage review가 reported로 받아 재검증할 때 씁니다.
+
+## Subagent execute (opt-in, high/epic)
+
+기본 `/forgeflow:execute`는 컨트롤러가 구현하고 필요 시 일부 step만 subagent에 위임합니다.
+
+**plan step마다** implementer → spec micro-review → quality micro-review 루프를 강제하려면 opt-in 스킬을 사용합니다.
+
+```text
+/forgeflow:subagent-execute
+# 또는
+/forgeflow:execute --subagent-per-task
+```
+
+- **When:** high/epic, 승인된 `plan.md`, 독립 파일 스코프의 step
+- **Prompts:** `skills/execute/references/*.md`
+- **Not a substitute for** `/forgeflow:review` — stage review는 여전히 필수
+
+자세한 절차는 [`skills/subagent-execute/SKILL.md`](skills/subagent-execute/SKILL.md)와 [`skills/forgeflow/SKILL.md`](skills/forgeflow/SKILL.md)의 Review depth by route를 참고하세요.
+
 ## 특징
 
 - **의존성 제로** — Python, Node.js 등 외부 런타임 불필요

@@ -197,6 +197,10 @@ Contract-aware execution rules:
 
 Worker self-report is not approval. `/forgeflow:review` still has to happen.
 
+## Opt-in: subagent per task
+
+For **high/epic** when the user wants every plan step to run implementer → spec micro-review → quality micro-review subagents in strict sequence, use [`subagent-execute`](../subagent-execute/SKILL.md) (`/forgeflow:subagent-execute`, `/subagent-execute`, or `/forgeflow:execute --subagent-per-task`). Default `/forgeflow:execute` remains controller-led with optional delegation and micro-gates below.
+
 ## Per-task micro-gates
 
 Micro-gates run **during execute** on **high** and **epic** routes. They do not replace stage-level `/forgeflow:review`.
