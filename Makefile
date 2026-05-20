@@ -1,4 +1,4 @@
-.PHONY: validate validate-json validate-no-python validate-skills validate-templates validate-template-refs validate-versions validate-changelog-links validate-gemini-imports validate-plugin-prompts validate-evals-json validate-eval-files validate-workflow-vocab validate-adapter-config validate-markdown-links
+.PHONY: validate validate-json validate-no-python validate-skills validate-agent-docs validate-templates validate-template-refs validate-versions validate-changelog-links validate-gemini-imports validate-plugin-prompts validate-evals-json validate-eval-files validate-workflow-vocab validate-adapter-config validate-markdown-links
 
 PYTHON ?= python3
 
@@ -21,7 +21,7 @@ TEMPLATES := \
 	evolution-rule.md \
 	ship-summary.md
 
-validate: validate-no-python validate-json validate-versions validate-changelog-links validate-skills validate-templates validate-template-refs validate-gemini-imports validate-plugin-prompts validate-evals-json validate-eval-files validate-workflow-vocab validate-adapter-config validate-markdown-links
+validate: validate-no-python validate-json validate-versions validate-changelog-links validate-skills validate-agent-docs validate-templates validate-template-refs validate-gemini-imports validate-plugin-prompts validate-evals-json validate-eval-files validate-workflow-vocab validate-adapter-config validate-markdown-links
 	@echo "OK: local validation passed"
 
 validate-no-python:
@@ -90,6 +90,9 @@ validate-skills:
 	done
 	@$(PYTHON) -c 'import pathlib, re, sys; root = pathlib.Path("skills"); inventory = (root / "SKILLS.md").read_text(encoding="utf-8"); active = sorted(d.name for d in root.iterdir() if d.is_dir() and not d.name.startswith("_")); targets = re.findall(r"\(([^)]+/SKILL\.md)\)", inventory); linked_names = sorted(pathlib.PurePosixPath(target).parts[0] for target in targets if (root / target).exists()); missing = sorted(set(active) - set(linked_names)); stale = sorted(target for target in targets if not (root / target).exists() or pathlib.PurePosixPath(target).parts[0] not in active); (print("ERROR: skills/SKILLS.md inventory drift") or print(f"- missing active skills: {missing}") or print(f"- stale skill links: {stale}") or sys.exit(1)) if (missing or stale) else print(f"OK: skills/SKILLS.md lists {len(active)} active skills")'
 	@echo "OK: All public skills have SKILL.md with name, description, validate_prompt, and inventory coverage"
+
+validate-agent-docs:
+	@$(PYTHON) -c "exec("'"'"import pathlib, re, sys\nroot = pathlib.Path('.')\nagents = (root / 'AGENTS.md').read_text(encoding='utf-8')\nactive = sorted(d.name for d in (root / 'skills').iterdir() if d.is_dir() and not d.name.startswith('_'))\nlisted = sorted(set(re.findall(r'^  ([a-z0-9-]+)/\\s+#', agents, re.M)))\nmissing = sorted(set(active) - set(listed))\nstale = sorted(set(listed) - set(active))\nfailures = []\nif missing:\n    failures.append(f'AGENTS.md: missing active skill directories {missing}')\nif stale:\n    failures.append(f'AGENTS.md: lists stale skill directories {stale}')\nfor required in ('외부 의존성 추가 금지', 'Review는 읽기 전용'):\n    if required not in agents:\n        failures.append(f'AGENTS.md: missing maintainer guardrail {required!r}')\nif 'VERSION' not in agents or '단일 소스' not in agents:\n    failures.append('AGENTS.md: missing maintainer guardrail for VERSION single source')\nif failures:\n    print('ERROR: AGENTS.md contract drift')\n    [print(f'- {failure}') for failure in failures]\n    sys.exit(1)\nprint(f'OK: AGENTS.md lists {len(active)} active skills and maintainer guardrails')\n"'"'")"
 
 validate-templates:
 	@for t in $(TEMPLATES); do \
