@@ -259,6 +259,40 @@
           "values": ["Stage re-verified", "re-verified"]
         }
       ]
+    },
+    {
+      "id": 5,
+      "name": "init-plugin-cache-safety",
+      "prompt": "A user runs /forgeflow-init from inside a Codex plugin cache directory but says the real target project is /workspace/shop-app and task id is eval-cache-safe. Produce only the first-run operator guidance and task workspace path that ForgeFlow should use before clarify. Do not create artifacts in the plugin cache.",
+      "expected_output": "Guidance that detects plugin-cache risk, uses an explicit --task-dir under the target project, and names /workspace/shop-app/.forgeflow/tasks/eval-cache-safe as the task workspace instead of the cache directory.",
+      "files": ["README.md"],
+      "assertions": [
+        {
+          "text": "Output warns about plugin cache or installation directory execution risk.",
+          "type": "contains_any",
+          "values": ["plugin cache", "Codex plugin cache", "installation directory", "wrong location"]
+        },
+        {
+          "text": "Output uses the explicit --task-dir escape hatch.",
+          "type": "contains",
+          "value": "--task-dir"
+        },
+        {
+          "text": "Output names the target project task workspace path.",
+          "type": "contains",
+          "value": "/workspace/shop-app/.forgeflow/tasks/eval-cache-safe"
+        },
+        {
+          "text": "Output tells the agent not to put task artifacts in the plugin cache.",
+          "type": "contains_any",
+          "values": ["Do not create artifacts in the plugin cache", "do not create artifacts in the plugin cache", "not in the plugin cache", "avoid the plugin cache"]
+        },
+        {
+          "text": "Output keeps the next workflow step as clarify after init guidance.",
+          "type": "contains_any",
+          "values": ["clarify", "/forgeflow:clarify", "/clarify"]
+        }
+      ]
     }
   ]
 }
