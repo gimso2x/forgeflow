@@ -1,4 +1,4 @@
-.PHONY: validate validate-json validate-no-python validate-skills validate-templates validate-versions validate-gemini-imports validate-evals-json validate-markdown-links
+.PHONY: validate validate-json validate-no-python validate-skills validate-templates validate-versions validate-changelog-links validate-gemini-imports validate-evals-json validate-markdown-links
 
 PYTHON ?= python3
 
@@ -21,7 +21,7 @@ TEMPLATES := \
 	evolution-rule.md \
 	ship-summary.md
 
-validate: validate-no-python validate-json validate-versions validate-skills validate-templates validate-gemini-imports validate-evals-json validate-markdown-links
+validate: validate-no-python validate-json validate-versions validate-changelog-links validate-skills validate-templates validate-gemini-imports validate-evals-json validate-markdown-links
 	@echo "OK: local validation passed"
 
 validate-no-python:
@@ -61,6 +61,9 @@ validate-versions:
 		exit 1; \
 	fi; \
 	printf 'OK: Release versions match VERSION=%s\n' "$$expected"
+
+validate-changelog-links:
+	@$(PYTHON) -c "exec("'"'"import pathlib, re, sys\nversion = pathlib.Path('VERSION').read_text(encoding='utf-8').strip()\ntext = pathlib.Path('CHANGELOG.md').read_text(encoding='utf-8')\nfailures = []\nif f'[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v{version}...HEAD' not in text:\n    failures.append(f'CHANGELOG.md: [Unreleased] compare link must start at v{version}')\npattern = rf'^\\[{re.escape(version)}\\]: https://github\\.com/gimso2x/forgeflow/compare/.+\\.\\.\\.v{re.escape(version)}$$'\nif not re.search(pattern, text, re.M):\n    failures.append(f'CHANGELOG.md: missing compare link for {version}')\nif failures:\n    print('ERROR: Changelog link check failed')\n    [print(f'- {failure}') for failure in failures]\n    sys.exit(1)\nprint('OK: Changelog release compare links are current')\n"'"'")"
 
 validate-skills:
 	@for dir in skills/*/; do \
