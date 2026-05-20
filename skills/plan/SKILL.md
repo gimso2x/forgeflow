@@ -30,7 +30,9 @@ Write `plan.md` to the active task directory using `templates/plan.md` as the st
 - Journeys (end-to-end flow verification) when applicable
 - Parallelism notes (which tasks can run concurrently)
 
-Also create an empty `implementation-notes.md` scaffold (from `templates/implementation-notes.md`) for the execute stage to fill.
+Also create empty scaffolds for the execute stage to fill:
+- `implementation-notes.md` (from `templates/implementation-notes.md`) — decisions, deviations, evidence
+- `run-ledger.md` (from `templates/run-ledger.md`) — per-task execution truth
 
 ## Contract-first traceability for medium/high/epic or brownfield work
 

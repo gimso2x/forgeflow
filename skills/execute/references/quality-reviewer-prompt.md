@@ -64,7 +64,11 @@ Task tool:
     Do not edit code. Do not write review-report.md.
 ```
 
+Verdict → controller mapping:
+- **approved** → `micro_quality:PASS step=<name>`, safe to mark step `done`
+- **changes_requested** → `micro_quality:FAIL step=<name>`, keep step `running`
+- **blocked** → `micro_quality:FAIL step=<name>`, move step to `blocked`
+
 Controller actions after micro-review:
-- `micro_quality:PASS step=<name>` if verdict approved; `micro_quality:FAIL` otherwise
 - If changes_requested or blocked: do not mark step `done` until fixed and re-reviewed
 - Set run-ledger **Assignee** to `quality-reviewer` for this pass

@@ -14,7 +14,7 @@
 ### Task 1: <!-- name -->
 - **Plan Step**: <!-- which plan step this corresponds to -->
 - **Status**: <!-- pending | running | done | blocked | skipped -->
-- **Assignee**: <!-- required when status is running/done/blocked: worker | specialist | spec-reviewer | quality-reviewer -->
+- **Assignee**: <!-- required when status is running/done/blocked/skipped: worker | specialist | spec-reviewer | quality-reviewer -->
 - **Evidence Refs**: <!-- command output, test result, file diff -->
 - **Blocker**: <!-- description or "none" -->
 - **Retry Count**: <!-- 0 -->
