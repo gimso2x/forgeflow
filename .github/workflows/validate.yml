@@ -308,6 +308,43 @@ jobs:
           print(f"OK: SKILLS.md lists {len(dir_names)} skills")
           PY
 
+      - name: Verify plugin default prompts cover active skills
+        run: |
+          python3 - <<'PY'
+          import json
+          import pathlib
+          import re
+          import sys
+
+          root = pathlib.Path(".")
+          skills_md = (root / "skills/SKILLS.md").read_text(encoding="utf-8")
+          active_skills = set(re.findall(r"\|\s*\d+\s*\|\s*\[`([^`]+)`\]", skills_md)) - {"forgeflow"}
+          failures = []
+
+          surfaces = [
+              (".codex-plugin/plugin.json", lambda skill: "/forgeflow-init" if skill == "forgeflow-init" else f"/forgeflow:{skill}"),
+              (".cursor-plugin/plugin.json", lambda skill: "/forgeflow-init" if skill == "forgeflow-init" else f"/{skill}"),
+          ]
+
+          for path, expected_prompt in surfaces:
+              data = json.loads((root / path).read_text(encoding="utf-8"))
+              prompts = data.get("interface", {}).get("defaultPrompt", [])
+              prompt_text = "\n".join(prompts)
+              if not isinstance(prompts, list) or not all(isinstance(item, str) for item in prompts):
+                  failures.append(f"{path}: interface.defaultPrompt must be a list of strings")
+                  continue
+              missing = sorted(skill for skill in active_skills if expected_prompt(skill) not in prompt_text)
+              if missing:
+                  failures.append(f"{path}: defaultPrompt missing active skills {missing}")
+
+          if failures:
+              print("ERROR: Plugin defaultPrompt active-skill coverage failed")
+              for failure in failures:
+                  print(f"- {failure}")
+              sys.exit(1)
+          print(f"OK: Plugin default prompts cover {len(active_skills)} active skills")
+          PY
+
       - name: Verify GEMINI.md imports
         run: |
           python3 - <<'PY'
