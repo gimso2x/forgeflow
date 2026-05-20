@@ -216,6 +216,9 @@ v1.x는 Python `exec-stage --real` 런타임을 포함하지 않습니다.
 ## 첫 실행 예시
 
 ```text
+> /forgeflow-init
+# → .forgeflow/tasks/<task-id>/ 작업 공간 준비
+
 > /forgeflow:clarify 로그인 페이지에 소셜 로그인 버튼 추가
 # → brief.md 생성, route: small
 
