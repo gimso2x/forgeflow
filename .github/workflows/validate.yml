@@ -377,6 +377,13 @@ jobs:
 
           data = json.loads((pathlib.Path("evals/evals.json")).read_text(encoding="utf-8"))
           failures = []
+          allowed_assertion_types = {
+              "contains",
+              "contains_all",
+              "contains_any",
+              "not_contains",
+              "not_contains_any",
+          }
           if not isinstance(data.get("skill_name"), str):
               failures.append("skill_name missing")
           evals = data.get("evals")
@@ -387,8 +394,26 @@ jobs:
                   for key in ("id", "name", "prompt", "assertions"):
                       if key not in item:
                           failures.append(f"eval[{i}] missing {key}")
-                  if not isinstance(item.get("assertions"), list) or not item["assertions"]:
+                  assertions = item.get("assertions")
+                  if not isinstance(assertions, list) or not assertions:
                       failures.append(f"eval[{i}] assertions must be non-empty list")
+                      continue
+                  for j, assertion in enumerate(assertions):
+                      if not isinstance(assertion, dict):
+                          failures.append(f"eval[{i}].assertions[{j}] must be object")
+                          continue
+                      assertion_type = assertion.get("type")
+                      if assertion_type not in allowed_assertion_types:
+                          failures.append(
+                              f"eval[{i}].assertions[{j}] unknown type {assertion_type!r}"
+                          )
+                      if assertion_type in {"contains", "not_contains"}:
+                          if not isinstance(assertion.get("value"), str) or not assertion.get("value"):
+                              failures.append(f"eval[{i}].assertions[{j}] must include non-empty string value")
+                      elif assertion_type in {"contains_all", "contains_any", "not_contains_any"}:
+                          values = assertion.get("values")
+                          if not isinstance(values, list) or not values or not all(isinstance(v, str) and v for v in values):
+                              failures.append(f"eval[{i}].assertions[{j}] must include non-empty string values")
 
           if failures:
               print("ERROR: evals/evals.json schema invalid")
