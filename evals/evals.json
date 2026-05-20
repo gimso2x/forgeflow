@@ -361,6 +361,40 @@
           "values": ["Claude verified", "Codex verified", "Gemini verified", "provider E2E passed", "live plugin verified"]
         }
       ]
+    },
+    {
+      "id": 8,
+      "name": "gemini-extension-cache-safety",
+      "prompt": "A user invokes ForgeFlow from inside ~/.gemini/extensions/forgeflow but says the actual project is /workspace/notes-app and task id is eval-gemini-cache-safe. Produce only the init-stage operator guidance and task workspace path to use before clarify. Do not create or suggest artifacts inside the Gemini extension cache.",
+      "expected_output": "Guidance that treats the Gemini extension directory as an install/cache location, uses an explicit task path under the target project, and directs the next step to clarify without writing artifacts under ~/.gemini/extensions/forgeflow.",
+      "files": ["skills/forgeflow-init/SKILL.md", "skills/_shared/discipline.md", "docs/adapter-config.md"],
+      "assertions": [
+        {
+          "text": "Output warns that ~/.gemini/extensions/forgeflow is an extension cache or installation directory, not the target workspace.",
+          "type": "contains_any",
+          "values": ["~/.gemini/extensions", "Gemini extension", "extension cache", "installation directory", "not the target workspace"]
+        },
+        {
+          "text": "Output names the target project task workspace path.",
+          "type": "contains",
+          "value": "/workspace/notes-app/.forgeflow/tasks/eval-gemini-cache-safe"
+        },
+        {
+          "text": "Output uses an explicit task-dir or equivalent explicit artifact path escape hatch.",
+          "type": "contains_any",
+          "values": ["--task-dir", "explicit task path", "explicit artifact path", ".forgeflow/tasks/eval-gemini-cache-safe"]
+        },
+        {
+          "text": "Output forbids creating artifacts under the Gemini extension cache.",
+          "type": "not_contains_any",
+          "values": ["~/.gemini/extensions/forgeflow/.forgeflow", "create artifacts in ~/.gemini/extensions", "write artifacts in the extension cache"]
+        },
+        {
+          "text": "Output keeps clarify as the next workflow step after safe init guidance.",
+          "type": "contains_any",
+          "values": ["clarify", "/forgeflow:clarify", "/clarify"]
+        }
+      ]
     }
   ]
 }
