@@ -3,6 +3,21 @@ name: forgeflow
 description: Artifact-first delivery workflow for AI coding agents. Routes work through clarify → plan → execute → review → ship stages with Markdown artifacts, verification gates, and independent review. Use when the user types /forgeflow, /forgeflow:<stage>, or asks to implement, refactor, debug, review, or ship code through a structured workflow.
 version: 0.3.0
 author: gimso2x
+intent: "Route implementation, refactor, debug, review, and ship work through explicit artifact-backed stages."
+inputs:
+  - user_request: string
+  - target_repository: path
+  - existing_artifacts: markdown
+outputs:
+  - brief.md: artifact
+  - plan.md: artifact
+  - implementation-notes.md: artifact
+  - review-report.md: artifact
+  - ship-summary.md: artifact
+dependencies:
+  - skills/_shared/discipline.md
+  - docs/adapter-config.md
+  - templates/
 validate_prompt: |
   Must route work through explicit ForgeFlow stages and artifact-backed gates.
   Must preserve stage boundaries, verification evidence, and independent review semantics.
@@ -99,8 +114,9 @@ raw_score = file_count*1.0 + estimated_lines*0.1 + requirement_count*2.0 + depen
 | `25-49.9` | high |
 | `>= 50` | epic |
 
-`17.0` is the `mid_threshold` that separates medium-light from medium-full.
-If a project wants different thresholds, update this file, `skills/clarify/SKILL.md`, and README together.
+- `17.0` is the `mid_threshold` that separates medium-light from medium-full.
+- If a project wants different thresholds, update this file, `skills/clarify/SKILL.md`, and README together.
+- Budget and session sizing guidance is advisory, not a runtime quota; see `docs/advisory-guidelines.md`.
 
 ## Output Artifacts
 

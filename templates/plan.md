@@ -23,6 +23,9 @@
 <!-- high/epic: record Execution Pattern (pipeline | fan-out/fan-in) here -->
 <!-- medium-full: contract-first traceability required; medium-light: contracts optional unless brownfield -->
 
+## Execution Pattern
+<!-- Route strategy: small = direct single-worker; medium = pipeline; high = fan-out/fan-in when independent + separate spec/quality review; epic = milestone fan-out/fan-in -->
+
 ## Applied Evolution Rules
 <!-- Carry forward rules from brief.md and state how this plan applies them. -->
 - **Project active rules**:

@@ -3,6 +3,16 @@ name: clarify
 description: Turn a vague request into a scoped ForgeFlow brief and route decision. Use when the user types /clarify or /forgeflow:clarify, or first for new implementation/refactor/debug requests unless the user already provided a complete brief.
 version: 0.3.0
 author: gimso2x
+intent: "Analyze the user request, repository context, route, specialists, and verification gates, then write a scoped brief."
+inputs:
+  - user_request: string
+  - target_repository: path
+  - constraints: markdown
+outputs:
+  - brief.md: artifact
+dependencies:
+  - templates/brief.md
+  - skills/_shared/discipline.md
 validate_prompt: |
   Must preserve exact-output and dry-run constraints when requested.
   Must return a clear route or brief artifact only when the prompt asks for it.
@@ -165,7 +175,17 @@ For exact-count, dry-run, or response-only prompts, do not force the WHERE inter
 
    Return route label `medium` for both `medium-light` and `medium-full`; record the sub-band in route rationale. The `17.0` mid threshold exists to decide how deep the plan/review detail should be inside the medium route, not to create a separate slash route.
 
-6. Select specialists based on task nature:
+6. Apply small alias hints inside the scoring context only. Keyword hints are advisory — do not auto-run another skill from keyword detection alone; record the hint as `suggested_next_skill` and keep route selection explicit.
+
+   | User wording | Hint |
+   |--------------|------|
+   | "리뷰해줘", "review this", "audit" | Prefer `/forgeflow:review` when artifacts or a diff already exist; otherwise clarify first. |
+   | "계획 세워", "plan this", "break down" | Prefer `/forgeflow:plan` after brief is complete. |
+   | "버그", "fix", "debug", "깨짐" | Prefer execute then review; escalate route when risk keywords appear. |
+   | "릴리즈", "ship", "배포" | Prefer `/forgeflow:ship` only after review evidence exists. |
+   | "대규모", "milestone", "epic" | Consider `epic` and `/forgeflow:milestone`; do not force it without scope evidence. |
+
+7. Select specialists based on task nature:
    - Auth/Encryption/External Input -> `security-review`
    - UI/Accessibility/User Flow -> `ux-review`
    - Response time/Memory/Large data -> `perf-review`
@@ -174,17 +194,17 @@ For exact-count, dry-run, or response-only prompts, do not force the WHERE inter
    - Infra/Deployment/IaC -> `infra-execute`
    - List skipped specialists and provide a skip rationale.
 
-7. Set verification gates in the brief:
+8. Set verification gates in the brief:
    - `small`: at least one of `build`, `lint`, or `type_check` — whichever is available and fastest.
    - `medium`: at least `lint` and `type_check`, plus `test` if tests exist for changed files.
    - `high`: full verification suite — `build`, `lint`, `type_check`, and `test`.
    - `epic`: full verification suite, plus milestone-level integration tests.
 
-8. State the route and why, unless an exact-output/label-only instruction applies.
+9. State the route and why, unless an exact-output/label-only instruction applies.
 
-9. Produce `brief.md` using `templates/brief.md` as the structure, unless an exact-output/label-only instruction applies.
+10. Produce `brief.md` using `templates/brief.md` as the structure, unless an exact-output/label-only instruction applies.
 
-10. If the request is actionable, record remaining non-blocking unknowns as bounded assumptions and make the next stage obvious without asking the user to do your planning work, unless an exact-output/label-only instruction applies.
+11. If the request is actionable, record remaining non-blocking unknowns as bounded assumptions and make the next stage obvious without asking the user to do your planning work, unless an exact-output/label-only instruction applies.
 
 Do not implement here. Clarify is the intake gate, not the coding phase.
 

@@ -8,7 +8,10 @@
 ## Route
 <!-- small | medium | high | epic -->
 <!-- Route sub-band (medium only): medium-light | medium-full — from brief.md raw_score -->
-<!-- Route selection rationale -->
+<!-- Route rationale: why this route is sufficient and smallest safe choice -->
+
+## Route Rationale
+<!-- Evidence behind route selection: scope, risk, dependencies, rollback, ambiguity -->
 
 ## Route Sub-band
 <!-- medium-light (10-16.9) | medium-full (17-24.9) | n/a for other routes -->
@@ -60,8 +63,15 @@
 
 ## Specialists
 <!-- Required: (none | security-review | ux-review | perf-review | frontend-execute | backend-execute | infra-execute) -->
+<!-- Suggested specialists: advisory candidates from request keywords and repo context -->
 <!-- Skipped: (none | list) -->
 <!-- Skip rationale: -->
+
+## Budget Note
+<!-- Advisory only: expected size/complexity, e.g. small single-file, medium coordinated files, high multi-component, epic milestone-scale -->
+
+## Suggested Next Skill
+<!-- /forgeflow:execute | /forgeflow:plan | /forgeflow:milestone | /forgeflow:review | /forgeflow:ship -->
 
 ## Verification Gates
 <!-- Auto-detected from tech stack -->
