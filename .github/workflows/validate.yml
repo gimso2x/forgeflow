@@ -362,6 +362,33 @@ jobs:
           print(f"OK: SKILLS.md lists {len(dir_names)} skills")
           PY
 
+      - name: Verify high/epic lifecycle ordering
+        run: |
+          python3 - <<'PY'
+          import pathlib
+          import sys
+
+          root = pathlib.Path(".")
+          expectations = {
+              "README.md": "ship → long-run → finish",
+              "SKILL.md": "ship → long-run → finish",
+              "skills/forgeflow/SKILL.md": "ship -> long-run -> finish",
+              "skills/SKILLS.md": "→ ship             → final handoff\n  → long-run         → eval-record.md\n  → finish           → branch disposition",
+          }
+          failures = []
+          for path, snippet in expectations.items():
+              text = (root / path).read_text(encoding="utf-8")
+              if snippet not in text:
+                  failures.append(f"{path}: missing canonical ship -> long-run -> finish ordering")
+
+          if failures:
+              print("ERROR: Lifecycle ordering drift detected")
+              for failure in failures:
+                  print(f"- {failure}")
+              sys.exit(1)
+          print("OK: High/epic lifecycle orders long-run before finish")
+          PY
+
       - name: Verify plugin default prompts cover active skills
         run: |
           python3 - <<'PY'

@@ -53,8 +53,8 @@ User: "Refactor the entire payment module"
   → review (spec)    → review-report.md (spec section)
   → review (quality) → review-report.md (quality section)
   → ship             → final handoff
-  → finish           → branch disposition
   → long-run         → eval-record.md
+  → finish           → branch disposition
 ```
 
 ## Epic lifecycle (massive tasks)
@@ -70,8 +70,8 @@ User: "Build a complete e-commerce platform"
     → review (spec)  → review-report.md (spec section)
     → review (quality) → review-report.md (quality section)
   → ship             → final handoff
-  → finish           → branch disposition
   → long-run         → eval-record.md
+  → finish           → branch disposition
 ```
 
 ## Adding a new skill
