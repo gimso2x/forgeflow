@@ -29,9 +29,12 @@ gemini extensions update forgeflow
 
 **Codex:**
 
+```bash
+mkdir -p .codex/plugins/forgeflow
+cp -R /path/to/forgeflow/.codex-plugin/plugin.json /path/to/forgeflow/skills .codex/plugins/forgeflow/
 ```
-# .codex-plugin/plugin.json을 프로젝트에 복사
-```
+
+로컬 checkout을 플러그인으로 복사하는 방식입니다. 업데이트할 때는 같은 `cp -R` 명령을 다시 실행해 `plugin.json`과 `skills/`를 함께 갱신합니다.
 
 **Cursor (로컬 플러그인):**
 

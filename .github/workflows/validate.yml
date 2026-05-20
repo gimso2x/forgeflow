@@ -470,6 +470,12 @@ jobs:
           readme = (root / "README.md").read_text(encoding="utf-8")
           if "docs/adapter-config.md" not in readme:
               failures.append("README.md: missing docs/adapter-config.md link")
+          for snippet in (
+              "mkdir -p .codex/plugins/forgeflow",
+              "cp -R /path/to/forgeflow/.codex-plugin/plugin.json /path/to/forgeflow/skills .codex/plugins/forgeflow/",
+          ):
+              if snippet not in readme:
+                  failures.append(f"README.md: missing actionable Codex local install snippet: {snippet}")
 
           if failures:
               print("ERROR: Adapter-config contract failed")
