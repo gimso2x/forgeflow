@@ -41,6 +41,8 @@ Write a `ship-summary.md` in the active task directory using `templates/ship-sum
 - Final handoff is completed
 - User gets a concise final report
 
+## Constraints
+
 ## File write and output discipline
 
 → Core rules: `_shared/discipline.md`.

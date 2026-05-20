@@ -168,6 +168,8 @@ Do not proceed to `/forgeflow:execute` if one of those is missing for non-trivia
 - Fulfills, journeys, and Verification Plan links are consistent when present
 - No placeholder tasks remain
 
+## Constraints
+
 ## File write and output discipline
 
 → Core rules: `_shared/discipline.md`.

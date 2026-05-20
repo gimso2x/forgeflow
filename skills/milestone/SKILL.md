@@ -117,6 +117,8 @@ Apply these synthesis heuristics to convert five-angle analysis into milestone b
 | Running reviewers sequentially when parallel is possible | Wastes time; reviewers are independent |
 | Ignoring dependency conflicts | Surface during execution when expensive to fix |
 
+## Constraints
+
 ## File write and output discipline
 
 Write `roadmap.md` to the active task directory. If the task directory is missing, bootstrap it first. If a roadmap already exists, update status instead of overwriting unless the user requests a fresh decomposition.

@@ -58,6 +58,10 @@ Paste **full plan step text** into each dispatch. Subagents must not read `plan.
 
 Each dispatch must record the **Dispatch tag** (prompt filename) in the run-ledger Assignee entry so the audit trail shows which reference prompt drove each subagent. This makes the workflow reproducible and verifies that the correct prompt was used.
 
+## Procedure
+
+The per-task loop below is the complete procedure. Follow it strictly for each plan step in dependency order.
+
 ## Per-task loop (strict order)
 
 For each plan step in dependency order:
@@ -115,6 +119,13 @@ When the shell supports role-specific models:
 ```text
 subagent-execute 완료. /forgeflow:review --type spec 을 진행하시겠습니까? (y/n)
 ```
+
+## Constraints
+
+- Never skip spec before quality micro-review.
+- Never mark a step `done` on worker DONE alone — controller must verify independently.
+- Never dispatch parallel implementers that touch the same file.
+- Micro-review results are input for stage review, not a substitute.
 
 ## File write discipline
 

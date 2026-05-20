@@ -76,6 +76,8 @@ The exit prompt and next-step guidance depend on the active route:
 
 Do not end the execute stage without updating `implementation-notes.md`. An execute pass that leaves no state artifact is incomplete.
 
+## Constraints
+
 ## Evolution rule enforcement
 
 Before editing files, load active evolution rules when file inspection is allowed:

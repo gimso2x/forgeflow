@@ -38,7 +38,13 @@ Example: `feature-auth-redir-a3f`
 
 Check that `.forgeflow/tasks/<task-id>/` does not already exist. If it does, append a numeric suffix.
 
-## Action
+## Output Artifacts
+
+| Artifact | Template | Description |
+|----------|----------|-------------|
+| `brief.md` | `templates/brief.md` | Minimal stub with Objective and Risk Level filled; other sections left as placeholders |
+
+## Procedure
 
 1. Create the task directory:
 
@@ -54,11 +60,10 @@ Plugin-cache safety rule: never create task artifacts under a path containing `.
 
 3. Do not overwrite if `brief.md` already exists. Report that it was kept as-is.
 
-## Boundaries
+## Constraints
 
-`init` is workspace/bootstrap only. It is not requirement clarification, planning, implementation, review, shipping, or branch disposition.
-
-Do not automatically continue into `/forgeflow:clarify`, `/forgeflow:plan`, or `/forgeflow:execute` after init succeeds. That would make the plugin feel like it secretly crossed a stage boundary. No thanks.
+- `init` is workspace/bootstrap only — not clarification, planning, implementation, review, shipping, or branch disposition.
+- Do not automatically continue into `/forgeflow:clarify`, `/forgeflow:plan`, or `/forgeflow:execute` after init succeeds.
 
 ## Exit Condition
 

@@ -50,6 +50,8 @@ Write `brief.md` to the active task directory using `templates/brief.md` as the 
   - `high` -> `/forgeflow:plan` with spec/quality review kept separate
   - `epic` -> `/forgeflow:milestone`
 
+## Constraints
+
 ## File write and output discipline
 
 → Core rules: `_shared/discipline.md`.

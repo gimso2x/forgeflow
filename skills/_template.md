@@ -32,15 +32,16 @@ One sentence describing what this skill does and why it exists.
 - What must be true for this skill to be considered complete?
 - Include artifact existence checks or state transitions.
 
-## File write and output discipline
-
-→ Read `_shared/discipline.md` for the common rules.
-Skill-specific writing rules go here.
-
 ## Constraints
 
-- Hard rules that must not be violated.
-- Failure modes and how to handle them.
+Skill-specific hard rules and failure modes. Shared constraint sections may appear at the top level (see below) or nested under this header — either is valid as long as every constraint is reachable.
+
+### Optional constraint sections (add when relevant)
+
+- **File write and output discipline** → `_shared/discipline.md`
+- **Strict response constraints** → `_shared/discipline.md`
+- **Automation / non-interactive approval mode** → `_shared/automation.md`
+- **Status analysis preflight** → `_shared/preflight.md`
 
 ---
 
@@ -48,5 +49,3 @@ Skill-specific writing rules go here.
 
 - **Trigger** — When the skill should activate (only for entry-point skills like benchmark)
 - **Notes** — Design rationale, references to other skills, edge cases
-- **Automation / non-interactive approval mode** → `_shared/automation.md`
-- **Status analysis preflight** → `_shared/preflight.md`

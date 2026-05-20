@@ -14,6 +14,17 @@ validate_prompt: |
 
 Capture durable signal from high or epic route work. This is not a summary tool -- it is a memory gate that decides what is worth preserving for future tasks.
 
+## Input
+
+| Artifact | Source |
+|----------|--------|
+| `brief.md` | Clarify stage |
+| `plan.md` | Plan stage |
+| `implementation-notes.md` | Execute stage |
+| `run-ledger.md` | Execute stage |
+| `review-report.md` | Review stage |
+| `.forgeflow/evolution/active/*.md` | Existing active rules (to check for duplicates) |
+
 ## When to run
 
 - Automatically after high or epic route finalize completes.
@@ -41,7 +52,12 @@ Do not capture:
 - Worker self-congratulation -- the most useless artifact genre yet invented
 - Vague sentiments ("The approach worked well") -- if there is no evidence and no reusable rule, it is just a scented candle
 
-## Output
+## Output Artifacts
+
+| Artifact | Template | Description |
+|----------|----------|-------------|
+| `eval-record.md` | `templates/eval-record.md` | Evidence-backed learning record with outcome, patterns, failure rules |
+| `.forgeflow/evolution/proposed/*.md` (optional) | `templates/evolution-rule.md` | Proposed workflow rule candidate |
 
 Write `.forgeflow/tasks/<task-id>/eval-record.md` following the format in `templates/eval-record.md`:
 
@@ -123,6 +139,13 @@ A pattern or failure rule is a valid evolution candidate only when:
 | Capturing everything | Noise drowns signal; becomes useless |
 | Skipping this after high/epic work | Reusable lessons are lost; same mistakes recur |
 | Auto-committing to memory without review | Unvalidated patterns pollute the knowledge base |
+
+## Constraints
+
+- No evidence, no rule — every pattern or rule candidate must reference concrete evidence from task artifacts.
+- Do not store session chatter, one-off progress, or user-private context.
+- Global-advisory candidates must not become hard enforcement rules.
+- Evolution rule candidates must go through review before activation — no auto-commit.
 
 ## Exit Condition
 

@@ -101,6 +101,8 @@ All routes write a **single** `review-report.md` using `templates/review-report.
 
   For high/epic, if Spec Compliance is missing, incomplete, or spec verdict != approved, do not proceed to the quality pass. Each pass is an independent gate; do not merge both passes into one review turn.
 
+## Constraints
+
 ## File write and output discipline
 
 → Core rules: `_shared/discipline.md`.

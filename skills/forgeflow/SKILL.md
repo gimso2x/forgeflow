@@ -1,6 +1,6 @@
 ---
 name: forgeflow
-description: Artifact-first delivery workflow for AI coding agents.
+description: Artifact-first delivery workflow for AI coding agents. Routes work through clarify → plan → execute → review → ship stages with Markdown artifacts, verification gates, and independent review. Use when the user types /forgeflow, /forgeflow:<stage>, or asks to implement, refactor, debug, review, or ship code through a structured workflow.
 version: 0.3.0
 author: gimso2x
 validate_prompt: |
@@ -243,9 +243,26 @@ Adapter execution time varies significantly. Timeout guides and per-adapter ceil
 
 If an adapter exceeds the safety ceiling, terminate the process and record the timeout in `implementation-notes.md` as a blocker. Do not silently wait indefinitely.
 
+## Procedure
+
+1. Detect the adapter environment (see `docs/adapter-config.md`).
+2. If the user provides a slash command, route to the matching stage skill.
+3. If the user provides a free-form request, run `/forgeflow:clarify` to produce a brief with route selection.
+4. After clarify, follow the route's stage sequence (see Route model above).
+5. Each stage skill handles its own procedure, artifacts, and gates.
+
+## Exit Condition
+
+- The routed stage skill completes and reports its own exit condition.
+- For free-form requests, the workflow ends when `/forgeflow:finish` completes or the user explicitly stops.
+
 ## Strict response constraints
 
 → `_shared/discipline.md`.
+
+## Constraints
+
+The rules below are hard boundaries. Violating any of them undermines the ForgeFlow contract.
 
 ## Rules
 

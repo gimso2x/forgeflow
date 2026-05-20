@@ -50,6 +50,8 @@ Present a finish decision report containing:
 - The user has chosen one finish option
 - No destructive action runs without explicit confirmation
 
+## Constraints
+
 ## File write and output discipline
 
 → Core rules: `_shared/discipline.md`.
