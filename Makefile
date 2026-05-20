@@ -1,4 +1,4 @@
-.PHONY: validate validate-json validate-no-python validate-skills validate-templates validate-versions
+.PHONY: validate validate-json validate-no-python validate-skills validate-templates validate-versions validate-gemini-imports
 
 PYTHON ?= python3
 
@@ -21,7 +21,7 @@ TEMPLATES := \
 	evolution-rule.md \
 	ship-summary.md
 
-validate: validate-no-python validate-json validate-versions validate-skills validate-templates
+validate: validate-no-python validate-json validate-versions validate-skills validate-templates validate-gemini-imports
 	@echo "OK: local validation passed"
 
 validate-no-python:
@@ -95,3 +95,6 @@ validate-templates:
 		fi; \
 	done
 	@echo "OK: All templates exist"
+
+validate-gemini-imports:
+	@$(PYTHON) -c "exec("'"'"import json, pathlib, re, sys\nroot = pathlib.Path('.')\ngemini = (root / 'GEMINI.md').read_text(encoding='utf-8')\nimports = re.findall(r'@(\\./skills/[^\\s]+)', gemini)\nimported_paths = set(imports)\nfailures = []\nmanifest = json.loads((root / 'gemini-extension.json').read_text(encoding='utf-8'))\nif manifest.get('contextFileName') != 'GEMINI.md':\n    failures.append('gemini-extension.json: contextFileName must be GEMINI.md')\nif './skills/SKILLS.md' not in imported_paths:\n    failures.append('GEMINI.md: missing @./skills/SKILLS.md inventory import')\nactive_skills = {d.name for d in (root / 'skills').iterdir() if d.is_dir() and not d.name.startswith('_')}\nexpected_imports = {f'./skills/{name}/SKILL.md' for name in active_skills}\nmissing_active = sorted(expected_imports - imported_paths)\nstale_active = sorted(p for p in imported_paths if p.startswith('./skills/') and p.endswith('/SKILL.md') and p not in expected_imports)\nmissing_files = [p for p in imports if not (root / p.lstrip('./')).exists()]\nif missing_active:\n    failures.append(f'GEMINI.md: missing active skill imports {missing_active}')\nif stale_active:\n    failures.append(f'GEMINI.md: imports stale skill paths {stale_active}')\nfor item in missing_files:\n    failures.append(f'GEMINI.md: broken import {item}')\nif failures:\n    print('ERROR: Gemini extension import contract failed')\n    [print(f'- {failure}') for failure in failures]\n    sys.exit(1)\nprint(f'OK: GEMINI.md imports inventory and {len(active_skills)} active skills')\n"'"'")"
