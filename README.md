@@ -219,7 +219,7 @@ python3 -m json.tool gemini-extension.json >/dev/null
 make demo
 ```
 
-이 명령은 `mktemp -d` 아래에 `.forgeflow/tasks/demo-small/`을 만들고 `brief.md`, `run-ledger.md`, `checkpoint.md`, `implementation-notes.md`, `review-report.md`, `ship-summary.md` 경로를 출력합니다. 생성된 임시 workspace를 열어 실제 작업에서는 `/forgeflow-init`부터 시작하세요.
+이 명령은 `mktemp -d` 아래에 `.forgeflow/tasks/demo-small/`을 만들고 `brief.md`, `plan.md`, `run-ledger.md`, `checkpoint.md`, `implementation-notes.md`, `review-report.md`, `ship-summary.md` 경로를 출력합니다. 생성된 임시 workspace를 열어 실제 작업에서는 `/forgeflow-init`부터 시작하세요.
 
 ## 실제 외부 실행 안전 기준
 
@@ -237,6 +237,9 @@ v1.x는 Python `exec-stage --real` 런타임을 포함하지 않습니다.
 
 > /forgeflow:clarify 로그인 페이지에 소셜 로그인 버튼 추가
 # → brief.md 생성, route: small
+
+> /forgeflow:plan
+# → plan.md 생성, 실행 단계/검증 목표 확정
 
 > /forgeflow:execute
 # → 구현 진행, implementation-notes.md 업데이트
