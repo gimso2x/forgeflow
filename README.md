@@ -20,12 +20,12 @@ ForgeFlow는 AI coding agent를 위한 artifact-first delivery workflow입니다
 
 **Gemini CLI:**
 
-```
+```bash
 gemini extensions install https://github.com/gimso2x/forgeflow
-gemini extensions update forgeflow
+printf 'Y\n' | gemini extensions update forgeflow
 ```
 
-로컬 checkout에서 검증하거나 개발 중인 버전을 연결할 때는 `gemini extensions validate .` 후 `gemini extensions link .`를 사용합니다. Gemini extension manifest는 루트 `GEMINI.md`를 context file로 로드합니다.
+`gemini extensions update forgeflow`는 확인 프롬프트가 뜰 수 있어 자동화에서는 위처럼 명시 승인 입력을 파이프합니다. 로컬 checkout에서 검증하거나 개발 중인 버전을 연결할 때는 `gemini extensions validate .` 후 `gemini extensions link .`를 사용합니다. Gemini extension manifest는 루트 `GEMINI.md`를 context file로 로드합니다.
 
 **Codex:**
 
