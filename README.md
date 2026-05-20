@@ -236,7 +236,7 @@ v1.x는 Python `exec-stage --real` 런타임을 포함하지 않습니다.
 # → .forgeflow/tasks/<task-id>/ 작업 공간 준비
 
 > /forgeflow:clarify 로그인 페이지에 소셜 로그인 버튼 추가
-# → brief.md 생성, route: small
+# → brief.md 생성, route: medium
 
 > /forgeflow:plan
 # → plan.md 생성, 실행 단계/검증 목표 확정
