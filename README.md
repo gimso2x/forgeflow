@@ -215,6 +215,8 @@ v1.x는 Python `exec-stage --real` 런타임을 포함하지 않습니다.
 
 ## 첫 실행 예시
 
+먼저 실제 프로젝트 루트에서 실행 중인지 확인하세요. 에이전트가 plugin cache/설치 디렉토리에서 열렸다면 `/forgeflow-init --task-dir <project>/.forgeflow/tasks/<task-id>`처럼 명시 경로를 넘겨 프로젝트 안에 산출물을 만듭니다.
+
 ```text
 > /forgeflow-init
 # → .forgeflow/tasks/<task-id>/ 작업 공간 준비
