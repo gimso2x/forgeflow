@@ -1,6 +1,8 @@
 ---
 name: benchmark
 description: Run cross-adapter benchmark tests to compare AI agent ForgeFlow workflow compatibility. Use when the user types /benchmark or /forgeflow:benchmark.
+version: 0.2.0
+author: gimso2x
 validate_prompt: |
   Must run the same prompt against multiple adapters.
   Must produce a structured comparison report.

@@ -1,6 +1,8 @@
 ---
 name: forgeflow
 description: Artifact-first delivery workflow for AI coding agents.
+version: 0.3.0
+author: gimso2x
 validate_prompt: |
   Must route work through explicit ForgeFlow stages and artifact-backed gates.
   Must preserve stage boundaries, verification evidence, and independent review semantics.
@@ -128,19 +130,9 @@ Check `review-report.md` for verdicts and open blockers.
 
 ## File write and output discipline
 
-Default to **artifact-first mode**.
-Unless the user explicitly asks for a dry run, exact-output response, or no-write simulation, create/update Markdown artifacts under `.forgeflow/tasks/<task-id>/`.
-
-If the task directory does not exist yet, bootstrap it first.
-Create `.forgeflow/tasks/<task-id>/` with the appropriate template.
-Do not skip straight to source edits when the artifact workspace is missing.
-
-If the user says "do not write files", "return only", "dry run", "just list", or asks for a label/summary only, obey that output constraint exactly.
-Do not attempt any filesystem mutation in that mode.
+→ Core rules: `_shared/discipline.md`.
 
 When artifacts are mentioned without an explicit path, assume `.forgeflow/tasks/<task-id>/`, not chat-only fallback.
-Write only under the current project workspace or the active task directory.
-Never write inside `skills/<skill>/`.
 
 ## Role Boundaries
 
@@ -267,11 +259,7 @@ Adapter CLI flags for non-interactive execution are documented in `docs/adapter-
 
 ## Strict response constraints
 
-When the user asks for an exact count, exact format, or "only" output, that instruction overrides the normal artifact template.
-Return exactly what was requested and nothing extra.
-
-When the user says "do not run commands", do not propose command execution as if it happened.
-You may name a manual check, but label it as manual inspection, not a command result.
+→ `_shared/discipline.md`.
 
 ## Rules
 

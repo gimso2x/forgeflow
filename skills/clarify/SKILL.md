@@ -1,6 +1,8 @@
 ---
 name: clarify
 description: Turn a vague request into a scoped ForgeFlow brief and route decision. Use when the user types /clarify or /forgeflow:clarify, or first for new implementation/refactor/debug requests unless the user already provided a complete brief.
+version: 0.3.0
+author: gimso2x
 validate_prompt: |
   Must preserve exact-output and dry-run constraints when requested.
   Must return a clear route or brief artifact only when the prompt asks for it.
@@ -49,22 +51,19 @@ Write `brief.md` to the active task directory using `templates/brief.md` as the 
 
 ## File write and output discipline
 
-Default to **artifact-first mode**. Write `brief.md` under `.forgeflow/tasks/<task-id>/` unless the user explicitly asks for a dry run, exact-output response, or no-write simulation.
+→ Core rules: `_shared/discipline.md`.
 
-If the task directory is missing, create `.forgeflow/tasks/<task-id>/` first. Do not return a pseudo-brief in chat only when the workflow expects artifacts.
-
-If the user says "do not write files", "return only", "dry run", "just list", or asks for a label/summary only, obey that output constraint exactly and do not attempt any filesystem mutation.
-
-Write only under the current project workspace or the active task directory. Never write inside `skills/<skill>/`.
+Write `brief.md` under `.forgeflow/tasks/<task-id>/`. If the task directory is missing, create it first. Do not return a pseudo-brief in chat only when the workflow expects artifacts.
 
 ## Strict response constraints
 
-When the user requests an exact output (label only, list only, dry run), return exactly that — nothing extra. Exact-output instructions override all other formatting rules. The user asked for precision; give them precision.
+→ Core rules: `_shared/discipline.md`.
+
+When the user requests an exact output (label only, list only, dry run), return exactly that — nothing extra.
 
 - Label-only route: output exactly `small`, `medium`, `high`, or `epic` and stop.
 - Exact-count questions: start directly with `1.` — no preamble.
 - List questions: list them inline. Do not call interactive tools unless the user asks.
-- "Do not run commands": name manual checks as "manual inspection", not as if they ran.
 
 ## Evolution preflight
 

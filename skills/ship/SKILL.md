@@ -43,31 +43,18 @@ Write a `ship-summary.md` in the active task directory using `templates/ship-sum
 
 ## File write and output discipline
 
-Default to **artifact-first mode**. Ship should preserve the final handoff evidence in the active task directory unless the user explicitly asks for a dry run, exact-output response, or no-write simulation.
+→ Core rules: `_shared/discipline.md`.
 
-Canonical writable location:
-
-- explicit task directory provided by the user, or
-- repo-local `.forgeflow/tasks/<task-id>/`
-
-If the task directory is missing, bootstrap or recover it first. Shipping without persisted evidence is how people end up debugging ghosts.
-
-If the user says "do not write files", "return only", "dry run", "just list", or asks for a label/summary only, obey that output constraint exactly and do not attempt any filesystem mutation.
+Ship should preserve the final handoff evidence in the active task directory.
 
 When artifacts such as `review-report.md` or final handoff notes are mentioned without an explicit path, preserve them under the active task directory, not the repository root and not chat-only fallback.
 
-If writing is allowed, write only under the current project workspace or the active task directory. Never write inside the plugin installation directory, marketplace cache (including `.claude/plugins/cache`, `.codex/plugins`, `.cursor/plugins`, or `~/.cursor/plugins/local`), or `skills/<skill>/`.
-
 ## Strict response constraints
 
-When the user asks for an exact count, exact format, or "only" output, that instruction overrides the normal artifact template. Return exactly what was requested and nothing extra.
+→ `_shared/discipline.md`.
 
 Bad: adding verdicts, extra rationale sections, or warnings after the requested list.
 Good: if asked for exactly two checks, return exactly two checks.
-
-When the user says "do not run commands", do not propose command execution as if it happened. You may name a manual check, but label it as manual inspection, not a command result.
-
-For exact-count list prompts, output numbered lines only. Do not output a preamble, heading, fenced block, command equivalent, git action, or final verdict.
 
 Example exact-count response must be plain text lines, not a fenced block:
 
@@ -78,7 +65,7 @@ No heading. No preamble. No code fence. No third line.
 
 ## Status analysis preflight
 
-Before preparing handoff, read the latest `review-report.md`, `brief.md`, and `eval-record.md` when present from the active task directory. Identify the active task by inspecting `.forgeflow/tasks/` directories and finding the one with the most recent artifacts.
+→ `_shared/preflight.md`.
 
 ## Procedure
 

@@ -1,6 +1,8 @@
 ---
 name: plan
 description: Create an executable ForgeFlow plan with exact tasks, files, acceptance criteria, and verification steps. Use when the user types /plan or /forgeflow:plan.
+version: 0.3.0
+author: gimso2x
 validate_prompt: |
   Must preserve exact-output and dry-run constraints when requested.
   Must default to artifact-first behavior and produce `plan.md` in the active task directory unless the user explicitly requests dry-run or no-write output.
@@ -155,25 +157,17 @@ Do not proceed to `/forgeflow:execute` if one of those is missing for non-trivia
 
 ## File write and output discipline
 
-Default to **artifact-first mode**. Write `plan.md` under `.forgeflow/tasks/<task-id>/` unless the user explicitly asks for a dry run, exact-output response, or no-write simulation.
+→ Core rules: `_shared/discipline.md`.
 
-If the task directory is missing, bootstrap it first. Do not downgrade planning into a chat transcript when the workflow expects artifacts.
-
-If the user says "do not write files", "return only", "dry run", "just list", or asks for a label/summary only, obey that output constraint exactly and do not attempt any filesystem mutation.
-
-Write only under the current project workspace or the active task directory. Never write inside `skills/<skill>/`.
+Write `plan.md` under `.forgeflow/tasks/<task-id>/`. If the task directory is missing, bootstrap it first. Do not downgrade planning into a chat transcript when the workflow expects artifacts.
 
 ## Strict response constraints
 
-When the user asks for an exact count, exact format, or "only" output, that instruction overrides the normal artifact template. Return exactly what was requested and nothing extra.
-
-When the user says "do not run commands", do not propose command execution as if it happened. You may name a manual check, but label it as manual inspection, not a command result.
-
-For exact-count list prompts, output numbered lines only. No heading, preamble, fenced block, summary, or extra lines.
+→ `_shared/discipline.md`.
 
 ## Automation / non-interactive approval mode
 
-If the user explicitly includes `--yes`, `--auto-approve`, `--non-interactive`, or says to continue through ForgeFlow stages without further approval, treat that as approval for the current bounded ForgeFlow sequence. Do not pause at the normal stage-boundary y/n prompt; proceed to the next requested ForgeFlow stage after writing the required artifact for the current stage. This only applies inside the stated task scope and never overrides a blocker, failed verification, missing required artifact, or unsafe/destructive action.
+→ `_shared/automation.md`.
 
 ## Procedure
 

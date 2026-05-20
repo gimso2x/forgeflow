@@ -1,6 +1,8 @@
 ---
 name: review
 description: Perform independent ForgeFlow review against requirements, plan, and code. Use when the user types /review or /forgeflow:review, after execute and before ship.
+version: 0.3.0
+author: gimso2x
 validate_prompt: |
   Must preserve exact-output and dry-run constraints when requested.
   Must separate spec compliance findings from quality findings.
@@ -100,19 +102,13 @@ All routes write a **single** `review-report.md` using `templates/review-report.
 
 ## File write and output discipline
 
-Default to **artifact-first mode**. Write `review-report.md` under `.forgeflow/tasks/<task-id>/` unless the user explicitly asks for a dry run, exact-output response, or no-write simulation.
+→ Core rules: `_shared/discipline.md`.
 
-If the task directory is missing, bootstrap or recover it first. A review that leaves no artifact is just vibes with punctuation.
-
-If the user says "do not write files", "return only", "dry run", "just list", or asks for a label/summary only, obey that output constraint exactly and do not attempt any filesystem mutation.
-
-Write only under the current project workspace or the active task directory. Never write inside `skills/<skill>/`.
+Write `review-report.md` under `.forgeflow/tasks/<task-id>/`. If the task directory is missing, bootstrap or recover it first. A review that leaves no artifact is just vibes with punctuation.
 
 ## Strict response constraints
 
-When the user asks for an exact count, exact format, or "only" output, that instruction overrides the normal artifact template. Return exactly what was requested and nothing extra.
-
-When the user says "do not run commands", do not propose command execution as if it happened. You may name a manual check, but label it as manual inspection, not a command result.
+→ `_shared/discipline.md`.
 
 For exact-count list prompts, output numbered lines only. No preamble, heading, fenced block, verdict, or extra commentary.
 
@@ -189,11 +185,13 @@ When `.forgeflow/evolution/proposed/*.md` exists or `eval-record.md` contains `E
 
 ## Automation / non-interactive approval mode
 
-If the user explicitly includes `--yes`, `--auto-approve`, `--non-interactive`, or says to continue through ForgeFlow stages without further approval, treat that as approval for the current bounded ForgeFlow sequence. Do not pause at the normal stage-boundary y/n prompt; proceed to the next requested ForgeFlow stage after writing the required artifact for the current stage. This only applies inside the stated task scope and never overrides a blocker, failed verification, missing required artifact, or unsafe/destructive action.
+→ `_shared/automation.md`.
 
 ## Status analysis preflight
 
-Before reviewing, reconstruct the task state from artifacts instead of chat memory:
+→ Core procedure: `_shared/preflight.md`.
+
+Review-specific additions: reconstruct the full task state from artifacts instead of chat memory.
 
 - Read `implementation-notes.md` for current stage/status, decisions, deviations, progress, evidence, and blockers.
 - Read `run-ledger.md` for per-task execution status (pending/running/done/blocked), assignee (`worker` | `specialist` | `spec-reviewer` | `quality-reviewer`), evidence refs, and blockers. Cross-check claimed completion against ledger entries.

@@ -52,17 +52,15 @@ Present a finish decision report containing:
 
 ## File write and output discipline
 
-If writing is allowed, write only under the current project workspace or the active task directory. Never write inside the plugin installation directory, marketplace cache (including `.claude/plugins/cache`, `.codex/plugins`, `.cursor/plugins`, or `~/.cursor/plugins/local`), or `skills/<skill>/`.
-
-If the user explicitly asks for a dry run, exact-output response, or no-write simulation, obey that output constraint exactly and do not mutate branch state or task artifacts.
+→ Core rules: `_shared/discipline.md`.
 
 Use `.forgeflow/tasks/<task-id>/` for any task-local finish evidence unless the user provides another project-local artifact directory.
 
 ## Status analysis preflight
 
-Before presenting finish options, reconstruct the active task status from artifacts: read `brief.md`, latest `review-report.md`, `eval-record.md`, `run-ledger.md`, `checkpoint.md`, and `implementation-notes.md` from the active task directory. Identify the active task by inspecting `.forgeflow/tasks/` directories.
+→ `_shared/preflight.md`.
 
-Cross-check `run-ledger.md`: all tasks must be `done` or explicitly `blocked` (with documented rationale). If any task is still `running` or `pending`, flag it as incomplete before presenting finish options. The run-ledger is the execution truth.
+Finish-specific additions: Cross-check `run-ledger.md`: all tasks must be `done` or explicitly `blocked` (with documented rationale). If any task is still `running` or `pending`, flag it as incomplete before presenting finish options. The run-ledger is the execution truth.
 
 ## Procedure
 

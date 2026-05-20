@@ -7,14 +7,7 @@ validate_prompt: |
 
 # Skill: <name>
 
-## Purpose
-
 One sentence describing what this skill does and why it exists.
-
-## Trigger
-
-- When should this skill activate?
-- List explicit phrases or conditions.
 
 ## Input
 
@@ -28,22 +21,32 @@ One sentence describing what this skill does and why it exists.
 |----------|----------|-------------|
 | `<output-artifact>.md` | `templates/<output-artifact>.md` | What this artifact contains |
 
-## Execution
+## Procedure
 
 1. Step one.
 2. Step two.
 3. Step three.
-
-## Constraints
-
-- Hard rules that must not be violated.
-- Failure modes and how to handle them.
 
 ## Exit Condition
 
 - What must be true for this skill to be considered complete?
 - Include artifact existence checks or state transitions.
 
-## Notes
+## File write and output discipline
 
-- Design rationale, references to other skills, edge cases.
+→ Read `_shared/discipline.md` for the common rules.
+Skill-specific writing rules go here.
+
+## Constraints
+
+- Hard rules that must not be violated.
+- Failure modes and how to handle them.
+
+---
+
+### Optional sections (add when relevant)
+
+- **Trigger** — When the skill should activate (only for entry-point skills like benchmark)
+- **Notes** — Design rationale, references to other skills, edge cases
+- **Automation / non-interactive approval mode** → `_shared/automation.md`
+- **Status analysis preflight** → `_shared/preflight.md`
