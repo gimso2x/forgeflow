@@ -18,10 +18,10 @@ jobs:
 
       - name: Verify no Python files remain
         run: |
-          count=$(find . -name '*.py' -not -path './.git/*' | wc -l)
+          count=$(find . -name '*.py' -not -path './.git/*' -not -path './.venv/*' | wc -l)
           if [ "$count" -gt 0 ]; then
             echo "ERROR: Found $count Python files (should be 0)"
-            find . -name '*.py' -not -path './.git/*'
+            find . -name '*.py' -not -path './.git/*' -not -path './.venv/*'
             exit 1
           fi
           echo "OK: No Python files found"
@@ -29,12 +29,16 @@ jobs:
       - name: Verify all skills have SKILL.md
         run: |
           for dir in skills/*/; do
+            name=$(basename "$dir")
+            if [[ "$name" == _* ]]; then
+              continue
+            fi
             if [ ! -f "${dir}SKILL.md" ]; then
               echo "ERROR: Missing SKILL.md in $dir"
               exit 1
             fi
           done
-          echo "OK: All skills have SKILL.md"
+          echo "OK: All public skills have SKILL.md"
 
       - name: Verify plugin configs are valid JSON
         run: |
