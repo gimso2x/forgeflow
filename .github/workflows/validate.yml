@@ -91,6 +91,13 @@ jobs:
               failures.append("README.md: remove hardcoded current release line")
           if "VERSION" not in readme:
               failures.append("README.md: release policy must reference VERSION")
+          for snippet in (
+              "## 로컬 검증",
+              ".github/workflows/validate.yml",
+              "python3 -m json.tool .claude-plugin/plugin.json >/dev/null",
+          ):
+              if snippet not in readme:
+                  failures.append(f"README.md: local validation guidance missing {snippet!r}")
 
           pyproject = root / "pyproject.toml"
           if pyproject.exists():

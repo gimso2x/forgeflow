@@ -183,6 +183,24 @@ CI가 다음 파일의 정합성을 검사합니다.
 Project active rule은 해당 repository의 필수 제약입니다.
 Global rule(`~/.forgeflow/evolution/active/*.md`)은 advisory only이며 hard block으로 쓰지 않습니다.
 
+## 로컬 검증
+
+이 저장소는 v1.x 기준으로 runtime/build 의존성이 없는 Markdown/JSON 패키지입니다. 변경 전후에는 GitHub Actions의 구조 검증 계약(`.github/workflows/validate.yml`)과 같은 범위를 로컬에서 먼저 확인합니다.
+
+```bash
+# Python runtime 파일이 다시 들어오지 않았는지 확인
+find . -name '*.py' -not -path './.git/*' -not -path './.venv/*'
+
+# 플러그인/extension JSON 파싱 확인
+python3 -m json.tool .claude-plugin/plugin.json >/dev/null
+python3 -m json.tool .claude-plugin/marketplace.json >/dev/null
+python3 -m json.tool .codex-plugin/plugin.json >/dev/null
+python3 -m json.tool .cursor-plugin/plugin.json >/dev/null
+python3 -m json.tool gemini-extension.json >/dev/null
+```
+
+출력이 없어야 하는 첫 번째 명령을 제외하고, JSON 명령은 exit code 0이면 통과입니다. 전체 release/version/skill 계약은 push/PR에서 `validate` workflow가 검사합니다.
+
 ## 실제 외부 실행 안전 기준
 
 v1.x는 Python `exec-stage --real` 런타임을 포함하지 않습니다.
