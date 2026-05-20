@@ -13,6 +13,25 @@ ForgeFlow turns agent work into explicit stages with Markdown artifacts, gates, 
 It enforces **Deep Architecture Discipline** (Depth, Seam, Locality, Deletion test) and a **Grilling loop**.
 Use Socratic interviewing with recommended answers to ensure rigorous design and maintainable code.
 
+## Adapter detection
+
+Skills may need adapter-specific behavior. Detect the current adapter using:
+
+| Method | Signal |
+|--------|--------|
+| Claude Code | `CLAUDE_CODE_SESSION` env var, or `.claude/` directory present |
+| Codex CLI | `CODEX_SESSION` env var, or `.codex/` directory present |
+| Gemini CLI | `GEMINI_CLI` env var, or `.gemini/` directory present |
+| Cursor | `.cursor/` directory present |
+
+Usage in skills: check for the adapter-specific signal and adjust behavior. Examples:
+
+- Codex output normalization: strip raw diff before artifact parsing
+- Gemini: enforce `import type` for `verbatimModuleSyntax` compliance
+- Claude: expect structured table-format reports
+
+Adapter-specific CLI flags and timeout guides are in `docs/adapter-config.md`.
+
 ## Slash-style entrypoints
 
 | Stage | Claude / Codex / Gemini | Cursor |
@@ -27,6 +46,7 @@ Use Socratic interviewing with recommended answers to ensure rigorous design and
 | Finish | `/forgeflow:finish` | `/finish` |
 | Milestone | `/forgeflow:milestone` | `/milestone` |
 | Long-run | `/forgeflow:long-run` | `/long-run` |
+| Benchmark | `/forgeflow:benchmark` | `/benchmark` |
 
 Cursor skill names cannot contain `:`. Use the Cursor column when invoking skills in Cursor; other adapters keep the `/forgeflow:*` form.
 
@@ -214,6 +234,21 @@ ForgeFlow turns repeated patterns and mistakes into Markdown rules without resto
   - Next state: not loaded
 
 Global rules live under `~/.forgeflow/evolution/active/*.md`, but they are advisory only and cannot hard block a project task.
+
+## Adapter performance guide
+
+Adapter execution time varies significantly. When orchestrating or benchmarking multi-adapter workflows, use these timeout guides:
+
+| Route | Gemini | Claude | Codex | Safety ceiling |
+|-------|--------|--------|-------|----------------|
+| small | 120s | 120s | 180s | 300s |
+| medium | 180s | 360s | 240s | 600s |
+| high | 300s | 600s | 480s | 900s |
+| epic | 600s | 1200s | 900s | 1800s |
+
+If an adapter exceeds the safety ceiling, terminate the process and record the timeout in `implementation-notes.md` as a blocker. Do not silently wait indefinitely.
+
+Adapter CLI flags for non-interactive execution are documented in `docs/adapter-config.md`.
 
 ## Strict response constraints
 

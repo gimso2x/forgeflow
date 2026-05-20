@@ -131,6 +131,14 @@ Review evidence is not fan fiction. Use a blocker-first verdict: unresolved bloc
 - Do not approve a review that treats nonexistent files, commands, or evidence refs as observed facts. Path hallucination is a blocker, not a typo.
 - When command execution is disallowed, use manual inspection language only: "not run", "manual inspection", "requires verification".
 
+## Output normalization (review input)
+
+When reading agent output during review, normalize before analyzing:
+
+- **Codex**: Diff blocks may dominate the log (80%+). Extract only the final summary, file list, and verification results. Ignore intermediate diff hunks.
+- **All adapters**: Strip ANSI codes, cache warm-up messages, and non-artifact metadata before evidence extraction.
+- Mark normalized output as `processed evidence` vs `raw evidence` in findings when the distinction matters.
+
 ## Consistency check
 
 Before approving, check whether the work kept instructions, tools, environment, state, and feedback consistent across artifacts and code. Requirement/contract drift, nonexistent verification tools, ignored environment blockers, stale artifacts, or unclosed feedback from failures are review findings. Label verification evidence as observed, reported, or missing before deciding whether it can support approval.
@@ -146,6 +154,20 @@ Review MUST independently verify test results before approving. This is a hard g
 5. **No test command found.** If no test command exists or tests cannot be run, record this as `reported evidence: no test command found` and note it as a minor finding. Do not treat this as a blocker, but do not claim tests pass.
 
 This gate applies regardless of route size. Even small-route reviews must run tests if a test command is available.
+
+### Standard verification checklist
+
+When reviewing, run the **independent verification suite** (all that apply, minimum 1):
+
+| Gate | Command pattern | Required when |
+|------|----------------|---------------|
+| build | `pnpm build` / `npm run build` / `cargo build` | All code tasks |
+| lint | `pnpm lint` / `npm run lint` / `ruff check` | Lint config exists |
+| type_check | `tsc --noEmit` / `mypy` / `cargo check` | Typed codebase |
+| test | `pnpm test` / `npm test` / `pytest` | Tests exist for changed files |
+
+Small routes: minimum 1 gate (build preferred). Medium+: minimum 2 gates (build + 1 other). High/epic: all applicable gates.
+Record each result in findings as `verification:PASS/FAIL gate=<name> command="<cmd>"` (observed evidence).
 
 ## Git safety summary
 
@@ -205,12 +227,19 @@ Before reviewing, reconstruct the task state from artifacts instead of chat memo
    - If performance was touched, was the bottleneck measured before and after the change?
 12. Classify findings by severity: blocker, major, minor, nit.
 13. **Write or update `review-report.md`** to the active task directory. For high/epic, spec and quality passes update the same file. The verdict in the file is the only valid verdict.
-14. Return a clear verdict in chat that matches the file. If verdict is `changes_requested` or `blocked`, update `implementation-notes.md` so status reflects the review gate.
-15. **다음 단계 안내** — 반드시 사용자에게 출력:
+14. **Verify execute completion checklist**: Before approving, confirm the execute stage produced all required deliverables:
+    - ☐ Implementation plan was stated before code changes
+    - ☐ All changed files are listed with descriptions
+    - ☐ Each component/function role is explained
+    - ☐ Edge cases enumerated (medium/high/epic)
+    - ☐ Verification commands run and results recorded
+    Missing items are `minor` findings for small routes, `major` for medium+, unless the omission is severe enough to block.
+15. Return a clear verdict in chat that matches the file. If verdict is `changes_requested` or `blocked`, update `implementation-notes.md` so status reflects the review gate.
+16. **다음 단계 안내** — 반드시 사용자에게 출력:
     - If `approved`: "리뷰 통과. 출하 준비 완료. `/forgeflow:ship`을 실행해주세요."
     - If `changes_requested`: "수정이 필요합니다:" + 각 P0/P1 이슈를 `file:line — description` 형태로 나열 + "`/forgeflow:execute`로 수정 후 다시 `/forgeflow:review`를 요청해주세요."
     - Do NOT auto-proceed to ship. 반드시 사용자가 다음 단계를 실행하도록 대기.
-16. Do not call `/forgeflow:ship` unless verdict=approved, safe_for_next_stage=yes, and open_blockers=none are all true in the **written** `review-report.md`.
+17. Do not call `/forgeflow:ship` unless verdict=approved, safe_for_next_stage=yes, and open_blockers=none are all true in the **written** `review-report.md`.
 
 Do not merge spec and quality review passes into a single turn for high/epic work. Use one `review-report.md` with sequential passes.
 

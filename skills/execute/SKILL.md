@@ -170,12 +170,25 @@ Minimum warning contract:
    - Nothing speculative: no drive-by abstractions, unrelated cleanup, hidden migrations, or "while I'm here" rewrites unless the approved plan names them.
 8. Apply adapter-aware execution: keep ForgeFlow artifacts, gates, and evidence paths backend-neutral. If the backend cannot produce required evidence, record that limitation in implementation-notes.md and block or downgrade the affected verification gate instead of silently proceeding.
 9. Treat fulfills, journeys, and verify_plan as verification obligations, not decoration.
-10. Run focused verification after each meaningful change.
+10. Run focused verification after each meaningful change. **Standard verification suite** (run all that apply, minimum 1):
+    - `build`: Project build command (`pnpm build`, `npm run build`, `cargo build`, etc.)
+    - `lint`: Project lint command (`pnpm lint`, `npm run lint`, `ruff check`, etc.)
+    - `type_check`: TypeScript type check (`tsc --noEmit`) or equivalent
+    - `test`: Project test command (`pnpm test`, `npm test`, `pytest`, etc.)
+    Record results in `implementation-notes.md` Evidence as `verification:PASS/FAIL gate=<name> command="<cmd>"`.
+    Small routes require at least 1 gate. Medium+ require at least 2 gates including build.
 11. Update `implementation-notes.md` immediately when starting and finishing each step. Step state must be incremental: `pending -> in_progress -> completed`. Do not batch-mark all steps as `completed` only at the end. If a step cannot finish, mark it `blocked` with evidence.
    - **Contract checkpoint**: Before marking any plan task complete, verify: "Does this code violate a stated contract?" Record in evidence as `contract_check:PASS <task>` or `contract_check:FAIL <task> reason="..."`.
 12. After all steps complete, update implementation-notes.md to `Status: completed` with all passed gates in Evidence.
 13. Stop if requirements become ambiguous; return to `/forgeflow:clarify`.
-14. Deliver the route-aware exit prompt (see Exit Condition above). **완료 보고를 반드시 사용자에게 출력**:
+14. Deliver the route-aware exit prompt (see Exit Condition above). Before exiting, verify the **mandatory completion checklist**:
+    - ☐ Implementation plan was stated before code changes
+    - ☐ All changed files are listed with descriptions
+    - ☐ Each component/function role is explained in one line
+    - ☐ Edge cases are enumerated (medium/high routes)
+    - ☐ Verification commands were run and results recorded
+    If any checklist item is missing, complete it before delivering the exit prompt. Do not skip items.
+    **완료 보고를 반드시 사용자에게 출력**:
     1. 완료 요약 (1-2문장, 한국어)
     2. 검증 결과: lint/build/test 각각 pass/fail + 숫자
     3. 변경 파일 목록
@@ -190,6 +203,42 @@ Contract-aware execution rules:
 - If verify_plan exists and a target cannot be verified, mark the task blocked instead of pretending it is done.
 
 Worker self-report is not approval. `/forgeflow:review` still has to happen.
+
+### Completion checklist (mandatory)
+
+Before marking execute as completed, verify ALL items:
+
+| # | Item | Required for |
+|---|------|-------------|
+| 1 | Implementation plan stated before code changes | all routes |
+| 2 | All changed files listed with descriptions | all routes |
+| 3 | Each component/function role explained (one line each) | all routes |
+| 4 | Edge cases enumerated | medium, high, epic |
+| 5 | Verification commands run and results recorded | all routes |
+| 6 | Deviations from plan recorded in implementation-notes.md | medium, high, epic |
+
+If any required item is missing, the execute stage is incomplete. Do not deliver the exit prompt until all items are present.
+
+## Output normalization
+
+When ForgeFlow artifacts are parsed by downstream stages (review, ship), normalize agent output to avoid noise:
+
+- **Codex**: Strip raw git diff blocks before extracting summaries. Codex may output 100KB+ diffs; only the final summary section is relevant for artifacts.
+- **All adapters**: Remove ANSI escape sequences, cache/memory logs, and progress spinners from captured command output before recording in `implementation-notes.md`.
+- Extract only: file list, verification results, component descriptions, edge cases, and the completion report.
+
+This normalization is advisory for skill prompts but mandatory when ForgeFlow orchestrates multi-adapter pipelines.
+
+## Adapter-aware execution
+
+Detect the current adapter (see `skills/forgeflow/SKILL.md` → Adapter detection) and apply adapter-specific adjustments:
+
+| Adapter | Adjustment |
+|---------|-----------|
+| Codex | Run `lint` as a mandatory verification gate (Codex naturally does this). Normalize diff-heavy output in `implementation-notes.md`. |
+| Gemini | Enforce `import type` for TypeScript with `verbatimModuleSyntax`. Expect structured markdown output. |
+| Claude | Expect table-format reports. Natural `build` verification preference. |
+| Cursor | Skill names without colons. Same adjustments as the underlying adapter (Claude by default). |
 
 ## Agent delegation for specialist work
 

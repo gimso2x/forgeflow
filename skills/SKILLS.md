@@ -26,6 +26,7 @@ Table numbers reflect skill index, not strict runtime order. For epic work, run 
 | 07 | [`finish`](finish/SKILL.md) | Close the task and handle branch/worktree disposition. |
 | 08 | [`milestone`](milestone/SKILL.md) | Create and manage project milestones with dependency DAG. |
 | 09 | [`long-run`](long-run/SKILL.md) | Record reusable learnings after high/epic route completion. |
+| 10 | [`benchmark`](benchmark/SKILL.md) | Cross-adapter benchmark: same prompt → multiple agents → comparison report. |
 
 ## Skill lifecycle in a single task
 
