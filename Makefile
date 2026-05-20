@@ -48,13 +48,16 @@ validate-demo:
 	for artifact in brief.md plan.md run-ledger.md checkpoint.md implementation-notes.md review-report.md ship-summary.md; do \
 		cp "templates/$$artifact" "$$task_dir/$$artifact"; \
 		test -s "$$task_dir/$$artifact" || { echo "ERROR: demo artifact missing or empty: $$artifact"; exit 1; }; \
+		grep -Fq "$$artifact" README.md || { echo "ERROR: README first-run demo docs must mention $$artifact"; exit 1; }; \
 	done; \
+	grep -Fq "make demo" README.md || { echo "ERROR: README must document make demo"; exit 1; }; \
+	grep -Fq ".forgeflow/tasks/demo-small/" README.md || { echo "ERROR: README must document demo task path"; exit 1; }; \
 	count="$$(find "$$task_dir" -maxdepth 1 -type f | wc -l)"; \
 	if [ "$$count" -ne 7 ]; then \
 		echo "ERROR: demo workspace expected 7 artifacts, got $$count"; \
 		exit 1; \
 	fi
-	@echo "OK: demo workspace creates first-run artifacts"
+	@echo "OK: demo workspace creates and documents first-run artifacts"
 
 validate-no-python:
 	@count=$$(find . -name '*.py' -not -path './.git/*' -not -path './.venv/*' | wc -l); \
