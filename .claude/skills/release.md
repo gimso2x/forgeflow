@@ -18,17 +18,17 @@ ForgeFlow plugin release workflow. Syncs version across all metadata files, comm
 
 ## Version files
 
-These files must always have identical versions:
+`VERSION` 파일이 단일 소스. CI(`sync-version.yml`)가 push 시 자동으로 7개 매니페스트를 동기화하므로, **`VERSION`만 수정**하고 나머지는 건드리지 않는다.
 
 | File | Field |
 |------|-------|
-| `VERSION` | plain text `X.Y.Z` |
-| `SKILL.md` | `version: "X.Y.Z"` in frontmatter |
-| `.claude-plugin/plugin.json` | `"version": "X.Y.Z"` |
-| `.claude-plugin/marketplace.json` | `"metadata"."version": "X.Y.Z"` |
-| `.codex-plugin/plugin.json` | `"version": "X.Y.Z"` |
-| `.cursor-plugin/plugin.json` | `"version": "X.Y.Z"` |
-| `gemini-extension.json` | `"version": "X.Y.Z"` |
+| `VERSION` | plain text `X.Y.Z` (단일 소스, **직접 수정**) |
+| `SKILL.md` | `version: "X.Y.Z"` (CI 자동 동기화) |
+| `.claude-plugin/plugin.json` | `"version": "X.Y.Z"` (CI 자동 동기화) |
+| `.claude-plugin/marketplace.json` | `"metadata"."version": "X.Y.Z"` (CI 자동 동기화) |
+| `.codex-plugin/plugin.json` | `"version": "X.Y.Z"` (CI 자동 동기화) |
+| `.cursor-plugin/plugin.json` | `"version": "X.Y.Z"` (CI 자동 동기화) |
+| `gemini-extension.json` | `"version": "X.Y.Z"` (CI 자동 동기화) |
 
 Also add a `## [X.Y.Z] - YYYY-MM-DD` section to `CHANGELOG.md` before release.
 
@@ -43,9 +43,9 @@ Also add a `## [X.Y.Z] - YYYY-MM-DD` section to `CHANGELOG.md` before release.
   - minor: Y+1, Z=0 (new features, skill additions)
   - major: X+1, Y=0, Z=0 (breaking changes)
 
-### 2. Sync version across files
+### 2. Update VERSION file
 
-Update all version files with the new version number. Use Edit tool — do not rewrite entire files.
+Edit **only** `VERSION`. CI(`sync-version.yml`)가 push 후 나머지 매니페스트 7개를 자동 동기화한다. manifest 파일을 직접 수정하지 마라.
 
 ### 3. Generate changelog
 
@@ -55,12 +55,12 @@ Update all version files with the new version number. Use Edit tool — do not r
 
 ### 4. Stage and commit
 
-- Stage only the version files explicitly: `git add VERSION SKILL.md CHANGELOG.md .claude-plugin/plugin.json .claude-plugin/marketplace.json .codex-plugin/plugin.json .cursor-plugin/plugin.json gemini-extension.json`
+- Stage only: `git add VERSION CHANGELOG.md`
 - Commit message format: `[main] v<X.Y.Z> 릴리즈` or `[main] <change summary> 및 v<X.Y.Z> 릴리즈`
 
 ### 5. Push
 
-- `git push origin main`
+- `git push origin main` — CI가 매니페스트 버전을 자동 동기화한다.
 
 ### 6. Create GitHub release
 

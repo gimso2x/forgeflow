@@ -50,12 +50,13 @@ SKILL.md                  # Claude marketplace entry (한국어 요약 → skill
 3. **어댑터 문서** — `docs/adapter-config.md` (감지·CLI·타임아웃 canonical)
 4. **플러그인 설정** — `.claude-plugin/`, `.codex-plugin/`, `.cursor-plugin/`, `GEMINI.md` 동기화
 5. **수동 테스트** — 해당 스킬 실행하여 산출물 확인
-6. **릴리즈** — `VERSION` + plugin manifests + `CHANGELOG.md` + 루트 `SKILL.md`
+6. **릴리즈** — `VERSION` 파일만 수정하면 CI(`sync-version.yml`)가 나머지 매니페스트 7개를 자동 동기화. `CHANGELOG.md` 수동 작성 후 `/forgeflow:release` 스킬로 커밋·push·GitHub release 생성. manifest 직접 수정 금지.
 
 ## Code Conventions
 
 - 모든 산출물은 Markdown. `templates/` 디렉토리에 템플릿이 있습니다.
 - 스킬은 YAML frontmatter (`name`, `description`, `validate_prompt`)로 시작. 일부 스킬은 스키마 버전용 `version`/`author` 필드를 추가할 수 있으며, 이는 릴리즈 `VERSION`과 별개입니다.
+- **버전 관리**: `VERSION` 파일이 단일 소스. 매니페스트(SKILL.md, .claude-plugin/*.json, .codex-plugin/plugin.json, .cursor-plugin/plugin.json, gemini-extension.json)는 직접 수정하지 않는다. CI가 자동 동기화함.
 - 산출물은 `.forgeflow/tasks/<task-id>/` 아래에 작성.
 - Review는 읽기 전용. 코드 수정 금지.
 - Verification은 실제 명령 기반. hallucinated command 금지.
