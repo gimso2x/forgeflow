@@ -36,6 +36,7 @@ demo:
 	cp templates/review-report.md "$$task_dir/review-report.md"; \
 	cp templates/ship-summary.md "$$task_dir/ship-summary.md"; \
 	printf 'ForgeFlow demo workspace: %s\n' "$$tmp"; \
+	printf 'Mode: local template/artifact smoke only (not provider/plugin E2E).\n'; \
 	printf 'Task artifacts:\n'; \
 	find "$$task_dir" -maxdepth 1 -type f | sort; \
 	printf '\nNext: open the temp workspace and run /forgeflow-init, then /forgeflow:clarify for a real task.\n'
@@ -52,6 +53,7 @@ validate-demo:
 	done; \
 	grep -Fq "make demo" README.md || { echo "ERROR: README must document make demo"; exit 1; }; \
 	grep -Fq ".forgeflow/tasks/demo-small/" README.md || { echo "ERROR: README must document demo task path"; exit 1; }; \
+	grep -Fq "not provider/plugin E2E" Makefile || { echo "ERROR: make demo output must not overclaim provider/plugin E2E"; exit 1; }; \
 	count="$$(find "$$task_dir" -maxdepth 1 -type f | wc -l)"; \
 	if [ "$$count" -ne 7 ]; then \
 		echo "ERROR: demo workspace expected 7 artifacts, got $$count"; \
