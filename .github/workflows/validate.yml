@@ -352,20 +352,50 @@ jobs:
       - name: Verify GEMINI.md imports
         run: |
           python3 - <<'PY'
+          import json
           import pathlib
           import re
           import sys
 
           root = pathlib.Path(".")
-          gemini = (root / "GEMINI.md").read_text(encoding="utf-8")
+          gemini_path = root / "GEMINI.md"
+          gemini = gemini_path.read_text(encoding="utf-8")
           imports = re.findall(r"@(\./skills/[^\s]+)", gemini)
+          imported_paths = set(imports)
           missing = [p for p in imports if not (root / p.lstrip("./")).exists()]
-          if missing:
-              print("ERROR: GEMINI.md broken imports:")
-              for item in missing:
-                  print(f"- {item}")
+          failures = []
+
+          manifest = json.loads((root / "gemini-extension.json").read_text(encoding="utf-8"))
+          if manifest.get("contextFileName") != "GEMINI.md":
+              failures.append("gemini-extension.json: contextFileName must be GEMINI.md")
+
+          if "./skills/SKILLS.md" not in imported_paths:
+              failures.append("GEMINI.md: missing @./skills/SKILLS.md inventory import")
+
+          active_skills = {
+              d.name
+              for d in (root / "skills").iterdir()
+              if d.is_dir() and not d.name.startswith("_")
+          }
+          expected_imports = {f"./skills/{name}/SKILL.md" for name in active_skills}
+          missing_active = sorted(expected_imports - imported_paths)
+          stale_active = sorted(
+              p for p in imported_paths
+              if p.startswith("./skills/") and p.endswith("/SKILL.md") and p not in expected_imports
+          )
+          if missing_active:
+              failures.append(f"GEMINI.md: missing active skill imports {missing_active}")
+          if stale_active:
+              failures.append(f"GEMINI.md: imports stale skill paths {stale_active}")
+          for item in missing:
+              failures.append(f"GEMINI.md: broken import {item}")
+
+          if failures:
+              print("ERROR: Gemini extension import contract failed")
+              for failure in failures:
+                  print(f"- {failure}")
               sys.exit(1)
-          print(f"OK: GEMINI.md {len(imports)} imports valid")
+          print(f"OK: GEMINI.md imports inventory and {len(active_skills)} active skills")
           PY
 
       - name: Verify evals.json schema
