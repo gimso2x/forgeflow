@@ -70,8 +70,8 @@
           ]
         },
         {
-          "text": "Output uses proposed lifecycle and unreviewed review status.",
-          "type": "contains_any",
+          "text": "Output uses both proposed lifecycle and unreviewed review status.",
+          "type": "contains_all",
           "values": [
             "proposed",
             "unreviewed"
