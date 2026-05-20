@@ -1,34 +1,30 @@
 # Review Report
 
-<!-- ForgeFlow review template. Created during review stage. -->
-<!-- high/epic: spec pass fills Spec Compliance first; quality pass completes Quality Assessment in this same file. -->
-
 ## Review Type
-<!-- spec | quality | security | ux -->
+spec
 
 ## Verdict
-<!-- approved | changes_requested | blocked -->
+changes_requested
 
 ## Reviewer
-<!-- Role or identifier -->
+smoke-audit
 
 ## Route Compliance
-<!-- Did execution follow the selected route stages? -->
+High route requires separate spec and quality review evidence. This smoke artifact is a persisted audit sample, so placeholder-only review output is not sufficient evidence for route completion.
 
 ## Findings
 
-### Finding 1: <!-- title -->
-- **Severity**: <!-- blocker | major | minor | nit -->
-- **Category**: <!-- spec-compliance | quality | maintainability | risk | security -->
-- **Description**:
+### Finding 1: Placeholder review output cannot support completion
+- **Severity**: major
+- **Category**: spec-compliance
+- **Description**: The smoke result must show a concrete review judgment instead of leaving the template placeholders unresolved.
 - **Evidence**:
-  - Observed:
-  - Expected:
-  - Missing:
-- **Remediation**:
+  - Observed: `evals/results/smoke-tasks/audit-smoke-high/review-report.md` previously contained unresolved template placeholder comments for review type, verdict, reviewer, evidence, and next action.
+  - Expected: A high-route review report records a real verdict, evidence classification, blockers, and next action.
+  - Missing: Task-specific implementation evidence and independent verification output.
+- **Remediation**: Re-run the high-route smoke with artifact assertions enabled, then replace this audit report with evidence-backed observed verification.
 
 ## Spec Compliance
-<!-- For spec review -->
 - [ ] Brief objective satisfied
 - [ ] Acceptance criteria met
 - [ ] Execution stayed inside scope
@@ -37,7 +33,6 @@
 - [ ] Route stages followed correctly
 
 ## Quality Assessment
-<!-- For quality review -->
 - [ ] Result is simple enough
 - [ ] Verification quality acceptable
 - [ ] Residual risks documented
@@ -47,37 +42,33 @@
 - [ ] TDD cycle followed (red → green → refactor)
 
 ## Execute Micro-Gates
-<!-- high/epic only. Per-step gates from execute; NOT a substitute for this review pass. -->
 
 | Plan step | micro_spec | micro_quality | Assignee (ledger) | Stage re-verified |
 |-----------|------------|---------------|-------------------|-------------------|
-| <!-- step name --> | <!-- PASS/FAIL/skip --> | <!-- PASS/FAIL/skip/n/a --> | <!-- worker/specialist/spec-reviewer --> | <!-- yes | no --> |
+| smoke high audit | missing | missing | missing | no |
 
 ## Evidence Classification
-<!-- Summarize evidence quality -->
-- **Observed evidence**: <!-- what was directly verified in THIS review turn -->
-- **Reported evidence**: <!-- executor claims, micro_spec/micro_quality from execute, run-ledger refs -->
-- **Missing evidence**: <!-- what should exist but doesn't -->
+- **Observed evidence**: This persisted audit report file exists and now records a concrete `changes_requested` judgment.
+- **Reported evidence**: None available in this smoke result directory.
+- **Missing evidence**: `brief.md`, `plan.md`, `implementation-notes.md`, `run-ledger.md`, command output, and independent code/artifact inspection evidence.
 
 ## Open Blockers
-<!-- List blockers or "none" -->
+- Missing task artifacts and verification output required to approve high-route completion.
 
 ## Safe for Next Stage
-<!-- yes | no -->
+no
 
 ## Evolution Rule Review
-<!-- approved | changes_requested | not_applicable -->
-- **Candidates Reviewed**:
-- **Activation Guidance**:
-- **Scope Check**:
-- **Evidence Check**:
+not_applicable
+- **Candidates Reviewed**: none
+- **Activation Guidance**: none
+- **Scope Check**: not applicable
+- **Evidence Check**: not applicable
 
 ## Next Action
-<!-- What should happen next -->
+Re-run or replace the high-route smoke result with concrete artifacts and independently verified evidence before using it as an approval sample.
 
 ## Approved By
-<!-- Name/role, only if verdict is approved -->
 
 ## Residual Risks
-<!-- Risks that remain after this review -->
--
+- This file is an audit fixture, not proof that a live provider/plugin E2E passed.
