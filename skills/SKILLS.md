@@ -33,7 +33,7 @@ Table numbers reflect skill index, not strict runtime order. For epic work, run 
 
 ```
 User: "I want to build a daily briefing app"
-  → init             → task workspace
+  → forgeflow-init   → task workspace
   → clarify          → brief.md (route: medium)
   → plan             → plan.md
   → execute          → implementation-notes.md + code changes
@@ -46,7 +46,7 @@ User: "I want to build a daily briefing app"
 
 ```
 User: "Refactor the entire payment module"
-  → init             → task workspace
+  → forgeflow-init   → task workspace
   → clarify          → brief.md (route: high)
   → plan             → plan.md with verification targets
   → execute          → implementation-notes.md
@@ -61,7 +61,7 @@ User: "Refactor the entire payment module"
 
 ```
 User: "Build a complete e-commerce platform"
-  → init             → task workspace
+  → forgeflow-init   → task workspace
   → clarify          → brief.md (route: epic)
   → milestone        → roadmap.md (M1: Auth, M2: Cart, M3: Checkout, M_final: Integration)
   → (per milestone)
