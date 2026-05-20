@@ -11,3 +11,4 @@
 @./skills/finish/SKILL.md
 @./skills/long-run/SKILL.md
 @./skills/benchmark/SKILL.md
+@./docs/advisory-guidelines.md

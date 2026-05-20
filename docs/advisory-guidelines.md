@@ -1,5 +1,7 @@
 # ForgeFlow Advisory Guidelines
 
+> **Last updated**: 2026-05-21 | **Status**: advisory only — does not hard-block execution.
+
 ForgeFlow stays markdown-only and no-runtime. These guidelines are advisory checklists for `clarify`, `plan`, and `review`; they do not hard-block execution.
 
 ## Route Budget Guide

@@ -175,7 +175,7 @@ For exact-count, dry-run, or response-only prompts, do not force the WHERE inter
 
    Return route label `medium` for both `medium-light` and `medium-full`; record the sub-band in route rationale. The `17.0` mid threshold exists to decide how deep the plan/review detail should be inside the medium route, not to create a separate slash route.
 
-6. Apply small alias hints inside the scoring context only. Keyword hints are advisory — do not auto-run another skill from keyword detection alone; record the hint as `suggested_next_skill` and keep route selection explicit.
+6. Apply alias hints only within the scoring context. The table below maps user wording to `suggested_next_skill` — Keyword hints are advisory and must not auto-invoke any skill. Route selection (`small`/`medium`/`high`/`epic`) remains explicit and independent of alias hints. Do not auto-invoke skills from keyword detection alone.
 
    | User wording | Hint |
    |--------------|------|

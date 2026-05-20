@@ -33,6 +33,8 @@
 - **Plan impact**:
 
 ## Task Dependency Graph
+<!-- Optional: include only when tasks have non-trivial dependencies (high/epic routes). -->
+<!-- Validate Mermaid syntax before committing; omit this section entirely for small/medium routes. -->
 
 ```mermaid
 graph TD

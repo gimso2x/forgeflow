@@ -17,7 +17,9 @@ outputs:
 dependencies:
   - skills/_shared/discipline.md
   - docs/adapter-config.md
-  - templates/
+  - docs/advisory-guidelines.md
+  - templates/brief.md
+  - templates/plan.md
 validate_prompt: |
   Must route work through explicit ForgeFlow stages and artifact-backed gates.
   Must preserve stage boundaries, verification evidence, and independent review semantics.
