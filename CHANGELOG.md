@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.5] - 2026-05-20
+
+### Added
+
+- **Benchmark v0.3.0** — CLI 경로 해석(WSL2 `/mnt/c/` 스킵), rate limit 자동 감지/순차 재시도, 컴플라이언스 `<!-- BEGIN/END -->` 구분자, large 사이즈, N회 반복/분산 분석, DNF 명시 처리.
+- **코드 품질 메트릭 파이프라인** — execute → review → ship 단계로 정량 메트릭(LOC, TS errors, type assertions, debug artifacts, max component LOC, log volume) 흐름.
+- **Adapter-aware execution 확장** — Verification / Output Discipline / Rate Limit 3열 테이블. Codex 출력 정규화, Gemini 순차/cooldown 가이드, 메트릭 수집 명령어.
+- **Completion Response 구분자** — `### Completion Response` 헤딩으로 프롬프트 에코와 실제 응답 분리.
+- **Review 정량 평가** — Code Quality Metrics 섹션, blocker threshold 자동 판정.
+- **Ship 정량 요약** — Quantitative Summary 섹션으로 메트릭 누적.
+- **템플릿 메트릭 슬롯** — `implementation-notes.md`, `review-report.md`, `ship-summary.md`에 정량 필드 추가.
+
+### Changed
+
+- `skills/benchmark/SKILL.md` — v0.2.0 → v0.3.0 (전면 개선).
+- `skills/execute/SKILL.md` — adapter-aware 실행 확장, completion checklist 항목 7(메트릭) 추가.
+- `skills/review/SKILL.md` — Code Quality Metrics 섹션 추가.
+- `skills/ship/SKILL.md` — Quantitative summary 요구사항 추가.
+- `templates/implementation-notes.md`, `templates/review-report.md`, `templates/ship-summary.md` — 메트릭 테이블 추가.
+
 ## [1.0.4] - 2026-05-20
 
 ### Added
