@@ -29,6 +29,8 @@ demo:
 	task_dir="$$tmp/.forgeflow/tasks/demo-small"; \
 	mkdir -p "$$task_dir"; \
 	cp templates/brief.md "$$task_dir/brief.md"; \
+	cp templates/run-ledger.md "$$task_dir/run-ledger.md"; \
+	cp templates/checkpoint.md "$$task_dir/checkpoint.md"; \
 	cp templates/implementation-notes.md "$$task_dir/implementation-notes.md"; \
 	cp templates/review-report.md "$$task_dir/review-report.md"; \
 	cp templates/ship-summary.md "$$task_dir/ship-summary.md"; \
@@ -42,13 +44,13 @@ validate-demo:
 	trap 'rm -rf "$$tmp"' EXIT; \
 	task_dir="$$tmp/.forgeflow/tasks/demo-small"; \
 	mkdir -p "$$task_dir"; \
-	for artifact in brief.md implementation-notes.md review-report.md ship-summary.md; do \
+	for artifact in brief.md run-ledger.md checkpoint.md implementation-notes.md review-report.md ship-summary.md; do \
 		cp "templates/$$artifact" "$$task_dir/$$artifact"; \
 		test -s "$$task_dir/$$artifact" || { echo "ERROR: demo artifact missing or empty: $$artifact"; exit 1; }; \
 	done; \
 	count="$$(find "$$task_dir" -maxdepth 1 -type f | wc -l)"; \
-	if [ "$$count" -ne 4 ]; then \
-		echo "ERROR: demo workspace expected 4 artifacts, got $$count"; \
+	if [ "$$count" -ne 6 ]; then \
+		echo "ERROR: demo workspace expected 6 artifacts, got $$count"; \
 		exit 1; \
 	fi
 	@echo "OK: demo workspace creates first-run artifacts"

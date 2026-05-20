@@ -212,13 +212,13 @@ python3 -m json.tool gemini-extension.json >/dev/null
 
 ### 첫 성공 데모
 
-로컬 checkout만으로 산출물 위치와 템플릿 구성을 빠르게 확인하려면 다음을 실행합니다. 실제 provider/plugin E2E가 아니라, 임시 workspace에 대표 산출물 템플릿을 복사해 첫 실행 결과의 파일 구조를 보여주는 안전한 데모입니다.
+로컬 checkout만으로 산출물 위치와 템플릿 구성을 빠르게 확인하려면 다음을 실행합니다. 실제 provider/plugin E2E가 아니라, 임시 workspace에 핵심 task 산출물 템플릿을 복사해 첫 실행 결과의 파일 구조를 보여주는 안전한 데모입니다.
 
 ```bash
 make demo
 ```
 
-이 명령은 `mktemp -d` 아래에 `.forgeflow/tasks/demo-small/`을 만들고 `brief.md`, `implementation-notes.md`, `review-report.md`, `ship-summary.md` 경로를 출력합니다. 생성된 임시 workspace를 열어 실제 작업에서는 `/forgeflow-init`부터 시작하세요.
+이 명령은 `mktemp -d` 아래에 `.forgeflow/tasks/demo-small/`을 만들고 `brief.md`, `run-ledger.md`, `checkpoint.md`, `implementation-notes.md`, `review-report.md`, `ship-summary.md` 경로를 출력합니다. 생성된 임시 workspace를 열어 실제 작업에서는 `/forgeflow-init`부터 시작하세요.
 
 ## 실제 외부 실행 안전 기준
 
