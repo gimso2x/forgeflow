@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.6] - 2026-05-20
+
+### Added
+
+- oh-my-agent style handoff absorption: structured skill metadata contracts, multilingual alias hints, route/session budget guidance, and enriched brief/plan templates.
+- Local validation coverage for release/version alignment, changelog compare links, skill inventory/frontmatter, Gemini imports, plugin prompts, eval fixture contracts, markdown links, adapter config, route vocabulary, finish safety, and oh-my-agent advisory contracts.
+- First-run demo target and docs/eval coverage for local template/artifact smoke.
+
+### Changed
+
+- ForgeFlow remains markdown-only/no-runtime while centralizing advisory route guidance in `docs/advisory-guidelines.md` and importing it into Gemini context.
+- Codex/Gemini/README/operator docs now document project-root/plugin-cache safety, Gemini extension update/list checks, and validation scope more explicitly.
+- Plan and brief templates now include advisory execution pattern, budget, suggested next skill, specialist, and evolution-rule sections.
+
+### Fixed
+
+- Finish/worktree cleanup guidance now avoids destructive removal of unrelated dirty state and protects Gemini extension cache paths.
+- Active docs and eval contracts now reject stale route/schema vocabulary and broken or escaping markdown links.
+- 4-model cross-review corrections: YAML frontmatter integrity validation, concrete dependency paths, optional Mermaid guidance, `small` alias ambiguity cleanup, and advisory-doc modified-date header.
+
 ## [1.0.5] - 2026-05-20
 
 ### Added
@@ -546,7 +566,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI gate with GitHub Actions workflow generation
 - Agent preset installer (Claude + Codex)
 
-[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v1.0.5...HEAD
+[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v1.0.6...HEAD
+[1.0.6]: https://github.com/gimso2x/forgeflow/compare/v1.0.5...v1.0.6
 [1.0.5]: https://github.com/gimso2x/forgeflow/compare/v1.0.4...v1.0.5
 [1.0.4]: https://github.com/gimso2x/forgeflow/compare/v1.0.3...v1.0.4
 [1.0.3]: https://github.com/gimso2x/forgeflow/compare/v1.0.2...v1.0.3

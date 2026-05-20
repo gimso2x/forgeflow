@@ -1,4 +1,4 @@
-.PHONY: validate demo validate-demo validate-json validate-no-python validate-skills validate-agent-docs validate-templates validate-template-refs validate-versions validate-changelog-links validate-gemini-imports validate-plugin-prompts validate-evals-json validate-eval-files validate-workflow-vocab validate-finish-safety validate-adapter-config validate-oh-my-agent-contract validate-markdown-links
+.PHONY: validate demo validate-demo validate-json validate-no-python validate-skills validate-agent-docs validate-templates validate-template-refs validate-versions validate-changelog-links validate-route-scoring-parity validate-gemini-imports validate-plugin-prompts validate-evals-json validate-eval-files validate-workflow-vocab validate-finish-safety validate-adapter-config validate-oh-my-agent-contract validate-markdown-links
 
 PYTHON ?= python3
 
@@ -21,7 +21,7 @@ TEMPLATES := \
 	evolution-rule.md \
 	ship-summary.md
 
-validate: validate-no-python validate-json validate-versions validate-changelog-links validate-skills validate-agent-docs validate-templates validate-template-refs validate-demo validate-gemini-imports validate-plugin-prompts validate-evals-json validate-eval-files validate-workflow-vocab validate-finish-safety validate-adapter-config validate-oh-my-agent-contract validate-markdown-links
+validate: validate-no-python validate-json validate-versions validate-changelog-links validate-route-scoring-parity validate-skills validate-agent-docs validate-templates validate-template-refs validate-demo validate-gemini-imports validate-plugin-prompts validate-evals-json validate-eval-files validate-workflow-vocab validate-finish-safety validate-adapter-config validate-oh-my-agent-contract validate-markdown-links
 	@echo "OK: local validation passed"
 
 demo:
@@ -101,6 +101,9 @@ validate-versions:
 
 validate-changelog-links:
 	@$(PYTHON) -c "exec("'"'"import pathlib, re, sys\nversion = pathlib.Path('VERSION').read_text(encoding='utf-8').strip()\ntext = pathlib.Path('CHANGELOG.md').read_text(encoding='utf-8')\nfailures = []\nif f'[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v{version}...HEAD' not in text:\n    failures.append(f'CHANGELOG.md: [Unreleased] compare link must start at v{version}')\npattern = rf'^\\[{re.escape(version)}\\]: https://github\\.com/gimso2x/forgeflow/compare/.+\\.\\.\\.v{re.escape(version)}$$'\nif not re.search(pattern, text, re.M):\n    failures.append(f'CHANGELOG.md: missing compare link for {version}')\nif failures:\n    print('ERROR: Changelog link check failed')\n    [print(f'- {failure}') for failure in failures]\n    sys.exit(1)\nprint('OK: Changelog release compare links are current')\n"'"'")"
+
+validate-route-scoring-parity:
+	@$(PYTHON) -c "exec("'"'"import pathlib, sys\nsnippet = 'raw_score = file_count*1.0 + estimated_lines*0.1 + requirement_count*2.0 + dependency_count*1.5 + risk_keywords*3.0'\ndocs = ['README.md', 'SKILL.md', 'skills/forgeflow/SKILL.md', 'skills/clarify/SKILL.md']\nfailures = [doc for doc in docs if snippet not in pathlib.Path(doc).read_text(encoding='utf-8')]\nif failures:\n    print('ERROR: Route scoring formula missing in:')\n    [print(f'- {failure}') for failure in failures]\n    sys.exit(1)\nprint('OK: Route scoring formula present in core docs')\n"'"'")"
 
 validate-skills:
 	@for dir in skills/*/; do \

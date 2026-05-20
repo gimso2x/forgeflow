@@ -1,7 +1,7 @@
 ---
 name: forgeflow
 description: Artifact-first delivery workflow for AI coding agents
-version: "1.0.5"
+version: "1.0.6"
 category: engineering
 tags: [ai-agents, workflow, artifacts, claude-code, codex, gemini, cursor]
 ---
@@ -39,6 +39,8 @@ Cursor는 콜론 없는 slash (`/clarify`, `/execute` 등)를 사용합니다. �
 | medium | clarify → plan → execute → review → ship → finish |
 | high | clarify → plan → execute → review (spec+quality) → ship → long-run → finish |
 | epic | clarify → milestone → plan → execute → review (spec+quality) → ship → long-run → finish |
+
+Route scoring formula: `raw_score = file_count*1.0 + estimated_lines*0.1 + requirement_count*2.0 + dependency_count*1.5 + risk_keywords*3.0`.
 
 Route scoring, medium-light/full sub-band, artifacts 목록: [`skills/forgeflow/SKILL.md`](skills/forgeflow/SKILL.md), [`README.md`](README.md).
 
