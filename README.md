@@ -61,6 +61,7 @@ Claude/Codex의 `/forgeflow:clarify` 등과 동일한 스킬입니다. 매핑은
 ## 기본 워크플로우
 
 ```text
+/forgeflow-init       → 작업 공간 초기화 → .forgeflow/tasks/<task-id>/
 /forgeflow:clarify   → 요구사항 정리 → brief.md
 /forgeflow:plan      → 작업 계획 → plan.md        (medium 이상)
 /forgeflow:execute   → 구현 실행 → implementation-notes.md
