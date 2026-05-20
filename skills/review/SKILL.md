@@ -76,6 +76,20 @@ Automatic fail conditions:
 - Shadow-path ownership drift
 - Approved verdict with open blockers or safe_for_next_stage=false
 
+### Code Quality Metrics (quantitative)
+
+Extract metrics from `implementation-notes.md` → Metrics section (populated during execute). If missing, collect directly:
+
+| Metric | Collection Command | Blocker Threshold |
+|--------|-------------------|-------------------|
+| TypeScript errors | `npx tsc --noEmit 2>&1 \| grep -c "error TS"` | > 0 |
+| Type assertions | `grep -r "as " src/ --include="*.ts" --include="*.tsx" \| wc -l` | Review judgment |
+| Debug artifacts | `grep -rE "console\.log\|TODO\|FIXME\|debugger" src/ ... \| wc -l` | > 0 |
+| Max component LOC | `for f in src/**/*.tsx; do wc -l "$f"; done` | > 150L → major |
+| Log volume | Size of agent output | Codex > 100KB → normalize |
+
+Record in `review-report.md` → Code Quality Metrics section. Metrics exceeding blocker thresholds generate automatic findings.
+
 ## Exit Condition
 
 - Requirements/acceptance criteria are checked against actual files

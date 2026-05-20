@@ -23,3 +23,16 @@
 
 ## Simplification Candidates
 <!-- Optional: Triple-Lens findings from ship polish loop, or "none" -->
+
+## Quantitative Summary
+<!-- Aggregated metrics from execute → implementation-notes.md → Metrics -->
+
+| Metric | Value |
+|--------|-------|
+| Total LOC | |
+| TS errors | |
+| Type assertions | |
+| Debug artifacts | |
+| Max component LOC | |
+| Files changed | |
+| Adapter | <!-- which adapter produced this --> |

@@ -38,3 +38,17 @@
 
 ## Blocked By
 <!-- List blockers or "none" -->
+
+## Metrics
+<!-- Quantitative code quality metrics collected during execute -->
+<!-- Populated by adapter-aware execution code quality metrics step -->
+
+| Metric | Value |
+|--------|-------|
+| LOC generated | <!-- total lines in src/ --> |
+| TS errors | <!-- npx tsc --noEmit error count --> |
+| Type assertions | <!-- grep -r "as " count --> |
+| Debug artifacts | <!-- console.log/TODO/FIXME count, target: 0 --> |
+| Max component LOC | <!-- largest component, flag if > 100L --> |
+| Files created | <!-- count --> |
+| Files deleted | <!-- count --> |

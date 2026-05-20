@@ -84,3 +84,16 @@
 ## Residual Risks
 <!-- Risks that remain after this review -->
 -
+
+## Code Quality Metrics
+<!-- Quantitative metrics from implementation-notes.md or collected during review -->
+
+| Metric | Value | Verdict |
+|--------|-------|---------|
+| TS errors | <!-- count, blocker if > 0 --> | <!-- PASS/FAIL --> |
+| Type assertions | <!-- count --> | <!-- PASS/REVIEW --> |
+| Debug artifacts | <!-- count, blocker if > 0 --> | <!-- PASS/FAIL --> |
+| Max component LOC | <!-- largest component, major if > 150L --> | <!-- PASS/FLAG --> |
+| Log volume | <!-- agent output size --> | <!-- PASS/NORMALIZE --> |
+
+<!-- If any metric exceeds blocker threshold, generate an automatic finding above. -->

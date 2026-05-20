@@ -32,6 +32,7 @@ Write a `ship-summary.md` in the active task directory using `templates/ship-sum
 - Review verdict
 - Residual risks
 - Handoff action: report completed; branch disposition remains pending for `finish`
+- Quantitative summary (from execute metrics)
 
 ## Exit Condition
 
@@ -97,7 +98,7 @@ If the Triple-Lens analysis identifies meaningful improvements:
 
 Proceed to step 6 directly.
 
-6. Write `ship-summary.md` to the active task directory.
+6. Write `ship-summary.md` to the active task directory. Include the Quantitative Summary section with metrics from `implementation-notes.md` → Metrics.
 7. Preserve artifacts/evidence instead of burying them in chat.
 
 Never discard, merge, PR, or destructive-clean from `ship`; hand branch disposition to `finish` and require explicit confirmation there.

@@ -259,8 +259,25 @@ Before marking execute as completed, verify ALL items:
 | 4 | Edge cases enumerated | medium, high, epic |
 | 5 | Verification commands run and results recorded | all routes |
 | 6 | Deviations from plan recorded in implementation-notes.md | medium, high, epic |
+| 7 | Code quality metrics collected in implementation-notes.md | all routes |
 
 If any required item is missing, the execute stage is incomplete. Do not deliver the exit prompt until all items are present.
+
+#### Completion response format
+
+Provide checklist responses under a **`### Completion Response`** heading (not under any other heading). This delimiter ensures downstream review and benchmark tools can extract actual responses without matching echoed prompt text. Structure:
+
+```markdown
+### Completion Response
+
+1. **Plan**: <one-paragraph summary>
+2. **Changed files**: <file list with one-line descriptions>
+3. **Role descriptions**: <component/function → one-line role>
+4. **Edge cases**: <numbered list, medium/high/epic only>
+5. **Verification**: <command + result>
+6. **Deviations**: <list or "none", medium/high/epic only>
+7. **Metrics**: LOC, TS errors, type assertions, debug artifacts, max component LOC
+```
 
 ## Output normalization
 
@@ -276,12 +293,35 @@ This normalization is advisory for skill prompts but mandatory when ForgeFlow or
 
 Detect the current adapter (see `skills/forgeflow/SKILL.md` → Adapter detection) and apply adapter-specific adjustments:
 
-| Adapter | Adjustment |
-|---------|-----------|
-| Codex | Run `lint` as a mandatory verification gate (Codex naturally does this). Normalize diff-heavy output in `implementation-notes.md`. |
-| Gemini | Enforce `import type` for TypeScript with `verbatimModuleSyntax`. Expect structured markdown output. |
-| Claude | Expect table-format reports. Natural `build` verification preference. |
-| Cursor | Skill names without colons. Same adjustments as the underlying adapter (Claude by default). |
+| Adapter | Verification | Output Discipline | Rate Limit |
+|---------|-------------|-------------------|------------|
+| Claude | `build` preferred. Table-format reports. | Concise by default (~5KB/medium task). No special handling needed. | No known issues. |
+| Codex | `lint` mandatory (Codex naturally does this). | Normalize diff-heavy output. Strip raw git diffs; keep only summaries. Output can exceed 100KB without normalization. | No known issues. |
+| Gemini | `import type` enforced for TS with `verbatimModuleSyntax`. Structured markdown. | Compact output (~7KB/medium task). May introduce UI abstractions not requested. | **Rate limit (HTTP 429) under concurrent load.** Run sequentially or add 30s cooldown between tasks when executing multiple plan steps. |
+| Cursor | Skill names without colons. Same adjustments as the underlying adapter (Claude by default). | Same as underlying adapter. | Same as underlying adapter. |
+
+### Code quality metrics (all adapters)
+
+Collect quantitative metrics after implementation for the Completion Response and review stage:
+
+```bash
+# LOC generated
+find src/ \( -name "*.ts" -o -name "*.tsx" -o -name "*.css" \) -exec cat {} + | wc -l
+
+# TypeScript type safety
+npx tsc --noEmit 2>&1 | grep -c "error TS"
+
+# Type assertions (lower is better)
+grep -r "as " src/ --include="*.ts" --include="*.tsx" | wc -l
+
+# Debug artifacts (must be 0)
+grep -rE "console\.log|TODO|FIXME|debugger" src/ --include="*.ts" --include="*.tsx" | wc -l
+
+# Component complexity (flag any component > 100L)
+for f in $(find src/ -name "*.tsx" -o -name "*.ts"); do echo "$(wc -l < "$f") $f"; done
+```
+
+Record results in `implementation-notes.md` → Metrics section and in the Completion Response item 7.
 
 ## Agent delegation for specialist work
 
