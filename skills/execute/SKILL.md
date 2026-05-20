@@ -162,7 +162,8 @@ Minimum warning contract:
    - **Context budget**: Do not re-read a file already in context unless it was edited since. Before reading a file, ask: "Do I need the full content, or just a specific section?" If the latter, read only the relevant lines. Batch multiple file inspections into parallel tool calls where possible.
    - **Implementation Notes**: When a decision is made that was not in the plan, when the implementation deviates from the spec, when a tradeoff is chosen, or when an open question arises — **append an entry to `implementation-notes.md` immediately**. Do not batch these until the end.
    - **TDD Refactor**: Clean up implementation.
-   - **Run Ledger**: When starting a task, set its status to `running` in `run-ledger.md`. When completing, set to `done` with evidence refs. When blocked, set to `blocked` with blocker description. Update incrementally, not in batch.
+   - **Run Ledger**: When starting a task, set its status to `running` and **Assignee** to `worker` (or `specialist` if delegated). When completing, set to `done` with evidence refs. When blocked, set to `blocked` with blocker description. Update incrementally, not in batch. See **Run ledger assignee discipline** below.
+   - **Per-task micro-gates (high/epic only)**: Before marking a step `done`, run the micro-gate checklist in **Per-task micro-gates** below. Optional spec/quality micro-reviewer subagents use `references/spec-reviewer-prompt.md` and `references/quality-reviewer-prompt.md`.
    - **Checkpoint**: Update `checkpoint.md` after each task completes: set `Active Task` to the next task, update `Latest Artifacts` table. Ensures resume capability after context compaction.
    - **Role awareness**: You are the implementation role. You edit code and update artifacts, but you do not approve your own work. Review is a separate stage with a separate role boundary. Do not merge implementation and review in the same turn.
    - **Architectural Depth**: Ensure implementation follows the plan's architectural intent (Depth, Leverage, Locality) and avoids creating new shallow modules.
@@ -204,6 +205,51 @@ Contract-aware execution rules:
 
 Worker self-report is not approval. `/forgeflow:review` still has to happen.
 
+## Per-task micro-gates
+
+Micro-gates run **during execute** on **high** and **epic** routes. They do not replace stage-level `/forgeflow:review`.
+
+### All routes (every plan step before `done`)
+
+1. **Contract checkpoint** — `contract_check:PASS|FAIL` in implementation-notes Evidence
+2. **Step verification** — run verification from the plan step; record `verification:PASS|FAIL`
+3. **Run ledger** — status, assignee, evidence refs updated incrementally
+4. **fulfills / journeys** — record evidence for IDs named in the step when present
+
+### high / epic only (before marking step `done`)
+
+5. **Spec micro-check (controller)** — Compare diff to step acceptance criteria using the same checklist as `templates/review-report.md` → Spec Compliance; record `micro_spec:PASS|FAIL step=<name>` (`PASS` only when micro verdict would be `approved`)
+6. **Quality micro-check (optional)** — After spec micro-check passes, dispatch quality micro-reviewer or controller checklist using review-report → Quality Assessment; record `micro_quality:PASS|FAIL step=<name>`
+
+**Optional subagent micro-review:** After controller verifies `git diff --stat` and step verification, dispatch spec then quality micro-reviewers using templates under `references/`. Order is fixed: **spec before quality**. Re-run micro-review after fixes until pass or step is `blocked`.
+
+**small / medium:** Steps 1–4 only; no mandatory micro-reviewer subagents. Stage review handles spec/quality for medium; small uses quality-only stage review.
+
+## Run ledger assignee discipline
+
+`run-ledger.md` must reflect **who did the work**, not only status:
+
+| Event | Status | Assignee |
+|-------|--------|----------|
+| Step started (controller) | `running` | `worker` |
+| Specialist subagent dispatched | `running` | `specialist` |
+| Spec micro-review pass | `running` | `spec-reviewer` |
+| Quality micro-review pass | `running` | `quality-reviewer` |
+| Step verified complete | `done` | last active role (`worker` or `specialist`) |
+| Blocked | `blocked` | role that hit the blocker |
+
+Record worker escalation in implementation-notes when subagents report `DONE_WITH_CONCERNS`, `NEEDS_CONTEXT`, or `BLOCKED` (see **Subagent reference prompts**).
+
+## Subagent reference prompts
+
+Dispatch templates live beside this skill (paste full plan step text; never point subagents at `plan.md`):
+
+| Role | File |
+|------|------|
+| Implementer / specialist worker | `references/implementer-prompt.md` |
+| Spec micro-reviewer (high/epic) | `references/spec-reviewer-prompt.md` |
+| Quality micro-reviewer (high/epic, after spec) | `references/quality-reviewer-prompt.md` |
+
 ### Completion checklist (mandatory)
 
 Before marking execute as completed, verify ALL items:
@@ -244,10 +290,12 @@ Detect the current adapter (see `skills/forgeflow/SKILL.md` → Adapter detectio
 
 When `brief.md` includes required specialists and the task scope justifies delegation, use the Agent tool to spawn specialist sub-agents for independent plan steps. This prevents context exhaustion and enables parallel execution.
 
+Base prompt: `references/implementer-prompt.md` (paste **full plan step text**, file allow/deny lists, task directory).
+
 ### When to delegate
 
 Delegate to a sub-agent when ALL of these conditions are met:
-1. Brief lists a relevant specialist (e.g., `frontend-execute`, `backend-execute`)
+1. Brief lists a relevant specialist (e.g., `frontend-execute`, `backend-execute`) **or** route is high/epic with fan-out/fan-in in plan Architecture Notes
 2. The plan step has no unresolved dependencies on other in-progress steps
 3. The step involves isolated file changes that won't conflict with parallel work
 4. The main context is getting large enough that delegating preserves quality
@@ -259,25 +307,31 @@ Do NOT delegate when:
 
 ### How to delegate
 
-Use the Agent tool with a clear specialist prompt:
+Use the Agent tool with `references/implementer-prompt.md`. Required prompt fields:
 
-```text
-Agent({
-  description: "Frontend specialist: implement <step objective>",
-  prompt: "You are a ForgeFlow frontend worker. Task: <step objective>.
-           Working directory: <path>
-           Files to change: <exact paths>. Acceptance criteria: <from plan step>.
-           Do not modify files outside the listed scope.
-           Run verification from the working directory."
-})
-```
+- Full plan step text (objective, files, acceptance criteria, verification)
+- `Files you MAY change` / `Files you MUST NOT change`
+- Task directory `.forgeflow/tasks/<task-id>/`
+- Report format: `DONE` | `DONE_WITH_CONCERNS` | `NEEDS_CONTEXT` | `BLOCKED`
+
+**Red flags (never):**
+- Tell subagent to read `plan.md` instead of pasting step text
+- Mark step `done` when agent reports DONE without `git diff --stat` + verification
+- Skip micro-gates on high/epic after delegated work
+- Dispatch parallel implementers for steps that touch the same file
 
 ### Agent result handling
 
 After the agent returns:
 1. Verify the claimed changes exist (`git diff --stat`)
 2. Run verification commands to confirm the agent's evidence
-3. Update implementation-notes.md with the verified result — agent self-report alone is not evidence
+3. Set run-ledger **Assignee** to `specialist` while verifying; then apply **Per-task micro-gates**
+4. Update `implementation-notes.md` with verified result — agent self-report alone is not evidence
+
+Handle worker status:
+- **NEEDS_CONTEXT** — provide missing context; re-dispatch or complete as controller
+- **BLOCKED** — mark ledger `blocked`; do not mark step `done`
+- **DONE_WITH_CONCERNS** — record concerns; run micro-gates before `done`
 
 ### Parallel delegation
 
@@ -285,7 +339,7 @@ For steps with no mutual dependencies (check plan.md dependencies):
 - Spawn multiple agents in a single message with parallel Agent tool calls
 - Each agent must receive its exact file scope to prevent conflicts
 - After ALL agents return, run cross-document consistency checks
-- Mark steps completed only after verification, not when agents report done
+- Mark steps completed only after verification + micro-gates (high/epic), not when agents report done
 
 ## UX guardrails
 

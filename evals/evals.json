@@ -39,6 +39,32 @@
         "Output identifies missing or insufficient evidence.",
         "Output identifies the missing false-positive guard."
       ]
+    },
+    {
+      "id": 3,
+      "name": "fan-out-execute-ledger",
+      "prompt": "You are executing a high-route ForgeFlow plan with fan-out/fan-in. Two independent plan steps ran in parallel via specialist subagents (Step A: src/api/auth.ts only; Step B: src/ui/login.tsx only). Both report DONE. Produce only the run-ledger.md fragment for both tasks after controller verification, plus one implementation-notes.md Evidence line each for micro_spec. Assume controller ran git diff --stat and step verification for both; spec micro-check PASS for both. Use Assignee discipline from skills/execute/SKILL.md.",
+      "expected_output": "Run-ledger entries with specialist assignees during work, done status with evidence refs, micro_spec:PASS per step, and no step marked done from self-report alone.",
+      "files": [],
+      "assertions": [
+        "Output includes run-ledger task entries for both parallel steps.",
+        "Output uses Assignee values worker, specialist, or spec-reviewer appropriately.",
+        "Output records micro_spec:PASS or equivalent spec micro-gate evidence per step.",
+        "Output states that agent DONE self-report alone is insufficient for done status."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "review-micro-gates-table",
+      "prompt": "You are running /forgeflow:review --type spec on a completed high-route task. implementation-notes.md contains: micro_spec:PASS step=Add auth handler, micro_spec:PASS step=Add login UI. run-ledger shows both steps done with Assignee specialist. Produce only the Execute Micro-Gates section and Evidence Classification reported-evidence bullet for review-report.md. Mark stage re-verified as no until you independently inspect code.",
+      "expected_output": "Execute Micro-Gates table with both steps, micro_spec PASS, reported evidence listing micro_* lines, and explicit that micro-gates are not approval without re-verification.",
+      "files": [],
+      "assertions": [
+        "Output includes an Execute Micro-Gates table or equivalent structured summary.",
+        "Output lists both plan steps with micro_spec PASS from execute.",
+        "Output treats micro-gate results as reported evidence, not observed approval.",
+        "Output indicates stage re-verified is no or pending independent verification."
+      ]
     }
   ]
 }

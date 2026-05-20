@@ -46,10 +46,13 @@
 - [ ] No unnecessary abstractions added
 - [ ] TDD cycle followed (red → green → refactor)
 
+## Execute Micro-Gates
+<!-- not_applicable for medium route unless optional micro-gate was run on a risky step -->
+
 ## Evidence Classification
 <!-- Summarize evidence quality -->
-- **Observed evidence**: <!-- what was directly verified -->
-- **Reported evidence**: <!-- what the executor claimed -->
+- **Observed evidence**: <!-- what was directly verified in THIS review turn -->
+- **Reported evidence**: <!-- executor claims, micro_spec/micro_quality from execute, run-ledger refs -->
 - **Missing evidence**: <!-- what should exist but doesn't -->
 
 ## Open Blockers

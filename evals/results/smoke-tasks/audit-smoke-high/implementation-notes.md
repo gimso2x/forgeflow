@@ -33,7 +33,9 @@
 
 ## Evidence
 <!-- Gate results, test outputs, verification outcomes -->
--
+- micro_spec:PASS step=<!-- plan step name -->
+- micro_quality:PASS step=<!-- plan step name --> (optional)
+- verification:PASS gate=build command="<!-- cmd -->"
 
 ## Blocked By
 <!-- List blockers or "none" -->

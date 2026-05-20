@@ -46,10 +46,19 @@
 - [ ] No unnecessary abstractions added
 - [ ] TDD cycle followed (red → green → refactor)
 
+## Execute Micro-Gates
+<!-- high/epic only. Per-step gates from execute; NOT a substitute for this review pass. -->
+<!-- Copy summary from implementation-notes Evidence (micro_spec:*, micro_quality:*) and run-ledger. -->
+<!-- Stage reviewer must re-verify; treat micro-gate results as reported evidence unless independently observed. -->
+
+| Plan step | micro_spec | micro_quality | Assignee (ledger) | Stage re-verified |
+|-----------|------------|---------------|-------------------|-------------------|
+| <!-- step name --> | <!-- PASS/FAIL/skip --> | <!-- PASS/FAIL/skip/n/a --> | <!-- worker/specialist/spec-reviewer --> | <!-- yes | no --> |
+
 ## Evidence Classification
 <!-- Summarize evidence quality -->
-- **Observed evidence**: <!-- what was directly verified -->
-- **Reported evidence**: <!-- what the executor claimed -->
+- **Observed evidence**: <!-- what was directly verified in THIS review turn -->
+- **Reported evidence**: <!-- executor claims, micro_spec/micro_quality from execute, run-ledger refs -->
 - **Missing evidence**: <!-- what should exist but doesn't -->
 
 ## Open Blockers

@@ -20,6 +20,8 @@
 | P9 | evals/evals.json schema validation | Done |
 | P10 | Exit Condition lint (workflow skills, forgeflow router excluded) | Done |
 | P11 | CHANGELOG release links (`[Unreleased]`, `[VERSION]`) | Done |
+| P12 | Execute subagent reference prompts (`skills/execute/references/`) | Done |
+| P13 | review-report Execute Micro-Gates + high/epic smoke parity | Done |
 
 ---
 
@@ -50,3 +52,5 @@
 12. evals.json schema
 13. Exit Condition sections
 14. CHANGELOG release links
+15. Execute subagent reference prompts
+16. review-report Execute Micro-Gates contract

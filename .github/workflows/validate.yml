@@ -168,6 +168,40 @@ jobs:
           print(f"OK: {len(refs)} template references resolve")
           PY
 
+      - name: Verify execute subagent reference prompts
+        run: |
+          python3 - <<'PY'
+          import pathlib
+          import sys
+
+          root = pathlib.Path(".")
+          required = [
+              "skills/execute/references/implementer-prompt.md",
+              "skills/execute/references/spec-reviewer-prompt.md",
+              "skills/execute/references/quality-reviewer-prompt.md",
+          ]
+          failures = []
+          for rel in required:
+              if not (root / rel).exists():
+                  failures.append(f"missing {rel}")
+
+          execute_skill = (root / "skills/execute/SKILL.md").read_text(encoding="utf-8")
+          for name in ("implementer-prompt.md", "spec-reviewer-prompt.md", "quality-reviewer-prompt.md"):
+              if name not in execute_skill:
+                  failures.append(f"skills/execute/SKILL.md: missing reference to {name}")
+
+          forgeflow = (root / "skills/forgeflow/SKILL.md").read_text(encoding="utf-8")
+          if "skills/execute/references/" not in forgeflow:
+              failures.append("skills/forgeflow/SKILL.md: missing skills/execute/references/")
+
+          if failures:
+              print("ERROR: Execute subagent reference prompt check failed")
+              for failure in failures:
+                  print(f"- {failure}")
+              sys.exit(1)
+          print("OK: Execute subagent reference prompts present")
+          PY
+
       - name: Verify route scoring parity
         run: |
           python3 - <<'PY'
@@ -224,6 +258,19 @@ jobs:
           for path in ["skills/review/SKILL.md", "skills/ship/SKILL.md", "skills/finish/SKILL.md"]:
               if "review-report.md" not in (root / path).read_text(encoding="utf-8"):
                   failures.append(f"{path}: missing review-report.md reference")
+
+          review_template = (root / "templates/review-report.md").read_text(encoding="utf-8")
+          if "## Execute Micro-Gates" not in review_template:
+              failures.append("templates/review-report.md: missing Execute Micro-Gates section")
+          review_skill = (root / "skills/review/SKILL.md").read_text(encoding="utf-8")
+          if "Execute Micro-Gates" not in review_skill:
+              failures.append("skills/review/SKILL.md: missing Execute Micro-Gates reference")
+          for smoke in ["audit-smoke-high", "audit-smoke-epic"]:
+              rp = root / "evals/results/smoke-tasks" / smoke / "review-report.md"
+              if not rp.exists():
+                  failures.append(f"{rp}: missing")
+              elif "## Execute Micro-Gates" not in rp.read_text(encoding="utf-8"):
+                  failures.append(f"{rp}: missing Execute Micro-Gates section")
 
           if failures:
               print("ERROR: Review/ship artifact contract failed")

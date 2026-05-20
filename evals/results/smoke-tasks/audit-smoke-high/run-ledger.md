@@ -14,7 +14,7 @@
 ### Task 1: <!-- name -->
 - **Plan Step**: <!-- which plan step this corresponds to -->
 - **Status**: <!-- pending | running | done | blocked | skipped -->
-- **Assignee**: <!-- role: worker | spec-reviewer | quality-reviewer | specialist -->
+- **Assignee**: <!-- required when running/done/blocked: worker | specialist | spec-reviewer | quality-reviewer -->
 - **Evidence Refs**: <!-- command output, test result, file diff -->
 - **Blocker**: <!-- description or "none" -->
 - **Retry Count**: <!-- 0 -->
@@ -27,8 +27,12 @@
 - **Blocker**: none
 - **Retry Count**: 0
 
+## Assignee discipline
+
+<!-- worker = controller; specialist = delegated subagent; spec-reviewer / quality-reviewer = execute micro-review -->
+
 ## Gate Results
-<!-- Gate evaluations from execute stage -->
+<!-- Gate evaluations from execute stage; include micro_spec / micro_quality when high/epic -->
 
 | Gate | Target | Result | Evidence |
 |------|--------|--------|----------|

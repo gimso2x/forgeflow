@@ -160,8 +160,10 @@ ForgeFlow separates responsibilities across stages. The implementing session mus
 1. **Implementation does not self-approve.** The implementer's summary is input for review, not a substitute.
 2. **Review is read-only.** Review records findings in `review-report.md` and hands back to the worker. It never edits code.
 3. **If only one session is available**, keep the role boundary by using separate turns with artifact handoffs. Do not blur implementation and review in the same turn.
-4. **Model binding**: When the shell supports role-specific model selection, prefer the strongest reasoning model for planning/review.
-   Prefer a coding-optimized model for execution.
+4. **Model binding**: When the shell supports role-specific model selection, use capability-appropriate models (heuristic, not enforced):
+   - **Planning / review / spec micro-review** — strongest reasoning available
+   - **Integration or multi-file execute** — standard coding model
+   - **Mechanical plan steps** (1–2 files, complete spec) — fast/cheap model acceptable
    The artifact contract records the role boundary; it does not require a central model database.
 
 ## Execution Patterns
@@ -205,6 +207,19 @@ worker C ──┘
 | medium | pipeline + producer-reviewer | Upgrade to fan-out when 3+ independent file groups |
 | high | fan-out/fan-in + producer-reviewer | Always — separate spec and quality reviews |
 | epic | fan-out/fan-in per milestone | Always — milestone-level parallel execution |
+
+### Review depth by route
+
+| Route | During execute (`/forgeflow:execute`) | After execute (`/forgeflow:review`) |
+|-------|--------------------------------------|-------------------------------------|
+| small | Self-check + step verification; no micro-reviewer subagents | Single **quality** pass on `review-report.md` |
+| medium | Step verification + contract checkpoint per plan step | Single **quality** pass |
+| high | Per-step **spec micro-check** (controller or `references/spec-reviewer-prompt.md`); optional quality micro-check after spec passes | **Spec** pass then **quality** pass (sequential, same `review-report.md`) |
+| epic | Same as high, per milestone plan step | Same as high, per milestone completion |
+
+Execute micro-gates do not replace stage review. Worker self-report and micro-review are input; stage review records them in `review-report.md` → **Execute Micro-Gates** and re-verifies with observed evidence (see `templates/review-report.md`).
+
+Subagent dispatch templates: `skills/execute/references/` (`implementer-prompt.md`, `spec-reviewer-prompt.md`, `quality-reviewer-prompt.md`).
 
 Plans for high/epic routes should explicitly name the execution pattern in the Architecture Notes section.
 

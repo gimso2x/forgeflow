@@ -35,6 +35,7 @@ Write `review-report.md` to the active task directory using `templates/review-re
 - Open Blockers (list or "none")
 - Safe for Next Stage (yes | no)
 - Evolution Rule Review (approved | changes_requested | not_applicable)
+- Execute Micro-Gates table (high/epic — summarize `micro_spec` / `micro_quality` from execute; re-verify in this pass)
 - Next Action
 - Approved By (only if verdict is approved)
 
@@ -195,7 +196,8 @@ If the user explicitly includes `--yes`, `--auto-approve`, `--non-interactive`, 
 Before reviewing, reconstruct the task state from artifacts instead of chat memory:
 
 - Read `implementation-notes.md` for current stage/status, decisions, deviations, progress, evidence, and blockers.
-- Read `run-ledger.md` for per-task execution status (pending/running/done/blocked), evidence refs, and blockers. Cross-check claimed completion against ledger entries.
+- Read `run-ledger.md` for per-task execution status (pending/running/done/blocked), assignee (`worker` | `specialist` | `spec-reviewer` | `quality-reviewer`), evidence refs, and blockers. Cross-check claimed completion against ledger entries.
+- For **high/epic**, collect `micro_spec:*` and `micro_quality:*` lines from implementation-notes Evidence. Summarize them in `review-report.md` → **Execute Micro-Gates** (see `templates/review-report.md`). Treat them as **reported evidence** until re-verified in this review turn.
 - Read `.forgeflow/evolution/proposed/*.md` when present and validate candidates against `templates/evolution-rule.md`.
 - Read `plan.md` to confirm planned tasks, requirements, contracts, and verification plan.
 - Read `brief.md` for route, scope, acceptance criteria, and constraints.
@@ -214,9 +216,10 @@ Before reviewing, reconstruct the task state from artifacts instead of chat memo
     - Open questions with status `open` are blockers until resolved.
     - Tradeoffs should be evaluated: was the chosen alternative the smallest safe option?
     - If `implementation-notes.md` is missing entirely, note it as a minor finding (the execute stage should have created it).
-9. **Cross-check run-ledger.md**: Verify that claimed task completions in implementation-notes match the run-ledger status. If a task is marked `done` in implementation-notes but `running` or `pending` in run-ledger, flag it as an inconsistency. The run-ledger is the execution truth.
-10. **Validate evolution rule candidates**: If proposed rules exist, check them against Evolution rule validation. Approval may authorize project-local activation, but review remains read-only and must not move files itself.
-11. Apply the appropriate review rubric (Spec or Quality — see Review Rubrics section above). For quality review, also apply these discipline heuristics:
+9. **Cross-check run-ledger.md**: Verify that claimed task completions in implementation-notes match the run-ledger status. If a task is marked `done` in implementation-notes but `running` or `pending` in run-ledger, flag it as an inconsistency. The run-ledger is the execution truth. For high/epic, if a step is `done` but lacks `micro_spec:PASS` (when execute should have run micro-gates), record a **major** spec-compliance finding.
+10. **Execute Micro-Gates table** (high/epic): Fill `review-report.md` → Execute Micro-Gates from implementation-notes and run-ledger. Re-run spec/quality checks independently; do not approve because micro-gates passed during execute.
+11. **Validate evolution rule candidates**: If proposed rules exist, check them against Evolution rule validation. Approval may authorize project-local activation, but review remains read-only and must not move files itself.
+12. Apply the appropriate review rubric (Spec or Quality — see Review Rubrics section above). For quality review, also apply these discipline heuristics:
    - Every changed line should trace directly to the user's request; anything else needs explicit scope approval.
    - Flag drive-by refactors, speculative abstractions, or unrelated cleanup as scope drift unless the plan explicitly authorized them.
    - Was the change the smallest safe change that satisfies the request?
@@ -225,21 +228,21 @@ Before reviewing, reconstruct the task state from artifacts instead of chat memo
    - Did the implementation follow existing codebase patterns instead of inventing a new local religion?
    - Were assumptions about types, APIs, behavior, and test coverage verified against actual files?
    - If performance was touched, was the bottleneck measured before and after the change?
-12. Classify findings by severity: blocker, major, minor, nit.
-13. **Write or update `review-report.md`** to the active task directory. For high/epic, spec and quality passes update the same file. The verdict in the file is the only valid verdict.
-14. **Verify execute completion checklist**: Before approving, confirm the execute stage produced all required deliverables:
+13. Classify findings by severity: blocker, major, minor, nit.
+14. **Write or update `review-report.md`** to the active task directory. For high/epic, spec and quality passes update the same file. The verdict in the file is the only valid verdict.
+15. **Verify execute completion checklist**: Before approving, confirm the execute stage produced all required deliverables:
     - ☐ Implementation plan was stated before code changes
     - ☐ All changed files are listed with descriptions
     - ☐ Each component/function role is explained
     - ☐ Edge cases enumerated (medium/high/epic)
     - ☐ Verification commands run and results recorded
     Missing items are `minor` findings for small routes, `major` for medium+, unless the omission is severe enough to block.
-15. Return a clear verdict in chat that matches the file. If verdict is `changes_requested` or `blocked`, update `implementation-notes.md` so status reflects the review gate.
-16. **다음 단계 안내** — 반드시 사용자에게 출력:
+16. Return a clear verdict in chat that matches the file. If verdict is `changes_requested` or `blocked`, update `implementation-notes.md` so status reflects the review gate.
+17. **다음 단계 안내** — 반드시 사용자에게 출력:
     - If `approved`: "리뷰 통과. 출하 준비 완료. `/forgeflow:ship`을 실행해주세요."
     - If `changes_requested`: "수정이 필요합니다:" + 각 P0/P1 이슈를 `file:line — description` 형태로 나열 + "`/forgeflow:execute`로 수정 후 다시 `/forgeflow:review`를 요청해주세요."
     - Do NOT auto-proceed to ship. 반드시 사용자가 다음 단계를 실행하도록 대기.
-17. Do not call `/forgeflow:ship` unless verdict=approved, safe_for_next_stage=yes, and open_blockers=none are all true in the **written** `review-report.md`.
+18. Do not call `/forgeflow:ship` unless verdict=approved, safe_for_next_stage=yes, and open_blockers=none are all true in the **written** `review-report.md`.
 
 Do not merge spec and quality review passes into a single turn for high/epic work. Use one `review-report.md` with sequential passes.
 
