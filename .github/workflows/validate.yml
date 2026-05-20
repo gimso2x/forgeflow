@@ -93,6 +93,7 @@ jobs:
               failures.append("README.md: release policy must reference VERSION")
           for snippet in (
               "## 로컬 검증",
+              "make validate",
               ".github/workflows/validate.yml",
               "python3 -m json.tool .claude-plugin/plugin.json >/dev/null",
           ):

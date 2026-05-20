@@ -185,7 +185,13 @@ Global rule(`~/.forgeflow/evolution/active/*.md`)은 advisory only이며 hard bl
 
 ## 로컬 검증
 
-이 저장소는 v1.x 기준으로 runtime/build 의존성이 없는 Markdown/JSON 패키지입니다. 변경 전후에는 GitHub Actions의 구조 검증 계약(`.github/workflows/validate.yml`)과 같은 범위를 로컬에서 먼저 확인합니다.
+이 저장소는 v1.x 기준으로 runtime/build 의존성이 없는 Markdown/JSON 패키지입니다. 변경 전후에는 GitHub Actions의 구조 검증 계약(`.github/workflows/validate.yml`)과 같은 핵심 범위를 로컬에서 먼저 확인합니다.
+
+```bash
+make validate
+```
+
+`make validate`는 Python runtime 파일 재유입, 플러그인/extension JSON 파싱, public skill `SKILL.md`, 필수 템플릿 존재 여부를 확인합니다. 개별 명령으로 확인할 때는 아래와 같습니다.
 
 ```bash
 # Python runtime 파일이 다시 들어오지 않았는지 확인
