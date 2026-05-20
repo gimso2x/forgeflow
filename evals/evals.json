@@ -327,6 +327,40 @@
           "values": ["verification passed", "verification", "passed"]
         }
       ]
+    },
+    {
+      "id": 7,
+      "name": "first-success-demo-guidance",
+      "prompt": "A first-time ForgeFlow maintainer has cloned the repo and wants one safe command that proves the artifact-first shape before configuring any provider credentials. Produce only the onboarding guidance for this first success. Do not claim live Claude/Codex/Gemini plugin execution.",
+      "expected_output": "Guidance that recommends make demo, explains it is a local template/artifact smoke rather than provider E2E, and names the demo task directory plus representative artifacts.",
+      "files": ["README.md", "Makefile"],
+      "assertions": [
+        {
+          "text": "Output recommends the local first-success command.",
+          "type": "contains",
+          "value": "make demo"
+        },
+        {
+          "text": "Output explains that the demo is not live provider/plugin E2E.",
+          "type": "contains_any",
+          "values": ["not provider", "not live", "not plugin E2E", "safe demo", "local"]
+        },
+        {
+          "text": "Output names the demo task artifact directory.",
+          "type": "contains",
+          "value": ".forgeflow/tasks/demo-small"
+        },
+        {
+          "text": "Output lists representative artifacts copied by the demo.",
+          "type": "contains_all",
+          "values": ["brief.md", "implementation-notes.md", "review-report.md", "ship-summary.md"]
+        },
+        {
+          "text": "Output avoids claiming real provider execution or credentials are verified.",
+          "type": "not_contains_any",
+          "values": ["Claude verified", "Codex verified", "Gemini verified", "provider E2E passed", "live plugin verified"]
+        }
+      ]
     }
   ]
 }
