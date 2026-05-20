@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Per-task micro-gates** on high/epic execute (controller or subagent); evidence via `micro_spec:*`, `micro_quality:*` in `implementation-notes.md`.
 - **`review-report.md` → Execute Micro-Gates** — stage review summarizes execute micro-gates as reported evidence and re-verifies independently.
 - **run-ledger Assignee discipline** — `worker` | `specialist` | `spec-reviewer` | `quality-reviewer`.
-- **Eval cases** `fan-out-execute-ledger`, `review-micro-gates-table`; scenario `evals/scenarios/fan-out-execute-smoke.md`.
+- **Eval cases** `fan-out-execute-ledger`, `review-micro-gates-table` in `evals/evals.json`.
 - **CI P12–P13** — execute reference prompts; review-report Execute Micro-Gates contract for template, review skill, high/epic smoke.
 
 ### Changed
@@ -23,6 +23,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `templates/review-report.md`, `templates/run-ledger.md` — micro-gate handoff and assignee guidance.
 - `GEMINI.md`, `.codex-plugin/plugin.json` — `subagent-execute` entrypoint.
 - `skills/SKILLS.md` — inventory row for `subagent-execute`.
+
+### Removed
+
+- Unused eval artifacts: historical `evals/results/*` reports, route/smoke snapshots, `evals/scenarios/`, smoke fixture dirs except CI-checked high/epic `review-report.md`.
+- Root `benchmark-report.md` (unreferenced one-off report).
 
 ## [1.0.3] - 2026-05-20
 
