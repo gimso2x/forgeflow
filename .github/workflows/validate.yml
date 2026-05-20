@@ -241,6 +241,49 @@ jobs:
           print("OK: Route scoring formula present in core docs")
           PY
 
+      - name: Verify active route vocabulary
+        run: |
+          python3 - <<'PY'
+          import pathlib
+          import sys
+
+          root = pathlib.Path(".")
+          failures = []
+          forbidden = {
+              "large_high_risk": "use high or epic",
+              "large high risk": "use high or epic",
+              "route: low": "use route: small",
+              "route: critical": "use route: epic",
+          }
+          scope = [
+              root / "README.md",
+              root / "SKILL.md",
+              root / "GEMINI.md",
+              root / "docs",
+              root / "skills",
+              root / "templates",
+              root / ".claude-plugin",
+              root / ".codex-plugin",
+              root / ".cursor-plugin",
+          ]
+          for base in scope:
+              paths = [base] if base.is_file() else sorted(base.rglob("*"))
+              for path in paths:
+                  if not path.is_file() or path.suffix not in {".md", ".json"}:
+                      continue
+                  text = path.read_text(encoding="utf-8").lower()
+                  for needle, guidance in forbidden.items():
+                      if needle in text:
+                          failures.append(f"{path}: stale route vocabulary {needle!r}; {guidance}")
+
+          if failures:
+              print("ERROR: Active route vocabulary drift detected")
+              for failure in failures:
+                  print(f"- {failure}")
+              sys.exit(1)
+          print("OK: Active route vocabulary uses small/medium/high/epic")
+          PY
+
       - name: Verify review and ship artifact contract
         run: |
           python3 - <<'PY'
