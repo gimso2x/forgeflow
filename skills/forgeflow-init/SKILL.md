@@ -54,7 +54,7 @@ mkdir -p .forgeflow/tasks/<task-id>
 
 This must be **in the user's active project/workspace**, not inside a plugin installation cache.
 
-Plugin-cache safety rule: never create task artifacts under a path containing `.claude/plugins/cache`, `.codex/plugins`, `.cursor/plugins`, `~/.cursor/plugins/local`, or any plugin marketplace/cache directory. If the working directory resolves to a plugin install/cache directory and the user did not provide `--task-dir`, stop and ask for an explicit `--task-dir` instead of writing there. If the user provides `--task-dir`, use that path exactly.
+Plugin-cache/extension-cache safety rule: never create task artifacts under a path containing `.claude/plugins/cache`, `.codex/plugins`, `.cursor/plugins`, `~/.cursor/plugins/local`, `.gemini/extensions`, `~/.gemini/extensions`, or any plugin marketplace/cache/extension directory. If the working directory resolves to a plugin install/cache/extension directory and the user did not provide `--task-dir`, stop and ask for an explicit `--task-dir` instead of writing there. If the user provides `--task-dir`, use that path exactly.
 
 2. Write a minimal `brief.md` stub using `templates/brief.md` as the format. Fill in `Objective` and `Risk Level` from the input arguments. Leave all other sections as placeholders for `/forgeflow:clarify` to fill.
 
