@@ -391,9 +391,15 @@ jobs:
               failures.append("evals must be non-empty list")
           else:
               for i, item in enumerate(evals):
-                  for key in ("id", "name", "prompt", "assertions"):
+                  for key in ("id", "name", "prompt", "expected_output", "files", "assertions"):
                       if key not in item:
                           failures.append(f"eval[{i}] missing {key}")
+                  for key in ("name", "prompt", "expected_output"):
+                      if key in item and (not isinstance(item.get(key), str) or not item.get(key).strip()):
+                          failures.append(f"eval[{i}] {key} must be a non-empty string")
+                  files = item.get("files")
+                  if not isinstance(files, list) or not all(isinstance(path, str) for path in files):
+                      failures.append(f"eval[{i}] files must be a list of strings")
                   assertions = item.get("assertions")
                   if not isinstance(assertions, list) or not assertions:
                       failures.append(f"eval[{i}] assertions must be non-empty list")
