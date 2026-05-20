@@ -1,0 +1,74 @@
+name: sync-version
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - VERSION
+      - SKILL.md
+      - .claude-plugin/plugin.json
+      - .claude-plugin/marketplace.json
+      - .codex-plugin/plugin.json
+      - .cursor-plugin/plugin.json
+      - gemini-extension.json
+
+concurrency:
+  group: sync-version
+  cancel-in-progress: true
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Read VERSION
+        id: version
+        run: echo "ver=$(cat VERSION | tr -d '[:space:]')" >> "$GITHUB_OUTPUT"
+
+      - name: Sync SKILL.md
+        run: |
+          sed -i 's/^version: *".*"/version: "${{ steps.version.outputs.ver }}"/' SKILL.md
+
+      - name: Sync JSON manifests
+        run: |
+          for f in \
+            .claude-plugin/plugin.json \
+            .codex-plugin/plugin.json \
+            .cursor-plugin/plugin.json \
+            gemini-extension.json; do
+            jq --arg v "${{ steps.version.outputs.ver }}" '.version = $v' "$f" > "$f.tmp" && mv "$f.tmp" "$f"
+          done
+
+      - name: Sync marketplace.json
+        run: |
+          jq --arg v "${{ steps.version.outputs.ver }}" '.metadata.version = $v' .claude-plugin/marketplace.json > .claude-plugin/marketplace.json.tmp \
+            && mv .claude-plugin/marketplace.json.tmp .claude-plugin/marketplace.json
+
+      - name: Check for changes
+        id: diff
+        run: |
+          if git diff --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            git diff --stat
+          fi
+
+      - name: Commit and push
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add VERSION SKILL.md \
+            .claude-plugin/plugin.json .claude-plugin/marketplace.json \
+            .codex-plugin/plugin.json .cursor-plugin/plugin.json \
+            gemini-extension.json
+          git commit -m "[skip ci] sync versions to ${{ steps.version.outputs.ver }}"
+          git push
