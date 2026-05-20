@@ -193,7 +193,7 @@ Global rule(`~/.forgeflow/evolution/active/*.md`)은 advisory only이며 hard bl
 make validate
 ```
 
-`make validate`는 Python runtime 파일 재유입, 플러그인/extension JSON 파싱, public skill `SKILL.md` 존재 및 frontmatter `name`/`description`/`validate_prompt` 정합성, 필수 템플릿 존재 여부, skill→template cross-reference, Gemini skill imports, plugin defaultPrompt 매핑, adapter config 계약, workflow vocabulary, `evals/evals.json` 계약(순차 `id`, 고유 `name`, assertion shape 포함), Markdown 상대 링크를 확인합니다. 개별 명령으로 확인할 때는 아래와 같습니다.
+`make validate`는 Python runtime 파일 재유입, 플러그인/extension JSON 파싱, public skill `SKILL.md` 존재 및 frontmatter `name`/`description`/`validate_prompt` 정합성, 필수 템플릿 존재 여부, skill→template cross-reference, Gemini skill imports, plugin defaultPrompt 매핑, adapter config 계약, workflow vocabulary, `evals/evals.json` 계약(순차 `id`, 고유 `name`, assertion shape, repo-relative `files` 참조 포함), Markdown 상대 링크를 확인합니다. 개별 명령으로 확인할 때는 아래와 같습니다.
 
 ```bash
 # Python runtime 파일이 다시 들어오지 않았는지 확인
