@@ -66,26 +66,14 @@ Finish-specific additions: Cross-check `run-ledger.md`: all tasks must be `done`
 
 ## Procedure
 
-### 0. Worktree cleanup (before verification)
+### 0. Worktree preflight (before verification)
 
 If the task used worktree isolation (check `brief.md` for worktree references or look for a `.worktree` marker file in the task directory):
 
-1. **Check for active git worktree**: `git worktree list` to find the worktree location.
-2. **Merge completed worker worktrees**: If worker artifacts under `.forgeflow/tasks/<id>/workers/` show completed workers, merge the worktree branch back to the main working directory:
-   ```bash
-   cd <main-repo>
-   git merge <worktree-branch>
-   ```
-3. **Verify merge succeeded**: After merge, check that the original repo has the expected changes:
-   ```bash
-   git diff --stat
-   git status --short
-   ```
-4. **Remove worktree**: After successful merge (or if user chose "discard"), clean up the git worktree:
-   ```bash
-   git worktree remove <worktree-path>
-   ```
-5. **If user chose "keep"**: Leave the worktree in place but note it as preserved in the task directory.
+1. **Check for active git worktree**: `git worktree list` to find the worktree location, branch, and dirty state.
+2. **Do not remove or discard yet**: Before the user selects a finish option, record the worktree as preserved. `git worktree remove`, branch deletion, reset, and discard remain destructive actions that require the option-specific confirmation below.
+3. **If completed worker worktrees need merging**: Treat this as part of the eventual "Merge locally" path, not as an automatic preflight side effect. First verify worker artifacts under `.forgeflow/tasks/<id>/workers/`, then present the merge plan with the exact branch/path.
+4. **If the user later chooses "Keep the branch as-is"**: Leave the worktree in place and note it as preserved in the finish report.
 
 ### 1. Verify before finishing
 
