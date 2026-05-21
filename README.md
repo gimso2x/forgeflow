@@ -203,17 +203,19 @@ make validate
 
 ```bash
 # Python runtime 파일이 다시 들어오지 않았는지 확인
-find . -name '*.py' -not -path './.git/*' -not -path './.venv/*'
+make validate-no-python
 
 # 플러그인/extension JSON 파싱 확인
-python3 -m json.tool .claude-plugin/plugin.json >/dev/null
-python3 -m json.tool .claude-plugin/marketplace.json >/dev/null
-python3 -m json.tool .codex-plugin/plugin.json >/dev/null
-python3 -m json.tool .cursor-plugin/plugin.json >/dev/null
-python3 -m json.tool gemini-extension.json >/dev/null
+make validate-json
+
+# 문서/스킬 링크가 repo-relative로 깨지지 않는지 확인
+make validate-markdown-links
+
+# eval fixture 계약만 빠르게 확인
+make validate-evals-json validate-eval-files validate-evals-fixtures
 ```
 
-출력이 없어야 하는 첫 번째 명령을 제외하고, JSON 명령은 exit code 0이면 통과입니다. push/PR에서는 `.github/workflows/validate.yml`의 `validate` workflow가 전체 `make validate`를, `.github/workflows/evals.yml`의 `evals` workflow가 eval fixture 계약(`validate-evals-json`, `validate-eval-files`, `validate-evals-fixtures`)을 검사합니다. eval fixture를 추가하거나 수정할 때는 [evals/README.md](evals/README.md)의 로컬 체크리스트를 따릅니다.
+각 focused target은 exit code 0이면 통과이며, 실패 시 어떤 계약이 깨졌는지 출력합니다. push/PR에서는 `.github/workflows/validate.yml`의 `validate` workflow가 전체 `make validate`를, `.github/workflows/evals.yml`의 `evals` workflow가 eval fixture 계약(`validate-evals-json`, `validate-eval-files`, `validate-evals-fixtures`)을 검사합니다. eval fixture를 추가하거나 수정할 때는 [evals/README.md](evals/README.md)의 로컬 체크리스트를 따릅니다.
 
 ### 첫 성공 데모
 
