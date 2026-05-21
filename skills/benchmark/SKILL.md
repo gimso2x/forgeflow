@@ -19,7 +19,8 @@ User types `/benchmark` or `/forgeflow:benchmark`.
 
 ## Input
 
-- Test prompt (small, medium, or large complexity)
+- Test prompt benchmark size: `small`, `medium`, or `large`
+  - These are benchmark fixture sizes, not ForgeFlow route labels. Do not report `large` as a workflow route; active routes remain `small` / `medium` / `high` / `epic`.
 - Target adapters (default: all available)
 - Project template (default: Vite + React + TypeScript)
 - Execution mode: `parallel` (default) or `sequential` (for rate-limited adapters)
