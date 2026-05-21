@@ -20,6 +20,7 @@ These validators ensure that:
 - persisted smoke `review-report.md` fixtures are concrete audit output, not unresolved templates
 - review evals preserve the reported-vs-observed evidence boundary before approving verification
 - final summaries do not overclaim provider/plugin E2E or live Claude/Codex/Gemini behavior from deterministic repo validators alone
+- autonomous maintainer runs stop on user/unknown dirty paths before pull/edit/clean/commit/push mutations
 
 ## When adding a fixture
 
