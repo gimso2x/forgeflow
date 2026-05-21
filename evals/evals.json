@@ -1235,6 +1235,17 @@
           "value": "abc1234"
         },
         {
+          "text": "Output records the push result instead of leaving commit delivery ambiguous.",
+          "type": "contains_any",
+          "values": [
+            "push",
+            "pushed",
+            "푸시",
+            "origin/main",
+            "전송"
+          ]
+        },
+        {
           "text": "Output avoids overclaiming live provider/plugin E2E from deterministic validators.",
           "type": "not_contains_any",
           "values": [
