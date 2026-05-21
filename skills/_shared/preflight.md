@@ -5,6 +5,15 @@ Uses **checkpoint-first, section-targeted reads** — not full artifact re-reads
 
 → Compact/resume rules: `_shared/context-resume.md`
 
+## Maintainer/autonomous repo preflight
+
+When acting as a ForgeFlow maintainer on this repository (cron loop, scheduled improvement run, or release-maintenance pass), protect unknown work before any repository mutation:
+
+1. Read `AGENTS.md` and inspect `git status --short` first.
+2. If any modified, staged, deleted, or untracked path is present and you did not create it in the current run, stop. Report the dirty paths as user/unknown changes.
+3. Do **not** run `git pull`, edit files, commit, push, clean, stash, or discard while the dirty tree is unresolved.
+4. Only after a clean preflight, refresh `main` with `git pull --ff-only` before selecting improvement work.
+
 ## Procedure
 
 1. Read `checkpoint.md` from the active task directory when present. Use its `Minimum Read Set`, `Next Action`, and `Blockers` before opening other artifacts.
