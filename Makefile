@@ -208,6 +208,7 @@ validate-evals-fixtures:
 	@grep -Fq "next sequential" evals/README.md || { echo "ERROR: evals README must document sequential fixture IDs"; exit 1; }
 	@grep -Fq "fixture text avoids stale workflow vocabulary" evals/README.md || { echo "ERROR: evals README must document stale-vocabulary fixture guard"; exit 1; }
 	@grep -Fq "eval names use kebab-case" evals/README.md || { echo "ERROR: evals README must document kebab-case eval names"; exit 1; }
+	@grep -Fq "assertion \`value\` / \`values\` entries are non-blank strings" evals/README.md || { echo "ERROR: evals README must document non-blank assertion value rules"; exit 1; }
 	@echo "OK: eval README documents deterministic scope and local validation"
 
 validate-advisory-contract:
