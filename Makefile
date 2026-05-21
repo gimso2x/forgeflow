@@ -218,6 +218,7 @@ validate-evals-fixtures:
 	@grep -Fq "eval names use kebab-case" evals/README.md || { echo "ERROR: evals README must document kebab-case eval names"; exit 1; }
 	@grep -Fq "assertion \`value\` / \`values\` entries are non-blank strings" evals/README.md || { echo "ERROR: evals README must document non-blank assertion value rules"; exit 1; }
 	@grep -Fq "benchmark fixtures must use \`/forgeflow:benchmark\`" evals/README.md || { echo "ERROR: evals README must document benchmark fixture command scope"; exit 1; }
+	@grep -Fq "\`.github/workflows/evals.yml\`" README.md || { echo "ERROR: README must name the evals workflow file for eval fixture checks"; exit 1; }
 	@echo "OK: eval README documents deterministic scope and local validation"
 
 validate-advisory-contract:
