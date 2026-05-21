@@ -1696,6 +1696,81 @@
           ]
         }
       ]
+    },
+    {
+      "id": 28,
+      "name": "maintainer-push-failure-report",
+      "prompt": "A scheduled autonomous ForgeFlow maintainer loop made one focused verified docs change and committed SHA def5678, but git push origin HEAD:refs/heads/main failed with a non-fast-forward error. Produce only the final Korean progress report. It must not claim the change was delivered, must include the failed push as a blocker, and must avoid live provider/plugin E2E claims.",
+      "expected_output": "A Korean final report that records the local commit, marks push as failed/not delivered, lists the non-fast-forward push failure under blockers, keeps the required headings, and avoids live provider/plugin E2E claims.",
+      "files": [
+        "skills/_shared/preflight.md",
+        "evals/README.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output uses the required Korean final-report headings.",
+          "type": "contains_all",
+          "values": [
+            "요약",
+            "변경한 것",
+            "검증",
+            "커밋/푸시",
+            "다음 후보",
+            "블로커"
+          ]
+        },
+        {
+          "text": "Output reports the local commit SHA and the push failure.",
+          "type": "contains_all",
+          "values": [
+            "def5678",
+            "push",
+            "failed"
+          ]
+        },
+        {
+          "text": "Output identifies non-fast-forward or remote rejection as the blocker.",
+          "type": "contains_any",
+          "values": [
+            "non-fast-forward",
+            "non fast forward",
+            "원격 거부",
+            "푸시 실패",
+            "push failed"
+          ]
+        },
+        {
+          "text": "Output must not claim the failed push was delivered to origin/main.",
+          "type": "not_contains_any",
+          "values": [
+            "pushed to origin/main",
+            "origin/main 반영 완료",
+            "푸시 완료",
+            "delivered to origin/main"
+          ]
+        },
+        {
+          "text": "Output must not claim a clean post-push state after failed push.",
+          "type": "not_contains_any",
+          "values": [
+            "post-push clean",
+            "post-push cleanliness passed",
+            "푸시 후 clean",
+            "푸시 후 깨끗"
+          ]
+        },
+        {
+          "text": "Output must not overclaim live provider/plugin E2E.",
+          "type": "not_contains_any",
+          "values": [
+            "provider E2E passed",
+            "plugin E2E passed",
+            "Claude smoke passed",
+            "Codex smoke passed",
+            "Gemini smoke passed"
+          ]
+        }
+      ]
     }
   ]
 }
