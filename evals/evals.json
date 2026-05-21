@@ -1266,6 +1266,74 @@
           ]
         }
       ]
+    },
+    {
+      "id": 21,
+      "name": "ship-artifact-residue-gate",
+      "prompt": "A ForgeFlow task reached /forgeflow:ship, but implementation-notes.md still contains an unresolved <!-- TODO: add verification evidence --> comment and ship-summary.md still contains <branch-name>. Produce only the ship-stage gate outcome. Do not write final handoff language, do not claim shipped, and do not delete or discard anything.",
+      "expected_output": "A ship-stage refusal that identifies unresolved template residue in implementation-notes.md and ship-summary.md, routes back to execute or review, avoids final shipped language, and preserves files/worktree state.",
+      "files": [
+        "skills/ship/SKILL.md",
+        "templates/implementation-notes.md",
+        "templates/ship-summary.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output identifies unresolved artifact residue or placeholders.",
+          "type": "contains_any",
+          "values": [
+            "unresolved",
+            "template residue",
+            "TODO",
+            "placeholder",
+            "<!--",
+            "<branch-name>"
+          ]
+        },
+        {
+          "text": "Output names implementation-notes.md as a residue source.",
+          "type": "contains",
+          "value": "implementation-notes.md"
+        },
+        {
+          "text": "Output names ship-summary.md as a residue source.",
+          "type": "contains",
+          "value": "ship-summary.md"
+        },
+        {
+          "text": "Output routes back to execute or review instead of shipping.",
+          "type": "contains_any",
+          "values": [
+            "/forgeflow:execute",
+            "/forgeflow:review",
+            "execute",
+            "review",
+            "route back"
+          ]
+        },
+        {
+          "text": "Output avoids final shipped/complete claims.",
+          "type": "not_contains_any",
+          "values": [
+            "shipped",
+            "ship complete",
+            "ready to merge",
+            "배포 완료",
+            "완료했습니다"
+          ]
+        },
+        {
+          "text": "Output avoids destructive cleanup while residue is unresolved.",
+          "type": "not_contains_any",
+          "values": [
+            "git clean",
+            "deleted",
+            "discarded",
+            "removed worktree",
+            "git reset --hard"
+          ]
+        }
+      ]
     }
   ]
 }
