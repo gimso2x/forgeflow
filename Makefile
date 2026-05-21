@@ -1,4 +1,4 @@
-.PHONY: validate demo validate-demo validate-json validate-no-python validate-skills validate-agent-docs validate-templates validate-template-refs validate-versions validate-changelog-links validate-route-scoring-parity validate-gemini-imports validate-plugin-prompts validate-evals-json validate-eval-files validate-workflow-vocab validate-finish-safety validate-adapter-config validate-oh-my-agent-contract validate-markdown-links
+.PHONY: validate demo validate-demo validate-json validate-no-python validate-skills validate-skill-frontmatter validate-agent-docs validate-templates validate-template-refs validate-versions validate-changelog-links validate-route-scoring-parity validate-gemini-imports validate-plugin-prompts validate-evals-json validate-eval-files validate-workflow-vocab validate-finish-safety validate-adapter-config validate-oh-my-agent-contract validate-markdown-links
 
 PYTHON ?= python3
 
@@ -105,7 +105,10 @@ validate-changelog-links:
 validate-route-scoring-parity:
 	@$(PYTHON) -c "exec("'"'"import pathlib, sys\nsnippet = 'raw_score = file_count*1.0 + estimated_lines*0.1 + requirement_count*2.0 + dependency_count*1.5 + risk_keywords*3.0'\ndocs = ['README.md', 'SKILL.md', 'skills/forgeflow/SKILL.md', 'skills/clarify/SKILL.md']\nfailures = [doc for doc in docs if snippet not in pathlib.Path(doc).read_text(encoding='utf-8')]\nif failures:\n    print('ERROR: Route scoring formula missing in:')\n    [print(f'- {failure}') for failure in failures]\n    sys.exit(1)\nprint('OK: Route scoring formula present in core docs')\n"'"'")"
 
-validate-skills:
+validate-skill-frontmatter:
+	@bash scripts/validate-skill-frontmatter.sh
+
+validate-skills: validate-skill-frontmatter
 	@for dir in skills/*/; do \
 		name=$$(basename "$$dir"); \
 		case "$$name" in _*) continue ;; esac; \
