@@ -161,6 +161,7 @@ validate-agent-docs:
 	@grep -Fq "rerun \`git status --short\` before staging" skills/_shared/preflight.md || { echo "ERROR: preflight must re-check dirty status before staging intentional files"; exit 1; }
 	@grep -Fq "Stage only the files you intentionally changed in this run" skills/_shared/preflight.md || { echo "ERROR: preflight must stage only intentional current-run files"; exit 1; }
 	@grep -Fq "After commit and push, rerun \`git status --short\`" skills/_shared/preflight.md || { echo "ERROR: preflight must re-check dirty status after push before reporting clean"; exit 1; }
+	@grep -Fq "Do not schedule jobs, modify cron/crontab, or change external automation" skills/_shared/preflight.md || { echo "ERROR: preflight must keep scheduled-run cadence changes operator-owned"; exit 1; }
 
 validate-templates:
 	@for t in $(TEMPLATES); do \
