@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.1] - 2026-05-21
+
+### Added
+
+- **`skills/_shared/context-resume.md`**: checkpoint-first resume, `/compact` timing, stage별 minimum read set, section-targeted read 규칙
+
+### Changed
+
+- **`skills/_shared/preflight.md`**: checkpoint-first, section-targeted reads (full artifact 재독 기본값 제거)
+- **Stage skills** (`clarify`, `plan`, `execute`, `review`, `ship`, `forgeflow`): context-resume cross-ref 및 stage별 minimum read set
+- **Templates** (`checkpoint`, `implementation-notes`, `run-ledger`, `review-report`, `ship-summary`): Evidence Index, Minimum Read Set, compact evidence refs
+- **README**, **docs/adapter-config.md**: Context efficiency / compact resume 요약
+
 ## [1.1.0] - 2026-05-21
 
 ### Changed
@@ -596,7 +609,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI gate with GitHub Actions workflow generation
 - Agent preset installer (Claude + Codex)
 
-[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v1.1.1...HEAD
+[1.1.1]: https://github.com/gimso2x/forgeflow/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/gimso2x/forgeflow/compare/v1.0.7...v1.1.0
 [1.0.7]: https://github.com/gimso2x/forgeflow/compare/v1.0.6...v1.0.7
 [1.0.6]: https://github.com/gimso2x/forgeflow/compare/v1.0.5...v1.0.6
