@@ -1,4 +1,4 @@
-.PHONY: validate demo validate-demo validate-json validate-no-python validate-skills validate-skill-frontmatter validate-agent-docs validate-templates validate-template-refs validate-versions validate-changelog-links validate-route-scoring-parity validate-gemini-imports validate-plugin-prompts validate-evals-json validate-eval-files validate-evals-fixtures validate-workflow-vocab validate-ship-safety validate-adapter-config validate-advisory-contract validate-markdown-links
+.PHONY: validate demo validate-demo validate-json validate-no-python validate-slim-surface validate-skills validate-skill-frontmatter validate-agent-docs validate-templates validate-template-refs validate-versions validate-changelog-links validate-route-scoring-parity validate-gemini-imports validate-plugin-prompts validate-evals-json validate-eval-files validate-evals-fixtures validate-workflow-vocab validate-ship-safety validate-adapter-config validate-advisory-contract validate-markdown-links
 
 PYTHON ?= python3
 
@@ -21,7 +21,7 @@ TEMPLATES := \
 	evolution-rule.md \
 	ship-summary.md
 
-validate: validate-no-python validate-json validate-versions validate-changelog-links validate-route-scoring-parity validate-skills validate-agent-docs validate-templates validate-template-refs validate-demo validate-gemini-imports validate-plugin-prompts validate-evals-json validate-eval-files validate-evals-fixtures validate-workflow-vocab validate-ship-safety validate-adapter-config validate-advisory-contract validate-markdown-links
+validate: validate-no-python validate-slim-surface validate-json validate-versions validate-changelog-links validate-route-scoring-parity validate-skills validate-agent-docs validate-templates validate-template-refs validate-demo validate-gemini-imports validate-plugin-prompts validate-evals-json validate-eval-files validate-evals-fixtures validate-workflow-vocab validate-ship-safety validate-adapter-config validate-advisory-contract validate-markdown-links
 	@echo "OK: local validation passed"
 
 demo:
@@ -69,6 +69,16 @@ validate-no-python:
 		exit 1; \
 	fi
 	@echo "OK: No Python files found"
+
+
+validate-slim-surface:
+	@matches="$$(git grep -nE 'forgeflow_runtime/|schemas/|tests/runtime|`tests/`' -- '*.md' ':!AGENTS.md' ':!CHANGELOG.md' || true)"; \
+	if [ -n "$$matches" ]; then \
+		echo "ERROR: Active v1.x docs must not reference removed runtime/schema/test trees"; \
+		printf '%s\n' "$$matches"; \
+		exit 1; \
+	fi
+	@echo "OK: Active docs avoid removed runtime/schema/test tree references"
 
 validate-json:
 	@for f in $(PLUGIN_JSON); do \
