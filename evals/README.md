@@ -17,6 +17,7 @@ These validators ensure that:
 - each referenced `files` path is repo-relative, tracked by git, and exists
 - assertion types stay in the supported deterministic set
 - persisted smoke `review-report.md` fixtures are concrete audit output, not unresolved templates
+- final summaries do not overclaim provider/plugin E2E or live Claude/Codex/Gemini behavior from deterministic repo validators alone
 
 ## When adding a fixture
 
