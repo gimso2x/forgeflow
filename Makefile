@@ -53,6 +53,7 @@ validate-demo:
 	done; \
 	grep -Fq "make demo" README.md || { echo "ERROR: README must document make demo"; exit 1; }; \
 	grep -Fq ".forgeflow/tasks/demo-small/" README.md || { echo "ERROR: README must document demo task path"; exit 1; }; \
+	grep -Fq "실제 provider/plugin E2E가 아니라" README.md || { echo "ERROR: README first-run demo docs must not overclaim provider/plugin E2E"; exit 1; }; \
 	grep -Fq "not provider/plugin E2E" Makefile || { echo "ERROR: make demo output must not overclaim provider/plugin E2E"; exit 1; }; \
 	count="$$(find "$$task_dir" -maxdepth 1 -type f | wc -l)"; \
 	if [ "$$count" -ne 7 ]; then \
