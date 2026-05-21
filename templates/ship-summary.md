@@ -5,6 +5,7 @@
 
 ## 사용자용 요약 (Reader Summary)
 <!-- Summarize what changed, verification result, review verdict, residual risks, and finish handoff status in the user's language. -->
+<!-- Ship preflight: read this + review-report Reader Summary before expanding other artifacts. -->
 
 ## 변경 파일 (Changed Files)
 <!-- List files changed in this task scope -->

@@ -84,7 +84,13 @@ No heading. No preamble. No code fence. No third line.
 
 ## Status analysis preflight
 
-→ `_shared/preflight.md`.
+→ `_shared/preflight.md` (checkpoint-first, section-targeted reads).
+
+→ `_shared/context-resume.md`.
+
+- **Minimum read set**: checkpoint → `review-report.md` Reader Summary + Verdict + Open Blockers → `ship-summary.md` draft if present.
+- Expand `plan.md`, full `implementation-notes.md`, or `brief.md` only when handoff, evolution extraction, or verification gaps require it.
+- Do not re-read all task artifacts by default before shipping.
 
 ## Evolution rule extraction
 

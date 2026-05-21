@@ -124,7 +124,7 @@ All artifacts are Markdown files written to `.forgeflow/tasks/<task-id>/`:
 - `plan.md` — task decomposition with steps, verification, contracts (template: `templates/plan.md`)
 - `implementation-notes.md` — real-time execution log (template: `templates/implementation-notes.md`)
 - `run-ledger.md` — execution truth per plan task (template: `templates/run-ledger.md`)
-- `checkpoint.md` — tactical resume pointer (template: `templates/checkpoint.md`)
+- `checkpoint.md` — tactical resume pointer (template: `templates/checkpoint.md`); **read first on stage resume** after context compaction
 - `review-report.md` — independent review result (template: `templates/review-report.md`; high/epic uses spec then quality passes on this file)
 - `roadmap.md` for epic route: milestone DAG and statuses (template: `templates/roadmap.md`)
 - `ship-summary.md` — final handoff summary (template: `templates/ship-summary.md`)
@@ -134,8 +134,12 @@ All artifacts are Markdown files written to `.forgeflow/tasks/<task-id>/`:
 ## Status analysis before routing
 
 Before choosing the next stage for an existing task, inspect the active task directory.
-Use `<task-dir>/implementation-notes.md` for current stage, status, progress, and blockers.
-Check `review-report.md` for verdicts and open blockers.
+
+1. Read `checkpoint.md` first when present (`Minimum Read Set`, `Next Action`, `Blockers`).
+2. Read `run-ledger.md` for task status truth; `implementation-notes.md` Reader Summary for narrative.
+3. Check `review-report.md` Verdict and Open Blockers when review has run.
+
+→ Compact/resume rules: `_shared/context-resume.md`
 
 ## File write and output discipline
 

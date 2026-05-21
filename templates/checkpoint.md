@@ -2,15 +2,18 @@
 
 <!-- ForgeFlow tactical resume pointer. Updated at stage entry/exit. -->
 <!-- This is NOT a progress report — it is the minimum state needed to resume after context compaction. -->
+<!-- See skills/_shared/context-resume.md for compact timing and read-order rules. -->
 
 ## Current Stage
 <!-- clarify | plan | execute | review | ship | long-run | finish -->
 
+## Status
+<!-- in_progress | completed | blocked -->
+
 ## Active Task
-<!-- Which task from plan.md / run-ledger.md is currently in progress -->
+<!-- Which task from plan.md / run-ledger.md is currently in progress, or "none" -->
 
 ## Latest Artifacts
-<!-- List the most recent artifact files and their status -->
 
 | Artifact | Path | Status |
 |----------|------|--------|
@@ -26,5 +29,13 @@
 ## Blockers
 <!-- List active blockers or "none" -->
 
-## Context Notes
-<!-- Optional: key decisions or state that would be lost on compaction. Keep terse. -->
+## Minimum Read Set
+<!-- On resume: read these artifacts/sections before expanding further. See _shared/context-resume.md -->
+<!-- Example: checkpoint (this file) → run-ledger active task → implementation-notes Reader Summary → plan Task N section -->
+
+## Evidence Index Refs
+<!-- Compact evidence_index / verification / contract_check lines from implementation-notes or run-ledger -->
+<!-- Example: evidence_index: task=T2 gates=validate:PASS -->
+
+## Compact-Safe Context Notes
+<!-- Terse state that would be lost on compaction. NOT a progress report — decisions, blockers, next-file hints only. -->

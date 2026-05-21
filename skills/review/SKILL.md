@@ -200,16 +200,18 @@ Evolution rules are generated during the **ship** stage. Review does not need to
 
 ## Status analysis preflight
 
-→ Core procedure: `_shared/preflight.md`.
+→ Core procedure: `_shared/preflight.md` (checkpoint-first, section-targeted reads).
 
-Review-specific additions: reconstruct the full task state from artifacts instead of chat memory.
+→ Compact/resume rules: `_shared/context-resume.md`.
 
-- Read `implementation-notes.md` for current stage/status, decisions, deviations, progress, evidence, and blockers.
-- Read `run-ledger.md` for per-task execution status (pending/running/done/blocked), assignee (`worker` | `specialist` | `spec-reviewer` | `quality-reviewer`), evidence refs, and blockers. Cross-check claimed completion against ledger entries.
-- For **high/epic**, collect `micro_spec:*` and `micro_quality:*` lines from implementation-notes Evidence. Summarize them in `review-report.md` → **Execute Micro-Gates** (see `templates/review-report.md`). Treat them as **reported evidence** until re-verified in this review turn.
-- Read `.forgeflow/evolution/active/*.md` for existing active rules (project context).
-- Read `plan.md` to confirm planned tasks, requirements, contracts, and verification plan.
-- Read `brief.md` for route, scope, acceptance criteria, and constraints.
+Review-specific: reconstruct task state from artifacts, not chat memory. **Do not read all artifacts in full at entry.**
+
+- **Minimum read set**: checkpoint → run-ledger gates + active/completion summary → implementation-notes Reader Summary + Evidence Index → brief Acceptance Criteria → plan Requirements + Verification Plan + implicated task sections only.
+- Expand `implementation-notes.md` Decisions/Evidence only when findings or blockers require it.
+- Expand `plan.md` beyond Requirements/Verification Plan/implicated tasks only when scope or fulfills traceability demands it.
+- For **high/epic**, collect `micro_spec:*` and `micro_quality:*` from Evidence Index or Evidence. Summarize in `review-report.md` → **Execute Micro-Gates**. Treat as **reported evidence** until re-verified.
+- Read `.forgeflow/evolution/active/*.md` when project rule consistency is in scope.
+- **Perf-review lens**: flag repeated full-artifact read patterns; prefer checkpoint Minimum Read Set.
 
 ## Artifact completeness gate
 
@@ -222,7 +224,7 @@ Before approving review, inspect required ForgeFlow artifacts for unresolved tem
 
 ## Procedure
 
-1. Read `brief.md` to determine route and expected review scope.
+1. Read `checkpoint.md` when present, then `_shared/preflight.md` minimum read set. Read `brief.md` Acceptance Criteria and route — not necessarily the full brief unless scope is disputed.
 2. Review from artifacts and code, not worker vibes.
 3. Check scope coverage and acceptance criteria, including every fulfills, journey, and verification plan target from the plan.
 4. Start with blocker elimination: missing artifacts, missing observed evidence, failed verification, or unresolved open blockers force `blocked` or `changes_requested` before minor findings are considered.

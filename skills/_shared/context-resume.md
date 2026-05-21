@@ -1,0 +1,96 @@
+# Context Resume and Compact Safety
+
+Shared rules for `/compact` timing, checkpoint-first resume, minimum read sets, and section-targeted reads across all ForgeFlow stages.
+
+## Principles
+
+1. **Artifact-first stays** — compaction does not replace artifacts; it makes resume discipline mandatory.
+2. **Checkpoint-first** — on resume, read `checkpoint.md` before any other task artifact when it exists.
+3. **No default full re-read** — expand to full artifacts only when verification, findings, or blockers require it.
+4. **Ledger = truth, notes = narrative** — task status from `run-ledger.md`; decisions from `implementation-notes.md`.
+
+## `/compact` timing
+
+Compact context at:
+
+- **Stage boundary** — after the stage's exit artifact is written (e.g. `brief.md`, `plan.md`, `review-report.md`).
+- **Checkpoint refresh** — after task completion when `run-ledger.md`, evidence, and `checkpoint.md` are updated on disk.
+
+Do **not** compact when:
+
+- A file edit is in progress and not saved to artifact or codebase.
+- Verification ran but results are not yet in `implementation-notes.md` Evidence.
+- A subagent/worker is `running` in `run-ledger.md` without evidence refs.
+- You are mid-review before verdict is recorded.
+
+| Stage | Safe after | Unsafe during |
+|-------|------------|---------------|
+| clarify | brief + checkpoint | pre-brief questioning |
+| plan | plan + scaffolds + checkpoint | mid task decomposition |
+| execute | task done + ledger + checkpoint | mid-implementation / pre-evidence |
+| review | review-report sections + checkpoint | pre-verdict |
+| ship | ship-summary draft + verification | pre-handoff |
+
+## Universal resume read order
+
+```text
+checkpoint.md
+  → run-ledger.md (active task + gates)
+  → implementation-notes.md (Reader Summary + Evidence Index)
+  → checkpoint Minimum Read Set sections in other artifacts
+  → full artifact (only if needed)
+```
+
+Before reading any file, ask: **full content, Reader Summary, or specific section?** Prefer line-range or heading-scoped reads for sections over 80 lines.
+
+## Section-targeted read procedure
+
+1. Read `checkpoint.md` → `Minimum Read Set` and `Next Action`.
+2. If artifact has **Reader Summary** (high/epic), read it first (~30 lines max).
+3. Jump to named sections (e.g. `## 검증 계획 (Verification Plan)`, `### Task 3:`) instead of reading from line 1.
+4. Use Evidence Index compact strings before expanding full Evidence blocks.
+5. Record in checkpoint when you expand beyond minimum read set (brief note in Compact-Safe Context Notes).
+
+## Context budget heuristics
+
+- Do not re-read a file already in context unless edited since last read.
+- Batch parallel tool calls for independent file inspections.
+- Prefer grep/heading search to locate sections before full file read.
+- For plans over ~150 lines: read Reader Summary + Requirements + active task + Verification Plan entries for that task only.
+- **Anti-pattern**: reading all artifacts at stage entry "to be safe" — use checkpoint Minimum Read Set instead.
+
+## Stage minimum read sets
+
+See task-local `contracts.md` when present, or use these defaults:
+
+| Stage | Minimum read |
+|-------|----------------|
+| clarify (new) | user request + repo context as needed |
+| clarify (resume) | checkpoint → brief in-progress sections |
+| plan (new) | brief Objective/Scope/AC |
+| plan (resume) | checkpoint → brief summary → plan Tasks/Verification Plan |
+| execute (resume) | checkpoint → ledger active row → notes summary → plan active task |
+| review | checkpoint → ledger gates → notes summary → brief AC → plan Requirements + implicated tasks |
+| ship | checkpoint → review-report summary/verdict → ship-summary draft |
+
+## Evidence index convention
+
+Append compact lines to `implementation-notes.md` Evidence or Evidence Index:
+
+```text
+evidence_index: task=<id> gates=<gate>:PASS,<gate>:PASS
+verification:PASS gate=<name> command="<cmd>" exit=0
+contract_check:PASS <task>
+```
+
+Review and ship parse these before reading full Evidence sections.
+
+## Design reference
+
+Large brownfield tasks (e.g. frontend extension with 300+ line `plan.md`) demonstrate repeated full-plan re-read cost. Keep section anchors in long plans; use Reader Summary at artifact top for high/epic routes.
+
+## Related
+
+- Checkpoint template: `templates/checkpoint.md`
+- Preflight (review/ship): `_shared/preflight.md`
+- Discipline (Reader Summary): `_shared/discipline.md`

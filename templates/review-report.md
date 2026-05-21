@@ -6,6 +6,7 @@
 
 ## 사용자용 요약 (Reader Summary)
 <!-- Summarize verdict, main findings, verification confidence, blockers, and next action in the user's language. -->
+<!-- Review/ship: read this section first on resume — expand Findings only when needed. -->
 
 ## 리뷰 유형 (Review Type)
 <!-- spec | quality | security | ux -->

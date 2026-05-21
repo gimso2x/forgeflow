@@ -1,7 +1,8 @@
 # Run Ledger
 
 <!-- ForgeFlow execution truth. plan.md is intent; run-ledger.md is what actually happened. -->
-<!-- Updated by execute stage. Read by review, finish stages. -->
+<!-- Updated by execute stage. Read by review, ship stages. -->
+<!-- Status truth lives here; implementation-notes.md holds decision narrative — read ledger first on resume. -->
 
 ## Route
 <!-- small | medium | high | epic -->
@@ -15,7 +16,7 @@
 - **Plan Step**: <!-- which plan step this corresponds to -->
 - **Status**: <!-- pending | running | done | blocked | skipped -->
 - **Assignee**: <!-- required when status is running/done/blocked/skipped: worker | specialist | spec-reviewer | quality-reviewer -->
-- **Evidence Refs**: <!-- command output, test result, file diff -->
+- **Evidence Refs**: <!-- compact strings: verification:PASS gate=... | contract_check:PASS | evidence_index:task=... -->
 - **Blocker**: <!-- description or "none" -->
 - **Retry Count**: <!-- 0 -->
 

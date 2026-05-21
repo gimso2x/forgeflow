@@ -38,7 +38,13 @@
 
 ## 증거 (Evidence)
 <!-- Gate results, test outputs, verification outcomes -->
+<!-- Use compact strings parseable by review/ship preflight: verification:PASS/FAIL, contract_check:PASS/FAIL, evidence_index:task=... -->
 -
+
+## Evidence Index
+<!-- Compact refs updated during execute. Parse before expanding full Evidence above. -->
+<!-- Example: evidence_index: task=T2 gates=make validate:PASS,contract_check:PASS -->
+<!-- run-ledger.md = per-task status truth; this file = decisions + evidence narrative -->
 
 ## 차단 요소 (Blocked By)
 <!-- List blockers or "none" -->

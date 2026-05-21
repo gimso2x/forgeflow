@@ -160,7 +160,10 @@ Minimum warning contract:
 7. For each task in the plan:
    - **TDD Red**: Write/update tests to fail.
    - **Execute Implementation**: Implement minimal code to pass. Prefer the smallest implementation that satisfies the acceptance criteria.
-   - **Context budget**: Do not re-read a file already in context unless it was edited since. Before reading a file, ask: "Do I need the full content, or just a specific section?" If the latter, read only the relevant lines. Batch multiple file inspections into parallel tool calls where possible.
+   - **Context budget**: → `_shared/context-resume.md`. Execute addendum:
+     - **Resume minimum read set**: `checkpoint.md` → `run-ledger.md` active task + Gate Results → `implementation-notes.md` Reader Summary + Evidence Index → active `plan.md` task section only.
+     - Do not re-read a file already in context unless edited since. Before reading, ask: full content, Reader Summary, or specific section? Batch parallel tool calls where possible.
+     - After each task completes, append compact evidence index line to `implementation-notes.md` Evidence (e.g. `evidence_index: task=T3 gates=build:PASS,lint:PASS`).
    - **Implementation Notes**: When a decision is made that was not in the plan, when the implementation deviates from the spec, when a tradeoff is chosen, or when an open question arises — **append an entry to `implementation-notes.md` immediately**. Do not batch these until the end.
    - **TDD Refactor**: Clean up implementation.
    - **Run Ledger**: When starting a task, set its status to `running` and **Assignee** to `worker` (or `specialist` if delegated). When completing, set to `done` with evidence refs. When blocked, set to `blocked` with blocker description. Update incrementally, not in batch. See **Run ledger assignee discipline** below.
