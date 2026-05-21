@@ -105,12 +105,12 @@ Complete **all** items before invoking the next stage or editing code outside th
 | Chain | If `approved`: invoke `/forgeflow:ship` immediately — no `(y/n)` prompt |
 | Forbidden | "리뷰 통과. ship 진행?" under `--auto`; proceeding to ship when verdict ≠ `approved` |
 
-#### ship → finish
+#### ship completion
 
 | Step | Required |
 |------|----------|
 | Artifact | `ship-summary.md` with verification table and handoff |
-| Checkpoint | `Current Stage: ship` → `finish` when disposition completes |
+| Checkpoint | `Current Stage: ship` remains the terminal workflow stage while disposition completes |
 | Chain | After summary: present branch disposition 4-option choice (always user input) |
 | Allowed stop | merge/PR/keep/discard choice; discard exact confirmation; ship quality loop-back `(y/n)` |
 
