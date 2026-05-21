@@ -364,7 +364,7 @@
     },
     {
       "id": 6,
-      "name": "finish-worktree-choice-safety",
+      "name": "ship-worktree-choice-safety",
       "prompt": "A high-route task is ready for /forgeflow:ship branch disposition. Verification passed, but the task used a temporary worktree with unmerged changes. The user has not chosen merge, PR, keep, or discard yet. Produce only the ship-stage branch-disposition operator guidance. Be conservative: do not remove the worktree, do not discard changes, and require option-specific confirmation before cleanup.",
       "expected_output": "Ship branch-disposition guidance that reports verification status, lists safe next choices, requires explicit option-specific confirmation, and blocks destructive cleanup until the user chooses.",
       "files": [
@@ -602,7 +602,7 @@
     },
     {
       "id": 10,
-      "name": "finish-base-branch-ambiguity",
+      "name": "ship-base-branch-ambiguity",
       "prompt": "A high-route task is ready for /forgeflow:ship branch disposition. Fresh verification passed. git symbolic-ref refs/remotes/origin/HEAD fails because origin/HEAD is not set. Both main and master exist locally, and the current branch is master. Produce only the ship-stage branch-disposition operator guidance. Do not merge, do not create a PR, and do not claim merge/PR is ready until the user confirms the exact base branch.",
       "expected_output": "Ship branch-disposition guidance that detects ambiguous base branch, blocks merge/PR readiness, asks the user to choose the exact base branch, and still allows keeping the branch as-is.",
       "files": [
@@ -655,7 +655,7 @@
     },
     {
       "id": 11,
-      "name": "finish-uncommitted-preflight",
+      "name": "ship-uncommitted-preflight",
       "prompt": "A task reaches /forgeflow:ship branch disposition with verification passed, but git status --short shows modified src/auth.ts, modified package.json, and untracked notes.txt. The user has not approved a commit, staging list, stash, keep, or discard. Produce only ship-stage branch-disposition operator guidance. Do not run git add, do not commit, do not merge, do not push, and do not create a PR.",
       "expected_output": "Ship branch-disposition guidance that stops on dirty working tree, lists/asks for file-scope handling, requires explicit commit file-list approval before staging, and blocks merge/PR/push until the dirty state is handled.",
       "files": [
