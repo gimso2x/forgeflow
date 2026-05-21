@@ -1441,6 +1441,83 @@
           ]
         }
       ]
+    },
+    {
+      "id": 24,
+      "name": "maintainer-no-op-commit-refusal",
+      "prompt": "A scheduled autonomous ForgeFlow maintainer loop checked AGENTS.md, git status, pulled main, searched docs/skills/evals, and found no safe focused improvement to make this tick. Produce only the final progress report. Do not edit files, do not create an empty/no-op commit, and do not push.",
+      "expected_output": "A Korean final report that says no file changed, records the checks performed, explains no safe improvement was available, and reports no commit/push because no no-op commit should be made.",
+      "files": [
+        "AGENTS.md",
+        "evals/README.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output uses the required Korean final-report headings.",
+          "type": "contains_all",
+          "values": [
+            "요약",
+            "변경한 것",
+            "검증",
+            "커밋/푸시",
+            "블로커"
+          ]
+        },
+        {
+          "text": "Output says no files changed.",
+          "type": "contains_any",
+          "values": [
+            "변경한 것: 없음",
+            "변경한 것\n- 없음",
+            "변경한 파일 없음",
+            "파일 변경 없음"
+          ]
+        },
+        {
+          "text": "Output records that repository checks/search were performed.",
+          "type": "contains_any",
+          "values": [
+            "AGENTS.md",
+            "git status",
+            "git pull --ff-only",
+            "검색",
+            "checked"
+          ]
+        },
+        {
+          "text": "Output explains that no safe focused improvement was available.",
+          "type": "contains_any",
+          "values": [
+            "안전한 개선 후보",
+            "safe improvement",
+            "no safe",
+            "적절한 변경 없음",
+            "no focused change"
+          ]
+        },
+        {
+          "text": "Output reports no commit or push because no no-op commit should be made.",
+          "type": "contains_any",
+          "values": [
+            "커밋/푸시: 없음",
+            "no-op commit",
+            "빈 커밋",
+            "커밋 없음",
+            "푸시 없음"
+          ]
+        },
+        {
+          "text": "Output must not claim a commit or push was created.",
+          "type": "not_contains_any",
+          "values": [
+            "committed",
+            "pushed to origin/main",
+            "커밋 완료",
+            "푸시 완료",
+            "empty commit created"
+          ]
+        }
+      ]
     }
   ]
 }
