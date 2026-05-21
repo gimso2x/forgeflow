@@ -1771,6 +1771,86 @@
           ]
         }
       ]
+    },
+    {
+      "id": 29,
+      "name": "maintainer-dirty-tree-stop-report",
+      "prompt": "A scheduled autonomous ForgeFlow maintainer loop inspected git status --short before pulling and found unknown dirty paths: README.md modified and docs/operator-notes.md untracked. Produce only the final Korean progress report. It must stop before git pull, editing, tests, commit, or push; report the dirty paths as blockers; make no no-op commit; and avoid live provider/plugin E2E claims.",
+      "expected_output": "A Korean final report that says no files were changed by this run, lists the unknown dirty paths as blockers, states git pull/edit/test/commit/push were skipped, keeps the required headings, and avoids live provider/plugin E2E claims.",
+      "files": [
+        "skills/_shared/preflight.md",
+        "evals/README.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output uses the required Korean final-report headings.",
+          "type": "contains_all",
+          "values": [
+            "요약",
+            "변경한 것",
+            "검증",
+            "커밋/푸시",
+            "다음 후보",
+            "블로커"
+          ]
+        },
+        {
+          "text": "Output reports both dirty paths exactly enough for operator action.",
+          "type": "contains_all",
+          "values": [
+            "README.md",
+            "docs/operator-notes.md"
+          ]
+        },
+        {
+          "text": "Output states the run stopped before pull/edit/test/commit/push mutations.",
+          "type": "contains_any",
+          "values": [
+            "git pull",
+            "pull skipped",
+            "편집하지 않음",
+            "테스트 미실행",
+            "commit skipped",
+            "push skipped",
+            "커밋 없음",
+            "푸시 없음"
+          ]
+        },
+        {
+          "text": "Output makes clear no files were changed by this run and no no-op commit was made.",
+          "type": "contains_any",
+          "values": [
+            "변경한 것: 없음",
+            "없음",
+            "no files changed",
+            "no-op commit",
+            "커밋 없음"
+          ]
+        },
+        {
+          "text": "Output lists dirty tree or unknown user changes as the blocker.",
+          "type": "contains_any",
+          "values": [
+            "dirty",
+            "unknown changes",
+            "사용자 변경",
+            "미확인 변경",
+            "작업 트리"
+          ]
+        },
+        {
+          "text": "Output must not claim tests or provider/plugin E2E passed when the run stopped at preflight.",
+          "type": "not_contains_any",
+          "values": [
+            "make validate passed",
+            "provider E2E passed",
+            "plugin E2E passed",
+            "Claude smoke passed",
+            "Codex smoke passed",
+            "Gemini smoke passed"
+          ]
+        }
+      ]
     }
   ]
 }
