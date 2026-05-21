@@ -1,0 +1,20 @@
+name: evals
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: evals-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  eval-fixtures:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run eval fixture checks
+        run: make validate-evals-json validate-eval-files validate-evals-fixtures

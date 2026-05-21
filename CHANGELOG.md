@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.3] - 2026-05-21
+
+### Added
+
+- **`.github/workflows/evals.yml`**: eval fixture 계약 자동 검사 (`validate-evals-json`, `validate-eval-files`, `validate-evals-fixtures`)
+- **`Makefile` `validate-evals-fixtures`**: 제거된 slash command 참조 및 smoke fixture 구체성 검사
+
+### Changed
+
+- **`validate-oh-my-agent-contract`** → **`validate-advisory-contract`**: oh-my-agent handoff 문서 의존 제거
+- **README**: ship branch-disposition safety, advisory/eval fixture 검사 범위 및 `evals` workflow 설명
+
+### Removed
+
+- **`docs/oh-my-agent-forgeflow-handoff.md`**, **`docs/oh-my-agent-absorption-review.md`**: legacy handoff 문서 (흡수 완료, advisory 계약은 유지)
+
 ## [1.1.2] - 2026-05-21
 
 ### Added
@@ -630,7 +646,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI gate with GitHub Actions workflow generation
 - Agent preset installer (Claude + Codex)
 
-[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v1.1.2...HEAD
+[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v1.1.3...HEAD
+[1.1.3]: https://github.com/gimso2x/forgeflow/compare/v1.1.2...v1.1.3
 [1.1.2]: https://github.com/gimso2x/forgeflow/compare/v1.1.1...v1.1.2
 [1.1.1]: https://github.com/gimso2x/forgeflow/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/gimso2x/forgeflow/compare/v1.0.7...v1.1.0
