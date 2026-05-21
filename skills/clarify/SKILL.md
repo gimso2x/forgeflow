@@ -175,6 +175,13 @@ For exact-count, dry-run, or response-only prompts, do not force the WHERE inter
    - `dependency_count`: Number of external libraries or internal modules impacted.
    - `risk_keywords`: Presence of keywords like `auth`, `payment`, `migration`, `security`, `infra`, `delete`.
 
+   **WHERE Route Calibration**: After computing `raw_score`, apply WHERE-based adjustments before selecting the final route. These prevent over-routing simple tasks in toy/experiment projects or under-routing complex tasks in production systems.
+
+   - `ambition = toy/experiment` AND no risk modifiers checked → downgrade one tier (e.g. `medium-light` → `small`, `high` → `medium`), but never downgrade below `small`.
+   - `ambition = product` AND any risk modifier checked → upgrade one tier (e.g. `medium-full` → `high`), but never upgrade above `epic`.
+   - `situation = greenfield` AND `ambition = toy/experiment` → maximum route is `medium`; if `raw_score >= 25`, keep at `medium` and note the cap in route rationale.
+   - Record the calibration in the brief's Route Rationale section (e.g. "raw_score 17 → medium-light, but WHERE calibration (ambition=toy, no risk modifiers) downgrades to small").
+
    Return route label `medium` for both `medium-light` and `medium-full`; record the sub-band in route rationale. The `17.0` mid threshold exists to decide how deep the plan/review detail should be inside the medium route, not to create a separate slash route.
 
 6. Apply alias hints only within the scoring context. The table below maps user wording to `suggested_next_skill` — Keyword hints are advisory and must not auto-invoke any skill. Route selection (`small`/`medium`/`high`/`epic`) remains explicit and independent of alias hints. Do not auto-invoke skills from keyword detection alone.

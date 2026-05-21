@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.7] - 2026-05-21
+
+### Fixed
+
+- Makefile Python `SyntaxWarning` 10건 제거 — `exec()` 내 비표준 이스케이프 시퀀스(`\s`, `\[`, `\.`) 정규화
+
+### Changed
+
+- clarify 라우트 스코어링에 WHERE 기반 보정 규칙 추가 — `ambition=toy` 강등, `ambition=product+risk` 승격, greenfield cap 명시
+
 ## [1.0.6] - 2026-05-20
 
 ### Added
