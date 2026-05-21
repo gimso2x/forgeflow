@@ -1,6 +1,6 @@
 # Milestone Roadmap
 
-<!-- ForgeFlow epic decomposition. Created during milestone stage. -->
+<!-- ForgeFlow epic decomposition. Created during plan stage (epic route). -->
 
 ## Objective
 <!-- One-paragraph project scope -->

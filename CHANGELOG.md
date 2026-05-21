@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.2] - 2026-05-21
+
+### Added
+
+- **`examples/evolution/`**: evolution rule 샘플 (`proposed/sample-rule.md`) 및 README
+- **`docs/dogfooding.md`**: tracked `.forgeflow/tasks/*` fixture 설명
+- **`Makefile` `validate-workflow-vocab`**: canonical lifecycle ordering 검사 (`ship → long-run`, stale `/forgeflow:finish` 차단)
+- **`GEMINI.md`**: `@./docs/adapter-config.md` import
+
+### Changed
+
+- **1.1.0 스킬 통합 잔재 정리**: `automation.md`, 템플릿 stage enum, `evals.json` finish eval 3건을 ship branch disposition 기준으로 갱신
+- **`skills/ship/SKILL.md`**: "finish"는 별도 스테이지가 아닌 ship 내부 branch disposition임을 명시
+- **`skills/SKILLS.md`**: review를 `spec pass → quality pass` 한 줄로 통합
+- **`.github/workflows/validate.yml`**: 인라인 검사 → `make validate` 단일 호출로 CI/Makefile 동기화
+- **`AGENTS.md`**: release 스킬(`.claude/skills/release.md`)이 Claude Code 전용임을 명시
+
+### Fixed
+
+- CI가 삭제된 `skills/finish/SKILL.md` 및 `forgeflow-init` prompt 분기를 참조하던 contract drift
+
 ## [1.1.1] - 2026-05-21
 
 ### Added
@@ -609,7 +630,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI gate with GitHub Actions workflow generation
 - Agent preset installer (Claude + Codex)
 
-[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v1.1.1...HEAD
+[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v1.1.2...HEAD
+[1.1.2]: https://github.com/gimso2x/forgeflow/compare/v1.1.1...v1.1.2
 [1.1.1]: https://github.com/gimso2x/forgeflow/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/gimso2x/forgeflow/compare/v1.0.7...v1.1.0
 [1.0.7]: https://github.com/gimso2x/forgeflow/compare/v1.0.6...v1.0.7

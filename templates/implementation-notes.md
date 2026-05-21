@@ -7,7 +7,7 @@
 <!-- For high/epic routes especially: summarize completed work, current status, verification evidence, and remaining risks in the user's language. -->
 
 ## 현재 단계 (Current Stage)
-<!-- clarify | plan | execute | review | ship | finish -->
+<!-- clarify | plan | execute | review | ship | long-run -->
 
 ## 상태 (Status)
 <!-- in_progress | completed | blocked -->

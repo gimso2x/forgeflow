@@ -48,6 +48,7 @@ SKILL.md                  # Claude marketplace entry (한국어 요약 → skill
 4. **플러그인 설정** — `.claude-plugin/`, `.codex-plugin/`, `.cursor-plugin/`, `GEMINI.md` 동기화
 5. **수동 테스트** — 해당 스킬 실행하여 산출물 확인
 6. **릴리즈** — `VERSION` 파일만 수정하면 CI(`sync-version.yml`)가 나머지 매니페스트 7개를 자동 동기화. `CHANGELOG.md` 수동 작성 후 `/forgeflow:release` 스킬로 커밋·push·GitHub release 생성. manifest 직접 수정 금지.
+   - **Release 스킬**: `.claude/skills/release.md` — Claude Code 전용. 공개 `skills/` inventory에 포함되지 않음.
 
 ## Code Conventions
 

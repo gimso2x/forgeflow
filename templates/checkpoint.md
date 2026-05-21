@@ -5,7 +5,7 @@
 <!-- See skills/_shared/context-resume.md for compact timing and read-order rules. -->
 
 ## Current Stage
-<!-- clarify | plan | execute | review | ship | long-run | finish -->
+<!-- clarify | plan | execute | review | ship | long-run -->
 
 ## Status
 <!-- in_progress | completed | blocked -->

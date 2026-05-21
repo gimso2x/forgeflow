@@ -23,10 +23,10 @@ When `--auto` is active (set via flag, `brief.md` auto field, or user instructio
 
 | Route | Auto-chain sequence |
 |-------|-------------------|
-| small | clarify → execute → review → ship → finish |
-| medium | clarify → plan → execute → review → ship → finish |
-| high | clarify → plan → execute → review(spec) → review(quality) → ship → finish |
-| epic | clarify → milestone → plan → execute → review(spec) → review(quality) → ship → finish |
+| small | clarify → execute → review → ship |
+| medium | clarify → plan → execute → review → ship |
+| high | clarify → plan → execute → review(spec) → review(quality) → ship |
+| epic | clarify → plan → execute → review(spec) → review(quality) → ship |
 
 ### Auto-break conditions (--auto stops here)
 
@@ -35,15 +35,15 @@ The agent must **stop and wait for user input** when any of these occur, even un
 - **Failed verification**: build, lint, type_check, or test failure that the bounded fix loop cannot resolve
 - **Blockers**: unresolved open questions or missing dependencies in `brief.md`
 - **Review verdict: `changes_requested`**: must present findings and wait for user direction before re-executing
-- **Destructive actions**: `finish` discard confirmation, force-push, branch deletion
+- **Destructive actions**: ship branch-disposition discard confirmation, force-push, branch deletion
 - **Ambiguous route or scope change**: when the request no longer matches the original brief
 - **Missing required artifact**: any mandatory artifact that could not be produced
 
 ### --auto does NOT bypass
 
 - Safety confirmations for `--real` external execution
-- Discard confirmation in `finish` (always requires exact `discard` input)
-- The 4-option choice in `finish` (merge/PR/keep/discard)
+- Discard confirmation in ship branch disposition (always requires exact `discard` input)
+- The 4-option choice in ship branch disposition (merge/PR/keep/discard)
 - Quality improvement loop-back in `ship` (if issues found, ask before returning to execute)
 
 ## General rule

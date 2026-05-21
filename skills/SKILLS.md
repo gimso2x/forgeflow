@@ -41,8 +41,7 @@ User: "Refactor the entire payment module"
   → clarify          → task workspace + brief.md (route: high)
   → plan             → plan.md with verification targets
   → execute          → implementation-notes.md
-  → review (spec)    → review-report.md (spec section)
-  → review (quality) → review-report.md (quality section)
+  → review (spec pass → quality pass) → review-report.md
   → ship             → final handoff + branch disposition
   → long-run         → eval-record.md
 ```
@@ -56,8 +55,7 @@ User: "Build a complete e-commerce platform"
   → (per milestone)
     → plan           → plan.md
     → execute        → implementation-notes.md
-    → review (spec)  → review-report.md (spec section)
-    → review (quality) → review-report.md (quality section)
+    → review (spec pass → quality pass) → review-report.md
   → ship             → final handoff + branch disposition
   → long-run         → eval-record.md
 ```

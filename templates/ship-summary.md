@@ -4,7 +4,7 @@
 <!-- Write prose in the user's primary language. Preserve canonical labels, enum values, commands, paths, and artifact filenames in English. -->
 
 ## 사용자용 요약 (Reader Summary)
-<!-- Summarize what changed, verification result, review verdict, residual risks, and finish handoff status in the user's language. -->
+<!-- Summarize what changed, verification result, review verdict, residual risks, and ship handoff status in the user's language. -->
 <!-- Ship preflight: read this + review-report Reader Summary before expanding other artifacts. -->
 
 ## 변경 파일 (Changed Files)
@@ -24,7 +24,7 @@
 <!-- Risks that remain after ship -->
 
 ## 인수인계 조치 (Handoff Action)
-<!-- report completed; branch disposition remains pending for finish -->
+<!-- report completed; branch disposition remains pending within ship -->
 
 ## 단순화 후보 (Simplification Candidates)
 <!-- Optional: Triple-Lens findings from ship polish loop, or "none" -->

@@ -8,3 +8,4 @@
 @./skills/long-run/SKILL.md
 @./skills/benchmark/SKILL.md
 @./docs/advisory-guidelines.md
+@./docs/adapter-config.md

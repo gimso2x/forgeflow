@@ -16,6 +16,8 @@ validate_prompt: |
 
 Use this skill to prepare the final handoff after review passes, extract reusable evolution rules, and handle branch disposition (merge/PR/keep/discard).
 
+> **Terminology:** "finish" is not a separate stage. It refers to branch disposition within ship (merge, PR, keep, or discard).
+
 ## Ship phases
 
 1. **Handoff summary**: Write `ship-summary.md`, extract evolution rules

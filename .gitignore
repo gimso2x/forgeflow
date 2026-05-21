@@ -16,6 +16,7 @@ Thumbs.db
 *.log
 .hermes-learnings.jsonl
 .forgeflow/
+.playwright-mcp/
 samples/
 forgeflow_runtime.egg-info/
 forgeflow-eval-workspace/
