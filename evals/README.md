@@ -24,7 +24,7 @@ These validators ensure that:
 - fixture text avoids stale workflow vocabulary (`/forgeflow:finish`, `/forgeflow-init`, `large_high_risk`, and other removed commands) so prompts, expectations, assertions, and fixture names stay on the active public skill surface
 - ship-stage fixture names use `ship-*` slugs even when testing branch-disposition safety, so eval result paths do not imply a removed finish stage
 - autonomous maintainer runs use `git branch --show-current` to confirm the expected target branch, stop on wrong-branch preflight before pull/edit/commit/push, and stop on user/unknown dirty paths before pull/edit/clean/commit/push mutations, including a second `git status --short` check after `git pull --ff-only`, a final `git status --short` check before staging intentional files, a post-push `git status --short` check before claiming cleanliness, and no cron/crontab or external schedule mutation from inside the scheduled run
-- autonomous maintainer final reports keep the required Korean headings, exact validation evidence, commit/push status, no live provider/plugin E2E overclaim, and explicit no-op commit refusal when no safe focused change is available
+- autonomous maintainer final reports keep the required Korean headings (`요약`, `변경한 것`, `검증`, `커밋/푸시`, `다음 후보`, `블로커`), exact validation evidence, commit/push status, no live provider/plugin E2E overclaim, and explicit no-op commit refusal when no safe focused change is available
 - ship-stage fixtures refuse unresolved artifact residue such as TODO/template comments or angle-bracket placeholders before final handoff language
 
 ## When adding a fixture
