@@ -1,6 +1,6 @@
 # Status Analysis Preflight
 
-Shared preflight procedure for finish, review, and ship stages.
+Shared preflight procedure for review and ship stages.
 Read the latest task artifacts before taking action.
 
 ## Procedure

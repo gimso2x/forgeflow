@@ -1,7 +1,7 @@
 ---
 name: forgeflow
 description: Artifact-first delivery workflow for AI coding agents
-version: "1.0.7"
+version: "1.1.0"
 category: engineering
 tags: [ai-agents, workflow, artifacts, claude-code, codex, gemini, cursor]
 ---
@@ -14,13 +14,11 @@ ForgeFlow는 Claude Code, Codex, Gemini CLI, Cursor를 위한 **artifact-first d
 ## Quick start
 
 ```text
-/forgeflow-init          → task workspace
-/forgeflow:clarify       → brief.md + route
-/forgeflow:plan          → plan.md (medium+)
+/forgeflow:clarify       → task workspace + brief.md + route
+/forgeflow:plan          → plan.md (medium+; epic decomposition for epic route)
 /forgeflow:execute       → implementation-notes.md + code
 /forgeflow:review        → review-report.md
-/forgeflow:ship          → ship-summary.md
-/forgeflow:finish        → branch disposition
+/forgeflow:ship          → ship-summary.md + branch disposition
 ```
 
 Cursor는 콜론 없는 slash (`/clarify`, `/execute` 등)를 사용합니다. 전체 매핑은 canonical contract를 참고하세요.
@@ -35,10 +33,10 @@ Cursor는 콜론 없는 slash (`/clarify`, `/execute` 등)를 사용합니다. �
 
 | Route | Stages |
 |-------|--------|
-| small | clarify → execute → review → ship → finish |
-| medium | clarify → plan → execute → review → ship → finish |
-| high | clarify → plan → execute → review (spec+quality) → ship → long-run → finish |
-| epic | clarify → milestone → plan → execute → review (spec+quality) → ship → long-run → finish |
+| small | clarify → execute → review → ship |
+| medium | clarify → plan → execute → review → ship |
+| high | clarify → plan → execute → review (spec+quality) → ship → long-run |
+| epic | clarify → plan (epic decomposition) → execute → review (spec+quality) → ship → long-run |
 
 Route scoring formula: `raw_score = file_count*1.0 + estimated_lines*0.1 + requirement_count*2.0 + dependency_count*1.5 + risk_keywords*3.0`.
 

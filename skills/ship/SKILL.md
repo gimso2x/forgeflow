@@ -1,19 +1,25 @@
 ---
 name: ship
-description: "Finalize ForgeFlow work after review: summarize, verify, prepare PR/commit handoff, preserve evidence, and extract evolution rules. Use when the user types /ship or /forgeflow:ship."
-version: 0.3.0
+description: "Finalize ForgeFlow work after review: summarize, verify, prepare PR/commit handoff, preserve evidence, extract evolution rules, and handle branch disposition. Use when the user types /ship or /forgeflow:ship."
+version: 0.4.0
 author: gimso2x
 validate_prompt: |
   Must preserve exact-output and dry-run constraints when requested.
   Must confirm review approval, intended diff scope, and final verification before shipping.
   Must not hide residual risks or unrelated dirty working tree changes.
+  Must require fresh verification, git status, git diff, review evidence, and residual risk review before presenting finish options.
+  Must present exactly four safe outcomes: merge locally, push and create PR, keep branch, or discard work.
+  Must never run destructive cleanup, branch deletion, or discard without explicit confirmation.
 ---
 
 # Ship
 
-Use this skill to prepare the final handoff after review passes and extract reusable evolution rules.
+Use this skill to prepare the final handoff after review passes, extract reusable evolution rules, and handle branch disposition (merge/PR/keep/discard).
 
-`ship` does not merge, discard, clean up, or decide branch disposition. Use `finish` for branch disposition after the user gives explicit direction.
+## Ship phases
+
+1. **Handoff summary**: Write `ship-summary.md`, extract evolution rules
+2. **Branch disposition**: Verify, present options, handle user choice
 
 ## Input
 
@@ -33,7 +39,7 @@ Write a `ship-summary.md` in the active task directory using `templates/ship-sum
 - Verification commands and results
 - Review verdict
 - Residual risks
-- Handoff action: report completed; branch disposition remains pending for `finish`
+- Handoff action: report completed; branch disposition resolved (merge/PR/keep/discard)
 - Quantitative summary (from execute metrics)
 
 Evolution rule artifacts (optional, when reusable patterns are found):
@@ -48,6 +54,7 @@ Evolution rule artifacts (optional, when reusable patterns are found):
 - Review verdict permits shipping
 - Final handoff is completed
 - User gets a concise final report
+- Branch disposition has been resolved (user selected one of: merge, PR, keep, discard) or user explicitly deferred
 
 ## Constraints
 
@@ -156,7 +163,7 @@ If the Triple-Lens analysis identifies meaningful improvements:
 #### If no issues found
 
 Proceed to the final summary step directly.
-If `--auto` is active (see `_shared/automation.md`), invoke `/forgeflow:finish` after writing `ship-summary.md`.
+If `--auto` is active (see `_shared/automation.md`), proceed to branch disposition automatically after writing `ship-summary.md`.
 
 7. **Extract evolution rules**: Review task artifacts for reusable patterns. For each valid candidate:
    1. Check existing active rules (`~/.forgeflow/evolution/active/` and `.forgeflow/evolution/active/`) for duplicates.
@@ -177,7 +184,199 @@ If `--auto` is active (see `_shared/automation.md`), invoke `/forgeflow:finish` 
 8. Write `ship-summary.md` to the active task directory. Include the Quantitative Summary section with metrics from `implementation-notes.md` → Metrics.
 9. Preserve artifacts/evidence instead of burying them in chat.
 
-Never discard, merge, PR, or destructive-clean from `ship`; hand branch disposition to `finish` and require explicit confirmation there.
+## Branch Disposition (final phase)
+
+After writing `ship-summary.md` and evolution rules, handle branch disposition.
+
+### Worktree preflight (before verification)
+
+If the task used worktree isolation (check `brief.md` for worktree references or look for a `.worktree` marker file in the task directory):
+
+1. **Check for active git worktree**: `git worktree list` to find the worktree location, branch, and dirty state.
+2. **Do not remove or discard yet**: Before the user selects a finish option, record the worktree as preserved. `git worktree remove`, branch deletion, reset, and discard remain destructive actions that require the option-specific confirmation below.
+3. **If completed worker worktrees need merging**: Treat this as part of the eventual "Merge locally" path, not as an automatic preflight side effect. First verify worker artifacts under `.forgeflow/tasks/<id>/workers/`, then present the merge plan with the exact branch/path.
+4. **If the user later chooses "Keep the branch as-is"**: Leave the worktree in place and note it as preserved in the finish report.
+
+### Verify before branch disposition
+
+Run or inspect fresh verification before presenting success language:
+
+```bash
+git status --short
+git diff --stat
+```
+
+If `git status --short` is not empty, stop before offering merge or PR as ready. Uncommitted, staged, or untracked changes require a separate preflight decision first:
+
+1. Show the exact dirty file list and classify intended task files vs unrelated dirty files.
+2. Ask whether to prepare a commit, stash/preserve the changes, keep the branch as-is, or discard in scope.
+3. If the user chooses commit preparation, show the exact files to stage and exclude unrelated files. Do not run `git add`, commit, merge, push, or PR creation until the user explicitly approves that file list and commit step.
+4. If the user chooses discard, follow the exact `discard` confirmation rule below.
+
+Then run the project-specific check, for example:
+
+```bash
+pnpm test
+pnpm lint
+npm test
+pytest -q
+make validate
+```
+
+If verification fails, stop. Do not offer merge/PR as if the branch is ready.
+
+### Confirm review and scope
+
+Check:
+
+- `review-report.md` approved if this workflow requires review
+- For **high/epic** routes: `review-report.md` must show both Spec Compliance and Quality Assessment completed with no open blockers from either pass
+- Intended files changed
+- Generated artifacts updated if relevant
+- Residual risks are named
+- Unrelated dirty working tree changes are preserved and not swept into the finish action
+
+### Determine base branch
+
+Prefer the repo default branch when obvious:
+
+```bash
+git symbolic-ref refs/remotes/origin/HEAD
+```
+
+Fallback candidates:
+
+```text
+main
+master
+```
+
+If the base branch is ambiguous, ask before merging or opening a PR.
+
+Base branch is ambiguous when any of these are true:
+
+- `origin/HEAD` is not set or cannot be resolved.
+- Both `main` and `master` exist and neither is clearly the repository default.
+- The current branch is `main` or `master`, but another default-like branch also exists.
+- The user, brief, or review artifacts name a different base branch than the repository signals.
+
+When ambiguous, stop and ask the user to choose the exact base branch. Do not present `Merge locally` or `Push and create a Pull Request` as ready-to-run options until the base branch is confirmed. `Keep the branch as-is` remains safe to offer.
+
+### Present exactly four options
+
+Use the user's primary language for the prompt while preserving the canonical English option label in parentheses. For Korean users, use this wording unless the user requested a stricter format:
+
+```text
+구현과 검증이 끝났습니다. 브랜치를 어떻게 처리할지 결정해주세요.
+
+1. 로컬에서 <base-branch>로 병합 (Merge locally)
+2. 원격에 push하고 Pull Request 생성 (Push and create a Pull Request)
+3. 현재 브랜치를 그대로 유지 (Keep the branch as-is)
+4. 이번 작업 폐기 (Discard this work)
+
+어떤 방식으로 마무리할까요?
+```
+
+The option labels must remain recognizable, either as the visible label or the parenthesized canonical label:
+
+- Merge locally
+- Push and create a Pull Request
+- Keep the branch as-is
+- Discard this work
+
+Do not add a fifth path. That is how branches become archaeology.
+
+## Option handling
+
+### 1. Merge locally
+
+Only after explicit choice:
+
+```bash
+git checkout <base-branch>
+git pull --ff-only
+git merge <feature-branch>
+<fresh verification command>
+```
+
+If verification passes after merge, offer branch cleanup. Do not delete the branch automatically unless the user asked for cleanup.
+
+### 2. Push and create a Pull Request
+
+Only after explicit choice:
+
+```bash
+git push -u origin <feature-branch>
+gh pr create --base <base-branch> --head <feature-branch>
+```
+
+PR body must include:
+
+- Summary
+- Verification evidence
+- Review evidence
+- Residual risks
+- Related issue/plan if available
+
+### 3. Keep the branch as-is
+
+Report:
+
+```text
+Keeping branch <branch-name> as-is.
+No merge, push, cleanup, or discard performed.
+```
+
+This is often the safest option when the working tree contains unrelated dirty files.
+
+### 4. Discard this work
+
+Discard is destructive. Explain the scope in the user's primary language, but keep the exact confirmation token `discard`. For Korean users:
+
+```text
+다음 작업을 영구적으로 폐기합니다:
+- Branch: <branch-name>
+- Commits not on <base-branch>: <commit-list>
+- Worktree path, if any: <path>
+- Uncommitted changes in scope: <file-list>
+
+정말 폐기하려면 `discard`를 정확히 입력하세요.
+Type 'discard' to confirm.
+```
+
+Never delete a branch, remove a worktree, reset hard, clean files, or discard commits unless the user types exactly:
+
+```text
+discard
+```
+
+Never delete unrelated dirty working tree files. If unrelated dirty working tree changes exist, stop and ask for a narrower cleanup plan.
+
+## Safety rules
+
+- **`--auto` does not skip any branch disposition confirmations.** The 4-option choice (merge/PR/keep/discard) and the exact `discard` confirmation always require explicit user input, even when `--auto` is active (see `_shared/automation.md`).
+- Never run `git reset --hard` as a shortcut for finishing.
+- Never run `git clean -fd` unless the user explicitly named the exact disposable paths.
+- Never force-push as part of ship unless explicitly requested.
+- Never include unrelated dirty working tree changes in a commit or PR.
+- Never infer discard approval from "ok", "sure", "go", or "yes". Require the exact word `discard`.
+
+## Blocked branch disposition examples
+
+```text
+Cannot finish yet: verification failed.
+Command: pytest -q
+Exit code: 1
+Next action: fix failing tests before merge or PR.
+```
+
+```text
+Cannot finish yet: unrelated dirty working tree changes exist.
+Files:
+- package-lock.json
+- download.html
+Next action: commit/stash/preserve those separately, or choose Keep the branch as-is.
+```
 
 ## Output mode examples
 

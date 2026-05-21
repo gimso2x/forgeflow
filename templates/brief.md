@@ -72,7 +72,7 @@
 <!-- Advisory only: expected size/complexity, e.g. small single-file, medium coordinated files, high multi-component, epic milestone-scale -->
 
 ## 추천 다음 스킬 (Suggested Next Skill)
-<!-- /forgeflow:execute | /forgeflow:plan | /forgeflow:milestone | /forgeflow:review | /forgeflow:ship -->
+<!-- /forgeflow:execute | /forgeflow:plan | /forgeflow:review | /forgeflow:ship -->
 
 ## 검증 게이트 (Verification Gates)
 <!-- Auto-detected from tech stack -->

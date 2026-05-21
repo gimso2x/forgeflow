@@ -1,12 +1,14 @@
 ---
 name: execute
-description: Execute a ForgeFlow plan with verification and runtime evidence. Use when the user types /execute or /forgeflow:execute, or asks to implement after clarify/plan.
-version: 0.3.0
+description: Execute a ForgeFlow plan with verification and runtime evidence. Includes opt-in subagent per-task loop for high/epic routes. Use when the user types /execute or /forgeflow:execute, or asks to implement after clarify/plan.
+version: 0.4.0
 author: gimso2x
 validate_prompt: |
   Must preserve exact-output and dry-run constraints when requested.
   Must execute only scoped plan tasks and respect contracts or verify_plan obligations when present.
   Must not treat worker self-report as final approval; review remains required.
+  Must use `skills/execute/references/` prompts for subagent dispatch and write the same execute artifacts.
+  Must not dispatch parallel implementer subagents for steps that touch the same file.
 ---
 
 # Execute
@@ -204,9 +206,64 @@ Contract-aware execution rules:
 
 Worker self-report is not approval. `/forgeflow:review` still has to happen.
 
-## Opt-in: subagent per task
+## Subagent Per-Task Loop (opt-in, `--subagent-per-task`)
 
-For **high/epic** when the user wants every plan step to run implementer → spec micro-review → quality micro-review subagents in strict sequence, use [`subagent-execute`](../subagent-execute/SKILL.md) (`/forgeflow:subagent-execute`, `/subagent-execute`, or `/forgeflow:execute --subagent-per-task`). Default `/forgeflow:execute` remains controller-led with optional delegation and micro-gates below.
+For **high/epic** routes when the user wants every plan step to run implementer → spec micro-review → quality micro-review subagents in strict sequence, enable this mode via `/forgeflow:execute --subagent-per-task`. Default `/forgeflow:execute` remains controller-led with optional delegation.
+
+### When to use
+
+Use when **all** are true:
+
+1. Route is **high** or **epic** (medium only if the user explicitly opts in and accepts overhead)
+2. `plan.md` exists and the user approved entering execute
+3. User invoked `/forgeflow:execute --subagent-per-task` or explicitly requested subagent-driven execution
+
+Do **not** use for small route (overhead exceeds benefit).
+
+### When not to use
+
+- Steps share the same files (use sequential controller-led execution)
+- Environment setup step or final integration-only step (controller runs these)
+- User asked for default execute without `--subagent-per-task`
+
+### Per-task loop (strict order)
+
+For each plan step in dependency order:
+
+```text
+1. Controller sets run-ledger: running, Assignee worker
+   → Record dispatch: "implementer-prompt.md"
+2. Dispatch implementer subagent (references/implementer-prompt.md)
+3. If NEEDS_CONTEXT → provide context and re-dispatch
+   If BLOCKED → ledger blocked; stop or escalate to user
+4. Controller verifies: git diff --stat + step verification commands
+5. Dispatch spec micro-reviewer OR controller spec micro-check
+   → Record dispatch: "spec-reviewer-prompt.md"
+   → micro_spec:PASS|FAIL in implementation-notes
+6. If spec not approved → implementer fixes → re-review spec (loop)
+7. Dispatch quality micro-reviewer OR controller quality micro-check
+   → Record dispatch: "quality-reviewer-prompt.md"
+   → micro_quality:PASS|FAIL in implementation-notes
+8. If quality not approved → implementer fixes → re-review quality (loop)
+9. Mark step done in run-ledger only after steps 4–8 pass
+10. Update checkpoint.md → next step
+```
+
+**Never** skip spec before quality. **Never** mark done on worker DONE alone.
+
+### Parallelism
+
+- **Implementer subagents:** one at a time per conflicting file set (same rule as execute delegation)
+- **Fan-out:** only when plan marks steps `(none)` dependency and disjoint file scopes; still **fan-in** with per-step micro-gates before marking done
+- Do not run two implementers that touch the same file concurrently
+
+### Model hints
+
+When the shell supports role-specific models:
+
+- Mechanical steps (1–2 files, complete spec) → fast/cheap model
+- Integration / multi-file steps → standard coding model
+- Micro-reviewers → strongest available for spec; standard for quality if step is mechanical
 
 ## Per-task micro-gates
 

@@ -1,13 +1,14 @@
 ---
 name: clarify
-description: Turn a vague request into a scoped ForgeFlow brief and route decision. Use when the user types /clarify or /forgeflow:clarify, or first for new implementation/refactor/debug requests unless the user already provided a complete brief.
-version: 0.3.0
+description: Turn a vague request into a scoped ForgeFlow brief and route decision. Bootstraps task workspace if missing. Use when the user types /clarify or /forgeflow:clarify, or first for new implementation/refactor/debug requests unless the user already provided a complete brief.
+version: 0.4.0
 author: gimso2x
 intent: "Analyze the user request, repository context, route, specialists, and verification gates, then write a scoped brief."
 inputs:
   - user_request: string
   - target_repository: path
   - constraints: markdown
+  - task_id: string (optional; auto-generated if omitted)
 outputs:
   - brief.md: artifact
 dependencies:
@@ -18,6 +19,8 @@ validate_prompt: |
   Must return a clear route or brief artifact only when the prompt asks for it.
   Must default to artifact-first behavior and write `brief.md` to the active task directory unless the user explicitly requests dry-run or no-write output.
   Must include WHERE/risk grounding for non-trivial work when artifact writing is allowed.
+  Must create `.forgeflow/tasks/<task-id>/` if it does not already exist.
+  Must not overwrite existing task artifacts.
 ---
 
 # Clarify
@@ -30,6 +33,25 @@ Use this skill to convert a raw request into a ForgeFlow context brief (`brief.m
 - Target repository/path if known
 - Constraints, acceptance criteria, risk notes if provided
 - Existing codebase context if available
+- `--task-id`: stable task identifier (optional; auto-generated if omitted)
+
+## Task ID generation
+
+When `--task-id` is not provided and no active task directory exists, generate one using this pattern:
+
+```
+<type>-<short-slug>-<3-char-hash>
+```
+
+- `type`: feature, fix, refactor, docs, or task
+- `short-slug`: 2-4 word kebab-case slug derived from the objective
+- `3-char-hash`: first 3 characters of a timestamp-based hex string
+
+Example: `feature-auth-redir-a3f`
+
+Check that `.forgeflow/tasks/<task-id>/` does not already exist. If it does, append a numeric suffix.
+
+Plugin-cache/extension-cache safety rule: never create task artifacts under a path containing `.claude/plugins/cache`, `.codex/plugins`, `.cursor/plugins`, `~/.cursor/plugins/local`, `.gemini/extensions`, `~/.gemini/extensions`, or any plugin marketplace/cache/extension directory. If the working directory resolves to a plugin install/cache/extension directory and the user did not provide `--task-dir`, stop and ask for an explicit `--task-dir` instead of writing there.
 
 ## Output Artifacts
 
@@ -58,7 +80,7 @@ Write `brief.md` to the active task directory using `templates/brief.md` as the 
   - `small` -> `/forgeflow:execute` or direct execute path
   - `medium` -> `/forgeflow:plan`
   - `high` -> `/forgeflow:plan` with spec/quality review kept separate
-  - `epic` -> `/forgeflow:milestone`
+  - `epic` -> `/forgeflow:plan` (plan includes epic decomposition)
 
 ## Constraints
 
@@ -122,7 +144,9 @@ For exact-count, dry-run, or response-only prompts, do not force the WHERE inter
 
 ## Procedure
 
-1. Inspect relevant repo context before inventing scope.
+1. **Bootstrap task workspace if missing**: If no active task directory exists (no `.forgeflow/tasks/<task-id>/` found), generate a task ID (see Task ID generation above) or use `--task-id` if provided, and create `.forgeflow/tasks/<task-id>/`. Do not overwrite if `brief.md` already exists — report that it was kept as-is.
+
+2. Inspect relevant repo context before inventing scope.
    - Run the Evolution preflight first when allowed, then map matched rules into brief.md.
    - Map Instructions, Tools, Environment, State, and Feedback into brief fields. Use Environment Notes, tech stack, Open Questions, and Verification Gates for missing context instead of creating a separate harness artifact.
    - If an Environment or Tools gap prevents execution, add it to Open Questions as a blocker and ask before routing to plan or execute.
@@ -192,7 +216,7 @@ For exact-count, dry-run, or response-only prompts, do not force the WHERE inter
    | "계획 세워", "plan this", "break down" | Prefer `/forgeflow:plan` after brief is complete. |
    | "버그", "fix", "debug", "깨짐" | Prefer execute then review; escalate route when risk keywords appear. |
    | "릴리즈", "ship", "배포" | Prefer `/forgeflow:ship` only after review evidence exists. |
-   | "대규모", "milestone", "epic" | Consider `epic` and `/forgeflow:milestone`; do not force it without scope evidence. |
+   | "대규모", "milestone", "epic" | Consider `epic` and `/forgeflow:plan` with epic decomposition; do not force it without scope evidence. |
 
 7. Select specialists based on task nature:
    - Auth/Encryption/External Input -> `security-review`
@@ -260,12 +284,12 @@ When all blockers are resolved:
 **If `--auto` is active** (see `_shared/automation.md`): skip the prompt and invoke the next stage skill directly.
 - `small` → `/forgeflow:execute`
 - `medium` or `high` → `/forgeflow:plan`
-- `epic` → `/forgeflow:milestone`
+- `epic` → `/forgeflow:plan`
 
 **Otherwise**, end with a route-specific next step:
 - `small`: `요구사항 충분. small route입니다. 다음 스텝으로 /forgeflow:execute을 진행하시겠습니까? (y/n)`
 - `medium` or `high`: `요구사항 충분. <route> route입니다. 다음 스텝으로 /forgeflow:plan을 진행하시겠습니까? (y/n)`
-- `epic`: `요구사항 충분. epic route입니다. 다음 스텝으로 /forgeflow:milestone을 진행하시겠습니까? (y/n)`
+- `epic`: `요구사항 충분. epic route입니다. 다음 스텝으로 /forgeflow:plan을 진행하시겠습니까? (y/n)`
 
 ## Output mode examples
 

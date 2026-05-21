@@ -11,7 +11,7 @@ budget:
   small: "Single localized change, usually 1-2 files, low rollback risk."
   medium: "Coordinated work across a few file groups; plan required."
   high: "Multi-component or risky work; separate spec and quality review."
-  epic: "Milestone-scale work; roadmap and milestone review required."
+  epic: "Milestone-scale work; plan with epic decomposition, roadmap and milestone review required."
 ```
 
 ## How to use

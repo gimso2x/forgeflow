@@ -1,14 +1,10 @@
 @./skills/SKILLS.md
 @./skills/forgeflow/SKILL.md
-@./skills/forgeflow-init/SKILL.md
 @./skills/clarify/SKILL.md
 @./skills/plan/SKILL.md
-@./skills/milestone/SKILL.md
 @./skills/execute/SKILL.md
-@./skills/subagent-execute/SKILL.md
 @./skills/review/SKILL.md
 @./skills/ship/SKILL.md
-@./skills/finish/SKILL.md
 @./skills/long-run/SKILL.md
 @./skills/benchmark/SKILL.md
 @./docs/advisory-guidelines.md

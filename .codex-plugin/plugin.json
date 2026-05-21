@@ -1,6 +1,6 @@
 {
   "name": "forgeflow",
-  "version": "1.0.7",
+  "version": "1.1.0",
   "description": "Artifact-first delivery workflow for Codex: clarify, plan, execute, review, ship through markdown artifacts",
   "skills": "./skills/",
   "interface": {
@@ -15,16 +15,12 @@
       "Write"
     ],
     "defaultPrompt": [
-      "/forgeflow-init <task-id> <objective>",
       "/forgeflow:clarify <describe the coding task>",
-      "/forgeflow:milestone",
       "/forgeflow:plan",
       "/forgeflow:execute",
-      "/forgeflow:subagent-execute",
       "/forgeflow:review",
       "/forgeflow:ship",
       "/forgeflow:long-run",
-      "/forgeflow:finish",
       "/forgeflow:benchmark"
     ],
     "brandColor": "#111827",

@@ -7,7 +7,8 @@ Repository-level instructions for AI coding agents working on this repo.
 ## Project Overview
 
 ForgeFlow는 AI coding agent를 위한 artifact-first delivery workflow입니다.
-forgeflow-init, clarify, plan, milestone, execute, subagent-execute (opt-in), review, ship, long-run, finish, benchmark 파이프라인을 markdown 산출물과 프롬프트 기반 강제로 제공합니다.
+clarify, plan, execute, review, ship 파이프라인을 markdown 산출물과 프롬프트 기반 강제로 제공합니다.
+plan은 epic 라우트에서 마일스톤 분해를 포함하고, execute는 opt-in subagent per-task 모드를 지원하며, ship은 브랜치 정리까지 담당합니다.
 Claude Code, Codex, Gemini CLI, Cursor(로컬 플러그인)를 지원합니다.
 
 ## Tech Stack
@@ -23,15 +24,11 @@ Claude Code, Codex, Gemini CLI, Cursor(로컬 플러그인)를 지원합니다.
 ```
 skills/                   # 각 스킬 디렉토리 (SKILL.md 포함)
   forgeflow/              # 메인 라우터 (canonical contract, 영문)
-  forgeflow-init/         # 작업 공간 초기화
-  clarify/                # 요구사항 정리 → brief.md
-  plan/                   # 계획 수립 → plan.md
-  execute/                # 구현 실행 → implementation-notes.md (+ references/ subagent prompts)
-  subagent-execute/       # (opt-in) high/epic per-step subagent loop
+  clarify/                # 작업 공간 초기화 + 요구사항 정리 → brief.md
+  plan/                   # 계획 수립 → plan.md; epic 라우트 시 마일스톤 분해
+  execute/                # 구현 실행 → implementation-notes.md (+ references/ subagent prompts; opt-in subagent per-task loop)
   review/                 # 독립 검증 → review-report.md
-  ship/                   # 배포/마무리
-  finish/                 # 브랜치 정리
-  milestone/              # Epic 마일스톤 → roadmap.md
+  ship/                   # 배포/마무리 + 브랜치 정리 (merge/PR/keep/discard)
   long-run/               # 학습 기록 → eval-record.md
   benchmark/              # cross-adapter 벤치마크
 templates/                # Markdown 산출물 템플릿

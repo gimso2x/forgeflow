@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-05-21
+
+### Changed
+
+- **스킬 통합**: 12개 스킬을 8개로 축소하여 워크플로우 단순화
+  - `forgeflow-init` → `clarify`에 통합 — clarify가 작업 공간 생성 및 task ID 자동 생성
+  - `finish` → `ship`에 통합 — ship이 브랜치 정리(merge/PR/keep/discard)까지 담당
+  - `milestone` → `plan`에 통합 — epic 라우트에서 plan이 마일스톤 분해 포함
+  - `subagent-execute` → `execute`에 통합 — `--subagent-per-task` 플래그로 전환
+
+### Removed
+
+- `/forgeflow-init` 명령어 (→ `/forgeflow:clarify` 사용)
+- `/forgeflow:finish` 명령어 (→ `/forgeflow:ship` 사용)
+- `/forgeflow:milestone` 명령어 (→ `/forgeflow:plan`이 epic decomposition 포함)
+- `/forgeflow:subagent-execute` 명령어 (→ `/forgeflow:execute --subagent-per-task` 사용)
+
 ## [1.0.7] - 2026-05-21
 
 ### Fixed
@@ -576,7 +593,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI gate with GitHub Actions workflow generation
 - Agent preset installer (Claude + Codex)
 
-[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v1.0.6...HEAD
+[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/gimso2x/forgeflow/compare/v1.0.7...v1.1.0
+[1.0.7]: https://github.com/gimso2x/forgeflow/compare/v1.0.6...v1.0.7
 [1.0.6]: https://github.com/gimso2x/forgeflow/compare/v1.0.5...v1.0.6
 [1.0.5]: https://github.com/gimso2x/forgeflow/compare/v1.0.4...v1.0.5
 [1.0.4]: https://github.com/gimso2x/forgeflow/compare/v1.0.3...v1.0.4

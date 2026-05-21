@@ -50,15 +50,11 @@ Adapter-specific CLI flags and timeout guides: `docs/adapter-config.md`.
 | Stage | Claude / Codex / Gemini | Cursor |
 |-------|-------------------------|--------|
 | Overview | `/forgeflow` | `/forgeflow` |
-| Init | `/forgeflow-init` | `/forgeflow-init` |
 | Clarify | `/forgeflow:clarify` | `/clarify` |
 | Plan | `/forgeflow:plan` | `/plan` |
 | Execute | `/forgeflow:execute` | `/execute` |
-| Subagent execute (opt-in) | `/forgeflow:subagent-execute` | `/subagent-execute` |
 | Review | `/forgeflow:review` | `/review` |
 | Ship | `/forgeflow:ship` | `/ship` |
-| Finish | `/forgeflow:finish` | `/finish` |
-| Milestone | `/forgeflow:milestone` | `/milestone` |
 | Long-run | `/forgeflow:long-run` | `/long-run` |
 | Benchmark | `/forgeflow:benchmark` | `/benchmark` |
 
@@ -88,16 +84,16 @@ Skills reference paths like `templates/brief.md`. Resolve the template root befo
 ## Route model
 
 - `small`
-  - Stages: clarify -> execute -> review -> ship -> finish
+  - Stages: clarify -> execute -> review -> ship
   - When: 1-2 files, low risk, easy rollback
 - `medium`
-  - Stages: clarify -> plan -> execute -> review -> ship -> finish
+  - Stages: clarify -> plan -> execute -> review -> ship
   - When: several coordinated files, shared state, moderate test surface
 - `high`
-  - Stages: clarify -> plan -> execute -> review (spec) -> review (quality) -> ship -> long-run -> finish
+  - Stages: clarify -> plan -> execute -> review (spec) -> review (quality) -> ship -> long-run
   - When: auth/security, data migration, infra, irreversible changes
 - `epic`
-  - Stages: clarify -> milestone -> plan -> execute -> review (spec) -> review (quality) -> ship -> long-run -> finish
+  - Stages: clarify -> plan (with epic decomposition) -> execute -> review (spec) -> review (quality) -> ship -> long-run
   - When: massive scope, hierarchical milestones, multi-week effort
 
 Complexity thresholds (rough guide, not rigid):
@@ -155,7 +151,7 @@ ForgeFlow separates responsibilities across stages. The implementing session mus
 
 | Role | Stages | Responsibility |
 |------|--------|----------------|
-| planning | clarify, plan, milestone | scope, decompose, write/update artifacts, define file boundaries |
+| planning | clarify, plan | scope, decompose, write/update artifacts, define file boundaries (plan includes epic decomposition) |
 | implementation | execute | edit code only inside assigned scope, run validation, update evidence |
 | review | review | inspect artifacts independently, separate reported from observed evidence |
 | learning | long-run | extract reusable patterns, propose evolution rule candidates |
@@ -269,7 +265,7 @@ If an adapter exceeds the safety ceiling, terminate the process and record the t
 ## Exit Condition
 
 - The routed stage skill completes and reports its own exit condition.
-- For free-form requests, the workflow ends when `/forgeflow:finish` completes or the user explicitly stops.
+- For free-form requests, the workflow ends when `/forgeflow:ship` completes or the user explicitly stops.
 
 ## Strict response constraints
 
@@ -320,6 +316,6 @@ run spec and quality review passes separately on review-report.md, and call out 
 Epic/massive scale task:
 
 ```text
-Use ForgeFlow. Treat this as an epic. Clarify, breakdown milestones,
+Use ForgeFlow. Treat this as an epic. Clarify, plan with epic decomposition,
 then for each milestone: plan, execute, and review. Track progress in roadmap.md.
 ```

@@ -26,12 +26,19 @@
         {
           "text": "Output includes brief template required sections Objective and Route.",
           "type": "contains_all",
-          "values": ["Objective", "Route"]
+          "values": [
+            "Objective",
+            "Route"
+          ]
         },
         {
           "text": "Output includes at least one grounding or acceptance section from the brief template.",
           "type": "contains_any",
-          "values": ["WHERE Grounding", "Acceptance Criteria", "Risk Level"]
+          "values": [
+            "WHERE Grounding",
+            "Acceptance Criteria",
+            "Risk Level"
+          ]
         },
         {
           "text": "Output selects route as medium (medium-light or medium-full acceptable).",
@@ -41,7 +48,12 @@
         {
           "text": "Output marks the active project rule as required, not merely advisory or optional.",
           "type": "contains_any",
-          "values": ["required", "Lifecycle active", "active rule", "required constraint"]
+          "values": [
+            "required",
+            "Lifecycle active",
+            "active rule",
+            "required constraint"
+          ]
         }
       ]
     },
@@ -95,12 +107,22 @@
         {
           "text": "eval-record includes Outcome section with a concrete status (success/partial/failed).",
           "type": "contains_any",
-          "values": ["Outcome", "success", "partial", "failed"]
+          "values": [
+            "Outcome",
+            "success",
+            "partial",
+            "failed"
+          ]
         },
         {
           "text": "Evolution rule evidence references a specific artifact (implementation-notes, ship-summary, eval-record) rather than vague anecdote.",
           "type": "contains_any",
-          "values": ["implementation-notes", "ship-summary", "eval-record", "three ForgeFlow tasks"]
+          "values": [
+            "implementation-notes",
+            "ship-summary",
+            "eval-record",
+            "three ForgeFlow tasks"
+          ]
         }
       ]
     },
@@ -153,12 +175,21 @@
         {
           "text": "Output recommends changing enforcement mode to advisory (not required_project_rule) for global-advisory scope.",
           "type": "contains_any",
-          "values": ["advisory", "Enforcement Mode: advisory"]
+          "values": [
+            "advisory",
+            "Enforcement Mode: advisory"
+          ]
         },
         {
           "text": "Output flags trigger scope as too broad (any failed test is overinclusive).",
           "type": "contains_any",
-          "values": ["too broad", "overly broad", "any failed test", "flaky", "overinclusive"]
+          "values": [
+            "too broad",
+            "overly broad",
+            "any failed test",
+            "flaky",
+            "overinclusive"
+          ]
         }
       ]
     },
@@ -199,12 +230,20 @@
         {
           "text": "Run-ledger shows Assignee specialist during work and transitions to worker on done (per Assignee discipline).",
           "type": "contains_all",
-          "values": ["specialist", "worker"]
+          "values": [
+            "specialist",
+            "worker"
+          ]
         },
         {
           "text": "Output mentions controller verification (git diff --stat or step verification) before marking done.",
           "type": "contains_any",
-          "values": ["git diff", "controller verified", "step verification", "independently verified"]
+          "values": [
+            "git diff",
+            "controller verified",
+            "step verification",
+            "independently verified"
+          ]
         }
       ]
     },
@@ -251,26 +290,39 @@
         {
           "text": "Evidence Classification includes both Reported and Observed categories explicitly.",
           "type": "contains_all",
-          "values": ["Reported evidence", "Observed evidence"]
+          "values": [
+            "Reported evidence",
+            "Observed evidence"
+          ]
         },
         {
           "text": "Stage re-verified column in Micro-Gates table contains explicit no values.",
           "type": "contains_any",
-          "values": ["Stage re-verified", "re-verified"]
+          "values": [
+            "Stage re-verified",
+            "re-verified"
+          ]
         }
       ]
     },
     {
       "id": 5,
       "name": "init-plugin-cache-safety",
-      "prompt": "A user runs /forgeflow-init from inside a Codex plugin cache directory but says the real target project is /workspace/shop-app and task id is eval-cache-safe. Produce only the first-run operator guidance and task workspace path that ForgeFlow should use before clarify. Do not create artifacts in the plugin cache.",
+      "prompt": "A user runs /forgeflow:clarify from inside a Codex plugin cache directory but says the real target project is /workspace/shop-app and task id is eval-cache-safe. Produce only the first-run operator guidance and task workspace path that ForgeFlow should use before clarify. Do not create artifacts in the plugin cache.",
       "expected_output": "Guidance that detects plugin-cache risk, uses an explicit --task-dir under the target project, and names /workspace/shop-app/.forgeflow/tasks/eval-cache-safe as the task workspace instead of the cache directory.",
-      "files": ["README.md"],
+      "files": [
+        "README.md"
+      ],
       "assertions": [
         {
           "text": "Output warns about plugin cache or installation directory execution risk.",
           "type": "contains_any",
-          "values": ["plugin cache", "Codex plugin cache", "installation directory", "wrong location"]
+          "values": [
+            "plugin cache",
+            "Codex plugin cache",
+            "installation directory",
+            "wrong location"
+          ]
         },
         {
           "text": "Output uses the explicit --task-dir escape hatch.",
@@ -285,12 +337,21 @@
         {
           "text": "Output tells the agent not to put task artifacts in the plugin cache.",
           "type": "contains_any",
-          "values": ["Do not create artifacts in the plugin cache", "do not create artifacts in the plugin cache", "not in the plugin cache", "avoid the plugin cache"]
+          "values": [
+            "Do not create artifacts in the plugin cache",
+            "do not create artifacts in the plugin cache",
+            "not in the plugin cache",
+            "avoid the plugin cache"
+          ]
         },
         {
           "text": "Output keeps the next workflow step as clarify after init guidance.",
           "type": "contains_any",
-          "values": ["clarify", "/forgeflow:clarify", "/clarify"]
+          "values": [
+            "clarify",
+            "/forgeflow:clarify",
+            "/clarify"
+          ]
         }
       ]
     },
@@ -299,32 +360,59 @@
       "name": "finish-worktree-choice-safety",
       "prompt": "A high-route task is ready for /forgeflow:finish. Verification passed, but the task used a temporary worktree with unmerged changes. The user has not chosen merge, PR, keep, or discard yet. Produce only the finish-stage operator guidance. Be conservative: do not remove the worktree, do not discard changes, and require option-specific confirmation before cleanup.",
       "expected_output": "Finish guidance that reports verification status, lists safe next choices, requires explicit option-specific confirmation, and blocks destructive cleanup until the user chooses.",
-      "files": ["skills/finish/SKILL.md"],
+      "files": [
+        "skills/ship/SKILL.md"
+      ],
       "assertions": [
         {
           "text": "Output names safe finish choices such as merge, PR, keep, or discard.",
           "type": "contains_any",
-          "values": ["merge", "PR", "pull request", "keep", "discard"]
+          "values": [
+            "merge",
+            "PR",
+            "pull request",
+            "keep",
+            "discard"
+          ]
         },
         {
           "text": "Output requires option-specific confirmation before cleanup or removal.",
           "type": "contains_any",
-          "values": ["option-specific confirmation", "explicit confirmation", "choose", "confirm"]
+          "values": [
+            "option-specific confirmation",
+            "explicit confirmation",
+            "choose",
+            "confirm"
+          ]
         },
         {
           "text": "Output does not remove the worktree before a user choice.",
           "type": "not_contains_any",
-          "values": ["remove the worktree now", "delete the worktree now", "discard changes now", "cleanup before confirmation"]
+          "values": [
+            "remove the worktree now",
+            "delete the worktree now",
+            "discard changes now",
+            "cleanup before confirmation"
+          ]
         },
         {
           "text": "Output explicitly preserves unmerged changes until the finish option is selected.",
           "type": "contains_any",
-          "values": ["Do not remove or discard yet", "preserve", "keep the worktree", "until the user chooses"]
+          "values": [
+            "Do not remove or discard yet",
+            "preserve",
+            "keep the worktree",
+            "until the user chooses"
+          ]
         },
         {
           "text": "Output includes verification status without treating it as permission for destructive cleanup.",
           "type": "contains_any",
-          "values": ["verification passed", "verification", "passed"]
+          "values": [
+            "verification passed",
+            "verification",
+            "passed"
+          ]
         }
       ]
     },
@@ -333,7 +421,10 @@
       "name": "first-success-demo-guidance",
       "prompt": "A first-time ForgeFlow maintainer has cloned the repo and wants one safe command that proves the artifact-first shape before configuring any provider credentials. Produce only the onboarding guidance for this first success. Do not claim live Claude/Codex/Gemini plugin execution.",
       "expected_output": "Guidance that recommends make demo, explains it is a local template/artifact smoke rather than provider E2E, and names the demo task directory plus representative artifacts.",
-      "files": ["README.md", "Makefile"],
+      "files": [
+        "README.md",
+        "Makefile"
+      ],
       "assertions": [
         {
           "text": "Output recommends the local first-success command.",
@@ -343,7 +434,13 @@
         {
           "text": "Output explains that the demo is not live provider/plugin E2E.",
           "type": "contains_any",
-          "values": ["not provider", "not live", "not plugin E2E", "safe demo", "local"]
+          "values": [
+            "not provider",
+            "not live",
+            "not plugin E2E",
+            "safe demo",
+            "local"
+          ]
         },
         {
           "text": "Output names the demo task artifact directory.",
@@ -353,12 +450,23 @@
         {
           "text": "Output lists representative artifacts copied by the demo.",
           "type": "contains_all",
-          "values": ["brief.md", "implementation-notes.md", "review-report.md", "ship-summary.md"]
+          "values": [
+            "brief.md",
+            "implementation-notes.md",
+            "review-report.md",
+            "ship-summary.md"
+          ]
         },
         {
           "text": "Output avoids claiming real provider execution or credentials are verified.",
           "type": "not_contains_any",
-          "values": ["Claude verified", "Codex verified", "Gemini verified", "provider E2E passed", "live plugin verified"]
+          "values": [
+            "Claude verified",
+            "Codex verified",
+            "Gemini verified",
+            "provider E2E passed",
+            "live plugin verified"
+          ]
         }
       ]
     },
@@ -367,12 +475,22 @@
       "name": "gemini-extension-cache-safety",
       "prompt": "A user invokes ForgeFlow from inside ~/.gemini/extensions/forgeflow but says the actual project is /workspace/notes-app and task id is eval-gemini-cache-safe. Produce only the init-stage operator guidance and task workspace path to use before clarify. Do not create or suggest artifacts inside the Gemini extension cache.",
       "expected_output": "Guidance that treats the Gemini extension directory as an install/cache location, uses an explicit task path under the target project, and directs the next step to clarify without writing artifacts under ~/.gemini/extensions/forgeflow.",
-      "files": ["skills/forgeflow-init/SKILL.md", "skills/_shared/discipline.md", "docs/adapter-config.md"],
+      "files": [
+        "skills/clarify/SKILL.md",
+        "skills/_shared/discipline.md",
+        "docs/adapter-config.md"
+      ],
       "assertions": [
         {
           "text": "Output warns that ~/.gemini/extensions/forgeflow is an extension cache or installation directory, not the target workspace.",
           "type": "contains_any",
-          "values": ["~/.gemini/extensions", "Gemini extension", "extension cache", "installation directory", "not the target workspace"]
+          "values": [
+            "~/.gemini/extensions",
+            "Gemini extension",
+            "extension cache",
+            "installation directory",
+            "not the target workspace"
+          ]
         },
         {
           "text": "Output names the target project task workspace path.",
@@ -382,17 +500,30 @@
         {
           "text": "Output uses an explicit task-dir or equivalent explicit artifact path escape hatch.",
           "type": "contains_any",
-          "values": ["--task-dir", "explicit task path", "explicit artifact path", ".forgeflow/tasks/eval-gemini-cache-safe"]
+          "values": [
+            "--task-dir",
+            "explicit task path",
+            "explicit artifact path",
+            ".forgeflow/tasks/eval-gemini-cache-safe"
+          ]
         },
         {
           "text": "Output forbids creating artifacts under the Gemini extension cache.",
           "type": "not_contains_any",
-          "values": ["~/.gemini/extensions/forgeflow/.forgeflow", "create artifacts in ~/.gemini/extensions", "write artifacts in the extension cache"]
+          "values": [
+            "~/.gemini/extensions/forgeflow/.forgeflow",
+            "create artifacts in ~/.gemini/extensions",
+            "write artifacts in the extension cache"
+          ]
         },
         {
           "text": "Output keeps clarify as the next workflow step after safe init guidance.",
           "type": "contains_any",
-          "values": ["clarify", "/forgeflow:clarify", "/clarify"]
+          "values": [
+            "clarify",
+            "/forgeflow:clarify",
+            "/clarify"
+          ]
         }
       ]
     },
@@ -467,27 +598,51 @@
       "name": "finish-base-branch-ambiguity",
       "prompt": "A high-route task is ready for /forgeflow:finish. Fresh verification passed. git symbolic-ref refs/remotes/origin/HEAD fails because origin/HEAD is not set. Both main and master exist locally, and the current branch is master. Produce only the finish-stage operator guidance. Do not merge, do not create a PR, and do not claim merge/PR is ready until the user confirms the exact base branch.",
       "expected_output": "Finish guidance that detects ambiguous base branch, blocks merge/PR readiness, asks the user to choose the exact base branch, and still allows keeping the branch as-is.",
-      "files": ["skills/finish/SKILL.md"],
+      "files": [
+        "skills/ship/SKILL.md"
+      ],
       "assertions": [
         {
           "text": "Output identifies the base branch ambiguity caused by origin/HEAD and main/master candidates.",
           "type": "contains_any",
-          "values": ["origin/HEAD", "main", "master", "base branch", "ambiguous"]
+          "values": [
+            "origin/HEAD",
+            "main",
+            "master",
+            "base branch",
+            "ambiguous"
+          ]
         },
         {
           "text": "Output asks the user to choose or confirm the exact base branch before merge or PR.",
           "type": "contains_any",
-          "values": ["choose the exact base branch", "confirm the base branch", "which base branch", "기준 브랜치"]
+          "values": [
+            "choose the exact base branch",
+            "confirm the base branch",
+            "which base branch",
+            "기준 브랜치"
+          ]
         },
         {
           "text": "Output does not present merge or PR as ready-to-run while the base branch is ambiguous.",
           "type": "not_contains_any",
-          "values": ["ready to merge", "ready-to-run merge", "merge now", "create the PR now", "PR is ready"]
+          "values": [
+            "ready to merge",
+            "ready-to-run merge",
+            "merge now",
+            "create the PR now",
+            "PR is ready"
+          ]
         },
         {
           "text": "Output keeps destructive or shared-state actions blocked until confirmation.",
           "type": "contains_any",
-          "values": ["do not merge", "do not create a Pull Request", "until confirmed", "확인 전"]
+          "values": [
+            "do not merge",
+            "do not create a Pull Request",
+            "until confirmed",
+            "확인 전"
+          ]
         }
       ]
     },
@@ -496,27 +651,53 @@
       "name": "finish-uncommitted-preflight",
       "prompt": "A task reaches /forgeflow:finish with verification passed, but git status --short shows modified src/auth.ts, modified package.json, and untracked notes.txt. The user has not approved a commit, staging list, stash, keep, or discard. Produce only finish-stage operator guidance. Do not run git add, do not commit, do not merge, do not push, and do not create a PR.",
       "expected_output": "Finish guidance that stops on dirty working tree, lists/asks for file-scope handling, requires explicit commit file-list approval before staging, and blocks merge/PR/push until the dirty state is handled.",
-      "files": ["skills/finish/SKILL.md"],
+      "files": [
+        "skills/ship/SKILL.md"
+      ],
       "assertions": [
         {
           "text": "Output detects uncommitted, staged, or untracked changes as a preflight blocker.",
           "type": "contains_any",
-          "values": ["uncommitted", "dirty", "untracked", "git status --short", "working tree"]
+          "values": [
+            "uncommitted",
+            "dirty",
+            "untracked",
+            "git status --short",
+            "working tree"
+          ]
         },
         {
           "text": "Output asks for a separate handling decision before merge or PR.",
           "type": "contains_any",
-          "values": ["commit", "stash", "keep", "discard", "처리 방침"]
+          "values": [
+            "commit",
+            "stash",
+            "keep",
+            "discard",
+            "처리 방침"
+          ]
         },
         {
           "text": "Output requires explicit file-list approval before staging or committing.",
           "type": "contains_any",
-          "values": ["exact files", "file list", "approve", "커밋 대상", "명시 승인"]
+          "values": [
+            "exact files",
+            "file list",
+            "approve",
+            "커밋 대상",
+            "명시 승인"
+          ]
         },
         {
           "text": "Output does not proceed with staging, commit, merge, push, or PR creation.",
           "type": "not_contains_any",
-          "values": ["git add src/auth.ts", "git commit -m", "git merge", "git push", "gh pr create"]
+          "values": [
+            "git add src/auth.ts",
+            "git commit -m",
+            "git merge",
+            "git push",
+            "gh pr create"
+          ]
         }
       ]
     },
@@ -525,32 +706,62 @@
       "name": "artifact-placeholder-gate",
       "prompt": "During /forgeflow:review or /forgeflow:ship, required artifacts still contain unresolved template residue: plan.md has <!-- Derived from brief.md acceptance criteria -->, implementation-notes.md has TODO, and ship-summary.md has <branch-name>. Produce only the review/ship gate result. Do not approve review and do not finalize ship handoff.",
       "expected_output": "A gate result that treats unresolved placeholders as changes_requested or blocked, names affected artifacts and markers, and routes back to execute or review instead of approving or shipping.",
-      "files": ["skills/review/SKILL.md", "skills/ship/SKILL.md"],
+      "files": [
+        "skills/review/SKILL.md",
+        "skills/ship/SKILL.md"
+      ],
       "assertions": [
         {
           "text": "Output flags unresolved placeholder or template residue.",
           "type": "contains_any",
-          "values": ["placeholder", "template residue", "TODO", "<!--", "<branch-name>"]
+          "values": [
+            "placeholder",
+            "template residue",
+            "TODO",
+            "<!--",
+            "<branch-name>"
+          ]
         },
         {
           "text": "Output names affected artifacts.",
           "type": "contains_all",
-          "values": ["plan.md", "implementation-notes.md", "ship-summary.md"]
+          "values": [
+            "plan.md",
+            "implementation-notes.md",
+            "ship-summary.md"
+          ]
         },
         {
           "text": "Output blocks approval or ship finalization with a canonical verdict/status.",
           "type": "contains_any",
-          "values": ["changes_requested", "blocked", "do not approve", "do not finalize", "not safe for ship"]
+          "values": [
+            "changes_requested",
+            "blocked",
+            "do not approve",
+            "do not finalize",
+            "not safe for ship"
+          ]
         },
         {
           "text": "Output routes back to the corrective stage rather than preserving unfinished placeholders as evidence.",
           "type": "contains_any",
-          "values": ["/forgeflow:execute", "/forgeflow:review", "fix", "resolve", "수정"]
+          "values": [
+            "/forgeflow:execute",
+            "/forgeflow:review",
+            "fix",
+            "resolve",
+            "수정"
+          ]
         },
         {
           "text": "Output does not approve review or finalize ship handoff.",
           "type": "not_contains_any",
-          "values": ["Verdict: approved", "review approved", "ship finalized", "handoff complete"]
+          "values": [
+            "Verdict: approved",
+            "review approved",
+            "ship finalized",
+            "handoff complete"
+          ]
         }
       ]
     }
