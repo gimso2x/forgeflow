@@ -97,6 +97,8 @@ Apply them this way:
 
 → Core rules: `_shared/discipline.md`.
 
+Follow the user language rules there: write user-facing replies and artifact prose in the user's primary language, while preserving canonical English labels, commands, paths, artifact filenames, and enum values.
+
 Keep execution evidence in `.forgeflow/tasks/<task-id>/implementation-notes.md` and update it before and after code changes.
 
 Step state must be incremental, not a final recap. Each plan step must move through progress tracking: `pending -> in_progress -> completed`. Do not batch-mark all steps as `completed` only at the end. If a step cannot finish, mark it `blocked` with evidence instead of leaving the last known state ambiguous.

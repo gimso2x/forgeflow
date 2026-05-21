@@ -66,6 +66,8 @@ Write `brief.md` to the active task directory using `templates/brief.md` as the 
 
 → Core rules: `_shared/discipline.md`.
 
+Follow the user language rules there: write user-facing replies and artifact prose in the user's primary language, while preserving canonical English labels, commands, paths, artifact filenames, and enum values.
+
 Write `brief.md` under `.forgeflow/tasks/<task-id>/`. If the task directory is missing, create it first. Do not return a pseudo-brief in chat only when the workflow expects artifacts.
 
 ## Strict response constraints

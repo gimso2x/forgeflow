@@ -174,6 +174,8 @@ Do not proceed to `/forgeflow:execute` if one of those is missing for non-trivia
 
 → Core rules: `_shared/discipline.md`.
 
+Follow the user language rules there: write user-facing replies and artifact prose in the user's primary language, while preserving canonical English labels, commands, paths, artifact filenames, and enum values.
+
 Write `plan.md` under `.forgeflow/tasks/<task-id>/`. If the task directory is missing, bootstrap it first. Do not downgrade planning into a chat transcript when the workflow expects artifacts.
 
 ## Strict response constraints

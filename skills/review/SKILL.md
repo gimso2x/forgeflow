@@ -121,6 +121,8 @@ All routes write a **single** `review-report.md` using `templates/review-report.
 
 → Core rules: `_shared/discipline.md`.
 
+Follow the user language rules there: write user-facing replies and artifact prose in the user's primary language, while preserving canonical English labels, commands, paths, artifact filenames, and enum values.
+
 Write `review-report.md` under `.forgeflow/tasks/<task-id>/`. If the task directory is missing, bootstrap or recover it first. A review that leaves no artifact is just vibes with punctuation.
 
 ## Strict response constraints
@@ -216,6 +218,15 @@ Review-specific additions: reconstruct the full task state from artifacts instea
 - Read `.forgeflow/evolution/proposed/*.md` when present and validate candidates against `templates/evolution-rule.md`.
 - Read `plan.md` to confirm planned tasks, requirements, contracts, and verification plan.
 - Read `brief.md` for route, scope, acceptance criteria, and constraints.
+
+## Artifact completeness gate
+
+Before approving review, inspect required ForgeFlow artifacts for unresolved template residue. Treat unresolved placeholders as `changes_requested` or `blocked` before quality praise:
+
+- Check `brief.md`, `plan.md`, `implementation-notes.md`, `run-ledger.md`, and any existing `review-report.md`.
+- Flag unresolved `TODO`, `TBD`, `FIXME`, template comments such as `<!-- ... -->`, and angle-bracket placeholders such as `<task-id>`, `<branch-name>`, or `<...>` when they are artifact-writing residue.
+- Do not flag intentional Markdown checkboxes, code snippets, command output, or literal examples when they are clearly part of the reviewed content rather than unfinished artifact fields.
+- If placeholder residue remains in an artifact required for the current route, do not approve. Name the file and the unresolved marker in Findings.
 
 ## Procedure
 

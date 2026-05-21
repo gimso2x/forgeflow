@@ -1,30 +1,34 @@
-# Ship Summary
+# Ship 요약 (Ship Summary)
 
 <!-- ForgeFlow ship template. Created during ship stage after review approval. -->
+<!-- Write prose in the user's primary language. Preserve canonical labels, enum values, commands, paths, and artifact filenames in English. -->
 
-## Changed Files
+## 사용자용 요약 (Reader Summary)
+<!-- Summarize what changed, verification result, review verdict, residual risks, and finish handoff status in the user's language. -->
+
+## 변경 파일 (Changed Files)
 <!-- List files changed in this task scope -->
 
-## Verification
+## 검증 (Verification)
 <!-- Commands run and results -->
 
 | Command | Result |
 |---------|--------|
 | | |
 
-## Review Verdict
+## 리뷰 판정 (Review Verdict)
 <!-- From review-report.md: approved | changes_requested | blocked -->
 
-## Residual Risks
+## 잔여 위험 (Residual Risks)
 <!-- Risks that remain after ship -->
 
-## Handoff Action
+## 인수인계 조치 (Handoff Action)
 <!-- report completed; branch disposition remains pending for finish -->
 
-## Simplification Candidates
+## 단순화 후보 (Simplification Candidates)
 <!-- Optional: Triple-Lens findings from ship polish loop, or "none" -->
 
-## Quantitative Summary
+## 정량 요약 (Quantitative Summary)
 <!-- Aggregated metrics from execute → implementation-notes.md → Metrics -->
 
 | Metric | Value |

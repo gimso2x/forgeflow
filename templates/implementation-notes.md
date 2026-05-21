@@ -1,14 +1,18 @@
-# Implementation Notes
+# 구현 기록 (Implementation Notes)
 
 <!-- ForgeFlow execution tracking. Updated throughout execute stage. -->
+<!-- Write prose in the user's primary language. Preserve canonical labels, enum values, commands, paths, and artifact filenames in English. -->
 
-## Current Stage
+## 사용자용 요약 (Reader Summary)
+<!-- For high/epic routes especially: summarize completed work, current status, verification evidence, and remaining risks in the user's language. -->
+
+## 현재 단계 (Current Stage)
 <!-- clarify | plan | execute | review | ship | finish -->
 
-## Status
+## 상태 (Status)
 <!-- in_progress | completed | blocked -->
 
-## Decisions
+## 결정 사항 (Decisions)
 
 ### Decision 1: <!-- title -->
 - **Category**: <!-- scope | plan | execution | review | recovery | routing -->
@@ -19,27 +23,27 @@
 - **Tradeoff**: <!-- what was gained vs sacrificed -->
 - **Rollback Implication**: <!-- what happens if this is reversed, or "irreversible" -->
 
-## Deviations from Plan
+## 계획 대비 변경 (Deviations from Plan)
 <!-- Any deviations from the approved plan and why -->
 
-## Progress
+## 진행 상황 (Progress)
 <!-- [██████░░░░] 60% -->
 <!-- Checkpoint tracking -->
 - [ ] Task 1: <!-- status -->
 - [ ] Task 2: <!-- status -->
 
-## Files Changed
+## 변경 파일 (Files Changed)
 <!-- path — description of change -->
 -
 
-## Evidence
+## 증거 (Evidence)
 <!-- Gate results, test outputs, verification outcomes -->
 -
 
-## Blocked By
+## 차단 요소 (Blocked By)
 <!-- List blockers or "none" -->
 
-## Metrics
+## 지표 (Metrics)
 <!-- Quantitative code quality metrics collected during execute -->
 <!-- Populated by adapter-aware execution code quality metrics step -->
 

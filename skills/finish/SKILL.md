@@ -18,6 +18,8 @@ This is not the same as `ship`:
 - `ship` prepares the final handoff summary.
 - `finish` decides branch disposition: merge, PR, keep, or discard, and requires explicit user direction.
 
+Explain this distinction in the user's primary language before asking for a branch disposition choice.
+
 ## Input
 
 - Current branch name
@@ -56,6 +58,8 @@ Present a finish decision report containing:
 
 → Core rules: `_shared/discipline.md`.
 
+Follow the user language rules there: write user-facing replies and finish decision reports in the user's primary language, while preserving canonical English option labels, commands, paths, artifact filenames, and enum values.
+
 Use `.forgeflow/tasks/<task-id>/` for any task-local finish evidence unless the user provides another project-local artifact directory.
 
 ## Status analysis preflight
@@ -83,6 +87,13 @@ Run or inspect fresh verification before presenting success language:
 git status --short
 git diff --stat
 ```
+
+If `git status --short` is not empty, stop before offering merge or PR as ready. Uncommitted, staged, or untracked changes require a separate preflight decision first:
+
+1. Show the exact dirty file list and classify intended task files vs unrelated dirty files.
+2. Ask whether to prepare a commit, stash/preserve the changes, keep the branch as-is, or discard in scope.
+3. If the user chooses commit preparation, show the exact files to stage and exclude unrelated files. Do not run `git add`, commit, merge, push, or PR creation until the user explicitly approves that file list and commit step.
+4. If the user chooses discard, follow the exact `discard` confirmation rule below.
 
 Then run the project-specific check, for example:
 
@@ -124,22 +135,31 @@ master
 
 If the base branch is ambiguous, ask before merging or opening a PR.
 
+Base branch is ambiguous when any of these are true:
+
+- `origin/HEAD` is not set or cannot be resolved.
+- Both `main` and `master` exist and neither is clearly the repository default.
+- The current branch is `main` or `master`, but another default-like branch also exists.
+- The user, brief, or review artifacts name a different base branch than the repository signals.
+
+When ambiguous, stop and ask the user to choose the exact base branch. Do not present `Merge locally` or `Push and create a Pull Request` as ready-to-run options until the base branch is confirmed. `Keep the branch as-is` remains safe to offer.
+
 ### 4. Present exactly four options
 
-Use this wording unless the user requested a stricter format:
+Use the user's primary language for the prompt while preserving the canonical English option label in parentheses. For Korean users, use this wording unless the user requested a stricter format:
 
 ```text
-Implementation complete. What would you like to do?
+구현과 검증이 끝났습니다. `ship`은 인수인계 요약이고, `finish`는 현재 브랜치를 어떻게 처리할지 결정하는 단계입니다.
 
-1. Merge locally into <base-branch>
-2. Push and create a Pull Request
-3. Keep the branch as-is
-4. Discard this work
+1. 로컬에서 <base-branch>로 병합 (Merge locally)
+2. 원격에 push하고 Pull Request 생성 (Push and create a Pull Request)
+3. 현재 브랜치를 그대로 유지 (Keep the branch as-is)
+4. 이번 작업 폐기 (Discard this work)
 
-Which option?
+어떤 방식으로 마무리할까요?
 ```
 
-The option labels must remain recognizable:
+The option labels must remain recognizable, either as the visible label or the parenthesized canonical label:
 
 - Merge locally
 - Push and create a Pull Request
@@ -193,15 +213,16 @@ This is often the safest option when the working tree contains unrelated dirty f
 
 ### 4. Discard this work
 
-Discard is destructive. Require exact confirmation:
+Discard is destructive. Explain the scope in the user's primary language, but keep the exact confirmation token `discard`. For Korean users:
 
 ```text
-This will permanently discard:
+다음 작업을 영구적으로 폐기합니다:
 - Branch: <branch-name>
 - Commits not on <base-branch>: <commit-list>
 - Worktree path, if any: <path>
 - Uncommitted changes in scope: <file-list>
 
+정말 폐기하려면 `discard`를 정확히 입력하세요.
 Type 'discard' to confirm.
 ```
 

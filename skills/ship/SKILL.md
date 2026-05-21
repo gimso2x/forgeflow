@@ -48,6 +48,8 @@ Write a `ship-summary.md` in the active task directory using `templates/ship-sum
 
 → Core rules: `_shared/discipline.md`.
 
+Follow the user language rules there: write user-facing replies and artifact prose in the user's primary language, while preserving canonical English labels, commands, paths, artifact filenames, and enum values.
+
 Ship should preserve the final handoff evidence in the active task directory.
 
 When artifacts such as `review-report.md` or final handoff notes are mentioned without an explicit path, preserve them under the active task directory, not the repository root and not chat-only fallback.
@@ -77,7 +79,9 @@ No heading. No preamble. No code fence. No third line.
 3. Ensure review passed; do not ship blocked work.
 4. Confirm there is no unresolved blocker, and that handoff evidence is preserved in the active task directory before preparing the final summary.
 
-5. **Final Polish and Simplification Loop**: Analyze the **actually changed code** (`git diff HEAD~1 HEAD` or equivalent) for quality before shipping. This is a read-first analysis: if modifications are needed, hand back to execute rather than editing code during ship.
+5. **Artifact completeness gate**: Before writing final handoff language, inspect `review-report.md`, `implementation-notes.md`, and the draft/final `ship-summary.md` for unresolved template residue. If `TODO`, `TBD`, `FIXME`, unresolved `<!-- ... -->`, or angle-bracket placeholders such as `<task-id>`, `<branch-name>`, or `<...>` remain as artifact-writing residue, stop and route back to `/forgeflow:execute` or `/forgeflow:review`. Do not preserve unfinished placeholders as ship evidence. Intentional Markdown checkboxes, code snippets, command output, or literal examples are not blockers by themselves.
+
+6. **Final Polish and Simplification Loop**: Analyze the **actually changed code** (`git diff HEAD~1 HEAD` or equivalent) for quality before shipping. This is a read-first analysis: if modifications are needed, hand back to execute rather than editing code during ship.
 
 #### Analysis (read-only)
 
@@ -96,10 +100,10 @@ If the Triple-Lens analysis identifies meaningful improvements:
 
 #### If no issues found
 
-Proceed to step 6 directly.
+Proceed to the final summary step directly.
 
-6. Write `ship-summary.md` to the active task directory. Include the Quantitative Summary section with metrics from `implementation-notes.md` → Metrics.
-7. Preserve artifacts/evidence instead of burying them in chat.
+7. Write `ship-summary.md` to the active task directory. Include the Quantitative Summary section with metrics from `implementation-notes.md` → Metrics.
+8. Preserve artifacts/evidence instead of burying them in chat.
 
 Never discard, merge, PR, or destructive-clean from `ship`; hand branch disposition to `finish` and require explicit confirmation there.
 

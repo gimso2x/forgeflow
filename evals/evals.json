@@ -395,6 +395,164 @@
           "values": ["clarify", "/forgeflow:clarify", "/clarify"]
         }
       ]
+    },
+    {
+      "id": 9,
+      "name": "korean-user-language-artifacts",
+      "prompt": "한국어 사용자가 /forgeflow:plan 이후 high route 산출물을 요청합니다. 대상 작업은 Next.js App Router 프로젝트에 관리자 감사 로그 화면을 추가하는 것입니다. Produce only the top sections of plan.md and review-report.md that demonstrate the language policy. Markdown artifact prose must be Korean, but preserve canonical English labels, route enum high, verdict enum approved | changes_requested | blocked, file paths, commands, and artifact filenames in English.",
+      "expected_output": "Korean artifact prose with Korean-first headings, Reader Summary, preserved canonical English labels and enum values, and no English-only artifact body.",
+      "files": [
+        "skills/_shared/discipline.md",
+        "skills/plan/SKILL.md",
+        "skills/review/SKILL.md",
+        "templates/plan.md",
+        "templates/review-report.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output includes Korean-first artifact headings with canonical English labels in parentheses.",
+          "type": "contains_all",
+          "values": [
+            "사용자용 요약 (Reader Summary)",
+            "실행 계획 (Execution Plan)",
+            "리뷰 보고서 (Review Report)"
+          ]
+        },
+        {
+          "text": "Output preserves canonical route and verdict enum values in English.",
+          "type": "contains_all",
+          "values": [
+            "high",
+            "approved",
+            "changes_requested",
+            "blocked"
+          ]
+        },
+        {
+          "text": "Output includes Korean explanatory prose, not only English template labels.",
+          "type": "contains_any",
+          "values": [
+            "관리자",
+            "감사 로그",
+            "검증",
+            "위험",
+            "다음 작업"
+          ]
+        },
+        {
+          "text": "Output preserves technical paths, commands, or artifact filenames in English.",
+          "type": "contains_any",
+          "values": [
+            "app/",
+            "pnpm",
+            "plan.md",
+            "review-report.md",
+            "npm"
+          ]
+        },
+        {
+          "text": "Output does not use an English-only top-level plan heading.",
+          "type": "not_contains",
+          "value": "# Execution Plan\n"
+        },
+        {
+          "text": "Output does not use an English-only top-level review heading.",
+          "type": "not_contains",
+          "value": "# Review Report\n"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "name": "finish-base-branch-ambiguity",
+      "prompt": "A high-route task is ready for /forgeflow:finish. Fresh verification passed. git symbolic-ref refs/remotes/origin/HEAD fails because origin/HEAD is not set. Both main and master exist locally, and the current branch is master. Produce only the finish-stage operator guidance. Do not merge, do not create a PR, and do not claim merge/PR is ready until the user confirms the exact base branch.",
+      "expected_output": "Finish guidance that detects ambiguous base branch, blocks merge/PR readiness, asks the user to choose the exact base branch, and still allows keeping the branch as-is.",
+      "files": ["skills/finish/SKILL.md"],
+      "assertions": [
+        {
+          "text": "Output identifies the base branch ambiguity caused by origin/HEAD and main/master candidates.",
+          "type": "contains_any",
+          "values": ["origin/HEAD", "main", "master", "base branch", "ambiguous"]
+        },
+        {
+          "text": "Output asks the user to choose or confirm the exact base branch before merge or PR.",
+          "type": "contains_any",
+          "values": ["choose the exact base branch", "confirm the base branch", "which base branch", "기준 브랜치"]
+        },
+        {
+          "text": "Output does not present merge or PR as ready-to-run while the base branch is ambiguous.",
+          "type": "not_contains_any",
+          "values": ["ready to merge", "ready-to-run merge", "merge now", "create the PR now", "PR is ready"]
+        },
+        {
+          "text": "Output keeps destructive or shared-state actions blocked until confirmation.",
+          "type": "contains_any",
+          "values": ["do not merge", "do not create a Pull Request", "until confirmed", "확인 전"]
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "name": "finish-uncommitted-preflight",
+      "prompt": "A task reaches /forgeflow:finish with verification passed, but git status --short shows modified src/auth.ts, modified package.json, and untracked notes.txt. The user has not approved a commit, staging list, stash, keep, or discard. Produce only finish-stage operator guidance. Do not run git add, do not commit, do not merge, do not push, and do not create a PR.",
+      "expected_output": "Finish guidance that stops on dirty working tree, lists/asks for file-scope handling, requires explicit commit file-list approval before staging, and blocks merge/PR/push until the dirty state is handled.",
+      "files": ["skills/finish/SKILL.md"],
+      "assertions": [
+        {
+          "text": "Output detects uncommitted, staged, or untracked changes as a preflight blocker.",
+          "type": "contains_any",
+          "values": ["uncommitted", "dirty", "untracked", "git status --short", "working tree"]
+        },
+        {
+          "text": "Output asks for a separate handling decision before merge or PR.",
+          "type": "contains_any",
+          "values": ["commit", "stash", "keep", "discard", "처리 방침"]
+        },
+        {
+          "text": "Output requires explicit file-list approval before staging or committing.",
+          "type": "contains_any",
+          "values": ["exact files", "file list", "approve", "커밋 대상", "명시 승인"]
+        },
+        {
+          "text": "Output does not proceed with staging, commit, merge, push, or PR creation.",
+          "type": "not_contains_any",
+          "values": ["git add src/auth.ts", "git commit -m", "git merge", "git push", "gh pr create"]
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "name": "artifact-placeholder-gate",
+      "prompt": "During /forgeflow:review or /forgeflow:ship, required artifacts still contain unresolved template residue: plan.md has <!-- Derived from brief.md acceptance criteria -->, implementation-notes.md has TODO, and ship-summary.md has <branch-name>. Produce only the review/ship gate result. Do not approve review and do not finalize ship handoff.",
+      "expected_output": "A gate result that treats unresolved placeholders as changes_requested or blocked, names affected artifacts and markers, and routes back to execute or review instead of approving or shipping.",
+      "files": ["skills/review/SKILL.md", "skills/ship/SKILL.md"],
+      "assertions": [
+        {
+          "text": "Output flags unresolved placeholder or template residue.",
+          "type": "contains_any",
+          "values": ["placeholder", "template residue", "TODO", "<!--", "<branch-name>"]
+        },
+        {
+          "text": "Output names affected artifacts.",
+          "type": "contains_all",
+          "values": ["plan.md", "implementation-notes.md", "ship-summary.md"]
+        },
+        {
+          "text": "Output blocks approval or ship finalization with a canonical verdict/status.",
+          "type": "contains_any",
+          "values": ["changes_requested", "blocked", "do not approve", "do not finalize", "not safe for ship"]
+        },
+        {
+          "text": "Output routes back to the corrective stage rather than preserving unfinished placeholders as evidence.",
+          "type": "contains_any",
+          "values": ["/forgeflow:execute", "/forgeflow:review", "fix", "resolve", "수정"]
+        },
+        {
+          "text": "Output does not approve review or finalize ship handoff.",
+          "type": "not_contains_any",
+          "values": ["Verdict: approved", "review approved", "ship finalized", "handoff complete"]
+        }
+      ]
     }
   ]
 }

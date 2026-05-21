@@ -1,38 +1,42 @@
-# Execution Plan
+# 실행 계획 (Execution Plan)
 
 <!-- ForgeFlow plan template. Created during plan stage. -->
+<!-- Write prose in the user's primary language. Preserve canonical labels, enum values, commands, paths, and artifact filenames in English. -->
 
-## Route
+## 사용자용 요약 (Reader Summary)
+<!-- For high/epic routes especially: summarize what will change, touched areas, verification, and key risks in the user's language. -->
+
+## 라우트 (Route)
 <!-- small | medium | high | epic -->
 <!-- medium sub-band: medium-light | medium-full (from brief.md) -->
 
-## Route Sub-band
+## 라우트 하위 밴드 (Route Sub-band)
 <!-- medium-light | medium-full | n/a -->
 
-## Requirements
+## 요구사항 (Requirements)
 <!-- Derived from brief.md acceptance criteria -->
 
-## Non-goals
+## 비목표 (Non-goals)
 <!-- Explicitly out-of-scope items from clarify -->
 
-## Dependencies
+## 의존성 (Dependencies)
 <!-- What must exist before execution starts -->
 
-## Architecture Notes
+## 아키텍처 메모 (Architecture Notes)
 <!-- Key design decisions affecting execution order -->
 <!-- high/epic: record Execution Pattern (pipeline | fan-out/fan-in) here -->
 <!-- medium-full: contract-first traceability required; medium-light: contracts optional unless brownfield -->
 
-## Execution Pattern
+## 실행 패턴 (Execution Pattern)
 <!-- Route strategy: small = direct single-worker; medium = pipeline; high = fan-out/fan-in when independent + separate spec/quality review; epic = milestone fan-out/fan-in -->
 
-## Applied Evolution Rules
+## 적용된 진화 규칙 (Applied Evolution Rules)
 <!-- Carry forward rules from brief.md and state how this plan applies them. -->
 - **Project active rules**:
 - **Global advisory rules**:
 - **Plan impact**:
 
-## Task Dependency Graph
+## 작업 의존성 그래프 (Task Dependency Graph)
 <!-- Optional: include only when tasks have non-trivial dependencies (high/epic routes). -->
 <!-- Validate Mermaid syntax before committing; omit this section entirely for small/medium routes. -->
 
@@ -44,7 +48,7 @@ graph TD
     T3 --> T4
 ```
 
-## Tasks
+## 작업 목록 (Tasks)
 
 ### Task 1: <!-- name -->
 - **Objective**:
@@ -58,23 +62,23 @@ graph TD
 ### Task 2: <!-- name -->
 <!-- Copy pattern above -->
 
-## Verification Plan
+## 검증 계획 (Verification Plan)
 <!-- How to verify the entire plan succeeded -->
 
 ### Check 1: <!-- target -->
 - **Type**: <!-- sub_req | journey | artifact | contract -->
 - **Gates**:
 
-## Contracts (if applicable)
+## 계약 (Contracts, if applicable)
 - **Artifact**:
 - **Interfaces**:
 - **Invariants**:
 
-## Journeys (if applicable)
+## 여정 (Journeys, if applicable)
 <!-- End-to-end flow verification -->
 ### Journey 1: <!-- name -->
 - **Composes**: <!-- which tasks -->
 - **Description**:
 
-## Parallelism
+## 병렬성 (Parallelism)
 <!-- Which tasks can run concurrently and any conflicts -->
