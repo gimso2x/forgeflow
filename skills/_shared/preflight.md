@@ -16,7 +16,8 @@ When acting as a ForgeFlow maintainer on this repository (cron loop, scheduled i
 5. Only after a clean preflight, refresh `main` with `git pull --ff-only` before selecting improvement work.
 6. Immediately rerun `git status --short` after the pull. If the refresh leaves any dirty path, stop and report those paths before editing, cleaning, committing, or pushing.
 7. After your focused change and validation, rerun `git status --short` before staging. Stage only the files you intentionally changed in this run; if any unexpected path appears, stop and report it instead of committing or pushing.
-8. Do not schedule jobs, modify cron/crontab, or change external automation from inside the scheduled run. Treat cadence changes as operator-owned follow-up outside the repository improvement tick.
+8. After commit and push, rerun `git status --short` and report any remaining dirty paths instead of claiming the repository is clean.
+9. Do not schedule jobs, modify cron/crontab, or change external automation from inside the scheduled run. Treat cadence changes as operator-owned follow-up outside the repository improvement tick.
 
 ## Procedure
 

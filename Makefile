@@ -160,6 +160,7 @@ validate-agent-docs:
 	@grep -Fq "Report the dirty paths as user/unknown changes" skills/_shared/preflight.md || { echo "ERROR: preflight must stop and report unknown dirty paths"; exit 1; }
 	@grep -Fq "rerun \`git status --short\` before staging" skills/_shared/preflight.md || { echo "ERROR: preflight must re-check dirty status before staging intentional files"; exit 1; }
 	@grep -Fq "Stage only the files you intentionally changed in this run" skills/_shared/preflight.md || { echo "ERROR: preflight must stage only intentional current-run files"; exit 1; }
+	@grep -Fq "After commit and push, rerun \`git status --short\`" skills/_shared/preflight.md || { echo "ERROR: preflight must re-check dirty status after push before reporting clean"; exit 1; }
 
 validate-templates:
 	@for t in $(TEMPLATES); do \
