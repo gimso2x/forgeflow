@@ -18,6 +18,7 @@ These validators ensure that:
 - assertion types stay in the supported deterministic set
 - assertion `value` / `values` entries are non-blank strings, so whitespace-only checks cannot pass accidentally
 - persisted smoke `review-report.md` fixtures are concrete audit output, not unresolved templates
+- review evals preserve the reported-vs-observed evidence boundary before approving verification
 - final summaries do not overclaim provider/plugin E2E or live Claude/Codex/Gemini behavior from deterministic repo validators alone
 
 ## When adding a fixture

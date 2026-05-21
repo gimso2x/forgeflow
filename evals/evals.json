@@ -950,6 +950,63 @@
           ]
         }
       ]
+    },
+    {
+      "id": 16,
+      "name": "review-reported-verification-boundary",
+      "prompt": "A ForgeFlow quality review is evaluating implementation-notes.md where the executor wrote: 'reported by worker: npm test passed' but no command output, transcript, log path, or reviewer-run command is present. Produce only the Evidence Classification and Verdict fragments of review-report.md. Do not claim tests passed unless concrete observed evidence exists.",
+      "expected_output": "A review fragment that classifies the worker statement as reported evidence, marks concrete verification as missing, and refuses approval until observed command output or an explicit reviewer-run verification command is captured.",
+      "files": [
+        "skills/review/SKILL.md",
+        "templates/review-report.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output includes the Evidence Classification section.",
+          "type": "contains",
+          "value": "Evidence Classification"
+        },
+        {
+          "text": "Output classifies the worker claim as reported evidence rather than observed proof.",
+          "type": "contains_any",
+          "values": [
+            "reported",
+            "reported evidence",
+            "worker-reported",
+            "not observed"
+          ]
+        },
+        {
+          "text": "Output identifies missing concrete command output or log evidence.",
+          "type": "contains_any",
+          "values": [
+            "missing",
+            "no command output",
+            "no transcript",
+            "no log",
+            "concrete evidence"
+          ]
+        },
+        {
+          "text": "Output refuses approval until observed verification exists.",
+          "type": "contains_any",
+          "values": [
+            "changes_requested",
+            "blocked",
+            "not approved",
+            "cannot approve"
+          ]
+        },
+        {
+          "text": "Output does not overclaim that tests passed.",
+          "type": "not_contains_any",
+          "values": [
+            "tests passed",
+            "npm test passed",
+            "verification passed"
+          ]
+        }
+      ]
     }
   ]
 }
