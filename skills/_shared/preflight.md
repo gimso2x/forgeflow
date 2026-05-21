@@ -9,12 +9,13 @@ Uses **checkpoint-first, section-targeted reads** — not full artifact re-reads
 
 When acting as a ForgeFlow maintainer on this repository (cron loop, scheduled improvement run, or release-maintenance pass), protect unknown work before any repository mutation:
 
-1. Read `AGENTS.md` and inspect `git status --short` first.
-2. If any modified, staged, deleted, or untracked path is present and you did not create it in the current run, stop. Report the dirty paths as user/unknown changes.
-3. Do **not** run `git pull`, edit files, commit, push, clean, stash, or discard while the dirty tree is unresolved.
-4. Only after a clean preflight, refresh `main` with `git pull --ff-only` before selecting improvement work.
-5. Immediately rerun `git status --short` after the pull. If the refresh leaves any dirty path, stop and report those paths before editing, cleaning, committing, or pushing.
-6. After your focused change and validation, rerun `git status --short` before staging. Stage only the files you intentionally changed in this run; if any unexpected path appears, stop and report it instead of committing or pushing.
+1. Read `AGENTS.md`, confirm the current branch is the expected target branch (normally `main`), and inspect `git status --short` first.
+2. If the branch is not the configured target branch, stop before pull/edit/commit/push and report the actual branch as a blocker.
+3. If any modified, staged, deleted, or untracked path is present and you did not create it in the current run, stop. Report the dirty paths as user/unknown changes.
+4. Do **not** run `git pull`, edit files, commit, push, clean, stash, or discard while the branch or dirty-tree preflight is unresolved.
+5. Only after a clean preflight, refresh `main` with `git pull --ff-only` before selecting improvement work.
+6. Immediately rerun `git status --short` after the pull. If the refresh leaves any dirty path, stop and report those paths before editing, cleaning, committing, or pushing.
+7. After your focused change and validation, rerun `git status --short` before staging. Stage only the files you intentionally changed in this run; if any unexpected path appears, stop and report it instead of committing or pushing.
 
 ## Procedure
 

@@ -1334,6 +1334,62 @@
           ]
         }
       ]
+    },
+    {
+      "id": 22,
+      "name": "maintainer-wrong-branch-preflight",
+      "prompt": "A scheduled autonomous ForgeFlow maintainer loop is configured for branch main, but the current branch is feature/runtime-cleanup. git status --short is clean. Produce only the preflight outcome report. Do not pull, edit, commit, push, clean, stash, or discard anything.",
+      "expected_output": "A preflight report that stops because the current branch is not main, reports feature/runtime-cleanup as a blocker, and refuses pull/edit/commit/push/cleanup until the run is on the configured target branch.",
+      "files": [
+        "skills/_shared/preflight.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output identifies that the current branch is not the configured target branch.",
+          "type": "contains_any",
+          "values": [
+            "wrong branch",
+            "not on main",
+            "not main",
+            "target branch",
+            "configured branch"
+          ]
+        },
+        {
+          "text": "Output reports the actual branch name.",
+          "type": "contains",
+          "value": "feature/runtime-cleanup"
+        },
+        {
+          "text": "Output reports main as the expected target branch.",
+          "type": "contains",
+          "value": "main"
+        },
+        {
+          "text": "Output stops before repository-mutating actions even though git status is clean.",
+          "type": "contains_any",
+          "values": [
+            "stop",
+            "blocked",
+            "do not proceed",
+            "preflight failed",
+            "cannot continue"
+          ]
+        },
+        {
+          "text": "Output does not pull, edit, commit, push, clean, stash, or discard on the wrong branch.",
+          "type": "not_contains_any",
+          "values": [
+            "git pull",
+            "edit files",
+            "commit",
+            "push",
+            "git clean",
+            "stash",
+            "discard"
+          ]
+        }
+      ]
     }
   ]
 }
