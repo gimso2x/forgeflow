@@ -13,6 +13,7 @@ When acting as a ForgeFlow maintainer on this repository (cron loop, scheduled i
 2. If any modified, staged, deleted, or untracked path is present and you did not create it in the current run, stop. Report the dirty paths as user/unknown changes.
 3. Do **not** run `git pull`, edit files, commit, push, clean, stash, or discard while the dirty tree is unresolved.
 4. Only after a clean preflight, refresh `main` with `git pull --ff-only` before selecting improvement work.
+5. Immediately rerun `git status --short` after the pull. If the refresh leaves any dirty path, stop and report those paths before editing, cleaning, committing, or pushing.
 
 ## Procedure
 

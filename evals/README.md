@@ -22,7 +22,7 @@ These validators ensure that:
 - review evals preserve the reported-vs-observed evidence boundary before approving verification
 - final summaries do not overclaim provider/plugin E2E or live Claude/Codex/Gemini behavior from deterministic repo validators alone
 - fixture text avoids stale workflow vocabulary (`/forgeflow:finish`, `/forgeflow-init`, `large_high_risk`, and other removed commands) so prompts, expectations, and assertions stay on the active public skill surface
-- autonomous maintainer runs stop on user/unknown dirty paths before pull/edit/clean/commit/push mutations
+- autonomous maintainer runs stop on user/unknown dirty paths before pull/edit/clean/commit/push mutations, including a second `git status --short` check after `git pull --ff-only`
 
 ## When adding a fixture
 
