@@ -29,6 +29,7 @@ These validators ensure that:
 - silent scheduled ticks use exactly `[SILENT]` with no headings or explanatory prose when there is genuinely nothing new to report
 - ship-stage fixtures refuse unresolved artifact residue such as TODO/template comments or angle-bracket placeholders before final handoff language
 - Cursor onboarding fixtures keep the colon-free command namespace (`/clarify`, `/plan`, `/execute`, `/review`, `/ship`) distinct from Claude/Codex `/forgeflow:*` commands
+- adapter setup fixtures keep plugin/extension install or cache locations separate from the target project root where `.forgeflow/tasks/<task-id>/` artifacts are written
 
 ## When adding a fixture
 

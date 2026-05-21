@@ -1890,6 +1890,60 @@
           ]
         }
       ]
+    },
+    {
+      "id": 31,
+      "name": "adapter-install-workspace-separation",
+      "prompt": "A maintainer asks you to update ForgeFlow adapter setup guidance for Claude/Codex/Gemini/Cursor. Produce the concise operator note only. It must prevent users from running workflow tasks inside plugin/extension cache directories and must explain where installation/cache state lives versus where .forgeflow/tasks/<task-id>/ artifacts should be written.",
+      "expected_output": "Operator guidance that separates adapter installation/cache location from target project workspace, names Codex and Gemini cache/install surfaces, and tells users to run ForgeFlow workflow stages from the target project root so artifacts land under that project's .forgeflow/tasks/<task-id>/ directory.",
+      "files": [
+        "README.md",
+        "docs/adapter-config.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output explicitly separates install/cache location from workflow target project root.",
+          "type": "contains_all",
+          "values": [
+            "install",
+            "cache",
+            "target project"
+          ]
+        },
+        {
+          "text": "Output says task artifacts belong under the target project's .forgeflow/tasks/<task-id>/ path.",
+          "type": "contains",
+          "value": ".forgeflow/tasks/<task-id>/"
+        },
+        {
+          "text": "Output names Codex project-local plugin cache or plugin manifest surface.",
+          "type": "contains_any",
+          "values": [
+            ".codex/plugins/forgeflow",
+            ".codex-plugin/plugin.json",
+            "Codex"
+          ]
+        },
+        {
+          "text": "Output names Gemini native extension commands or extension cache surface.",
+          "type": "contains_any",
+          "values": [
+            "gemini extensions install",
+            "gemini extensions link",
+            ".gemini/extensions",
+            "Gemini"
+          ]
+        },
+        {
+          "text": "Output does not tell users to create task artifacts inside plugin or extension cache directories.",
+          "type": "not_contains_any",
+          "values": [
+            ".codex/plugins/forgeflow/.forgeflow/tasks",
+            ".gemini/extensions/forgeflow/.forgeflow/tasks",
+            "plugin cache/.forgeflow/tasks"
+          ]
+        }
+      ]
     }
   ]
 }
