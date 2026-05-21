@@ -1,6 +1,6 @@
 # Status Analysis Preflight
 
-Shared preflight procedure for review and ship stages.
+Shared preflight procedure for maintainer automation, review, and ship stages.
 Uses **checkpoint-first, section-targeted reads** — not full artifact re-reads by default.
 
 → Compact/resume rules: `_shared/context-resume.md`
