@@ -14,6 +14,7 @@ When acting as a ForgeFlow maintainer on this repository (cron loop, scheduled i
 3. Do **not** run `git pull`, edit files, commit, push, clean, stash, or discard while the dirty tree is unresolved.
 4. Only after a clean preflight, refresh `main` with `git pull --ff-only` before selecting improvement work.
 5. Immediately rerun `git status --short` after the pull. If the refresh leaves any dirty path, stop and report those paths before editing, cleaning, committing, or pushing.
+6. After your focused change and validation, rerun `git status --short` before staging. Stage only the files you intentionally changed in this run; if any unexpected path appears, stop and report it instead of committing or pushing.
 
 ## Procedure
 

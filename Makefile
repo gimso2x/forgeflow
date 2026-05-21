@@ -155,6 +155,8 @@ validate-agent-docs:
 	@grep -Fq "Shared preflight procedure for maintainer automation" skills/_shared/preflight.md || { echo "ERROR: preflight overview must cover maintainer automation"; exit 1; }
 	@grep -Fq "Immediately rerun \`git status --short\` after the pull" skills/_shared/preflight.md || { echo "ERROR: preflight must re-check dirty status after ff-only refresh"; exit 1; }
 	@grep -Fq "Report the dirty paths as user/unknown changes" skills/_shared/preflight.md || { echo "ERROR: preflight must stop and report unknown dirty paths"; exit 1; }
+	@grep -Fq "rerun \`git status --short\` before staging" skills/_shared/preflight.md || { echo "ERROR: preflight must re-check dirty status before staging intentional files"; exit 1; }
+	@grep -Fq "Stage only the files you intentionally changed in this run" skills/_shared/preflight.md || { echo "ERROR: preflight must stage only intentional current-run files"; exit 1; }
 
 validate-templates:
 	@for t in $(TEMPLATES); do \
