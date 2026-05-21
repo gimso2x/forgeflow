@@ -23,7 +23,7 @@ These validators ensure that:
 - final summaries do not overclaim provider/plugin E2E or live Claude/Codex/Gemini behavior from deterministic repo validators alone
 - fixture text avoids stale workflow vocabulary (`/forgeflow:finish`, `/forgeflow-init`, `large_high_risk`, and other removed commands) so prompts, expectations, assertions, and fixture names stay on the active public skill surface
 - ship-stage fixture names use `ship-*` slugs even when testing branch-disposition safety, so eval result paths do not imply a removed finish stage
-- autonomous maintainer runs confirm the expected target branch, stop on wrong-branch preflight before pull/edit/commit/push, and stop on user/unknown dirty paths before pull/edit/clean/commit/push mutations, including a second `git status --short` check after `git pull --ff-only` and a final `git status --short` check before staging intentional files
+- autonomous maintainer runs confirm the expected target branch, stop on wrong-branch preflight before pull/edit/commit/push, and stop on user/unknown dirty paths before pull/edit/clean/commit/push mutations, including a second `git status --short` check after `git pull --ff-only`, a final `git status --short` check before staging intentional files, and no cron/crontab or external schedule mutation from inside the scheduled run
 - autonomous maintainer final reports keep the required Korean headings, exact validation evidence, commit/push status, and no live provider/plugin E2E overclaim
 - ship-stage fixtures refuse unresolved artifact residue such as TODO/template comments or angle-bracket placeholders before final handoff language
 
