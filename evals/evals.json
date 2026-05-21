@@ -1851,6 +1851,45 @@
           ]
         }
       ]
+    },
+    {
+      "id": 30,
+      "name": "maintainer-silent-suppression",
+      "prompt": "A scheduled autonomous ForgeFlow maintainer loop completes preflight and validation scans but finds no safe focused improvement to commit and nothing user-visible changed since the previous run. The delivery policy says genuinely empty ticks should suppress delivery with exactly [SILENT]. Produce only the final delivery payload.",
+      "expected_output": "Exactly [SILENT] and no additional headings, bullets, explanations, or mixed content when there is genuinely nothing new to report.",
+      "files": [
+        "evals/README.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output emits the exact silent suppression token.",
+          "type": "contains",
+          "value": "[SILENT]"
+        },
+        {
+          "text": "Output does not combine the silent token with normal report headings.",
+          "type": "not_contains_any",
+          "values": [
+            "요약",
+            "변경한 것",
+            "검증",
+            "커밋/푸시",
+            "다음 후보",
+            "블로커"
+          ]
+        },
+        {
+          "text": "Output does not add explanatory prose around the silent token.",
+          "type": "not_contains_any",
+          "values": [
+            "nothing new",
+            "no changes",
+            "없음",
+            "보고",
+            "checked"
+          ]
+        }
+      ]
     }
   ]
 }
