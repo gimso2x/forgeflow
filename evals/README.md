@@ -16,6 +16,7 @@ These validators ensure that:
 - eval names are unique
 - each referenced `files` path is repo-relative, tracked by git, and exists
 - assertion types stay in the supported deterministic set
+- assertion `value` / `values` entries are non-blank strings, so whitespace-only checks cannot pass accidentally
 - persisted smoke `review-report.md` fixtures are concrete audit output, not unresolved templates
 - final summaries do not overclaim provider/plugin E2E or live Claude/Codex/Gemini behavior from deterministic repo validators alone
 
