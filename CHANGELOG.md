@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Evolution 파이프라인**: evolution rule 생성을 ship 단계로 통합 (propose→activate 일원화)
+- **Evolution rule format**: global-advisory compact 6-line format (`Trigger`, `Stage`, `Mode`, `Apply`, `Skip`)
+- **review 스킬**: evolution rule validation 제거 — ship이 생성·활성화 담당
 - **스킬 통합**: 12개 스킬을 8개로 축소하여 워크플로우 단순화
   - `forgeflow-init` → `clarify`에 통합 — clarify가 작업 공간 생성 및 task ID 자동 생성
   - `finish` → `ship`에 통합 — ship이 브랜치 정리(merge/PR/keep/discard)까지 담당
