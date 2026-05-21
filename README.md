@@ -209,7 +209,7 @@ python3 -m json.tool .cursor-plugin/plugin.json >/dev/null
 python3 -m json.tool gemini-extension.json >/dev/null
 ```
 
-출력이 없어야 하는 첫 번째 명령을 제외하고, JSON 명령은 exit code 0이면 통과입니다. push/PR에서는 `validate` workflow가 전체 `make validate`를, `evals` workflow가 eval fixture 계약(`validate-evals-json`, `validate-eval-files`, `validate-evals-fixtures`)을 검사합니다.
+출력이 없어야 하는 첫 번째 명령을 제외하고, JSON 명령은 exit code 0이면 통과입니다. push/PR에서는 `validate` workflow가 전체 `make validate`를, `evals` workflow가 eval fixture 계약(`validate-evals-json`, `validate-eval-files`, `validate-evals-fixtures`)을 검사합니다. eval fixture를 추가하거나 수정할 때는 [evals/README.md](evals/README.md)의 로컬 체크리스트를 따릅니다.
 
 ### 첫 성공 데모
 
