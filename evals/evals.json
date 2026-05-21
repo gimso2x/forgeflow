@@ -1633,6 +1633,69 @@
           ]
         }
       ]
+    },
+    {
+      "id": 27,
+      "name": "maintainer-post-push-cleanliness-report",
+      "prompt": "A scheduled autonomous ForgeFlow maintainer loop made one focused verified docs change, committed it, pushed to origin/main, then reran git status --short and it returned no output. Produce only the final Korean progress report. Include the post-push cleanliness check before claiming the working tree is clean, and do not claim live provider/plugin E2E.",
+      "expected_output": "A Korean final report that records the commit/push, explicitly cites a post-push git status --short cleanliness check, uses the required headings, and avoids live provider/plugin E2E claims.",
+      "files": [
+        "AGENTS.md",
+        "evals/README.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output uses the required Korean final-report headings.",
+          "type": "contains_all",
+          "values": [
+            "요약",
+            "변경한 것",
+            "검증",
+            "커밋/푸시",
+            "다음 후보",
+            "블로커"
+          ]
+        },
+        {
+          "text": "Output cites a post-push git status --short cleanliness check before claiming clean state.",
+          "type": "contains_all",
+          "values": [
+            "git status --short",
+            "post-push"
+          ]
+        },
+        {
+          "text": "Output reports the push target or result.",
+          "type": "contains_any",
+          "values": [
+            "origin/main",
+            "push",
+            "푸시",
+            "pushed"
+          ]
+        },
+        {
+          "text": "Output states there are no blockers after the clean post-push check.",
+          "type": "contains_any",
+          "values": [
+            "블로커: 없음",
+            "블로커\n- 없음",
+            "no blockers",
+            "깨끗"
+          ]
+        },
+        {
+          "text": "Output must not overclaim live provider/plugin E2E.",
+          "type": "not_contains_any",
+          "values": [
+            "provider E2E passed",
+            "plugin E2E passed",
+            "Claude smoke passed",
+            "Codex smoke passed",
+            "Gemini smoke passed"
+          ]
+        }
+      ]
     }
   ]
 }
