@@ -151,6 +151,8 @@ validate-agent-docs:
 	@grep -Fq ".gemini/extensions" skills/_shared/discipline.md || { echo "ERROR: shared discipline must protect Gemini extension cache paths"; exit 1; }
 	@grep -Fq ".gemini/extensions" skills/clarify/SKILL.md || { echo "ERROR: clarify must protect Gemini extension cache paths"; exit 1; }
 	@grep -Fq "git status --short" skills/_shared/preflight.md || { echo "ERROR: preflight must inspect git status before maintainer mutations"; exit 1; }
+	@grep -Fq "confirm the current branch is the expected target branch" skills/_shared/preflight.md || { echo "ERROR: preflight must confirm the expected target branch before maintainer mutations"; exit 1; }
+	@grep -Fq "If the branch is not the configured target branch" skills/_shared/preflight.md || { echo "ERROR: preflight must stop on wrong branch before pull/edit/commit/push"; exit 1; }
 	@grep -Fq "git pull --ff-only" skills/_shared/preflight.md || { echo "ERROR: preflight must document ff-only refresh after clean status"; exit 1; }
 	@grep -Fq "Shared preflight procedure for maintainer automation" skills/_shared/preflight.md || { echo "ERROR: preflight overview must cover maintainer automation"; exit 1; }
 	@grep -Fq "Immediately rerun \`git status --short\` after the pull" skills/_shared/preflight.md || { echo "ERROR: preflight must re-check dirty status after ff-only refresh"; exit 1; }
