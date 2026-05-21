@@ -121,6 +121,8 @@ raw_score = file_count*1.0 + estimated_lines*0.1 + requirement_count*2.0 + depen
 
 `review-report.md`의 **Execute Micro-Gates** 테이블(high/epic)은 execute 단계의 `micro_spec` / `micro_quality` 증거를 stage review가 reported로 받아 재검증할 때 씁니다.
 
+이 repo 안의 일부 `.forgeflow/tasks/*` 폴더는 검증 fixture로 의도적으로 tracked 상태입니다. 일반 consumer 프로젝트에서는 `.forgeflow/`를 gitignore에 두는 것이 기본이며, 자세한 기준은 [docs/dogfooding.md](docs/dogfooding.md)를 참고하세요.
+
 ## Subagent execute (opt-in, high/epic)
 
 기본 `/forgeflow:execute`는 컨트롤러가 구현하고 필요 시 일부 step만 subagent에 위임합니다.
