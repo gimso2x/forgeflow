@@ -26,5 +26,7 @@ These validators ensure that:
 1. Add the eval object to `evals/evals.json` with the next sequential `id`.
 2. Keep prompts on the current public workflow surface: `/forgeflow:clarify`, `/forgeflow:plan`, `/forgeflow:execute`, `/forgeflow:review`, `/forgeflow:ship`, and `/forgeflow:long-run`.
 3. Reference only files that are committed in this repo.
-4. Prefer assertions that prove exact contract behavior; avoid claims about Claude/Codex/Gemini live execution unless that provider smoke was actually run.
-5. Run the local checks above before committing.
+4. Prefer assertions that prove exact contract behavior; keep `expected_output` as human-readable context only.
+5. Put every required pass/fail contract string in `assertions` (`contains*` / `not_contains*`) so deterministic validators and future harnesses can evaluate it without interpreting prose.
+6. Avoid claims about Claude/Codex/Gemini live execution unless that provider smoke was actually run.
+7. Run the local checks above before committing.
