@@ -20,7 +20,7 @@ These validators ensure that:
 - persisted smoke `review-report.md` fixtures are concrete audit output, not unresolved templates
 - review evals preserve the reported-vs-observed evidence boundary before approving verification
 - final summaries do not overclaim provider/plugin E2E or live Claude/Codex/Gemini behavior from deterministic repo validators alone
-- prompts avoid removed or renamed workflow commands so eval fixtures stay on the active public skill surface
+- fixture text avoids stale workflow vocabulary (`/forgeflow:finish`, `/forgeflow-init`, `large_high_risk`, and other removed commands) so prompts, expectations, and assertions stay on the active public skill surface
 - autonomous maintainer runs stop on user/unknown dirty paths before pull/edit/clean/commit/push mutations
 
 ## When adding a fixture
