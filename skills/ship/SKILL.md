@@ -1,7 +1,7 @@
 ---
 name: ship
-description: "Finalize ForgeFlow work after review: summarize, verify, prepare PR/commit handoff, and preserve evidence. Use when the user types /ship or /forgeflow:ship."
-version: 0.2.0
+description: "Finalize ForgeFlow work after review: summarize, verify, prepare PR/commit handoff, preserve evidence, and extract evolution rules. Use when the user types /ship or /forgeflow:ship."
+version: 0.3.0
 author: gimso2x
 validate_prompt: |
   Must preserve exact-output and dry-run constraints when requested.
@@ -11,7 +11,7 @@ validate_prompt: |
 
 # Ship
 
-Use this skill to prepare the final handoff after review passes.
+Use this skill to prepare the final handoff after review passes and extract reusable evolution rules.
 
 `ship` does not merge, discard, clean up, or decide branch disposition. Use `finish` for branch disposition after the user gives explicit direction.
 
@@ -20,6 +20,8 @@ Use this skill to prepare the final handoff after review passes.
 - Approved `review-report.md` or equivalent review verdict
 - `brief.md` if available
 - `plan.md` if available
+- `implementation-notes.md` if available
+- `eval-record.md` if available (from long-run, high/epic routes)
 - Git diff/status
 - Verification evidence
 
@@ -33,6 +35,11 @@ Write a `ship-summary.md` in the active task directory using `templates/ship-sum
 - Residual risks
 - Handoff action: report completed; branch disposition remains pending for `finish`
 - Quantitative summary (from execute metrics)
+
+Evolution rule artifacts (optional, when reusable patterns are found):
+
+- `~/.forgeflow/evolution/active/<rule-name>.md` for global-advisory scope
+- `.forgeflow/evolution/active/<rule-name>.md` for project scope
 
 ## Exit Condition
 
@@ -72,6 +79,54 @@ No heading. No preamble. No code fence. No third line.
 
 → `_shared/preflight.md`.
 
+## Evolution rule extraction
+
+Ship is the evolution rule generation point for **all routes** (small, medium, high, epic). This ensures every completed task can produce reusable rules, not just high/epic.
+
+### Rule lifecycle
+
+```
+observe (ship) → propose (ship) → activate (ship) → retire (ship or manual)
+```
+
+Ship consolidates the propose→validate→activate cycle because review has already validated the work. Evolution rules generated here are evidence-backed by the review-approved task artifacts.
+
+### Scope decision
+
+- **Global-advisory** (default): Rules applicable across projects. Written to `~/.forgeflow/evolution/active/<rule-name>.md`. Advisory only — cannot hard-block future tasks.
+- **Project**: Rules specific to this repository's architecture/conventions. Written to `.forgeflow/evolution/active/<rule-name>.md`. Required constraints for this project.
+
+Use project scope only when the rule depends on project-specific architecture (e.g., auth store structure, routing conventions). Default to global.
+
+### Route-aware extraction
+
+- **small**: Skip evolution rule extraction entirely. The change is too small to produce durable patterns.
+- **medium**: Extract only if an obvious, high-confidence pattern emerges. Maximum 1-2 rules.
+- **high/epic**: Full extraction. No hard limit, but prefer quality over quantity.
+
+### Capture criteria
+
+Extract an evolution rule when:
+
+1. The pattern has concrete evidence from task artifacts (implementation-notes, review-report, eval-record, code diff).
+2. It describes a trigger condition and expected behavior, not a vague sentiment.
+3. It is not already covered by an existing active rule (check `~/.forgeflow/evolution/active/` and `.forgeflow/evolution/active/`).
+4. It will actually save time or prevent mistakes in future tasks.
+
+Do not capture:
+
+- Task status, session chatter, or one-off observations
+- Patterns so obvious they don't need enforcement
+- Rules without evidence
+
+### Anti-patterns
+
+| Anti-Pattern | Why It Fails |
+|---|---|
+| Proposing rules without evidence | Rules without grounding become cargo cult |
+| Auto-generating trivial rules | Noise drowns signal |
+| Retiring rules silently | Lost history makes the same mistake recur |
+
 ## Procedure
 
 1. Check git status and diff only if command execution is allowed.
@@ -103,8 +158,24 @@ If the Triple-Lens analysis identifies meaningful improvements:
 Proceed to the final summary step directly.
 If `--auto` is active (see `_shared/automation.md`), invoke `/forgeflow:finish` after writing `ship-summary.md`.
 
-7. Write `ship-summary.md` to the active task directory. Include the Quantitative Summary section with metrics from `implementation-notes.md` → Metrics.
-8. Preserve artifacts/evidence instead of burying them in chat.
+7. **Extract evolution rules**: Review task artifacts for reusable patterns. For each valid candidate:
+   1. Check existing active rules (`~/.forgeflow/evolution/active/` and `.forgeflow/evolution/active/`) for duplicates.
+   2. Determine scope: global-advisory (default) or project (project-specific architecture only).
+   3. Write the rule in **compact format** (6 lines, no `.md` extension) directly to the matching `active/` directory:
+      ```
+      # <rule-id>
+      <one-line summary>
+      Trigger: <when to apply>
+      Stage: <clarify | plan | execute | review | multiple>
+      Mode: <advisory | required_project_rule>
+      Apply: <what to do when trigger matches>
+      Skip: <when NOT to apply>
+      ```
+   4. Global → `~/.forgeflow/evolution/active/<rule-name>`, Project → `.forgeflow/evolution/active/<rule-name>`. Create directories if they do not exist.
+   5. Report what rules were created and why.
+
+8. Write `ship-summary.md` to the active task directory. Include the Quantitative Summary section with metrics from `implementation-notes.md` → Metrics.
+9. Preserve artifacts/evidence instead of burying them in chat.
 
 Never discard, merge, PR, or destructive-clean from `ship`; hand branch disposition to `finish` and require explicit confirmation there.
 

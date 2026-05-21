@@ -230,30 +230,26 @@ Plans for high/epic routes should explicitly name the execution pattern in the A
 
 ## Evolution rule flow
 
-ForgeFlow turns repeated patterns and mistakes into Markdown rules without restoring the old Python runtime:
+ForgeFlow turns repeated patterns and mistakes into Markdown rules during the **ship** stage, which runs in all routes (small, medium, high, epic):
 
-- `long-run`
-  - Trigger: high/epic completion leaves evidence of a repeated mistake, review finding, eval failure, or operator note
-  - Artifact/location: `eval-record.md`, `.forgeflow/evolution/proposed/*.md` using `templates/evolution-rule.md`
-  - Next state: `proposed`
-- `proposed`
-  - Trigger: candidate rule has trigger, expected behavior, stage, evidence, false-positive guard, rollback path
-  - Artifact/location: `Lifecycle: proposed`, `Review Status: unreviewed`
-  - Next state: `review`
-- `review`
-  - Trigger: reviewer validates evidence, scope, enforcement mode, false-positive guard, and retirement path
-  - Artifact/location: `review-report.md` Evolution Rule Review
-  - Next state: `active` or rejected
+- `observe`
+  - Trigger: ship reviews task artifacts and identifies reusable patterns with concrete evidence
+  - Artifact/location: `implementation-notes.md`, `review-report.md`, `eval-record.md` (if high/epic)
+- `extract` (ship)
+  - Trigger: reusable pattern found with evidence, not covered by existing active rules
+  - Artifact/location: evolution rule written directly to `active/`:
+    - `Scope: global-advisory` → `~/.forgeflow/evolution/active/<rule-name>.md` (default)
+    - `Scope: project` → `.forgeflow/evolution/active/<rule-name>.md` (project-specific only)
+  - No separate propose→validate cycle needed — review already validated the work
 - `active`
-  - Trigger: approved project rule is moved to `.forgeflow/evolution/active/`
-  - Artifact/location: Markdown rule file
-  - Next state: loaded by future `clarify`, `plan`, and `execute` when trigger/stage match
+  - Trigger: rule file exists in an `active/` directory
+  - Loaded by future `clarify`, `plan`, and `execute` when trigger/stage match
 - `retired`
   - Trigger: rule becomes harmful, obsolete, or too noisy
-  - Artifact/location: `.forgeflow/evolution/retired/` with reason
+  - Artifact/location: `.forgeflow/evolution/retired/` (project) or `~/.forgeflow/evolution/retired/` (global) with reason
   - Next state: not loaded
 
-Global rules live under `~/.forgeflow/evolution/active/*.md`, but they are advisory only and cannot hard block a project task.
+Global rules are generated directly in `~/.forgeflow/evolution/` from long-run, reviewed in place, and activated by ship. They are advisory only and cannot hard block a project task.
 
 ## Adapter performance guide
 
