@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.4] - 2026-05-21
+
+### Added
+
+- **`skills/_shared/automation.md` Strict auto-chain mode**: `--auto` 스테이지 exit 체크리스트, artifact-before-code 순서, 금지 프롬프트 목록
+- **auto-break 확장**: scope change, external dependency hard failure(예: API 429), context limit 시 checkpoint blocked 후 중단 규칙
+
+### Changed
+
+- **`skills/forgeflow/SKILL.md`**: `--auto` procedure에 Strict auto-chain checklist 참조 추가
+
 ## [1.1.3] - 2026-05-21
 
 ### Added
