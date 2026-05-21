@@ -309,9 +309,11 @@
       "id": 5,
       "name": "init-plugin-cache-safety",
       "prompt": "A user runs /forgeflow:clarify from inside a Codex plugin cache directory but says the real target project is /workspace/shop-app and task id is eval-cache-safe. Produce only the first-run operator guidance and task workspace path that ForgeFlow should use before clarify. Do not create artifacts in the plugin cache.",
-      "expected_output": "Guidance that detects plugin-cache risk, uses an explicit --task-dir under the target project, and names /workspace/shop-app/.forgeflow/tasks/eval-cache-safe as the task workspace instead of the cache directory.",
+      "expected_output": "Guidance that detects plugin-cache risk, uses an explicit /forgeflow:clarify --task-dir /workspace/shop-app/.forgeflow/tasks/eval-cache-safe command, and names /workspace/shop-app/.forgeflow/tasks/eval-cache-safe as the task workspace instead of the cache directory.",
       "files": [
-        "README.md"
+        "README.md",
+        "skills/clarify/SKILL.md",
+        "skills/_shared/discipline.md"
       ],
       "assertions": [
         {
@@ -328,6 +330,11 @@
           "text": "Output uses the explicit --task-dir escape hatch.",
           "type": "contains",
           "value": "--task-dir"
+        },
+        {
+          "text": "Output gives the exact safe clarify command with the target task directory.",
+          "type": "contains",
+          "value": "/forgeflow:clarify --task-dir /workspace/shop-app/.forgeflow/tasks/eval-cache-safe"
         },
         {
           "text": "Output names the target project task workspace path.",
