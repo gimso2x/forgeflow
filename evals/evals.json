@@ -1577,6 +1577,62 @@
           ]
         }
       ]
+    },
+    {
+      "id": 26,
+      "name": "cursor-short-command-guidance",
+      "prompt": "A user installed the ForgeFlow Cursor local plugin and asks how to start the standard workflow in Cursor agent chat. Produce only the concise Cursor-specific command guidance. It must use Cursor's colon-free short slash commands, map them to the same ForgeFlow skills, and avoid telling the user to run Claude/Codex-style /forgeflow: commands in Cursor.",
+      "expected_output": "Cursor guidance that uses /clarify, /plan, /execute, /review, /ship, says they map to the same ForgeFlow skills, and explicitly avoids /forgeflow: command forms for Cursor.",
+      "files": [
+        "README.md",
+        "docs/adapter-config.md",
+        ".cursor-plugin/plugin.json"
+      ],
+      "assertions": [
+        {
+          "text": "Output lists Cursor's colon-free workflow slash commands.",
+          "type": "contains_all",
+          "values": [
+            "/clarify",
+            "/plan",
+            "/execute",
+            "/review",
+            "/ship"
+          ]
+        },
+        {
+          "text": "Output says the Cursor commands map to the same ForgeFlow skills or workflow.",
+          "type": "contains_any",
+          "values": [
+            "same ForgeFlow skills",
+            "same workflow",
+            "동일한 스킬",
+            "동일한 workflow",
+            "같은 ForgeFlow"
+          ]
+        },
+        {
+          "text": "Output mentions Cursor agent chat or Cursor local plugin context.",
+          "type": "contains_any",
+          "values": [
+            "Cursor",
+            "Agent chat",
+            "local plugin",
+            "로컬 플러그인"
+          ]
+        },
+        {
+          "text": "Output must not instruct Cursor users to invoke Claude/Codex-style forgeflow namespace commands.",
+          "type": "not_contains_any",
+          "values": [
+            "/forgeflow:clarify",
+            "/forgeflow:plan",
+            "/forgeflow:execute",
+            "/forgeflow:review",
+            "/forgeflow:ship"
+          ]
+        }
+      ]
     }
   ]
 }
