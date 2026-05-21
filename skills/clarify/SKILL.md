@@ -255,7 +255,14 @@ The goal is to gather just enough information to route correctly — not to run 
 
 **Blocker handling**: If brief.md has unresolved blockers, present each one to the user with your recommended answer. Wait for their response. Update the brief. Only then close the stage.
 
-When all blockers are resolved, end with a route-specific next step:
+When all blockers are resolved:
+
+**If `--auto` is active** (see `_shared/automation.md`): skip the prompt and invoke the next stage skill directly.
+- `small` → `/forgeflow:execute`
+- `medium` or `high` → `/forgeflow:plan`
+- `epic` → `/forgeflow:milestone`
+
+**Otherwise**, end with a route-specific next step:
 - `small`: `요구사항 충분. small route입니다. 다음 스텝으로 /forgeflow:execute을 진행하시겠습니까? (y/n)`
 - `medium` or `high`: `요구사항 충분. <route> route입니다. 다음 스텝으로 /forgeflow:plan을 진행하시겠습니까? (y/n)`
 - `epic`: `요구사항 충분. epic route입니다. 다음 스텝으로 /forgeflow:milestone을 진행하시겠습니까? (y/n)`

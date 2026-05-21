@@ -265,9 +265,10 @@ Before approving review, inspect required ForgeFlow artifacts for unresolved tem
     Missing items are `minor` findings for small routes, `major` for medium+, unless the omission is severe enough to block.
 16. Return a clear verdict in chat that matches the file. If verdict is `changes_requested` or `blocked`, update `implementation-notes.md` so status reflects the review gate.
 17. **다음 단계 안내** — 반드시 사용자에게 출력:
-    - If `approved`: "리뷰 통과. 출하 준비 완료. `/forgeflow:ship`을 실행해주세요."
-    - If `changes_requested`: "수정이 필요합니다:" + 각 P0/P1 이슈를 `file:line — description` 형태로 나열 + "`/forgeflow:execute`로 수정 후 다시 `/forgeflow:review`를 요청해주세요."
-    - Do NOT auto-proceed to ship. 반드시 사용자가 다음 단계를 실행하도록 대기.
+    - If `approved` and `--auto` is active: invoke `/forgeflow:ship` directly (see `_shared/automation.md`).
+    - If `approved` (no `--auto`): "리뷰 통과. 출하 준비 완료. `/forgeflow:ship`을 실행해주세요."
+    - If `changes_requested`: **always stop and present findings** (auto-break). "수정이 필요합니다:" + 각 P0/P1 이슈를 `file:line — description` 형태로 나열 + "`/forgeflow:execute`로 수정 후 다시 `/forgeflow:review`를 요청해주세요."
+    - Do NOT auto-proceed to ship unless `--auto` is active. 반드시 사용자가 다음 단계를 실행하도록 대기.
 18. Do not call `/forgeflow:ship` unless verdict=approved, safe_for_next_stage=yes, and open_blockers=none are all true in the **written** `review-report.md`.
 
 Do not merge spec and quality review passes into a single turn for high/epic work. Use one `review-report.md` with sequential passes.

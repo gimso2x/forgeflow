@@ -281,8 +281,9 @@ Do not code during planning unless the user explicitly asks for a tiny small-rou
 - Planning owns plan creation; do not ask the user to make the plan.
 - Do not ask for re-approval when the plan is executable; the agent owns decomposition.
 - Do stop before crossing the `plan -> execute` stage boundary, because execution is a separate stage.
-- End with: `계획은 여기까지 확정됐습니다. 다음 스텝으로 /forgeflow:execute을 진행하시겠습니까? (y/n)`
-- Do not invoke `/forgeflow:execute` in the same assistant turn after asking the closed next-stage question. The next assistant turn may proceed only after an explicit user approval such as `y`, `yes`, `진행`, or `실행`.
+- **If `--auto` is active** (see `_shared/automation.md`): skip the prompt and invoke `/forgeflow:execute` directly.
+- **Otherwise**, end with: `계획은 여기까지 확정됐습니다. 다음 스텝으로 /forgeflow:execute을 진행하시겠습니까? (y/n)`
+- Do not invoke `/forgeflow:execute` in the same assistant turn after asking the closed next-stage question (unless `--auto` is active). The next assistant turn may proceed only after an explicit user approval such as `y`, `yes`, `진행`, or `실행`.
 
 ## Output mode examples
 

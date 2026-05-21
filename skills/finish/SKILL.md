@@ -236,6 +236,7 @@ Never delete unrelated dirty working tree files. If unrelated dirty working tree
 
 ## Safety rules
 
+- **`--auto` does not skip any finish confirmations.** The 4-option choice (merge/PR/keep/discard) and the exact `discard` confirmation always require explicit user input, even when `--auto` is active (see `_shared/automation.md`). `--auto` only ensures finish is invoked automatically after ship.
 - Never run `git reset --hard` as a shortcut for finishing.
 - Never run `git clean -fd` unless the user explicitly named the exact disposable paths.
 - Never force-push as part of finish unless explicitly requested.

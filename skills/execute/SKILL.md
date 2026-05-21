@@ -55,7 +55,11 @@ Guidelines:
 
 ### Route-aware exit requirements
 
-The exit prompt and next-step guidance depend on the active route:
+The exit prompt and next-step guidance depend on the active route.
+
+**If `--auto` is active** (see `_shared/automation.md`): skip the route-specific prompt below and invoke the appropriate `/forgeflow:review` directly.
+
+**Otherwise**, prompt the user:
 
 - **small** route: After implementation, run at least one smoke check (build, lint, or type check — whichever is fastest). Update `implementation-notes.md` with `Status: completed`, then prompt the user:
   ```
@@ -189,7 +193,7 @@ Minimum warning contract:
     2. 검증 결과: lint/build/test 각각 pass/fail + 숫자
     3. 변경 파일 목록
     4. 주의사항 (있는 경우): contract_check 실패, environment warning, 미해결 decisions
-    Do NOT auto-proceed to the next stage. 반드시 사용자가 다음 단계를 실행하도록 대기.
+    Do NOT auto-proceed to the next stage unless `--auto` is active (see `_shared/automation.md`). 반드시 사용자가 다음 단계를 실행하도록 대기.
 
 Contract-aware execution rules:
 

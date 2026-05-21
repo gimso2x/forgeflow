@@ -95,12 +95,13 @@ No heading. No preamble. No code fence. No third line.
 
 If the Triple-Lens analysis identifies meaningful improvements:
 - Record each finding in `ship-summary.md` under a "Simplification candidates" section.
-- Ask the user: "품질 개선 후보가 발견되었습니다. `/forgeflow:execute`로 돌아가 수정하시겠습니까? (y/n)"
+- **Always ask the user** (auto-break, even under `--auto`): "품질 개선 후보가 발견되었습니다. `/forgeflow:execute`로 돌아가 수정하시겠습니까? (y/n)"
 - Do NOT modify code during ship. Ship is verification + handoff, not implementation.
 
 #### If no issues found
 
 Proceed to the final summary step directly.
+If `--auto` is active (see `_shared/automation.md`), invoke `/forgeflow:finish` after writing `ship-summary.md`.
 
 7. Write `ship-summary.md` to the active task directory. Include the Quantitative Summary section with metrics from `implementation-notes.md` → Metrics.
 8. Preserve artifacts/evidence instead of burying them in chat.
