@@ -200,6 +200,7 @@ validate-evals-fixtures:
 	@grep -Fq "not a live provider benchmark" evals/README.md || { echo "ERROR: evals README must not overclaim live provider benchmarking"; exit 1; }
 	@grep -Fq "make validate-evals-json validate-eval-files validate-evals-fixtures" evals/README.md || { echo "ERROR: evals README must document the local eval validation bundle"; exit 1; }
 	@grep -Fq "next sequential" evals/README.md || { echo "ERROR: evals README must document sequential fixture IDs"; exit 1; }
+	@grep -Fq "prompts avoid removed or renamed workflow commands" evals/README.md || { echo "ERROR: evals README must document removed-command fixture guard"; exit 1; }
 	@echo "OK: eval README documents deterministic scope and local validation"
 
 validate-advisory-contract:
