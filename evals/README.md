@@ -18,6 +18,7 @@ These validators ensure that:
 - each referenced `files` path is repo-relative, tracked by git, and exists
 - assertion types stay in the supported deterministic set
 - assertion `value` / `values` entries are non-blank strings, so whitespace-only checks cannot pass accidentally
+- assertion `text` entries are unique within each eval case, so duplicate audit rationale cannot hide missing contract coverage
 - persisted smoke `review-report.md` fixtures are concrete audit output, not unresolved templates
 - review evals preserve the reported-vs-observed evidence boundary before approving verification
 - final summaries do not overclaim provider/plugin E2E or live Claude/Codex/Gemini behavior from deterministic repo validators alone
