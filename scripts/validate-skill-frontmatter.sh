@@ -2,7 +2,7 @@
 set -eu
 
 # Validate that every SKILL.md has required YAML frontmatter fields:
-# name, description, version
+# name, description, version, validate_prompt
 
 root="${1:-.}"
 errors=0
@@ -22,7 +22,7 @@ for file in $skill_files; do
 	fi
 
 	# Check each required field within frontmatter range
-	for field in name description version; do
+	for field in name description version validate_prompt; do
 		line=$(sed -n "$((fm_start + 1)),$((fm_end - 1))p" "$file" | grep "^${field}:" || true)
 		if [ -z "$line" ]; then
 			echo "ERROR: $file — missing required field '$field'" >&2
@@ -42,4 +42,4 @@ if [ "$errors" -gt 0 ]; then
 fi
 
 skill_count=$(echo "$skill_files" | grep -c .)
-echo "OK: $skill_count SKILL.md files have required frontmatter (name, description, version)"
+echo "OK: $skill_count SKILL.md files have required frontmatter (name, description, version, validate_prompt)"
