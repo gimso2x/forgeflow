@@ -23,6 +23,7 @@ These validators ensure that:
 - final summaries do not overclaim provider/plugin E2E or live Claude/Codex/Gemini behavior from deterministic repo validators alone
 - fixture text avoids stale workflow vocabulary (`/forgeflow:finish`, `/forgeflow-init`, `large_high_risk`, and other removed commands) so prompts, expectations, and assertions stay on the active public skill surface
 - autonomous maintainer runs stop on user/unknown dirty paths before pull/edit/clean/commit/push mutations, including a second `git status --short` check after `git pull --ff-only`
+- autonomous maintainer final reports keep the required Korean headings, exact validation evidence, commit/push status, and no live provider/plugin E2E overclaim
 
 ## When adding a fixture
 

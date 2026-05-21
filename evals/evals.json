@@ -1125,6 +1125,74 @@
           ]
         }
       ]
+    },
+    {
+      "id": 19,
+      "name": "maintainer-korean-final-report",
+      "prompt": "A scheduled autonomous ForgeFlow maintainer loop completed one small verified docs change and committed SHA abc1234. Produce only the final progress report delivered to the user. The report must be in Korean, concise, and use the configured headings: 요약, 변경한 것, 검증, 커밋/푸시, 다음 후보, 블로커. Do not claim live provider/plugin E2E; validation was only make validate-evals-json validate-eval-files validate-evals-fixtures and make validate.",
+      "expected_output": "A Korean final report with the required headings, concrete changed-file and validation evidence, commit/push result, useful next candidates, and no provider/plugin E2E overclaim.",
+      "files": [
+        "AGENTS.md",
+        "evals/README.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output includes all configured Korean final-report headings.",
+          "type": "contains_all",
+          "values": [
+            "요약",
+            "변경한 것",
+            "검증",
+            "커밋/푸시",
+            "다음 후보",
+            "블로커"
+          ]
+        },
+        {
+          "text": "Output is Korean-facing rather than English-only.",
+          "type": "contains_any",
+          "values": [
+            "변경",
+            "검증",
+            "커밋",
+            "푸시",
+            "없음"
+          ]
+        },
+        {
+          "text": "Output records exact validation commands that were run.",
+          "type": "contains_all",
+          "values": [
+            "make validate-evals-json validate-eval-files validate-evals-fixtures",
+            "make validate"
+          ]
+        },
+        {
+          "text": "Output records the provided commit SHA.",
+          "type": "contains",
+          "value": "abc1234"
+        },
+        {
+          "text": "Output avoids overclaiming live provider/plugin E2E from deterministic validators.",
+          "type": "not_contains_any",
+          "values": [
+            "provider/plugin E2E 완료",
+            "live provider verified",
+            "Claude E2E verified",
+            "Codex E2E verified",
+            "Gemini E2E verified"
+          ]
+        },
+        {
+          "text": "Output names blockers explicitly, including 없음 when unblocked.",
+          "type": "contains_any",
+          "values": [
+            "블로커: 없음",
+            "블로커\n- 없음",
+            "블로커\n없음"
+          ]
+        }
+      ]
     }
   ]
 }
