@@ -54,6 +54,16 @@ SKILL.md                  # Claude marketplace entry (한국어 요약 → skill
 6. **릴리즈** — `VERSION` 파일만 수정하면 CI(`sync-version.yml`)가 나머지 매니페스트 7개를 자동 동기화. `CHANGELOG.md` 수동 작성 후 `/forgeflow:release` 스킬로 커밋·push·GitHub release 생성. manifest 직접 수정 금지.
    - **Release 스킬**: `.claude/skills/release.md` — Claude Code 전용. 공개 `skills/` inventory에 포함되지 않음.
 
+## Maintainer / Autonomous Preflight
+
+Scheduled or autonomous maintainer runs must protect unknown work before repository mutation:
+
+1. Run `git branch --show-current` and `git status --short --branch` before pull/edit/commit/push; stop if the branch is not the configured target branch.
+2. Stop on any modified, staged, deleted, or untracked path that the current run did not create; report the dirty paths instead of cleaning, stashing, or discarding them.
+3. After a clean preflight, run `git pull --ff-only`, then rerun `git status --short` before editing.
+4. Before commit, rerun `git status --short` and stage only intentional current-run files with explicit paths, not `git add -A` or `git add .`.
+5. Do not schedule jobs, modify cron/crontab, or change external automation from inside a scheduled improvement run.
+
 ## Code Conventions
 
 - 모든 산출물은 Markdown. `templates/` 디렉토리에 템플릿이 있습니다.
