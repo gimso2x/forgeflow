@@ -252,6 +252,8 @@ validate-evals-fixtures:
 	@grep -Fq "fixture text avoids stale workflow vocabulary" evals/README.md || { echo "ERROR: evals README must document stale-vocabulary fixture guard"; exit 1; }
 	@grep -Fq "ship-stage fixture names use \`ship-*\` slugs" evals/README.md || { echo "ERROR: evals README must document ship-stage fixture slug naming"; exit 1; }
 	@! grep -Fq '"name": "finish-' evals/evals.json || { echo "ERROR: ship-stage eval fixture names must not use removed finish-stage slugs"; exit 1; }
+	@grep -Fq "These are benchmark fixture sizes, not ForgeFlow route labels" skills/benchmark/SKILL.md || { echo "ERROR: benchmark skill must distinguish benchmark sizes from workflow route labels"; exit 1; }
+	@grep -Fq "Do not report \`large\` as a workflow route" skills/benchmark/SKILL.md || { echo "ERROR: benchmark skill must forbid treating large as a workflow route"; exit 1; }
 	@grep -Fq "eval names use kebab-case" evals/README.md || { echo "ERROR: evals README must document kebab-case eval names"; exit 1; }
 	@grep -Fq "assertion \`value\` / \`values\` entries are non-blank strings" evals/README.md || { echo "ERROR: evals README must document non-blank assertion value rules"; exit 1; }
 	@grep -Fq "multi-value assertion \`values\` entries are unique" evals/README.md || { echo "ERROR: evals README must document unique multi-value assertion rules"; exit 1; }
