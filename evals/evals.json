@@ -60,8 +60,8 @@
     {
       "id": 1,
       "name": "propose-rule-long-run",
-      "prompt": "A long-run retrospective found the same mistake in three ForgeFlow tasks: final evidence was reported in chat but no ship-summary.md or implementation-notes.md was updated. Create the long-run evolution output that should propose a reusable rule. Produce the eval-record Evolution Rule Candidates section and one proposed evolution-rule.md candidate for this pattern. Keep it pure Markdown; do not mention Python runtime or JSON schema restoration.",
-      "expected_output": "An eval-record candidate plus proposed rule content with trigger, application stage, expected behavior, evidence, false-positive guard, rollback/retirement, and review status.",
+      "prompt": "A long-run retrospective found the same mistake in three ForgeFlow tasks: final evidence was reported in chat but no ship-summary.md or implementation-notes.md was updated. Create the long-run eval-record output that records a reusable evolution rule candidate without writing .forgeflow/evolution/proposed/ files directly. Produce the eval-record Evolution Rule Candidates section for this pattern. Keep it pure Markdown; do not mention Python runtime or JSON schema restoration.",
+      "expected_output": "An eval-record candidate note with trigger, application stage, expected behavior, evidence, false-positive guard, rollback/retirement, and review status, while leaving rule materialization to ship.",
       "files": [],
       "assertions": [
         {
@@ -95,13 +95,15 @@
           ]
         },
         {
-          "text": "Output avoids Python runtime or JSON schema restoration.",
+          "text": "Output avoids Python runtime, JSON schema restoration, or direct evolution file writes from long-run.",
           "type": "not_contains_any",
           "values": [
             "Python runtime",
             "JSON schema",
             "json.loads",
-            "import json"
+            "import json",
+            "write .forgeflow/evolution/proposed",
+            "create .forgeflow/evolution/proposed"
           ]
         },
         {

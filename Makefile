@@ -266,6 +266,9 @@ validate-evals-fixtures:
 	@grep -Fq "multi-value assertion \`values\` entries are unique" evals/README.md || { echo "ERROR: evals README must document unique multi-value assertion rules"; exit 1; }
 	@grep -Fq "assertion \`text\` entries are unique within each eval case" evals/README.md || { echo "ERROR: evals README must document per-case unique assertion text rules"; exit 1; }
 	@grep -Fq "benchmark fixtures must use \`/forgeflow:benchmark\`" evals/README.md || { echo "ERROR: evals README must document benchmark fixture command scope"; exit 1; }
+	@grep -Fq "long-run evolution fixtures record candidate notes" evals/README.md || { echo "ERROR: evals README must document long-run candidate-note scope"; exit 1; }
+	@grep -Fq "without writing .forgeflow/evolution/proposed/ files directly" evals/evals.json || { echo "ERROR: long-run eval fixture must not ask long-run to write evolution-rule files directly"; exit 1; }
+	@grep -Fq "Evolution rule materialization is handled by the **ship** stage" skills/long-run/SKILL.md || { echo "ERROR: long-run skill must leave evolution rule materialization to ship"; exit 1; }
 	@grep -Fq "\`.github/workflows/evals.yml\`" README.md || { echo "ERROR: README must name the evals workflow file for eval fixture checks"; exit 1; }
 	@grep -Fq "make validate-markdown-links" README.md || { echo "ERROR: README local validation docs must include focused markdown link validation"; exit 1; }
 	@echo "OK: eval README documents deterministic scope and local validation"

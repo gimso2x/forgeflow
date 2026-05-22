@@ -70,6 +70,7 @@ Write `.forgeflow/tasks/<task-id>/eval-record.md` following the format in `templ
 - **Failure Rules**: anti-patterns or mistakes to avoid
 - **Recommendations**: for future tasks of similar nature
 - **Memory Recommendation**: optional promotion note; long-run does not write memory directly
+- **Evolution Rule Candidates**: optional candidate notes for recurring workflow rules; long-run records candidates only and does not write `.forgeflow/evolution/proposed/` files directly
 
 Every entry must be specific enough that a future agent can act on it without additional context.
 
@@ -88,9 +89,9 @@ The recommendation must point back to evidence and wait for explicit operator/pr
 
 ## Relationship to evolution
 
-Evolution rule generation is handled by the **ship** stage, not long-run. Ship runs in all routes (small, medium, high, epic) so every completed task can produce evolution rules. Long-run focuses on the eval-record (learning record) for high/epic work.
+Long-run may record evolution rule candidates in `eval-record.md` when a high/epic retrospective exposes a recurring workflow pattern. It does **not** write `.forgeflow/evolution/proposed/` files directly.
 
-Ship reads `eval-record.md` as one of its inputs when extracting evolution rule candidates.
+Evolution rule materialization is handled by the **ship** stage. Ship runs in all routes (small, medium, high, epic), reads `eval-record.md` as one input, and decides whether to turn candidate notes into proposed rule artifacts.
 
 ## Procedure
 
@@ -115,7 +116,7 @@ Ship reads `eval-record.md` as one of its inputs when extracting evolution rule 
 
 - No evidence, no rule — every pattern must reference concrete evidence from task artifacts.
 - Do not store session chatter, one-off progress, or user-private context.
-- Evolution rule generation belongs in ship, not here.
+- Evolution rule materialization belongs in ship; long-run may only record candidate notes in `eval-record.md`.
 
 ## Exit Condition
 
