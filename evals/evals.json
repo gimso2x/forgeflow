@@ -2117,6 +2117,66 @@
           ]
         }
       ]
+    },
+    {
+      "id": 34,
+      "name": "maintainer-ff-only-before-edit",
+      "prompt": "A scheduled autonomous ForgeFlow maintainer loop is on the configured main branch and the initial git status --short --branch is clean. The agent has found a small docs improvement idea but has not yet edited files. Produce only the pre-edit action/outcome note. It must refresh with git pull --ff-only before editing, rerun git status --short after the pull, and stop if the pull introduces any dirty or untracked paths. Do not claim a commit, push, or validation yet.",
+      "expected_output": "A pre-edit maintainer note that confirms clean main preflight, runs git pull --ff-only before edits, reruns git status --short after the pull, stops on any dirty/untracked paths introduced by the refresh, and does not claim validation, commit, or push before work exists.",
+      "files": [
+        "AGENTS.md",
+        "skills/_shared/preflight.md",
+        "evals/README.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output confirms the clean configured branch preflight before edits.",
+          "type": "contains_any",
+          "values": [
+            "main",
+            "configured branch",
+            "target branch",
+            "clean"
+          ]
+        },
+        {
+          "text": "Output requires ff-only refresh before editing.",
+          "type": "contains",
+          "value": "git pull --ff-only"
+        },
+        {
+          "text": "Output reruns status after the pull.",
+          "type": "contains_any",
+          "values": [
+            "rerun git status",
+            "git status --short after the pull",
+            "after pull",
+            "after the pull"
+          ]
+        },
+        {
+          "text": "Output stops if pull introduces dirty or untracked paths.",
+          "type": "contains_any",
+          "values": [
+            "stop",
+            "dirty",
+            "untracked",
+            "unknown changes",
+            "dirty paths"
+          ]
+        },
+        {
+          "text": "Output does not claim validation, commit, or push before any edit exists.",
+          "type": "not_contains_any",
+          "values": [
+            "make validate passed",
+            "validated",
+            "committed",
+            "pushed",
+            "commit SHA"
+          ]
+        }
+      ]
     }
   ]
 }
