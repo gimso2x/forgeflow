@@ -3,6 +3,8 @@
 ForgeFlow는 여러 AI 에이전트 어댑터를 지원합니다. 각 어댑터의 CLI 호출 방식, 권한, 출력 특성을 추상화한 **canonical 참조 문서**입니다.
 스킬에서 어댑터별 동작이 필요하면 이 파일을 기준으로 합니다.
 
+**작업 위치 원칙:** plugin/extension 설치·cache 위치와 실제 workflow 대상 프로젝트 루트를 분리합니다. `/forgeflow:clarify`, `/forgeflow:execute` 같은 stage 명령은 변경하려는 프로젝트 루트에서 실행하고, 산출물은 그 프로젝트의 `.forgeflow/tasks/<task-id>/` 아래에 기록해야 합니다. 어댑터 cache 안에서 실행 중이면 `--task-dir <project>/.forgeflow/tasks/<task-id>`처럼 명시 경로를 사용합니다.
+
 ## 어댑터 CLI 플래그
 
 ### Claude Code
