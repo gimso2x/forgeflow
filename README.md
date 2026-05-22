@@ -211,6 +211,9 @@ make validate-slim-surface
 # route scoring 공식이 README/SKILL/clarify 계약 사이에서 드리프트되지 않는지 확인
 make validate-route-scoring-parity
 
+# release VERSION/manifest와 CHANGELOG compare 링크 정합성 확인
+make validate-versions validate-changelog-links
+
 # 플러그인/extension JSON 파싱 확인
 make validate-json
 
