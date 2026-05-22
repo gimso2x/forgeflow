@@ -2042,6 +2042,79 @@
           ]
         }
       ]
+    },
+    {
+      "id": 33,
+      "name": "markdown-link-contract-review",
+      "prompt": "A maintainer changed ForgeFlow docs and claims local validation passed, but the diff adds two Markdown references: [runtime guide](docs/runtime-adapters.md#missing-heading) and [old schema docs](schemas/brief.schema.json). Produce only the review-report.md finding fragment for this docs-only change. Use the slim v1.x surface and the local markdown link contract as evidence; do not claim provider/plugin E2E.",
+      "expected_output": "A review finding that blocks or requests changes because the docs introduce a broken Markdown anchor/path and reference removed runtime/schema surfaces, with evidence pointing to make validate-markdown-links or make validate-slim-surface rather than provider E2E.",
+      "files": [
+        "scripts/validate-markdown-links.sh",
+        "Makefile",
+        "AGENTS.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output treats the docs change as blocked or changes requested, not approved.",
+          "type": "contains_any",
+          "values": [
+            "blocked",
+            "changes_requested",
+            "not approved",
+            "must fix"
+          ]
+        },
+        {
+          "text": "Output identifies a broken Markdown link or anchor.",
+          "type": "contains_any",
+          "values": [
+            "broken Markdown link",
+            "broken markdown link",
+            "broken anchor",
+            "missing-heading",
+            "validate-markdown-links"
+          ]
+        },
+        {
+          "text": "Output identifies the removed slim-surface schema/runtime path issue.",
+          "type": "contains_any",
+          "values": [
+            "schemas/",
+            "slim v1.x",
+            "removed runtime/schema",
+            "validate-slim-surface"
+          ]
+        },
+        {
+          "text": "Output names deterministic local validators instead of provider/plugin E2E.",
+          "type": "contains_all",
+          "values": [
+            "make validate-markdown-links",
+            "make validate-slim-surface"
+          ]
+        },
+        {
+          "text": "Output does not overclaim live provider or plugin E2E coverage.",
+          "type": "not_contains_any",
+          "values": [
+            "provider E2E passed",
+            "plugin E2E passed",
+            "Claude live verified",
+            "Codex live verified",
+            "Gemini live verified"
+          ]
+        },
+        {
+          "text": "Output includes evidence language rather than vague preference.",
+          "type": "contains_any",
+          "values": [
+            "Evidence",
+            "evidence",
+            "validator",
+            "contract"
+          ]
+        }
+      ]
     }
   ]
 }
