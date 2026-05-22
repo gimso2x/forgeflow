@@ -14,12 +14,13 @@ When acting as a ForgeFlow maintainer on this repository (cron loop, scheduled i
 2. If the branch is not the configured target branch, stop before pull/edit/commit/push and report the actual branch from `git branch --show-current` as a blocker.
 3. If any modified, staged, deleted, or untracked path is present and you did not create it in the current run, stop. Report the dirty paths as user/unknown changes.
 4. Do **not** run `git pull`, edit files, commit, push, clean, stash, or discard while the branch or dirty-tree preflight is unresolved.
-5. Only after a clean preflight, refresh `main` with `git pull --ff-only` before selecting improvement work.
-6. Re-read `AGENTS.md` after the pull in case the refreshed branch changed maintainer instructions, then immediately rerun `git status --short`. If the refresh leaves any dirty path, stop and report those paths before editing, cleaning, committing, or pushing.
-7. After your focused change and validation, rerun `git status --short` before staging. Stage only the files you intentionally changed in this run with explicit paths (for example, `git add skills/_shared/preflight.md evals/evals.json`); do not use broad staging such as `git add -A` or `git add .` in scheduled maintainer runs. If any unexpected path appears, stop and report it instead of committing or pushing.
-8. Push the branch explicitly (for example, `git push origin HEAD:refs/heads/main`) so a branch/tag name collision cannot redirect or block the scheduled update. After commit and push, rerun `git status --short` and report any remaining dirty paths instead of claiming the repository is clean.
-9. Do not schedule jobs, modify cron/crontab, or change external automation from inside the scheduled run. Treat cadence changes as operator-owned follow-up outside the repository improvement tick.
-10. For scheduled delivery, write the final Korean report in the normal final response only. Do not call separate message-delivery tools, and use exactly `[SILENT]` only when there is genuinely nothing new to report.
+5. Never run broad cleanup commands such as `git clean -fdX` in scheduled maintainer runs. If cleanup is necessary, inspect `git status --short --ignored` first and remove only named generated caches created or confirmed safe for the current run.
+6. Only after a clean preflight, refresh `main` with `git pull --ff-only` before selecting improvement work.
+7. Re-read `AGENTS.md` after the pull in case the refreshed branch changed maintainer instructions, then immediately rerun `git status --short`. If the refresh leaves any dirty path, stop and report those paths before editing, cleaning, committing, or pushing.
+8. After your focused change and validation, rerun `git status --short` before staging. Stage only the files you intentionally changed in this run with explicit paths (for example, `git add skills/_shared/preflight.md evals/evals.json`); do not use broad staging such as `git add -A` or `git add .` in scheduled maintainer runs. If any unexpected path appears, stop and report it instead of committing or pushing.
+9. Push the branch explicitly (for example, `git push origin HEAD:refs/heads/main`) so a branch/tag name collision cannot redirect or block the scheduled update. After commit and push, rerun `git status --short` and report any remaining dirty paths instead of claiming the repository is clean.
+10. Do not schedule jobs, modify cron/crontab, or change external automation from inside the scheduled run. Treat cadence changes as operator-owned follow-up outside the repository improvement tick.
+11. For scheduled delivery, write the final Korean report in the normal final response only. Do not call separate message-delivery tools, and use exactly `[SILENT]` only when there is genuinely nothing new to report.
 
 ## Procedure
 
