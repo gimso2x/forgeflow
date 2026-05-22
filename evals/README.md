@@ -18,6 +18,7 @@ These validators ensure that:
 - each referenced `files` path is repo-relative, tracked by git, and exists
 - assertion types stay in the supported deterministic set (`contains`, `contains_all`, `contains_any`, `equals`, `not_contains`, `not_contains_any`)
 - assertion `value` / `values` entries are non-blank strings, so whitespace-only checks cannot pass accidentally
+- multi-value assertion `values` entries are unique, so duplicated alternatives cannot make coverage look broader than it is
 - assertion `text` entries are unique within each eval case, so duplicate audit rationale cannot hide missing contract coverage
 - persisted smoke `review-report.md` fixtures are concrete audit output, not unresolved templates
 - review evals preserve the reported-vs-observed evidence boundary before approving verification
