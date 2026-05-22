@@ -76,6 +76,12 @@ validate-no-python:
 
 
 validate-slim-surface:
+	@tracked_legacy="$$(git ls-files 'forgeflow_runtime/**' 'schemas/**' 'tests/**')"; \
+	if [ -n "$$tracked_legacy" ]; then \
+		echo "ERROR: v1.x slim surface must not track legacy runtime/schema/test paths"; \
+		printf '%s\n' "$$tracked_legacy"; \
+		exit 1; \
+	fi
 	@matches="$$(git grep -nE 'forgeflow_runtime/|schemas/|tests/runtime|`tests/`' -- '*.md' ':!AGENTS.md' ':!CHANGELOG.md' || true)"; \
 	if [ -n "$$matches" ]; then \
 		echo "ERROR: Active v1.x docs must not reference removed runtime/schema/test trees"; \
@@ -83,7 +89,8 @@ validate-slim-surface:
 		exit 1; \
 	fi
 	@grep -Fq "make validate-slim-surface" README.md || { echo "ERROR: README local validation docs must include focused slim-surface validation"; exit 1; }
-	@echo "OK: Active docs avoid removed runtime/schema/test tree references"
+	@grep -Fq "tracked legacy runtime/schema/test directories are absent" README.md || { echo "ERROR: README local validation docs must mention slim-surface tracked directory absence"; exit 1; }
+	@echo "OK: Slim surface has no legacy runtime/schema/test directories or active-doc references"
 
 validate-ci-workflows:
 	@grep -Fq "run: make validate" .github/workflows/validate.yml || { echo "ERROR: validate workflow must run make validate"; exit 1; }
