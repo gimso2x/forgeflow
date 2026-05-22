@@ -205,6 +205,9 @@ make validate
 # Python runtime 파일이 다시 들어오지 않았는지 확인
 make validate-no-python
 
+# 활성 문서가 제거된 runtime/schema/test tree를 다시 참조하지 않는지 확인
+make validate-slim-surface
+
 # 플러그인/extension JSON 파싱 확인
 make validate-json
 

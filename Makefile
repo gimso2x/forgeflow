@@ -82,6 +82,7 @@ validate-slim-surface:
 		printf '%s\n' "$$matches"; \
 		exit 1; \
 	fi
+	@grep -Fq "make validate-slim-surface" README.md || { echo "ERROR: README local validation docs must include focused slim-surface validation"; exit 1; }
 	@echo "OK: Active docs avoid removed runtime/schema/test tree references"
 
 validate-ci-workflows:
