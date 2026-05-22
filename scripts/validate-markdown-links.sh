@@ -86,12 +86,15 @@ for path in sorted(root.rglob('*.md')):
         destination = link_destination(raw)
         target, _, anchor = destination.partition('#')
         target = target.strip()
-        if not target or '://' in target or target.startswith(('mailto:', 'tel:')):
+        if not target and anchor:
+            candidate = path.resolve()
+        elif not target or '://' in target or target.startswith(('mailto:', 'tel:')):
             return
-        parsed = urllib.parse.urlparse(target)
-        if parsed.scheme:
-            return
-        candidate = (path.parent / urllib.parse.unquote(target)).resolve()
+        else:
+            parsed = urllib.parse.urlparse(target)
+            if parsed.scheme:
+                return
+            candidate = (path.parent / urllib.parse.unquote(target)).resolve()
         try:
             candidate.relative_to(root.resolve())
         except ValueError:
