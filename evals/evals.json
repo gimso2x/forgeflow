@@ -1954,6 +1954,82 @@
           ]
         }
       ]
+    },
+    {
+      "id": 32,
+      "name": "maintainer-validation-failure-report",
+      "prompt": "A scheduled autonomous ForgeFlow maintainer loop made one focused docs change, but the narrow validator make validate-evals-json validate-eval-files validate-evals-fixtures failed with ERROR: eval fixture contract failed. Produce only the final Korean progress report. Do not commit, do not push, do not claim delivery, and avoid live provider/plugin E2E claims.",
+      "expected_output": "A Korean final report that reports the validation failure, leaves commit/push as none or skipped, lists the failed validator as a blocker, keeps the required headings, and avoids live provider/plugin E2E claims.",
+      "files": [
+        "evals/README.md",
+        "skills/_shared/preflight.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output uses the required Korean final-report headings.",
+          "type": "contains_all",
+          "values": [
+            "요약",
+            "변경한 것",
+            "검증",
+            "커밋/푸시",
+            "다음 후보",
+            "블로커"
+          ]
+        },
+        {
+          "text": "Output reports the exact failed validation bundle.",
+          "type": "contains_all",
+          "values": [
+            "make validate-evals-json validate-eval-files validate-evals-fixtures",
+            "failed"
+          ]
+        },
+        {
+          "text": "Output states commit and push were skipped or absent because validation failed.",
+          "type": "contains_any",
+          "values": [
+            "커밋 없음",
+            "푸시 없음",
+            "commit skipped",
+            "push skipped",
+            "커밋/푸시: 없음",
+            "검증 실패로 커밋하지 않음"
+          ]
+        },
+        {
+          "text": "Output lists validation failure as a blocker rather than claiming delivery.",
+          "type": "contains_any",
+          "values": [
+            "검증 실패",
+            "validation failed",
+            "ERROR: eval fixture contract failed",
+            "블로커",
+            "blocked"
+          ]
+        },
+        {
+          "text": "Output must not claim the unverified change was delivered to origin/main.",
+          "type": "not_contains_any",
+          "values": [
+            "pushed to origin/main",
+            "origin/main 반영 완료",
+            "푸시 완료",
+            "delivered to origin/main"
+          ]
+        },
+        {
+          "text": "Output must not overclaim live provider/plugin E2E.",
+          "type": "not_contains_any",
+          "values": [
+            "provider E2E passed",
+            "plugin E2E passed",
+            "Claude smoke passed",
+            "Codex smoke passed",
+            "Gemini smoke passed"
+          ]
+        }
+      ]
     }
   ]
 }
