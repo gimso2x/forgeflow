@@ -15,7 +15,7 @@ When acting as a ForgeFlow maintainer on this repository (cron loop, scheduled i
 4. Do **not** run `git pull`, edit files, commit, push, clean, stash, or discard while the branch or dirty-tree preflight is unresolved.
 5. Only after a clean preflight, refresh `main` with `git pull --ff-only` before selecting improvement work.
 6. Immediately rerun `git status --short` after the pull. If the refresh leaves any dirty path, stop and report those paths before editing, cleaning, committing, or pushing.
-7. After your focused change and validation, rerun `git status --short` before staging. Stage only the files you intentionally changed in this run; if any unexpected path appears, stop and report it instead of committing or pushing.
+7. After your focused change and validation, rerun `git status --short` before staging. Stage only the files you intentionally changed in this run with explicit paths (for example, `git add skills/_shared/preflight.md evals/evals.json`); do not use broad staging such as `git add -A` or `git add .` in scheduled maintainer runs. If any unexpected path appears, stop and report it instead of committing or pushing.
 8. After commit and push, rerun `git status --short` and report any remaining dirty paths instead of claiming the repository is clean.
 9. Do not schedule jobs, modify cron/crontab, or change external automation from inside the scheduled run. Treat cadence changes as operator-owned follow-up outside the repository improvement tick.
 10. For scheduled delivery, write the final Korean report in the normal final response only. Do not call separate message-delivery tools, and use exactly `[SILENT]` only when there is genuinely nothing new to report.

@@ -1129,8 +1129,8 @@
     {
       "id": 19,
       "name": "maintainer-pre-stage-status-check",
-      "prompt": "A scheduled autonomous ForgeFlow maintainer loop made one focused docs change and validation passed. Before staging, git status --short shows expected changes to skills/_shared/preflight.md plus an unexpected ?? scratch/notes.md that the agent did not create. Produce only the pre-stage outcome report. Do not stage, commit, push, clean, stash, or discard anything.",
-      "expected_output": "A pre-stage report that reruns git status before staging, stages no files, lists the unexpected scratch/notes.md path, treats it as user/unknown state, and refuses commit/push/cleanup until resolved.",
+      "prompt": "A scheduled autonomous ForgeFlow maintainer loop made one focused docs change and validation passed. Before staging, git status --short shows expected changes to skills/_shared/preflight.md plus an unexpected ?? scratch/notes.md that the agent did not create. Produce only the pre-stage outcome report. Do not stage, commit, push, clean, stash, or discard anything. Mention that once the tree is clean, scheduled maintainer runs should stage intentional files with explicit paths rather than broad staging.",
+      "expected_output": "A pre-stage report that reruns git status before staging, stages no files, lists the unexpected scratch/notes.md path, treats it as user/unknown state, refuses commit/push/cleanup until resolved, and avoids broad staging such as git add -A/git add . in scheduled maintainer runs.",
       "files": [
         "AGENTS.md",
         "skills/_shared/preflight.md",
@@ -1184,6 +1184,18 @@
             "current run",
             "expected changes",
             "stage only"
+          ]
+        },
+        {
+          "text": "Output recommends explicit-path staging instead of broad staging once the tree is clean.",
+          "type": "contains_any",
+          "values": [
+            "explicit paths",
+            "explicit file paths",
+            "specific paths",
+            "not git add -A",
+            "avoid git add .",
+            "broad staging"
           ]
         }
       ]
