@@ -208,6 +208,9 @@ make validate-no-python
 # 플러그인/extension JSON 파싱 확인
 make validate-json
 
+# adapter CLI/config 문서와 README quickstart 계약만 빠르게 확인
+make validate-adapter-config
+
 # 문서/스킬 링크가 repo-relative로 깨지지 않는지 확인
 make validate-markdown-links
 
