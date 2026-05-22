@@ -211,6 +211,9 @@ make validate-json
 # 문서/스킬 링크가 repo-relative로 깨지지 않는지 확인
 make validate-markdown-links
 
+# 첫 성공 데모 산출물/README 계약만 빠르게 확인
+make validate-demo
+
 # GitHub Actions workflow가 로컬 검증 bundle과 드리프트되지 않는지 확인
 make validate-ci-workflows
 

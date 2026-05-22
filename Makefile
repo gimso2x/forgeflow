@@ -52,6 +52,7 @@ validate-demo:
 		grep -Fq "$$artifact" README.md || { echo "ERROR: README first-run demo docs must mention $$artifact"; exit 1; }; \
 	done; \
 	grep -Fq "make demo" README.md || { echo "ERROR: README must document make demo"; exit 1; }; \
+	grep -Fq "make validate-demo" README.md || { echo "ERROR: README must document focused demo validation target"; exit 1; }; \
 	grep -Fq ".forgeflow/tasks/demo-small/" README.md || { echo "ERROR: README must document demo task path"; exit 1; }; \
 	grep -Fq "실제 provider/plugin E2E가 아니라" README.md || { echo "ERROR: README first-run demo docs must not overclaim provider/plugin E2E"; exit 1; }; \
 	grep -Fq "live provider/plugin E2E를 실행하지 않습니다" README.md || { echo "ERROR: README local validation docs must not overclaim provider/plugin E2E"; exit 1; }; \
