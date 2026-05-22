@@ -66,8 +66,38 @@ for path in sorted(root.rglob('*.md')):
     if fence_start is not None:
         fenced_ranges.append((fence_start, len(text)))
 
+    inline_code_ranges = []
+    cursor = 0
+    for line in text.splitlines(keepends=True):
+        line_end = cursor + len(line)
+        index = 0
+        while index < len(line):
+            if line[index] != '`':
+                index += 1
+                continue
+            tick_end = index + 1
+            while tick_end < len(line) and line[tick_end] == '`':
+                tick_end += 1
+            fence = line[index:tick_end]
+            close = line.find(fence, tick_end)
+            if close == -1:
+                index = tick_end
+                continue
+            start = cursor + index
+            end = min(cursor + close + len(fence), line_end)
+            if not any(f_start <= start < f_end for f_start, f_end in fenced_ranges):
+                inline_code_ranges.append((start, end))
+            index = close + len(fence)
+        cursor = line_end
+
     def in_fenced_code(offset: int) -> bool:
         return any(start <= offset < end for start, end in fenced_ranges)
+
+    def in_inline_code(offset: int) -> bool:
+        return any(start <= offset < end for start, end in inline_code_ranges)
+
+    def in_code(offset: int) -> bool:
+        return in_fenced_code(offset) or in_inline_code(offset)
 
     def location(offset: int) -> str:
         line_no = 1
@@ -112,7 +142,7 @@ for path in sorted(root.rglob('*.md')):
             failures.append(f'{location(offset)} broken {kind} anchor -> {raw}')
 
     for match in re.finditer(r'(?<!\\)(!?)\[[^\]]+\]\(([^)]+)\)', text):
-        if in_fenced_code(match.start()):
+        if in_code(match.start()):
             continue
         raw = match.group(2).strip()
         kind = 'markdown image' if match.group(1) else 'markdown link'
@@ -120,7 +150,7 @@ for path in sorted(root.rglob('*.md')):
 
     reference_defs = set()
     for match in re.finditer(r'^\s{0,3}\[([^\]]+)\]:\s+(\S+)', text, re.M):
-        if in_fenced_code(match.start()):
+        if in_code(match.start()):
             continue
         label = match.group(1).strip().casefold()
         if label in reference_defs:
@@ -130,14 +160,14 @@ for path in sorted(root.rglob('*.md')):
         check_target(raw, match.start(2), 'markdown reference link')
 
     for match in re.finditer(r'!?(?<!\\)\[([^\]\n]+)\]\[([^\]\n]*)\]', text):
-        if in_fenced_code(match.start()):
+        if in_code(match.start()):
             continue
         label = (match.group(2) or match.group(1)).strip().casefold()
         if label and label not in reference_defs:
             failures.append(f'{location(match.start())} missing markdown reference definition -> [{match.group(1)}][{match.group(2)}]')
 
     for match in re.finditer(r'<([^<>\s]+)>', text):
-        if in_fenced_code(match.start()):
+        if in_code(match.start()):
             continue
         raw = match.group(1).strip()
         parsed = urllib.parse.urlparse(raw)
@@ -150,12 +180,12 @@ for path in sorted(root.rglob('*.md')):
             check_target(raw, match.start(1), 'markdown autolink')
 
     for match in re.finditer(r'''<a\s+[^>]*href=["']([^"']+)["']''', text, re.I):
-        if in_fenced_code(match.start()):
+        if in_code(match.start()):
             continue
         check_target(match.group(1).strip(), match.start(1), 'HTML href')
 
     for match in re.finditer(r'''<img\s+[^>]*src=["']([^"']+)["']''', text, re.I):
-        if in_fenced_code(match.start()):
+        if in_code(match.start()):
             continue
         check_target(match.group(1).strip(), match.start(1), 'HTML img src')
 
@@ -164,5 +194,5 @@ if failures:
     for failure in failures:
         print(f'- {failure}')
     sys.exit(1)
-print('OK: Markdown inline/reference/collapsed-reference/autolink relative links, images, HTML href/src, anchors, and unique reference definitions resolve')
+print('OK: Markdown inline/reference/collapsed-reference/autolink relative links, images, HTML href/src, anchors, and unique reference definitions resolve outside code spans')
 PY
