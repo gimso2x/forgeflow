@@ -289,6 +289,7 @@ validate-evals-fixtures:
 	@grep -Fq "assertion \`value\` / \`values\` entries are non-blank strings" evals/README.md || { echo "ERROR: evals README must document non-blank assertion value rules"; exit 1; }
 	@grep -Fq "multi-value assertion \`values\` entries are unique" evals/README.md || { echo "ERROR: evals README must document unique multi-value assertion rules"; exit 1; }
 	@grep -Fq "assertion \`text\` entries are unique within each eval case" evals/README.md || { echo "ERROR: evals README must document per-case unique assertion text rules"; exit 1; }
+	@grep -Fq "every machine-checkable requirement must be mirrored in \`assertions\`" evals/README.md || { echo "ERROR: evals README must document expected_output/assertions separation"; exit 1; }
 	@grep -Fq "benchmark fixtures must use \`/forgeflow:benchmark\`" evals/README.md || { echo "ERROR: evals README must document benchmark fixture command scope"; exit 1; }
 	@grep -Fq "long-run evolution fixtures record candidate notes" evals/README.md || { echo "ERROR: evals README must document long-run candidate-note scope"; exit 1; }
 	@grep -Fq "git push origin HEAD:refs/heads/main" evals/README.md || { echo "ERROR: evals README must document explicit branch push for autonomous maintainer fixtures"; exit 1; }

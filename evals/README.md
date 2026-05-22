@@ -26,6 +26,7 @@ These validators ensure that:
 - assertion `value` / `values` entries are non-blank strings, so whitespace-only checks cannot pass accidentally
 - multi-value assertion `values` entries are unique, so duplicated alternatives cannot make coverage look broader than it is
 - assertion `text` entries are unique within each eval case, so duplicate audit rationale cannot hide missing contract coverage
+- `expected_output` stays human-readable context only; every machine-checkable requirement must be mirrored in `assertions`
 - persisted smoke `review-report.md` fixtures are concrete audit output, not unresolved templates
 - review evals preserve the reported-vs-observed evidence boundary before approving verification
 - final summaries do not overclaim provider/plugin E2E or live Claude/Codex/Gemini behavior from deterministic repo validators alone
