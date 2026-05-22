@@ -235,7 +235,7 @@ make validate-demo
 # GitHub Actions workflow가 로컬 검증 bundle과 드리프트되지 않는지 확인
 make validate-ci-workflows
 
-# AGENTS.md와 maintainer preflight guardrail 계약만 빠르게 확인
+# AGENTS.md, maintainer preflight, shared discipline linkage 계약만 빠르게 확인
 make validate-agent-docs
 
 # Gemini import와 plugin prompt 매핑만 빠르게 확인

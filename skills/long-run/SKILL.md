@@ -3,6 +3,8 @@ name: long-run
 description: Record reusable learnings after high or epic route completion. Produces eval-record.md with evidence-backed reusable patterns, failure rules, and improvement suggestions. High/epic route only unless manually invoked. Use when the user types /long-run or /forgeflow:long-run.
 version: 0.4.0
 author: gimso2x
+dependencies:
+  - skills/_shared/discipline.md
 validate_prompt: |
   Must preserve only learning that can improve future tasks.
   Must not store session chatter, one-off progress, or user-private context.
@@ -13,6 +15,8 @@ validate_prompt: |
 # Long-run
 
 Capture durable signal from high or epic route work. This is not a summary tool -- it is a memory gate that decides what is worth preserving for future tasks.
+
+Shared file-write, cache-location, and provider-E2E claim rules: `_shared/discipline.md`.
 
 ## Input
 

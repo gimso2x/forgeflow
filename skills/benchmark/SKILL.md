@@ -3,6 +3,8 @@ name: benchmark
 description: Run cross-adapter benchmark tests to compare AI agent ForgeFlow workflow compatibility. Use when the user types /benchmark or /forgeflow:benchmark.
 version: 0.3.0
 author: gimso2x
+dependencies:
+  - skills/_shared/discipline.md
 validate_prompt: |
   Must run the same prompt against multiple adapters.
   Must produce a structured comparison report.
@@ -12,6 +14,8 @@ validate_prompt: |
 # Benchmark
 
 Run the same prompt against multiple AI adapters (Claude, Codex, Gemini) and produce a structured comparison report.
+
+Shared file-write, cache-location, and provider-E2E claim rules: `_shared/discipline.md`.
 
 ## Trigger
 

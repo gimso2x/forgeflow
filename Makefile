@@ -178,7 +178,11 @@ validate-agent-docs:
 	@grep -Fq "Do not call separate message-delivery tools" skills/_shared/preflight.md || { echo "ERROR: preflight must keep scheduled-run delivery in final response only"; exit 1; }
 	@grep -Fq 'use exactly `[SILENT]` only when there is genuinely nothing new to report' skills/_shared/preflight.md || { echo "ERROR: preflight must document exact scheduled-run silent suppression"; exit 1; }
 	@grep -Fq "make validate-agent-docs" README.md || { echo "ERROR: README local validation docs must include focused AGENTS/preflight validation"; exit 1; }
-	@echo "OK: AGENTS/preflight docs are covered by focused validation"
+	@grep -Fq "shared discipline linkage" README.md || { echo "ERROR: README local validation docs must mention shared discipline linkage"; exit 1; }
+	@for f in skills/*/SKILL.md; do \
+		grep -Fq "_shared/discipline.md" "$$f" || { echo "ERROR: $$f must reference shared discipline rules"; exit 1; }; \
+	done
+	@echo "OK: AGENTS/preflight docs and shared discipline links are covered by focused validation"
 
 validate-templates:
 	@for t in $(TEMPLATES); do \
