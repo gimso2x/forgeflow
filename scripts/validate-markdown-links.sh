@@ -73,34 +73,43 @@ for path in sorted(root.rglob('*.md')):
         column = offset - line_starts[line_no - 1] + 1
         return f'{path}:{line_no}:{column}'
 
+    def check_target(raw: str, offset: int, kind: str) -> None:
+        target, _, anchor = raw.partition('#')
+        target = target.strip()
+        if not target or '://' in target or target.startswith(('mailto:', 'tel:')):
+            return
+        parsed = urllib.parse.urlparse(target)
+        if parsed.scheme:
+            return
+        candidate = (path.parent / urllib.parse.unquote(target)).resolve()
+        try:
+            candidate.relative_to(root.resolve())
+        except ValueError:
+            failures.append(f'{location(offset)} {kind} escapes repo -> {raw}')
+            return
+        if not candidate.exists():
+            failures.append(f'{location(offset)} broken {kind} -> {raw}')
+            return
+        if anchor and urllib.parse.unquote(anchor) not in markdown_anchors(candidate):
+            failures.append(f'{location(offset)} broken {kind} anchor -> {raw}')
+
     for match in re.finditer(r'(!?)\[[^\]]+\]\(([^)]+)\)', text):
         if in_fenced_code(match.start()):
             continue
         raw = match.group(2).strip()
-        target, _, anchor = raw.partition('#')
-        target = target.strip()
-        if not target or '://' in target or target.startswith(('mailto:', 'tel:')):
-            continue
-        parsed = urllib.parse.urlparse(target)
-        if parsed.scheme:
-            continue
-        candidate = (path.parent / urllib.parse.unquote(target)).resolve()
         kind = 'markdown image' if match.group(1) else 'markdown link'
-        try:
-            candidate.relative_to(root.resolve())
-        except ValueError:
-            failures.append(f'{location(match.start(2))} {kind} escapes repo -> {raw}')
+        check_target(raw, match.start(2), kind)
+
+    for match in re.finditer(r'^\s{0,3}\[[^\]]+\]:\s+(\S+)', text, re.M):
+        if in_fenced_code(match.start()):
             continue
-        if not candidate.exists():
-            failures.append(f'{location(match.start(2))} broken {kind} -> {raw}')
-            continue
-        if anchor and urllib.parse.unquote(anchor) not in markdown_anchors(candidate):
-            failures.append(f'{location(match.start(2))} broken {kind} anchor -> {raw}')
+        raw = match.group(1).strip().strip('<>')
+        check_target(raw, match.start(1), 'markdown reference link')
 
 if failures:
     print('ERROR: Broken markdown links found')
     for failure in failures:
         print(f'- {failure}')
     sys.exit(1)
-print('OK: Markdown relative links, images, and anchors resolve')
+print('OK: Markdown inline/reference relative links, images, and anchors resolve')
 PY
