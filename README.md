@@ -217,7 +217,7 @@ make validate-versions validate-changelog-links
 # 플러그인/extension JSON 파싱 확인
 make validate-json
 
-# public skill inventory/frontmatter 계약 확인
+# public skill inventory/frontmatter 계약과 root SKILL.md marketplace summary linkage 확인
 make validate-skills
 
 # 템플릿 존재 여부와 skill→template 참조 확인
