@@ -1,6 +1,7 @@
-# Status Analysis Preflight
+# Shared Preflight
 
 Shared preflight procedure for maintainer automation, review, and ship stages.
+Maintainer automation must run the repository safety checks before pull/edit/commit/push; review and ship use the checkpoint-first artifact reading procedure below.
 Uses **checkpoint-first, section-targeted reads** — not full artifact re-reads by default.
 
 → Compact/resume rules: `_shared/context-resume.md`
