@@ -73,8 +73,18 @@ for path in sorted(root.rglob('*.md')):
         column = offset - line_starts[line_no - 1] + 1
         return f'{path}:{line_no}:{column}'
 
+    def link_destination(raw: str) -> str:
+        raw = raw.strip()
+        if raw.startswith('<') and '>' in raw:
+            return raw[1:raw.index('>')].strip()
+        for index, char in enumerate(raw):
+            if char.isspace():
+                return raw[:index].strip()
+        return raw
+
     def check_target(raw: str, offset: int, kind: str) -> None:
-        target, _, anchor = raw.partition('#')
+        destination = link_destination(raw)
+        target, _, anchor = destination.partition('#')
         target = target.strip()
         if not target or '://' in target or target.startswith(('mailto:', 'tel:')):
             return
