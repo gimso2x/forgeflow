@@ -18,6 +18,7 @@ When acting as a ForgeFlow maintainer on this repository (cron loop, scheduled i
 7. After your focused change and validation, rerun `git status --short` before staging. Stage only the files you intentionally changed in this run; if any unexpected path appears, stop and report it instead of committing or pushing.
 8. After commit and push, rerun `git status --short` and report any remaining dirty paths instead of claiming the repository is clean.
 9. Do not schedule jobs, modify cron/crontab, or change external automation from inside the scheduled run. Treat cadence changes as operator-owned follow-up outside the repository improvement tick.
+10. For scheduled delivery, write the final Korean report in the normal final response only. Do not call separate message-delivery tools, and use exactly `[SILENT]` only when there is genuinely nothing new to report.
 
 ## Procedure
 
