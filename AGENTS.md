@@ -60,7 +60,7 @@ Scheduled or autonomous maintainer runs must protect unknown work before reposit
 
 1. Run `git branch --show-current` and `git status --short --branch` before pull/edit/commit/push; stop if the branch is not the configured target branch.
 2. Stop on any modified, staged, deleted, or untracked path that the current run did not create; report the dirty paths instead of cleaning, stashing, or discarding them.
-3. After a clean preflight, run `git pull --ff-only`, then rerun `git status --short` before editing.
+3. After a clean preflight, run `git pull --ff-only`, re-read `AGENTS.md` in case the pull changed maintainer instructions, then rerun `git status --short` before editing.
 4. Before commit, rerun `git status --short` and stage only intentional current-run files with explicit paths, not `git add -A` or `git add .`.
 5. Do not schedule jobs, modify cron/crontab, or change external automation from inside a scheduled improvement run.
 

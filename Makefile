@@ -188,8 +188,9 @@ validate-agent-docs:
 	@grep -Fq "confirm the current branch is the expected target branch" skills/_shared/preflight.md || { echo "ERROR: preflight must confirm the expected target branch before maintainer mutations"; exit 1; }
 	@grep -Fq "If the branch is not the configured target branch" skills/_shared/preflight.md || { echo "ERROR: preflight must stop on wrong branch before pull/edit/commit/push"; exit 1; }
 	@grep -Fq "git pull --ff-only" skills/_shared/preflight.md || { echo "ERROR: preflight must document ff-only refresh after clean status"; exit 1; }
+	@grep -Fq "Re-read \`AGENTS.md\` after the pull" skills/_shared/preflight.md || { echo "ERROR: preflight must re-read AGENTS.md after ff-only refresh"; exit 1; }
 	@grep -Fq "Shared preflight procedure for maintainer automation" skills/_shared/preflight.md || { echo "ERROR: preflight overview must cover maintainer automation"; exit 1; }
-	@grep -Fq "Immediately rerun \`git status --short\` after the pull" skills/_shared/preflight.md || { echo "ERROR: preflight must re-check dirty status after ff-only refresh"; exit 1; }
+	@grep -Fq "then immediately rerun \`git status --short\`" skills/_shared/preflight.md || { echo "ERROR: preflight must re-check dirty status after ff-only refresh"; exit 1; }
 	@grep -Fq "Report the dirty paths as user/unknown changes" skills/_shared/preflight.md || { echo "ERROR: preflight must stop and report unknown dirty paths"; exit 1; }
 	@grep -Fq "rerun \`git status --short\` before staging" skills/_shared/preflight.md || { echo "ERROR: preflight must re-check dirty status before staging intentional files"; exit 1; }
 	@grep -Fq "Stage only the files you intentionally changed in this run" skills/_shared/preflight.md || { echo "ERROR: preflight must stage only intentional current-run files"; exit 1; }
