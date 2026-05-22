@@ -9,6 +9,9 @@ concurrency:
   group: evals-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   eval-fixtures:
     runs-on: ubuntu-latest

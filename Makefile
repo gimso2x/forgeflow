@@ -98,8 +98,13 @@ validate-slim-surface:
 validate-ci-workflows:
 	@grep -Fq "run: make validate" .github/workflows/validate.yml || { echo "ERROR: validate workflow must run make validate"; exit 1; }
 	@grep -Fq "run: make validate-evals" .github/workflows/evals.yml || { echo "ERROR: evals workflow must run the documented eval fixture bundle"; exit 1; }
+	@grep -Fq "permissions:" .github/workflows/validate.yml || { echo "ERROR: validate workflow must declare minimal permissions"; exit 1; }
+	@grep -Fq "permissions:" .github/workflows/evals.yml || { echo "ERROR: evals workflow must declare minimal permissions"; exit 1; }
+	@grep -Fq "contents: read" .github/workflows/validate.yml || { echo "ERROR: validate workflow must use read-only contents permission"; exit 1; }
+	@grep -Fq "contents: read" .github/workflows/evals.yml || { echo "ERROR: evals workflow must use read-only contents permission"; exit 1; }
 	@grep -Fq ".github/workflows/validate.yml" README.md || { echo "ERROR: README must document validate workflow location"; exit 1; }
 	@grep -Fq ".github/workflows/evals.yml" README.md || { echo "ERROR: README must document evals workflow location"; exit 1; }
+	@grep -Fq "read-only \`contents: read\` permissions" README.md || { echo "ERROR: README must document CI workflows use minimal read-only permissions"; exit 1; }
 	@grep -Fq "make validate-evals" README.md || { echo "ERROR: README must document the eval validation bundle target"; exit 1; }
 	@grep -Fq "make validate-evals" evals/README.md || { echo "ERROR: eval README must document the eval validation bundle target"; exit 1; }
 	@echo "OK: CI workflows invoke documented local validation bundles"
