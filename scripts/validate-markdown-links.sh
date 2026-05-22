@@ -46,6 +46,24 @@ for path in sorted(root.rglob('*.md')):
         if char == chr(10):
             line_starts.append(index + 1)
 
+    fenced_ranges = []
+    fence_start = None
+    cursor = 0
+    for line in text.splitlines(keepends=True):
+        stripped = line.lstrip()
+        if stripped.startswith(('```', '~~~')):
+            if fence_start is None:
+                fence_start = cursor
+            else:
+                fenced_ranges.append((fence_start, cursor + len(line)))
+                fence_start = None
+        cursor += len(line)
+    if fence_start is not None:
+        fenced_ranges.append((fence_start, len(text)))
+
+    def in_fenced_code(offset: int) -> bool:
+        return any(start <= offset < end for start, end in fenced_ranges)
+
     def location(offset: int) -> str:
         line_no = 1
         for index, start in enumerate(line_starts):
@@ -56,6 +74,8 @@ for path in sorted(root.rglob('*.md')):
         return f'{path}:{line_no}:{column}'
 
     for match in re.finditer(r'(?<!!)\[[^\]]+\]\(([^)]+)\)', text):
+        if in_fenced_code(match.start()):
+            continue
         raw = match.group(1).strip()
         target, _, anchor = raw.partition('#')
         target = target.strip()
