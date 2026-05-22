@@ -208,8 +208,17 @@ make validate-no-python
 # 활성 문서가 제거된 runtime/schema/test tree를 다시 참조하지 않는지 확인
 make validate-slim-surface
 
+# route scoring 공식이 README/SKILL/clarify 계약 사이에서 드리프트되지 않는지 확인
+make validate-route-scoring-parity
+
 # 플러그인/extension JSON 파싱 확인
 make validate-json
+
+# public skill inventory/frontmatter 계약 확인
+make validate-skills
+
+# 템플릿 존재 여부와 skill→template 참조 확인
+make validate-templates validate-template-refs
 
 # adapter CLI/config 문서와 README quickstart 계약만 빠르게 확인
 make validate-adapter-config

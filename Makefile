@@ -126,6 +126,7 @@ validate-changelog-links:
 
 validate-route-scoring-parity:
 	@$(PYTHON) -c "exec("'"'"import pathlib, sys\nsnippet = 'raw_score = file_count*1.0 + estimated_lines*0.1 + requirement_count*2.0 + dependency_count*1.5 + risk_keywords*3.0'\ndocs = ['README.md', 'SKILL.md', 'skills/forgeflow/SKILL.md', 'skills/clarify/SKILL.md']\nfailures = [doc for doc in docs if snippet not in pathlib.Path(doc).read_text(encoding='utf-8')]\nif failures:\n    print('ERROR: Route scoring formula missing in:')\n    [print(f'- {failure}') for failure in failures]\n    sys.exit(1)\nprint('OK: Route scoring formula present in core docs')\n"'"'")"
+	@grep -Fq "make validate-route-scoring-parity" README.md || { echo "ERROR: README local validation docs must include focused route-scoring parity validation"; exit 1; }
 
 validate-skill-frontmatter:
 	@bash scripts/validate-skill-frontmatter.sh
@@ -154,6 +155,7 @@ validate-skills: validate-skill-frontmatter
 		fi; \
 	done
 	@$(PYTHON) -c 'import pathlib, re, sys; root = pathlib.Path("skills"); inventory = (root / "SKILLS.md").read_text(encoding="utf-8"); active = sorted(d.name for d in root.iterdir() if d.is_dir() and not d.name.startswith("_")); targets = re.findall(r"\(([^)]+/SKILL\.md)\)", inventory); linked_names = sorted(pathlib.PurePosixPath(target).parts[0] for target in targets if (root / target).exists()); missing = sorted(set(active) - set(linked_names)); stale = sorted(target for target in targets if not (root / target).exists() or pathlib.PurePosixPath(target).parts[0] not in active); (print("ERROR: skills/SKILLS.md inventory drift") or print(f"- missing active skills: {missing}") or print(f"- stale skill links: {stale}") or sys.exit(1)) if (missing or stale) else print(f"OK: skills/SKILLS.md lists {len(active)} active skills")'
+	@grep -Fq "make validate-skills" README.md || { echo "ERROR: README local validation docs must include focused skills validation"; exit 1; }
 	@echo "OK: All public skills have SKILL.md with name, description, validate_prompt, and inventory coverage"
 
 validate-agent-docs:
@@ -185,6 +187,7 @@ validate-templates:
 		fi; \
 	done
 	@echo "OK: All templates exist"
+	@grep -Fq "make validate-templates validate-template-refs" README.md || { echo "ERROR: README local validation docs must include focused template validation bundle"; exit 1; }
 
 validate-template-refs:
 	@$(PYTHON) -c "exec("'"'"import pathlib, re, sys\nroot = pathlib.Path('.')\nrefs = set()\nfor skill_md in (root / 'skills').glob('*/SKILL.md'):\n    text = skill_md.read_text(encoding='utf-8')\n    for match in re.finditer(r'templates/([a-zA-Z0-9_-]+\\\\.md)', text):\n        refs.add(match.group(1))\nmissing = sorted(t for t in refs if not (root / 'templates' / t).exists())\nif missing:\n    print('ERROR: Missing template files referenced by skills:')\n    [print(f'- {item}') for item in missing]\n    sys.exit(1)\nprint(f'OK: {len(refs)} template references resolve')\n"'"'")"
