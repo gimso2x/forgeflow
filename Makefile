@@ -194,6 +194,7 @@ validate-agent-docs:
 	@grep -Fq "rerun \`git status --short\` before staging" skills/_shared/preflight.md || { echo "ERROR: preflight must re-check dirty status before staging intentional files"; exit 1; }
 	@grep -Fq "Stage only the files you intentionally changed in this run" skills/_shared/preflight.md || { echo "ERROR: preflight must stage only intentional current-run files"; exit 1; }
 	@grep -Fq "After commit and push, rerun \`git status --short\`" skills/_shared/preflight.md || { echo "ERROR: preflight must re-check dirty status after push before reporting clean"; exit 1; }
+	@grep -Fq "git push origin HEAD:refs/heads/main" skills/_shared/preflight.md || { echo "ERROR: preflight must document explicit branch push to avoid branch/tag collisions"; exit 1; }
 	@grep -Fq "Do not schedule jobs, modify cron/crontab, or change external automation" skills/_shared/preflight.md || { echo "ERROR: preflight must keep scheduled-run cadence changes operator-owned"; exit 1; }
 	@grep -Fq "Do not call separate message-delivery tools" skills/_shared/preflight.md || { echo "ERROR: preflight must keep scheduled-run delivery in final response only"; exit 1; }
 	@grep -Fq 'use exactly `[SILENT]` only when there is genuinely nothing new to report' skills/_shared/preflight.md || { echo "ERROR: preflight must document exact scheduled-run silent suppression"; exit 1; }
@@ -284,6 +285,7 @@ validate-evals-fixtures:
 	@grep -Fq "assertion \`text\` entries are unique within each eval case" evals/README.md || { echo "ERROR: evals README must document per-case unique assertion text rules"; exit 1; }
 	@grep -Fq "benchmark fixtures must use \`/forgeflow:benchmark\`" evals/README.md || { echo "ERROR: evals README must document benchmark fixture command scope"; exit 1; }
 	@grep -Fq "long-run evolution fixtures record candidate notes" evals/README.md || { echo "ERROR: evals README must document long-run candidate-note scope"; exit 1; }
+	@grep -Fq "git push origin HEAD:refs/heads/main" evals/README.md || { echo "ERROR: evals README must document explicit branch push for autonomous maintainer fixtures"; exit 1; }
 	@grep -Fq "without writing .forgeflow/evolution/proposed/ files directly" evals/evals.json || { echo "ERROR: long-run eval fixture must not ask long-run to write evolution-rule files directly"; exit 1; }
 	@grep -Fq "Evolution rule materialization is handled by the **ship** stage" skills/long-run/SKILL.md || { echo "ERROR: long-run skill must leave evolution rule materialization to ship"; exit 1; }
 	@grep -Fq "\`.forgeflow/evolution/proposed/\` 파일은 직접 쓰지 않음" README.md || { echo "ERROR: README must say long-run records candidate notes without writing proposed evolution files directly"; exit 1; }
