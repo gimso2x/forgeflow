@@ -119,10 +119,23 @@ for path in sorted(root.rglob('*.md')):
         raw = match.group(1).strip().strip('<>')
         check_target(raw, match.start(1), 'markdown reference link')
 
+    for match in re.finditer(r'<([^<>\s]+)>', text):
+        if in_fenced_code(match.start()):
+            continue
+        raw = match.group(1).strip()
+        parsed = urllib.parse.urlparse(raw)
+        if parsed.scheme or raw.startswith(('#', 'mailto:', 'tel:')):
+            continue
+        # Treat concrete repository markdown paths in angle brackets as links,
+        # while leaving placeholders such as <task-id> or <branch-name> alone.
+        target, _, _anchor = raw.partition('#')
+        if pathlib.PurePosixPath(urllib.parse.unquote(target)).suffix == '.md':
+            check_target(raw, match.start(1), 'markdown autolink')
+
 if failures:
     print('ERROR: Broken markdown links found')
     for failure in failures:
         print(f'- {failure}')
     sys.exit(1)
-print('OK: Markdown inline/reference relative links, images, and anchors resolve')
+print('OK: Markdown inline/reference/autolink relative links, images, and anchors resolve')
 PY
