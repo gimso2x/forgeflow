@@ -238,6 +238,12 @@ make validate-ci-workflows
 # AGENTS.md와 maintainer preflight guardrail 계약만 빠르게 확인
 make validate-agent-docs
 
+# Gemini import와 plugin prompt 매핑만 빠르게 확인
+make validate-gemini-imports validate-plugin-prompts
+
+# workflow vocabulary, ship safety, dogfooding/context-resume/advisory 계약만 빠르게 확인
+make validate-workflow-vocab validate-ship-safety validate-dogfooding-docs validate-context-resume validate-advisory-contract
+
 # eval fixture 계약만 빠르게 확인
 make validate-evals-json validate-eval-files validate-evals-fixtures
 ```
