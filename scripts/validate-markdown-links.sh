@@ -111,7 +111,7 @@ for path in sorted(root.rglob('*.md')):
         if anchor and normalize_anchor(anchor) not in markdown_anchors(candidate):
             failures.append(f'{location(offset)} broken {kind} anchor -> {raw}')
 
-    for match in re.finditer(r'(!?)\[[^\]]+\]\(([^)]+)\)', text):
+    for match in re.finditer(r'(?<!\\)(!?)\[[^\]]+\]\(([^)]+)\)', text):
         if in_fenced_code(match.start()):
             continue
         raw = match.group(2).strip()
