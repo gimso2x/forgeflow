@@ -9,7 +9,7 @@ Uses **checkpoint-first, section-targeted reads** — not full artifact re-reads
 
 When acting as a ForgeFlow maintainer on this repository (cron loop, scheduled improvement run, or release-maintenance pass), protect unknown work before any repository mutation:
 
-1. Read `AGENTS.md`, run `git branch --show-current` to confirm the current branch is the expected target branch (normally `main`), and inspect `git status --short` first.
+1. Read `AGENTS.md`, run `git branch --show-current` to confirm the current branch is the expected target branch (normally `main`), and inspect `git status --short --branch` first so ahead/behind state is visible before pull/push decisions.
 2. If the branch is not the configured target branch, stop before pull/edit/commit/push and report the actual branch from `git branch --show-current` as a blocker.
 3. If any modified, staged, deleted, or untracked path is present and you did not create it in the current run, stop. Report the dirty paths as user/unknown changes.
 4. Do **not** run `git pull`, edit files, commit, push, clean, stash, or discard while the branch or dirty-tree preflight is unresolved.
