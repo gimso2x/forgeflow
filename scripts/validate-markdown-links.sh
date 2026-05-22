@@ -117,7 +117,10 @@ for path in sorted(root.rglob('*.md')):
     for match in re.finditer(r'^\s{0,3}\[([^\]]+)\]:\s+(\S+)', text, re.M):
         if in_fenced_code(match.start()):
             continue
-        reference_defs.add(match.group(1).strip().casefold())
+        label = match.group(1).strip().casefold()
+        if label in reference_defs:
+            failures.append(f'{location(match.start(1))} duplicate markdown reference definition -> [{match.group(1)}]')
+        reference_defs.add(label)
         raw = match.group(2).strip().strip('<>')
         check_target(raw, match.start(2), 'markdown reference link')
 
@@ -156,5 +159,5 @@ if failures:
     for failure in failures:
         print(f'- {failure}')
     sys.exit(1)
-print('OK: Markdown inline/reference/collapsed-reference/autolink relative links, images, HTML href/src, and anchors resolve')
+print('OK: Markdown inline/reference/collapsed-reference/autolink relative links, images, HTML href/src, anchors, and unique reference definitions resolve')
 PY
