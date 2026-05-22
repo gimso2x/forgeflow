@@ -15,7 +15,7 @@ These validators ensure that:
 - eval IDs are integer and sequential from `0`
 - eval names are unique
 - eval names use kebab-case slugs so fixture IDs stay stable in logs and result paths
-- each referenced `files` path is repo-relative, tracked by git, and exists
+- each referenced `files` path is repo-relative, tracked by git, exists, and is not duplicated within the same eval case
 - assertion types stay in the supported deterministic set (`contains`, `contains_all`, `contains_any`, `equals`, `not_contains`, `not_contains_any`)
 - assertion `value` / `values` entries are non-blank strings, so whitespace-only checks cannot pass accidentally
 - multi-value assertion `values` entries are unique, so duplicated alternatives cannot make coverage look broader than it is
