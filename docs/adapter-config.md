@@ -59,7 +59,7 @@ Gemini extension 설치·업데이트는 extension manager/cache에서 처리될
 |------|-----|
 | 실행 방식 | Cursor IDE Agent + slash commands (외부 CLI 없음) |
 | 설치 | `~/.cursor/plugins/local/forgeflow` symlink → `Developer: Reload Window` |
-| Slash 형식 | 콜론 없음: `/clarify`, `/execute`, `/review` (Claude/Codex/Gemini는 `/forgeflow:clarify`) |
+| Slash 형식 | 콜론 없음: `/clarify`, `/plan`, `/execute`, `/review`, `/ship` (Claude/Codex/Gemini는 `/forgeflow:clarify`) |
 | 권한 | IDE sandbox + 사용자 승인 (MCP, 터미널, 파일 쓰기) |
 | 템플릿 해석 | `<workspace>/templates/` 우선, 없으면 plugin `templates/` (see `skills/forgeflow/SKILL.md`) |
 | 산출물 경로 | 항상 `<workspace>/.forgeflow/tasks/<task-id>/` (plugin cache에 쓰지 않음) |
