@@ -247,6 +247,8 @@ validate-dogfooding-docs:
 	@grep -Fq "[docs/dogfooding.md](docs/dogfooding.md)" README.md || { echo "ERROR: README must link tracked .forgeflow fixture guidance"; exit 1; }
 	@grep -Fq "intentionally tracked" docs/dogfooding.md || { echo "ERROR: dogfooding docs must say tracked task folders are intentional"; exit 1; }
 	@grep -Fq "Normal consumer projects should keep" docs/dogfooding.md || { echo "ERROR: dogfooding docs must distinguish consumer project behavior"; exit 1; }
+	@grep -Fq "Do not run broad cleanup commands such as \`git clean -fdX\`" docs/dogfooding.md || { echo "ERROR: dogfooding docs must forbid broad destructive cleanup"; exit 1; }
+	@grep -Fq "inspect \`git status --short --ignored\` first" docs/dogfooding.md || { echo "ERROR: dogfooding docs must require ignored-status inspection before cleanup"; exit 1; }
 	@echo "OK: Dogfooding fixture docs are linked and guarded"
 
 validate-context-resume:
