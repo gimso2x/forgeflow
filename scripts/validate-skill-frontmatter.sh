@@ -1,15 +1,18 @@
 #!/bin/sh
 set -eu
 
-# Validate that every SKILL.md has required YAML frontmatter fields:
-# name, description, version, validate_prompt
+# Validate skill frontmatter contracts:
+# - root SKILL.md marketplace summary: name, description, version
+# - public skills under skills/: name, description, version, validate_prompt
 
 root="${1:-.}"
 errors=0
 
-skill_files=$(find "$root/skills" -name SKILL.md -not -path '*/_*' | sort)
+check_frontmatter_fields() {
+	file="$1"
+	shift
+	fields="$*"
 
-for file in $skill_files; do
 	# Extract frontmatter line numbers
 	fm_lines=$(grep -n '^---$' "$file" | head -2)
 	fm_start=$(echo "$fm_lines" | head -1 | cut -d: -f1)
@@ -18,11 +21,11 @@ for file in $skill_files; do
 	if [ -z "$fm_start" ] || [ -z "$fm_end" ] || [ "$fm_start" = "$fm_end" ]; then
 		echo "ERROR: $file — no YAML frontmatter block found" >&2
 		errors=$((errors + 1))
-		continue
+		return
 	fi
 
 	# Check each required field within frontmatter range
-	for field in name description version validate_prompt; do
+	for field in $fields; do
 		line=$(sed -n "$((fm_start + 1)),$((fm_end - 1))p" "$file" | grep "^${field}:" || true)
 		if [ -z "$line" ]; then
 			echo "ERROR: $file — missing required field '$field'" >&2
@@ -35,6 +38,14 @@ for file in $skill_files; do
 			errors=$((errors + 1))
 		fi
 	done
+}
+
+check_frontmatter_fields "$root/SKILL.md" name description version
+
+skill_files=$(find "$root/skills" -name SKILL.md -not -path '*/_*' | sort)
+
+for file in $skill_files; do
+	check_frontmatter_fields "$file" name description version validate_prompt
 done
 
 if [ "$errors" -gt 0 ]; then
@@ -42,4 +53,4 @@ if [ "$errors" -gt 0 ]; then
 fi
 
 skill_count=$(echo "$skill_files" | grep -c .)
-echo "OK: $skill_count SKILL.md files have required frontmatter (name, description, version, validate_prompt)"
+echo "OK: root SKILL.md and $skill_count public skill SKILL.md files have required frontmatter"
