@@ -132,6 +132,11 @@ for path in sorted(root.rglob('*.md')):
         if pathlib.PurePosixPath(urllib.parse.unquote(target)).suffix == '.md':
             check_target(raw, match.start(1), 'markdown autolink')
 
+    for match in re.finditer(r'''<a\s+[^>]*href=["']([^"']+)["']''', text, re.I):
+        if in_fenced_code(match.start()):
+            continue
+        check_target(match.group(1).strip(), match.start(1), 'HTML href')
+
 if failures:
     print('ERROR: Broken markdown links found')
     for failure in failures:
