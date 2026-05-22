@@ -146,10 +146,15 @@ for path in sorted(root.rglob('*.md')):
             continue
         check_target(match.group(1).strip(), match.start(1), 'HTML href')
 
+    for match in re.finditer(r'''<img\s+[^>]*src=["']([^"']+)["']''', text, re.I):
+        if in_fenced_code(match.start()):
+            continue
+        check_target(match.group(1).strip(), match.start(1), 'HTML img src')
+
 if failures:
     print('ERROR: Broken markdown links found')
     for failure in failures:
         print(f'- {failure}')
     sys.exit(1)
-print('OK: Markdown inline/reference/collapsed-reference/autolink relative links, images, and anchors resolve')
+print('OK: Markdown inline/reference/collapsed-reference/autolink relative links, images, HTML href/src, and anchors resolve')
 PY

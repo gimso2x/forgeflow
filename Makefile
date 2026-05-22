@@ -292,7 +292,7 @@ validate-evals-fixtures:
 	@grep -Fq "ship 단계가 승인된 candidate note를 \`templates/evolution-rule.md\`로 materialize" README.md || { echo "ERROR: README must say ship materializes approved long-run candidate notes"; exit 1; }
 	@grep -Fq "\`.github/workflows/evals.yml\`" README.md || { echo "ERROR: README must name the evals workflow file for eval fixture checks"; exit 1; }
 	@grep -Fq "make validate-markdown-links" README.md || { echo "ERROR: README local validation docs must include focused markdown link validation"; exit 1; }
-	@grep -Fq "HTML href" README.md || { echo "ERROR: README local validation docs must mention HTML href link coverage"; exit 1; }
+	@grep -Fq "HTML href/src" README.md || { echo "ERROR: README local validation docs must mention HTML href/src link coverage"; exit 1; }
 	@echo "OK: eval README documents deterministic scope and local validation"
 
 validate-advisory-contract:
