@@ -12,6 +12,14 @@ failures = []
 anchor_cache = {}
 
 
+def normalize_anchor(raw: str) -> str:
+    anchor = urllib.parse.unquote(raw).strip().lower()
+    anchor = re.sub(r'<[^>]+>', '', anchor)
+    anchor = re.sub('[' + chr(96) + r'*_~]', '', anchor)
+    anchor = re.sub(r'[^\w\s\-가-힣]', '', anchor)
+    return re.sub(r'\s+', '-', anchor.strip())
+
+
 def markdown_anchors(path: pathlib.Path) -> set[str]:
     if path in anchor_cache:
         return anchor_cache[path]
@@ -24,10 +32,7 @@ def markdown_anchors(path: pathlib.Path) -> set[str]:
         heading = stripped.lstrip('#').strip().rstrip('#').strip()
         if not heading:
             continue
-        slug = re.sub(r'<[^>]+>', '', heading).lower()
-        slug = re.sub('[' + chr(96) + r'*_~]', '', slug)
-        slug = re.sub(r'[^\w\s\-가-힣]', '', slug)
-        slug = re.sub(r'\s+', '-', slug.strip())
+        slug = normalize_anchor(heading)
         if not slug:
             continue
         suffix = counts.get(slug, 0)
@@ -103,7 +108,7 @@ for path in sorted(root.rglob('*.md')):
         if not candidate.exists():
             failures.append(f'{location(offset)} broken {kind} -> {raw}')
             return
-        if anchor and urllib.parse.unquote(anchor) not in markdown_anchors(candidate):
+        if anchor and normalize_anchor(anchor) not in markdown_anchors(candidate):
             failures.append(f'{location(offset)} broken {kind} anchor -> {raw}')
 
     for match in re.finditer(r'(!?)\[[^\]]+\]\(([^)]+)\)', text):
