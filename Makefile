@@ -186,8 +186,9 @@ validate-templates:
 			echo "ERROR: Missing template templates/$$t"; \
 			exit 1; \
 		fi; \
+		grep -Fq "$$t" README.md || { echo "ERROR: README must document template $$t"; exit 1; }; \
 	done
-	@echo "OK: All templates exist"
+	@echo "OK: All templates exist and are documented in README"
 	@grep -Fq "make validate-templates validate-template-refs" README.md || { echo "ERROR: README local validation docs must include focused template validation bundle"; exit 1; }
 
 validate-template-refs:
