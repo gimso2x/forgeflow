@@ -39,6 +39,7 @@ These validators ensure that:
 - Cursor onboarding fixtures keep the colon-free command namespace (`/clarify`, `/plan`, `/execute`, `/review`, `/ship`) distinct from Claude/Codex `/forgeflow:*` commands
 - adapter setup fixtures keep plugin/extension install or cache locations separate from the target project root where `.forgeflow/tasks/<task-id>/` artifacts are written
 - docs-review fixtures block broken Markdown links/anchors and removed slim-surface paths with deterministic `make validate-markdown-links` / `make validate-slim-surface` evidence, not provider/plugin E2E claims
+- release-maintenance fixtures preserve the `VERSION` single-source policy, manual `CHANGELOG.md` update, CI-owned manifest sync, and the separation between skill frontmatter schema versions and release versions
 
 ## When adding a fixture
 

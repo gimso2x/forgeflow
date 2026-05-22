@@ -2177,6 +2177,68 @@
           ]
         }
       ]
+    },
+    {
+      "id": 35,
+      "name": "release-version-single-source",
+      "prompt": "A maintainer asks how to prepare a ForgeFlow release on the slim v1.x distribution. Produce the release-maintenance checklist. Keep it markdown-only and conservative: VERSION is the single source, changelog is manually updated, CI syncs plugin/extension manifests, and public skill frontmatter version is a skill schema contract separate from release VERSION. Do not instruct direct edits to SKILL.md, .claude-plugin/plugin.json, .codex-plugin/plugin.json, .cursor-plugin/plugin.json, or gemini-extension.json for release version bumps.",
+      "expected_output": "A release checklist that edits VERSION and CHANGELOG only, explains manifest sync is CI-owned, distinguishes skill schema version from release VERSION, and avoids direct plugin manifest version edits.",
+      "files": [
+        "README.md",
+        "AGENTS.md",
+        "SKILL.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output states VERSION is the single release version source.",
+          "type": "contains_all",
+          "values": [
+            "VERSION",
+            "single source"
+          ]
+        },
+        {
+          "text": "Output includes the manual changelog update step.",
+          "type": "contains_any",
+          "values": [
+            "CHANGELOG.md",
+            "changelog"
+          ]
+        },
+        {
+          "text": "Output says CI syncs plugin or extension manifests rather than direct release edits.",
+          "type": "contains_any",
+          "values": [
+            "CI syncs",
+            "sync-version",
+            "자동 동기화",
+            "manifest sync"
+          ]
+        },
+        {
+          "text": "Output distinguishes per-skill frontmatter version from release VERSION.",
+          "type": "contains_all",
+          "values": [
+            "frontmatter",
+            "skill schema",
+            "release VERSION"
+          ]
+        },
+        {
+          "text": "Output does not instruct direct release-version edits to generated/plugin manifests or root skill metadata.",
+          "type": "not_contains_any",
+          "values": [
+            "edit SKILL.md version",
+            "modify SKILL.md version",
+            "edit .claude-plugin/plugin.json",
+            "edit .codex-plugin/plugin.json",
+            "edit .cursor-plugin/plugin.json",
+            "edit gemini-extension.json",
+            "manually update plugin.json",
+            "directly edit gemini-extension.json"
+          ]
+        }
+      ]
     }
   ]
 }
