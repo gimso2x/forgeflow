@@ -113,11 +113,20 @@ for path in sorted(root.rglob('*.md')):
         kind = 'markdown image' if match.group(1) else 'markdown link'
         check_target(raw, match.start(2), kind)
 
-    for match in re.finditer(r'^\s{0,3}\[[^\]]+\]:\s+(\S+)', text, re.M):
+    reference_defs = set()
+    for match in re.finditer(r'^\s{0,3}\[([^\]]+)\]:\s+(\S+)', text, re.M):
         if in_fenced_code(match.start()):
             continue
-        raw = match.group(1).strip().strip('<>')
-        check_target(raw, match.start(1), 'markdown reference link')
+        reference_defs.add(match.group(1).strip().casefold())
+        raw = match.group(2).strip().strip('<>')
+        check_target(raw, match.start(2), 'markdown reference link')
+
+    for match in re.finditer(r'!?(?<!\\)\[([^\]\n]+)\]\[([^\]\n]*)\]', text):
+        if in_fenced_code(match.start()):
+            continue
+        label = (match.group(2) or match.group(1)).strip().casefold()
+        if label and label not in reference_defs:
+            failures.append(f'{location(match.start())} missing markdown reference definition -> [{match.group(1)}][{match.group(2)}]')
 
     for match in re.finditer(r'<([^<>\s]+)>', text):
         if in_fenced_code(match.start()):
@@ -142,5 +151,5 @@ if failures:
     for failure in failures:
         print(f'- {failure}')
     sys.exit(1)
-print('OK: Markdown inline/reference/autolink relative links, images, and anchors resolve')
+print('OK: Markdown inline/reference/collapsed-reference/autolink relative links, images, and anchors resolve')
 PY
