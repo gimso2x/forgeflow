@@ -173,6 +173,8 @@ validate-agent-docs:
 	@grep -Fq "Do not schedule jobs, modify cron/crontab, or change external automation" skills/_shared/preflight.md || { echo "ERROR: preflight must keep scheduled-run cadence changes operator-owned"; exit 1; }
 	@grep -Fq "Do not call separate message-delivery tools" skills/_shared/preflight.md || { echo "ERROR: preflight must keep scheduled-run delivery in final response only"; exit 1; }
 	@grep -Fq 'use exactly `[SILENT]` only when there is genuinely nothing new to report' skills/_shared/preflight.md || { echo "ERROR: preflight must document exact scheduled-run silent suppression"; exit 1; }
+	@grep -Fq "make validate-agent-docs" README.md || { echo "ERROR: README local validation docs must include focused AGENTS/preflight validation"; exit 1; }
+	@echo "OK: AGENTS/preflight docs are covered by focused validation"
 
 validate-templates:
 	@for t in $(TEMPLATES); do \
