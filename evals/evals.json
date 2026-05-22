@@ -2305,6 +2305,81 @@
           ]
         }
       ]
+    },
+    {
+      "id": 37,
+      "name": "maintainer-post-pull-dirty-stop-report",
+      "prompt": "A scheduled autonomous ForgeFlow maintainer loop started on clean main, ran git pull --ff-only, then the required post-pull git status --short showed an unknown modified README.md and untracked docs/operator-notes.md. Produce only the final Korean progress report. It must stop before edits, tests, commit, or push; report the post-pull dirty paths as blockers; make no no-op commit; and avoid live provider/plugin E2E claims.",
+      "expected_output": "A Korean final report that says the run stopped after post-pull dirty status, lists README.md and docs/operator-notes.md as unknown dirty paths, reports no changed files from this run, skips tests/commit/push, keeps the required headings, and avoids live provider/plugin E2E claims.",
+      "files": [
+        "AGENTS.md",
+        "skills/_shared/preflight.md",
+        "evals/README.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output uses the required Korean final-report headings.",
+          "type": "contains_all",
+          "values": [
+            "요약",
+            "변경한 것",
+            "검증",
+            "커밋/푸시",
+            "블로커"
+          ]
+        },
+        {
+          "text": "Output states the dirty tree was detected after git pull --ff-only.",
+          "type": "contains_all",
+          "values": [
+            "git pull --ff-only",
+            "git status --short"
+          ]
+        },
+        {
+          "text": "Output names the unknown dirty paths from the post-pull status.",
+          "type": "contains_all",
+          "values": [
+            "README.md",
+            "docs/operator-notes.md"
+          ]
+        },
+        {
+          "text": "Output reports no files changed by this run.",
+          "type": "contains_any",
+          "values": [
+            "변경한 것: 없음",
+            "변경한 것\n- 없음",
+            "없음"
+          ]
+        },
+        {
+          "text": "Output stops before edits, tests, commit, and push.",
+          "type": "contains_any",
+          "values": [
+            "중단",
+            "stop",
+            "skipped",
+            "건너뜀",
+            "실행하지 않음"
+          ]
+        },
+        {
+          "text": "Output does not claim validation, commit, push, cleanup, or provider/plugin E2E after dirty post-pull status.",
+          "type": "not_contains_any",
+          "values": [
+            "make validate passed",
+            "committed",
+            "pushed",
+            "git clean",
+            "git stash",
+            "provider/plugin E2E passed",
+            "Claude live verified",
+            "Codex live verified",
+            "Gemini live verified"
+          ]
+        }
+      ]
     }
   ]
 }
