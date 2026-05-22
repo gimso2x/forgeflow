@@ -23,6 +23,13 @@
 <!-- For future tasks of similar nature -->
 -
 
+## Memory Recommendation
+<!-- Optional. Recommend promotion only when durable learning should move outside this task artifact. Do not write memory directly from long-run. -->
+- **Target Type**: <!-- project-pattern | project-decision | global-advisory | none -->
+- **Suggested Path/Owner**:
+- **Evidence Refs**:
+- **Privacy Check**: <!-- confirms no user-private context or session chatter is retained -->
+
 ## Evolution Rule Candidates
 <!-- Candidate rules to write under .forgeflow/evolution/proposed/ using templates/evolution-rule.md. No evidence, no rule. -->
 

@@ -69,18 +69,22 @@ Write `.forgeflow/tasks/<task-id>/eval-record.md` following the format in `templ
 - **Reusable Patterns**: patterns worth reusing in future tasks
 - **Failure Rules**: anti-patterns or mistakes to avoid
 - **Recommendations**: for future tasks of similar nature
+- **Memory Recommendation**: optional promotion note; long-run does not write memory directly
 
 Every entry must be specific enough that a future agent can act on it without additional context.
 
 ## Relationship to memory
 
-ForgeFlow memory is inspectable local storage:
+`eval-record.md` is the only required long-run artifact in the slim v1.x distribution. This skill does **not** create or update memory directories by default.
 
-- `memory/patterns/` stores reusable workflow patterns
-- `memory/decisions/` stores durable project-level operating decisions
-- `eval-record.md` is the gate artifact that justifies whether anything should move there
+When durable learning should be promoted outside the task artifact, write a **Memory Recommendation** in `eval-record.md` instead of mutating memory directly:
 
-The long-run stage may recommend a memory write, but the recommendation must point back to evidence. No evidence, no memory.
+- Target type: `project-pattern`, `project-decision`, or `global-advisory`
+- Suggested path or owner if the project already has a memory store
+- Evidence refs from `brief.md`, `implementation-notes.md`, `run-ledger.md`, or `review-report.md`
+- Privacy check confirming no user-private context or session chatter is being retained
+
+The recommendation must point back to evidence and wait for explicit operator/project process before any memory write. No evidence, no memory.
 
 ## Relationship to evolution
 
