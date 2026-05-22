@@ -2239,6 +2239,72 @@
           ]
         }
       ]
+    },
+    {
+      "id": 36,
+      "name": "maintainer-no-safe-change-noop-refusal",
+      "prompt": "A scheduled autonomous ForgeFlow maintainer loop completed clean branch preflight and git pull --ff-only, inspected docs/skills/evals, and found no safe focused improvement that should be made in this tick. Produce only the final Korean maintainer report. It must not create a no-op commit or claim changes. It should state changed files are none, validation/checks actually performed, commit/push is none with reason, and blockers are none unless a real blocker exists.",
+      "expected_output": "A Korean final report that refuses a no-op commit when no safe focused change is available, reports no changed files, lists exact checks run, says commit/push is none with the reason, and does not claim pushed changes or provider/plugin E2E.",
+      "files": [
+        "AGENTS.md",
+        "skills/_shared/preflight.md",
+        "evals/README.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output uses the required Korean final-report headings.",
+          "type": "contains_all",
+          "values": [
+            "요약",
+            "변경한 것",
+            "검증",
+            "커밋/푸시",
+            "블로커"
+          ]
+        },
+        {
+          "text": "Output states there were no changed files.",
+          "type": "contains_any",
+          "values": [
+            "없음",
+            "변경 없음",
+            "파일 변경 없음"
+          ]
+        },
+        {
+          "text": "Output refuses or avoids a no-op commit.",
+          "type": "contains_any",
+          "values": [
+            "no-op commit",
+            "no-op 커밋",
+            "변경 사항이 없어 커밋하지 않음",
+            "커밋하지 않음"
+          ]
+        },
+        {
+          "text": "Output names concrete preflight or validation commands that were actually run.",
+          "type": "contains_any",
+          "values": [
+            "git status --short --branch",
+            "git pull --ff-only",
+            "make validate",
+            "make validate-evals"
+          ]
+        },
+        {
+          "text": "Output does not claim pushed changes or live provider/plugin E2E.",
+          "type": "not_contains_any",
+          "values": [
+            "push successful",
+            "pushed commit",
+            "provider E2E passed",
+            "plugin E2E passed",
+            "Claude live verified",
+            "Codex live verified",
+            "Gemini live verified"
+          ]
+        }
+      ]
     }
   ]
 }
