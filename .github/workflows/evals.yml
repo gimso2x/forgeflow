@@ -17,4 +17,4 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run eval fixture checks
-        run: make validate-evals-json validate-eval-files validate-evals-fixtures
+        run: make validate-evals

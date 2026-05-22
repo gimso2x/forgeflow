@@ -1,4 +1,4 @@
-.PHONY: validate demo validate-demo validate-json validate-no-python validate-slim-surface validate-ci-workflows validate-skills validate-skill-frontmatter validate-agent-docs validate-templates validate-template-refs validate-versions validate-changelog-links validate-route-scoring-parity validate-gemini-imports validate-plugin-prompts validate-evals-json validate-eval-files validate-evals-fixtures validate-workflow-vocab validate-ship-safety validate-dogfooding-docs validate-context-resume validate-adapter-config validate-advisory-contract validate-markdown-links
+.PHONY: validate demo validate-demo validate-json validate-no-python validate-slim-surface validate-ci-workflows validate-skills validate-skill-frontmatter validate-agent-docs validate-templates validate-template-refs validate-versions validate-changelog-links validate-route-scoring-parity validate-gemini-imports validate-plugin-prompts validate-evals validate-evals-json validate-eval-files validate-evals-fixtures validate-workflow-vocab validate-ship-safety validate-dogfooding-docs validate-context-resume validate-adapter-config validate-advisory-contract validate-markdown-links
 
 PYTHON ?= python3
 
@@ -21,8 +21,11 @@ TEMPLATES := \
 	evolution-rule.md \
 	ship-summary.md
 
-validate: validate-no-python validate-slim-surface validate-ci-workflows validate-json validate-versions validate-changelog-links validate-route-scoring-parity validate-skills validate-agent-docs validate-templates validate-template-refs validate-demo validate-gemini-imports validate-plugin-prompts validate-evals-json validate-eval-files validate-evals-fixtures validate-workflow-vocab validate-ship-safety validate-dogfooding-docs validate-context-resume validate-adapter-config validate-advisory-contract validate-markdown-links
+validate: validate-no-python validate-slim-surface validate-ci-workflows validate-json validate-versions validate-changelog-links validate-route-scoring-parity validate-skills validate-agent-docs validate-templates validate-template-refs validate-demo validate-gemini-imports validate-plugin-prompts validate-evals validate-workflow-vocab validate-ship-safety validate-dogfooding-docs validate-context-resume validate-adapter-config validate-advisory-contract validate-markdown-links
 	@echo "OK: local validation passed"
+
+validate-evals: validate-evals-json validate-eval-files validate-evals-fixtures
+	@echo "OK: eval fixture validation bundle passed"
 
 demo:
 	@tmp="$$(mktemp -d)"; \
@@ -94,9 +97,11 @@ validate-slim-surface:
 
 validate-ci-workflows:
 	@grep -Fq "run: make validate" .github/workflows/validate.yml || { echo "ERROR: validate workflow must run make validate"; exit 1; }
-	@grep -Fq "run: make validate-evals-json validate-eval-files validate-evals-fixtures" .github/workflows/evals.yml || { echo "ERROR: evals workflow must run the documented eval fixture bundle"; exit 1; }
+	@grep -Fq "run: make validate-evals" .github/workflows/evals.yml || { echo "ERROR: evals workflow must run the documented eval fixture bundle"; exit 1; }
 	@grep -Fq ".github/workflows/validate.yml" README.md || { echo "ERROR: README must document validate workflow location"; exit 1; }
 	@grep -Fq ".github/workflows/evals.yml" README.md || { echo "ERROR: README must document evals workflow location"; exit 1; }
+	@grep -Fq "make validate-evals" README.md || { echo "ERROR: README must document the eval validation bundle target"; exit 1; }
+	@grep -Fq "make validate-evals" evals/README.md || { echo "ERROR: eval README must document the eval validation bundle target"; exit 1; }
 	@echo "OK: CI workflows invoke documented local validation bundles"
 
 validate-json:

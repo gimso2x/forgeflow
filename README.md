@@ -245,10 +245,12 @@ make validate-gemini-imports validate-plugin-prompts
 make validate-workflow-vocab validate-ship-safety validate-dogfooding-docs validate-context-resume validate-advisory-contract
 
 # eval fixture 계약만 빠르게 확인
+make validate-evals
+# 또는 특정 lane 디버깅 시:
 make validate-evals-json validate-eval-files validate-evals-fixtures
 ```
 
-각 focused target은 exit code 0이면 통과이며, 실패 시 어떤 계약이 깨졌는지 출력합니다. 특히 [첫 성공 데모](#첫-성공-데모)는 provider/plugin 없이 산출물 위치를 확인하는 안전한 smoke입니다. push/PR에서는 `.github/workflows/validate.yml`의 `validate` workflow가 전체 `make validate`를, `.github/workflows/evals.yml`의 `evals` workflow가 eval fixture 계약(`validate-evals-json`, `validate-eval-files`, `validate-evals-fixtures`)을 검사합니다. eval fixture를 추가하거나 수정할 때는 [evals/README.md](evals/README.md)의 로컬 체크리스트를 따릅니다.
+각 focused target은 exit code 0이면 통과이며, 실패 시 어떤 계약이 깨졌는지 출력합니다. 특히 [첫 성공 데모](#첫-성공-데모)는 provider/plugin 없이 산출물 위치를 확인하는 안전한 smoke입니다. push/PR에서는 `.github/workflows/validate.yml`의 `validate` workflow가 전체 `make validate`를, `.github/workflows/evals.yml`의 `evals` workflow가 eval fixture 계약(`make validate-evals`; 내부적으로 `validate-evals-json`, `validate-eval-files`, `validate-evals-fixtures`)을 검사합니다. eval fixture를 추가하거나 수정할 때는 [evals/README.md](evals/README.md)의 로컬 체크리스트를 따릅니다.
 
 ### 첫 성공 데모
 

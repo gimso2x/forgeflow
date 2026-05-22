@@ -7,6 +7,12 @@
 Run the same non-mutating checks used by the `evals` GitHub Actions workflow:
 
 ```bash
+make validate-evals
+```
+
+Equivalent expanded form for debugging a specific lane:
+
+```bash
 make validate-evals-json validate-eval-files validate-evals-fixtures
 ```
 
