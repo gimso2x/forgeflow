@@ -20,7 +20,7 @@ When acting as a ForgeFlow maintainer on this repository (cron loop, scheduled i
 8. After your focused change and validation, rerun `git status --short` before staging. Stage only the files you intentionally changed in this run with explicit paths (for example, `git add skills/_shared/preflight.md evals/evals.json`); do not use broad staging such as `git add -A` or `git add .` in scheduled maintainer runs. If any unexpected path appears, stop and report it instead of committing or pushing.
 9. Push the branch explicitly (for example, `git push origin HEAD:refs/heads/main`) so a branch/tag name collision cannot redirect or block the scheduled update. After commit and push, rerun `git status --short` and report any remaining dirty paths instead of claiming the repository is clean.
 10. Do not schedule jobs, modify cron/crontab, or change external automation from inside the scheduled run. Treat cadence changes as operator-owned follow-up outside the repository improvement tick.
-11. For scheduled delivery, write the final Korean report in the normal final response only. Do not call separate message-delivery tools, and use exactly `[SILENT]` only when there is genuinely nothing new to report.
+11. For scheduled delivery, write the final Korean report in the normal final response only. Use the headings `요약`, `변경한 것`, `검증`, `커밋/푸시`, `다음 후보`, and `블로커` so operators can scan each cron tick consistently. Do not call separate message-delivery tools, and use exactly `[SILENT]` only when there is genuinely nothing new to report.
 
 ## Procedure
 

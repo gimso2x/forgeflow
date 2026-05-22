@@ -200,6 +200,7 @@ validate-agent-docs:
 	@grep -Fq "Never run broad cleanup commands such as \`git clean -fdX\`" skills/_shared/preflight.md || { echo "ERROR: preflight must forbid broad destructive cleanup in scheduled maintainer runs"; exit 1; }
 	@grep -Fq "inspect \`git status --short --ignored\` first" skills/_shared/preflight.md || { echo "ERROR: preflight must require ignored-status inspection before any targeted cleanup"; exit 1; }
 	@grep -Fq "Do not call separate message-delivery tools" skills/_shared/preflight.md || { echo "ERROR: preflight must keep scheduled-run delivery in final response only"; exit 1; }
+	@grep -Fq "Use the headings \`요약\`, \`변경한 것\`, \`검증\`, \`커밋/푸시\`, \`다음 후보\`, and \`블로커\`" skills/_shared/preflight.md || { echo "ERROR: preflight must document scheduled-run report headings"; exit 1; }
 	@grep -Fq 'use exactly `[SILENT]` only when there is genuinely nothing new to report' skills/_shared/preflight.md || { echo "ERROR: preflight must document exact scheduled-run silent suppression"; exit 1; }
 	@grep -Fq "make validate-agent-docs" README.md || { echo "ERROR: README local validation docs must include focused AGENTS/preflight validation"; exit 1; }
 	@grep -Fq "shared discipline/automation linkage" README.md || { echo "ERROR: README local validation docs must mention shared discipline/automation linkage"; exit 1; }
