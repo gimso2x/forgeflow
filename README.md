@@ -169,11 +169,11 @@ CI가 다음 파일의 정합성을 검사합니다.
 
 - `long-run`
   - 트리거: high/epic 작업 완료 후 반복 실수, 리뷰 finding, eval 실패가 evidence로 남음
-  - 산출물/위치: `eval-record.md`, `.forgeflow/evolution/proposed/*.md`
+  - 산출물/위치: `eval-record.md`에 candidate note를 기록하며, `.forgeflow/evolution/proposed/` 파일은 직접 쓰지 않음
   - 다음 단계: review
 - `proposed`
-  - 트리거: `templates/evolution-rule.md`로 후보 규칙 작성
-  - 산출물/위치: `Lifecycle: proposed`, `Review Status: unreviewed`
+  - 트리거: ship 단계가 승인된 candidate note를 `templates/evolution-rule.md`로 materialize
+  - 산출물/위치: `.forgeflow/evolution/proposed/*.md`, `Lifecycle: proposed`, `Review Status: unreviewed`
   - 다음 단계: review
 - `review`
   - 트리거: 후보 규칙의 evidence, false-positive guard, scope, rollback이 검증됨
