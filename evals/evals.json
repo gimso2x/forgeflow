@@ -1884,8 +1884,8 @@
       ],
       "assertions": [
         {
-          "text": "Output emits the exact silent suppression token.",
-          "type": "contains",
+          "text": "Output equals the exact silent suppression token.",
+          "type": "equals",
           "value": "[SILENT]"
         },
         {

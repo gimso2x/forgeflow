@@ -16,7 +16,7 @@ These validators ensure that:
 - eval names are unique
 - eval names use kebab-case slugs so fixture IDs stay stable in logs and result paths
 - each referenced `files` path is repo-relative, tracked by git, and exists
-- assertion types stay in the supported deterministic set
+- assertion types stay in the supported deterministic set (`contains`, `contains_all`, `contains_any`, `equals`, `not_contains`, `not_contains_any`)
 - assertion `value` / `values` entries are non-blank strings, so whitespace-only checks cannot pass accidentally
 - assertion `text` entries are unique within each eval case, so duplicate audit rationale cannot hide missing contract coverage
 - persisted smoke `review-report.md` fixtures are concrete audit output, not unresolved templates
@@ -38,6 +38,6 @@ These validators ensure that:
 2. Keep prompts on the current public workflow-stage surface: `/forgeflow:clarify`, `/forgeflow:plan`, `/forgeflow:execute`, `/forgeflow:review`, `/forgeflow:ship`, and `/forgeflow:long-run`; benchmark fixtures must use `/forgeflow:benchmark` and keep benchmark sizes (`small`/`medium`/`large`) distinct from workflow route labels (`small`/`medium`/`high`/`epic`).
 3. Reference only files that are committed in this repo.
 4. Prefer assertions that prove exact contract behavior; keep `expected_output` as human-readable context only.
-5. Put every required pass/fail contract string in `assertions` (`contains*` / `not_contains*`) so deterministic validators and future harnesses can evaluate it without interpreting prose.
+5. Put every required pass/fail contract string in `assertions` (`contains*`, `equals`, `not_contains*`) so deterministic validators and future harnesses can evaluate it without interpreting prose.
 6. Avoid claims about Claude/Codex/Gemini live execution unless that provider smoke was actually run.
 7. Run the local checks above before committing.
