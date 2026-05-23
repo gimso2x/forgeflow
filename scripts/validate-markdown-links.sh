@@ -20,6 +20,12 @@ def normalize_anchor(raw: str) -> str:
     return re.sub(r'\s+', '-', anchor.strip())
 
 
+if normalize_anchor('Local checks') != 'local-checks':
+    failures.append('markdown anchor normalizer must preserve Latin heading text')
+if normalize_anchor('첫 성공 데모') != '첫-성공-데모':
+    failures.append('markdown anchor normalizer must preserve Korean heading text')
+
+
 def markdown_anchors(path: pathlib.Path) -> set[str]:
     if path in anchor_cache:
         return anchor_cache[path]
@@ -33,6 +39,10 @@ def markdown_anchors(path: pathlib.Path) -> set[str]:
         if not heading:
             continue
         slug = normalize_anchor(heading)
+        # GitHub-style anchors collapse duplicate headings by appending
+        # numeric suffixes. Preserve the full normalized slug so Latin
+        # heading anchors (for example #local-checks) are checked exactly,
+        # not reduced to incidental letters by an over-escaped regex.
         if not slug:
             continue
         suffix = counts.get(slug, 0)
