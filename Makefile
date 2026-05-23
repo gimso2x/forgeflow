@@ -282,6 +282,7 @@ validate-evals-fixtures:
 	@grep -Fq "make validate-evals-json validate-eval-files validate-evals-fixtures" evals/README.md || { echo "ERROR: evals README must document the local eval validation bundle"; exit 1; }
 	@grep -Fq "next sequential" evals/README.md || { echo "ERROR: evals README must document sequential fixture IDs"; exit 1; }
 	@grep -Fq "fixture text avoids stale workflow vocabulary" evals/README.md || { echo "ERROR: evals README must document stale-vocabulary fixture guard"; exit 1; }
+	@grep -Fq "remains the public bootstrap skill" evals/README.md || { echo "ERROR: evals README must clarify forgeflow-init is bootstrap, not removed workflow stage"; exit 1; }
 	@grep -Fq "ship-stage fixture names use \`ship-*\` slugs" evals/README.md || { echo "ERROR: evals README must document ship-stage fixture slug naming"; exit 1; }
 	@! grep -Fq '"name": "finish-' evals/evals.json || { echo "ERROR: ship-stage eval fixture names must not use removed finish-stage slugs"; exit 1; }
 	@grep -Fq "These are benchmark fixture sizes, not ForgeFlow route labels" skills/benchmark/SKILL.md || { echo "ERROR: benchmark skill must distinguish benchmark sizes from workflow route labels"; exit 1; }
