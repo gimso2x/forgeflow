@@ -286,6 +286,8 @@ validate-evals-fixtures:
 	@! grep -Fq '"name": "finish-' evals/evals.json || { echo "ERROR: ship-stage eval fixture names must not use removed finish-stage slugs"; exit 1; }
 	@grep -Fq "These are benchmark fixture sizes, not ForgeFlow route labels" skills/benchmark/SKILL.md || { echo "ERROR: benchmark skill must distinguish benchmark sizes from workflow route labels"; exit 1; }
 	@grep -Fq "Do not report \`large\` as a workflow route" skills/benchmark/SKILL.md || { echo "ERROR: benchmark skill must forbid treating large as a workflow route"; exit 1; }
+	@grep -Fq "Benchmark output lives under a disposable benchmark root" skills/benchmark/SKILL.md || { echo "ERROR: benchmark skill must keep reports/logs under disposable benchmark root"; exit 1; }
+	@grep -Fq "Do not write benchmark reports, logs, metrics, prompts, or generated app projects into this ForgeFlow source checkout" skills/benchmark/SKILL.md || { echo "ERROR: benchmark skill must protect the ForgeFlow source checkout during benchmarks"; exit 1; }
 	@grep -Fq "eval names use kebab-case" evals/README.md || { echo "ERROR: evals README must document kebab-case eval names"; exit 1; }
 	@grep -Fq "is not duplicated within the same eval case" evals/README.md || { echo "ERROR: evals README must document unique file reference rules"; exit 1; }
 	@grep -Fq "assertion \`value\` / \`values\` entries are non-blank strings" evals/README.md || { echo "ERROR: evals README must document non-blank assertion value rules"; exit 1; }

@@ -32,9 +32,13 @@ User types `/benchmark` or `/forgeflow:benchmark`.
 
 ## Output Artifacts
 
-- `.forgeflow/benchmarks/<timestamp>/report.md` — structured comparison report
-- `.forgeflow/benchmarks/<timestamp>/<agent>-<size>.log` — raw output per adapter
-- `.forgeflow/benchmarks/<timestamp>/<agent>-<size>.metrics.json` — per-run metrics
+Benchmark output lives under a disposable benchmark root, not the ForgeFlow source checkout:
+
+- `/tmp/forgeflow-bench/<timestamp>/.forgeflow/benchmarks/<timestamp>/report.md` — structured comparison report
+- `/tmp/forgeflow-bench/<timestamp>/.forgeflow/benchmarks/<timestamp>/<agent>-<size>.log` — raw output per adapter
+- `/tmp/forgeflow-bench/<timestamp>/.forgeflow/benchmarks/<timestamp>/<agent>-<size>.metrics.json` — per-run metrics
+
+If the user explicitly asks to persist a report in another project, write only to that target project's `.forgeflow/benchmarks/` path after confirming it is not this ForgeFlow source repository.
 
 ## Procedure
 
@@ -71,11 +75,18 @@ date -Iseconds
 
 ### 2. Prepare test projects
 
+Create a timestamped disposable benchmark root first, and keep every project, prompt, log, metric, and report below it:
+
+```bash
+bench_root="/tmp/forgeflow-bench/$(date -u +%Y%m%dT%H%M%SZ)"
+mkdir -p "$bench_root/projects" "$bench_root/prompts" "$bench_root/.forgeflow/benchmarks/$(basename "$bench_root")"
+```
+
 For each adapter × size combination:
 
 ```bash
-mkdir -p /tmp/forgeflow-bench/<agent>-<size>
-cd /tmp/forgeflow-bench/<agent>-<size>
+mkdir -p "$bench_root/projects/<agent>-<size>"
+cd "$bench_root/projects/<agent>-<size>"
 pnpm create vite . --template react-ts
 pnpm install
 # Add TypeScript strict check
@@ -91,7 +102,7 @@ Sizes:
 
 ### 3. Write test prompts
 
-Prompt files go to `/tmp/forgeflow-bench/prompts/<size>-prompt.md`.
+Prompt files go to `$bench_root/prompts/<size>-prompt.md`.
 
 Each prompt MUST include a **ForgeFlow compliance section** requiring:
 - Implementation plan before code changes
@@ -223,7 +234,7 @@ DNF runs are excluded from ranking but documented in the Environment Issues sect
 
 ### 7. Generate report
 
-Write to `.forgeflow/benchmarks/<timestamp>/report.md`:
+Write to `$bench_root/.forgeflow/benchmarks/$(basename "$bench_root")/report.md`:
 
 ```markdown
 # ForgeFlow Adapter Benchmark Report
@@ -302,14 +313,15 @@ Write to `.forgeflow/benchmarks/<timestamp>/report.md`:
 ## Exit Condition
 
 - All available adapters have been tested (or marked DNF after retries)
-- Report is written to `.forgeflow/benchmarks/<timestamp>/report.md`
+- Report is written to `$bench_root/.forgeflow/benchmarks/$(basename "$bench_root")/report.md`
 - Build verification passed for all non-DNF projects
 - Compliance scores are calculated using response-only evaluation
 - Metrics JSON files are written for each run
 
 ## Constraints
 
-- Benchmark runs in `/tmp/` — never in the main project workspace
+- Benchmark runs in a timestamped `/tmp/forgeflow-bench/<timestamp>/` root — never in the main project workspace
+- Do not write benchmark reports, logs, metrics, prompts, or generated app projects into this ForgeFlow source checkout
 - Each adapter gets the same prompt text
 - Timing starts when the adapter process starts, ends when it exits
 - Raw logs are preserved for manual inspection
