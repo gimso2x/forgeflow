@@ -55,6 +55,8 @@ Gemini extension 설치·업데이트는 extension manager/cache에서 처리될
 
 ### Cursor (로컬 플러그인)
 
+Cursor plugin symlink/install은 Cursor의 local plugin 위치에서 관리하지만, `/clarify`, `/execute` 같은 workflow 명령은 **대상 프로젝트 루트**에서 실행합니다. Plugin cache나 ForgeFlow checkout에서 열린 세션이면 `<workspace>/.forgeflow/tasks/<task-id>/` 산출물 경로를 명시하고, cache 내부에 task artifact를 만들지 않습니다.
+
 | 항목 | 값 |
 |------|-----|
 | 실행 방식 | Cursor IDE Agent + slash commands (외부 CLI 없음) |
