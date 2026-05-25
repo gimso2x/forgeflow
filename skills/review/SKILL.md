@@ -24,26 +24,285 @@ Use this skill to review completed ForgeFlow work independently.
 
 ## Standalone Mode
 
-When review is invoked without prior clarify/plan/execute stages, it operates in **standalone mode**. Accept any of these direct inputs:
+When review is invoked without prior clarify/plan/execute stages — no `.forgeflow/tasks/<id>/` with pipeline artifacts — it operates in **standalone mode**. The review becomes an independent inspection gate, not a pipeline post-step.
 
-- **URL**: A GitHub PR, commit, or any web-accessible diff/page. Fetch and extract content.
-- **Repo path**: A local repository directory. Use the current worktree state or a specified commit/branch range.
-- **Diff/patch**: Raw unified diff text. Parse and map to file structure.
-- **File bundle**: One or more file paths. Read and review directly.
-- **Existing artifact**: Path to a `.forgeflow/tasks/` directory or specific artifact file.
+### Input type detection
 
-Standalone mode bootstraps a synthetic task directory under `.forgeflow/tasks/standalone-<timestamp>/` if one does not already exist. All review outputs go there.
+Detect input type by pattern, in this priority order:
+
+1. **URL** — String starts with `https://` or `http://`. Known patterns:
+   - `github.com/<owner>/<repo>/pull/<n>` → GitHub PR. Fetch via `gh pr diff <n>` or `gh pr view <n> --json title,body,files`.
+   - `github.com/<owner>/<repo>/commit/<sha>` → GitHub commit. Fetch via `gh api repos/<owner>/<repo>/commits/<sha>`.
+   - `github.com/<owner>/<repo>/compare/<a>...<b>` → GitHub compare. Fetch via `gh api repos/<owner>/<repo>/compare/<a>...<b>`.
+   - Any other URL → Fetch page content via `web_extract` or `curl`. Extract main content, strip navigation/chrome.
+   - **Failure handling**: If fetch returns 404, auth error, or empty content, record as `blocked: input fetch failed — <url>`. Do not proceed with guessed content.
+
+2. **Repo path** — String is a local directory path that exists on disk and contains a `.git/` directory or is inside a git worktree.
+   - No branch/commit specified → use current worktree diff (`git diff HEAD`) and working tree state.
+   - Branch range specified (`main..feature`) → `git diff <range>`.
+   - Single commit → `git show <sha> --stat` + `git diff <sha>~1 <sha>`.
+   - **Failure handling**: If directory doesn't exist or isn't a git repo, record as `blocked: invalid repo path — <path>`.
+
+3. **Diff/patch** — Input contains unified diff markers (`--- a/`, `+++ b/`, `@@`) or is provided with `--diff` flag.
+   - Parse hunks: extract file paths from `---`/`+++` headers, line ranges from `@@` markers.
+   - Build a virtual file map: for each file in the diff, record additions, deletions, and context lines.
+   - **Failure handling**: If diff cannot be parsed (no markers, malformed hunks), attempt to treat as file bundle. If neither works, record as `blocked: unparseable diff input`.
+
+4. **File bundle** — One or more file paths provided. Verified to exist on disk.
+   - Read each file. For each file, detect language and structure.
+   - Build evidence from file contents. Scope = the listed files.
+   - **Failure handling**: If any file doesn't exist, record as `blocked: missing input file — <path>`. Do not skip silently.
+
+5. **Existing artifact** — Path to a `.forgeflow/tasks/` directory or specific artifact file (e.g., `review-report.md`, `implementation-notes.md`).
+   - Read the artifact. Use its content as evidence.
+   - If it's a task directory, read all artifacts found inside for context.
+   - **Failure handling**: If path doesn't exist, fall through to other detection. Do not assume artifact format.
+
+6. **Ambiguous input** — If no type matches, ask the user to clarify the input type. Do not guess and proceed with wrong assumptions.
+
+### Synthetic task directory bootstrapping
+
+When standalone mode is detected, create a synthetic task directory:
+
+```
+.forgeflow/tasks/standalone-<YYYYMMDD-HHMMSS>/
+├── input-source.md      # Raw input provenance (URL, path, diff metadata)
+├── normalized-input.md   # Brief + evidence + scope + constraints (auto-generated)
+└── review-report.md      # Output (written during review)
+```
+
+**input-source.md** records:
+- Input type detected
+- Original input value (URL, path, diff snippet)
+- Fetch command used (if applicable)
+- Fetch result status (success/partial/failed)
+- Timestamp
+
+**normalized-input.md** records the 4-field structure (see Input Normalization below).
+
+If `.forgeflow/` doesn't exist, create it. Do not initialize a full ForgeFlow workspace — only the task directory and its files.
+
+### Standalone constraints
+
+- No `brief.md`, `plan.md`, `run-ledger.md`, or `implementation-notes.md` is expected. Do not flag their absence as findings.
+- No route selection (small/medium/high/epic) — standalone mode always runs as a single comprehensive pass unless `--type` is specified.
+- No execute micro-gates table — skip that section in the report.
+- Evolution rule review is always `not_applicable` in standalone mode.
+- The review report is the final artifact. There is no automatic ship.
 
 ## Input Normalization
 
-Regardless of input type, normalize to a standard internal structure before review proceeds:
+Regardless of input type, normalize to a standard 4-field structure before review proceeds. Write the result to `normalized-input.md` in the synthetic task directory.
 
-- **brief**: What is being reviewed (auto-generated from input: PR title, commit message, file names, or user-supplied description)
-- **evidence**: The concrete content to review (diff hunks, file contents, fetched page content)
-- **scope**: What range is in scope (changed files, specific directories, commit range)
-- **constraints**: Review focus areas or restrictions (user-specified or inferred: e.g., security-only, spec-compliance-only)
+### brief
 
-This normalized structure feeds directly into the existing review rubrics (Spec Review, Quality Review). No separate pipeline is needed — the rubrics work on brief/evidence/scope/constraints whether the source was a pipeline execute stage or standalone input.
+What is being reviewed. Auto-generated from input:
+
+| Input type | brief source |
+|------------|-------------|
+| GitHub PR | PR title + body (from `gh pr view`) |
+| GitHub commit | Commit message (first line = title, body = context) |
+| GitHub compare | `"<base>...<head> comparison"` + commit messages in range |
+| Other URL | Page `<title>` or first `<h1>`. If none: `"Review of <url>"` |
+| Repo path (current) | `"Review of working tree in <repo>"` + `git log --oneline -5` summary |
+| Repo path (range) | `"Review of <range> in <repo>"` + commit count + file count from `git diff --stat` |
+| Diff/patch | `"Review of diff: <N> files, <M> additions, <K> deletions"` |
+| File bundle | `"Review of: <file1>, <file2>, ..."` (list all files) |
+| Existing artifact | Artifact filename + first heading or summary line |
+
+If the user provides an explicit description (`--desc "..."` or natural language in the command), use that as brief and append the auto-generated version as context.
+
+### evidence
+
+The concrete content to review. Extraction rules:
+
+| Input type | evidence extraction |
+|------------|-------------------|
+| GitHub PR | `gh pr diff <n>` output (full diff). Separate from PR metadata. |
+| GitHub commit | `git show <sha>` output (stat + diff). |
+| GitHub compare | `git diff <range>` output. If too large (>5000 LOC changed), sample: first/last 200 lines per file + file list. |
+| Other URL | Extracted page content (markdown). If page is a code host, extract code blocks. |
+| Repo path (current) | `git diff HEAD` + `git diff --cached`. If clean, `git log --oneline -10` + tree listing. |
+| Repo path (range) | `git diff <range>`. Same large-diff sampling rule as compare. |
+| Diff/patch | The raw diff text. Parse into per-file hunks. |
+| File bundle | Each file's full content. If a file exceeds 2000 lines, read first 500 + last 200 and note truncation. |
+| Existing artifact | Full artifact content. |
+
+**Evidence integrity rules**:
+- Never fabricate or infer evidence. If fetch fails, the field is `null` and review is `blocked`.
+- Mark truncated evidence with `[TRUNCATED: showing N/M lines]`.
+- Mark fetched evidence with source: `[source: gh pr diff]`, `[source: file read]`, `[source: web_extract]`.
+
+### scope
+
+What range is in scope for this review:
+
+| Input type | scope definition |
+|------------|-----------------|
+| GitHub PR | Files changed in the PR (from `gh pr diff --name-only`). |
+| GitHub commit | Files changed in the commit (from `git show --stat`). |
+| GitHub compare | Files changed in the range. |
+| Other URL | Entire fetched content. |
+| Repo path (current) | All uncommitted changes + staged changes. If clean: last 5 commits. |
+| Repo path (range) | Files changed in the range. |
+| Diff/patch | Files mentioned in diff headers (`---`/`+++`). |
+| File bundle | The listed files only. |
+| Existing artifact | The artifact itself + any referenced files that exist. |
+
+User can narrow scope with `--scope <pattern>` (glob). Only review files matching the pattern within the detected scope.
+
+### constraints
+
+Review focus areas or restrictions:
+
+- **User-specified**: `--focus security`, `--focus quality`, `--type spec`, `--type quality`. These constrain which reviewer role runs.
+- **Inferred from input**:
+  - PR with no description → quality review only (no spec to check against).
+  - Diff with only test files → test quality review.
+  - URL to a design doc → spec/ux review only.
+  - File bundle of config files → quality/security review.
+- **Default** (no constraints specified): run both spec and quality reviews. Spec review uses auto-generated brief as the "spec" to check against.
+
+Write constraints to `normalized-input.md` as a structured list:
+```
+constraints:
+  - type: <auto-inferred | user-specified>
+  - focus: [spec | quality | security | ux | perf]
+  - excluded_paths: [...]  (if --scope narrows)
+  - additional_rules: [...]  (user-provided or inferred)
+```
+
+## Reviewer Roles
+
+Standalone mode and high/epic pipeline mode use role-based review. Each role has its own checklist and produces findings independently. The review report aggregates all role findings.
+
+### Role definitions
+
+#### spec-reviewer
+
+**Trigger**: Always runs in pipeline mode. In standalone mode, runs when a brief/requirement/spec document exists (auto-generated or user-provided).
+
+**Checklist** (in addition to the Spec Review rubric):
+- ☐ Every acceptance criterion has a corresponding evidence trace
+- ☐ No unexplained additions beyond stated scope
+- ☐ No silent removals of existing functionality
+- ☐ All referenced files/paths/symbols exist in the reviewed scope
+- ☐ Error handling is complete (no unchecked error paths for in-scope code)
+- ☐ Public API changes are backward-compatible or explicitly breaking
+- ☐ Configuration changes have migration path or are additive
+
+**Standalone-specific**: When no explicit spec exists, the auto-generated brief becomes the de facto spec. The spec-reviewer checks whether the code/diff does what the brief describes — no more, no less. Flag scope that doesn't trace back to the brief as `major: unexplained scope`.
+
+#### quality-reviewer
+
+**Trigger**: Always runs in both pipeline and standalone mode.
+
+**Checklist** (in addition to the Quality Review rubric):
+- ☐ No dead code introduced (unreachable branches, unused imports, commented-out blocks)
+- ☐ Naming follows existing codebase conventions (compare with nearby files)
+- ☐ No magic numbers/strings — constants are named
+- ☐ Error messages are actionable (tell the reader what to do, not just what failed)
+- ☐ No copy-pasted blocks that should be shared utilities
+- ☐ Logging follows project conventions (level, format, structured fields)
+- ☐ Thread safety / concurrency issues in shared state (if applicable)
+
+**Standalone-specific**: Without implementation-notes, the quality-reviewer works from the code/diff directly. Apply heuristics without referencing executor claims.
+
+#### security-reviewer
+
+**Trigger**: Runs when `--focus security` is specified, or when in-scope changes touch:
+- Authentication/authorization code
+- Input validation / sanitization
+- Secret/key handling
+- API endpoints / network boundaries
+- File system operations
+- Dependency additions
+
+**Checklist**:
+- ☐ No hardcoded secrets, keys, or tokens
+- ☐ User input is validated and sanitized before use
+- ☐ SQL queries use parameterized statements (no string interpolation)
+- ☐ File paths are sanitized (no path traversal)
+- ☐ Error responses don't leak internal state or stack traces
+- ☐ New dependencies are from trusted sources with reasonable maintenance
+- ☐ Authentication checks are present on all entry points that require them
+- ☐ No eval/exec/deserialization of untrusted input
+
+#### ux-reviewer
+
+**Trigger**: Runs when `--focus ux` is specified, or when in-scope changes touch:
+- UI component files (.tsx, .vue, .svelte, etc.)
+- CSS/styling files
+- User-facing text/labels/messages
+- Route/page definitions
+- Form handling code
+
+**Checklist**:
+- ☐ Text is clear and follows project voice/guidelines
+- ☐ Error states are handled with user-facing messages
+- ☐ Loading states exist for async operations
+- ☐ Interactive elements have appropriate affordances
+- ☐ Layout is consistent with adjacent screens
+- ☐ Accessibility: ARIA labels, keyboard navigation, color contrast
+
+#### perf-reviewer
+
+**Trigger**: Runs when `--focus perf` is specified, or when in-scope changes touch:
+- Database queries / ORM calls
+- Loops over large collections
+- Caching layers
+- Network call batching
+- Memory-intensive operations (large allocations, streaming)
+
+**Checklist**:
+- ☐ No N+1 queries in loops
+- ☐ Large datasets use pagination or streaming
+- ☐ Expensive computations are memoized/cached where appropriate
+- ☐ No unnecessary re-renders or re-computations in reactive code
+- ☐ Database indexes exist for queried columns
+- ☐ No blocking I/O in async contexts
+
+### Role routing
+
+**Pipeline mode** (route-aware):
+- small: quality-reviewer only
+- medium: quality-reviewer only (medium-full may add spec-reviewer)
+- high/epic: spec-reviewer (pass 1) → quality-reviewer (pass 2), sequential gates
+- Any route: security/ux/perf-reviewer triggered by file-type heuristics above
+
+**Standalone mode**:
+- No `--type` flag: quality-reviewer always runs. spec-reviewer runs if brief exists. Other roles triggered by file-type heuristics.
+- `--type spec`: spec-reviewer only
+- `--type quality`: quality-reviewer only
+- `--type security`: security-reviewer only
+- `--type ux`: ux-reviewer only
+- `--type perf`: perf-reviewer only
+- `--type all`: run all applicable roles
+- `--focus <role>`: alias for `--type <role>`
+
+### Cross-role conflict handling
+
+When two roles produce conflicting findings:
+1. Record both findings in the report with their role label.
+2. Add a `⚠ requires human decision` marker in Findings.
+3. Do not resolve the conflict by choosing one side. The human final judgment gate handles this.
+4. Example: spec-reviewer says "missing error handling for edge case X" (blocker) but quality-reviewer says "error handling would add unnecessary complexity" (minor). Both stay. Report shows conflict with `requires human decision`.
+
+### Role output structure in review-report.md
+
+Each finding includes the reviewer role:
+```
+- **Role**: spec-reviewer | quality-reviewer | security-reviewer | ux-reviewer | perf-reviewer
+```
+
+The report includes a **Role Summary** section:
+```
+## Reviewer Role Summary
+- spec-reviewer: <verdict>, <N> findings (<blockers> blockers, <majors> major)
+- quality-reviewer: <verdict>, <M> findings (<blockers> blockers, <majors> major)
+- [other roles if triggered]
+- Cross-role conflicts: <count> (marked with ⚠)
+```
 
 ## Output Artifacts
 
@@ -247,7 +506,15 @@ Before approving review, inspect required ForgeFlow artifacts for unresolved tem
 
 ## Procedure
 
-0. **Detect mode**: If brief.md/plan.md/implementation-notes.md exist in the active task directory, proceed in **pipeline mode** (steps 1-18). If only external input is provided (URL/diff/files/repo), enter **standalone mode**: normalize input (see Input Normalization), bootstrap synthetic task dir, then proceed from step 4 (blocker elimination) using normalized evidence.
+### Step 0 — Mode detection and routing
+
+**Pipeline mode detection**: If `brief.md`, `plan.md`, or `implementation-notes.md` exist in the active task directory (`.forgeflow/tasks/<id>/`), proceed in **pipeline mode** (steps 1-18 below).
+
+**Standalone mode detection**: If only external input is provided (URL, diff, files, repo path), or if the user explicitly requests standalone review, enter **standalone mode** and follow the standalone procedure (steps S1-S10 below).
+
+Do not enter standalone mode if pipeline artifacts exist, even if the user provides a URL. Pipeline artifacts take precedence.
+
+### Pipeline mode procedure (steps 1-18)
 1. Read `checkpoint.md` when present, then `_shared/preflight.md` minimum read set. Read `brief.md` Acceptance Criteria and route — not necessarily the full brief unless scope is disputed.
 2. Review from artifacts and code, not worker vibes.
 3. Check scope coverage and acceptance criteria, including every fulfills, journey, and verification plan target from the plan.
@@ -291,14 +558,115 @@ Before approving review, inspect required ForgeFlow artifacts for unresolved tem
 
 Do not merge spec and quality review passes into a single turn for high/epic work. Use one `review-report.md` with sequential passes.
 
+### Standalone mode procedure (steps S1-S10)
+
+S1. **Detect input type** — Apply input type detection (see Standalone Mode → Input type detection). If detection fails, ask the user to clarify. Do not proceed with a guess.
+
+S2. **Fetch/extract input** — Execute the appropriate fetch command for the detected type:
+   - URL: Run `gh pr diff`, `gh api`, `web_extract`, or `curl` as appropriate.
+   - Repo path: Run `git diff`, `git log`, `git show` as appropriate.
+   - Diff/patch: Parse hunks directly from input.
+   - File bundle: Read each file.
+   - Existing artifact: Read artifact content.
+   - Record fetch result in `input-source.md` (success/partial/failed + what was retrieved).
+
+S3. **Normalize input** — Generate the 4-field normalized structure (brief, evidence, scope, constraints) using the Input Normalization rules. Write to `normalized-input.md`. If normalization produces empty evidence, block: `blocked: input normalization failed — no evidence extracted`.
+
+S4. **Bootstrap synthetic task directory** — Create `.forgeflow/tasks/standalone-<YYYYMMDD-HHMMSS>/` with `input-source.md` and `normalized-input.md`. This directory is the task root for the rest of the procedure.
+
+S5. **Determine reviewer roles** — Apply role routing (see Reviewer Roles → Role routing):
+   - Check `--type` flag if present.
+   - If no flag: quality-reviewer always runs. spec-reviewer runs if brief exists. security/ux/perf triggered by file-type heuristics.
+   - Record active roles in `normalized-input.md` constraints.
+
+S6. **Run each active reviewer role** — For each active role:
+   a. Apply the role's checklist against the normalized evidence.
+   b. Classify each finding: severity, category, confidence level.
+   c. Record evidence source for each finding (observed/reported/inferred).
+   d. Check for cross-role conflicts with previously run roles.
+   e. If conflict found, mark both findings with `⚠ requires human decision`.
+
+S7. **Aggregate findings** — Combine all role findings into a single list. Sort by priority:
+   1. Blockers (all roles)
+   2. Conflicts (⚠)
+   3. Major findings
+   4. Minor findings
+   5. Nits
+   Compute overall verdict:
+   - Any blocker → `blocked`
+   - Any unresolved conflict → `changes_requested`
+   - Any major → `changes_requested` (unless human accepts risk via override)
+   - Only minor/nit → `approved` with findings noted
+   - No findings → `approved`
+
+S8. **Write `review-report.md`** — Use `templates/review-report.md` structure. Fill all sections:
+   - Set Review Type to the primary role that ran, or list all roles.
+   - Include **Reviewer Role Summary** section (see Reviewer Roles → Role output structure).
+   - Skip sections that don't apply: Execute Micro-Gates, Evolution Rule Review, Route Compliance.
+   - Add **Standalone Input Source** section at the top with input type, original input, and fetch status.
+   - Set Safe for Next Stage based on verdict (yes only if approved with no open blockers/conflicts).
+
+S9. **Present verdict to human** — Output a clear summary:
+   - Verdict, finding count by severity, active roles, conflicts if any.
+   - If `blocked` or `changes_requested`: list blockers/conflicts/majors with `file:line — description`.
+   - If `approved`: note minor/nit findings, state that the review report is the final artifact.
+   - In standalone mode, never auto-proceed to ship. The review report is the end of the standalone flow.
+
+S10. **Handle human response** — Wait for human action:
+   - Human may dismiss, escalate, or accept risk on any finding (see Override process).
+   - Human may request re-review after changes: start a new standalone review with updated input.
+   - Human may start a pipeline from the review output: `/forgeflow:clarify` with the review report as input.
+   - Record any overrides in `review-report.md` → Override Log.
+
 ## Human Final Judgment Gate
 
-AI review results are advisory, not auto-approval:
+AI review results are **advisory**, not auto-approval. The review report is a structured recommendation. The human decides what to act on.
 
-- Evidence-less comments receive **low priority**. Findings without concrete file paths or diffs are labeled `nit` at most.
-- Conflicting findings across reviewer roles are flagged as **requires human decision**. The review report records both positions.
-- Ship gate requires explicit human confirmation. AI `approved` verdict enables the ship command but does not execute it unless `--auto` is active.
-- In standalone mode, the review report is the final artifact — there is no ship stage unless the user explicitly starts a pipeline from the review output.
+### Advisory label system
+
+Every finding carries a confidence level that determines how it should be treated:
+
+- **HIGH confidence** (observed evidence): Finding is based on directly inspected code, command output, or file content. The human should treat this as actionable unless they have context the reviewer doesn't.
+- **MEDIUM confidence** (reported evidence): Finding is based on executor claims, CI output, or third-party reports. The human should verify before acting.
+- **LOW confidence** (inferred): Finding is based on patterns, heuristics, or assumptions without direct evidence. The human should validate before acting. All evidence-less comments are LOW confidence by definition.
+- **CONFLICT**: Two reviewer roles disagree. Marked with `⚠ requires human decision`. The human must resolve — the report records both positions without taking sides.
+
+Record confidence level in each finding:
+```
+- **Confidence**: HIGH | MEDIUM | LOW | CONFLICT
+```
+
+### Priority classification
+
+Findings are surfaced to the human in this priority order:
+
+1. **Blocker** — Must be resolved before any approval. AI will never approve with open blockers.
+2. **Major** — Should be resolved. AI may approve with major findings only if human explicitly accepts the risk.
+3. **Conflict** (⚠) — Requires human decision regardless of severity.
+4. **Minor** — Advisory. Human decides whether to address.
+5. **Nit** — Low-priority suggestions. May be evidence-less observations.
+
+### Override process
+
+The human can override any AI finding:
+
+- **Dismiss**: Mark a finding as `dismissed` with a reason. Record in the report: `Overridden by <human>: <reason>`.
+- **Escalate**: Promote a minor/nit to major. Record: `Escalated by <human>: <reason>`.
+- **Accept risk**: Accept a blocker/major as-is. Record: `Risk accepted by <human>: <reason>`. This is the only way to ship with unresolved major findings.
+
+Overrides are recorded in `review-report.md` → **Override Log** section:
+```
+## Override Log
+- Finding <N>: <action> by <human> — "<reason>"
+```
+
+A review with overrides must still be written to the artifact before it counts. Chat overrides without artifact updates are not binding.
+
+### Ship gate
+
+- Pipeline mode: Ship requires explicit human confirmation (`/forgeflow:ship`). AI `approved` verdict enables but does not execute ship unless `--auto` is active.
+- Standalone mode: The review report is the final artifact. No ship stage exists unless the user explicitly starts a pipeline from the review output.
+- `--auto` mode: AI may proceed to ship after `approved`, but only when all conditions are met (verdict=approved, safe_for_next_stage=yes, open_blockers=none, no unresolved conflicts). `--auto` does not override human judgment — it automates the mechanical step after judgment is complete.
 
 ## Output mode examples
 
