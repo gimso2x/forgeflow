@@ -2571,6 +2571,99 @@
           ]
         }
       ]
+    },
+    {
+      "id": 40,
+      "name": "standalone-review-file-bundle",
+      "prompt": "You are running /forgeflow:review in standalone mode. No .forgeflow/tasks/ directory exists and no pipeline artifacts (brief.md, plan.md, implementation-notes.md, run-ledger.md) are present. The user provides two local file paths as input:\n\n1. src/utils/string-helpers.ts — a utility module with string manipulation functions\n2. src/utils/string-helpers.test.ts — a unit test file for the utility module\n\nBoth files exist on disk. The user says: \"Review these two files for code quality and test coverage.\"\n\nProduce only the review-report.md for this standalone review. Detect input type as file-bundle, bootstrap a synthetic task directory, normalize input (auto-generate brief from file names and user description), and run the quality-reviewer. Since the input is a file bundle of code and tests, also trigger spec-reviewer checks against the auto-generated brief. Do not include Execute Micro-Gates, Route Compliance, or Evolution Rule Review sections — they are not applicable in standalone mode. Do not auto-proceed to ship. The review report is the final artifact.",
+      "expected_output": "A standalone review-report.md that detects file-bundle input type, bootstraps a synthetic task directory under .forgeflow/tasks/standalone-*, includes Standalone Input Source with Input Type file-bundle, auto-generates a brief from file names and user description, runs quality-reviewer and spec-reviewer, lists files in scope, skips inapplicable pipeline-mode sections, and does not auto-ship.",
+      "files": [
+        "skills/review/SKILL.md",
+        "templates/review-report.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output detects input type as file-bundle.",
+          "type": "contains",
+          "value": "file-bundle"
+        },
+        {
+          "text": "Output includes a Standalone Input Source section with Input Type, Original Input, Fetch Status, Normalized Brief, Scope, and Constraints fields.",
+          "type": "contains_all",
+          "values": [
+            "Standalone Input Source",
+            "Input Type",
+            "Fetch Status",
+            "Normalized Brief",
+            "Scope"
+          ]
+        },
+        {
+          "text": "Output bootstraps a synthetic task directory matching the standalone-<timestamp> pattern.",
+          "type": "contains",
+          "value": ".forgeflow/tasks/standalone-"
+        },
+        {
+          "text": "Output lists both input files in scope.",
+          "type": "contains_all",
+          "values": [
+            "string-helpers.ts",
+            "string-helpers.test.ts"
+          ]
+        },
+        {
+          "text": "Output runs quality-reviewer as an active role.",
+          "type": "contains",
+          "value": "quality-reviewer"
+        },
+        {
+          "text": "Output includes Standalone Mode Metadata section with Synthetic Task Dir and Active Reviewer Roles.",
+          "type": "contains_all",
+          "values": [
+            "Standalone Mode Metadata",
+            "Synthetic Task Dir",
+            "Active Reviewer Roles"
+          ]
+        },
+        {
+          "text": "Output does not include Execute Micro-Gates section (standalone mode).",
+          "type": "not_contains",
+          "value": "Execute Micro-Gates"
+        },
+        {
+          "text": "Output does not include Evolution Rule Review content (standalone mode always not_applicable, section deleted).",
+          "type": "not_contains_any",
+          "values": [
+            "Evolution Rule Review",
+            "진화 규칙 리뷰"
+          ]
+        },
+        {
+          "text": "Output does not include Route Compliance section (standalone mode).",
+          "type": "not_contains_any",
+          "values": [
+            "Route Compliance",
+            "라우트 준수"
+          ]
+        },
+        {
+          "text": "Output does not auto-proceed to ship or claim the review enables shipping.",
+          "type": "not_contains_any",
+          "values": [
+            "/forgeflow:ship",
+            "auto-ship",
+            "proceed to ship"
+          ]
+        },
+        {
+          "text": "Output includes Reviewer Role Summary section.",
+          "type": "contains_any",
+          "values": [
+            "Reviewer Role Summary",
+            "리뷰어 역할 요약"
+          ]
+        }
+      ]
     }
   ]
 }
