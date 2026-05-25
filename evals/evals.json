@@ -2913,6 +2913,126 @@
           ]
         }
       ]
+    },
+    {
+      "id": 43,
+      "name": "standalone-review-existing-artifact",
+      "prompt": "You are running /forgeflow:review in standalone mode. The user provides the following input:\n\n.forgeflow/tasks/ship-updates-20260514/\n\nThis is a path to an existing ForgeFlow task directory containing pipeline artifacts (brief.json, checkpoint.json, implementation-notes.md, run-ledger.md, etc.). No prior pipeline context is assumed — the review is invoked independently. The task was a documentation update for a project. The --type flag is not provided. Produce only the review-report.md for this standalone review. Detect input type as existing artifact (type 5: path to a .forgeflow/tasks/ directory), bootstrap a synthetic task directory, normalize input (auto-generate brief from the artifact content, read all artifacts found inside for context, extract evidence from artifact files), and run quality-reviewer and spec-reviewer with default standalone behavior. Do not include Execute Micro-Gates, Route Compliance, or Evolution Rule Review sections — they are not applicable in standalone mode. Do not auto-proceed to ship.",
+      "expected_output": "A standalone review-report.md that detects input type as existing artifact, bootstraps a synthetic task directory, reads artifacts from the referenced task directory for evidence, includes Standalone Input Source with Input Type artifact (or existing artifact), runs quality-reviewer and spec-reviewer, scopes review to the artifact content and any referenced files that exist, skips inapplicable pipeline-mode sections, and does not auto-ship.",
+      "files": [
+        "skills/review/SKILL.md",
+        "templates/review-report.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output detects input type as existing artifact or artifact path.",
+          "type": "contains_any",
+          "values": [
+            "existing artifact",
+            "artifact",
+            ".forgeflow/tasks/"
+          ]
+        },
+        {
+          "text": "Output includes Standalone Input Source section with Input Type, Original Input, and Fetch Status fields.",
+          "type": "contains_all",
+          "values": [
+            "Standalone Input Source",
+            "Input Type",
+            "Original Input",
+            "Fetch Status"
+          ]
+        },
+        {
+          "text": "Output includes the original artifact path.",
+          "type": "contains",
+          "value": ".forgeflow/tasks/ship-updates-20260514/"
+        },
+        {
+          "text": "Output bootstraps a synthetic task directory matching the standalone-<timestamp> pattern.",
+          "type": "contains",
+          "value": ".forgeflow/tasks/standalone-"
+        },
+        {
+          "text": "Output auto-generates brief referencing the artifact review.",
+          "type": "contains_any",
+          "values": [
+            "Review of artifact",
+            "artifact content",
+            "Normalized Brief"
+          ]
+        },
+        {
+          "text": "Output reads artifacts from the referenced task directory as evidence.",
+          "type": "contains_any",
+          "values": [
+            "brief",
+            "checkpoint",
+            "implementation-notes",
+            "ship-manifest"
+          ]
+        },
+        {
+          "text": "Output runs quality-reviewer as an active role.",
+          "type": "contains",
+          "value": "quality-reviewer"
+        },
+        {
+          "text": "Output runs spec-reviewer as an active role.",
+          "type": "contains",
+          "value": "spec-reviewer"
+        },
+        {
+          "text": "Output records evidence source metadata (artifact read or file read).",
+          "type": "contains_any",
+          "values": [
+            "source: file read",
+            "source: artifact read",
+            "artifact content",
+            "Full artifact content"
+          ]
+        },
+        {
+          "text": "Output includes Reviewer Role Summary section.",
+          "type": "contains",
+          "value": "Reviewer Role Summary"
+        },
+        {
+          "text": "Output includes Standalone Mode Metadata section.",
+          "type": "contains",
+          "value": "Standalone Mode Metadata"
+        },
+        {
+          "text": "Output does not include Execute Micro-Gates section (standalone mode).",
+          "type": "not_contains",
+          "value": "Execute Micro-Gates"
+        },
+        {
+          "text": "Output does not include Route Compliance section (standalone mode).",
+          "type": "not_contains_any",
+          "values": [
+            "Route Compliance",
+            "라우트 준수"
+          ]
+        },
+        {
+          "text": "Output does not include Evolution Rule Review content (standalone mode).",
+          "type": "not_contains_any",
+          "values": [
+            "Evolution Rule Review",
+            "진화 규칙 리뷰"
+          ]
+        },
+        {
+          "text": "Output does not auto-proceed to ship or claim the review enables shipping.",
+          "type": "not_contains_any",
+          "values": [
+            "/forgeflow:ship",
+            "auto-ship",
+            "proceed to ship"
+          ]
+        }
+      ]
     }
   ]
 }
