@@ -1,5 +1,11 @@
 # ForgeFlow standalone review 확장 실행계획
 
+> **Status**: ✅ 완료 (v1.2.0 기준). 모든 완료 기준이 충족되었습니다.
+> - `skills/review/SKILL.md`에 standalone mode, input type detection, input normalization, reviewer role 분리, Human Final Judgment Gate가 구현되어 있습니다.
+> - `templates/review-report.md`에 Standalone Input Source, Reviewer Role Summary, Override Log, Standalone Mode Metadata 섹션이 있습니다.
+> - `evals/evals.json`에 standalone review eval 케이스 3개(id 39-41)가 있습니다.
+> - 이 문서는 참조용으로 보존합니다.
+
 대상: ForgeFlow 개발봇
 
 ## 목표
