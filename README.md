@@ -122,6 +122,7 @@ raw_score = file_count*1.0 + estimated_lines*0.1 + requirement_count*2.0 + depen
 | `ship-summary.md`         | ship handoff 요약            | 전체    |
 | `roadmap.md`              | 마일스톤 분해                | epic    |
 | `eval-record.md`          | 학습 기록                    | high+   |
+| `evolution-rule.md`       | evolution rule 템플릿 (ship에서 `active/`에 작성) | ship    |
 
 `review-report.md`의 **Execute Micro-Gates** 테이블(high/epic)은 execute 단계의 `micro_spec` / `micro_quality` 증거를 stage review가 reported로 받아 재검증할 때 씁니다.
 
@@ -169,29 +170,28 @@ CI가 다음 파일의 정합성을 검사합니다.
 
 ## Evolution rule lifecycle
 
-- `long-run`
-  - 트리거: high/epic 작업 완료 후 반복 실수, 리뷰 finding, eval 실패가 evidence로 남음
-  - 산출물/위치: `eval-record.md`에 candidate note를 기록하며, `.forgeflow/evolution/proposed/` 파일은 직접 쓰지 않음
-  - 다음 단계: review
-- `proposed`
-  - 트리거: ship 단계가 승인된 candidate note를 `templates/evolution-rule.md`로 materialize
-  - 산출물/위치: `.forgeflow/evolution/proposed/*.md`, `Lifecycle: proposed`, `Review Status: unreviewed`
-  - 다음 단계: review
-- `review`
-  - 트리거: 후보 규칙의 evidence, false-positive guard, scope, rollback이 검증됨
-  - 산출물/위치: `review-report.md`의 Evolution Rule Review
-  - 다음 단계: active 또는 rejected
+v1.1.0부터 evolution rule 생성은 ship 단계에서 직접 처리합니다. 별도 `proposed` → `review` 중간 단계가 없으며, review가 이미 작업을 검증했으므로 ship이 evidence 기반 규칙을 `active/`에 바로 기록합니다.
+
+- `observe` (ship)
+  - 트리거: ship이 task artifacts(`implementation-notes.md`, `review-report.md`, `eval-record.md`)에서 재사용 가능한 패턴을 식별
+  - 산출물/위치: 기존 task artifacts (별도 산출물 없음)
+- `extract` (ship)
+  - 트리거: evidence가 확인된 재사용 가능한 패턴이 기존 active rule으로 이미 커버되지 않음
+  - 산출물/위치: compact 6-line format으로 `active/`에 직접 작성
+    - global-advisory (기본): `~/.forgeflow/evolution/active/<rule-name>`
+    - project: `.forgeflow/evolution/active/<rule-name>`
+  - small 라우트는 추출 건너뜀, medium은 최대 1-2개, high/epic은 full extraction
 - `active`
-  - 트리거: review 승인 후 프로젝트 규칙으로 승격
-  - 산출물/위치: `.forgeflow/evolution/active/*.md`
-  - 다음 단계: 다음 clarify/plan/execute에서 자동 적용
+  - 트리거: rule 파일이 `active/` 디렉토리에 존재
+  - 산출물/위치: `~/.forgeflow/evolution/active/*` (global) 또는 `.forgeflow/evolution/active/*` (project)
+  - 다음 단계: 향후 clarify/plan/execute에서 trigger/stage 일치 시 자동 로드
 - `retired`
   - 트리거: 규칙이 해롭거나 더 이상 맞지 않음
-  - 산출물/위치: `.forgeflow/evolution/retired/*.md`
+  - 산출물/위치: `.forgeflow/evolution/retired/` (project) 또는 `~/.forgeflow/evolution/retired/` (global), retirement reason 포함
   - 다음 단계: retirement reason 기록 후 로드하지 않음
 
 Project active rule은 해당 repository의 필수 제약입니다.
-Global rule(`~/.forgeflow/evolution/active/*.md`)은 advisory only이며 hard block으로 쓰지 않습니다.
+Global rule(`~/.forgeflow/evolution/active/*`)은 advisory only이며 hard block으로 쓰지 않습니다.
 
 ## 로컬 검증
 
