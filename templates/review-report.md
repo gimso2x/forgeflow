@@ -19,7 +19,7 @@
 <!-- Review/ship: read this section first on resume — expand Findings only when needed. -->
 
 ## 리뷰 유형 (Review Type)
-<!-- spec | quality | security | ux -->
+<!-- spec | quality | security | ux | perf -->
 <!-- small/medium: quality only. high/epic: spec pass then quality pass (same file). -->
 
 ## 판정 (Verdict)
