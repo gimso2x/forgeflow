@@ -22,6 +22,7 @@
 | run-ledger.md | <!-- path --> | <!-- exists | missing --> |
 | implementation-notes.md | <!-- path --> | <!-- exists | missing --> |
 | review-report.md | <!-- path --> | <!-- exists | missing --> |
+| ship-summary.md | <!-- path --> | <!-- exists | missing --> |
 
 ## Next Action
 <!-- The single action to take when resuming -->
