@@ -1,13 +1,14 @@
-# Milestone Roadmap
+# 마일스톤 로드맵 (Milestone Roadmap)
 
 <!-- ForgeFlow epic decomposition. Created during plan stage (epic route). -->
+<!-- Write prose in the user's primary language. Preserve canonical labels, enum values, commands, paths, and artifact filenames in English. -->
 
-## Objective
+## 목표 (Objective)
 <!-- One-paragraph project scope -->
 
-## Milestones
+## 마일스톤 (Milestones)
 
-## Milestone DAG
+## 마일스톤 의존 그래프 (Milestone DAG)
 
 ```mermaid
 graph LR
@@ -18,15 +19,15 @@ graph LR
 ```
 
 ### M1: <!-- name -->
-- **Objective**:
-- **Success criteria**:
-- **Depends on**: (none | M N)
-- **Status**: <!-- planned | in_progress | completed | blocked -->
+- **목표 (Objective)**:
+- **성공 기준 (Success Criteria)**:
+- **의존 (Depends on)**: (none | M N)
+- **상태 (Status)**: <!-- planned | in_progress | completed | blocked -->
 
 ### M2: <!-- name -->
 <!-- Copy pattern above -->
 
-## Tasks per Milestone
+## 마일스톤별 작업 (Tasks per Milestone)
 
 ### M1 Tasks
 - [ ] <!-- task description -->
@@ -34,8 +35,8 @@ graph LR
 ### M2 Tasks
 - [ ] <!-- task description -->
 
-## Integration Verification
+## 통합 검증 (Integration Verification)
 <!-- Final milestone that verifies all previous milestones integrate correctly -->
 
-## Progress Summary
+## 진행 요약 (Progress Summary)
 <!-- Overall completion status -->
