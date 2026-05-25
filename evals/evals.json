@@ -2793,6 +2793,126 @@
           ]
         }
       ]
+    },
+    {
+      "id": 42,
+      "name": "standalone-review-repo-path",
+      "prompt": "You are running /forgeflow:review in standalone mode. No .forgeflow/tasks/ directory exists and no pipeline artifacts (brief.md, plan.md, implementation-notes.md, run-ledger.md) are present. The user provides the following input:\n\n/home/projects/webapp\n\nThis is a local git repository. The current branch is feature/search. The working tree has uncommitted changes in 2 files: src/search/index.ts (+45 lines, new file) and src/search/utils.ts (+12 lines, modified). The diff adds a search indexing function and a text normalization utility. No branch range or commit SHA is specified. The repository has a package.json with a \"test\" script. No --type or --focus flags are provided.\n\nProduce only the review-report.md for this standalone review. Detect input type as repo path (current worktree), bootstrap a synthetic task directory, normalize input (auto-generate brief from working tree summary, extract evidence from git diff HEAD, scope as the 2 changed files), and run quality-reviewer and spec-reviewer (default standalone behavior). Do not include Execute Micro-Gates, Route Compliance, or Evolution Rule Review sections — they are not applicable in standalone mode. Do not auto-proceed to ship. The review report is the final artifact.",
+      "expected_output": "A standalone review-report.md that detects input type as repo path, bootstraps a synthetic task directory under .forgeflow/tasks/standalone-*, includes Standalone Input Source with Input Type repo, Original Input the local path, auto-generates brief from working tree summary (Review of working tree in <repo>), runs quality-reviewer and spec-reviewer, lists both changed files in scope, records source metadata (git diff HEAD / file read), skips inapplicable pipeline-mode sections, and does not auto-ship.",
+      "files": [
+        "skills/review/SKILL.md",
+        "templates/review-report.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output detects input type as repo path or local repository.",
+          "type": "contains_any",
+          "values": [
+            "repo",
+            "Repo path",
+            "repo path",
+            "/home/projects/webapp"
+          ]
+        },
+        {
+          "text": "Output includes Standalone Input Source section with Input Type, Original Input, and Fetch Status fields.",
+          "type": "contains_all",
+          "values": [
+            "Standalone Input Source",
+            "Input Type",
+            "Original Input",
+            "Fetch Status"
+          ]
+        },
+        {
+          "text": "Output includes the original repo path.",
+          "type": "contains",
+          "value": "/home/projects/webapp"
+        },
+        {
+          "text": "Output bootstraps a synthetic task directory matching the standalone-<timestamp> pattern.",
+          "type": "contains",
+          "value": ".forgeflow/tasks/standalone-"
+        },
+        {
+          "text": "Output auto-generates brief referencing working tree review.",
+          "type": "contains_any",
+          "values": [
+            "working tree",
+            "Working tree",
+            "Normalized Brief",
+            "Review of working tree"
+          ]
+        },
+        {
+          "text": "Output lists both changed files in scope.",
+          "type": "contains_all",
+          "values": [
+            "index.ts",
+            "utils.ts"
+          ]
+        },
+        {
+          "text": "Output runs quality-reviewer as an active role.",
+          "type": "contains",
+          "value": "quality-reviewer"
+        },
+        {
+          "text": "Output runs spec-reviewer as an active role.",
+          "type": "contains",
+          "value": "spec-reviewer"
+        },
+        {
+          "text": "Output records evidence source metadata (git diff or file read).",
+          "type": "contains_any",
+          "values": [
+            "git diff",
+            "git diff HEAD",
+            "source: file read",
+            "source: git diff"
+          ]
+        },
+        {
+          "text": "Output includes Reviewer Role Summary section.",
+          "type": "contains",
+          "value": "Reviewer Role Summary"
+        },
+        {
+          "text": "Output includes Standalone Mode Metadata section.",
+          "type": "contains",
+          "value": "Standalone Mode Metadata"
+        },
+        {
+          "text": "Output does not include Execute Micro-Gates section (standalone mode).",
+          "type": "not_contains",
+          "value": "Execute Micro-Gates"
+        },
+        {
+          "text": "Output does not include Route Compliance section (standalone mode).",
+          "type": "not_contains_any",
+          "values": [
+            "Route Compliance",
+            "라우트 준수"
+          ]
+        },
+        {
+          "text": "Output does not include Evolution Rule Review content (standalone mode).",
+          "type": "not_contains_any",
+          "values": [
+            "Evolution Rule Review",
+            "진화 규칙 리뷰"
+          ]
+        },
+        {
+          "text": "Output does not auto-proceed to ship or claim the review enables shipping.",
+          "type": "not_contains_any",
+          "values": [
+            "/forgeflow:ship",
+            "auto-ship",
+            "proceed to ship"
+          ]
+        }
+      ]
     }
   ]
 }
