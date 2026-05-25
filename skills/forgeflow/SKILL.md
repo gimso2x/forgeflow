@@ -55,6 +55,7 @@ Adapter-specific CLI flags and timeout guides: `docs/adapter-config.md`.
 | Execute | `/forgeflow:execute` | `/execute` |
 | Review | `/forgeflow:review` (pipeline: after execute; standalone: with URL/repo/diff/files input) | `/review` (same) |
 | Ship | `/forgeflow:ship` | `/ship` |
+| Config | `/forgeflow:config [field] [value]` | `/config [field] [value]` |
 | Long-run | `/forgeflow:long-run` | `/long-run` |
 | Benchmark | `/forgeflow:benchmark` | `/benchmark` |
 
@@ -261,11 +262,16 @@ If an adapter exceeds the safety ceiling, terminate the process and record the t
 
 1. Detect the adapter environment (see `docs/adapter-config.md`).
 2. **Read project defaults**: if `.forgeflow/defaults.md` exists in the project root, parse it for default settings. Supported fields: `auto` (bool), `subagent_per_task` (bool). See `docs/adapter-config.md` → Project Defaults.
-3. If the user provides a slash command, route to the matching stage skill.
-4. If the user provides a free-form request, run `/forgeflow:clarify` to produce a brief with route selection.
-5. After clarify, follow the route's stage sequence (see Route model above).
-6. Each stage skill handles its own procedure, artifacts, and gates.
-7. Auto-chain priority: `--auto` CLI flag > `brief.md` `auto: true` > `.forgeflow/defaults.md` `auto: true` > default (`false`). When auto-chain is active, stage skills proceed without `(y/n)` prompts. See `_shared/automation.md` for chain sequence, **Strict auto-chain mode** checklist, and auto-break conditions.
+3. **Handle `/forgeflow:config`** (or `/config` in Cursor): manage project defaults in `.forgeflow/defaults.md`.
+   - **Show all**: `/forgeflow:config` — read and display current `.forgeflow/defaults.md` (or "no defaults set" if missing).
+   - **Set field**: `/forgeflow:config auto true` or `/forgeflow:config auto false` — create or update `.forgeflow/defaults.md` with the given field/value pair. Preserve existing fields.
+   - **Supported fields**: `auto` (`true`/`false`), `subagent_per_task` (`true`/`false`).
+   - Do **not** commit `.forgeflow/defaults.md` to git automatically — let the user decide.
+4. If the user provides a slash command (other than config), route to the matching stage skill.
+5. If the user provides a free-form request, run `/forgeflow:clarify` to produce a brief with route selection.
+6. After clarify, follow the route's stage sequence (see Route model above).
+7. Each stage skill handles its own procedure, artifacts, and gates.
+8. Auto-chain priority: `--auto` CLI flag > `brief.md` `auto: true` > `.forgeflow/defaults.md` `auto: true` > default (`false`). When auto-chain is active, stage skills proceed without `(y/n)` prompts. See `_shared/automation.md` for chain sequence, **Strict auto-chain mode** checklist, and auto-break conditions.
 
 ## Exit Condition
 
