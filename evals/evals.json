@@ -3149,6 +3149,94 @@
           ]
         }
       ]
+    },
+    {
+      "id": 45,
+      "name": "standalone-review-ambiguous-input",
+      "prompt": "You are running /forgeflow:review in standalone mode. No .forgeflow/tasks/ directory exists and no pipeline artifacts (brief.md, plan.md, implementation-notes.md, run-ledger.md) are present. The user provides the following input:\n\n\"Check if the thing looks good\"\n\nThis input is a vague natural-language string. It is not a URL (no https:// or http:// prefix), not a repo path (no .git/ directory or git worktree context), not a diff/patch (no --- a/, +++ b/, @@ markers), not a file bundle (no file paths), and not an existing artifact path (no .forgeflow/tasks/ reference). According to the review skill input type detection, this is ambiguous input (type 6).\n\nProduce only the review-report.md for this standalone review attempt.\nThe review must detect that the input is ambiguous and cannot be classified into any of the 5 known input types (URL, repo path, diff/patch, file bundle, existing artifact). Per the review skill contract, when no input type matches, the review should record a blocked status, explain that the input cannot be classified, and request clarification from the user. Do not guess the input type or proceed with wrong assumptions. Do not fabricate evidence.",
+      "expected_output": "A standalone review-report.md that records the input as ambiguous/unclassifiable, sets the verdict to blocked, explains that none of the 5 input types match, and requests the user to clarify the input type. The report must not fabricate evidence or guess an input type.",
+      "files": [
+        "skills/review/SKILL.md",
+        "templates/review-report.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output includes a Standalone Input Source section.",
+          "type": "contains",
+          "value": "Standalone Input Source"
+        },
+        {
+          "text": "Output sets the verdict to blocked because input cannot be classified.",
+          "type": "contains",
+          "value": "blocked"
+        },
+        {
+          "text": "Output does not use 'approved' as the verdict.",
+          "type": "not_contains",
+          "value": "approved"
+        },
+        {
+          "text": "Output does not fabricate evidence or claim observed evidence.",
+          "type": "not_contains",
+          "value": "observed evidence"
+        },
+        {
+          "text": "Output mentions that the input is ambiguous or cannot be classified or unclear.",
+          "type": "contains_any",
+          "values": [
+            "ambiguous",
+            "cannot be classified",
+            "unclassifiable",
+            "unclear",
+            "unrecognized input",
+            "no input type matches",
+            "unable to determine"
+          ]
+        },
+        {
+          "text": "Output requests the user to clarify or specify the input type.",
+          "type": "contains_any",
+          "values": [
+            "clarify",
+            "specify",
+            "provide",
+            "what type",
+            "input type"
+          ]
+        },
+        {
+          "text": "Output does not guess the input as a URL.",
+          "type": "not_contains",
+          "value": "URL"
+        },
+        {
+          "text": "Output does not guess the input as a diff or patch.",
+          "type": "not_contains",
+          "value": "diff"
+        },
+        {
+          "text": "Output does not treat the input as a file bundle.",
+          "type": "not_contains",
+          "value": "file bundle"
+        },
+        {
+          "text": "Output does not treat the input as a repo path.",
+          "type": "not_contains_any",
+          "values": [
+            "repo path",
+            "repository path",
+            "git worktree"
+          ]
+        },
+        {
+          "text": "Output includes a Next Action section telling the user to provide clearer input.",
+          "type": "contains_any",
+          "values": [
+            "Next Action",
+            "다음 작업"
+          ]
+        }
+      ]
     }
   ]
 }
