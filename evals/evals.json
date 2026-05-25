@@ -2664,6 +2664,135 @@
           ]
         }
       ]
+    },
+    {
+      "id": 41,
+      "name": "standalone-review-github-pr-url",
+      "prompt": "You are running /forgeflow:review in standalone mode. No .forgeflow/tasks/ directory exists and no pipeline artifacts (brief.md, plan.md, implementation-notes.md, run-ledger.md) are present. The user provides the following input:\n\nhttps://github.com/acme/webapp/pull/42\n\nThe PR title is \"Add password reset flow\" and the body says \"Implements /auth/reset-password endpoint with email verification and rate limiting. Closes #15.\" The PR changes 3 files: src/auth/reset.ts (new, 120 lines), src/auth/email.ts (modified, +30 lines), tests/auth/reset.test.ts (new, 80 lines). The diff adds a POST /auth/reset-password route, an email sending helper, and unit tests. No security-reviewer or perf-reviewer is explicitly requested.\n\nProduce only the review-report.md for this standalone review. Detect input type as URL (GitHub PR), bootstrap a synthetic task directory, normalize input (auto-generate brief from PR title and body, extract evidence as the full diff, scope as the 3 changed files), and run quality-reviewer and spec-reviewer. Since the changes touch authentication code, also trigger security-reviewer. Do not include Execute Micro-Gates, Route Compliance, or Evolution Rule Review sections — they are not applicable in standalone mode. Do not auto-proceed to ship. The review report is the final artifact.",
+      "expected_output": "A standalone review-report.md that detects URL input type (GitHub PR), bootstraps a synthetic task directory under .forgeflow/tasks/standalone-*, includes Standalone Input Source with Input Type url, Original Input the PR URL, auto-generates brief from PR title+body, runs quality-reviewer, spec-reviewer, and security-reviewer (triggered by auth code), lists all 3 changed files in scope, records source metadata (gh pr diff / gh pr view), skips inapplicable pipeline-mode sections, and does not auto-ship.",
+      "files": [
+        "skills/review/SKILL.md",
+        "templates/review-report.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output detects input type as URL.",
+          "type": "contains_any",
+          "values": [
+            "url",
+            "URL",
+            "GitHub PR",
+            "github.com"
+          ]
+        },
+        {
+          "text": "Output includes Standalone Input Source section with Input Type, Original Input, and Fetch Status fields.",
+          "type": "contains_all",
+          "values": [
+            "Standalone Input Source",
+            "Input Type",
+            "Original Input",
+            "Fetch Status"
+          ]
+        },
+        {
+          "text": "Output includes the original PR URL.",
+          "type": "contains",
+          "value": "https://github.com/acme/webapp/pull/42"
+        },
+        {
+          "text": "Output bootstraps a synthetic task directory matching the standalone-<timestamp> pattern.",
+          "type": "contains",
+          "value": ".forgeflow/tasks/standalone-"
+        },
+        {
+          "text": "Output auto-generates brief from PR title or body (Add password reset flow).",
+          "type": "contains_any",
+          "values": [
+            "Add password reset flow",
+            "password reset",
+            "Normalized Brief"
+          ]
+        },
+        {
+          "text": "Output lists all three changed files in scope.",
+          "type": "contains_all",
+          "values": [
+            "reset.ts",
+            "email.ts",
+            "reset.test.ts"
+          ]
+        },
+        {
+          "text": "Output runs quality-reviewer as an active role.",
+          "type": "contains",
+          "value": "quality-reviewer"
+        },
+        {
+          "text": "Output runs spec-reviewer as an active role.",
+          "type": "contains",
+          "value": "spec-reviewer"
+        },
+        {
+          "text": "Output triggers security-reviewer because changes touch authentication code.",
+          "type": "contains",
+          "value": "security-reviewer"
+        },
+        {
+          "text": "Output records evidence source metadata (gh pr diff or gh pr view).",
+          "type": "contains_any",
+          "values": [
+            "gh pr diff",
+            "gh pr view",
+            "source: gh pr"
+          ]
+        },
+        {
+          "text": "Output includes Reviewer Role Summary section with all three triggered roles.",
+          "type": "contains_all",
+          "values": [
+            "Reviewer Role Summary",
+            "quality-reviewer",
+            "spec-reviewer",
+            "security-reviewer"
+          ]
+        },
+        {
+          "text": "Output includes Standalone Mode Metadata section.",
+          "type": "contains",
+          "value": "Standalone Mode Metadata"
+        },
+        {
+          "text": "Output does not include Execute Micro-Gates section (standalone mode).",
+          "type": "not_contains",
+          "value": "Execute Micro-Gates"
+        },
+        {
+          "text": "Output does not include Evolution Rule Review content (standalone mode).",
+          "type": "not_contains_any",
+          "values": [
+            "Evolution Rule Review",
+            "진화 규칙 리뷰"
+          ]
+        },
+        {
+          "text": "Output does not include Route Compliance section (standalone mode).",
+          "type": "not_contains_any",
+          "values": [
+            "Route Compliance",
+            "라우트 준수"
+          ]
+        },
+        {
+          "text": "Output does not auto-proceed to ship or claim the review enables shipping.",
+          "type": "not_contains_any",
+          "values": [
+            "/forgeflow:ship",
+            "auto-ship",
+            "proceed to ship"
+          ]
+        }
+      ]
     }
   ]
 }
