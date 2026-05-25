@@ -290,7 +290,7 @@ The goal is to gather just enough information to route correctly — not to run 
 
 When all blockers are resolved:
 
-**If `--auto` is active** (see `_shared/automation.md`): skip the prompt and invoke the next stage skill directly.
+**If `--auto` is active** (set via `--auto` flag, `brief.md` `auto: true`, or user instruction — see `_shared/automation.md`): skip the prompt and invoke the next stage skill directly.
 - `small` → `/forgeflow:execute`
 - `medium` or `high` → `/forgeflow:plan`
 - `epic` → `/forgeflow:plan`

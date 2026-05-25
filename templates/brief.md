@@ -84,5 +84,9 @@
 <!-- high: build + lint + type_check + test -->
 <!-- epic: full suite + milestone integration tests -->
 
+## 자동 모드 (Auto Mode)
+<!-- false (default) | true — when true, agent chains through all remaining stages without (y/n) prompts. See skills/_shared/automation.md. -->
+- **auto**: <!-- false -->
+
 ## 환경 사전 점검 (Environment Preflight)
 <!-- git repo status, lockfile/dependency check, etc. -->

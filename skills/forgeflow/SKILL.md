@@ -264,7 +264,7 @@ If an adapter exceeds the safety ceiling, terminate the process and record the t
 3. If the user provides a free-form request, run `/forgeflow:clarify` to produce a brief with route selection.
 4. After clarify, follow the route's stage sequence (see Route model above).
 5. Each stage skill handles its own procedure, artifacts, and gates.
-6. If `--auto` flag is present, stage skills auto-chain to the next stage without `(y/n)` prompts. See `_shared/automation.md` for chain sequence, **Strict auto-chain mode** checklist, and auto-break conditions.
+6. If `--auto` flag is present, or `brief.md` has `auto: true`, or the user says to proceed without further approval, stage skills auto-chain to the next stage without `(y/n)` prompts. See `_shared/automation.md` for chain sequence, **Strict auto-chain mode** checklist, and auto-break conditions.
 
 ## Exit Condition
 
