@@ -172,6 +172,24 @@ When stopping for auto-break:
 2. Do not edit application code until the user resolves the blocker or explicitly directs otherwise
 3. On resume with `--auto` still active: read checkpoint → resolve blocker → continue chain from `Next Action` without re-asking prior stage boundaries
 
+## Compact timing during auto-chain
+
+When `--auto` chains multiple stages in one turn, context pressure may trigger `/compact`. Follow `_shared/context-resume.md` timing rules, adapted for auto-chain:
+
+| Auto-chain moment | Safe to compact? | Condition |
+|---|---|---|
+| After stage artifact + checkpoint written | **Yes** | Both artifact and checkpoint are on disk |
+| Mid-execute, task done + evidence recorded | **Yes** | Ledger + notes + checkpoint updated for that task |
+| Between stage invocation (next skill loading) | **No** | No artifact written yet for the next stage |
+| Mid-review before verdict | **No** | Verdict not recorded |
+
+On resume after compact during auto-chain:
+1. Read `checkpoint.md` first (see `_shared/context-resume.md`).
+2. If `Status: blocked`, treat as auto-break — do not resume chain until blocker is resolved.
+3. If `Status: in_progress` and `--auto` is still active, continue chain from `Next Action` without asking the user.
+
+Do **not** use compact as an excuse to pause auto-chain and wait for user input. The chain continues automatically unless an auto-break condition applies.
+
 ## General rule
 
 If the user explicitly includes any of the flags above, or says to continue through ForgeFlow stages without further approval, treat that as approval for the current bounded ForgeFlow sequence. This only applies inside the stated task scope and never overrides a blocker, failed verification, missing required artifact, or unsafe/destructive action.

@@ -85,6 +85,12 @@ contract_check:PASS <task>
 
 Review and ship parse these before reading full Evidence sections.
 
+## Auto-chain resume (compact during --auto)
+
+When `--auto` is active and compact fires between stages, resume follows the same checkpoint-first procedure above. The only difference: after reading checkpoint, if `Status: in_progress` and `--auto` is still active, continue the chain from `Next Action` without asking the user. Do not re-confirm prior stage boundaries.
+
+See `_shared/automation.md` → "Compact timing during auto-chain" for safe compact moments during auto-chain.
+
 ## Design reference
 
 Large brownfield tasks (e.g. frontend extension with 300+ line `plan.md`) demonstrate repeated full-plan re-read cost. Keep section anchors in long plans; use Reader Summary at artifact top for high/epic routes.
@@ -94,3 +100,4 @@ Large brownfield tasks (e.g. frontend extension with 300+ line `plan.md`) demons
 - Checkpoint template: `templates/checkpoint.md`
 - Preflight (review/ship): `_shared/preflight.md`
 - Discipline (Reader Summary): `_shared/discipline.md`
+- Automation (auto-chain compact): `_shared/automation.md`
