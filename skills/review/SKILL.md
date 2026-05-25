@@ -1,6 +1,6 @@
 ---
 name: review
-description: Perform independent ForgeFlow review against requirements, plan, and code. Use when the user types /review or /forgeflow:review, after execute and before ship.
+description: Perform independent ForgeFlow review. Use as /review or /forgeflow:review — either after execute (pipeline mode) or directly with external input (standalone mode).
 version: 0.3.0
 author: gimso2x
 validate_prompt: |
@@ -21,6 +21,29 @@ Use this skill to review completed ForgeFlow work independently.
 - `run-ledger.md` from execute stage
 - Final codebase state
 - Verification commands/results
+
+## Standalone Mode
+
+When review is invoked without prior clarify/plan/execute stages, it operates in **standalone mode**. Accept any of these direct inputs:
+
+- **URL**: A GitHub PR, commit, or any web-accessible diff/page. Fetch and extract content.
+- **Repo path**: A local repository directory. Use the current worktree state or a specified commit/branch range.
+- **Diff/patch**: Raw unified diff text. Parse and map to file structure.
+- **File bundle**: One or more file paths. Read and review directly.
+- **Existing artifact**: Path to a `.forgeflow/tasks/` directory or specific artifact file.
+
+Standalone mode bootstraps a synthetic task directory under `.forgeflow/tasks/standalone-<timestamp>/` if one does not already exist. All review outputs go there.
+
+## Input Normalization
+
+Regardless of input type, normalize to a standard internal structure before review proceeds:
+
+- **brief**: What is being reviewed (auto-generated from input: PR title, commit message, file names, or user-supplied description)
+- **evidence**: The concrete content to review (diff hunks, file contents, fetched page content)
+- **scope**: What range is in scope (changed files, specific directories, commit range)
+- **constraints**: Review focus areas or restrictions (user-specified or inferred: e.g., security-only, spec-compliance-only)
+
+This normalized structure feeds directly into the existing review rubrics (Spec Review, Quality Review). No separate pipeline is needed — the rubrics work on brief/evidence/scope/constraints whether the source was a pipeline execute stage or standalone input.
 
 ## Output Artifacts
 
@@ -224,6 +247,7 @@ Before approving review, inspect required ForgeFlow artifacts for unresolved tem
 
 ## Procedure
 
+0. **Detect mode**: If brief.md/plan.md/implementation-notes.md exist in the active task directory, proceed in **pipeline mode** (steps 1-18). If only external input is provided (URL/diff/files/repo), enter **standalone mode**: normalize input (see Input Normalization), bootstrap synthetic task dir, then proceed from step 4 (blocker elimination) using normalized evidence.
 1. Read `checkpoint.md` when present, then `_shared/preflight.md` minimum read set. Read `brief.md` Acceptance Criteria and route — not necessarily the full brief unless scope is disputed.
 2. Review from artifacts and code, not worker vibes.
 3. Check scope coverage and acceptance criteria, including every fulfills, journey, and verification plan target from the plan.
@@ -266,6 +290,15 @@ Before approving review, inspect required ForgeFlow artifacts for unresolved tem
 18. Do not call `/forgeflow:ship` unless verdict=approved, safe_for_next_stage=yes, and open_blockers=none are all true in the **written** `review-report.md`.
 
 Do not merge spec and quality review passes into a single turn for high/epic work. Use one `review-report.md` with sequential passes.
+
+## Human Final Judgment Gate
+
+AI review results are advisory, not auto-approval:
+
+- Evidence-less comments receive **low priority**. Findings without concrete file paths or diffs are labeled `nit` at most.
+- Conflicting findings across reviewer roles are flagged as **requires human decision**. The review report records both positions.
+- Ship gate requires explicit human confirmation. AI `approved` verdict enables the ship command but does not execute it unless `--auto` is active.
+- In standalone mode, the review report is the final artifact — there is no ship stage unless the user explicitly starts a pipeline from the review output.
 
 ## Output mode examples
 
