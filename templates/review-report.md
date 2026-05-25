@@ -29,6 +29,7 @@
 <!-- Role or identifier -->
 
 ## 라우트 준수 (Route Compliance)
+<!-- Pipeline mode only. Standalone mode: delete this section. -->
 <!-- Did execution follow the selected route stages? -->
 
 ## 발견 사항 (Findings)
@@ -72,7 +73,8 @@
 - [ ] TDD cycle followed (red → green → refactor) <!-- only when plan step required TDD -->
 
 ## Execute 마이크로 게이트 (Execute Micro-Gates)
-<!-- high/epic only. Per-step gates from execute; NOT a substitute for this review pass. -->
+<!-- Pipeline mode, high/epic only. Standalone mode or small/medium: delete this section. -->
+<!-- Per-step gates from execute; NOT a substitute for this review pass. -->
 <!-- Copy summary from implementation-notes Evidence (micro_spec:*, micro_quality:*) and run-ledger. -->
 <!-- Stage reviewer must re-verify; treat micro-gate results as reported evidence unless independently observed. -->
 
@@ -93,6 +95,7 @@
 <!-- yes | no -->
 
 ## 진화 규칙 리뷰 (Evolution Rule Review)
+<!-- Pipeline mode only. Standalone mode: delete this section (always not_applicable). -->
 <!-- approved | changes_requested | not_applicable -->
 - **Candidates Reviewed**:
 - **Activation Guidance**:
@@ -110,6 +113,7 @@
 -
 
 ## 코드 품질 지표 (Code Quality Metrics)
+<!-- Pipeline mode or standalone with code input. Skip if reviewing non-code artifacts. -->
 <!-- Quantitative metrics from implementation-notes.md or collected during review -->
 
 | Metric | Value | Verdict |
