@@ -2478,6 +2478,99 @@
           ]
         }
       ]
+    },
+    {
+      "id": 39,
+      "name": "standalone-review-diff-input",
+      "prompt": "You are running /forgeflow:review in standalone mode. No .forgeflow/tasks/ directory exists and no pipeline artifacts (brief.md, plan.md, implementation-notes.md, run-ledger.md) are present. The user provides the following unified diff as input:\n\n--- a/src/api/auth.ts\n+++ b/src/api/auth.ts\n@@ -12,6 +12,8 @@\n import { validateEmail } from './validators';\n+import { logEvent } from './logger';\n+// TODO: remove debug\n+console.log('login attempt', email);\n   const token = generateToken(user);\n+  logEvent('auth.success', { userId: user.id });\n   return { token, user };\n--- a/src/api/validators.ts\n+++ b/src/api/validators.ts\n@@ -5,3 +5,8 @@\n export function validateEmail(email: string): boolean {\n-  return /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email);\n+  if (!email || typeof email !== 'string') {\n+    return false;\n+  }\n+  const trimmed = email.trim();\n+  return /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(trimmed);\n }\n\nProduce only the review-report.md for this standalone review. Detect input type as diff, bootstrap a synthetic task directory, normalize input, and run the quality-reviewer. Do not include Execute Micro-Gates, Route Compliance, or Evolution Rule Review sections — they are not applicable in standalone mode. Do not auto-proceed to ship. The review report is the final artifact.",
+      "expected_output": "A standalone review-report.md that detects diff input, bootstraps a synthetic task directory under .forgeflow/tasks/standalone-*, includes Standalone Input Source with Input Type diff, runs quality-reviewer, identifies debug artifacts (console.log, TODO) as findings, notes the improved validation in validators.ts, skips inapplicable pipeline-mode sections, and does not auto-ship.",
+      "files": [
+        "skills/review/SKILL.md",
+        "templates/review-report.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output detects input type as diff.",
+          "type": "contains",
+          "value": "diff"
+        },
+        {
+          "text": "Output includes a Standalone Input Source section with Input Type, Original Input, and Fetch Status fields.",
+          "type": "contains_all",
+          "values": [
+            "Standalone Input Source",
+            "Input Type",
+            "Fetch Status"
+          ]
+        },
+        {
+          "text": "Output bootstraps a synthetic task directory matching the standalone-<timestamp> pattern.",
+          "type": "contains",
+          "value": ".forgeflow/tasks/standalone-"
+        },
+        {
+          "text": "Output includes Standalone Mode Metadata section with Synthetic Task Dir and Active Reviewer Roles.",
+          "type": "contains_all",
+          "values": [
+            "Standalone Mode Metadata",
+            "Synthetic Task Dir",
+            "Active Reviewer Roles"
+          ]
+        },
+        {
+          "text": "Output runs quality-reviewer as an active role.",
+          "type": "contains",
+          "value": "quality-reviewer"
+        },
+        {
+          "text": "Output identifies debug artifacts (console.log or TODO comment) as findings.",
+          "type": "contains_any",
+          "values": [
+            "console.log",
+            "TODO",
+            "debug",
+            "debug artifact"
+          ]
+        },
+        {
+          "text": "Output does not include Execute Micro-Gates section (standalone mode).",
+          "type": "not_contains",
+          "value": "Execute Micro-Gates"
+        },
+        {
+          "text": "Output does not include Evolution Rule Review content (standalone mode always not_applicable, section deleted).",
+          "type": "not_contains_any",
+          "values": [
+            "Evolution Rule Review",
+            "진화 규칙 리뷰"
+          ]
+        },
+        {
+          "text": "Output does not include Route Compliance section (standalone mode).",
+          "type": "not_contains_any",
+          "values": [
+            "Route Compliance",
+            "라우트 준수"
+          ]
+        },
+        {
+          "text": "Output does not auto-proceed to ship or claim the review enables shipping.",
+          "type": "not_contains_any",
+          "values": [
+            "/forgeflow:ship",
+            "auto-ship",
+            "proceed to ship"
+          ]
+        },
+        {
+          "text": "Output includes Reviewer Role Summary section.",
+          "type": "contains_any",
+          "values": [
+            "Reviewer Role Summary",
+            "리뷰어 역할 요약"
+          ]
+        }
+      ]
     }
   ]
 }
