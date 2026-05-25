@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Standalone review mode** (`/forgeflow:review` without pipeline): review external input (URL/repo/diff/files) independently with role-based review (`--type spec|quality|security|ux|perf|all`)
+- **`skills/review/SKILL.md` standalone flow (S1–S10)**: normalized-input.md generation, role-based routing, Human Judgment Gate
+- **`templates/review-report.md` standalone sections**: mode header, evidence table, advisory disclaimer, `perf` role enum
+- **SKILLS.md standalone lifecycle**: pipeline-independent review example added
+- **README standalone review section**: usage examples, supported input types, supported roles
 - **`skills/_shared/automation.md` Strict auto-chain mode**: `--auto` 스테이지 exit 체크리스트, artifact-before-code 순서, 금지 프롬프트 목록
 - **auto-break 확장**: scope change, external dependency hard failure(예: API 429), context limit 시 checkpoint blocked 후 중단 규칙
 

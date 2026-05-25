@@ -53,7 +53,7 @@ Adapter-specific CLI flags and timeout guides: `docs/adapter-config.md`.
 | Clarify | `/forgeflow:clarify` | `/clarify` |
 | Plan | `/forgeflow:plan` | `/plan` |
 | Execute | `/forgeflow:execute` | `/execute` |
-| Review | `/forgeflow:review` | `/review` |
+| Review | `/forgeflow:review` (pipeline: after execute; standalone: with URL/repo/diff/files input) | `/review` (same) |
 | Ship | `/forgeflow:ship` | `/ship` |
 | Long-run | `/forgeflow:long-run` | `/long-run` |
 | Benchmark | `/forgeflow:benchmark` | `/benchmark` |

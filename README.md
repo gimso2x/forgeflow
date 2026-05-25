@@ -144,6 +144,30 @@ raw_score = file_count*1.0 + estimated_lines*0.1 + requirement_count*2.0 + depen
 
 자세한 절차는 [`skills/execute/SKILL.md`](skills/execute/SKILL.md)의 Subagent Per-Task Loop와 [`skills/forgeflow/SKILL.md`](skills/forgeflow/SKILL.md)의 Review depth by route를 참고하세요.
 
+## 독립 리뷰 (Standalone Review)
+
+v1.1.4부터 `/forgeflow:review`를 파이프라인(execute 후속) 없이도 독립적으로 실행할 수 있습니다.
+
+```text
+# PR 리뷰
+/forgeflow:review https://github.com/org/repo/pull/42
+
+# 특정 디렉토리 보안 리뷰
+/forgeflow:review --type security ./src/auth/
+
+# diff 파일 리뷰
+/forgeflow:review ./changes.patch
+
+# 전체 역할 리뷰
+/forgeflow:review --type all ./src/
+```
+
+지원 입력: URL(GitHub PR/commit/compare, 일반 웹페이지), 로컬 repo 경로, diff/patch, 파일 묶음, 기존 artifact
+
+지원 역할: `spec`, `quality`(기본), `security`, `ux`, `perf`, `all`(전체)
+
+독립 모드에서는 synthetic task directory(`.forgeflow/tasks/standalone-<timestamp>/`)가 생성되며, AI 리뷰 결과는 참고 자료(advisory)이고 최종 판단은 사람이 내립니다.
+
 ## 특징
 
 - **의존성 제로** — Python, Node.js 등 외부 런타임 불필요

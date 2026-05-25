@@ -18,7 +18,7 @@ Skills are markdown documents that live in `skills/`. Each skill defines a bound
 | 01 | [`clarify`](clarify/SKILL.md) | Bootstrap task workspace, resolve ambiguity, explore codebase, emit a **brief.md** with complexity routing. |
 | 02 | [`plan`](plan/SKILL.md) | Turn requirements into an executable **plan.md** with task contracts; includes epic decomposition for epic route. |
 | 03 | [`execute`](execute/SKILL.md) | Execute plan tasks with checkpoint/recovery tracking; includes opt-in subagent per-task loop. |
-| 04 | [`review`](review/SKILL.md) | **Information-isolated** verification of executed work against the plan. |
+|| 04 | [`review`](review/SKILL.md) | **Information-isolated** verification. Pipeline mode: verify executed work against the plan. Standalone mode: review external input (URL/repo/diff/files) independently with role-based review. |
 | 05 | [`ship`](ship/SKILL.md) | Final handoff, evolution rule extraction, and branch disposition (merge/PR/keep/discard). |
 | 06 | [`long-run`](long-run/SKILL.md) | Record reusable learnings after high/epic route completion. |
 | 07 | [`benchmark`](benchmark/SKILL.md) | Cross-adapter benchmark: same prompt → multiple agents → comparison report. |
@@ -58,6 +58,18 @@ User: "Build a complete e-commerce platform"
     → review (spec pass → quality pass) → review-report.md
   → ship             → final handoff + branch disposition
   → long-run         → eval-record.md
+```
+
+## Standalone review lifecycle (no pipeline)
+
+```
+User: "/forgeflow:review https://github.com/org/repo/pull/42"
+  → review (standalone)     → synthetic task dir + normalized-input.md + review-report.md
+```
+
+```
+User: "/forgeflow:review --type security ./src/"
+  → review (standalone)     → security-reviewer only → review-report.md
 ```
 
 ## Adding a new skill
