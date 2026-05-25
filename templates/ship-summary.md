@@ -26,6 +26,16 @@
 ## 인수인계 조치 (Handoff Action)
 <!-- report completed; branch disposition remains pending within ship -->
 
+## 진화 규칙 (Evolution Rules Extracted)
+<!-- List evolution rules created during ship, or "none" when no rules were extracted. -->
+<!-- small route: skip extraction → write "none (small route)" -->
+<!-- medium route: 0-2 rules max -->
+<!-- high/epic route: full extraction -->
+
+| Rule | Scope | Trigger | Location |
+|------|-------|---------|----------|
+| | | | |
+
 ## 단순화 후보 (Simplification Candidates)
 <!-- Optional: Triple-Lens findings from ship polish loop, or "none" -->
 
