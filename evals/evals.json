@@ -3033,6 +3033,122 @@
           ]
         }
       ]
+    },
+    {
+      "id": 44,
+      "name": "standalone-review-type-all-roles",
+      "prompt": "You are running /forgeflow:review in standalone mode with --type all.\nNo .forgeflow/tasks/ directory exists and no pipeline artifacts are present.\nThe user provides the following file bundle:\n\nFile: src/api/auth.ts\nimport { validateEmail } from './validators';\nimport { logEvent } from './logger';\n\nexport async function login(email: string, password: string) {\n  console.log('login attempt', email);\n  const user = await db.query('SELECT * FROM users WHERE email = \\'' + email + '\\' AND password_hash = \\'' + password + '\\'');\n  const token = generateToken(user);\n  logEvent('auth.success', { userId: user.id });\n  return { token, user };\n}\n\nFile: src/api/validators.ts\nexport function validateEmail(email: string): boolean {\n  if (!email || typeof email !== 'string') return false;\n  const trimmed = email.trim();\n  return /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(trimmed);\n}\n\nFile: src/pages/Login.tsx\nexport function LoginPage() {\n  return <form><input type=\"text\" /><button>Submit</button></form>;\n}\n\nProduce only the review-report.md for this standalone review.\nThe --type all flag forces all 5 reviewer roles (spec-reviewer, quality-reviewer,\nsecurity-reviewer, ux-reviewer, perf-reviewer) to run regardless of file-type heuristics.\nDetect input type as file bundle, bootstrap a synthetic task directory, normalize input,\nand run all 5 roles. Do not include Execute Micro-Gates, Route Compliance, or Evolution\nRule Review sections. Do not auto-proceed to ship.",
+      "expected_output": "A standalone review-report.md that runs all 5 reviewer roles because --type all was specified, detects file bundle input, identifies SQL injection in auth.ts as a security finding, flags console.log debug artifact as quality finding, notes missing ARIA labels in Login.tsx as UX finding, records perf-reviewer ran but found no issues, and includes a Reviewer Role Summary with all 5 roles listed.",
+      "files": [
+        "skills/review/SKILL.md",
+        "templates/review-report.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output detects input type as file bundle.",
+          "type": "contains",
+          "value": "file bundle"
+        },
+        {
+          "text": "Output bootstraps a synthetic task directory matching the standalone-<timestamp> pattern.",
+          "type": "contains",
+          "value": ".forgeflow/tasks/standalone-"
+        },
+        {
+          "text": "Output runs all 5 reviewer roles because --type all forces them.",
+          "type": "contains_all",
+          "values": [
+            "spec-reviewer",
+            "quality-reviewer",
+            "security-reviewer",
+            "ux-reviewer",
+            "perf-reviewer"
+          ]
+        },
+        {
+          "text": "Output includes Standalone Input Source section with Input Type field.",
+          "type": "contains_all",
+          "values": [
+            "Standalone Input Source",
+            "Input Type"
+          ]
+        },
+        {
+          "text": "Output includes Standalone Mode Metadata section with Active Reviewer Roles listing all 5 roles.",
+          "type": "contains_all",
+          "values": [
+            "Standalone Mode Metadata",
+            "Active Reviewer Roles"
+          ]
+        },
+        {
+          "text": "Output identifies the SQL injection vulnerability in auth.ts as a security finding.",
+          "type": "contains_any",
+          "values": [
+            "SQL injection",
+            "sql injection",
+            "string concatenat",
+            "query concatenat"
+          ]
+        },
+        {
+          "text": "Output flags debug artifact (console.log) as a quality finding.",
+          "type": "contains_any",
+          "values": [
+            "console.log",
+            "debug artifact",
+            "debug log"
+          ]
+        },
+        {
+          "text": "Output includes UX findings about accessibility or missing labels in Login.tsx.",
+          "type": "contains_any",
+          "values": [
+            "ARIA",
+            "aria",
+            "label",
+            "accessibility"
+          ]
+        },
+        {
+          "text": "Output includes Reviewer Role Summary section listing all 5 roles with verdicts.",
+          "type": "contains_any",
+          "values": [
+            "Reviewer Role Summary",
+            "리뷰어 역할 요약"
+          ]
+        },
+        {
+          "text": "Output does not include Execute Micro-Gates section (standalone mode).",
+          "type": "not_contains",
+          "value": "Execute Micro-Gates"
+        },
+        {
+          "text": "Output does not include Evolution Rule Review content (standalone mode).",
+          "type": "not_contains_any",
+          "values": [
+            "Evolution Rule Review",
+            "진화 규칙 리뷰"
+          ]
+        },
+        {
+          "text": "Output does not include Route Compliance section (standalone mode).",
+          "type": "not_contains_any",
+          "values": [
+            "Route Compliance",
+            "라우트 준수"
+          ]
+        },
+        {
+          "text": "Output does not auto-proceed to ship.",
+          "type": "not_contains_any",
+          "values": [
+            "/forgeflow:ship",
+            "auto-ship",
+            "proceed to ship"
+          ]
+        }
+      ]
     }
   ]
 }
