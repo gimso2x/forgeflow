@@ -260,11 +260,12 @@ If an adapter exceeds the safety ceiling, terminate the process and record the t
 ## Procedure
 
 1. Detect the adapter environment (see `docs/adapter-config.md`).
-2. If the user provides a slash command, route to the matching stage skill.
-3. If the user provides a free-form request, run `/forgeflow:clarify` to produce a brief with route selection.
-4. After clarify, follow the route's stage sequence (see Route model above).
-5. Each stage skill handles its own procedure, artifacts, and gates.
-6. If `--auto` flag is present, or `brief.md` has `auto: true`, or the user says to proceed without further approval, stage skills auto-chain to the next stage without `(y/n)` prompts. See `_shared/automation.md` for chain sequence, **Strict auto-chain mode** checklist, and auto-break conditions.
+2. **Read project defaults**: if `.forgeflow/defaults.md` exists in the project root, parse it for default settings. Supported fields: `auto` (bool), `subagent_per_task` (bool). See `docs/adapter-config.md` → Project Defaults.
+3. If the user provides a slash command, route to the matching stage skill.
+4. If the user provides a free-form request, run `/forgeflow:clarify` to produce a brief with route selection.
+5. After clarify, follow the route's stage sequence (see Route model above).
+6. Each stage skill handles its own procedure, artifacts, and gates.
+7. Auto-chain priority: `--auto` CLI flag > `brief.md` `auto: true` > `.forgeflow/defaults.md` `auto: true` > default (`false`). When auto-chain is active, stage skills proceed without `(y/n)` prompts. See `_shared/automation.md` for chain sequence, **Strict auto-chain mode** checklist, and auto-break conditions.
 
 ## Exit Condition
 

@@ -139,5 +139,25 @@ Codex는 전체 git diff를 출력하므로 다음 후처리를 적용:
 | Gemini CLI | `GEMINI_CLI=1` | `.gemini/` 디렉토리 존재 |
 | Cursor | — | `.cursor/` 디렉토리 존재 (다른 adapter env signal 없을 때) |
 
+## 프로젝트 기본값 (Project Defaults)
+
+프로젝트 루트에 `.forgeflow/defaults.md`를 두면 모든 태스크에 적용할 기본값을 설정할 수 있습니다.
+
+```markdown
+# ForgeFlow Defaults
+
+- **auto**: true
+- **subagent_per_task**: false
+```
+
+지원 필드:
+
+| 필드 | 기본값 | 설명 |
+|------|--------|------|
+| `auto` | `false` | `true`면 clarify 이후 전체 스테이지 자동 체이닝 (`--auto`와 동일) |
+| `subagent_per_task` | `false` | `true`면 execute에서 plan step마다 subagent per-task 루프 사용 |
+
+우선순위: `--auto` 플래그 > `brief.md` auto 필드 > `.forgeflow/defaults.md` > 기본값(`false`)
+
 스킬 내에서 조건부 동작이 필요한 경우 이 표를 참조합니다.
 Slash command 매핑은 `skills/forgeflow/SKILL.md`의 Slash-style entrypoints 표를 따릅니다.
