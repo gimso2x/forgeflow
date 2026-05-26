@@ -3241,503 +3241,677 @@
     {
       "id": 46,
       "name": "worktree-dependency-install",
-          "prompt": "A medium-route ForgeFlow clarify completes and the isolation protocol creates a worktree at .forgeflow/worktrees/fix-slider-abc. The main repo uses pnpm (pnpm-lock.yaml exists). Produce only the worktree creation procedure including dependency installation. The worktree must have node_modules before execute starts.",
-          "expected_output": "A creation procedure that includes git branch, git worktree add, .forgeflow symlink, verify, AND a dependency installation step that detects pnpm-lock.yaml and runs pnpm install in the worktree directory.",
-          "files": [
-            "skills/_shared/isolation.md"
-          ],
-          "assertions": [
-            {
-              "text": "Output includes a dependency installation step after worktree creation.",
-              "type": "contains_any",
-              "values": [
-                "pnpm install",
-                "npm ci",
-                "yarn install",
-                "install"
-              ]
-            },
-            {
-              "text": "Output detects the package manager from the lockfile.",
-              "type": "contains_any",
-              "values": [
-                "pnpm-lock.yaml",
-                "lockfile",
-                "package-lock.json"
-              ]
-            },
-            {
-              "text": "Output runs install inside the worktree directory, not the main repo.",
-              "type": "contains_any",
-              "values": [
-                "--dir .forgeflow/worktrees",
-                "cd .forgeflow/worktrees",
-                "WT_PATH"
-              ]
-            },
-            {
-              "text": "Output does NOT skip dependency installation or leave node_modules missing.",
-              "type": "not_contains_any",
-              "values": [
-                "node_modules is not needed",
-                "skip install",
-                "installation is not required"
-              ]
-            }
+      "prompt": "A medium-route ForgeFlow clarify completes and the isolation protocol creates a worktree at .forgeflow/worktrees/fix-slider-abc. The main repo uses pnpm (pnpm-lock.yaml exists). Produce only the worktree creation procedure including dependency installation. The worktree must have node_modules before execute starts.",
+      "expected_output": "A creation procedure that includes git branch, git worktree add, .forgeflow symlink, verify, AND a dependency installation step that detects pnpm-lock.yaml and runs pnpm install in the worktree directory.",
+      "files": [
+        "skills/_shared/isolation.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output includes a dependency installation step after worktree creation.",
+          "type": "contains_any",
+          "values": [
+            "pnpm install",
+            "npm ci",
+            "yarn install",
+            "install"
           ]
         },
         {
-          "id": 47,
-          "name": "execute-auto-mode-auto-install",
-          "prompt": "A ForgeFlow execute starts in --auto mode inside a worktree. The environment safety net detects node_modules is missing but pnpm-lock.yaml exists. Produce only the environment safety net action. The task must not fail due to missing dependencies.",
-          "expected_output": "An environment safety net that automatically installs dependencies using the detected package manager without asking the user, records the install command in implementation-notes.md Evidence, and proceeds to execute.",
-          "files": [
-            "skills/execute/SKILL.md",
-            "skills/_shared/automation.md"
-          ],
-          "assertions": [
-            {
-              "text": "Output installs dependencies automatically without asking the user.",
-              "type": "contains_any",
-              "values": [
-                "install automatically",
-                "auto-install",
-                "automatically",
-                "자동 설치"
-              ]
-            },
-            {
-              "text": "Output records the install command in evidence or implementation notes.",
-              "type": "contains_any",
-              "values": [
-                "implementation-notes",
-                "Evidence",
-                "evidence",
-                "증거"
-              ]
-            },
-            {
-              "text": "Output does NOT stop to ask the user whether to install.",
-              "type": "not_contains_any",
-              "values": [
-                "stop and ask the user",
-                "ask: 종속성이",
-                "confirm before installing"
-              ]
-            }
+          "text": "Output detects the package manager from the lockfile.",
+          "type": "contains_any",
+          "values": [
+            "pnpm-lock.yaml",
+            "lockfile",
+            "package-lock.json"
           ]
         },
         {
-          "id": 48,
-          "name": "execute-clear-between-tasks",
-          "prompt": "A ForgeFlow execute just completed Task 2 of a medium-route plan. checkpoint.md, run-ledger.md, and implementation-notes.md evidence are all updated on disk. Task 3 is next. Produce only the step-boundary /clear action and resume note for Task 3. The agent must not carry Task 2 context into Task 3.",
-          "expected_output": "A step-boundary action that mandates /clear before starting Task 3, with a resume note that reads checkpoint → ledger → notes → plan active task section. This applies regardless of route or --auto mode.",
-          "files": [
-            "skills/execute/SKILL.md",
-            "skills/_shared/context-resume.md",
-            "skills/_shared/automation.md"
-          ],
-          "assertions": [
-            {
-              "text": "Output mandates /clear before starting the next task, not just recommends it.",
-              "type": "contains_any",
-              "values": [
-                "must /clear",
-                "mandatory",
-                "/clear before",
-                "반드시",
-                "의무",
-                "Execute `/clear` now",
-                "required",
-                "you MUST"
-              ]
-            },
-            {
-              "text": "Output includes the checkpoint-first resume order.",
-              "type": "contains_all",
-              "values": [
-                "checkpoint",
-                "run-ledger",
-                "implementation-notes"
-              ]
-            },
-            {
-              "text": "Output does NOT say /clear is optional or merely preferred.",
-              "type": "not_contains_any",
-              "values": [
-                "/clear is safe and preferred",
-                "may /clear",
-                "optional",
-                "선택적"
-              ]
-            },
-            {
-              "text": "Output applies to all routes and auto mode, not just high/epic.",
-              "type": "contains_any",
-              "values": [
-                "all routes",
-                "small/medium/high/epic",
-                "regardless of route",
-                "모든 라우트",
-                "--auto"
-              ]
-            }
+          "text": "Output runs install inside the worktree directory, not the main repo.",
+          "type": "contains_any",
+          "values": [
+            "--dir .forgeflow/worktrees",
+            "cd .forgeflow/worktrees",
+            "WT_PATH"
           ]
         },
         {
-          "id": 49,
-          "name": "config-auto-propagation-to-brief",
-          "prompt": "A user runs the config skill and sets auto:true in defaults.md. Then they run /forgeflow:clarify for a medium-sized task (task id eval-auto-propagate). Produce the clarify-stage brief.md content. The brief must reflect the auto mode inherited from defaults.md.",
-          "expected_output": "A brief.md artifact that includes auto mode configuration inherited from defaults.md, with auto:true propagated into the brief output.",
-          "files": [],
-          "assertions": [
-            {
-              "text": "Brief output includes auto mode or auto:true reflected from defaults.md.",
-              "type": "contains_any",
-              "values": [
-                "auto:true",
-                "auto: true",
-                "auto mode",
-                "Mode: auto"
-              ]
-            },
-            {
-              "text": "Brief output references defaults.md as the config source.",
-              "type": "contains_any",
-              "values": [
-                "defaults.md",
-                "project defaults",
-                "config"
-              ]
-            },
-            {
-              "text": "Brief output includes standard brief sections (Objective, Route).",
-              "type": "contains_all",
-              "values": [
-                "Objective",
-                "Route"
-              ]
-            },
-            {
-              "text": "Brief output does not ignore or override the auto setting.",
-              "type": "not_contains_any",
-              "values": [
-                "auto:false",
-                "auto: false",
-                "auto not set"
-              ]
-            }
-          ]
-        },
-        {
-          "id": 50,
-          "name": "config-auto-disabled-no-leak",
-          "prompt": "A user runs /forgeflow:clarify for a small task (task id eval-auto-disabled). defaults.md has no auto field set at all. Produce the clarify-stage brief.md content. The brief must not contain auto:true since defaults.md never specified it.",
-          "expected_output": "A brief.md artifact that does not include auto:true, since defaults.md has no auto configuration. Auto mode should not leak or default to true.",
-          "files": [],
-          "assertions": [
-            {
-              "text": "Brief output does not contain auto:true when defaults.md has no auto field.",
-              "type": "not_contains",
-              "value": "auto:true"
-            },
-            {
-              "text": "Brief output includes standard brief sections.",
-              "type": "contains_all",
-              "values": [
-                "Objective",
-                "Route"
-              ]
-            },
-            {
-              "text": "Brief output does not hallucinate auto mode from missing config.",
-              "type": "not_contains_any",
-              "values": [
-                "auto: true",
-                "auto:true",
-                "inherited auto"
-              ]
-            }
-          ]
-        },
-        {
-          "id": 51,
-          "name": "config-auto-flag-override",
-          "prompt": "A user runs /forgeflow:clarify --auto for a small task (task id eval-auto-override). defaults.md has auto:false. The --auto CLI flag should override the defaults.md setting. Produce the clarify-stage brief.md content reflecting that auto mode is active despite defaults.md saying false.",
-          "expected_output": "A brief.md artifact where the --auto CLI flag overrides defaults.md auto:false, resulting in auto mode active in the brief.",
-          "files": [],
-          "assertions": [
-            {
-              "text": "Brief output reflects auto mode active despite defaults.md auto:false.",
-              "type": "contains_any",
-              "values": [
-                "auto:true",
-                "auto: true",
-                "auto mode",
-                "Mode: auto"
-              ]
-            },
-            {
-              "text": "Brief output acknowledges CLI flag priority over defaults.md.",
-              "type": "contains_any",
-              "values": [
-                "--auto",
-                "CLI flag",
-                "flag override"
-              ]
-            },
-            {
-              "text": "Brief output includes standard brief sections.",
-              "type": "contains_all",
-              "values": [
-                "Objective",
-                "Route"
-              ]
-            },
-            {
-              "text": "Brief output does not treat defaults.md auto:false as final.",
-              "type": "not_contains",
-              "value": "auto:false"
-            }
-          ]
-        },
-        {
-          "id": 52,
-          "name": "benchmark-fixture-path-validation",
-          "prompt": "A ForgeFlow benchmark run is configured with fixture paths. The fixture config lists: fixtures/base-prompt.md, fixtures/rubric.json, and fixtures/expected-output.md. Two paths are valid relative paths under the repo root, but fixtures/expected-output.md does not exist on disk. Produce only the benchmark pre-run validation report. Do not start the benchmark run. Do not create or touch any fixture files.",
-          "expected_output": "A validation report that checks each fixture path exists, reports fixtures/expected-output.md as missing, confirms the other two paths are valid relative paths, refuses to start the benchmark run until the missing fixture is resolved, and avoids creating or modifying any fixture files.",
-          "files": [
-            "skills/benchmark/SKILL.md"
-          ],
-          "assertions": [
-            {
-              "text": "Output reports the missing fixture file.",
-              "type": "contains",
-              "value": "fixtures/expected-output.md"
-            },
-            {
-              "text": "Output confirms valid relative paths were checked.",
-              "type": "contains_any",
-              "values": [
-                "fixtures/base-prompt.md",
-                "fixtures/rubric.json",
-                "path exists",
-                "fixture path"
-              ]
-            },
-            {
-              "text": "Output refuses to start the benchmark run due to missing fixture.",
-              "type": "contains_any",
-              "values": [
-                "missing",
-                "not found",
-                "does not exist",
-                "cannot start",
-                "refuse"
-              ]
-            },
-            {
-              "text": "Output does not create or modify fixture files.",
-              "type": "not_contains_any",
-              "values": [
-                "created fixture",
-                "wrote fixture",
-                "touch fixtures",
-                "generated expected-output"
-              ]
-            },
-            {
-              "text": "Output validates fixture paths as repo-relative format.",
-              "type": "contains_any",
-              "values": [
-                "relative path",
-                "repo-relative",
-                "fixture path",
-                "path validation"
-              ]
-            }
-          ]
-        },
-        {
-          "id": 53,
-          "name": "benchmark-timeout-result-format",
-          "prompt": "A ForgeFlow benchmark run is configured with a per-prompt timeout of 30 seconds. Adapter A responds in 5 seconds with valid structured output. Adapter B times out after 30 seconds with no response. Produce only the benchmark result report in the standard benchmark output format.",
-          "expected_output": "A structured benchmark result report that records Adapter A as completed with response time, records Adapter B as timed out, distinguishes completed vs timed-out results, includes elapsed time for both adapters, and avoids fabricating a response for the timed-out adapter.",
-          "files": [
-            "skills/benchmark/SKILL.md"
-          ],
-          "assertions": [
-            {
-              "text": "Output records Adapter A as completed.",
-              "type": "contains_any",
-              "values": [
-                "Adapter A",
-                "completed",
-                "5s",
-                "5 seconds"
-              ]
-            },
-            {
-              "text": "Output records Adapter B as timed out.",
-              "type": "contains_any",
-              "values": [
-                "Adapter B",
-                "timed out",
-                "timeout",
-                "30s"
-              ]
-            },
-            {
-              "text": "Output distinguishes completed from timed-out results.",
-              "type": "contains_any",
-              "values": [
-                "timed out",
-                "timeout",
-                "completed",
-                "status"
-              ]
-            },
-            {
-              "text": "Output does not fabricate a response for the timed-out adapter.",
-              "type": "not_contains_any",
-              "values": [
-                "Adapter B responded",
-                "Adapter B output",
-                "Adapter B result: success"
-              ]
-            },
-            {
-              "text": "Output includes elapsed or response time data.",
-              "type": "contains_any",
-              "values": [
-                "elapsed",
-                "response time",
-                "seconds",
-                "duration"
-              ]
-            }
-          ]
-        },
-        {
-          "id": 54,
-          "name": "long-run-no-evidence-no-rule",
-          "prompt": "A ForgeFlow high-route task just shipped. The agent is now running /forgeflow:long-run. Review artifacts show: review-report.md says changes_requested on the first pass, approved on the second. implementation-notes.md mentions vague feelings: \"The approach felt good\" and \"Team morale improved\". There are no concrete command outputs, test results, or code diffs cited as evidence for any pattern. Produce only the eval-record.md content that long-run should write for this task.",
-          "expected_output": "An eval-record.md that records outcome, explains that no durable reusable patterns could be extracted because no evidence-backed signal was found, and declines to fabricate patterns from vague sentiments. It must not create evolution rule candidates without evidence.",
-          "files": [
-            "skills/long-run/SKILL.md",
-            "templates/eval-record.md"
-          ],
-          "assertions": [
-            {
-              "text": "Output includes an Outcome section.",
-              "type": "contains",
-              "value": "Outcome"
-            },
-            {
-              "text": "Output explicitly states that no reusable pattern could be extracted due to insufficient evidence.",
-              "type": "contains_any",
-              "values": [
-                "no durable",
-                "no reusable",
-                "no evidence",
-                "insufficient evidence",
-                "no concrete evidence",
-                "no evidence-backed"
-              ]
-            },
-            {
-              "text": "Output declines to record vague sentiments as patterns.",
-              "type": "contains_any",
-              "values": [
-                "vague",
-                "sentiment",
-                "no actionable signal",
-                "felt good",
-                "morale"
-              ]
-            },
-            {
-              "text": "Output does not fabricate evolution rule candidates without evidence.",
-              "type": "not_contains_any",
-              "values": [
-                "Evolution Rule Candidate",
-                "Reusable Pattern",
-                "What Worked: The approach felt good"
-              ]
-            },
-            {
-              "text": "Output explains why no pattern is retained rather than silently producing an empty file.",
-              "type": "contains_any",
-              "values": [
-                "no durable lesson",
-                "declines to fabricate",
-                "no actionable",
-                "explains why"
-              ]
-            },
-            {
-              "text": "Output does not contain session chatter or worker self-congratulation.",
-              "type": "not_contains_any",
-              "values": [
-                "Team morale improved",
-                "great job",
-                "well done"
-              ]
-            }
-          ]
-        },
-        {
-          "id": 55,
-          "name": "config-isolation-toggle",
-          "prompt": "A ForgeFlow user runs /forgeflow:config and selects the isolation toggle. The project currently has .forgeflow/defaults.md with isolation: false. The user wants to enable worktree isolation for execute stage. Produce only the updated .forgeflow/defaults.md content and the config response message.",
-          "expected_output": "An updated defaults.md that sets isolation to true and a config response confirming the change, listing the current state of all settings, and noting that worktree isolation will take effect on the next execute run.",
-          "files": [
-            "skills/config/SKILL.md"
-          ],
-          "assertions": [
-            {
-              "text": "Output sets isolation to true in defaults.md.",
-              "type": "contains",
-              "value": "isolation: true"
-            },
-            {
-              "text": "Output confirms the toggle change to the user.",
-              "type": "contains_any",
-              "values": [
-                "isolation",
-                "enabled",
-                "activated",
-                "true"
-              ]
-            },
-            {
-              "text": "Output lists the current state of all settings including auto and isolation.",
-              "type": "contains_all",
-              "values": [
-                "auto",
-                "isolation"
-              ]
-            },
-            {
-              "text": "Output notes that isolation takes effect on the next execute run.",
-              "type": "contains_any",
-              "values": [
-                "next execute",
-                "next run",
-                "take effect",
-                "subsequent"
-              ]
-            },
-            {
-              "text": "Output does not modify any ForgeFlow source files.",
-              "type": "not_contains_any",
-              "values": [
-                "skills/config/SKILL.md",
-                "skills/execute/SKILL.md",
-                "templates/"
-              ]
-            }
+          "text": "Output does NOT skip dependency installation or leave node_modules missing.",
+          "type": "not_contains_any",
+          "values": [
+            "node_modules is not needed",
+            "skip install",
+            "installation is not required"
           ]
         }
+      ]
+    },
+    {
+      "id": 47,
+      "name": "execute-auto-mode-auto-install",
+      "prompt": "A ForgeFlow execute starts in --auto mode inside a worktree. The environment safety net detects node_modules is missing but pnpm-lock.yaml exists. Produce only the environment safety net action. The task must not fail due to missing dependencies.",
+      "expected_output": "An environment safety net that automatically installs dependencies using the detected package manager without asking the user, records the install command in implementation-notes.md Evidence, and proceeds to execute.",
+      "files": [
+        "skills/execute/SKILL.md",
+        "skills/_shared/automation.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output installs dependencies automatically without asking the user.",
+          "type": "contains_any",
+          "values": [
+            "install automatically",
+            "auto-install",
+            "automatically",
+            "자동 설치"
+          ]
+        },
+        {
+          "text": "Output records the install command in evidence or implementation notes.",
+          "type": "contains_any",
+          "values": [
+            "implementation-notes",
+            "Evidence",
+            "evidence",
+            "증거"
+          ]
+        },
+        {
+          "text": "Output does NOT stop to ask the user whether to install.",
+          "type": "not_contains_any",
+          "values": [
+            "stop and ask the user",
+            "ask: 종속성이",
+            "confirm before installing"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 48,
+      "name": "execute-clear-between-tasks",
+      "prompt": "A ForgeFlow execute just completed Task 2 of a medium-route plan. checkpoint.md, run-ledger.md, and implementation-notes.md evidence are all updated on disk. Task 3 is next. Produce only the step-boundary /clear action and resume note for Task 3. The agent must not carry Task 2 context into Task 3.",
+      "expected_output": "A step-boundary action that mandates /clear before starting Task 3, with a resume note that reads checkpoint → ledger → notes → plan active task section. This applies regardless of route or --auto mode.",
+      "files": [
+        "skills/execute/SKILL.md",
+        "skills/_shared/context-resume.md",
+        "skills/_shared/automation.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output mandates /clear before starting the next task, not just recommends it.",
+          "type": "contains_any",
+          "values": [
+            "must /clear",
+            "mandatory",
+            "/clear before",
+            "반드시",
+            "의무",
+            "Execute `/clear` now",
+            "required",
+            "you MUST"
+          ]
+        },
+        {
+          "text": "Output includes the checkpoint-first resume order.",
+          "type": "contains_all",
+          "values": [
+            "checkpoint",
+            "run-ledger",
+            "implementation-notes"
+          ]
+        },
+        {
+          "text": "Output does NOT say /clear is optional or merely preferred.",
+          "type": "not_contains_any",
+          "values": [
+            "/clear is safe and preferred",
+            "may /clear",
+            "optional",
+            "선택적"
+          ]
+        },
+        {
+          "text": "Output applies to all routes and auto mode, not just high/epic.",
+          "type": "contains_any",
+          "values": [
+            "all routes",
+            "small/medium/high/epic",
+            "regardless of route",
+            "모든 라우트",
+            "--auto"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 49,
+      "name": "config-auto-propagation-to-brief",
+      "prompt": "A user runs the config skill and sets auto:true in defaults.md. Then they run /forgeflow:clarify for a medium-sized task (task id eval-auto-propagate). Produce the clarify-stage brief.md content. The brief must reflect the auto mode inherited from defaults.md.",
+      "expected_output": "A brief.md artifact that includes auto mode configuration inherited from defaults.md, with auto:true propagated into the brief output.",
+      "files": [],
+      "assertions": [
+        {
+          "text": "Brief output includes auto mode or auto:true reflected from defaults.md.",
+          "type": "contains_any",
+          "values": [
+            "auto:true",
+            "auto: true",
+            "auto mode",
+            "Mode: auto"
+          ]
+        },
+        {
+          "text": "Brief output references defaults.md as the config source.",
+          "type": "contains_any",
+          "values": [
+            "defaults.md",
+            "project defaults",
+            "config"
+          ]
+        },
+        {
+          "text": "Brief output includes standard brief sections (Objective, Route).",
+          "type": "contains_all",
+          "values": [
+            "Objective",
+            "Route"
+          ]
+        },
+        {
+          "text": "Brief output does not ignore or override the auto setting.",
+          "type": "not_contains_any",
+          "values": [
+            "auto:false",
+            "auto: false",
+            "auto not set"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 50,
+      "name": "config-auto-disabled-no-leak",
+      "prompt": "A user runs /forgeflow:clarify for a small task (task id eval-auto-disabled). defaults.md has no auto field set at all. Produce the clarify-stage brief.md content. The brief must not contain auto:true since defaults.md never specified it.",
+      "expected_output": "A brief.md artifact that does not include auto:true, since defaults.md has no auto configuration. Auto mode should not leak or default to true.",
+      "files": [],
+      "assertions": [
+        {
+          "text": "Brief output does not contain auto:true when defaults.md has no auto field.",
+          "type": "not_contains",
+          "value": "auto:true"
+        },
+        {
+          "text": "Brief output includes standard brief sections.",
+          "type": "contains_all",
+          "values": [
+            "Objective",
+            "Route"
+          ]
+        },
+        {
+          "text": "Brief output does not hallucinate auto mode from missing config.",
+          "type": "not_contains_any",
+          "values": [
+            "auto: true",
+            "auto:true",
+            "inherited auto"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 51,
+      "name": "config-auto-flag-override",
+      "prompt": "A user runs /forgeflow:clarify --auto for a small task (task id eval-auto-override). defaults.md has auto:false. The --auto CLI flag should override the defaults.md setting. Produce the clarify-stage brief.md content reflecting that auto mode is active despite defaults.md saying false.",
+      "expected_output": "A brief.md artifact where the --auto CLI flag overrides defaults.md auto:false, resulting in auto mode active in the brief.",
+      "files": [],
+      "assertions": [
+        {
+          "text": "Brief output reflects auto mode active despite defaults.md auto:false.",
+          "type": "contains_any",
+          "values": [
+            "auto:true",
+            "auto: true",
+            "auto mode",
+            "Mode: auto"
+          ]
+        },
+        {
+          "text": "Brief output acknowledges CLI flag priority over defaults.md.",
+          "type": "contains_any",
+          "values": [
+            "--auto",
+            "CLI flag",
+            "flag override"
+          ]
+        },
+        {
+          "text": "Brief output includes standard brief sections.",
+          "type": "contains_all",
+          "values": [
+            "Objective",
+            "Route"
+          ]
+        },
+        {
+          "text": "Brief output does not treat defaults.md auto:false as final.",
+          "type": "not_contains",
+          "value": "auto:false"
+        }
+      ]
+    },
+    {
+      "id": 52,
+      "name": "benchmark-fixture-path-validation",
+      "prompt": "A ForgeFlow benchmark run is configured with fixture paths. The fixture config lists: fixtures/base-prompt.md, fixtures/rubric.json, and fixtures/expected-output.md. Two paths are valid relative paths under the repo root, but fixtures/expected-output.md does not exist on disk. Produce only the benchmark pre-run validation report. Do not start the benchmark run. Do not create or touch any fixture files.",
+      "expected_output": "A validation report that checks each fixture path exists, reports fixtures/expected-output.md as missing, confirms the other two paths are valid relative paths, refuses to start the benchmark run until the missing fixture is resolved, and avoids creating or modifying any fixture files.",
+      "files": [
+        "skills/benchmark/SKILL.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output reports the missing fixture file.",
+          "type": "contains",
+          "value": "fixtures/expected-output.md"
+        },
+        {
+          "text": "Output confirms valid relative paths were checked.",
+          "type": "contains_any",
+          "values": [
+            "fixtures/base-prompt.md",
+            "fixtures/rubric.json",
+            "path exists",
+            "fixture path"
+          ]
+        },
+        {
+          "text": "Output refuses to start the benchmark run due to missing fixture.",
+          "type": "contains_any",
+          "values": [
+            "missing",
+            "not found",
+            "does not exist",
+            "cannot start",
+            "refuse"
+          ]
+        },
+        {
+          "text": "Output does not create or modify fixture files.",
+          "type": "not_contains_any",
+          "values": [
+            "created fixture",
+            "wrote fixture",
+            "touch fixtures",
+            "generated expected-output"
+          ]
+        },
+        {
+          "text": "Output validates fixture paths as repo-relative format.",
+          "type": "contains_any",
+          "values": [
+            "relative path",
+            "repo-relative",
+            "fixture path",
+            "path validation"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 53,
+      "name": "benchmark-timeout-result-format",
+      "prompt": "A ForgeFlow benchmark run is configured with a per-prompt timeout of 30 seconds. Adapter A responds in 5 seconds with valid structured output. Adapter B times out after 30 seconds with no response. Produce only the benchmark result report in the standard benchmark output format.",
+      "expected_output": "A structured benchmark result report that records Adapter A as completed with response time, records Adapter B as timed out, distinguishes completed vs timed-out results, includes elapsed time for both adapters, and avoids fabricating a response for the timed-out adapter.",
+      "files": [
+        "skills/benchmark/SKILL.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output records Adapter A as completed.",
+          "type": "contains_any",
+          "values": [
+            "Adapter A",
+            "completed",
+            "5s",
+            "5 seconds"
+          ]
+        },
+        {
+          "text": "Output records Adapter B as timed out.",
+          "type": "contains_any",
+          "values": [
+            "Adapter B",
+            "timed out",
+            "timeout",
+            "30s"
+          ]
+        },
+        {
+          "text": "Output distinguishes completed from timed-out results.",
+          "type": "contains_any",
+          "values": [
+            "timed out",
+            "timeout",
+            "completed",
+            "status"
+          ]
+        },
+        {
+          "text": "Output does not fabricate a response for the timed-out adapter.",
+          "type": "not_contains_any",
+          "values": [
+            "Adapter B responded",
+            "Adapter B output",
+            "Adapter B result: success"
+          ]
+        },
+        {
+          "text": "Output includes elapsed or response time data.",
+          "type": "contains_any",
+          "values": [
+            "elapsed",
+            "response time",
+            "seconds",
+            "duration"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 54,
+      "name": "long-run-no-evidence-no-rule",
+      "prompt": "A ForgeFlow high-route task just shipped. The agent is now running /forgeflow:long-run. Review artifacts show: review-report.md says changes_requested on the first pass, approved on the second. implementation-notes.md mentions vague feelings: \"The approach felt good\" and \"Team morale improved\". There are no concrete command outputs, test results, or code diffs cited as evidence for any pattern. Produce only the eval-record.md content that long-run should write for this task.",
+      "expected_output": "An eval-record.md that records outcome, explains that no durable reusable patterns could be extracted because no evidence-backed signal was found, and declines to fabricate patterns from vague sentiments. It must not create evolution rule candidates without evidence.",
+      "files": [
+        "skills/long-run/SKILL.md",
+        "templates/eval-record.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output includes an Outcome section.",
+          "type": "contains",
+          "value": "Outcome"
+        },
+        {
+          "text": "Output explicitly states that no reusable pattern could be extracted due to insufficient evidence.",
+          "type": "contains_any",
+          "values": [
+            "no durable",
+            "no reusable",
+            "no evidence",
+            "insufficient evidence",
+            "no concrete evidence",
+            "no evidence-backed"
+          ]
+        },
+        {
+          "text": "Output declines to record vague sentiments as patterns.",
+          "type": "contains_any",
+          "values": [
+            "vague",
+            "sentiment",
+            "no actionable signal",
+            "felt good",
+            "morale"
+          ]
+        },
+        {
+          "text": "Output does not fabricate evolution rule candidates without evidence.",
+          "type": "not_contains_any",
+          "values": [
+            "Evolution Rule Candidate",
+            "Reusable Pattern",
+            "What Worked: The approach felt good"
+          ]
+        },
+        {
+          "text": "Output explains why no pattern is retained rather than silently producing an empty file.",
+          "type": "contains_any",
+          "values": [
+            "no durable lesson",
+            "declines to fabricate",
+            "no actionable",
+            "explains why"
+          ]
+        },
+        {
+          "text": "Output does not contain session chatter or worker self-congratulation.",
+          "type": "not_contains_any",
+          "values": [
+            "Team morale improved",
+            "great job",
+            "well done"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 55,
+      "name": "config-isolation-toggle",
+      "prompt": "A ForgeFlow user runs /forgeflow:config and selects the isolation toggle. The project currently has .forgeflow/defaults.md with isolation: false. The user wants to enable worktree isolation for execute stage. Produce only the updated .forgeflow/defaults.md content and the config response message.",
+      "expected_output": "An updated defaults.md that sets isolation to true and a config response confirming the change, listing the current state of all settings, and noting that worktree isolation will take effect on the next execute run.",
+      "files": [
+        "skills/config/SKILL.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output sets isolation to true in defaults.md.",
+          "type": "contains",
+          "value": "isolation: true"
+        },
+        {
+          "text": "Output confirms the toggle change to the user.",
+          "type": "contains_any",
+          "values": [
+            "isolation",
+            "enabled",
+            "activated",
+            "true"
+          ]
+        },
+        {
+          "text": "Output lists the current state of all settings including auto and isolation.",
+          "type": "contains_all",
+          "values": [
+            "auto",
+            "isolation"
+          ]
+        },
+        {
+          "text": "Output notes that isolation takes effect on the next execute run.",
+          "type": "contains_any",
+          "values": [
+            "next execute",
+            "next run",
+            "take effect",
+            "subsequent"
+          ]
+        },
+        {
+          "text": "Output does not modify any ForgeFlow source files.",
+          "type": "not_contains_any",
+          "values": [
+            "skills/config/SKILL.md",
+            "skills/execute/SKILL.md",
+            "templates/"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 56,
+      "name": "plan-medium-light-sub-band",
+      "prompt": "A brief.md specifies Route: medium, Route Sub-band: medium-light (raw_score 12.3). The task involves updating 4 documentation files in a React project docs/ directory: changing API endpoint URLs and adding new endpoint descriptions. Produce only the plan.md content for this task. Include Tasks, Verification Plan, and note whether Contracts and Journeys sections are included or omitted with justification.",
+      "expected_output": "A plan.md that includes Tasks and Verification Plan as required sections, omits or marks Contracts and Journeys as not applicable with medium-light justification, specifies exact file paths for the 4 docs files, and includes verification per task.",
+      "files": [
+        "skills/plan/SKILL.md",
+        "templates/plan.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output includes Task decomposition section with specific file paths.",
+          "type": "contains",
+          "value": "docs/"
+        },
+        {
+          "text": "Output includes Verification Plan section.",
+          "type": "contains",
+          "value": "Verification Plan"
+        },
+        {
+          "text": "Output identifies the route as medium with medium-light sub-band.",
+          "type": "contains_all",
+          "values": [
+            "medium",
+            "medium-light"
+          ]
+        },
+        {
+          "text": "Output justifies omission or inclusion of Contracts and Journeys based on medium-light sub-band rules.",
+          "type": "contains_any",
+          "values": [
+            "Contracts",
+            "Journeys",
+            "not applicable",
+            "optional",
+            "omitted"
+          ]
+        },
+        {
+          "text": "Output does not include TDD test-first steps (medium route uses test-after).",
+          "type": "not_contains_any",
+          "values": [
+            "write failing test",
+            "TDD",
+            "test-first",
+            "red-green"
+          ]
+        },
+        {
+          "text": "Output includes verification for each task.",
+          "type": "contains_any",
+          "values": [
+            "Verification:",
+            "Verify:",
+            "verification",
+            "gate"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 57,
+      "name": "plan-epic-roadmap-decomposition",
+      "prompt": "A brief.md specifies Route: epic for migrating a monolithic Express.js REST API to separate microservices (auth, billing, notifications). The brief includes 12 acceptance criteria spanning 3 services. Produce only the roadmap.md content for epic decomposition. Include milestone definitions, dependency DAG, measurable success criteria per milestone, and integration verification as the final milestone.",
+      "expected_output": "A roadmap.md with at least 3 milestones (one per service), dependency DAG showing ordering, measurable success criteria per milestone, and a final integration verification milestone.",
+      "files": [
+        "skills/plan/SKILL.md",
+        "templates/roadmap.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output includes multiple milestones (at least auth, billing, notifications).",
+          "type": "contains_all",
+          "values": [
+            "auth",
+            "billing",
+            "notifications"
+          ]
+        },
+        {
+          "text": "Output includes a dependency DAG or explicit ordering between milestones.",
+          "type": "contains_any",
+          "values": [
+            "depends on",
+            "dependency",
+            "DAG",
+            "predecessor",
+            "after"
+          ]
+        },
+        {
+          "text": "Output includes measurable success criteria per milestone.",
+          "type": "contains_any",
+          "values": [
+            "success criteria",
+            "Success Criteria",
+            "acceptance",
+            "measurable"
+          ]
+        },
+        {
+          "text": "Output includes integration verification as the final milestone.",
+          "type": "contains_any",
+          "values": [
+            "integration",
+            "Integration",
+            "end-to-end",
+            "E2E"
+          ]
+        },
+        {
+          "text": "Output uses the roadmap.md template format with milestone structure.",
+          "type": "contains_any",
+          "values": [
+            "Milestone",
+            "milestone",
+            "Status",
+            "status"
+          ]
+        },
+        {
+          "text": "Output does not skip the epic decomposition by proposing a single flat plan.",
+          "type": "not_contains",
+          "value": "single milestone"
+        }
+      ]
+    },
+    {
+      "id": 58,
+      "name": "clarify-route-scoring-boundary",
+      "prompt": "A user requests: Add a dark mode toggle to the settings page of a Next.js app. There are 3 files to change (layout.tsx, settings.tsx, theme.css), estimated 80 lines, 2 requirements (toggle UI, persist preference), 1 dependency (next-themes), and no risk keywords. Compute the raw_score using the ForgeFlow scoring formula, determine the route and sub-band, and produce only the Route and Route Sub-band fields of brief.md.",
+      "expected_output": "A route selection showing raw_score = 3*1.0 + 80*0.1 + 2*2.0 + 1*1.5 + 0*3.0 = 3+8+4+1.5+0 = 16.5, which falls in medium-light (10-16.9), with the route label medium.",
+      "files": [
+        "skills/clarify/SKILL.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output selects medium as the route.",
+          "type": "contains",
+          "value": "medium"
+        },
+        {
+          "text": "Output records the sub-band as medium-light based on the computed raw_score.",
+          "type": "contains",
+          "value": "medium-light"
+        },
+        {
+          "text": "Output shows or references the raw_score computation.",
+          "type": "contains_any",
+          "values": [
+            "raw_score",
+            "score",
+            "16.5"
+          ]
+        },
+        {
+          "text": "Output includes the scoring breakdown with file_count, estimated_lines, requirement_count, dependency_count.",
+          "type": "contains_any",
+          "values": [
+            "file_count",
+            "file count",
+            "estimated_lines",
+            "requirement_count",
+            "dependency_count"
+          ]
+        },
+        {
+          "text": "Output does not select small route (score is above 10).",
+          "type": "not_contains",
+          "value": "Route: small"
+        }
+      ]
+    }
   ]
 }
