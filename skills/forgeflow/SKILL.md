@@ -57,6 +57,7 @@ Adapter-specific CLI flags and timeout guides: `docs/adapter-config.md`.
 | Review | `/forgeflow:review` (pipeline: after execute; standalone: with URL/repo/diff/files input) | `/review` (same) |
 | Ship | `/forgeflow:ship` | `/ship` |
 | Config | `/forgeflow:config` | `/config` |
+| Init (full) | `/forgeflow:config init --mode=full` | `/config init --mode=full` |
 | Long-run | `/forgeflow:long-run` | `/long-run` |
 | Benchmark | `/forgeflow:benchmark` | `/benchmark` |
 
@@ -263,7 +264,7 @@ If an adapter exceeds the safety ceiling, terminate the process and record the t
 
 1. Detect the adapter environment (see `docs/adapter-config.md`).
 2. **Read project defaults**: if `.forgeflow/defaults.md` exists in the project root, parse it for default settings. Supported fields: `auto` (bool), `isolation` (bool). See `docs/adapter-config.md` → Project Defaults.
-3. **Handle `/forgeflow:config`** (or `/config` in Cursor): interactive project defaults manager.
+3. **Handle `/forgeflow:config`** (or `/config` in Cursor): interactive project defaults manager (`--mode=full` for architecture draft generation via `templates/project-draft.md`).
    1. Read `.forgeflow/defaults.md` if it exists. Show current settings. When missing, use hardcoded defaults: `auto: false`, `isolation: true`.
    2. Present available options with current values:
       ```
@@ -278,6 +279,7 @@ If an adapter exceeds the safety ceiling, terminate the process and record the t
    3. On selection, toggle the value (off→on, on→off). Create or update `.forgeflow/defaults.md`. Confirm the change.
    4. Supported fields: `auto` (`true`/`false`), `isolation` (`true`/`false`). Additional fields may be added in future versions.
    5. Do **not** commit `.forgeflow/defaults.md` to git automatically — let the user decide.
+   6. **Full init mode**: When the user invokes `init --mode=full`, delegate to `skills/config/SKILL.md` Mode B to detect project context and generate `.forgeflow/project-draft.md` from `templates/project-draft.md`.
 4. If the user provides a slash command (other than config), route to the matching stage skill.
 5. If the user provides a free-form request, run `/forgeflow:clarify` to produce a brief with route selection.
 6. After clarify, follow the route's stage sequence (see Route model above).

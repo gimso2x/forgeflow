@@ -1,7 +1,7 @@
 ---
 name: execute
 description: Execute a ForgeFlow plan with verification and runtime evidence. Includes opt-in subagent per-task loop for high/epic routes. Use when the user types /execute or /forgeflow:execute, or asks to implement after clarify/plan.
-version: 0.6.0
+version: 0.7.0
 author: gimso2x
 validate_prompt: |
   Must preserve exact-output and dry-run constraints when requested.
@@ -29,6 +29,7 @@ Use this skill to execute the selected ForgeFlow route.
 - `implementation-notes.md` — real-time log maintained throughout execution (template: `templates/implementation-notes.md`)
 - `run-ledger.md` — execution truth tracking per-task status (template: `templates/run-ledger.md`)
 - `checkpoint.md` — tactical resume pointer updated at stage entry/exit (template: `templates/checkpoint.md`)
+- `decision-log.md` (from `templates/decision-log.md`, schema: decision-log/v1) — append execution-stage decisions (deviation rationale, tradeoff choices, blocker resolution) to the decision log started during clarify
 - Verification output summary
 
 ### implementation-notes.md

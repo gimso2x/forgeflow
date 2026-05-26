@@ -1,7 +1,7 @@
 ---
 name: review
 description: Perform independent ForgeFlow review. Use as /review or /forgeflow:review — either after execute (pipeline mode) or directly with external input (standalone mode).
-version: 0.3.0
+version: 0.4.0
 author: gimso2x
 validate_prompt: |
   Must preserve exact-output and dry-run constraints when requested.
@@ -16,12 +16,37 @@ Use this skill to review completed ForgeFlow work independently.
 
 ## Input
 
+Review supports two entry modes. The detected mode determines which artifacts and evidence are available.
+
+### Post-execute mode (pipeline)
+
+Review after execute stage. Requires pipeline artifacts from `.forgeflow/tasks/<id>/`:
 - `brief.md` from clarify stage
 - `plan.md` from plan stage
 - `implementation-notes.md` from execute stage
 - `run-ledger.md` from execute stage
 - Final codebase state
 - Verification commands/results
+
+### Standalone mode
+
+Review without prior pipeline artifacts. Accepts external input directly:
+- **URL** — PR diff, commit range, or any web page
+- **Repo snapshot** — Local directory structure listing
+- **File bundle** — Explicit file paths to review
+- **Git range** — Commit range (e.g., `main..feature`)
+
+When in standalone mode, set `evidence_source` in `normalized-input.md` to record the input origin (e.g., `gh pr diff 42`, `git diff main..feature`, `file-read: src/api/auth.ts`). Scope is always explicit — default: changed files only.
+
+### Input type matrix
+
+| Input Source | Artifact | Evidence | Scope |
+|---|---|---|---|
+| Post-execute | implementation-notes.md | run-ledger.md | plan.md scope |
+| URL (PR diff) | diff URL | diff hunks | changed files |
+| Repo snapshot | directory structure | file listing | specified paths |
+| File bundle | file list | file contents | specified files |
+| Git range | commit range | diff output | changed paths |
 
 ## Standalone Mode
 
@@ -309,7 +334,7 @@ The report includes a **Role Summary** section:
 
 ## Output Artifacts
 
-Write `review-report.md` to the active task directory using `templates/review-report.md` as the structure. The report must capture:
+Write `review-report.md` (schema: review-report/v2, from `templates/review-report.md`) to the active task directory. The report must capture:
 
 - Review Type (spec | quality | security | ux | perf — or list multiple for standalone)
 - Verdict (approved | changes_requested | blocked) — never use "passed"
@@ -413,6 +438,15 @@ All routes write a **single** `review-report.md` using `templates/review-report.
   2. `/forgeflow:review --type quality` — Update the same `review-report.md`. Set Review Type: quality (or note both passes in Findings). Complete Quality Assessment. Final verdict must reflect quality pass.
 
   For high/epic, if Spec Compliance is missing, incomplete, or spec verdict != approved, do not proceed to the quality pass. Each pass is an independent gate; do not merge both passes into one review turn.
+
+## Dependencies
+
+- `skills/_shared/isolation.md` — Worktree detection and isolation handling (required for review inside worktrees)
+- `skills/_shared/preflight.md` — Checkpoint-first status analysis preflight
+- `skills/_shared/context-resume.md` — Compact/resume read discipline
+- `skills/_shared/discipline.md` — File write and output discipline
+- `skills/_shared/automation.md` — Non-interactive approval mode
+- `templates/review-report.md` — Review report template
 
 ## Constraints
 

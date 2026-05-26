@@ -1,7 +1,7 @@
 ---
 name: clarify
 description: Turn a vague request into a scoped ForgeFlow brief and route decision. Bootstraps task workspace if missing. Use when the user types /clarify or /forgeflow:clarify, or first for new implementation/refactor/debug requests unless the user already provided a complete brief.
-version: 0.4.0
+version: 0.5.0
 author: gimso2x
 intent: "Analyze the user request, repository context, route, specialists, and verification gates, then write a scoped brief."
 inputs:
@@ -78,6 +78,9 @@ Plugin-cache/extension-cache safety rule: never create task artifacts under a pa
 ## Output Artifacts
 
 Write `brief.md` to the active task directory using `templates/brief.md` as the structure. The brief must capture:
+
+Additionally, produce:
+- `decision-log.md` (from `templates/decision-log.md`, schema: decision-log/v1) — structured decision records for key choices made during clarify (route selection, scope boundaries, bounded assumptions treated as decisions)
 
 - Objective (one-sentence goal)
 - WHERE/context grounding for non-trivial work

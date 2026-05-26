@@ -1,3 +1,9 @@
+---
+schema_version: v2
+input_mode: post-execute | standalone
+evidence_source: ""
+---
+
 # 리뷰 보고서 (Review Report)
 
 <!-- ForgeFlow review template. Created during review stage. -->
@@ -140,3 +146,11 @@
 - **Review Triggered By**: <!-- direct user request | --type flag | auto-detected -->
 - **Active Reviewer Roles**: <!-- list roles that ran -->
 - **Review Completed At**: <!-- ISO timestamp -->
+
+## 출처 메타데이터 (Source Metadata)
+<!-- Standalone mode only. Records evidence origin for traceability. -->
+- **evidence_source**: <!-- gh pr diff <n> | git diff <range> | file-read: <paths> | web_extract: <url> -->
+- **Fetch Command**: <!-- exact command used to retrieve evidence -->
+- **Fetch Timestamp**: <!-- ISO timestamp of evidence retrieval -->
+- **Evidence Integrity**: <!-- complete | truncated:<N/M lines> | partial | failed -->
+- **Scope Extraction Method**: <!-- auto from diff headers | user-specified | from plan.md -->

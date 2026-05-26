@@ -4317,6 +4317,421 @@
           ]
         }
       ]
+    },
+    {
+      "id": 65,
+      "name": "standalone-review-url-scope-extraction",
+      "prompt": "A user invokes /forgeflow:review in standalone mode with a GitHub PR URL: https://github.com/acme/shop-app/pull/42. The PR changes 3 files: src/api/auth.ts, src/api/auth.test.ts, src/config/routes.ts. The PR title is \"Add OAuth2 login endpoint\" and the description mentions acceptance criteria: (1) POST /auth/login returns JWT, (2) invalid credentials return 401, (3) rate limiting applies after 5 failures. Produce only the normalized-input.md content showing the 4-field structure (brief, evidence, scope, constraints) and the Standalone Input Source section for review-report.md. Demonstrate that scope was auto-extracted from the PR diff file list.",
+      "expected_output": "A normalized input with auto-generated brief from PR title/description, evidence source marked as gh pr diff 42, scope listing exactly the 3 changed files, constraints inferred from the PR content (quality + spec review), and clear evidence_source and scope extraction records.",
+      "files": [
+        "skills/review/SKILL.md",
+        "templates/review-report.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output includes evidence_source field with the PR diff command.",
+          "type": "contains_any",
+          "values": [
+            "evidence_source",
+            "gh pr diff 42",
+            "gh pr diff"
+          ]
+        },
+        {
+          "text": "Output lists scope as exactly the 3 changed files from the PR.",
+          "type": "contains_all",
+          "values": [
+            "src/api/auth.ts",
+            "src/api/auth.test.ts",
+            "src/config/routes.ts"
+          ]
+        },
+        {
+          "text": "Output auto-generates brief from PR title and description.",
+          "type": "contains_any",
+          "values": [
+            "Add OAuth2 login endpoint",
+            "OAuth2",
+            "auto-generated brief"
+          ]
+        },
+        {
+          "text": "Output records input_mode as standalone.",
+          "type": "contains",
+          "value": "standalone"
+        },
+        {
+          "text": "Output includes the 4-field normalized structure (brief, evidence, scope, constraints).",
+          "type": "contains_all",
+          "values": [
+            "brief",
+            "evidence",
+            "scope",
+            "constraints"
+          ]
+        },
+        {
+          "text": "Output demonstrates scope was auto-extracted from diff headers, not manually specified.",
+          "type": "contains_any",
+          "values": [
+            "auto from diff",
+            "diff headers",
+            "auto-extracted",
+            "gh pr diff --name-only"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 66,
+      "name": "standalone-review-file-bundle-evidence",
+      "prompt": "A user invokes /forgeflow:review in standalone mode with a file bundle: src/utils/validator.ts, src/utils/validator.test.ts. The user provides description: \"Review the new input validation module for security and quality.\" Produce only the normalized-input.md content with the 4-field structure and the review-report.md Evidence Classification and Standalone Input Source sections. Demonstrate that evidence was collected by reading each file, evidence_source is recorded, and scope is limited to the specified files.",
+      "expected_output": "A normalized input with brief from user description, evidence collected via file reads with source markers, scope limited to the 2 specified files, constraints including security and quality focus, and clear evidence_source and evidence integrity records.",
+      "files": [
+        "skills/review/SKILL.md",
+        "templates/review-report.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output records evidence_source as file-read with the specified paths.",
+          "type": "contains_any",
+          "values": [
+            "file-read",
+            "file read",
+            "source: file read"
+          ]
+        },
+        {
+          "text": "Output scope is limited to exactly the 2 specified files.",
+          "type": "contains_all",
+          "values": [
+            "src/utils/validator.ts",
+            "src/utils/validator.test.ts"
+          ]
+        },
+        {
+          "text": "Output includes evidence integrity markers (source or truncation labels).",
+          "type": "contains_any",
+          "values": [
+            "[source: file read]",
+            "source: file read",
+            "Evidence Integrity",
+            "evidence integrity"
+          ]
+        },
+        {
+          "text": "Output sets constraints to include security and quality review focus.",
+          "type": "contains_any",
+          "values": [
+            "security",
+            "quality",
+            "focus: security",
+            "focus: quality"
+          ]
+        },
+        {
+          "text": "Output records input_mode as standalone.",
+          "type": "contains",
+          "value": "standalone"
+        },
+        {
+          "text": "Output scope does not include files outside the user-specified bundle.",
+          "type": "not_contains_any",
+          "values": [
+            "src/api/",
+            "src/config/",
+            "src/components/",
+            "entire codebase"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 67,
+      "name": "plan-ledger-schema-validation",
+      "prompt": "A ForgeFlow plan skill has been invoked for a medium route task with task id eval-plan-ledger. The plan includes 3 items: add validator module (feature), update config (refactor), write docs (docs). Produce a plan-ledger.md artifact following templates/plan-ledger.md with schema plan-ledger/v1. Include all required frontmatter fields and at least one decision entry.",
+      "expected_output": "A plan-ledger.md artifact with YAML frontmatter containing schema: plan-ledger/v1, task_id, route, and total_items. The Items section lists 3 items with Type, Scope, Dependencies, and Estimate fields. The Decisions section has at least one entry.",
+      "files": [
+        "templates/plan-ledger.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output includes YAML frontmatter with schema: plan-ledger/v1.",
+          "type": "contains",
+          "value": "schema: plan-ledger/v1"
+        },
+        {
+          "text": "Output includes task_id in frontmatter.",
+          "type": "contains",
+          "value": "task_id:"
+        },
+        {
+          "text": "Output includes route field in frontmatter.",
+          "type": "contains",
+          "value": "route:"
+        },
+        {
+          "text": "Output includes total_items in frontmatter.",
+          "type": "contains",
+          "value": "total_items:"
+        },
+        {
+          "text": "Output includes a Plan Ledger heading.",
+          "type": "contains",
+          "value": "Plan Ledger"
+        },
+        {
+          "text": "Output includes an Items section.",
+          "type": "contains",
+          "value": "## Items"
+        },
+        {
+          "text": "Output includes item Type field with valid enum values.",
+          "type": "contains_any",
+          "values": [
+            "feature",
+            "fix",
+            "refactor",
+            "docs"
+          ]
+        },
+        {
+          "text": "Output includes item Scope field.",
+          "type": "contains",
+          "value": "Scope"
+        },
+        {
+          "text": "Output includes item Dependencies field.",
+          "type": "contains",
+          "value": "Dependencies"
+        },
+        {
+          "text": "Output includes item Estimate field with valid enum values.",
+          "type": "contains_any",
+          "values": [
+            "small",
+            "medium",
+            "large"
+          ]
+        },
+        {
+          "text": "Output includes a Decisions section.",
+          "type": "contains",
+          "value": "## Decisions"
+        },
+        {
+          "text": "Output includes at least one decision entry with rationale.",
+          "type": "contains_any",
+          "values": [
+            "rationale",
+            "Rationale"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 68,
+      "name": "decision-log-schema-validation",
+      "prompt": "During ForgeFlow clarify stage, the agent selected route high for task id eval-decision-log after considering medium and high. The key decision was whether to use TDD or test-after. Produce a decision-log.md artifact following templates/decision-log.md with schema decision-log/v1. Include the route selection decision and the testing approach decision.",
+      "expected_output": "A decision-log.md artifact with YAML frontmatter containing schema: decision-log/v1 and task_id. Contains at least two decision entries (D-001 and D-002), each with Context, Options (A and B), Chosen, Rationale, Stage, and Reversible fields.",
+      "files": [
+        "templates/decision-log.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output includes YAML frontmatter with schema: decision-log/v1.",
+          "type": "contains",
+          "value": "schema: decision-log/v1"
+        },
+        {
+          "text": "Output includes task_id in frontmatter.",
+          "type": "contains",
+          "value": "task_id:"
+        },
+        {
+          "text": "Output includes a Decision Log heading.",
+          "type": "contains",
+          "value": "Decision Log"
+        },
+        {
+          "text": "Output includes decision entries with D- prefix numbering.",
+          "type": "contains_any",
+          "values": [
+            "D-001",
+            "D-002"
+          ]
+        },
+        {
+          "text": "Output includes Context field for each decision.",
+          "type": "contains",
+          "value": "Context"
+        },
+        {
+          "text": "Output includes Options with A and B alternatives.",
+          "type": "contains_all",
+          "values": [
+            "A:",
+            "B:"
+          ]
+        },
+        {
+          "text": "Output includes Chosen field indicating which option was selected.",
+          "type": "contains",
+          "value": "Chosen"
+        },
+        {
+          "text": "Output includes Rationale field explaining the choice.",
+          "type": "contains",
+          "value": "Rationale"
+        },
+        {
+          "text": "Output includes Stage field with valid enum values.",
+          "type": "contains_any",
+          "values": [
+            "clarify",
+            "plan",
+            "execute",
+            "review"
+          ]
+        },
+        {
+          "text": "Output includes Reversible field with yes or no.",
+          "type": "contains_any",
+          "values": [
+            "Reversible: yes",
+            "Reversible: no"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 69,
+      "name": "project-draft-schema-validation",
+      "prompt": "A user runs /forgeflow:config init --mode=full on a Node.js project with package.json at the root. The project uses Jest for testing and has a CONTRIBUTING.md file. Produce the project-draft.md artifact that the config skill should generate. Use the template from templates/project-draft.md. Fill in all detected values based on the described project context.",
+      "expected_output": "A project-draft.md artifact with valid YAML frontmatter (schema: project-draft/v1, generated ISO date, repo_type: node, adapter_preset), Detected Context section with Language/Framework as Node.js, Structure, Test Framework as Jest or similar, Team Structure section, Agent Configuration section with recommended adapter, Documentation Pointers with README and Contributing paths, and Init Checklist with unchecked items.",
+      "files": [
+        "templates/project-draft.md",
+        "skills/config/SKILL.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output includes YAML frontmatter with schema field.",
+          "type": "contains",
+          "value": "schema: project-draft/v1"
+        },
+        {
+          "text": "Output includes generated field with ISO date placeholder or actual date.",
+          "type": "contains",
+          "value": "generated:"
+        },
+        {
+          "text": "Output includes repo_type field in frontmatter set to node.",
+          "type": "contains",
+          "value": "repo_type: node"
+        },
+        {
+          "text": "Output includes adapter_preset field in frontmatter.",
+          "type": "contains",
+          "value": "adapter_preset:"
+        },
+        {
+          "text": "Output includes Detected Context section.",
+          "type": "contains",
+          "value": "## Detected Context"
+        },
+        {
+          "text": "Output detects Node.js as language/framework.",
+          "type": "contains_any",
+          "values": [
+            "Node.js",
+            "node",
+            "JavaScript",
+            "TypeScript"
+          ]
+        },
+        {
+          "text": "Output includes Agent Configuration section with adapter recommendation.",
+          "type": "contains",
+          "value": "## Agent Configuration"
+        },
+        {
+          "text": "Output includes Init Checklist section with unchecked items.",
+          "type": "contains",
+          "value": "## Init Checklist"
+        },
+        {
+          "text": "Output includes Documentation Pointers section.",
+          "type": "contains",
+          "value": "## Documentation Pointers"
+        }
+      ]
+    },
+    {
+      "id": 70,
+      "name": "init-full-mode-detection-logic",
+      "prompt": "A user runs /forgeflow:config init --mode=full on a Python project. The project root contains pyproject.toml with pytest configuration, src/lib directory structure, and no CONTRIBUTING.md or CODEOWNERS. Produce the detection analysis and resulting project-draft.md that the config skill should generate. Focus on correct detection of repo_type as python, test framework as pytest, and structure as library.",
+      "expected_output": "A detection analysis showing pyproject.toml triggers python repo_type, pytest detected from pyproject.toml, library structure from src/lib, no team structure files found, and a complete project-draft.md with these values filled in correctly.",
+      "files": [
+        "templates/project-draft.md",
+        "skills/config/SKILL.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output detects Python from pyproject.toml.",
+          "type": "contains_any",
+          "values": [
+            "Python",
+            "python",
+            "pyproject.toml"
+          ]
+        },
+        {
+          "text": "Output sets repo_type to python in frontmatter.",
+          "type": "contains",
+          "value": "repo_type: python"
+        },
+        {
+          "text": "Output detects pytest as test framework.",
+          "type": "contains_any",
+          "values": [
+            "pytest",
+            "Pytest"
+          ]
+        },
+        {
+          "text": "Output detects library structure from src/lib pattern.",
+          "type": "contains_any",
+          "values": [
+            "library",
+            "Library",
+            "lib"
+          ]
+        },
+        {
+          "text": "Output acknowledges no team structure files were found.",
+          "type": "contains_any",
+          "values": [
+            "no CONTRIBUTING",
+            "no CODEOWNERS",
+            "not found",
+            "No team",
+            "undetected"
+          ]
+        },
+        {
+          "text": "Output recommends an adapter for Python ecosystem.",
+          "type": "contains_any",
+          "values": [
+            "codex",
+            "claude"
+          ]
+        },
+        {
+          "text": "Output includes the project-draft schema in frontmatter.",
+          "type": "contains",
+          "value": "schema: project-draft/v1"
+        }
+      ]
     }
   ]
 }

@@ -1,7 +1,7 @@
 ---
 name: plan
 description: Create an executable ForgeFlow plan with exact tasks, files, acceptance criteria, and verification steps. Includes epic decomposition for epic route. Use when the user types /plan or /forgeflow:plan.
-version: 0.5.0
+version: 0.6.0
 author: gimso2x
 validate_prompt: |
   Must preserve exact-output and dry-run constraints when requested.
@@ -37,6 +37,9 @@ Write `plan.md` to the active task directory using `templates/plan.md` as the st
 Also create empty scaffolds for the execute stage to fill:
 - `implementation-notes.md` (from `templates/implementation-notes.md`) — decisions, deviations, evidence
 - `run-ledger.md` (from `templates/run-ledger.md`) — per-task execution truth
+
+Additionally, produce:
+- `plan-ledger.md` (from `templates/plan-ledger.md`, schema: plan-ledger/v1) — standardized task ledger with items, types, scopes, dependencies, estimates, and decisions
 
 For **epic** route, also produce:
 - `roadmap.md` (from `templates/roadmap.md`) — milestone definitions, dependency DAG, statuses
