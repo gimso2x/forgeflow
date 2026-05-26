@@ -3235,10 +3235,12 @@
             "Next Action",
             "다음 작업"
           ]
-        },
-        {
-          "id": 46,
-          "name": "worktree-dependency-install",
+        }
+      ]
+    },
+    {
+      "id": 46,
+      "name": "worktree-dependency-install",
           "prompt": "A medium-route ForgeFlow clarify completes and the isolation protocol creates a worktree at .forgeflow/worktrees/fix-slider-abc. The main repo uses pnpm (pnpm-lock.yaml exists). Produce only the worktree creation procedure including dependency installation. The worktree must have node_modules before execute starts.",
           "expected_output": "A creation procedure that includes git branch, git worktree add, .forgeflow symlink, verify, AND a dependency installation step that detects pnpm-lock.yaml and runs pnpm install in the worktree directory.",
           "files": [
@@ -3382,7 +3384,5 @@
             }
           ]
         }
-      ]
-    }
   ]
 }

@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.1] - 2026-05-26
+
+### Changed
+
+- **Route별 차등 테스트 적용**: medium은 test-after, high/epic만 TDD 적용
+  - `skills/execute/SKILL.md`: Route-aware Testing 표 추가 — small(테스트스킵), medium(test-after), high(로직만TDD), epic(전체TDD)
+  - `skills/plan/SKILL.md`: medium에서 T1 테스트 전용 단계 분리 금지, 구현 단계에 통합 및 Task Granularity 예시 분리
+
+## [1.5.0] - 2026-05-26
+
+### Added
+
+- **워크트리 세션 속도 개선**:
+  - `skills/_shared/isolation.md`: Vite/webpack watcher에 `.forgeflow` 제외 설정 추가 (OOM 원천 차단), worktree `pnpm install --frozen-lockfile` 적용 (설치 속도 향상), Known issues 섹션 추가 (dev server OOM, lint 중복, scope creep)
+  - `skills/execute/SKILL.md`: adaptive verification 추가 (변경 성격에 따라 최소 게이트만 실행), `scope_boundary_check`를 medium/high/epic 표준 게이트로 추가, 워크트리 symlink 주의사항 확장
+
 ## [1.4.0] - 2026-05-26
 
 ### Added
@@ -693,7 +709,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI gate with GitHub Actions workflow generation
 - Agent preset installer (Claude + Codex)
 
-[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v1.4.0...HEAD
+[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v1.5.1...HEAD
+[1.5.1]: https://github.com/gimso2x/forgeflow/compare/v1.5.0...v1.5.1
+[1.5.0]: https://github.com/gimso2x/forgeflow/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/gimso2x/forgeflow/compare/v1.3.5...v1.4.0
 [1.3.5]: https://github.com/gimso2x/forgeflow/compare/v1.3.4...v1.3.5
 [1.2.0]: https://github.com/gimso2x/forgeflow/compare/v1.1.4...v1.2.0
