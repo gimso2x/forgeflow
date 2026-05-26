@@ -27,8 +27,23 @@ When `--auto` is active (set via flag, `brief.md` auto field, or user instructio
 
 1. Writes the required artifact for the current stage
 2. Updates `checkpoint.md` at stage exit (see Strict auto-chain)
-3. Invokes the next stage skill directly in the same turn (or immediately in the next turn if context limits require it — **never** wait for `(y/n)`)
-4. Continues chaining until the workflow completes or hits an auto-break condition
+3. **Calls the `Skill` tool** with the next stage skill name (e.g. `Skill(skill: "forgeflow:plan")`, `Skill(skill: "forgeflow:execute")`, `Skill(skill: "forgeflow:review")`, `Skill(skill: "forgeflow:ship")`) in the same turn — **never** just print the skill name as text without actually calling the Skill tool
+4. If context limits prevent the next Skill call in the same turn, write checkpoint with `Next Action: invoke /forgeflow:<next>` and continue in the **next assistant turn** without asking the user
+5. Continues chaining until the workflow completes or hits an auto-break condition
+
+### How to invoke the next stage (CRITICAL)
+
+Under `--auto`, "invoke the next stage" means **calling the Skill tool**, not printing text. Correct pattern:
+
+```
+✅ Correct: Call Skill(skill: "forgeflow:plan", args: "--task-id <id>")
+✅ Correct: Call Skill(skill: "forgeflow:execute", args: "--task-id <id>")
+❌ Wrong: Printing "/forgeflow:plan" as text without calling Skill tool
+❌ Wrong: Printing "defaults에 auto: true가 설정되어 있어 자동 진행합니다" then stopping
+❌ Wrong: Asking "(y/n)" under --auto
+```
+
+If you find yourself about to print a y/n prompt or just mention the next skill name, STOP and call the Skill tool instead.
 
 ### Chain sequence by route
 
@@ -83,7 +98,7 @@ Complete **all** items before invoking the next stage or editing code outside th
 |------|---------------------------|
 | Artifact | `brief.md` with route, scope, AC, blockers resolved |
 | Checkpoint | `Current Stage: clarify` → exit update; `Next Action: invoke /forgeflow:plan` (medium+) or `/forgeflow:execute` (small) |
-| Chain | Invoke next stage skill **immediately** — no `(y/n)` prompt |
+| Chain | Call `Skill(skill: "forgeflow:plan")` or `Skill(skill: "forgeflow:execute")` **immediately** — no `(y/n)` prompt. Do not print the skill name as text without calling the Skill tool. |
 | Forbidden | Starting code edits in the clarify turn; skipping plan on medium/high/epic |
 
 #### plan → execute
@@ -92,7 +107,7 @@ Complete **all** items before invoking the next stage or editing code outside th
 |------|------------------------|
 | Artifact | `plan.md` + scaffolds: `implementation-notes.md`, `run-ledger.md` |
 | Checkpoint | `Current Stage: plan`; `Active Task: Task 1` (or first pending); `Next Action: begin Task 1` |
-| Chain | Invoke `/forgeflow:execute` immediately — no `(y/n)` prompt |
+| Chain | Call `Skill(skill: "forgeflow:execute")` immediately — no `(y/n)` prompt. Do not just print the skill name. |
 | Forbidden | Implementing plan tasks in the plan turn; asking "execute 진행?" under `--auto` |
 
 #### execute → review
@@ -103,8 +118,8 @@ Complete **all** items before invoking the next stage or editing code outside th
 | Notes | `implementation-notes.md` updated per task (Decisions, Evidence, Deviations) |
 | Checkpoint | Updated after **each** task completes; `Active Task` must not stay stale on Task 1 while later tasks finish |
 | Evidence | Verification commands run; results in Evidence / Gate Results |
-| **/clear** | **Mandatory between every task** — after checkpoint, ledger, evidence are written to disk, `/clear` before starting the next task. Do not chain tasks in the same context. Resume follows checkpoint-first protocol (→ `_shared/context-resume.md`). |
-| Chain | Invoke `/forgeflow:review` immediately when all tasks done — no `(y/n)` prompt |
+| **/clear** | **Mandatory between every task** — `/clear` is a user CLI command, not an AI tool. After checkpoint, ledger, evidence are written to disk: (1) output a clear message: `"✅ Task N 완료. checkpoint/run-ledger/implementation-notes 저장됨. 다음 작업 전 /clear 를 실행해주세요."` (2) **STOP** — do not start the next task in the same context. Under `--auto`: if the user does not /clear, continue the next task but note `context_accumulation_warning` in implementation-notes.md. Resume follows checkpoint-first protocol (→ `_shared/context-resume.md`). |
+| Chain | Call `Skill(skill: "forgeflow:review")` immediately when all tasks done — no `(y/n)` prompt. Do not just print the skill name. |
 | Forbidden | Deferring ledger/notes until the user asks "어디까지?"; coding after execute exit without review; skipping `/clear` between tasks |
 
 #### review → ship
@@ -113,7 +128,7 @@ Complete **all** items before invoking the next stage or editing code outside th
 |------|---------------------|
 | Artifact | `review-report.md` with written verdict |
 | Checkpoint | `Current Stage: review`; verdict reflected in `Next Action` |
-| Chain | If `approved`: invoke `/forgeflow:ship` immediately — no `(y/n)` prompt |
+| Chain | If `approved`: call `Skill(skill: "forgeflow:ship")` immediately — no `(y/n)` prompt. Do not just print the skill name. |
 | Forbidden | "리뷰 통과. ship 진행?" under `--auto`; proceeding to ship when verdict ≠ `approved` |
 
 #### ship completion
@@ -135,7 +150,7 @@ Do **not** emit these (or equivalent) while `--auto` is active:
 - `리뷰 통과. /forgeflow:ship을 실행해주세요.` (without immediately invoking ship)
 - `execute하고 리뷰해야겠지?` / `ship까지?` — rhetorical checks that wait for user confirmation
 
-Replace with: write artifact → update checkpoint → invoke next stage (or auto-break with blocker record).
+Replace with: write artifact → update checkpoint → **call Skill tool** with next stage name (or auto-break with blocker record).
 
 ### Scope change under --auto
 
@@ -171,9 +186,12 @@ These patterns indicate `--auto` was **not** honored — correct on the next tas
 | `plan.md` exists but no plan-stage checkpoint / scaffolds | Write scaffolds + checkpoint before any implementation |
 | `checkpoint.md` stuck at `execute` / Task 1 while Task 2–3 complete | Update checkpoint after **each** task |
 | `run-ledger.md` / `implementation-notes.md` created only when user asks progress | Create scaffolds at plan exit; update incrementally during execute |
-| Review passed but agent waits for "ship까지?" | Invoke `/forgeflow:ship` immediately |
+| Review passed but agent waits for "ship까지?" | Call `Skill(skill: "forgeflow:ship")` immediately |
 | Out-of-scope work (e.g. area tab slider when brief says informational only) without brief update | Auto-break + scope amendment |
 | API 429 → unapproved fallback → continue as if AC met | Auto-break or record approved fallback + partial gate; never silent continuation |
+| Printing "auto 진행합니다" text but NOT calling Skill tool | Call the Skill tool with exact skill name — text output alone is not invocation |
+| Asking "(y/n)" when `--auto` is active | Skip prompt and call Skill tool directly |
+| Chaining tasks in same context without /clear | Output /clear message, STOP, wait for user to /clear (or under auto: continue with context_accumulation_warning) |
 
 ### Resume after auto-break
 

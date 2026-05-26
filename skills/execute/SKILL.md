@@ -63,7 +63,7 @@ Guidelines:
 
 The exit prompt and next-step guidance depend on the active route.
 
-**If `--auto` is active** (set via `--auto` flag, `.forgeflow/defaults.md` `auto: true`, `brief.md` `auto: true`, or user instruction — see `_shared/automation.md`): skip the route-specific prompt below and invoke the appropriate `/forgeflow:review` directly.
+**If `--auto` is active** (set via `--auto` flag, `.forgeflow/defaults.md` `auto: true`, `brief.md` `auto: true`, or user instruction — see `_shared/automation.md`): skip the route-specific prompt below and **call `Skill(skill: "forgeflow:review", args: "--task-id <task-id>")` directly**. Do NOT just print the skill name or ask "(y/n)".
 
 **Otherwise**, prompt the user:
 
@@ -201,8 +201,13 @@ Minimum warning contract:
    - **Run Ledger**: When starting a task, set its status to `running` and **Assignee** to `worker` (or `specialist` if delegated). When completing, set to `done` with evidence refs. When blocked, set to `blocked` with blocker description. Update incrementally, not in batch. See **Run ledger assignee discipline** below.
    - **Per-task micro-gates (high/epic only)**: Before marking a step `done`, run the micro-gate checklist in **Per-task micro-gates** below. Optional spec/quality micro-reviewer subagents use `references/spec-reviewer-prompt.md` and `references/quality-reviewer-prompt.md`.
    - **Checkpoint**: Update `checkpoint.md` after each task completes: set `Active Task` to the next task, update `Latest Artifacts` table. Ensures resume capability after context compaction or clear.
-     - **Step-boundary /clear (mandatory)**: Once checkpoint, run-ledger, and evidence are all updated on disk for a completed step, update `checkpoint.md` `Active Task` to `pending_clear` and `Next Action` to `"/clear 후 Task N 시작"`. Then you MUST `/clear` before starting the next task. Do not carry prior task context into the next step — all state is already persisted to disk artifacts. Resume reads checkpoint → ledger → notes → plan active task (→ `_shared/context-resume.md`). This applies to all routes (small/medium/high/epic) and regardless of `--auto` mode. **No exceptions**: the resume cost is fixed (~1-2K tokens to re-read checkpoint → ledger → notes), while skipping `/clear` accumulates stale context from every prior task.
-     - **Resume guard**: After `/clear`, the first action is to read `checkpoint.md`. If `Active Task` is not `pending_clear`, the previous `/clear` was skipped — do NOT start the next task. Instead, `/clear` now and re-read checkpoint.
+     - **Step-boundary /clear (recommended)**: `/clear` is a user CLI command — you cannot execute it. Once checkpoint, run-ledger, and evidence are all updated on disk for a completed step, update `checkpoint.md` `Active Task` to `pending_clear` and `Next Action` to `"/clear 후 Task N 시작"`. Then output this message to the user and **STOP**:
+       ```
+       ✅ Task N 완료. checkpoint/run-ledger/implementation-notes가 디스크에 저장되었습니다.
+       다음 작업 전에 `/clear`를 실행해주세요. 세션이 초기화되면 checkpoint에서 자동 복원됩니다.
+       ```
+       Under `--auto`: if the user does not /clear within a reasonable time, continue to the next task but record `context_accumulation_warning` in `implementation-notes.md` Evidence. Resume reads checkpoint → ledger → notes → plan active task (→ `_shared/context-resume.md`). This applies to all routes (small/medium/high/epic).
+     - **Resume guard**: After `/clear`, the first action is to read `checkpoint.md`. If `Active Task` is `pending_clear`, proceed to the next task. If `Active Task` is not `pending_clear` but all artifacts are on disk, proceed normally.
    - **Role awareness**: You are the implementation role. You edit code and update artifacts, but you do not approve your own work. Review is a separate stage with a separate role boundary. Do not merge implementation and review in the same turn.
    - **Architectural Depth**: Ensure implementation follows the plan's architectural intent (Depth, Leverage, Locality) and avoids creating new shallow modules.
    - If blocked, apply **Hypothesis-Driven Debugging**.
@@ -246,7 +251,7 @@ Minimum warning contract:
     2. 검증 결과: lint/build/test 각각 pass/fail + 숫자
     3. 변경 파일 목록
     4. 주의사항 (있는 경우): contract_check 실패, environment warning, 미해결 decisions
-    **`--auto`가 활성 상태면**: 완료 보고를 출력한 뒤 checkpoint를 업데이트하고 곧바로 `/forgeflow:review`를 invoke한다. 사용자에게 다음 단계를 묻지 않는다(automation.md strict auto-chain).
+    **`--auto`가 활성 상태면**: 완료 보고를 출력한 뒤 checkpoint를 업데이트하고 **`Skill(skill: "forgeflow:review", args: "--task-id <task-id>")`를 호출**한다. 텍스트로만 "/forgeflow:review"를 출력하지 않는다. 사용자에게 다음 단계를 묻지 않는다(automation.md strict auto-chain).
     **`--auto`가 아니면**: 반드시 사용자가 다음 단계를 실행하도록 대기.
 
 Contract-aware execution rules:
