@@ -20,6 +20,7 @@ Use this skill to turn a ForgeFlow brief or requirements document into an execut
 
 - `brief.md` from `/forgeflow:clarify`
 - Codebase context
+- Shared project context from `.forgeflow/project-draft.md` when present
 - Route selected by `/forgeflow:clarify`
 
 ## Output Artifacts
@@ -292,6 +293,9 @@ Apply these synthesis heuristics to convert five-angle analysis into milestone b
    | Open Questions | Recorded as bounded assumptions |
 
 2. Inspect the repo for existing conventions, test patterns, and file structure.
+
+   - If `.forgeflow/project-draft.md` exists, read only task-relevant sections such as `Reusable Project Context`, `Documentation Pointers`, `Context Usage Rules`, and `Verification Conventions`. Use those pointers to reduce repeated discovery, but keep `brief.md` and `plan.md` as the task-specific source of truth.
+   - When adding resume guidance to `checkpoint.md`, include only the relevant `.forgeflow/project-draft.md` section names or source document paths, not the full common context content.
 
 3. **File Structure Mapping**: Before writing tasks, determine exactly which files will be created or modified:
    - Each file should have one clear responsibility

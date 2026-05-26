@@ -34,6 +34,7 @@ Use this skill to convert a raw request into a ForgeFlow context brief (`brief.m
 - Target repository/path if known
 - Constraints, acceptance criteria, risk notes if provided
 - Existing codebase context if available
+- Shared project context from `.forgeflow/project-draft.md` if present
 - `--task-id`: stable task identifier (optional; auto-generated if omitted)
 
 ## Task ID generation
@@ -84,6 +85,7 @@ Additionally, produce:
 
 - Objective (one-sentence goal)
 - WHERE/context grounding for non-trivial work
+- Common Project Context sources read from `.forgeflow/project-draft.md` when present
 - In Scope / Out of Scope boundary
 - Scope boundary (files_planned, files_limit by route threshold, boundary_status: within|at_limit|exceeds)
 - Constraints
@@ -209,11 +211,12 @@ clarify에서는 예상 수정 파일 목록(`scope_files`)을 명시적으로 �
 
 2. Inspect relevant repo context before inventing scope.
    - Run the Evolution preflight first when allowed, then map matched rules into brief.md.
+   - **Common project context preflight**: If `.forgeflow/project-draft.md` exists, read only the sections relevant to the request: `Reusable Project Context`, `Documentation Pointers`, `Context Usage Rules`, and verification/test framework fields. Reflect useful planning, architecture, WBS, cross-module contract, and verification pointers in `brief.md` under WHERE, Constraints, Assumptions, Verification Gates, and Environment Preflight. If it does not exist, do not block; record a bounded assumption that common project context was unavailable and continue normal repo inspection.
    - Map Instructions, Tools, Environment, State, and Feedback into brief fields. Use Environment Notes, tech stack, Open Questions, and Verification Gates for missing context instead of creating a separate harness artifact.
    - If an Environment or Tools gap prevents execution, add it to Open Questions as a blocker and ask before routing to plan or execute.
    - **Gemini optimization**: Leverage Gemini's ability to run parallel tool calls. When exploring the codebase, batch multiple `ls`, `grep`, or `cat` operations into a single turn to minimize latency.
    - Surface confusion instead of guessing. If the request has competing interpretations that materially change scope, say so in the brief.
-   - For brownfield refactors or extensions, specifically identify **architectural friction**: where are modules **shallow** (interface as complex as implementation), where is **locality** missing, and where are **pass-throughs** bloating the path?
+   - For brownfield refactors or extensions, specifically identify **architectural friction**: where are modules **shallow** (interface as complex as implementation), where is **locality** missing, and where are **pass-throughs** bloating the path? Use `.forgeflow/project-draft.md` architecture and contract pointers as hints, but verify task-critical facts against source documents or code.
    - Do not silently pick one interpretation when the ambiguity affects user-visible behavior, data, security, or files to edit.
    - **Environment preflight**: Run these checks and record results in the Environment Notes section of brief.md:
      - `git rev-parse --show-toplevel 2>/dev/null` -> confirm the correct git root matches the target project directory. If mismatched, note the warning.

@@ -21,6 +21,7 @@ Use this skill to execute the selected ForgeFlow route.
 
 - `plan.md` or a clear small-route brief
 - `brief.md` from `/forgeflow:clarify`
+- Shared project context from `.forgeflow/project-draft.md` when the active plan references it
 - Target repository
 
 ## Output Artifacts
@@ -182,6 +183,7 @@ Minimum warning contract:
 4. Initialize `run-ledger.md` from `templates/run-ledger.md` if it does not exist. Set all task statuses from `plan.md` as `pending`.
 5. Write `checkpoint.md` from `templates/checkpoint.md` with `Current Stage: execute`, `Active Task: first pending task`, `Next Action: begin first plan step`.
 6. Read Contracts section from `plan.md` before editing when present.
+   - If `plan.md` or `brief.md` references `.forgeflow/project-draft.md`, treat it as shared context only: read the relevant section names and repo-relative pointers, then verify task-critical facts against the referenced source files or code before changing behavior.
    - **Environment safety net**: If `brief.md` lacks environment notes, run: `git rev-parse --is-inside-work-tree 2>/dev/null; ls node_modules .venv vendor 2>/dev/null | head -3`. If dependencies are missing and a package manager is detected:
      - **Under `--auto`**: install automatically using the detected package manager. Record the install command in `implementation-notes.md` Evidence. Do not stop or ask the user.
      - **Otherwise**: stop and ask: "종속성이 설치되지 않았습니다. 설치를 먼저 진행하시겠습니까?" Do NOT attempt installation yourself.
@@ -191,6 +193,7 @@ Minimum warning contract:
    - **Execute Implementation**: Implement minimal code to pass. Prefer the smallest implementation that satisfies the acceptance criteria.
    - **Context budget**: → `_shared/context-resume.md`. Execute addendum:
      - **Resume minimum read set**: `checkpoint.md` → `run-ledger.md` active task + Gate Results → `implementation-notes.md` Reader Summary + Evidence Index → active `plan.md` task section only.
+     - If the active task references `.forgeflow/project-draft.md`, read only the named section or repo-relative source pointers needed for that task. Do not copy the entire common project context into `implementation-notes.md`, `run-ledger.md`, or `checkpoint.md`.
      - Do not re-read a file already in context unless edited since. Before reading, ask: full content, Reader Summary, or specific section? Batch parallel tool calls where possible.
      - After each task completes, append compact evidence index line to `implementation-notes.md` Evidence (e.g. `evidence_index: task=T3 gates=build:PASS,lint:PASS`).
    - **Implementation Notes**: When a decision is made that was not in the plan, when the implementation deviates from the spec, when a tradeoff is chosen, or when an open question arises — **append an entry to `implementation-notes.md` immediately**. Do not batch these until the end.

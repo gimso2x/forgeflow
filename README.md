@@ -65,6 +65,18 @@ Claude/Codex의 `/forgeflow:clarify` 등과 동일한 스킬입니다. 매핑은
 
 ForgeFlow는 artifact-first를 유지하면서 context compaction 후 재개 비용을 줄입니다. stage 경계 또는 checkpoint 갱신 직후에 `/compact`하는 것이 안전합니다. 재개 시 `checkpoint.md` → `run-ledger.md` → `implementation-notes.md` 요약 → 필요한 섹션만 읽습니다. 상세 규칙은 [skills/_shared/context-resume.md](skills/_shared/context-resume.md)를 참고하세요.
 
+### 공통 프로젝트 컨텍스트
+
+대상 프로젝트 루트에서 한 번 분석한 기획, 아키텍처, WBS, 검증 관례를 이후 태스크에서 재사용하려면 full init을 실행해 `.forgeflow/project-draft.md`를 생성합니다.
+
+```text
+/forgeflow:config init --mode=full
+```
+
+이 파일은 source of truth가 아니라 repo-relative 포인터와 안정적인 결정 요약입니다. `clarify`는 새 태스크를 시작할 때 이 파일이 있으면 planning/WBS, architecture/contract, verification hints를 `brief.md`의 `Common Project Context`, WHERE, Constraints, Verification Gates에 반영합니다. `plan`과 `execute`는 필요한 섹션만 읽고 checkpoint에는 관련 섹션명이나 원본 문서 경로만 남겨 compact resume 비용을 늘리지 않습니다.
+
+갱신이 필요한 경우 같은 명령으로 draft를 다시 생성하거나 파일을 직접 보정하세요. 토큰, API key, credential, private key 같은 비밀값은 이 파일에 복사하지 말고 정책 또는 환경 변수 이름만 포인터로 남깁니다.
+
 ## 기본 워크플로우
 
 ```text

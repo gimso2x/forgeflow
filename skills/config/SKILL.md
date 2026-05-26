@@ -1,10 +1,10 @@
 ---
 name: config
 version: "1.4"
-description: Manage ForgeFlow project defaults interactively. Toggle auto-chaining and worktree isolation. Supports init with architecture draft generation.
+description: Manage ForgeFlow project defaults interactively. Toggle auto-chaining and worktree isolation. Supports init with reusable project context generation.
 validate_prompt: |
   Must present current .forgeflow/defaults.md values, offer toggle by number, and write changes back without committing.
-  When invoked with init --mode=full, must detect repo type from project files and generate project-draft.md.
+  When invoked with init --mode=full, must detect repo type, documentation pointers, architecture/WBS signals, and generate project-draft.md as reusable project context.
 dependencies:
   - skills/_shared/automation.md
 ---
@@ -12,7 +12,7 @@ dependencies:
 # Skill: config
 
 Interactive project defaults manager for ForgeFlow. Reads and toggles settings in `.forgeflow/defaults.md`.
-Supports `init --mode=full` for architecture draft generation with auto-detected project context.
+Supports `init --mode=full` for reusable project context generation with auto-detected project structure, documentation pointers, and stable task guidance.
 
 ## Input
 
@@ -20,13 +20,14 @@ Supports `init --mode=full` for architecture draft generation with auto-detected
 |----------|--------|
 | `.forgeflow/defaults.md` | Project root (may not exist) |
 | Project manifest files | `package.json`, `pyproject.toml`, `Cargo.toml`, `go.mod` (read-only detection) |
+| Project guidance/docs | `README.md`, `AGENTS.md`, `CLAUDE.md`, `CONTRIBUTING.md`, `docs/`, roadmap/WBS/spec/architecture files |
 
 ## Output Artifacts
 
 | Artifact | Template | Description |
 |----------|----------|-------------|
 | `.forgeflow/defaults.md` | N/A | Updated project defaults |
-| `.forgeflow/project-draft.md` | `templates/project-draft.md` | Architecture draft (full mode only) |
+| `.forgeflow/project-draft.md` | `templates/project-draft.md` | Reusable project context and architecture draft (full mode only) |
 
 ## Procedure
 
@@ -58,9 +59,9 @@ isolation: true
 5. Confirm the change to the user. Loop back to step 2 until user selects 종료.
 6. Do **not** commit `.forgeflow/defaults.md` to git — let the user decide.
 
-### Mode B: init --mode=full (architecture draft generation)
+### Mode B: init --mode=full (reusable project context generation)
 
-When the user invokes `init --mode=full`, generate an architecture draft alongside standard scaffolding.
+When the user invokes `init --mode=full`, generate `.forgeflow/project-draft.md` as a reusable project context and architecture draft alongside standard scaffolding.
 
 1. **Standard init first**: Create `.forgeflow/` directory structure and `defaults.md` if they do not exist (same as basic init).
 2. **Detect project context** by reading project manifest files (prompt-based, agent reads and judges):
@@ -80,9 +81,11 @@ When the user invokes `init --mode=full`, generate an architecture draft alongsi
    - Rust: built-in `cargo test`
    - Go: built-in `go test`
 5. **Detect team structure**: Look for `CONTRIBUTING.md`, `CODEOWNERS`, `.github/PULL_REQUEST_TEMPLATE.md` to infer roles and review policy.
-6. **Generate `.forgeflow/project-draft.md`** using `templates/project-draft.md` as the template, filling in all detected values. Set `generated` to the current ISO date. Set `schema` to `project-draft/v1`.
-7. **Present the draft** to the user and ask them to review and adjust before proceeding.
-8. Do **not** commit the draft — let the user decide.
+6. **Detect reusable project context pointers**: Look for stable project guidance and planning sources, including `README.md`, `AGENTS.md`, `CLAUDE.md`, `docs/`, `spec*`, `prd*`, `architecture*`, `roadmap*`, `wbs*`, `milestone*`, and ADR/decision-log files. Prefer repo-relative paths and short decision labels over long copied prose.
+7. **Generate `.forgeflow/project-draft.md`** using `templates/project-draft.md` as the template, filling in all detected values. Set `generated` to the current ISO date. Set `schema` to `project-draft/v1`.
+8. **Redact sensitive values**: Never copy token, API key, credential, private key, or secret values into `.forgeflow/project-draft.md`. It is acceptable to point to the policy or env var name without the value.
+9. **Present the draft** to the user and ask them to review, correct stale assumptions, and add missing planning/architecture/WBS pointers before proceeding.
+10. Do **not** commit the draft — let the user decide.
 
 ### Mode C: Basic init (default for init without --mode)
 
@@ -123,7 +126,7 @@ Based on detected patterns in the project:
 ## Exit Condition
 
 - **Mode A**: User selects 종료 (exit) from the menu. `.forgeflow/defaults.md` reflects all toggled values.
-- **Mode B**: `.forgeflow/project-draft.md` is generated and presented to the user.
+- **Mode B**: `.forgeflow/project-draft.md` is generated as reusable project context and presented to the user.
 - **Mode C**: `.forgeflow/defaults.md` exists with default values.
 
 ## Constraints

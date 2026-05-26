@@ -37,6 +37,13 @@ scope_boundary:
 - **Situation**: <!-- greenfield | brownfield extension | brownfield refactor | hybrid -->
 - **Ambition**: <!-- toy/experiment | feature/MVP | product -->
 
+## 공통 프로젝트 컨텍스트 (Common Project Context)
+<!-- Read from .forgeflow/project-draft.md when present. Record only task-relevant sections and repo-relative pointers, not long copied source docs. -->
+- **Source**: <!-- .forgeflow/project-draft.md | unavailable -->
+- **Planning/WBS pointers**: <!-- paths or n/a -->
+- **Architecture/contract pointers**: <!-- paths or n/a -->
+- **Verification hints**: <!-- commands/gates or n/a -->
+
 ## 범위 포함 (In Scope)
 -
 
