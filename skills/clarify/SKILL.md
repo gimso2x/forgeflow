@@ -267,6 +267,10 @@ For exact-count, dry-run, or response-only prompts, do not force the WHERE inter
 9. State the route and why, unless an exact-output/label-only instruction applies.
 
 10. Produce `brief.md` using `templates/brief.md` as the structure, unless an exact-output/label-only instruction applies.
+    - **Project defaults propagation**: Read `.forgeflow/defaults.md` if it exists. Propagate settings to `brief.md`:
+      - `auto: true` → set `brief.md` auto field to `true`. This ensures `--auto` chaining activates for all subsequent stages.
+      - `isolation: true` → used for worktree isolation decision (step 12). Already handled.
+      - If `.forgeflow/defaults.md` does not exist, leave `brief.md` defaults as-is (`auto: false`, `isolation: false`).
 
 11. If the request is actionable, record remaining non-blocking unknowns as bounded assumptions and make the next stage obvious without asking the user to do your planning work, unless an exact-output/label-only instruction applies.
 
@@ -328,7 +332,7 @@ The goal is to gather just enough information to route correctly — not to run 
 
 When all blockers are resolved:
 
-**If `--auto` is active** (set via `--auto` flag, `brief.md` `auto: true`, or user instruction — see `_shared/automation.md`): skip the prompt and invoke the next stage skill directly.
+**If `--auto` is active** (set via `--auto` flag, `.forgeflow/defaults.md` `auto: true`, `brief.md` `auto: true`, or user instruction — see `_shared/automation.md`): skip the prompt and invoke the next stage skill directly.
 - `small` → `/forgeflow:execute`
 - `medium` or `high` → `/forgeflow:plan`
 - `epic` → `/forgeflow:plan`

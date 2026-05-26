@@ -11,6 +11,16 @@ The following flags enable automated stage transitions:
 - `--non-interactive` — suppress interactive prompts where possible
 - `--auto` — **auto-chain**: proceed through all remaining stages without stopping at stage boundaries
 
+### How --auto is activated
+
+`--auto` is active when ANY of these is true:
+1. `--auto` or `--auto-approve` flag passed to the skill invocation
+2. `.forgeflow/defaults.md` contains `auto: true` (read at clarify stage, propagated to `brief.md`)
+3. `brief.md` has `auto: true` in its metadata
+4. User explicitly says to auto-chain (e.g., "자동으로 진행", "auto chain", "계속 진행")
+
+When clarify reads `.forgeflow/defaults.md` and finds `auto: true`, it MUST set `brief.md`'s auto field to `true` so all subsequent stages see it.
+
 ## --auto chaining behavior
 
 When `--auto` is active (set via flag, `brief.md` auto field, or user instruction), the agent:

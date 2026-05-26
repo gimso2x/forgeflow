@@ -59,7 +59,7 @@ Guidelines:
 
 The exit prompt and next-step guidance depend on the active route.
 
-**If `--auto` is active** (see `_shared/automation.md`): skip the route-specific prompt below and invoke the appropriate `/forgeflow:review` directly.
+**If `--auto` is active** (set via `--auto` flag, `.forgeflow/defaults.md` `auto: true`, `brief.md` `auto: true`, or user instruction — see `_shared/automation.md`): skip the route-specific prompt below and invoke the appropriate `/forgeflow:review` directly.
 
 **Otherwise**, prompt the user:
 
