@@ -1,7 +1,7 @@
 ---
 name: execute
 description: Execute a ForgeFlow plan with verification and runtime evidence. Includes opt-in subagent per-task loop for high/epic routes. Use when the user types /execute or /forgeflow:execute, or asks to implement after clarify/plan.
-version: 0.5.0
+version: 0.6.0
 author: gimso2x
 validate_prompt: |
   Must preserve exact-output and dry-run constraints when requested.
@@ -111,8 +111,23 @@ Keep execution evidence in `.forgeflow/tasks/<task-id>/implementation-notes.md` 
 
 Step state must be incremental, not a final recap. Each plan step must move through progress tracking: `pending -> in_progress -> completed`. Do not batch-mark all steps as `completed` only at the end. If a step cannot finish, mark it `blocked` with evidence instead of leaving the last known state ambiguous.
 
-**TDD (Test-Driven Development) Cycle**:
-For every implementation step:
+**Route-aware Testing**:
+Testing approach differs by route to balance speed and safety:
+
+| Route | Approach | Rationale |
+|-------|----------|-----------|
+| small | No mandatory tests. Run lint/build only. | 1-2 file changes; overhead exceeds value |
+| medium | **Test-after**: implement first, then write tests to cover the happy path + key edge cases. No dedicated "Red" step. | 구현 후 테스트가 빠르고 토큰 절약. T1 테스트 전용 단계를 plan에 넣지 마라 |
+| high | **TDD for logic steps only**: Red→Green→Refactor for steps that change business logic, state management, or API contracts. Style/config steps use test-after. | 핵심 로직은 TDD, 나머지는 경량화 |
+| epic | **Full TDD**: Red→Green→Refactor for every implementation step. | 가장 높은 품질 보장 필요 |
+
+For medium route test-after:
+1. Implement the code change.
+2. Write tests covering the objective's happy path and critical edge cases.
+3. Run tests to confirm pass.
+4. If tests fail, fix implementation (not the test — the test is written against working code).
+
+For high/epic TDD:
 1. **Red**: Write a failing test that covers the objective. Run it and confirm failure.
 2. **Green**: Write the minimal code to pass the test.
 3. **Refactor**: Improve the code while keeping tests green.
