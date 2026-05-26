@@ -174,7 +174,8 @@ Minimum warning contract:
    - **TDD Refactor**: Clean up implementation.
    - **Run Ledger**: When starting a task, set its status to `running` and **Assignee** to `worker` (or `specialist` if delegated). When completing, set to `done` with evidence refs. When blocked, set to `blocked` with blocker description. Update incrementally, not in batch. See **Run ledger assignee discipline** below.
    - **Per-task micro-gates (high/epic only)**: Before marking a step `done`, run the micro-gate checklist in **Per-task micro-gates** below. Optional spec/quality micro-reviewer subagents use `references/spec-reviewer-prompt.md` and `references/quality-reviewer-prompt.md`.
-   - **Checkpoint**: Update `checkpoint.md` after each task completes: set `Active Task` to the next task, update `Latest Artifacts` table. Ensures resume capability after context compaction.
+   - **Checkpoint**: Update `checkpoint.md` after each task completes: set `Active Task` to the next task, update `Latest Artifacts` table. Ensures resume capability after context compaction or clear.
+     - **Step-boundary /clear**: Once checkpoint, run-ledger, and evidence are all updated on disk for a completed step, `/clear` is safe and preferred over `/compact` for long execute passes. Resume reads checkpoint → ledger → notes → plan active task (→ `_shared/context-resume.md`).
    - **Role awareness**: You are the implementation role. You edit code and update artifacts, but you do not approve your own work. Review is a separate stage with a separate role boundary. Do not merge implementation and review in the same turn.
    - **Architectural Depth**: Ensure implementation follows the plan's architectural intent (Depth, Leverage, Locality) and avoids creating new shallow modules.
    - If blocked, apply **Hypothesis-Driven Debugging**.
@@ -195,9 +196,12 @@ Minimum warning contract:
 14. Deliver the route-aware exit prompt (see Exit Condition above). Before exiting, verify the **mandatory completion checklist**:
     - ☐ Implementation plan was stated before code changes
     - ☐ All changed files are listed with descriptions
-    - ☐ Each component/function role is explained in one line
-    - ☐ Edge cases are enumerated (medium/high routes)
+    - ☐ Each component/function role is explained in one line (fill `## 컴포넌트/함수 역할` section in implementation-notes)
+    - ☐ Edge cases are enumerated (medium/high/epic routes; fill `## 엣지 케이스` section)
     - ☐ Verification commands were run and results recorded
+    - ☐ Deviations from plan recorded (medium/high/epic routes)
+    - ☐ Code quality metrics collected (all routes; fill `## 지표` section)
+    - ☐ **File size gate**: if any changed file exceeds 300 lines (or the project's documented limit), flag it in Metrics as `oversized_file` and note the split plan. Do not silently ship oversized files.
     If any checklist item is missing, complete it before delivering the exit prompt. Do not skip items.
     **완료 보고를 반드시 사용자에게 출력**:
     1. 완료 요약 (1-2문장, 한국어)
@@ -332,6 +336,7 @@ Before marking execute as completed, verify ALL items:
 | 5 | Verification commands run and results recorded | all routes |
 | 6 | Deviations from plan recorded in implementation-notes.md | medium, high, epic |
 | 7 | Code quality metrics collected in implementation-notes.md | all routes |
+| 8 | File size gate: oversized files (>300 lines or project limit) flagged with split plan | all routes |
 
 If any required item is missing, the execute stage is incomplete. Do not deliver the exit prompt until all items are present.
 
@@ -349,6 +354,7 @@ Provide checklist responses under a **`### Completion Response`** heading (not u
 5. **Verification**: <command + result>
 6. **Deviations**: <list or "none", medium/high/epic only>
 7. **Metrics**: LOC, TS errors, type assertions, debug artifacts, max component LOC
+8. **File size gate**: list any files exceeding 300 lines (or project limit) with split plan, or "all within limit"
 ```
 
 ## Output normalization

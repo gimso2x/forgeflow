@@ -1,33 +1,37 @@
 # Context Resume and Compact Safety
 
-Shared rules for `/compact` timing, checkpoint-first resume, minimum read sets, and section-targeted reads across all ForgeFlow stages.
+Shared rules for `/compact` and `/clear` timing, checkpoint-first resume, minimum read sets, and section-targeted reads across all ForgeFlow stages.
 
 ## Principles
 
-1. **Artifact-first stays** — compaction does not replace artifacts; it makes resume discipline mandatory.
-2. **Checkpoint-first** — on resume, read `checkpoint.md` before any other task artifact when it exists.
+1. **Artifact-first stays** — compaction/clear does not replace artifacts; it makes resume discipline mandatory.
+2. **Checkpoint-first** — on resume (after /compact or /clear), read `checkpoint.md` before any other task artifact when it exists.
 3. **No default full re-read** — expand to full artifacts only when verification, findings, or blockers require it.
 4. **Ledger = truth, notes = narrative** — task status from `run-ledger.md`; decisions from `implementation-notes.md`.
+5. **Step-complete = clear-safe** — once a plan step finishes and checkpoint/ledger/evidence are updated on disk, the agent may /clear and resume from artifacts. This is cheaper than /compact for long execute passes.
 
-## `/compact` timing
+## `/compact` and `/clear` timing
 
-Compact context at:
+Both `/compact` (summarize context) and `/clear` (wipe context) are safe when artifacts are up to date. **Prefer `/clear` between plan steps during execute** — it is cheaper than /compact and the checkpoint-driven resume is identical.
+
+Compact or clear context at:
 
 - **Stage boundary** — after the stage's exit artifact is written (e.g. `brief.md`, `plan.md`, `review-report.md`).
+- **Step boundary (execute)** — after a plan step completes and `checkpoint.md`, `run-ledger.md`, and `implementation-notes.md` evidence are all updated on disk. /clear here and resume from checkpoint for the next step.
 - **Checkpoint refresh** — after task completion when `run-ledger.md`, evidence, and `checkpoint.md` are updated on disk.
 
-Do **not** compact when:
+Do **not** compact or clear when:
 
 - A file edit is in progress and not saved to artifact or codebase.
 - Verification ran but results are not yet in `implementation-notes.md` Evidence.
 - A subagent/worker is `running` in `run-ledger.md` without evidence refs.
 - You are mid-review before verdict is recorded.
 
-| Stage | Safe after | Unsafe during |
-|-------|------------|---------------|
+| Stage | Safe to /compact or /clear after | Unsafe during |
+|-------|----------------------------------|---------------|
 | clarify | brief + checkpoint | pre-brief questioning |
 | plan | plan + scaffolds + checkpoint | mid task decomposition |
-| execute | task done + ledger + checkpoint | mid-implementation / pre-evidence |
+| execute | step done + ledger + evidence + checkpoint | mid-implementation / pre-evidence |
 | review | review-report sections + checkpoint | pre-verdict |
 | ship | ship-summary draft + verification | pre-handoff |
 

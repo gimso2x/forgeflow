@@ -206,6 +206,7 @@ Standalone mode and high/epic pipeline mode use role-based review. Each role has
 - ☐ No copy-pasted blocks that should be shared utilities
 - ☐ Logging follows project conventions (level, format, structured fields)
 - ☐ Thread safety / concurrency issues in shared state (if applicable)
+- ☐ File size: no changed file exceeds the project's documented line limit (default 300 lines for components, 300 for general source files). If oversized, flag as `major: quality / maintainability` with the file name and line count
 
 **Standalone-specific**: Without implementation-notes, the quality-reviewer works from the code/diff directly. Apply heuristics without referencing executor claims.
 
@@ -520,6 +521,8 @@ Before approving review, inspect required ForgeFlow artifacts for unresolved tem
 - Flag unresolved `TODO`, `TBD`, `FIXME`, template comments such as `<!-- ... -->`, and angle-bracket placeholders such as `<task-id>`, `<branch-name>`, or `<...>` when they are artifact-writing residue.
 - Do not flag intentional Markdown checkboxes, code snippets, command output, or literal examples when they are clearly part of the reviewed content rather than unfinished artifact fields.
 - If placeholder residue remains in an artifact required for the current route, do not approve. Name the file and the unresolved marker in Findings.
+- **Completion checklist completeness**: For medium/high/epic routes, verify `implementation-notes.md` has filled sections for `## 컴포넌트/함수 역할 (Role Descriptions)` and `## 엣지 케이스 (Edge Cases)`. If either section is missing or still contains only template comments, flag as a `major` finding with category `process / artifact-completeness`. Empty sections mean the execute stage did not complete its mandatory checklist.
+- **File size gate**: Check `## 지표 (Metrics)` for `oversized_file` entries. If any changed file exceeds the project's line limit (default 300) and no split plan is documented, flag as a `major` finding with category `quality / maintainability`.
 
 ## Procedure
 

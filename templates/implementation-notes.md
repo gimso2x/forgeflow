@@ -46,6 +46,16 @@
 <!-- Example: evidence_index: task=T2 gates=make validate:PASS,contract_check:PASS -->
 <!-- run-ledger.md = per-task status truth; this file = decisions + evidence narrative -->
 
+## 컴포넌트/함수 역할 (Role Descriptions)
+<!-- One-line role for each changed component/function. Required for all routes. -->
+<!-- Example: FilterTabs — controls tab switching between filter panels -->
+<!-- Example: syncPriceRange — syncs slider value to filter state -->
+
+## 엣지 케이스 (Edge Cases)
+<!-- Enumerate edge cases verified during execution. Required for medium/high/epic routes. -->
+<!-- Example: empty selection resets summary chip -->
+<!-- Example: slider drag past preset boundary preserves preset label -->
+
 ## 차단 요소 (Blocked By)
 <!-- List blockers or "none" -->
 
