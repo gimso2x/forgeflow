@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.2] - 2026-05-27
+
+### Fixed
+
+- **`defaults.md auto:true`가 brief.md에 전파되지 않던 버그 수정**: config 스킬에서 `auto: true` 설정 시 clarify 단계에서 생성되는 brief.md에 자동 모드가 반영되지 않던 문제 해결
+
 ## [1.5.1] - 2026-05-26
 
 ### Changed
@@ -709,7 +715,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI gate with GitHub Actions workflow generation
 - Agent preset installer (Claude + Codex)
 
-[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v1.5.1...HEAD
+[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v1.5.2...HEAD
+[1.5.2]: https://github.com/gimso2x/forgeflow/compare/v1.5.1...v1.5.2
 [1.5.1]: https://github.com/gimso2x/forgeflow/compare/v1.5.0...v1.5.1
 [1.5.0]: https://github.com/gimso2x/forgeflow/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/gimso2x/forgeflow/compare/v1.3.5...v1.4.0
