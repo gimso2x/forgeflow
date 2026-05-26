@@ -3912,6 +3912,206 @@
           "value": "Route: small"
         }
       ]
+    },
+    {
+      "id": 59,
+      "name": "benchmark-compliance-scoring-method",
+      "prompt": "You just ran /forgeflow:benchmark with two adapters (claude, codex) on a small-size prompt. Adapter claude output includes: an implementation plan, a changed file list with descriptions, component role descriptions, and ran pnpm build (success). Adapter codex output includes: an implementation plan and ran pnpm build (success), but no changed file list and no role descriptions. Produce only the ForgeFlow Compliance section of the benchmark report.md for the small size. Score each adapter using the response-only evaluation method: extract content AFTER the last code block, exclude echoed prompt text between the compliance requirement delimiters.",
+      "expected_output": "A compliance table showing claude scores 4/4 (plan stated, file list, role descriptions, verification) and codex scores 2/4 (plan stated, verification only). The evaluation method must be response-only, not including echoed prompt compliance requirements.",
+      "files": [
+        "skills/benchmark/SKILL.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output includes a compliance scoring table or structured summary.",
+          "type": "contains_any",
+          "values": [
+            "Compliance",
+            "compliance",
+            "Score"
+          ]
+        },
+        {
+          "text": "Output scores claude higher than codex because claude met all 4 items.",
+          "type": "contains_all",
+          "values": [
+            "4/4",
+            "2/4"
+          ]
+        },
+        {
+          "text": "Output explicitly uses response-only evaluation method.",
+          "type": "contains_any",
+          "values": [
+            "response-only",
+            "response only",
+            "after the last code block",
+            "excluding echoed"
+          ]
+        },
+        {
+          "text": "Output lists all four compliance items for small size: plan stated, file list, role descriptions, verification.",
+          "type": "contains_all",
+          "values": [
+            "plan",
+            "file list",
+            "role descriptions",
+            "verification"
+          ]
+        },
+        {
+          "text": "Output does not give codex credit for file list or role descriptions that were absent.",
+          "type": "not_contains_any",
+          "values": [
+            "codex.*4/4",
+            "codex.*3/4"
+          ]
+        },
+        {
+          "text": "Output excludes compliance requirement delimiter content from scoring.",
+          "type": "contains_any",
+          "values": [
+            "delimiter",
+            "BEGIN COMPLIANCE",
+            "END COMPLIANCE",
+            "echoed prompt"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 60,
+      "name": "long-run-capture-decision-filter",
+      "prompt": "After shipping a high-route ForgeFlow task, the agent reviews artifacts for long-run capture. The task produced: brief.md with scope and route, implementation-notes.md with 3 successful refactoring steps, run-ledger.md with micro_spec PASS entries, and review-report.md with no issues found. The agent also remembers that the user mentioned preferring coffee over tea during a break, and the user said the code style looks nice. Produce only the eval-record.md content. Apply the long-run capture decision gate: only preserve learning that is reusable outside the current task.",
+      "expected_output": "An eval-record.md that captures the successful refactoring pattern as a reusable workflow pattern with evidence references, records the high-route completion outcome, and explicitly excludes the coffee preference, style compliment, and any session chatter. No evidence-less entries.",
+      "files": [
+        "skills/long-run/SKILL.md",
+        "templates/eval-record.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output includes an Outcome section with a concrete status.",
+          "type": "contains_any",
+          "values": [
+            "Outcome: success",
+            "Outcome: partial",
+            "Outcome",
+            "success"
+          ]
+        },
+        {
+          "text": "Output includes a Reusable Patterns or What Worked section with evidence references.",
+          "type": "contains_any",
+          "values": [
+            "Reusable Patterns",
+            "What Worked",
+            "reusable pattern"
+          ]
+        },
+        {
+          "text": "Output references concrete evidence from implementation-notes or run-ledger.",
+          "type": "contains_any",
+          "values": [
+            "implementation-notes",
+            "run-ledger",
+            "micro_spec"
+          ]
+        },
+        {
+          "text": "Output does not include session chatter, food preferences, or vague compliments.",
+          "type": "not_contains_any",
+          "values": [
+            "coffee",
+            "tea",
+            "looks nice",
+            "style looks nice",
+            "prefer coffee",
+            "user mentioned preferring"
+          ]
+        },
+        {
+          "text": "Output does not capture task status as a learning entry.",
+          "type": "not_contains_any",
+          "values": [
+            "task was completed",
+            "task completed successfully",
+            "feature X was completed"
+          ]
+        },
+        {
+          "text": "Output follows the eval-record template format with required sections.",
+          "type": "contains_any",
+          "values": [
+            "Outcome",
+            "What Worked",
+            "Recommendations"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 61,
+      "name": "plan-contract-first-medium-full",
+      "prompt": "You are planning a medium-full (raw_score 20.5) ForgeFlow task for a brownfield feature: adding WebSocket notifications to an existing Express.js + React app. The task affects 3 files across frontend and backend (server/routes.ts, client/hooks/useNotifications.ts, client/components/NotificationPanel.tsx). The brief requires cross-module interface consistency. Produce only the Contract-first traceability section of plan.md showing contracts, fulfills links, and verification plan entries for the WebSocket interface between server and client.",
+      "expected_output": "A contract-first traceability section with: a Contracts section defining the WebSocket message interface between server and client, fulfills links on tasks referencing requirement IDs, and Verification Plan entries for each contract. medium-full requires contracts and typed verification targets.",
+      "files": [
+        "skills/plan/SKILL.md",
+        "templates/plan.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output includes a Contracts section with interface definitions.",
+          "type": "contains_any",
+          "values": [
+            "Contracts",
+            "Contract",
+            "interface",
+            "Interface"
+          ]
+        },
+        {
+          "text": "Output defines the WebSocket message shape or protocol contract.",
+          "type": "contains_any",
+          "values": [
+            "WebSocket",
+            "websocket",
+            "message",
+            "notification"
+          ]
+        },
+        {
+          "text": "Output includes fulfills links referencing requirement IDs.",
+          "type": "contains_any",
+          "values": [
+            "fulfills",
+            "R1",
+            "R2",
+            "requirement"
+          ]
+        },
+        {
+          "text": "Output includes a Verification Plan with typed targets for the contract.",
+          "type": "contains_any",
+          "values": [
+            "Verification Plan",
+            "Verification",
+            "verify"
+          ]
+        },
+        {
+          "text": "Output mentions both server and client sides of the interface.",
+          "type": "contains_all",
+          "values": [
+            "server",
+            "client"
+          ]
+        },
+        {
+          "text": "Output records the route as medium (not small or high).",
+          "type": "contains",
+          "value": "medium"
+        }
+      ]
     }
   ]
 }
