@@ -259,3 +259,13 @@ Worktrees are local-only and should not be shared via git.
 
 ### Reporting
 ship-summary.md의 Worktree Metrics 섹션에서 worktree-metrics.jsonl을 요약하여 기록.
+
+### Telemetry Integration
+
+Worktree lifecycle events should also be recorded as telemetry events in `.forgeflow/telemetry/<task-id>.md` using `templates/telemetry-event.md` format:
+
+- `created` event → emit `stage_start` telemetry event with stage=execute and boundary_alert if fallback workaround is needed.
+- `merged` or `discarded` event → emit `stage_complete` telemetry event with stage=ship, including duration_seconds from worktree creation to cleanup.
+- `cleanup_failed` event → emit `stage_fail` telemetry event with failure_type from the error_category field.
+
+This allows the periodic metrics-dashboard summary to include worktree stability metrics alongside stage duration and failure distribution.

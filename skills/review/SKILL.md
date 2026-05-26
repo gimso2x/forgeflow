@@ -1,7 +1,7 @@
 ---
 name: review
 description: Perform independent ForgeFlow review. Use as /review or /forgeflow:review — either after execute (pipeline mode) or directly with external input (standalone mode).
-version: 0.4.0
+version: 0.5.0
 author: gimso2x
 validate_prompt: |
   Must preserve exact-output and dry-run constraints when requested.
@@ -308,6 +308,28 @@ Standalone mode and high/epic pipeline mode use role-based review. Each role has
 - `--focus <role>`: alias for `--type <role>`
 - **`--type` and `--focus` combined**: `--type` wins. `--focus` is ignored with a warning. Do not run two conflicting role sets.
 
+### Specialist Profiles
+
+Specialist profiles define focused review lenses tied to the `specialist` field in `brief.md` YAML frontmatter. When review reads `brief.md`, it extracts the specialist primary and secondary values and automatically applies the corresponding assertion sets below. These assertions supplement (not replace) the standard reviewer role checklists.
+
+| Specialist | Focus | Key Assertions |
+|---|---|---|
+| security | 인증/권한/입력검증 | no hardcoded secrets, input sanitization, auth boundary checks, no eval/exec of untrusted input |
+| ux | UI/문구/접근성 | consistent terminology, a11y compliance, clear error messages, loading states for async operations |
+| perf | 성능/메모리/지연 | no N+1 queries, lazy load where appropriate, cache strategy documented, pagination/streaming for large datasets |
+| correctness | 로직/에러처리/엣지케이스 | edge cases covered, error propagation complete, idempotency where required, no unchecked error paths |
+| maintainability | 구조/네이밍/중복 | DRY adherence, single responsibility, naming convention consistency, no unnecessary abstractions |
+
+**Specialist assertion application logic**:
+
+1. Read `brief.md` YAML frontmatter `specialist.primary` and `specialist.secondary`.
+2. For each non-`none` specialist value, activate the corresponding assertion set from the table above.
+3. Assertions from specialist profiles are **mandatory** — every activated assertion must be checked and explicitly recorded in findings.
+4. Primary specialist assertions are checked first and carry higher weight in severity classification.
+5. Secondary specialist assertions supplement the primary lens; they use the same severity scale but are advisory if they conflict with primary findings.
+6. Record activated specialist profile(s) in `review-report.md` → `specialist_profile` frontmatter field, including the count of assertions applied.
+7. If `brief.md` has no specialist field or both values are `none`, skip specialist assertions and rely on standard reviewer role checklists only.
+
 ### Cross-role conflict handling
 
 When two roles produce conflicting findings:
@@ -361,6 +383,40 @@ Write `review-report.md` (schema: review-report/v2, from `templates/review-repor
 ## Review Rubrics
 
 These rubrics are applied directly during review. Separate spec and quality reviews use their respective rubrics.
+
+### Scope Boundary Verification
+
+Review 시 scope_boundary 위반을 탐지하고 advisory를 발행합니다.
+
+#### Verification procedure
+
+1. **Read scope_boundary from brief.md**: Extract `files_planned`, `files_limit`, and `boundary_status` from brief.md YAML frontmatter.
+2. **Identify actually modified files**: Use `git diff --name-only` (or equivalent) to get the list of files actually changed during execute.
+3. **Compare planned vs actual**:
+   - `files_in_scope`: files that were in the planned scope (brief.md scope_files)
+   - `files_out_of_scope`: files modified but NOT in the planned scope
+4. **Route threshold check**: Verify that the total modified file count does not exceed the route threshold (small ≤3, medium ≤8, high ≤20, epic unlimited).
+5. **Record violations**: For each out-of-scope file, record `file` path and `reason` (why it is out of scope).
+
+#### Advisory issuance
+
+- If `files_out_of_scope > 0`: Issue a **major** finding with category `spec-compliance`, description "scope creep 의심: N files modified outside planned scope", listing each violating file.
+- If total modified files exceed route threshold: Issue an advisory "scope split 권장 — route 임계값 초과" in findings.
+- If boundary is clean (no violations): Record `scope_boundary.violations` as empty in review-report.md.
+
+#### review-report.md scope_boundary field
+
+Write the scope_boundary verification results to review-report.md YAML frontmatter:
+```yaml
+scope_boundary:
+  files_in_scope: <!-- N -->
+  files_out_of_scope: <!-- N -->
+  violations:
+    - file: <!-- path -->
+      reason: <!-- why out of scope -->
+```
+
+This field is mandatory for pipeline mode reviews. For standalone mode, scope_boundary may be omitted.
 
 ### Spec Review
 
@@ -582,6 +638,7 @@ Do not enter standalone mode if pipeline artifacts exist, even if the user provi
 1. Read `checkpoint.md` when present, then `_shared/preflight.md` minimum read set. Read `brief.md` Acceptance Criteria and route — not necessarily the full brief unless scope is disputed.
 2. Review from artifacts and code, not worker vibes.
 3. Check scope coverage and acceptance criteria, including every fulfills, journey, and verification plan target from the plan.
+3b. **Scope Boundary Verification** (see Scope Boundary Verification above): Read scope_boundary from brief.md, identify actually modified files, compare planned vs actual, and check route threshold. Record violations in review-report.md frontmatter scope_boundary field. Issue advisory if scope creep detected.
 4. Start with blocker elimination: missing artifacts, missing observed evidence, failed verification, or unresolved open blockers force `blocked` or `changes_requested` before minor findings are considered.
 5. **Run the test suite** (see Test verification gate above). If any test fails, verdict MUST be `changes_requested`.
 6. Run or inspect other verification (lint, type check, build) if the user allowed command execution.

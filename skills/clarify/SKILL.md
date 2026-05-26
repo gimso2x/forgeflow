@@ -1,7 +1,7 @@
 ---
 name: clarify
 description: Turn a vague request into a scoped ForgeFlow brief and route decision. Bootstraps task workspace if missing. Use when the user types /clarify or /forgeflow:clarify, or first for new implementation/refactor/debug requests unless the user already provided a complete brief.
-version: 0.5.0
+version: 0.6.0
 author: gimso2x
 intent: "Analyze the user request, repository context, route, specialists, and verification gates, then write a scoped brief."
 inputs:
@@ -85,12 +85,14 @@ Additionally, produce:
 - Objective (one-sentence goal)
 - WHERE/context grounding for non-trivial work
 - In Scope / Out of Scope boundary
+- Scope boundary (files_planned, files_limit by route threshold, boundary_status: within|at_limit|exceeds)
 - Constraints
 - Acceptance Criteria
 - Risk Level
 - Assumptions (including bounded assumptions for non-blocking unknowns)
 - Open Questions (blocker vs non-blocking)
 - Specialists (required, skipped, skip rationale)
+- Specialist profile (primary, secondary, rationale — review verification perspective, separate from route)
 - Verification Gates (auto-detected from tech stack)
 - Environment Notes (git status, dependency check, tech stack detected)
 - Route selection and rationale
@@ -176,6 +178,31 @@ Situation rules:
 
 For exact-count, dry-run, or response-only prompts, do not force the WHERE interview. Obey the requested output exactly.
 
+## Scope Boundary Definition
+
+clarify 단계에서 scope boundary를 명시적으로 정의하여 scope creep을 방지합니다.
+
+### scope_files 목록 생성
+
+clarify에서는 예상 수정 파일 목록(`scope_files`)을 명시적으로 생성합니다:
+
+1. 요구사항 분석 후 직접적으로 수정이 필요한 파일 나열
+2. 각 파일의 수정 이유를 In Scope 항목과 매핑
+3. scope_files 수를 route 임계값과 비교하여 `boundary_status` 산정
+
+### Route 임계값과 boundary alert
+
+| Route | files_limit | boundary_status 기준 |
+|-------|-------------|---------------------|
+| small | 3 | files_planned ≤ 3 → within, = 3 → at_limit, > 3 → exceeds |
+| medium | 8 | files_planned ≤ 8 → within, = 8 → at_limit, > 8 → exceeds |
+| high | 20 | files_planned ≤ 20 → within, = 20 → at_limit, > 20 → exceeds |
+| epic | unlimited | boundary_status 항상 within |
+
+- `boundary_status = exceeds` 시 brief.md에 경고 기록 및 "scope split 권장" advisory 발행
+- `boundary_status = at_limit` 시 주의 표시 (경고는 아님)
+- scope_boundary 정보를 brief.md YAML frontmatter에 기록
+
 ## Procedure
 
 1. **Bootstrap task workspace if missing**: If no active task directory exists (no `.forgeflow/tasks/<task-id>/` found), generate a task ID (see Task ID generation above) or use `--task-id` if provided, and create `.forgeflow/tasks/<task-id>/`. Do not overwrite if `brief.md` already exists — report that it was kept as-is.
@@ -252,14 +279,29 @@ For exact-count, dry-run, or response-only prompts, do not force the WHERE inter
    | "릴리즈", "ship", "배포" | Prefer `/forgeflow:ship` only after review evidence exists. |
    | "대규모", "milestone", "epic" | Consider `epic` and `/forgeflow:plan` with epic decomposition; do not force it without scope evidence. |
 
-7. Select specialists based on task nature:
-   - Auth/Encryption/External Input -> `security-review`
-   - UI/Accessibility/User Flow -> `ux-review`
-   - Response time/Memory/Large data -> `perf-review`
-   - Frontend focused -> `frontend-execute`
-   - Backend/API/DB -> `backend-execute`
-   - Infra/Deployment/IaC -> `infra-execute`
-   - List skipped specialists and provide a skip rationale.
+7. Select specialist based on task nature (separate from route):
+   Route determines scope size (small/medium/high/epic). Specialist determines the review verification perspective.
+
+   **Specialist selection criteria** (pick primary and optionally secondary):
+   - 인증/권한/비밀번호/입력검증 → `security`
+   - UI/문구/접근성/사용자흐름 → `ux`
+   - 성능/메모리/지연/대규모데이터 → `perf`
+   - 로직/에러처리/엣지케이스 → `correctness`
+   - 구조/네이밍/중복/복잡도 → `maintainability`
+   - 명확한 해당 없음 → `none`
+
+   Write the specialist field to `brief.md` YAML frontmatter:
+   ```yaml
+   specialist:
+     primary: none | security | ux | perf | correctness | maintainability
+     secondary: none | security | ux | perf | correctness | maintainability
+     rationale: "<why this specialist is needed>"
+   ```
+
+   - Primary specialist is the dominant review lens. Secondary adds a supplementary perspective.
+   - When the task touches multiple domains equally, assign the higher-risk domain as primary.
+   - `none` means no specialized review lens; standard quality review applies.
+   - Record rationale as a one-line explanation of why the specialist was chosen.
 
 8. Set verification gates in the brief:
    - `small`: at least one of `build`, `lint`, or `type_check` — whichever is available and fastest.

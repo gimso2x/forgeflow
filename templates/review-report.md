@@ -2,6 +2,16 @@
 schema_version: v2
 input_mode: post-execute | standalone
 evidence_source: ""
+specialist_profile:
+  primary: <!-- specialist name or none -->
+  secondary: <!-- specialist name or none -->
+  assertions_applied: <!-- count -->
+scope_boundary:
+  files_in_scope: <!-- N -->
+  files_out_of_scope: <!-- N -->
+  violations:
+    - file: <!-- path -->
+      reason: <!-- why out of scope -->
 ---
 
 # 리뷰 보고서 (Review Report)

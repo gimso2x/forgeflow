@@ -1,7 +1,7 @@
 ---
 name: long-run
 description: Record reusable learnings after high or epic route completion. Produces eval-record.md with evidence-backed reusable patterns, failure rules, and improvement suggestions. High/epic route only unless manually invoked. Use when the user types /long-run or /forgeflow:long-run.
-version: 0.4.0
+version: 0.5.0
 author: gimso2x
 dependencies:
   - skills/_shared/discipline.md
@@ -60,7 +60,9 @@ Do not capture:
 
 | Artifact | Template | Description |
 |----------|----------|-------------|
-| `eval-record.md` | `templates/eval-record.md` | Evidence-backed learning record with outcome, patterns, failure rules |
+|| `eval-record.md` | `templates/eval-record.md` | Evidence-backed learning record with outcome, patterns, failure rules |
+|| `telemetry-event.md` | `templates/telemetry-event.md` | Per-task event log (stage transitions, token usage, boundary alerts) |
+|| `metrics-dashboard.md` | `templates/metrics-dashboard.md` | Aggregated period report (stage duration, failure distribution, token cost, route distribution) |
 
 Write `.forgeflow/tasks/<task-id>/eval-record.md` following the format in `templates/eval-record.md`:
 
@@ -74,6 +76,27 @@ Write `.forgeflow/tasks/<task-id>/eval-record.md` following the format in `templ
 - **Evolution Rule Candidates**: optional candidate notes for recurring workflow rules; long-run records candidates only and does not write `.forgeflow/evolution/proposed/` files directly
 
 Every entry must be specific enough that a future agent can act on it without additional context.
+
+## Telemetry Collection
+
+Long-run is responsible for writing per-task telemetry events and generating periodic summary reports.
+
+### Per-task event log
+
+Write `.forgeflow/telemetry/<task-id>.md` following `templates/telemetry-event.md`:
+
+- Record one event block per stage transition (stage_start, stage_complete, stage_fail).
+- Record token_usage events when token counts are available from the adapter.
+- Record boundary_alert events when route boundaries or isolation safety rules are triggered.
+- Each event block includes: event type, stage, duration, tokens used, model, adapter, route, specialist, outcome, and failure_type.
+
+### Periodic summary report
+
+Generate `.forgeflow/telemetry/summary.md` following `templates/metrics-dashboard.md`:
+
+- Aggregate telemetry events across tasks within a reporting period (weekly or monthly).
+- Compute stage duration percentiles (p50, p90), failure distribution, token cost by adapter, worktree stability, and route distribution.
+- Overwrite the previous summary or create a new period-specific file.
 
 ## Relationship to memory
 

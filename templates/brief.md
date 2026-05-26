@@ -1,3 +1,17 @@
+---
+schema: brief/v2
+task_id: <!-- TASK_ID -->
+route: <!-- small|medium|high|epic -->
+specialist:
+  primary: <!-- none|security|ux|perf|correctness|maintainability -->
+  secondary: <!-- none|security|ux|perf|correctness|maintainability -->
+  rationale: <!-- why -->
+scope_boundary:
+  files_planned: <!-- N -->
+  files_limit: <!-- route에 따른 임계값 (small=3, medium=8, high=20, epic=unlimited) -->
+  boundary_status: <!-- within | at_limit | exceeds -->
+---
+
 # 컨텍스트 브리프 (Context Brief)
 
 <!-- ForgeFlow brief template. Fill each section during clarify. -->
@@ -67,6 +81,13 @@
 <!-- Suggested specialists: advisory candidates from request keywords and repo context -->
 <!-- Skipped: (none | list) -->
 <!-- Skip rationale: -->
+
+## specialist 프로필 (Specialist Profile)
+<!-- Specialist determines the review verification perspective, separate from route scope. -->
+<!-- Read from YAML frontmatter specialist field. -->
+<!-- primary: dominant review lens -->
+<!-- secondary: supplementary review perspective -->
+<!-- rationale: why this specialist was selected -->
 
 ## 작업량 메모 (Budget Note)
 <!-- Advisory only: expected size/complexity, e.g. small single-file, medium coordinated files, high multi-component, epic milestone-scale -->

@@ -4732,6 +4732,584 @@
           "value": "schema: project-draft/v1"
         }
       ]
+    },
+    {
+      "id": 71,
+      "name": "specialist-security-assertions",
+      "prompt": "A ForgeFlow brief.md has specialist primary set to security, secondary set to none. The task involves adding a JWT authentication middleware to an Express API. Produce only the review-report.md frontmatter specialist_profile section and the specialist-driven findings for the security specialist profile assertions. Do not fabricate code — describe the assertion checks that the specialist profile mandates.",
+      "expected_output": "A specialist_profile frontmatter showing primary: security, secondary: none, assertions_applied count, and findings that verify no hardcoded secrets, input sanitization, auth boundary checks, and no eval/exec of untrusted input.",
+      "files": [
+        "skills/review/SKILL.md",
+        "templates/review-report.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output includes specialist_profile with primary set to security.",
+          "type": "contains_all",
+          "values": [
+            "specialist_profile",
+            "security"
+          ]
+        },
+        {
+          "text": "Output includes assertions_applied with a numeric count.",
+          "type": "contains",
+          "value": "assertions_applied"
+        },
+        {
+          "text": "Output checks for hardcoded secrets assertion.",
+          "type": "contains_any",
+          "values": [
+            "hardcoded secrets",
+            "no hardcoded secrets",
+            "hardcoded"
+          ]
+        },
+        {
+          "text": "Output checks for input sanitization assertion.",
+          "type": "contains_any",
+          "values": [
+            "input sanitization",
+            "sanitization",
+            "input validation"
+          ]
+        },
+        {
+          "text": "Output checks for auth boundary assertion.",
+          "type": "contains_any",
+          "values": [
+            "auth boundary",
+            "authentication boundary",
+            "auth boundary checks"
+          ]
+        },
+        {
+          "text": "Output checks for no eval/exec of untrusted input.",
+          "type": "contains_any",
+          "values": [
+            "eval",
+            "untrusted input",
+            "exec"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 72,
+      "name": "specialist-none-default-review",
+      "prompt": "A ForgeFlow brief.md has specialist primary set to none and secondary set to none. The task is a simple documentation update to a README file. Produce only the review-report.md frontmatter specialist_profile section and explain which review checks apply. No specialist assertions should be activated.",
+      "expected_output": "A specialist_profile showing primary: none, secondary: none, assertions_applied: 0, and an explanation that standard quality-reviewer checklist applies without specialist-driven assertions.",
+      "files": [
+        "skills/review/SKILL.md",
+        "templates/review-report.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output includes specialist_profile with primary set to none.",
+          "type": "contains_all",
+          "values": [
+            "specialist_profile",
+            "none"
+          ]
+        },
+        {
+          "text": "Output shows assertions_applied as 0.",
+          "type": "contains",
+          "value": "0"
+        },
+        {
+          "text": "Output explains that standard quality review applies without specialist assertions.",
+          "type": "contains_any",
+          "values": [
+            "standard quality",
+            "quality-reviewer",
+            "without specialist",
+            "no specialist assertions"
+          ]
+        },
+        {
+          "text": "Output does not activate security, ux, perf, correctness, or maintainability specialist assertions.",
+          "type": "not_contains_any",
+          "values": [
+            "security specialist",
+            "ux specialist",
+            "perf specialist",
+            "correctness specialist",
+            "maintainability specialist",
+            "specialist assertions activated"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 73,
+      "name": "specialist-dual-profile",
+      "prompt": "A ForgeFlow brief.md has specialist primary set to correctness and secondary set to ux. The task involves refactoring a form validation module with user-facing error messages. Produce only the review-report.md frontmatter specialist_profile section and the combined specialist-driven findings. Show assertions from both profiles.",
+      "expected_output": "A specialist_profile with primary: correctness, secondary: ux, assertions_applied count reflecting both profiles, and findings covering edge cases, error propagation, idempotency, consistent terminology, a11y, and clear error messages.",
+      "files": [
+        "skills/review/SKILL.md",
+        "templates/review-report.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output includes specialist_profile with primary correctness and secondary ux.",
+          "type": "contains_all",
+          "values": [
+            "correctness",
+            "ux"
+          ]
+        },
+        {
+          "text": "Output includes assertions_applied with a count greater than 0.",
+          "type": "contains",
+          "value": "assertions_applied"
+        },
+        {
+          "text": "Output checks correctness assertions: edge cases, error propagation.",
+          "type": "contains_any",
+          "values": [
+            "edge cases",
+            "error propagation",
+            "idempotency"
+          ]
+        },
+        {
+          "text": "Output checks ux assertions: consistent terminology, a11y, clear error messages.",
+          "type": "contains_any",
+          "values": [
+            "consistent terminology",
+            "a11y",
+            "clear error messages",
+            "loading states"
+          ]
+        },
+        {
+          "text": "Output distinguishes primary (correctness) from secondary (ux) assertions.",
+          "type": "contains_any",
+          "values": [
+            "primary",
+            "secondary",
+            "Primary",
+            "Secondary"
+          ]
+        },
+        {
+          "text": "Output includes findings or checks from both specialist profiles, not just one.",
+          "type": "contains_all",
+          "values": [
+            "edge cases",
+            "terminology"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 74,
+      "name": "telemetry-event-schema-validation",
+      "prompt": "A ForgeFlow high-route task with id telemetry-eval-001 completed the clarify stage in 45 seconds using 1200 tokens on claude adapter with model claude-sonnet-4-20250514. It then completed the execute stage in 320 seconds using 8500 tokens with a specialist api-specialist. The review stage passed in 60 seconds using 2000 tokens. Produce a complete telemetry event log following templates/telemetry-event.md format with all three stage_complete events plus the initial stage_start event. Use realistic ISO 8601 timestamps. Fill in all fields from the template; do not leave any placeholder comments.",
+      "expected_output": "A valid telemetry-event.md with YAML frontmatter (schema: telemetry-event/v1, task_id), Events section containing stage_start and stage_complete entries, and all required fields per event: event, stage, duration_seconds, tokens_used, model, adapter, route, specialist, outcome, failure_type.",
+      "files": [
+        "templates/telemetry-event.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output includes YAML frontmatter with schema: telemetry-event/v1.",
+          "type": "contains",
+          "value": "schema: telemetry-event/v1"
+        },
+        {
+          "text": "Output includes task_id in frontmatter.",
+          "type": "contains",
+          "value": "task_id:"
+        },
+        {
+          "text": "Output includes a Telemetry Event Log heading.",
+          "type": "contains",
+          "value": "Telemetry Event Log"
+        },
+        {
+          "text": "Output includes Events section heading.",
+          "type": "contains",
+          "value": "## Events"
+        },
+        {
+          "text": "Output includes at least one stage_start event.",
+          "type": "contains",
+          "value": "stage_start"
+        },
+        {
+          "text": "Output includes at least one stage_complete event.",
+          "type": "contains",
+          "value": "stage_complete"
+        },
+        {
+          "text": "Output uses valid event types only (stage_start, stage_complete, stage_fail, token_usage, boundary_alert).",
+          "type": "contains_any",
+          "values": [
+            "stage_start",
+            "stage_complete",
+            "stage_fail",
+            "token_usage",
+            "boundary_alert"
+          ]
+        },
+        {
+          "text": "Output uses valid stage names only (clarify, plan, execute, review, ship).",
+          "type": "contains_any",
+          "values": [
+            "clarify",
+            "plan",
+            "execute",
+            "review",
+            "ship"
+          ]
+        },
+        {
+          "text": "Output includes duration_seconds field with numeric value.",
+          "type": "contains",
+          "value": "duration_seconds"
+        },
+        {
+          "text": "Output includes tokens_used field with numeric value.",
+          "type": "contains",
+          "value": "tokens_used"
+        },
+        {
+          "text": "Output includes adapter field with valid value (claude, codex, gemini, cursor).",
+          "type": "contains_any",
+          "values": [
+            "claude",
+            "codex",
+            "gemini",
+            "cursor"
+          ]
+        },
+        {
+          "text": "Output includes route field with valid value (small, medium, high, epic).",
+          "type": "contains",
+          "value": "route:"
+        },
+        {
+          "text": "Output includes outcome field with valid value (success, partial, failed).",
+          "type": "contains_any",
+          "values": [
+            "success",
+            "partial",
+            "failed"
+          ]
+        },
+        {
+          "text": "Output includes failure_type field.",
+          "type": "contains",
+          "value": "failure_type"
+        },
+        {
+          "text": "Output includes model field.",
+          "type": "contains",
+          "value": "model:"
+        },
+        {
+          "text": "Output includes specialist field.",
+          "type": "contains",
+          "value": "specialist:"
+        }
+      ]
+    },
+    {
+      "id": 75,
+      "name": "metrics-dashboard-schema-validation",
+      "prompt": "A ForgeFlow project ran 24 tasks over the past week: 10 small (avg 2min), 8 medium (avg 15min), 4 high (avg 45min), 2 epic (avg 120min). Failures: 3 timeout, 1 merge_conflict, 1 dependency_install_failed. Token usage: claude avg 5200/task, codex avg 3800/task, gemini avg 4100/task. Worktree success rate 91%, avg cleanup 12s. Produce a complete metrics-dashboard.md following templates/metrics-dashboard.md format with all sections filled in. Do not leave any placeholder comments. Use realistic computed values.",
+      "expected_output": "A valid metrics-dashboard.md with YAML frontmatter (schema: metrics-dashboard/v1, period, total_tasks, generated), Stage Duration table with p50/p90 columns, Failure Distribution table, Token Cost by Adapter table, Worktree Stability section, and Route Distribution table.",
+      "files": [
+        "templates/metrics-dashboard.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output includes YAML frontmatter with schema: metrics-dashboard/v1.",
+          "type": "contains",
+          "value": "schema: metrics-dashboard/v1"
+        },
+        {
+          "text": "Output includes period field in frontmatter.",
+          "type": "contains",
+          "value": "period:"
+        },
+        {
+          "text": "Output includes total_tasks field in frontmatter.",
+          "type": "contains",
+          "value": "total_tasks:"
+        },
+        {
+          "text": "Output includes generated field in frontmatter.",
+          "type": "contains",
+          "value": "generated:"
+        },
+        {
+          "text": "Output includes ForgeFlow Metrics heading.",
+          "type": "contains",
+          "value": "ForgeFlow Metrics"
+        },
+        {
+          "text": "Output includes Stage Duration section with p50 and p90 columns.",
+          "type": "contains_all",
+          "values": [
+            "Stage Duration",
+            "p50",
+            "p90"
+          ]
+        },
+        {
+          "text": "Output includes all five stages in Stage Duration table.",
+          "type": "contains_all",
+          "values": [
+            "clarify",
+            "plan",
+            "execute",
+            "review",
+            "ship"
+          ]
+        },
+        {
+          "text": "Output includes Failure Distribution section with Count and Rate columns.",
+          "type": "contains_all",
+          "values": [
+            "Failure Distribution",
+            "Count",
+            "Rate"
+          ]
+        },
+        {
+          "text": "Output includes failure types from the input data.",
+          "type": "contains_any",
+          "values": [
+            "timeout",
+            "merge_conflict",
+            "dependency_install_failed"
+          ]
+        },
+        {
+          "text": "Output includes Token Cost by Adapter section.",
+          "type": "contains",
+          "value": "Token Cost by Adapter"
+        },
+        {
+          "text": "Output includes adapter token data with Avg tokens/task and Total columns.",
+          "type": "contains_all",
+          "values": [
+            "Avg tokens/task",
+            "Total"
+          ]
+        },
+        {
+          "text": "Output includes Worktree Stability section.",
+          "type": "contains",
+          "value": "Worktree Stability"
+        },
+        {
+          "text": "Output includes worktree success rate and cleanup time.",
+          "type": "contains_all",
+          "values": [
+            "Success rate",
+            "Avg cleanup time"
+          ]
+        },
+        {
+          "text": "Output includes Route Distribution section.",
+          "type": "contains",
+          "value": "Route Distribution"
+        },
+        {
+          "text": "Output includes all four routes in Route Distribution table.",
+          "type": "contains_all",
+          "values": [
+            "small",
+            "medium",
+            "high",
+            "epic"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 76,
+      "name": "scope-boundary-small-exceeds",
+      "prompt": "A small-route ForgeFlow task was planned to modify 3 files (src/app.ts, src/utils.ts, src/app.test.ts). During execute, 5 files were actually modified: src/app.ts, src/utils.ts, src/app.test.ts, src/config.ts, src/helpers.ts. brief.md scope_boundary shows files_planned=3, files_limit=3, boundary_status=exceeds. Produce only the Scope Boundary Verification section of review-report.md with the scope_boundary frontmatter field and a scope creep advisory finding.",
+      "expected_output": "A scope boundary section that identifies 2 out-of-scope files (src/config.ts, src/helpers.ts), records violations in the scope_boundary field, issues a major spec-compliance finding for scope creep, and recommends scope split.",
+      "files": [
+        "skills/review/SKILL.md",
+        "skills/_shared/discipline.md",
+        "templates/review-report.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output includes scope_boundary field with files_in_scope and files_out_of_scope counts.",
+          "type": "contains_all",
+          "values": [
+            "files_in_scope",
+            "files_out_of_scope"
+          ]
+        },
+        {
+          "text": "Output identifies the out-of-scope files (src/config.ts and src/helpers.ts).",
+          "type": "contains_all",
+          "values": [
+            "src/config.ts",
+            "src/helpers.ts"
+          ]
+        },
+        {
+          "text": "Output records violations list with file paths and reasons.",
+          "type": "contains",
+          "value": "violations"
+        },
+        {
+          "text": "Output issues a scope creep advisory or finding.",
+          "type": "contains_any",
+          "values": [
+            "scope creep",
+            "scope_boundary",
+            "boundary"
+          ]
+        },
+        {
+          "text": "Output classifies the boundary violation as major or spec-compliance severity.",
+          "type": "contains_any",
+          "values": [
+            "major",
+            "spec-compliance",
+            "exceeds"
+          ]
+        },
+        {
+          "text": "Output references the small route threshold (3 files).",
+          "type": "contains_any",
+          "values": [
+            "small",
+            "3",
+            "threshold"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 77,
+      "name": "scope-boundary-within-no-violations",
+      "prompt": "A medium-route ForgeFlow task was planned to modify 5 files. During execute, exactly those 5 files were modified: src/api.ts, src/api.test.ts, src/routes.ts, src/routes.test.ts, docs/api.md. brief.md scope_boundary shows files_planned=5, files_limit=8, boundary_status=within. Produce only the Scope Boundary Verification section of review-report.md with the scope_boundary frontmatter field showing clean boundary.",
+      "expected_output": "A scope boundary section that confirms all 5 files are in scope, files_out_of_scope is 0, violations list is empty, and no boundary advisory is needed.",
+      "files": [
+        "skills/review/SKILL.md",
+        "templates/review-report.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output includes scope_boundary field with files_in_scope set to 5.",
+          "type": "contains",
+          "value": "files_in_scope"
+        },
+        {
+          "text": "Output shows files_out_of_scope as 0 or empty.",
+          "type": "contains_any",
+          "values": [
+            "files_out_of_scope",
+            "0"
+          ]
+        },
+        {
+          "text": "Output shows violations as empty or none.",
+          "type": "contains_any",
+          "values": [
+            "violations: []",
+            "violations:",
+            "no violations",
+            "none"
+          ]
+        },
+        {
+          "text": "Output confirms boundary_status is within.",
+          "type": "contains",
+          "value": "within"
+        },
+        {
+          "text": "Output does NOT issue a scope creep advisory.",
+          "type": "not_contains_any",
+          "values": [
+            "scope creep",
+            "scope creep 의심"
+          ]
+        },
+        {
+          "text": "Output confirms the medium route threshold is not exceeded.",
+          "type": "contains_any",
+          "values": [
+            "medium",
+            "8",
+            "threshold",
+            "within"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 78,
+      "name": "scope-boundary-medium-exceeds-split",
+      "prompt": "A medium-route ForgeFlow task was planned to modify 7 files. During execute, 10 files were actually modified: the 7 planned files plus src/db/migration.ts, src/db/seeds.ts, src/db/config.ts. brief.md scope_boundary shows files_planned=7, files_limit=8, boundary_status=exceeds. Produce only the Scope Boundary Verification section of review-report.md with the scope_boundary frontmatter field, scope creep advisory, and scope split recommendation.",
+      "expected_output": "A scope boundary section that identifies 3 out-of-scope files (all db/* files), records violations, issues a scope creep advisory with spec-compliance finding, and recommends scope split because the medium route threshold (8) is exceeded.",
+      "files": [
+        "skills/review/SKILL.md",
+        "skills/_shared/discipline.md",
+        "templates/review-report.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output includes scope_boundary field with files_in_scope and files_out_of_scope counts.",
+          "type": "contains_all",
+          "values": [
+            "files_in_scope",
+            "files_out_of_scope"
+          ]
+        },
+        {
+          "text": "Output identifies the out-of-scope db files.",
+          "type": "contains_any",
+          "values": [
+            "src/db/migration.ts",
+            "src/db/seeds.ts",
+            "src/db/config.ts",
+            "db/"
+          ]
+        },
+        {
+          "text": "Output issues a scope split recommendation.",
+          "type": "contains_any",
+          "values": [
+            "scope split",
+            "split",
+            "분할"
+          ]
+        },
+        {
+          "text": "Output records boundary_status as exceeds.",
+          "type": "contains",
+          "value": "exceeds"
+        },
+        {
+          "text": "Output references the medium route threshold.",
+          "type": "contains_any",
+          "values": [
+            "medium",
+            "8",
+            "threshold"
+          ]
+        },
+        {
+          "text": "Output classifies the finding as major or spec-compliance.",
+          "type": "contains_any",
+          "values": [
+            "major",
+            "spec-compliance"
+          ]
+        }
+      ]
     }
   ]
 }

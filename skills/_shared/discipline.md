@@ -27,3 +27,29 @@ Each skill links here and adds skill-specific rules inline.
 - When the user asks for an exact count, exact format, or "only" output, that instruction overrides the normal artifact template. Return exactly what was requested and nothing extra.
 - When the user says "do not run commands", do not propose command execution as if it happened. You may name a manual check, but label it as manual inspection, not a command result.
 - For exact-count list prompts, output numbered lines only. No heading, preamble, fenced block, summary, or extra lines.
+
+## Scope Boundary
+
+### In Scope (명시적 허용)
+- 요구사항에 명시된 기능/수정
+- 직접적 의존 파일
+- 관련 테스트 파일
+- 관련 문서 업데이트
+
+### Out of Scope (명시적 거부 필요)
+- 요구사항에 없는 리팩토링
+- 인접 모듈 "개선"
+- 의존성 버전 업그레이드
+- 포맷팅/스타일 변경 (별도 태스크가 아닌 경우)
+- "어차피 건드리니까" 식의 확장
+
+### Boundary Judgment Criteria
+- 파일 수정 범위가 route 임계값 초과 시 자동 경고
+- scope 파일 수: small ≤3, medium ≤8, high ≤20, epic 무제한
+- 초과 시 "scope split 권장" advisory 발행
+- boundary 판단은 사람 해석에 의존하지 않고 파일 수/경로 기준으로 자동 산정
+
+### Scope Expansion Alert
+- execute 중 scope 파일 수가 route 임계값을 초과하면 경고
+- review에서 scope boundary 위반을 탐지
+- advisory로 "scope creep 의심" 발행
