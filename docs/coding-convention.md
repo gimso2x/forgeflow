@@ -7,13 +7,6 @@
 
 가독성, 예측 가능성, 응집도, 결합도의 4가지 기준과 인라인 코드 예시는 → [`coding-convention/quality-criteria.md`](coding-convention/quality-criteria.md)
 
-## 기본 원칙
-
-- 패키지 매니저는 pnpm만 사용합니다.
-- lint / format 표준은 ESLint + Prettier를 사용합니다.
-- TanStack Router 파일 기반 라우팅 규칙을 따릅니다.
-- 자동 생성 파일 (`src/routeTree.gen.ts`)은 직접 수정하지 않습니다.
-
 ## 파일 / 코드 규칙
 
 - 파일명은 kebab-case를 사용합니다.
