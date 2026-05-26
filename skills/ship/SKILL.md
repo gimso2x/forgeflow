@@ -380,7 +380,7 @@ git branch -D <feature-branch>
 
 ## Safety rules
 
-- **`--auto` does not skip any branch disposition confirmations.** The 4-option choice (merge/PR/keep/discard) and the exact `discard` confirmation always require explicit user input, even when `--auto` is active (see `_shared/automation.md`). However, `--auto` DOES automate everything before branch disposition: ship-summary, evolution rules, artifact preservation, and verification all proceed without stopping. The only mandatory human checkpoint in ship under `--auto` is the branch disposition 4-option prompt.
+- **`--auto` does not skip any branch disposition confirmations.** However, `--auto` DOES automate everything before branch disposition: ship-summary, evolution rules, artifact preservation, and verification all proceed without stopping. **Under `--auto`**, branch disposition defaults to "Merge locally" — execute the merge and worktree cleanup automatically without presenting the 4-option prompt. Only present the 4-option choice when `--auto` is NOT active. The `discard` confirmation always requires exact `discard` input regardless of auto mode.
 - Never run `git reset --hard` as a shortcut for finishing.
 - Never run `git clean -fd` unless the user explicitly named the exact disposable paths.
 - Never force-push as part of ship unless explicitly requested.

@@ -36,7 +36,7 @@ The agent must **stop and wait for user input** when any of these occur, even un
 - **Failed verification**: build, lint, type_check, or test failure that the bounded fix loop cannot resolve
 - **Blockers**: unresolved open questions or missing dependencies in `brief.md`
 - **Review verdict: `changes_requested`**: must present findings and wait for user direction before re-executing
-- **Destructive actions**: ship branch-disposition discard confirmation, force-push, branch deletion
+- **Destructive actions**: ship branch-disposition discard confirmation (always requires exact `discard` input), force-push, branch deletion — note: "Merge locally" under `--auto` is NOT destructive and does not require confirmation
 - **Ambiguous route or scope change**: when the request no longer matches the original brief (see Scope change under --auto)
 - **Missing required artifact**: any mandatory artifact that could not be produced
 - **External dependency hard failure**: required external call (API, credential, service) fails and no brief-approved fallback exists — record blocker in `checkpoint.md` and stop; do not silently substitute a workaround and continue coding
@@ -46,7 +46,7 @@ The agent must **stop and wait for user input** when any of these occur, even un
 
 - Safety confirmations for `--real` external execution
 - Discard confirmation in ship branch disposition (always requires exact `discard` input)
-- The 4-option choice in ship branch disposition (merge/PR/keep/discard)
+- The 4-option choice in ship branch disposition — only when NOT `--auto`. Under `--auto`, default to "Merge locally" and proceed without prompting (see ship completion below).
 - Quality improvement loop-back in `ship` (if issues found, ask before returning to execute)
 
 ## Strict auto-chain mode
@@ -112,7 +112,7 @@ Complete **all** items before invoking the next stage or editing code outside th
 |------|----------|
 | Artifact | `ship-summary.md` with verification table and handoff |
 | Checkpoint | `Current Stage: ship` remains the terminal workflow stage while disposition completes |
-| Chain | After summary: present branch disposition 4-option choice (always user input) |
+| Chain | After summary: **under `--auto`** → default to "Merge locally" and execute merge + worktree cleanup without prompting. **without `--auto`** → present 4-option choice. |
 | Allowed stop | merge/PR/keep/discard choice; discard exact confirmation; ship quality loop-back `(y/n)` |
 
 ### Prompts forbidden under --auto
