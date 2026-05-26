@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-05-26
+
+### Added
+
+- **브랜치명 컨벤션**: task ID와 branch name 분리. `<type>/<YYYYMM>-<한글-설명>` 형식 적용 (예: `fix/202605-면적-슬라이더-정합`). 커밋 prefix가 `[fix/202605-면적-슬라이더-정합]` 형태로 프로젝트 컨벤션 정합
+- **execute step-boundary /clear 강제**: checkpoint에 `pending_clear` 상태 기록 + resume guard로 `/clear` 스킵 감지
+
+### Changed
+
+- **ship `--auto` 동작 개선**: worktree + auto면 로컬 병합 + cleanup 자동 진행 (4선지 프롬프트 제거). non-worktree는 커밋 후 완료 보고만 출력
+- **execute `--auto` 리뷰 자동 진행**: 완료 보고 후 `/forgeflow:review` 자동 invoke 명확화
+- **worktree cleanup 후 메인 리포지토리로 cd**: merge/discard cleanup 시 세션이 삭제된 경로에 머무는 문제 해결
+- **worktree 브랜치명에서 `ff/` 접두어 제거**: 가독성 개선, worktree 식별은 `git worktree list` 사용
+
+### Fixed
+
+- **worktree symlink 테스트 중복 수집**: `.forgeflow` symlink로 인해 Vitest/Jest가 중복 파일을 수집하는 문제. exclude 패턴 가이드 추가
+
 ## [1.3.5] - 2026-05-26
 
 ### Fixed
@@ -675,7 +693,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI gate with GitHub Actions workflow generation
 - Agent preset installer (Claude + Codex)
 
-[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v1.3.5...HEAD
+[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v1.4.0...HEAD
+[1.4.0]: https://github.com/gimso2x/forgeflow/compare/v1.3.5...v1.4.0
 [1.3.5]: https://github.com/gimso2x/forgeflow/compare/v1.3.4...v1.3.5
 [1.2.0]: https://github.com/gimso2x/forgeflow/compare/v1.1.4...v1.2.0
 [1.1.4]: https://github.com/gimso2x/forgeflow/compare/v1.1.3...v1.1.4
