@@ -1,6 +1,6 @@
 ---
 name: config
-description: Manage ForgeFlow project defaults interactively. Toggle auto-chaining, worktree isolation, and other settings.
+description: Manage ForgeFlow project defaults interactively. Toggle auto-chaining and worktree isolation.
 validate_prompt: |
   Must present current .forgeflow/defaults.md values, offer toggle by number, and write changes back without committing.
 ---
@@ -23,16 +23,15 @@ Interactive project defaults manager for ForgeFlow. Reads and toggles settings i
 
 ## Procedure
 
-1. Read `.forgeflow/defaults.md` if it exists. Parse supported fields: `auto`, `isolation`, `subagent_per_task`. Missing file means all defaults are `false`.
+1. Read `.forgeflow/defaults.md` if it exists. Parse supported fields: `auto`, `isolation`. When the file is missing, use hardcoded defaults: `auto: false`, `isolation: true`.
 2. Present current settings as a numbered menu:
 
 ```
 ForgeFlow 설정
 
-1. auto (자동 체이닝)       — 현재: 꺼짐
-2. isolation (worktree 격리) — 현재: 켜짐
-3. subagent_per_task         — 현재: 꺼짐
-4. 종료
+1. auto (자동 체이닝)       — 현재: 꺼짐   (기본값: 꺼짐)
+2. isolation (worktree 격리) — 현재: 켜짐   (기본값: 켜짐)
+3. 종료
 
 번호를 선택하세요:
 ```
@@ -44,8 +43,7 @@ ForgeFlow 설정
 # ForgeFlow Defaults
 
 auto: true
-isolation: false
-subagent_per_task: false
+isolation: true
 ```
 
 5. Confirm the change to the user. Loop back to step 2 until user selects 종료.
@@ -60,4 +58,4 @@ subagent_per_task: false
 
 - Only modify `.forgeflow/defaults.md` — no other files.
 - Never auto-commit the defaults file.
-- Supported fields only: `auto`, `isolation`, `subagent_per_task`. Ignore unknown fields.
+- Supported fields only: `auto`, `isolation`. Ignore unknown fields.

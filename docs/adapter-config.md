@@ -147,7 +147,7 @@ Codex는 전체 git diff를 출력하므로 다음 후처리를 적용:
 # ForgeFlow Defaults
 
 - **auto**: true
-- **subagent_per_task**: false
+- **isolation**: true
 ```
 
 지원 필드:
@@ -155,9 +155,9 @@ Codex는 전체 git diff를 출력하므로 다음 후처리를 적용:
 | 필드 | 기본값 | 설명 |
 |------|--------|------|
 | `auto` | `false` | `true`면 clarify 이후 전체 스테이지 자동 체이닝 (`--auto`와 동일) |
-| `subagent_per_task` | `false` | `true`면 execute에서 plan step마다 subagent per-task 루프 사용 |
+| `isolation` | `true` | `true`면 medium/high/epic 라우트에서 worktree 격리 사용 (`--no-isolation`으로 비활성화) |
 
-우선순위: `--auto` 플래그 > `brief.md` auto 필드 > `.forgeflow/defaults.md` > 기본값(`false`)
+우선순위: CLI 플래그 > `brief.md` 필드 > `.forgeflow/defaults.md` > 기본값 (필드별 상이)
 
 스킬 내에서 조건부 동작이 필요한 경우 이 표를 참조합니다.
 Slash command 매핑은 `skills/forgeflow/SKILL.md`의 Slash-style entrypoints 표를 따릅니다.

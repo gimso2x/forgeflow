@@ -1,6 +1,6 @@
 {
   "name": "forgeflow",
-  "version": "1.3.3",
+  "version": "1.3.5",
   "description": "Artifact-first delivery workflow for AI coding agents: clarify, plan, execute, review, ship through markdown artifacts and prompt-driven gates",
   "author": {
     "name": "gimso2x",

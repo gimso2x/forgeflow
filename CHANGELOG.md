@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.5] - 2026-05-26
+
+### Fixed
+
+- **`skills/config/SKILL.md`**: `isolation` 기본값이 `false`로 잘못 표시되던 버그 수정 (실제 기본값은 `true`)
+- **`skills/config/SKILL.md`**: `defaults.md` 미존재 시 모든 기본값을 `false`로 처리하던 문제 수정 (필드별 하드코딩된 기본값 사용)
+
+### Changed
+
+- **`subagent_per_task` 설정 제거**: config/defaults에서 제거. execute 스킬이 epic 라우트에서 필요시 자체 판단. CLI 플래그 `--subagent-per-task`로 수동 활성화 가능
+- **`docs/adapter-config.md`**: `isolation` 필드를 프로젝트 기본값 테이블에 추가, 우선순위 설명 일반화
+- **`skills/forgeflow/SKILL.md`**: config 메뉴 예시에 기본값 표시 및 `subagent_per_task` 제거 반영
+
 ## [1.2.0] - 2026-05-27
 
 ### Added
@@ -662,7 +675,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI gate with GitHub Actions workflow generation
 - Agent preset installer (Claude + Codex)
 
-[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v1.3.5...HEAD
+[1.3.5]: https://github.com/gimso2x/forgeflow/compare/v1.3.4...v1.3.5
 [1.2.0]: https://github.com/gimso2x/forgeflow/compare/v1.1.4...v1.2.0
 [1.1.4]: https://github.com/gimso2x/forgeflow/compare/v1.1.3...v1.1.4
 [1.1.3]: https://github.com/gimso2x/forgeflow/compare/v1.1.2...v1.1.3
