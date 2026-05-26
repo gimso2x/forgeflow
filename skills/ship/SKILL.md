@@ -437,3 +437,19 @@ If asked:
 ```
 
 Return exactly two ship checks. Do not add command equivalents, git actions, artifact writes, or a final verdict unless requested.
+
+## Telemetry
+
+On completion of this stage, record a telemetry event to `.forgeflow/telemetry/<task-id>.md`:
+- **event**: `stage_complete` on success, `stage_fail` on error/failure
+- **stage**: ship
+- **outcome**: `success` | `partial` | `failed`
+- **failure_type**: on failure, categorize as `merge_conflict` | `ci_failure` | `scope_exceeded` | `validation_error` | `adapter_error` | `timeout` | `unknown`
+
+After successful ship completion, run telemetry aggregation:
+```
+python3 scripts/telemetry_aggregate.py
+```
+This refreshes `.forgeflow/telemetry/summary.md` with updated metrics.
+
+Follow `skills/_shared/discipline.md` Telemetry Event Recording for format details.

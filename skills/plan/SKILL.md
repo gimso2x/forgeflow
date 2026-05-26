@@ -389,3 +389,16 @@ If asked:
 ```
 
 Then and only then write `.forgeflow/tasks/<task-id>/plan.md`.
+
+## Telemetry
+
+On completion of this stage, record a telemetry event to `.forgeflow/telemetry/<task-id>.md`:
+- **event**: `stage_complete` on success, `stage_fail` on error/failure
+- **stage**: plan
+- **outcome**: `success` | `partial` | `failed`
+- **failure_type**: on failure, categorize as `scope_mismatch` | `validation_error` | `adapter_error` | `timeout` | `unknown`
+
+On abnormal conditions, also record:
+- **event**: `boundary_alert` or `stage_fail` as appropriate
+
+Follow `skills/_shared/discipline.md` Telemetry Event Recording for format details.

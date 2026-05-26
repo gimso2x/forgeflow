@@ -772,3 +772,17 @@ If asked:
 ```
 
 Return exactly two review checks. Do not add a verdict, extra commentary, or file writes.
+
+## Telemetry
+
+On completion of this stage, record a telemetry event to `.forgeflow/telemetry/<task-id>.md`:
+- **event**: `stage_complete` on success, `stage_fail` on error/failure
+- **stage**: review
+- **outcome**: `success` | `partial` | `failed`
+- **failure_type**: on failure, categorize as `assertion_mismatch` | `scope_creep` | `validation_error` | `adapter_error` | `timeout` | `unknown`
+
+On scope boundary violations detected during review, record:
+- **event**: `boundary_alert`
+- **stage**: review
+
+Follow `skills/_shared/discipline.md` Telemetry Event Recording for format details.

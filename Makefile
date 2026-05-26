@@ -1,4 +1,4 @@
-.PHONY: validate demo validate-demo validate-json validate-no-python validate-slim-surface validate-ci-workflows validate-skills validate-skill-frontmatter validate-agent-docs validate-templates validate-template-refs validate-versions validate-changelog-links validate-route-scoring-parity validate-route-policy validate-gemini-imports validate-plugin-prompts validate-evals validate-evals-json validate-eval-files validate-evals-fixtures validate-workflow-vocab validate-ship-safety validate-dogfooding-docs validate-context-resume validate-adapter-config validate-advisory-contract validate-markdown-links
+.PHONY: validate demo validate-demo validate-json validate-no-python validate-slim-surface validate-ci-workflows validate-skills validate-skill-frontmatter validate-agent-docs validate-templates validate-template-refs validate-versions validate-changelog-links validate-route-scoring-parity validate-route-policy validate-gemini-imports validate-plugin-prompts validate-evals validate-evals-json validate-eval-files validate-evals-fixtures validate-workflow-vocab validate-ship-safety validate-dogfooding-docs validate-context-resume validate-adapter-config validate-advisory-contract validate-markdown-links telemetry telemetry-collect telemetry-aggregate
 
 PYTHON ?= python3
 
@@ -317,3 +317,14 @@ validate-advisory-contract:
 	@$(PYTHON) scripts/validate_advisory_contract.py
 validate-markdown-links:
 	@PYTHON="$(PYTHON)" bash scripts/validate-markdown-links.sh
+
+# ---------------------------------------------------------------------------
+# Telemetry
+# ---------------------------------------------------------------------------
+telemetry: telemetry-collect telemetry-aggregate
+
+telemetry-collect:
+	@$(PYTHON) scripts/telemetry_collect.py
+
+telemetry-aggregate:
+	@$(PYTHON) scripts/telemetry_aggregate.py

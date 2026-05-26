@@ -510,3 +510,17 @@ For steps with no mutual dependencies (check plan.md dependencies):
 When a lint/build/test/typecheck command fails after an implementation change, do not stop at the first failure. Record each failed command, exit code, and concise failure summary in implementation-notes.md under Evidence using a compact string such as `verification:FAIL attempt=1 command="npm run lint" exit=1 reason="react-hooks/set-state-in-effect"`, apply the smallest scoped fix, then rerun the focused verification. Repeat for at most 3 attempts. Mark work complete only after the latest required verification passes and add a final `verification:PASS ...` evidence ref; if failures remain, set status to `blocked` and keep the latest failure evidence.
 
 Classify the failure layer before applying the fix. Use one of Instructions, Tools, Environment, State, Feedback, or Implementation, and include `layer=<name>` in the `verification:FAIL` evidence when useful. The loop is: observe -> classify layer -> smallest scoped fix -> rerun the same or narrower verification gate -> record `verification:PASS`; Environment or Tools failures that require installation, permissions, destructive cleanup, or external service access must stop for user approval instead of being silently worked around.
+
+## Telemetry
+
+On completion of this stage, record a telemetry event to `.forgeflow/telemetry/<task-id>.md`:
+- **event**: `stage_complete` on success, `stage_fail` on error/failure
+- **stage**: execute
+- **outcome**: `success` | `partial` | `failed`
+- **failure_type**: on failure, categorize as `build_error` | `test_failure` | `scope_exceeded` | `validation_error` | `adapter_error` | `timeout` | `unknown`
+
+When scope boundary is exceeded (file count > route threshold), record:
+- **event**: `boundary_alert`
+- **stage**: execute
+
+Follow `skills/_shared/discipline.md` Telemetry Event Recording for format details.

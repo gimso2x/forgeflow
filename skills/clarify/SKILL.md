@@ -391,3 +391,16 @@ When all blockers are resolved:
 
 For label-only requests like `/forgeflow:clarify Add a README badge. Return only the selected route label.`:
 Return exactly one of `small`, `medium`, `high`, or `epic`. No explanation, no file writes.
+
+## Telemetry
+
+On completion of this stage, record a telemetry event to `.forgeflow/telemetry/<task-id>.md`:
+- **event**: `stage_complete` on success, `stage_fail` on error/failure
+- **stage**: clarify
+- **outcome**: `success` | `partial` | `failed`
+- **failure_type**: on failure, categorize as `scope_exceeded` | `routing_ambiguity` | `validation_error` | `timeout` | `unknown`
+
+On abnormal conditions (unexpected errors, routing failures), also record:
+- **event**: `boundary_alert` or `stage_fail` as appropriate
+
+Follow `skills/_shared/discipline.md` Telemetry Event Recording for format details.

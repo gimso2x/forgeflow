@@ -53,3 +53,43 @@ Each skill links here and adds skill-specific rules inline.
 - execute 중 scope 파일 수가 route 임계값을 초과하면 경고
 - review에서 scope boundary 위반을 탐지
 - advisory로 "scope creep 의심" 발행
+
+## Telemetry Event Recording
+
+Every pipeline stage (clarify, plan, execute, review, ship) must record a
+telemetry event upon completion. Events are written to the project-global
+`.forgeflow/telemetry/` directory.
+
+### Automatic collection via scripts
+
+Run `python3 scripts/telemetry_collect.py` after any stage completes to scan
+`.forgeflow/tasks/<task-id>/` artifacts and append structured events to
+`.forgeflow/telemetry/<task-id>.md`. Run `python3 scripts/telemetry_aggregate.py`
+to generate `.forgeflow/telemetry/summary.md` with aggregated metrics.
+
+### Manual event recording (when scripts are unavailable)
+
+When `telemetry_collect.py` cannot run, the agent must manually append an event
+block to `.forgeflow/telemetry/<task-id>.md`:
+
+```
+### <ISO timestamp>
+- **event**: stage_complete
+- **stage**: <clarify|plan|execute|review|ship>
+- **duration_seconds**: <N or <!-- N -->>
+- **tokens_used**: <N or <!-- N -->>
+- **model**: <model id or <!-- model id -->>
+- **adapter**: <claude|codex|gemini|cursor>
+- **route**: <small|medium|high|epic>
+- **specialist**: <none or specialist name>
+- **outcome**: <success|partial|failed>
+- **failure_type**: <!-- null or category -->
+```
+
+### Rules
+- Create `.forgeflow/telemetry/` if it does not exist.
+- Use one file per task: `.forgeflow/telemetry/<task-id>.md`.
+- Do not overwrite existing events; append only.
+- If the file is new, write the YAML frontmatter and header first (see `templates/telemetry-event.md`).
+- Record a `boundary_alert` event when scope_boundary.status is `exceeds`.
+- After high/epic ship, run `telemetry_aggregate.py` to refresh `summary.md`.

@@ -5310,6 +5310,349 @@
           ]
         }
       ]
+    },
+    {
+      "id": 79,
+      "name": "telemetry-collect-script-exists",
+      "prompt": "Verify that scripts/telemetry_collect.py exists and is a valid Python script.",
+      "expected_output": "Script exists with correct shebang and telemetry collection logic.",
+      "files": [
+        "scripts/telemetry_collect.py"
+      ],
+      "assertions": [
+        {
+          "text": "File scripts/telemetry_collect.py exists and contains expected content.",
+          "type": "contains",
+          "value": "#!/usr/bin/env python3"
+        },
+        {
+          "text": "Script has correct shebang.",
+          "type": "contains",
+          "value": "#!/usr/bin/env python3"
+        },
+        {
+          "text": "Script references telemetry-event schema.",
+          "type": "contains",
+          "value": "telemetry-event/v1"
+        }
+      ]
+    },
+    {
+      "id": 80,
+      "name": "telemetry-aggregate-script-exists",
+      "prompt": "Verify that scripts/telemetry_aggregate.py exists and is a valid Python script.",
+      "expected_output": "Script exists with correct shebang and aggregation logic.",
+      "files": [
+        "scripts/telemetry_aggregate.py"
+      ],
+      "assertions": [
+        {
+          "text": "File scripts/telemetry_aggregate.py exists and contains expected content.",
+          "type": "contains",
+          "value": "#!/usr/bin/env python3"
+        },
+        {
+          "text": "Script has correct shebang.",
+          "type": "contains",
+          "value": "#!/usr/bin/env python3"
+        },
+        {
+          "text": "Script references metrics-dashboard schema.",
+          "type": "contains",
+          "value": "metrics-dashboard/v1"
+        }
+      ]
+    },
+    {
+      "id": 81,
+      "name": "discipline-telemetry-section",
+      "prompt": "Verify skills/_shared/discipline.md contains Telemetry Event Recording section.",
+      "expected_output": "Discipline file has telemetry recording rules for pipeline stages.",
+      "files": [
+        "skills/_shared/discipline.md"
+      ],
+      "assertions": [
+        {
+          "text": "Discipline has Telemetry Event Recording section.",
+          "type": "contains",
+          "value": "Telemetry Event Recording"
+        },
+        {
+          "text": "Discipline mentions telemetry_collect.py.",
+          "type": "contains",
+          "value": "telemetry_collect.py"
+        },
+        {
+          "text": "Discipline mentions telemetry_aggregate.py.",
+          "type": "contains",
+          "value": "telemetry_aggregate.py"
+        }
+      ]
+    },
+    {
+      "id": 82,
+      "name": "clarify-telemetry-section",
+      "prompt": "Verify clarify skill has telemetry section with stage-specific failure types.",
+      "expected_output": "Clarify SKILL.md has Telemetry section with routing_ambiguity failure type.",
+      "files": [
+        "skills/clarify/SKILL.md"
+      ],
+      "assertions": [
+        {
+          "text": "Clarify has Telemetry section.",
+          "type": "contains",
+          "value": "## Telemetry"
+        },
+        {
+          "text": "Clarify telemetry mentions stage: clarify.",
+          "type": "contains",
+          "value": "stage: clarify"
+        },
+        {
+          "text": "Clarify telemetry includes routing_ambiguity failure type.",
+          "type": "contains",
+          "value": "routing_ambiguity"
+        }
+      ]
+    },
+    {
+      "id": 83,
+      "name": "plan-telemetry-section",
+      "prompt": "Verify plan skill has telemetry section with stage-specific failure types.",
+      "expected_output": "Plan SKILL.md has Telemetry section with scope_mismatch failure type.",
+      "files": [
+        "skills/plan/SKILL.md"
+      ],
+      "assertions": [
+        {
+          "text": "Plan has Telemetry section.",
+          "type": "contains",
+          "value": "## Telemetry"
+        },
+        {
+          "text": "Plan telemetry mentions stage: plan.",
+          "type": "contains",
+          "value": "stage: plan"
+        },
+        {
+          "text": "Plan telemetry includes scope_mismatch failure type.",
+          "type": "contains",
+          "value": "scope_mismatch"
+        }
+      ]
+    },
+    {
+      "id": 84,
+      "name": "execute-telemetry-section",
+      "prompt": "Verify execute skill has telemetry section with boundary_alert and failure types.",
+      "expected_output": "Execute SKILL.md has Telemetry section with build_error, test_failure, boundary_alert.",
+      "files": [
+        "skills/execute/SKILL.md"
+      ],
+      "assertions": [
+        {
+          "text": "Execute has Telemetry section.",
+          "type": "contains",
+          "value": "## Telemetry"
+        },
+        {
+          "text": "Execute telemetry mentions stage: execute.",
+          "type": "contains",
+          "value": "stage: execute"
+        },
+        {
+          "text": "Execute telemetry includes boundary_alert.",
+          "type": "contains",
+          "value": "boundary_alert"
+        },
+        {
+          "text": "Execute telemetry includes build_error failure type.",
+          "type": "contains",
+          "value": "build_error"
+        }
+      ]
+    },
+    {
+      "id": 85,
+      "name": "review-telemetry-section",
+      "prompt": "Verify review skill has telemetry section with assertion_mismatch and scope_creep.",
+      "expected_output": "Review SKILL.md has Telemetry section with assertion_mismatch, scope_creep failure types.",
+      "files": [
+        "skills/review/SKILL.md"
+      ],
+      "assertions": [
+        {
+          "text": "Review has Telemetry section.",
+          "type": "contains",
+          "value": "## Telemetry"
+        },
+        {
+          "text": "Review telemetry mentions stage: review.",
+          "type": "contains",
+          "value": "stage: review"
+        },
+        {
+          "text": "Review telemetry includes assertion_mismatch.",
+          "type": "contains",
+          "value": "assertion_mismatch"
+        },
+        {
+          "text": "Review telemetry includes scope_creep.",
+          "type": "contains",
+          "value": "scope_creep"
+        }
+      ]
+    },
+    {
+      "id": 86,
+      "name": "ship-telemetry-section",
+      "prompt": "Verify ship skill has telemetry section with merge_conflict, ci_failure and aggregate call.",
+      "expected_output": "Ship SKILL.md has Telemetry section with failure types and telemetry_aggregate.py call.",
+      "files": [
+        "skills/ship/SKILL.md"
+      ],
+      "assertions": [
+        {
+          "text": "Ship has Telemetry section.",
+          "type": "contains",
+          "value": "## Telemetry"
+        },
+        {
+          "text": "Ship telemetry mentions stage: ship.",
+          "type": "contains",
+          "value": "stage: ship"
+        },
+        {
+          "text": "Ship telemetry includes merge_conflict failure type.",
+          "type": "contains",
+          "value": "merge_conflict"
+        },
+        {
+          "text": "Ship telemetry includes ci_failure failure type.",
+          "type": "contains",
+          "value": "ci_failure"
+        },
+        {
+          "text": "Ship telemetry calls telemetry_aggregate.py on completion.",
+          "type": "contains",
+          "value": "telemetry_aggregate.py"
+        }
+      ]
+    },
+    {
+      "id": 87,
+      "name": "makefile-telemetry-target",
+      "prompt": "Verify Makefile has telemetry, telemetry-collect, and telemetry-aggregate targets.",
+      "expected_output": "Makefile contains all three telemetry phony targets.",
+      "files": [
+        "Makefile"
+      ],
+      "assertions": [
+        {
+          "text": "Makefile has telemetry-collect target.",
+          "type": "contains",
+          "value": "telemetry-collect"
+        },
+        {
+          "text": "Makefile has telemetry-aggregate target.",
+          "type": "contains",
+          "value": "telemetry-aggregate"
+        },
+        {
+          "text": "Makefile has telemetry umbrella target.",
+          "type": "contains",
+          "value": "telemetry: telemetry-collect telemetry-aggregate"
+        }
+      ]
+    },
+    {
+      "id": 88,
+      "name": "telemetry-event-template-exists",
+      "prompt": "Verify templates/telemetry-event.md exists with correct schema.",
+      "expected_output": "Template exists with telemetry-event/v1 schema.",
+      "files": [
+        "templates/telemetry-event.md"
+      ],
+      "assertions": [
+        {
+          "text": "File templates/telemetry-event.md exists and contains expected content.",
+          "type": "contains",
+          "value": "schema: telemetry-event/v1"
+        },
+        {
+          "text": "Template has correct schema.",
+          "type": "contains",
+          "value": "schema: telemetry-event/v1"
+        }
+      ]
+    },
+    {
+      "id": 89,
+      "name": "metrics-dashboard-template-exists",
+      "prompt": "Verify templates/metrics-dashboard.md exists with correct schema.",
+      "expected_output": "Template exists with metrics-dashboard/v1 schema.",
+      "files": [
+        "templates/metrics-dashboard.md"
+      ],
+      "assertions": [
+        {
+          "text": "File templates/metrics-dashboard.md exists and contains expected content.",
+          "type": "contains",
+          "value": "schema: metrics-dashboard/v1"
+        },
+        {
+          "text": "Template has correct schema.",
+          "type": "contains",
+          "value": "metrics-dashboard/v1"
+        }
+      ]
+    },
+    {
+      "id": 90,
+      "name": "telemetry-collect-dedup",
+      "prompt": "Verify telemetry_collect.py deduplicates events on re-run.",
+      "expected_output": "Script checks existing events before appending.",
+      "files": [
+        "scripts/telemetry_collect.py"
+      ],
+      "assertions": [
+        {
+          "text": "Script has _existing_events function.",
+          "type": "contains",
+          "value": "_existing_events"
+        },
+        {
+          "text": "Script checks seen set before appending.",
+          "type": "contains",
+          "value": "if (event, stage) in seen"
+        }
+      ]
+    },
+    {
+      "id": 91,
+      "name": "telemetry-aggregate-parses-events",
+      "prompt": "Verify telemetry_aggregate.py parses event blocks correctly.",
+      "expected_output": "Script uses _parse_events to extract event blocks with correct field pattern.",
+      "files": [
+        "scripts/telemetry_aggregate.py"
+      ],
+      "assertions": [
+        {
+          "text": "Script has _parse_events function.",
+          "type": "contains",
+          "value": "_parse_events"
+        },
+        {
+          "text": "Script computes stage durations.",
+          "type": "contains",
+          "value": "stage_durations"
+        },
+        {
+          "text": "Script computes failure counts.",
+          "type": "contains",
+          "value": "failure_counts"
+        }
+      ]
     }
   ]
 }
