@@ -47,6 +47,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **worktree symlink 테스트 중복 수집**: `.forgeflow` symlink로 인해 Vitest/Jest가 중복 파일을 수집하는 문제. exclude 패턴 가이드 추가
 
+## [1.3.4] - 2026-05-26
+
+### Added
+
+- **코딩 컨벤션 문서**: `skills/_shared/coding-convention.md` 추가 — execute/implementer에서 참조
+- **`/forgeflow:config` 독립 스킬 등록**: 슬래시 커맨드 미동작 수정으로 config를 독립 호출 가능
+
 ## [1.3.5] - 2026-05-26
 
 ### Fixed
@@ -75,6 +82,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **`skills/forgeflow/SKILL.md`**: `--auto` procedure에 Strict auto-chain checklist 참조 추가
+
+## [1.1.4] - 2026-05-21
+
+### Changed
+
+- **`--auto` strict auto-chain 계약 보강**: `skills/_shared/automation.md`에 strict mode 체크리스트, artifact-before-code 순서, 금지 프롬프트 목록 추가
+- **`skills/forgeflow/SKILL.md`**: `--auto` procedure에 strict auto-chain checklist 참조 추가
 
 ## [1.1.3] - 2026-05-21
 
@@ -293,6 +307,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - 전체 pytest CI에서 `forgeflow-init` 스킬 경로 변경을 반영하지 못한 docs schema contract 테스트 수정.
+
+## [0.11.7] - 2026-05-19
+
+### Changed
+
 - 릴리즈/플러그인/확장 버전 메타데이터를 v0.11.7로 동기화.
 
 ## [0.11.6] - 2026-05-19
@@ -721,6 +740,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.5.0]: https://github.com/gimso2x/forgeflow/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/gimso2x/forgeflow/compare/v1.3.5...v1.4.0
 [1.3.5]: https://github.com/gimso2x/forgeflow/compare/v1.3.4...v1.3.5
+[1.3.4]: https://github.com/gimso2x/forgeflow/compare/v1.3.3...v1.3.4
 [1.2.0]: https://github.com/gimso2x/forgeflow/compare/v1.1.4...v1.2.0
 [1.1.4]: https://github.com/gimso2x/forgeflow/compare/v1.1.3...v1.1.4
 [1.1.3]: https://github.com/gimso2x/forgeflow/compare/v1.1.2...v1.1.3
@@ -735,7 +755,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.0.2]: https://github.com/gimso2x/forgeflow/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/gimso2x/forgeflow/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/gimso2x/forgeflow/compare/v0.13.1...v1.0.0
-[0.13.1]: https://github.com/gimso2x/forgeflow/compare/v0.11.6...v0.13.1
+[0.13.1]: https://github.com/gimso2x/forgeflow/compare/v0.13.0...v0.13.1
 [0.11.7]: https://github.com/gimso2x/forgeflow/compare/v0.11.6...v0.11.7
 [0.11.6]: https://github.com/gimso2x/forgeflow/compare/v0.11.5...v0.11.6
 [0.11.5]: https://github.com/gimso2x/forgeflow/compare/v0.11.4...v0.11.5
