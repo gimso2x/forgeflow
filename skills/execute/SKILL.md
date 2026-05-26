@@ -1,7 +1,7 @@
 ---
 name: execute
 description: Execute a ForgeFlow plan with verification and runtime evidence. Includes opt-in subagent per-task loop for high/epic routes. Use when the user types /execute or /forgeflow:execute, or asks to implement after clarify/plan.
-version: 0.4.0
+version: 0.5.0
 author: gimso2x
 validate_prompt: |
   Must preserve exact-output and dry-run constraints when requested.
@@ -193,12 +193,22 @@ Minimum warning contract:
     - `lint`: Project lint command (`pnpm lint`, `npm run lint`, `ruff check`, etc.)
     - `type_check`: TypeScript type check (`tsc --noEmit`) or equivalent
     - `test`: Project test command (`pnpm test`, `npm test`, `pytest`, etc.)
-    - **Worktree symlink exclusion**: `.forgeflow` symlink로 인해 테스트 러너가 중복 파일을 수집할 수 있다. Vitest는 `--exclude '**/.forgeflow/**'`, Jest는 `--testPathIgnorePatterns .forgeflow`로 제외하라.
+    - **Adaptive verification** (reduce unnecessary gates): Not every step needs all 4 gates. Match verification to the change type:
+      - Style/CSS only → `lint` alone (build + type_check + test are redundant)
+      - Type/interface addition → `type_check` + `test`
+      - Logic/behavior change → `test` + `lint`
+      - Multi-file integration → `build` + `test` + `lint` (full suite)
+      - **Final step** (all routes): always run the full suite (`build` + `lint` + `test` minimum) regardless of change type
+    - **Worktree symlink precautions** (→ `_shared/isolation.md` Known issues): `.forgeflow` symlink로 인해 다음 문제가 발생할 수 있다:
+      - 테스트 러너 중복 파일 수집: Vitest는 `--exclude '**/.forgeflow/**'`, Jest는 `--testPathIgnorePatterns .forgeflow`로 제외
+      - Lint 도구 중복 스캔: ESLint에 `.forgeflow/`를 `ignorePatterns`에 추가
+      - Dev server OOM: `pnpm dev` 대신 `pnpm build && pnpm preview --host 127.0.0.1` 사용. Evidence에 `dev_server_fallback: build+preview (worktree symlink OOM avoidance)` 기록
     Record results in `implementation-notes.md` Evidence as `verification:PASS/FAIL gate=<name> command="<cmd>"`.
     Small routes require at least 1 gate. Medium+ require at least 2 gates including build.
 11. Update `implementation-notes.md` immediately when starting and finishing each step. Step state must be incremental: `pending -> in_progress -> completed`. Do not batch-mark all steps as `completed` only at the end. If a step cannot finish, mark it `blocked` with evidence.
    - **Contract checkpoint**: Before marking any plan task complete, verify: "Does this code violate a stated contract?" Record in evidence as `contract_check:PASS <task>` or `contract_check:FAIL <task> reason="..."`.
 12. After all steps complete, update implementation-notes.md to `Status: completed` with all passed gates in Evidence.
+    - **Scope boundary check** (mandatory for medium/high/epic): After all steps, compare `git diff --name-only` against the plan's intended file scope. Record the result as `scope_boundary_check:PASS` (all changed files within plan scope) or `scope_boundary_check:WARN files=<unplanned-file-list>` in Evidence. If unplanned files are found, explain why in implementation-notes.md Deviations and decide whether to expand scope or revert. This prevents unexpected dirty files from blocking branch disposition during ship.
 13. Stop if requirements become ambiguous; return to `/forgeflow:clarify`.
 14. Deliver the route-aware exit prompt (see Exit Condition above). Before exiting, verify the **mandatory completion checklist**:
     - ☐ Implementation plan was stated before code changes
@@ -345,6 +355,7 @@ Before marking execute as completed, verify ALL items:
 | 6 | Deviations from plan recorded in implementation-notes.md | medium, high, epic |
 | 7 | Code quality metrics collected in implementation-notes.md | all routes |
 | 8 | File size gate: oversized files (>300 lines or project limit) flagged with split plan | all routes |
+| 9 | Scope boundary check: changed files compared to plan scope, unplanned files explained | medium, high, epic |
 
 If any required item is missing, the execute stage is incomplete. Do not deliver the exit prompt until all items are present.
 
@@ -363,6 +374,7 @@ Provide checklist responses under a **`### Completion Response`** heading (not u
 6. **Deviations**: <list or "none", medium/high/epic only>
 7. **Metrics**: LOC, TS errors, type assertions, debug artifacts, max component LOC
 8. **File size gate**: list any files exceeding 300 lines (or project limit) with split plan, or "all within limit"
+9. **Scope boundary**: `PASS` or `WARN files=<list>` with explanation for unplanned changes (medium/high/epic only)
 ```
 
 ## Output normalization

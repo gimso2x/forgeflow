@@ -48,8 +48,9 @@ test -L "${WT_PATH}/.forgeflow"
 
 # 5. Install dependencies (node_modules is gitignored, not copied to worktree)
 #    Detect package manager from main repo lockfile and install in worktree.
-if   [ -f "${MAIN_ROOT}/pnpm-lock.yaml" ]; then pnpm install --dir "$WT_PATH"
-elif [ -f "${MAIN_ROOT}/yarn.lock" ];     then (cd "$WT_PATH" && yarn install)
+#    Use frozen-lockfile equivalent to skip resolution (worktree shares the same lockfile).
+if   [ -f "${MAIN_ROOT}/pnpm-lock.yaml" ]; then pnpm install --frozen-lockfile --dir "$WT_PATH"
+elif [ -f "${MAIN_ROOT}/yarn.lock" ];     then (cd "$WT_PATH" && yarn install --frozen-lockfile)
 elif [ -f "${MAIN_ROOT}/package-lock.json" ]; then (cd "$WT_PATH" && npm ci)
 elif [ -f "${MAIN_ROOT}/bun.lockb" ];     then (cd "$WT_PATH" && bun install)
 elif [ -f "${MAIN_ROOT}/requirements.txt" ] || [ -f "${MAIN_ROOT}/pyproject.toml" ]; then
@@ -151,6 +152,66 @@ If the user selects "keep branch as-is", do not remove the worktree or branch. T
 5. **Main branch protection**: when isolation is active, the execute stage must not edit files on the main branch. If the agent detects it is on main with `isolation: worktree` in brief, warn and stop.
 6. **Idempotent creation**: if `.forgeflow/worktrees/<task-id>/` already exists and the branch is correct, skip creation. Do not error or recreate.
 7. **Prune stale worktrees**: before creating a new worktree, `git worktree prune` to clean up any stale references.
+
+## Known issues and workarounds
+
+### Dev server OOM with `.forgeflow` symlink
+
+The `.forgeflow` symlink causes Vite/webpack dev server file watchers to recursively scan the entire shared `.forgeflow/` directory (including all worktree task artifacts, review reports, and evolution rules). In medium+ projects this can trigger Node OOM crashes (exit 134).
+
+**Root cause fix**: Add `.forgeflow` to the dev server's watcher exclusion. This allows `pnpm dev` to run normally inside the worktree.
+
+Vite (`vite.config.ts`):
+```ts
+server: {
+  watch: {
+    ignored: ['**/.forgeflow/**'],
+  },
+},
+```
+
+Webpack (`webpack.config.js`):
+```js
+watchOptions: {
+  ignored: /node_modules|\.forgeflow/,
+},
+```
+
+If modifying the project config is undesirable or the project uses a framework that wraps Vite, fall back to the workaround below.
+
+**Fallback workaround**: Use production build + static preview instead:
+
+```bash
+pnpm build
+pnpm preview --host 127.0.0.1
+```
+
+Record the fallback in `implementation-notes.md` Evidence as:
+```
+dev_server_fallback: build+preview (worktree symlink OOM avoidance)
+```
+
+### Lint and test duplication from symlink scan
+
+Lint tools and test runners may discover files through the `.forgeflow` symlink, causing duplicate warnings or spurious test discovery.
+
+**Workaround**: Exclude `.forgeflow/` from tool scanning:
+
+| Tool | Exclusion |
+|------|-----------|
+| Vitest | `--exclude '**/.forgeflow/**'` |
+| Jest | `--testPathIgnorePatterns .forgeflow` |
+| ESLint | Add `.forgeflow/` to `ignorePatterns` in eslint config or `.eslintignore` |
+
+The execute stage (`skills/execute/SKILL.md`) reinforces these exclusions when running verification inside a worktree.
+
+### Unrelated dirty files and scope creep
+
+When a worktree accumulates changes outside the plan scope (e.g., config files, unrelated components), ship correctly detects and blocks automatic branch disposition. To minimize this:
+
+1. **Execute discipline**: If implementation requires editing a file not listed in `plan.md`, record it immediately in `implementation-notes.md` → Deviations from Plan.
+2. **Scope boundary check**: After all plan steps complete, compare `git diff --name-only` against the plan's file scope. Flag any unplanned files before proceeding to review.
+3. **If unplanned changes are substantial**: Consider whether to expand the plan scope (return to clarify) or revert the out-of-scope edits.
 
 ## Configuration
 
