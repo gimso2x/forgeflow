@@ -11,6 +11,7 @@ on:
       - .codex-plugin/plugin.json
       - .cursor-plugin/plugin.json
       - gemini-extension.json
+  workflow_dispatch:
 
 concurrency:
   group: sync-version
