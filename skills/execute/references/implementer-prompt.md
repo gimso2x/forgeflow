@@ -22,6 +22,15 @@ Task tool:
     - Files you MUST NOT change: [paths outside scope]
     - Contracts / fulfills for this step: [from plan]
 
+    ## Coding Convention
+
+    Follow `docs/coding-convention.md` in the project root. Key rules:
+    - 4 quality criteria: readability, predictability, cohesion, coupling (read the doc for tradeoff guidance)
+    - Files ≤ 300 lines; entry points ~50 lines; split into `*-utils.ts`, `*-section.tsx`, `*-panel.tsx`
+    - kebab-case files, PascalCase components/types, camelCase functions/hooks
+    - Prefer `import type`, absolute `@/` paths, no unused imports
+    - 2-space indent, single quotes, semicolons, trailing commas, print width 120
+
     ## Before You Begin
 
     If requirements, approach, dependencies, or acceptance criteria are unclear — **ask now**.

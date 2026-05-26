@@ -84,6 +84,8 @@ Do not end the execute stage without updating `implementation-notes.md`. An exec
 
 ## Constraints
 
+- **Coding convention**: follow `docs/coding-convention.md` for all code output. File size limits (300 lines), naming (kebab-case files, PascalCase components, camelCase functions), import style (`import type`, `@/` paths), and formatting rules are mandatory.
+
 ## Evolution rule enforcement
 
 Before editing files, load active evolution rules when file inspection is allowed:
