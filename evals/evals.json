@@ -4112,6 +4112,211 @@
           "value": "medium"
         }
       ]
+    },
+    {
+      "id": 62,
+      "name": "clarify-where-grounding-brownfield",
+      "prompt": "A user asks ForgeFlow to clarify a task: Refactor the payment processing module to add retry logic for failed transactions. The repo is a brownfield Node.js Express app with existing payment routes in src/routes/payments.ts. There are 12 files that import from the payment module. The user has not provided risk or WHERE context yet. Produce only the WHERE grounding section and risk escalation assessment for the brief. Do not select a route or write the full brief.",
+      "expected_output": "A WHERE grounding section that identifies project_type as API/service, situation as brownfield refactor, risk modifiers including sensitive data (payment) and irreversible ops (financial transactions), and risk escalation rules calling for deep security and compatibility requirements.",
+      "files": [
+        "skills/clarify/SKILL.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output identifies situation as brownfield refactor.",
+          "type": "contains_any",
+          "values": [
+            "brownfield refactor",
+            "refactor",
+            "brownfield"
+          ]
+        },
+        {
+          "text": "Output identifies project_type as API/service or similar.",
+          "type": "contains_any",
+          "values": [
+            "API",
+            "service",
+            "api/service"
+          ]
+        },
+        {
+          "text": "Output identifies sensitive data as a risk modifier (payment transactions involve financial data).",
+          "type": "contains_any",
+          "values": [
+            "sensitive data",
+            "financial",
+            "payment",
+            "sensitive"
+          ]
+        },
+        {
+          "text": "Output identifies irreversible operations as a risk modifier.",
+          "type": "contains_any",
+          "values": [
+            "irreversible",
+            "financial transactions",
+            "money"
+          ]
+        },
+        {
+          "text": "Output includes risk escalation rules requiring deep security and compatibility requirements.",
+          "type": "contains_all",
+          "values": [
+            "security",
+            "compatibility"
+          ]
+        },
+        {
+          "text": "Output does not select a route or write the full brief (only WHERE grounding).",
+          "type": "not_contains_any",
+          "values": [
+            "Route: small",
+            "Route: medium",
+            "Route: high",
+            "Route: epic"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 63,
+      "name": "clarify-evolution-preflight-conflict",
+      "prompt": "A user runs /forgeflow:clarify to add a new REST endpoint for user avatar uploads. The project has an active evolution rule file at .forgeflow/evolution/active/no-file-uploads.md with Trigger: any task that adds file upload or media handling, Stage: clarify, Mode: required_project_rule, Apply: reject file upload features and require pre-signed URL or object storage delegation instead, Skip: non-file tasks. The rule conflicts with the user request. Produce only the Evolution Preflight and Open Questions sections of the brief.",
+      "expected_output": "An evolution preflight section that loads the active project rule, identifies the conflict between the rule and the user request to add file uploads, surfaces it as a blocker question, and recommends pre-signed URL or object storage delegation as the resolution.",
+      "files": [
+        "skills/clarify/SKILL.md",
+        "templates/evolution-rule.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output loads and references the active project evolution rule.",
+          "type": "contains_any",
+          "values": [
+            "no-file-uploads",
+            "active rule",
+            "active project rule",
+            "evolution rule"
+          ]
+        },
+        {
+          "text": "Output identifies the conflict between the rule and the user request.",
+          "type": "contains_any",
+          "values": [
+            "conflict",
+            "conflicts",
+            "incompatible",
+            "contradicts"
+          ]
+        },
+        {
+          "text": "Output surfaces the conflict as a blocker question.",
+          "type": "contains_any",
+          "values": [
+            "blocker",
+            "Blocker",
+            "Open Question",
+            "blocker question"
+          ]
+        },
+        {
+          "text": "Output recommends pre-signed URL or object storage delegation as the resolution.",
+          "type": "contains_any",
+          "values": [
+            "pre-signed URL",
+            "presigned URL",
+            "object storage",
+            "storage delegation",
+            "S3"
+          ]
+        },
+        {
+          "text": "Output treats the project active rule as required (not advisory).",
+          "type": "contains_any",
+          "values": [
+            "required",
+            "required_project_rule",
+            "hard enforcement",
+            "mandatory"
+          ]
+        },
+        {
+          "text": "Output does not silently ignore the rule and proceed with file upload.",
+          "type": "not_contains",
+          "value": "Accept file upload as requested"
+        }
+      ]
+    },
+    {
+      "id": 64,
+      "name": "execute-adaptive-verification-gate-selection",
+      "prompt": "A ForgeFlow medium-route execute step is running. The plan step says: Update README.md documentation only (no code changes, no tests). The task is documentation-only. Produce only the adaptive verification gate selection section for implementation-notes.md, showing which gates apply and which are skipped with rationale.",
+      "expected_output": "An adaptive verification section that selects minimal gates for a docs-only change (e.g., markdown lint check), skips compilation, unit tests, and type checks with explicit rationale, and notes that scope_boundary_check still applies to confirm no code files were modified.",
+      "files": [
+        "skills/execute/SKILL.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output applies adaptive verification by selecting minimal gates for docs-only changes.",
+          "type": "contains_any",
+          "values": [
+            "adaptive verification",
+            "adaptive",
+            "minimal gate",
+            "reduced gate"
+          ]
+        },
+        {
+          "text": "Output skips compilation or build gate with explicit rationale.",
+          "type": "contains_any",
+          "values": [
+            "skip compilation",
+            "skip build",
+            "no compilation needed",
+            "docs-only",
+            "documentation-only"
+          ]
+        },
+        {
+          "text": "Output skips unit test gate with explicit rationale.",
+          "type": "contains_any",
+          "values": [
+            "skip test",
+            "no test needed",
+            "tests skipped",
+            "no unit test"
+          ]
+        },
+        {
+          "text": "Output notes that scope_boundary_check still applies even for docs-only changes.",
+          "type": "contains_any",
+          "values": [
+            "scope_boundary_check",
+            "scope boundary",
+            "boundary check"
+          ]
+        },
+        {
+          "text": "Output applies a markdown or documentation lint gate.",
+          "type": "contains_any",
+          "values": [
+            "markdown lint",
+            "md lint",
+            "doc lint",
+            "documentation lint"
+          ]
+        },
+        {
+          "text": "Output does not run full test suite for a docs-only change.",
+          "type": "not_contains_any",
+          "values": [
+            "run full test suite",
+            "run all tests",
+            "npm test",
+            "pnpm test"
+          ]
+        }
+      ]
     }
   ]
 }
