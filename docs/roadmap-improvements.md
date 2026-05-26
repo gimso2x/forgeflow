@@ -369,14 +369,14 @@ generated: <date>
 
 ## 실행 계획
 
-| Phase | Items | 의존성 |
-|---|---|---|
-| **Phase 1** | Priority 1 (review standalone) + Priority 2 (산출물 표준화) | 없음 |
-| **Phase 2** | Priority 3 (specialist review) | Phase 1 |
-| **Phase 3** | Priority 4 (init 초안 생성) | 없음 |
-| **Phase 4** | Priority 5 (telemetry) | Priority 2 (이벤트 스키마) |
-| **Phase 5** | Priority 6 (scope boundary) | Priority 2 (boundary 필드) |
-| **Phase 6** | Priority 7 (릴리즈 노트) | 없음 |
+| Phase | Items | 의존성 | 상태 |
+|---|---|---|---|
+| **Phase 1** | Priority 1 (review standalone) + Priority 2 (산출물 표준화) | 없음 | ✅ 완료 |
+| **Phase 2** | Priority 3 (specialist review) | Phase 1 | ✅ 완료 (v1.5.2) |
+| **Phase 3** | Priority 4 (init 초안 생성) | 없음 | |
+| **Phase 4** | Priority 5 (telemetry) | Priority 2 (이벤트 스키마) | ✅ 완료 (v1.5.2) |
+| **Phase 5** | Priority 6 (scope boundary) | Priority 2 (boundary 필드) | ✅ 완료 (v1.5.2) |
+| **Phase 6** | Priority 7 (릴리즈 노트) | 없음 | |
 
 Phase 1, 3, 6은 병렬 가능.
-Phase 2, 4, 5는 Phase 1 완료 후 순차.
+Phase 2, 4, 5는 Phase 1 완료 후 순차. Phase 2, 4, 5는 ef12b1e에서 v1.5.2로 병합 완료.

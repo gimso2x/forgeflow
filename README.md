@@ -130,6 +130,10 @@ raw_score = file_count*1.0 + estimated_lines*0.1 + requirement_count*2.0 + depen
 | `roadmap.md`              | 마일스톤 분해                | epic    |
 | `eval-record.md`          | 학습 기록                    | high+   |
 | `evolution-rule.md`       | evolution rule 템플릿 (ship에서 `active/`에 작성) | ship    |
+| `telemetry-event.md`     | per-task 이벤트 로그 (stage 전환, token 사용, boundary alert) | long-run |
+| `metrics-dashboard.md`   | 기간별 집계 리포트 (stage 소요, 실패 분포, token 비용) | long-run |
+
+telemetry 산출물은 `.forgeflow/telemetry/` 아래에 기록됩니다: `<task-id>.md` (이벤트 로그), `summary.md` (집계 리포트).
 
 `review-report.md`의 **Execute Micro-Gates** 테이블(high/epic)은 execute 단계의 `micro_spec` / `micro_quality` 증거를 stage review가 reported로 받아 재검증할 때 씁니다.
 
