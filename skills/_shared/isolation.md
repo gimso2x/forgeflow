@@ -9,8 +9,8 @@ Each ForgeFlow task (medium/high/epic route) gets its own git worktree on a dedi
 ```
 <project-root>                         ← main branch, clarify runs here
 <project-root>/.forgeflow/worktrees/
-  ├── feature-auth-a3f/                ← ff/feature-auth-a3f branch
-  └── fix-api-bug-c7d/                 ← ff/fix-api-bug-c7d branch
+  ├── feature-auth-a3f/                ← feature-auth-a3f branch
+  └── fix-api-bug-c7d/                 ← fix-api-bug-c7d branch
 ```
 
 ## When to create
@@ -26,7 +26,7 @@ Run from the **main repository root** (`git rev-parse --show-toplevel`).
 
 ```bash
 TASK_ID="<task-id>"
-BRANCH="ff/${TASK_ID}"
+BRANCH="${TASK_ID}"
 WT_PATH=".forgeflow/worktrees/${TASK_ID}"
 MAIN_ROOT="$(git rev-parse --show-toplevel)"
 
@@ -63,7 +63,7 @@ fi
 Record in `brief.md` Task Isolation section:
 - `isolation: worktree`
 - `worktree_path: .forgeflow/worktrees/<task-id>/`
-- `branch: ff/<task-id>`
+- `branch: <task-id>`
 
 ## Detection
 
@@ -99,7 +99,7 @@ Run from the **main repository root** after the worktree branch is merged or dis
 
 ```bash
 TASK_ID="<task-id>"
-BRANCH="ff/${TASK_ID}"
+BRANCH="${TASK_ID}"
 WT_PATH=".forgeflow/worktrees/${TASK_ID}"
 
 # 1. Merge branch into main
@@ -137,7 +137,7 @@ If the user selects "keep branch as-is", do not remove the worktree or branch. T
 
 1. **Never `rm -rf` the `.forgeflow/` symlink inside a worktree** — use `rm -f` (no `-r`) to remove the symlink only.
 2. **Never force-remove a dirty worktree without user confirmation.** If `git status --short` shows changes, ask first.
-3. **Branch naming**: always prefix with `ff/` so ForgeFlow worktrees are identifiable via `git branch --list 'ff/*'` and `git worktree list`.
+3. **Branch naming**: use `<task-id>` as the branch name directly (e.g., `fix-area-range-slider-6a3`). This follows the project's commit convention `[브랜치명] 변경 내용 요약` — the branch name becomes the commit prefix. ForgeFlow worktrees are identifiable via `git worktree list` or the `.forgeflow/worktrees/` directory.
 4. **One worktree per task**: never share a worktree between tasks.
 5. **Main branch protection**: when isolation is active, the execute stage must not edit files on the main branch. If the agent detects it is on main with `isolation: worktree` in brief, warn and stop.
 6. **Idempotent creation**: if `.forgeflow/worktrees/<task-id>/` already exists and the branch is correct, skip creation. Do not error or recreate.

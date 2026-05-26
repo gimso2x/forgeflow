@@ -252,8 +252,8 @@ For exact-count, dry-run, or response-only prompts, do not force the WHERE inter
 12. **Worktree isolation** (medium/high/epic only, unless `--no-isolation` or `defaults.md` `isolation: false`):
     Follow the protocol in `_shared/isolation.md`. Summary:
     a. Check if `.forgeflow/worktrees/<task-id>/` already exists — skip if so (idempotent).
-    b. Create branch: `git branch ff/<task-id> HEAD`
-    c. Create worktree: `git worktree add .forgeflow/worktrees/<task-id> ff/<task-id>`
+    b. Create branch: `git branch <task-id> HEAD`
+    c. Create worktree: `git worktree add .forgeflow/worktrees/<task-id> <task-id>`
     d. Symlink: `ln -s <main-repo>/.forgeflow .forgeflow/worktrees/<task-id>/.forgeflow`
     e. Record in brief.md Task Isolation section: `isolation: worktree`, `worktree_path`, `branch`.
     f. After brief + worktree are ready, inform the user:

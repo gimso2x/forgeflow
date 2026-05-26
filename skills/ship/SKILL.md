@@ -335,7 +335,7 @@ rm -f <worktree-path>/.forgeflow
 git worktree remove <worktree-path>
 git branch -d <feature-branch>
 ```
-If the feature branch is the `ff/<task-id>` worktree branch, remove the worktree and branch together.
+If the feature branch is the `<task-id>` worktree branch, remove the worktree and branch together.
 
 ### 2. Push and create a Pull Request
 
