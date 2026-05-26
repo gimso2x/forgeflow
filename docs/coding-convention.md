@@ -1,6 +1,6 @@
 # Coding Convention
 
-> 코드 품질 기준은 [Frontend Fundamentals — 좋은 코드를 위한 4가지 기준](https://frontend-fundamentals.com/code-quality/code/)을 따릅니다.
+> 코드 품질 기준은 Frontend Fundamentals — 좋은 코드를 위한 4가지 기준을 따릅니다.
 
 ## 코드 품질 4가지 기준
 
@@ -11,39 +11,39 @@
 코드가 읽기 쉬운 정도입니다. 코드가 변경하기 쉬우려면 먼저 코드가 어떤 동작을 하는지 이해할 수 있어야 합니다. 읽기 좋은 코드는 읽는 사람이 한 번에 머릿속에서 고려하는 맥락이 적고, 위에서 아래로 자연스럽게 이어집니다.
 
 - **맥락 줄이기**
-  - [같이 실행되지 않는 코드 분리하기](https://frontend-fundamentals.com/code-quality/code/examples/submit-button.html)
-  - [구현 상세 추상화하기](https://frontend-fundamentals.com/code-quality/code/examples/login-start-page.html)
-  - [로직 종류에 따라 합쳐진 함수 쪼개기](https://frontend-fundamentals.com/code-quality/code/examples/use-page-state-readability.html)
+  - 같이 실행되지 않는 코드는 분리하기
+  - 구현 상세는 추상화하기
+  - 로직 종류에 따라 합쳐진 함수 쪼개기
 - **이름 붙이기**
-  - [복잡한 조건에 이름 붙이기](https://frontend-fundamentals.com/code-quality/code/examples/condition-name.html)
-  - [매직 넘버에 이름 붙이기](https://frontend-fundamentals.com/code-quality/code/examples/magic-number-readability.html)
+  - 복잡한 조건에 이름 붙이기
+  - 매직 넘버에 이름 붙이기
 - **위에서 아래로 읽히게 하기**
-  - [시점 이동 줄이기](https://frontend-fundamentals.com/code-quality/code/examples/user-policy.html)
-  - [삼항 연산자 단순하게 하기](https://frontend-fundamentals.com/code-quality/code/examples/ternary-operator.html)
+  - 시점 이동 줄이기
+  - 삼항 연산자 단순하게 하기
 
 ### 2. 예측 가능성 (Predictability)
 
 함께 협업하는 동료들이 함수나 컴포넌트의 동작을 얼마나 예측할 수 있는지를 말합니다. 예측 가능성이 높은 코드는 일관적인 규칙을 따르고, 함수나 컴포넌트의 이름과 파라미터, 반환 값만 보고도 어떤 동작을 하는지 알 수 있습니다.
 
-- [이름 겹치지 않게 관리하기](https://frontend-fundamentals.com/code-quality/code/examples/http.html)
-- [같은 종류의 함수는 반환 타입 통일하기](https://frontend-fundamentals.com/code-quality/code/examples/use-user.html)
-- [숨은 로직 드러내기](https://frontend-fundamentals.com/code-quality/code/examples/hidden-logic.html)
+- 이름 겹치지 않게 관리하기
+- 같은 종류의 함수는 반환 타입 통일하기
+- 숨은 로직 드러내기
 
 ### 3. 응집도 (Cohesion)
 
 수정되어야 할 코드가 항상 같이 수정되는지를 말합니다. 응집도가 높은 코드는 코드의 한 부분을 수정해도 의도치 않게 다른 부분에서 오류가 발생하지 않습니다. 함께 수정되어야 할 부분이 반드시 함께 수정되도록 구조적으로 뒷받침되기 때문입니다.
 
-- [함께 수정되는 파일을 같은 디렉토리에 두기](https://frontend-fundamentals.com/code-quality/code/examples/code-directory.html)
-- [매직 넘버 없애기](https://frontend-fundamentals.com/code-quality/code/examples/magic-number-cohesion.html)
-- [폼의 응집도 생각하기](https://frontend-fundamentals.com/code-quality/code/examples/form-fields.html)
+- 함께 수정되는 파일을 같은 디렉토리에 두기
+- 매직 넘버 없애기
+- 폼의 응집도 생각하기
 
 ### 4. 결합도 (Coupling)
 
 코드를 수정했을 때의 영향 범위를 말합니다. 코드를 수정했을 때 영향 범위가 적어서, 변경에 따른 범위를 예측할 수 있는 코드가 수정하기 쉬운 코드입니다.
 
-- [책임을 하나씩 관리하기](https://frontend-fundamentals.com/code-quality/code/examples/use-page-state-coupling.html)
-- [중복 코드 허용하기](https://frontend-fundamentals.com/code-quality/code/examples/use-bottom-sheet.html)
-- [Props Drilling 지우기](https://frontend-fundamentals.com/code-quality/code/examples/item-edit-modal.html)
+- 책임을 하나씩 관리하기
+- 중복 코드 허용하기
+- Props Drilling 지우기
 
 ### 기준 간 상충
 
