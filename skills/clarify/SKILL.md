@@ -14,6 +14,7 @@ outputs:
 dependencies:
   - templates/brief.md
   - skills/_shared/discipline.md
+  - skills/_shared/isolation.md
 validate_prompt: |
   Must preserve exact-output and dry-run constraints when requested.
   Must return a clear route or brief artifact only when the prompt asks for it.
@@ -247,6 +248,21 @@ For exact-count, dry-run, or response-only prompts, do not force the WHERE inter
 10. Produce `brief.md` using `templates/brief.md` as the structure, unless an exact-output/label-only instruction applies.
 
 11. If the request is actionable, record remaining non-blocking unknowns as bounded assumptions and make the next stage obvious without asking the user to do your planning work, unless an exact-output/label-only instruction applies.
+
+12. **Worktree isolation** (medium/high/epic only, unless `--no-isolation` or `defaults.md` `isolation: false`):
+    Follow the protocol in `_shared/isolation.md`. Summary:
+    a. Check if `.forgeflow/worktrees/<task-id>/` already exists — skip if so (idempotent).
+    b. Create branch: `git branch ff/<task-id> HEAD`
+    c. Create worktree: `git worktree add .forgeflow/worktrees/<task-id> ff/<task-id>`
+    d. Symlink: `ln -s <main-repo>/.forgeflow .forgeflow/worktrees/<task-id>/.forgeflow`
+    e. Record in brief.md Task Isolation section: `isolation: worktree`, `worktree_path`, `branch`.
+    f. After brief + worktree are ready, inform the user:
+       ```
+       worktree 생성됨: .forgeflow/worktrees/<task-id>
+       병렬 실행: cd .forgeflow/worktrees/<task-id> 후 /forgeflow:execute
+       ```
+    **Small route**: skip worktree creation. Set `isolation: none` in brief.
+    **`--no-isolation`**: skip regardless of route. Set `isolation: none`.
 
 Do not implement here. Clarify is the intake gate, not the coding phase.
 

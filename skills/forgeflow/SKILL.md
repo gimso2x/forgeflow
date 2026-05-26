@@ -261,7 +261,7 @@ If an adapter exceeds the safety ceiling, terminate the process and record the t
 ## Procedure
 
 1. Detect the adapter environment (see `docs/adapter-config.md`).
-2. **Read project defaults**: if `.forgeflow/defaults.md` exists in the project root, parse it for default settings. Supported fields: `auto` (bool), `subagent_per_task` (bool). See `docs/adapter-config.md` → Project Defaults.
+2. **Read project defaults**: if `.forgeflow/defaults.md` exists in the project root, parse it for default settings. Supported fields: `auto` (bool), `isolation` (bool), `subagent_per_task` (bool). See `docs/adapter-config.md` → Project Defaults.
 3. **Handle `/forgeflow:config`** (or `/config` in Cursor): interactive project defaults manager.
    1. Read `.forgeflow/defaults.md` if it exists. Show current settings, or "no defaults configured" if missing.
    2. Present available options with current values:
@@ -269,12 +269,13 @@ If an adapter exceeds the safety ceiling, terminate the process and record the t
       ForgeFlow 설정
       
       1. auto (자동 체이닝)  — 현재: 꺼짐
-      2. 종료
+      2. isolation (worktree 격리) — 현재: 켜짐
+      3. 종료
       
       번호를 선택하세요:
       ```
    3. On selection, toggle the value (off→on, on→off). Create or update `.forgeflow/defaults.md`. Confirm the change.
-   4. Supported fields: `auto` (`true`/`false`). Additional fields may be added in future versions.
+   4. Supported fields: `auto` (`true`/`false`), `isolation` (`true`/`false`). Additional fields may be added in future versions.
    5. Do **not** commit `.forgeflow/defaults.md` to git automatically — let the user decide.
 4. If the user provides a slash command (other than config), route to the matching stage skill.
 5. If the user provides a free-form request, run `/forgeflow:clarify` to produce a brief with route selection.

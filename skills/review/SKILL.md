@@ -523,6 +523,16 @@ Before approving review, inspect required ForgeFlow artifacts for unresolved tem
 
 ## Procedure
 
+### Isolation detection
+
+→ `_shared/isolation.md`.
+
+Detect worktree environment at entry:
+- `test -f .git` → worktree environment. Artifact access via symlinked `.forgeflow/` should work.
+- `test -d .git` → main repository. Proceed normally.
+
+Review is read-only. It can run in either environment. If running in a worktree, verify the `.forgeflow` symlink resolves and task artifacts are accessible before starting review.
+
 ### Step 0 — Mode detection and routing
 
 **Pipeline mode detection**: If `brief.md`, `plan.md`, or `implementation-notes.md` exist in the active task directory (`.forgeflow/tasks/<id>/`), proceed in **pipeline mode** (steps 1-18 below).

@@ -198,7 +198,9 @@ After writing `ship-summary.md` and evolution rules, handle branch disposition.
 
 ### Worktree preflight (before verification)
 
-If the task used worktree isolation (check `brief.md` for worktree references or look for a `.worktree` marker file in the task directory):
+→ Full protocol: `_shared/isolation.md`.
+
+Detect worktree isolation from `brief.md` Task Isolation section (`isolation: worktree`) or by checking `test -f .git` (worktree) vs `test -d .git` (main repo).
 
 1. **Check for active git worktree**: `git worktree list` to find the worktree location, branch, and dirty state.
 2. **Do not remove or discard yet**: Before the user selects a finish option, record the worktree as preserved. `git worktree remove`, branch deletion, reset, and discard remain destructive actions that require the option-specific confirmation below.
@@ -309,6 +311,15 @@ git merge <feature-branch>
 
 If verification passes after merge, offer branch cleanup. Do not delete the branch automatically unless the user asked for cleanup.
 
+**Worktree cleanup** (when `isolation: worktree`): after merge succeeds, clean up:
+```bash
+# Remove symlink first (prevent rm -rf on shared .forgeflow)
+rm -f <worktree-path>/.forgeflow
+git worktree remove <worktree-path>
+git branch -d <feature-branch>
+```
+If the feature branch is the `ff/<task-id>` worktree branch, remove the worktree and branch together.
+
 ### 2. Push and create a Pull Request
 
 Only after explicit choice:
@@ -359,6 +370,13 @@ discard
 ```
 
 Never delete unrelated dirty working tree files. If unrelated dirty working tree changes exist, stop and ask for a narrower cleanup plan.
+
+**Worktree discard** (when `isolation: worktree`): after `discard` confirmation:
+```bash
+rm -f <worktree-path>/.forgeflow    # remove symlink only
+git worktree remove --force <worktree-path>
+git branch -D <feature-branch>
+```
 
 ## Safety rules
 

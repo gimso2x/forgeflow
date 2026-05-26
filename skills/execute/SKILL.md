@@ -150,6 +150,12 @@ Minimum warning contract:
 
 ## Procedure
 
+0. **Isolation check** (→ `_shared/isolation.md`):
+   - Detect environment: `test -f .git` → worktree, `test -d .git` → main repo.
+   - If in a worktree: verify `.forgeflow` symlink is valid and task artifacts are accessible.
+   - If in main repo and `brief.md` has `isolation: worktree`: warn the user — execute should run inside the worktree (`cd .forgeflow/worktrees/<task-id>`). Stop and ask whether to proceed in main (risky for parallel work) or switch to worktree.
+   - If `isolation: none` or small route: proceed normally in current directory.
+
 1. Confirm route and current stage. Read `brief.md` to determine route.
 2. Run Evolution rule enforcement before editing files.
 3. Initialize `implementation-notes.md` in the active task directory if it does not exist (use `templates/implementation-notes.md`). Set `Current Stage: execute`, `Status: in_progress`.
