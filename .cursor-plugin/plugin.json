@@ -27,13 +27,14 @@
       "Write"
     ],
     "defaultPrompt": [
-      "/clarify <describe the coding task>",
-      "/plan",
-      "/execute",
-      "/review",
-      "/ship",
-      "/long-run",
-      "/benchmark"
+      "/forgeflow:clarify <describe the coding task>",
+      "/forgeflow:plan",
+      "/forgeflow:execute",
+      "/forgeflow:review",
+      "/forgeflow:ship",
+      "/forgeflow:long-run",
+      "/forgeflow:benchmark",
+      "/forgeflow:config"
     ]
   }
 }

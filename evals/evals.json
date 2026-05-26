@@ -3500,6 +3500,123 @@
               "value": "auto:false"
             }
           ]
+        },
+        {
+          "id": 52,
+          "name": "benchmark-fixture-path-validation",
+          "prompt": "A ForgeFlow benchmark run is configured with fixture paths. The fixture config lists: fixtures/base-prompt.md, fixtures/rubric.json, and fixtures/expected-output.md. Two paths are valid relative paths under the repo root, but fixtures/expected-output.md does not exist on disk. Produce only the benchmark pre-run validation report. Do not start the benchmark run. Do not create or touch any fixture files.",
+          "expected_output": "A validation report that checks each fixture path exists, reports fixtures/expected-output.md as missing, confirms the other two paths are valid relative paths, refuses to start the benchmark run until the missing fixture is resolved, and avoids creating or modifying any fixture files.",
+          "files": [
+            "skills/benchmark/SKILL.md"
+          ],
+          "assertions": [
+            {
+              "text": "Output reports the missing fixture file.",
+              "type": "contains",
+              "value": "fixtures/expected-output.md"
+            },
+            {
+              "text": "Output confirms valid relative paths were checked.",
+              "type": "contains_any",
+              "values": [
+                "fixtures/base-prompt.md",
+                "fixtures/rubric.json",
+                "path exists",
+                "fixture path"
+              ]
+            },
+            {
+              "text": "Output refuses to start the benchmark run due to missing fixture.",
+              "type": "contains_any",
+              "values": [
+                "missing",
+                "not found",
+                "does not exist",
+                "cannot start",
+                "refuse"
+              ]
+            },
+            {
+              "text": "Output does not create or modify fixture files.",
+              "type": "not_contains_any",
+              "values": [
+                "created fixture",
+                "wrote fixture",
+                "touch fixtures",
+                "generated expected-output"
+              ]
+            },
+            {
+              "text": "Output validates fixture paths as repo-relative format.",
+              "type": "contains_any",
+              "values": [
+                "relative path",
+                "repo-relative",
+                "fixture path",
+                "path validation"
+              ]
+            }
+          ]
+        },
+        {
+          "id": 53,
+          "name": "benchmark-timeout-result-format",
+          "prompt": "A ForgeFlow benchmark run is configured with a per-prompt timeout of 30 seconds. Adapter A responds in 5 seconds with valid structured output. Adapter B times out after 30 seconds with no response. Produce only the benchmark result report in the standard benchmark output format.",
+          "expected_output": "A structured benchmark result report that records Adapter A as completed with response time, records Adapter B as timed out, distinguishes completed vs timed-out results, includes elapsed time for both adapters, and avoids fabricating a response for the timed-out adapter.",
+          "files": [
+            "skills/benchmark/SKILL.md"
+          ],
+          "assertions": [
+            {
+              "text": "Output records Adapter A as completed.",
+              "type": "contains_any",
+              "values": [
+                "Adapter A",
+                "completed",
+                "5s",
+                "5 seconds"
+              ]
+            },
+            {
+              "text": "Output records Adapter B as timed out.",
+              "type": "contains_any",
+              "values": [
+                "Adapter B",
+                "timed out",
+                "timeout",
+                "30s"
+              ]
+            },
+            {
+              "text": "Output distinguishes completed from timed-out results.",
+              "type": "contains_any",
+              "values": [
+                "timed out",
+                "timeout",
+                "completed",
+                "status"
+              ]
+            },
+            {
+              "text": "Output does not fabricate a response for the timed-out adapter.",
+              "type": "not_contains_any",
+              "values": [
+                "Adapter B responded",
+                "Adapter B output",
+                "Adapter B result: success"
+              ]
+            },
+            {
+              "text": "Output includes elapsed or response time data.",
+              "type": "contains_any",
+              "values": [
+                "elapsed",
+                "response time",
+                "seconds",
+                "duration"
+              ]
+            }
+          ]
         }
   ]
 }

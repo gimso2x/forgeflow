@@ -9,6 +9,8 @@ validate_prompt: |
   Must not treat worker self-report as final approval; review remains required.
   Must use `skills/execute/references/` prompts for subagent dispatch and write the same execute artifacts.
   Must not dispatch parallel implementer subagents for steps that touch the same file.
+dependencies:
+  - skills/_shared/preflight.md
 ---
 
 # Execute

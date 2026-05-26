@@ -16,6 +16,7 @@ outputs:
   - ship-summary.md: artifact
 dependencies:
   - skills/_shared/discipline.md
+  - skills/_shared/isolation.md
   - docs/adapter-config.md
   - docs/advisory-guidelines.md
   - templates/brief.md

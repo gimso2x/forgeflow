@@ -21,7 +21,8 @@
       "/forgeflow:review",
       "/forgeflow:ship",
       "/forgeflow:long-run",
-      "/forgeflow:benchmark"
+      "/forgeflow:benchmark",
+      "/forgeflow:config"
     ],
     "brandColor": "#111827",
     "screenshots": []

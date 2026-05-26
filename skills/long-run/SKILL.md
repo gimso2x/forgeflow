@@ -5,6 +5,7 @@ version: 0.4.0
 author: gimso2x
 dependencies:
   - skills/_shared/discipline.md
+  - skills/_shared/isolation.md
 validate_prompt: |
   Must preserve only learning that can improve future tasks.
   Must not store session chatter, one-off progress, or user-private context.

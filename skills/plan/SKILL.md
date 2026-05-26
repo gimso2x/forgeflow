@@ -8,6 +8,8 @@ validate_prompt: |
   Must default to artifact-first behavior and produce `plan.md` in the active task directory unless the user explicitly requests dry-run or no-write output.
   Must keep contracts, fulfills, journeys, and verify_plan consistent when present.
   For epic route, must produce `roadmap.md` conforming to `templates/roadmap.md` format with measurable success criteria per milestone and integration verification as final node.
+dependencies:
+  - skills/_shared/isolation.md
 ---
 
 # Plan

@@ -4,6 +4,8 @@ version: "1.3"
 description: Manage ForgeFlow project defaults interactively. Toggle auto-chaining and worktree isolation.
 validate_prompt: |
   Must present current .forgeflow/defaults.md values, offer toggle by number, and write changes back without committing.
+dependencies:
+  - skills/_shared/automation.md
 ---
 
 # Skill: config

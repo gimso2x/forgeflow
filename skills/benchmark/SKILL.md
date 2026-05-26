@@ -5,6 +5,7 @@ version: 0.3.0
 author: gimso2x
 dependencies:
   - skills/_shared/discipline.md
+  - skills/_shared/isolation.md
 validate_prompt: |
   Must run the same prompt against multiple adapters.
   Must produce a structured comparison report.
