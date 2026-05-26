@@ -192,6 +192,7 @@ Minimum warning contract:
     - `lint`: Project lint command (`pnpm lint`, `npm run lint`, `ruff check`, etc.)
     - `type_check`: TypeScript type check (`tsc --noEmit`) or equivalent
     - `test`: Project test command (`pnpm test`, `npm test`, `pytest`, etc.)
+    - **Worktree symlink exclusion**: `.forgeflow` symlink로 인해 테스트 러너가 중복 파일을 수집할 수 있다. Vitest는 `--exclude '**/.forgeflow/**'`, Jest는 `--testPathIgnorePatterns .forgeflow`로 제외하라.
     Record results in `implementation-notes.md` Evidence as `verification:PASS/FAIL gate=<name> command="<cmd>"`.
     Small routes require at least 1 gate. Medium+ require at least 2 gates including build.
 11. Update `implementation-notes.md` immediately when starting and finishing each step. Step state must be incremental: `pending -> in_progress -> completed`. Do not batch-mark all steps as `completed` only at the end. If a step cannot finish, mark it `blocked` with evidence.
@@ -213,7 +214,8 @@ Minimum warning contract:
     2. 검증 결과: lint/build/test 각각 pass/fail + 숫자
     3. 변경 파일 목록
     4. 주의사항 (있는 경우): contract_check 실패, environment warning, 미해결 decisions
-    Do NOT auto-proceed to the next stage unless `--auto` is active (see `_shared/automation.md`). 반드시 사용자가 다음 단계를 실행하도록 대기.
+    **`--auto`가 활성 상태면**: 완료 보고를 출력한 뒤 checkpoint를 업데이트하고 곧바로 `/forgeflow:review`를 invoke한다. 사용자에게 다음 단계를 묻지 않는다(automation.md strict auto-chain).
+    **`--auto`가 아니면**: 반드시 사용자가 다음 단계를 실행하도록 대기.
 
 Contract-aware execution rules:
 
