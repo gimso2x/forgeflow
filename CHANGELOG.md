@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.0] - 2026-05-27
+
+### Added
+
+- **Telemetry 실구현**: `scripts/telemetry_collect.py`와 `scripts/telemetry_aggregate.py`를 추가해 `.forgeflow/tasks/` 산출물 기반 이벤트 수집과 `.forgeflow/telemetry/summary.md` 집계를 지원
+- **Pipeline telemetry contract**: clarify, plan, execute, review, ship 각 스킬에 완료/실패/boundary alert 이벤트 기록 의무와 stage별 failure type을 추가
+- **Specialist review routing**: clarify 단계에서 route와 specialist를 분리하고 review assertion profile을 role별로 적용
+- **표준 산출물 확장**: `plan-ledger`, `decision-log`, `project-draft`, telemetry event, metrics dashboard 템플릿 추가
+- **Init 아키텍처 초안 생성기**: config/forgeflow 스킬에 project draft 생성 흐름과 eval coverage 추가
+- **Scope boundary 명시화**: route별 파일 수 기준, advisory boundary alert, review boundary 검증을 추가
+
+### Changed
+
+- **Makefile 검증 구조 개선**: 인라인 Python 검증 로직을 `scripts/validate_*.py`로 분리하고 `make validate` 유지보수성을 개선
+- **Eval coverage 확장**: route policy, benchmark, long-run, telemetry, scope boundary, review standalone, config 전파 회귀 케이스를 포함해 총 92개 eval로 확장
+- **문서 정합성 보강**: README, advisory guidance, roadmap, adapter/plugin reference 간 telemetry 및 scope boundary 참조를 동기화
+
+### Fixed
+
+- **CHANGELOG/비교 링크 정합성**: 누락된 과거 버전 섹션과 release compare link를 보강
+- **Route/config 정합성**: auto/config 전파 회귀와 adapter plugin defaultPrompt mapping 검증을 추가
+- **Template/reference 정합성**: 미사용 템플릿 제거, cross-reference 보강, GEMINI/shared skill 참조 정리
+
 ## [1.5.2] - 2026-05-27
 
 ### Fixed
@@ -734,7 +757,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI gate with GitHub Actions workflow generation
 - Agent preset installer (Claude + Codex)
 
-[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v1.5.2...HEAD
+[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v1.6.0...HEAD
+[1.6.0]: https://github.com/gimso2x/forgeflow/compare/v1.5.2...v1.6.0
 [1.5.2]: https://github.com/gimso2x/forgeflow/compare/v1.5.1...v1.5.2
 [1.5.1]: https://github.com/gimso2x/forgeflow/compare/v1.5.0...v1.5.1
 [1.5.0]: https://github.com/gimso2x/forgeflow/compare/v1.4.0...v1.5.0
