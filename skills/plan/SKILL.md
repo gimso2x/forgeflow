@@ -1,7 +1,7 @@
 ---
 name: plan
 description: Create an executable ForgeFlow plan with exact tasks, files, acceptance criteria, and verification steps. Includes epic decomposition for epic route. Use when the user types /plan or /forgeflow:plan.
-version: 0.4.0
+version: 0.5.0
 author: gimso2x
 validate_prompt: |
   Must preserve exact-output and dry-run constraints when requested.
@@ -128,7 +128,11 @@ Before crossing `plan -> execute`, the plan must make these sections explicit:
 
 State assumptions and success criteria before proposing tasks. If an assumption changes the implementation path, record it as a bounded assumption or return to `/forgeflow:clarify`; do not hide it inside a task title.
 
-**TDD Principle**: All implementation steps MUST follow TDD. Plan test writing steps BEFORE or EXPLICITLY alongside code writing steps. "Write failing test" should be its own objective or a clear part of a step's objective.
+**Testing Principle** (route-aware, → `skills/execute/SKILL.md` Route-aware Testing):
+- **small**: No test steps in plan. Lint/build verification only.
+- **medium**: Do NOT create a dedicated "write failing tests" task. Integrate test writing into the implementation step (test-after). Example: "X를 구현하고 테스트 작성" instead of separate T1=test, T2=impl.
+- **high/epic**: TDD applies — plan test-first steps for logic/contract changes. Style/config steps use test-after.
+"Write failing test" should be its own objective **only** for high/epic logic steps.
 
 ## Refactor mode
 
@@ -313,10 +317,8 @@ Apply these synthesis heuristics to convert five-angle analysis into milestone b
    - Medium routes default to pipeline. High/epic routes should consider fan-out/fan-in when the plan has 3+ independent parallel tasks.
 
    **Task Granularity** — each step is one action (2-5 minutes of work):
-   - "Write the failing test" — one step
-   - "Run it to confirm it fails" — one step
-   - "Write the minimal code to pass" — one step
-   - "Run tests to confirm they pass" — one step
+   - **high/epic TDD steps**: "Write the failing test" — one step; "Write the minimal code to pass" — one step
+   - **medium test-after steps**: "Implement X and write tests" — one step (no separate test-first step)
    - "Commit" — one step
 
 5. For every step, write expected output and verification. Never leave a step that assumes "the worker will figure it out."
