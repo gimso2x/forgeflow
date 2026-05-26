@@ -7,5 +7,6 @@
 @./skills/ship/SKILL.md
 @./skills/long-run/SKILL.md
 @./skills/benchmark/SKILL.md
+@./skills/config/SKILL.md
 @./docs/advisory-guidelines.md
 @./docs/adapter-config.md

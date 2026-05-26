@@ -45,6 +45,19 @@ ln -s "${MAIN_ROOT}/.forgeflow" "${WT_PATH}/.forgeflow"
 # 4. Verify
 test "$(git -C "$WT_PATH" branch --show-current)" = "$BRANCH"
 test -L "${WT_PATH}/.forgeflow"
+
+# 5. Install dependencies (node_modules is gitignored, not copied to worktree)
+#    Detect package manager from main repo lockfile and install in worktree.
+if   [ -f "${MAIN_ROOT}/pnpm-lock.yaml" ]; then pnpm install --dir "$WT_PATH"
+elif [ -f "${MAIN_ROOT}/yarn.lock" ];     then (cd "$WT_PATH" && yarn install)
+elif [ -f "${MAIN_ROOT}/package-lock.json" ]; then (cd "$WT_PATH" && npm ci)
+elif [ -f "${MAIN_ROOT}/bun.lockb" ];     then (cd "$WT_PATH" && bun install)
+elif [ -f "${MAIN_ROOT}/requirements.txt" ] || [ -f "${MAIN_ROOT}/pyproject.toml" ]; then
+  # Python: copy or recreate venv if .venv is gitignored
+  if [ ! -d "${WT_PATH}/.venv" ] && [ -d "${MAIN_ROOT}/.venv" ]; then
+    cp -r "${MAIN_ROOT}/.venv" "${WT_PATH}/.venv"
+  fi
+fi
 ```
 
 Record in `brief.md` Task Isolation section:

@@ -93,8 +93,9 @@ Complete **all** items before invoking the next stage or editing code outside th
 | Notes | `implementation-notes.md` updated per task (Decisions, Evidence, Deviations) |
 | Checkpoint | Updated after **each** task completes; `Active Task` must not stay stale on Task 1 while later tasks finish |
 | Evidence | Verification commands run; results in Evidence / Gate Results |
+| **/clear** | **Mandatory between every task** — after checkpoint, ledger, evidence are written to disk, `/clear` before starting the next task. Do not chain tasks in the same context. Resume follows checkpoint-first protocol (→ `_shared/context-resume.md`). |
 | Chain | Invoke `/forgeflow:review` immediately when all tasks done — no `(y/n)` prompt |
-| Forbidden | Deferring ledger/notes until the user asks "어디까지?"; coding after execute exit without review |
+| Forbidden | Deferring ledger/notes until the user asks "어디까지?"; coding after execute exit without review; skipping `/clear` between tasks |
 
 #### review → ship
 

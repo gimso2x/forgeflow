@@ -164,7 +164,10 @@ Minimum warning contract:
 4. Initialize `run-ledger.md` from `templates/run-ledger.md` if it does not exist. Set all task statuses from `plan.md` as `pending`.
 5. Write `checkpoint.md` from `templates/checkpoint.md` with `Current Stage: execute`, `Active Task: first pending task`, `Next Action: begin first plan step`.
 6. Read Contracts section from `plan.md` before editing when present.
-   - **Environment safety net**: If `brief.md` lacks environment notes, run: `git rev-parse --is-inside-work-tree 2>/dev/null; ls node_modules .venv vendor 2>/dev/null | head -3`. If dependencies are missing and a package manager is detected, stop and ask: "종속성이 설치되지 않았습니다. 설치를 먼저 진행하시겠습니까?" Do NOT attempt installation yourself. If no git and route is medium/high, warn that ship cannot commit/PR, then continue.
+   - **Environment safety net**: If `brief.md` lacks environment notes, run: `git rev-parse --is-inside-work-tree 2>/dev/null; ls node_modules .venv vendor 2>/dev/null | head -3`. If dependencies are missing and a package manager is detected:
+     - **Under `--auto`**: install automatically using the detected package manager. Record the install command in `implementation-notes.md` Evidence. Do not stop or ask the user.
+     - **Otherwise**: stop and ask: "종속성이 설치되지 않았습니다. 설치를 먼저 진행하시겠습니까?" Do NOT attempt installation yourself.
+     - If no git and route is medium/high, warn that ship cannot commit/PR, then continue.
 7. For each task in the plan:
    - **TDD Red**: Write/update tests to fail.
    - **Execute Implementation**: Implement minimal code to pass. Prefer the smallest implementation that satisfies the acceptance criteria.
@@ -177,7 +180,7 @@ Minimum warning contract:
    - **Run Ledger**: When starting a task, set its status to `running` and **Assignee** to `worker` (or `specialist` if delegated). When completing, set to `done` with evidence refs. When blocked, set to `blocked` with blocker description. Update incrementally, not in batch. See **Run ledger assignee discipline** below.
    - **Per-task micro-gates (high/epic only)**: Before marking a step `done`, run the micro-gate checklist in **Per-task micro-gates** below. Optional spec/quality micro-reviewer subagents use `references/spec-reviewer-prompt.md` and `references/quality-reviewer-prompt.md`.
    - **Checkpoint**: Update `checkpoint.md` after each task completes: set `Active Task` to the next task, update `Latest Artifacts` table. Ensures resume capability after context compaction or clear.
-     - **Step-boundary /clear**: Once checkpoint, run-ledger, and evidence are all updated on disk for a completed step, `/clear` is safe and preferred over `/compact` for long execute passes. Resume reads checkpoint → ledger → notes → plan active task (→ `_shared/context-resume.md`).
+     - **Step-boundary /clear (mandatory)**: Once checkpoint, run-ledger, and evidence are all updated on disk for a completed step, you MUST `/clear` before starting the next task. Do not carry prior task context into the next step — all state is already persisted to disk artifacts. Resume reads checkpoint → ledger → notes → plan active task (→ `_shared/context-resume.md`). This applies to all routes (small/medium/high/epic) and regardless of `--auto` mode. **No exceptions**: the resume cost is fixed (~1-2K tokens to re-read checkpoint → ledger → notes), while skipping `/clear` accumulates stale context from every prior task.
    - **Role awareness**: You are the implementation role. You edit code and update artifacts, but you do not approve your own work. Review is a separate stage with a separate role boundary. Do not merge implementation and review in the same turn.
    - **Architectural Depth**: Ensure implementation follows the plan's architectural intent (Depth, Leverage, Locality) and avoids creating new shallow modules.
    - If blocked, apply **Hypothesis-Driven Debugging**.

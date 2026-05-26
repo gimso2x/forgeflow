@@ -1,5 +1,6 @@
 ---
 name: config
+version: "1.3"
 description: Manage ForgeFlow project defaults interactively. Toggle auto-chaining and worktree isolation.
 validate_prompt: |
   Must present current .forgeflow/defaults.md values, offer toggle by number, and write changes back without committing.
@@ -59,3 +60,4 @@ isolation: true
 - Only modify `.forgeflow/defaults.md` — no other files.
 - Never auto-commit the defaults file.
 - Supported fields only: `auto`, `isolation`. Ignore unknown fields.
+- Shared file-write rules: `_shared/discipline.md`.

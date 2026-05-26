@@ -3235,6 +3235,152 @@
             "Next Action",
             "다음 작업"
           ]
+        },
+        {
+          "id": 46,
+          "name": "worktree-dependency-install",
+          "prompt": "A medium-route ForgeFlow clarify completes and the isolation protocol creates a worktree at .forgeflow/worktrees/fix-slider-abc. The main repo uses pnpm (pnpm-lock.yaml exists). Produce only the worktree creation procedure including dependency installation. The worktree must have node_modules before execute starts.",
+          "expected_output": "A creation procedure that includes git branch, git worktree add, .forgeflow symlink, verify, AND a dependency installation step that detects pnpm-lock.yaml and runs pnpm install in the worktree directory.",
+          "files": [
+            "skills/_shared/isolation.md"
+          ],
+          "assertions": [
+            {
+              "text": "Output includes a dependency installation step after worktree creation.",
+              "type": "contains_any",
+              "values": [
+                "pnpm install",
+                "npm ci",
+                "yarn install",
+                "install"
+              ]
+            },
+            {
+              "text": "Output detects the package manager from the lockfile.",
+              "type": "contains_any",
+              "values": [
+                "pnpm-lock.yaml",
+                "lockfile",
+                "package-lock.json"
+              ]
+            },
+            {
+              "text": "Output runs install inside the worktree directory, not the main repo.",
+              "type": "contains_any",
+              "values": [
+                "--dir .forgeflow/worktrees",
+                "cd .forgeflow/worktrees",
+                "WT_PATH"
+              ]
+            },
+            {
+              "text": "Output does NOT skip dependency installation or leave node_modules missing.",
+              "type": "not_contains_any",
+              "values": [
+                "node_modules is not needed",
+                "skip install",
+                "installation is not required"
+              ]
+            }
+          ]
+        },
+        {
+          "id": 47,
+          "name": "execute-auto-mode-auto-install",
+          "prompt": "A ForgeFlow execute starts in --auto mode inside a worktree. The environment safety net detects node_modules is missing but pnpm-lock.yaml exists. Produce only the environment safety net action. The task must not fail due to missing dependencies.",
+          "expected_output": "An environment safety net that automatically installs dependencies using the detected package manager without asking the user, records the install command in implementation-notes.md Evidence, and proceeds to execute.",
+          "files": [
+            "skills/execute/SKILL.md",
+            "skills/_shared/automation.md"
+          ],
+          "assertions": [
+            {
+              "text": "Output installs dependencies automatically without asking the user.",
+              "type": "contains_any",
+              "values": [
+                "install automatically",
+                "auto-install",
+                "automatically",
+                "자동 설치"
+              ]
+            },
+            {
+              "text": "Output records the install command in evidence or implementation notes.",
+              "type": "contains_any",
+              "values": [
+                "implementation-notes",
+                "Evidence",
+                "evidence",
+                "증거"
+              ]
+            },
+            {
+              "text": "Output does NOT stop to ask the user whether to install.",
+              "type": "not_contains_any",
+              "values": [
+                "stop and ask the user",
+                "ask: 종속성이",
+                "confirm before installing"
+              ]
+            }
+          ]
+        },
+        {
+          "id": 48,
+          "name": "execute-clear-between-tasks",
+          "prompt": "A ForgeFlow execute just completed Task 2 of a medium-route plan. checkpoint.md, run-ledger.md, and implementation-notes.md evidence are all updated on disk. Task 3 is next. Produce only the step-boundary /clear action and resume note for Task 3. The agent must not carry Task 2 context into Task 3.",
+          "expected_output": "A step-boundary action that mandates /clear before starting Task 3, with a resume note that reads checkpoint → ledger → notes → plan active task section. This applies regardless of route or --auto mode.",
+          "files": [
+            "skills/execute/SKILL.md",
+            "skills/_shared/context-resume.md",
+            "skills/_shared/automation.md"
+          ],
+          "assertions": [
+            {
+              "text": "Output mandates /clear before starting the next task, not just recommends it.",
+              "type": "contains_any",
+              "values": [
+                "must /clear",
+                "mandatory",
+                "/clear before",
+                "반드시",
+                "의무",
+                "Execute `/clear` now",
+                "required",
+                "you MUST"
+              ]
+            },
+            {
+              "text": "Output includes the checkpoint-first resume order.",
+              "type": "contains_all",
+              "values": [
+                "checkpoint",
+                "run-ledger",
+                "implementation-notes"
+              ]
+            },
+            {
+              "text": "Output does NOT say /clear is optional or merely preferred.",
+              "type": "not_contains_any",
+              "values": [
+                "/clear is safe and preferred",
+                "may /clear",
+                "optional",
+                "선택적"
+              ]
+            },
+            {
+              "text": "Output applies to all routes and auto mode, not just high/epic.",
+              "type": "contains_any",
+              "values": [
+                "all routes",
+                "small/medium/high/epic",
+                "regardless of route",
+                "모든 라우트",
+                "--auto"
+              ]
+            }
+          ]
         }
       ]
     }

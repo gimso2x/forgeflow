@@ -72,6 +72,12 @@ User: "/forgeflow:review --type security ./src/"
   → review (standalone)     → security-reviewer only → review-report.md
 ```
 
+## Utility skills
+
+| # | Skill | Purpose |
+|---|-------|---------|
+| U1 | [`config`](config/SKILL.md) | Manage ForgeFlow project defaults interactively. Toggle auto-chaining and worktree isolation. |
+
 ## Adding a new skill
 
 1. Pick a bounded skill name that matches a first-class plugin operation.
