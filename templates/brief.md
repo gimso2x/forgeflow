@@ -92,7 +92,7 @@
 <!-- worktree | none — worktree isolation for parallel task execution (medium/high/epic only) -->
 - **isolation**: <!-- worktree | none -->
 - **worktree_path**: <!-- .forgeflow/worktrees/<task-id>/ (relative to main repo) -->
-- **branch**: <!-- ff/<task-id> -->
+- **branch**: <!-- <type>/<YYYYMM>-<korean-description> -->
 
 ## 환경 사전 점검 (Environment Preflight)
 <!-- git repo status, lockfile/dependency check, etc. -->

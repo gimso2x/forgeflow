@@ -26,7 +26,7 @@ Run from the **main repository root** (`git rev-parse --show-toplevel`).
 
 ```bash
 TASK_ID="<task-id>"
-BRANCH="${TASK_ID}"
+BRANCH="<branch-name>"  # Human-readable: <type>/<YYYYMM>-<korean-description>
 WT_PATH=".forgeflow/worktrees/${TASK_ID}"
 MAIN_ROOT="$(git rev-parse --show-toplevel)"
 
@@ -63,7 +63,7 @@ fi
 Record in `brief.md` Task Isolation section:
 - `isolation: worktree`
 - `worktree_path: .forgeflow/worktrees/<task-id>/`
-- `branch: <task-id>`
+- `branch: <branch-name>`
 
 ## Detection
 
@@ -99,7 +99,7 @@ Run from the **main repository root** after the worktree branch is merged or dis
 
 ```bash
 TASK_ID="<task-id>"
-BRANCH="${TASK_ID}"
+BRANCH="<branch-name>"  # From brief.md Task Isolation
 WT_PATH=".forgeflow/worktrees/${TASK_ID}"
 
 # 1. Merge branch into main

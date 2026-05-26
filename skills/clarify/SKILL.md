@@ -52,6 +52,27 @@ Example: `feature-auth-redir-a3f`
 
 Check that `.forgeflow/tasks/<task-id>/` does not already exist. If it does, append a numeric suffix.
 
+## Branch name generation
+
+For worktree isolation (medium/high/epic), generate a human-readable branch name following the project's commit convention `[브랜치명]`:
+
+```
+<type>/<YYYYMM>-<korean-description>
+```
+
+- `type`: feature, fix, refactor, docs, or task
+- `YYYYMM`: current year-month
+- `korean-description`: 2-4 word Korean summary of the objective, hyphen-separated
+
+Examples:
+- `feature/202605-네이버지도-기초`
+- `fix/202605-면적-슬라이더-정합`
+- `refactor/202605-인증-훅-분리`
+
+The branch name is used as the git branch name and commit message prefix. It must be stored in `brief.md` Task Isolation section as `branch`.
+
+The task ID remains as the internal identifier for `.forgeflow/tasks/` and `.forgeflow/worktrees/` directories — it does NOT become the branch name.
+
 Plugin-cache/extension-cache safety rule: never create task artifacts under a path containing `.claude/plugins/cache`, `.codex/plugins`, `.cursor/plugins`, `~/.cursor/plugins/local`, `.gemini/extensions`, `~/.gemini/extensions`, or any plugin marketplace/cache/extension directory. If the working directory resolves to a plugin install/cache/extension directory and the user did not provide `--task-dir`, stop and ask for an explicit `--task-dir` instead of writing there.
 
 ## Output Artifacts
@@ -251,14 +272,15 @@ For exact-count, dry-run, or response-only prompts, do not force the WHERE inter
 
 12. **Worktree isolation** (medium/high/epic only, unless `--no-isolation` or `defaults.md` `isolation: false`):
     Follow the protocol in `_shared/isolation.md`. Summary:
-    a. Check if `.forgeflow/worktrees/<task-id>/` already exists — skip if so (idempotent).
-    b. Create branch: `git branch <task-id> HEAD`
-    c. Create worktree: `git worktree add .forgeflow/worktrees/<task-id> <task-id>`
-    d. Symlink: `ln -s <main-repo>/.forgeflow .forgeflow/worktrees/<task-id>/.forgeflow`
-    e. Record in brief.md Task Isolation section: `isolation: worktree`, `worktree_path`, `branch`.
-    f. After brief + worktree are ready, inform the user:
+    a. Generate branch name (see Branch name generation above).
+    b. Check if `.forgeflow/worktrees/<task-id>/` already exists — skip if so (idempotent).
+    c. Create branch: `git branch <branch-name> HEAD`
+    d. Create worktree: `git worktree add .forgeflow/worktrees/<task-id> <branch-name>`
+    e. Symlink: `ln -s <main-repo>/.forgeflow .forgeflow/worktrees/<task-id>/.forgeflow`
+    f. Record in brief.md Task Isolation section: `isolation: worktree`, `worktree_path`, `branch`.
+    g. After brief + worktree are ready, inform the user:
        ```
-       worktree 생성됨: .forgeflow/worktrees/<task-id>
+       worktree 생성됨: .forgeflow/worktrees/<task-id> (branch: <branch-name>)
        병렬 실행: cd .forgeflow/worktrees/<task-id> 후 /forgeflow:execute
        ```
     **Small route**: skip worktree creation. Set `isolation: none` in brief.
