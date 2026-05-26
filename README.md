@@ -74,7 +74,13 @@ ForgeFlow는 artifact-first를 유지하면서 context compaction 후 재개 비
 /forgeflow:execute   → 구현 실행 → implementation-notes.md
 /forgeflow:review    → 독립 검증 → review-report.md
 /forgeflow:ship      → 배포/마무리 + 브랜치 정리
+/forgeflow:long-run  → 학습 기록 → eval-record.md (high/epic ship 후 자동 또는 수동)
+/forgeflow:benchmark → cross-adapter 벤치마크 (독립 실행, 파이프라인 외부)
 ```
+
+`long-run`은 high/epic 라우트 ship 완료 후 자동으로 실행되며, 수동으로 `/forgeflow:long-run`을 호출할 수도 있습니다. 재사용 가능한 패턴과 실패 규칙만 `eval-record.md`에 기록합니다. small/medium 라우트에서는 실행하지 않습니다.
+
+`benchmark`는 Claude/Codex/Gemini에 동일 프롬프트를 실행해 정량 비교 리포트를 생성합니다. ForgeFlow 파이프라인과 독립적으로 실행되며, 결과는 `/tmp/forgeflow-bench/` 아래에 기록됩니다. 자세한 절차는 [`skills/benchmark/SKILL.md`](skills/benchmark/SKILL.md)를 참고하세요.
 
 ## Routes (자동 선택)
 
