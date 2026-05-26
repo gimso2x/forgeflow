@@ -50,4 +50,11 @@
 | Debug artifacts | |
 | Max component LOC | |
 | Files changed | |
-| Adapter | <!-- which adapter produced this --> |
+|| Adapter | <!-- which adapter produced this --> |
+
+## Worktree Metrics
+
+- **Disposition**: (merge|discard|keep)
+- **Creation**: (success/failed)
+- **Merge/Cleanup**: (success/failed, error category if any)
+- **Fallback**: (none / describe)

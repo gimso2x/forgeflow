@@ -3383,6 +3383,123 @@
               ]
             }
           ]
+        },
+        {
+          "id": 49,
+          "name": "config-auto-propagation-to-brief",
+          "prompt": "A user runs the config skill and sets auto:true in defaults.md. Then they run /forgeflow:clarify for a medium-sized task (task id eval-auto-propagate). Produce the clarify-stage brief.md content. The brief must reflect the auto mode inherited from defaults.md.",
+          "expected_output": "A brief.md artifact that includes auto mode configuration inherited from defaults.md, with auto:true propagated into the brief output.",
+          "files": [],
+          "assertions": [
+            {
+              "text": "Brief output includes auto mode or auto:true reflected from defaults.md.",
+              "type": "contains_any",
+              "values": [
+                "auto:true",
+                "auto: true",
+                "auto mode",
+                "Mode: auto"
+              ]
+            },
+            {
+              "text": "Brief output references defaults.md as the config source.",
+              "type": "contains_any",
+              "values": [
+                "defaults.md",
+                "project defaults",
+                "config"
+              ]
+            },
+            {
+              "text": "Brief output includes standard brief sections (Objective, Route).",
+              "type": "contains_all",
+              "values": [
+                "Objective",
+                "Route"
+              ]
+            },
+            {
+              "text": "Brief output does not ignore or override the auto setting.",
+              "type": "not_contains_any",
+              "values": [
+                "auto:false",
+                "auto: false",
+                "auto not set"
+              ]
+            }
+          ]
+        },
+        {
+          "id": 50,
+          "name": "config-auto-disabled-no-leak",
+          "prompt": "A user runs /forgeflow:clarify for a small task (task id eval-auto-disabled). defaults.md has no auto field set at all. Produce the clarify-stage brief.md content. The brief must not contain auto:true since defaults.md never specified it.",
+          "expected_output": "A brief.md artifact that does not include auto:true, since defaults.md has no auto configuration. Auto mode should not leak or default to true.",
+          "files": [],
+          "assertions": [
+            {
+              "text": "Brief output does not contain auto:true when defaults.md has no auto field.",
+              "type": "not_contains",
+              "value": "auto:true"
+            },
+            {
+              "text": "Brief output includes standard brief sections.",
+              "type": "contains_all",
+              "values": [
+                "Objective",
+                "Route"
+              ]
+            },
+            {
+              "text": "Brief output does not hallucinate auto mode from missing config.",
+              "type": "not_contains_any",
+              "values": [
+                "auto: true",
+                "auto:true",
+                "inherited auto"
+              ]
+            }
+          ]
+        },
+        {
+          "id": 51,
+          "name": "config-auto-flag-override",
+          "prompt": "A user runs /forgeflow:clarify --auto for a small task (task id eval-auto-override). defaults.md has auto:false. The --auto CLI flag should override the defaults.md setting. Produce the clarify-stage brief.md content reflecting that auto mode is active despite defaults.md saying false.",
+          "expected_output": "A brief.md artifact where the --auto CLI flag overrides defaults.md auto:false, resulting in auto mode active in the brief.",
+          "files": [],
+          "assertions": [
+            {
+              "text": "Brief output reflects auto mode active despite defaults.md auto:false.",
+              "type": "contains_any",
+              "values": [
+                "auto:true",
+                "auto: true",
+                "auto mode",
+                "Mode: auto"
+              ]
+            },
+            {
+              "text": "Brief output acknowledges CLI flag priority over defaults.md.",
+              "type": "contains_any",
+              "values": [
+                "--auto",
+                "CLI flag",
+                "flag override"
+              ]
+            },
+            {
+              "text": "Brief output includes standard brief sections.",
+              "type": "contains_all",
+              "values": [
+                "Objective",
+                "Route"
+              ]
+            },
+            {
+              "text": "Brief output does not treat defaults.md auto:false as final.",
+              "type": "not_contains",
+              "value": "auto:false"
+            }
+          ]
         }
   ]
 }

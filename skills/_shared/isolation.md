@@ -231,3 +231,31 @@ Add to project `.gitignore`:
 ```
 
 Worktrees are local-only and should not be shared via git.
+
+## Worktree Metrics Logging
+
+각 워크트리 이벤트(생성, merge, cleanup) 시 `.forgeflow/tasks/<task-id>/worktree-metrics.jsonl`에 한 줄씩 JSON append.
+
+### Event Schema
+
+```json
+{
+  "event": "created|merged|discarded|kept|cleanup_failed",
+  "timestamp": "ISO8601",
+  "route": "small|medium|high|epic",
+  "disposition": "merge|discard|keep",
+  "success": true,
+  "fallback_used": null,
+  "error_category": null
+}
+```
+
+### Error Categories
+- `oom`: 메모리 부족
+- `dependency_install_failed`: 의존성 설치 실패
+- `merge_conflict`: merge 충돌
+- `symlink_error`: symlink 문제
+- `timeout`: 시간 초과
+
+### Reporting
+ship-summary.md의 Worktree Metrics 섹션에서 worktree-metrics.jsonl을 요약하여 기록.

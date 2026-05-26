@@ -1,4 +1,4 @@
-.PHONY: validate demo validate-demo validate-json validate-no-python validate-slim-surface validate-ci-workflows validate-skills validate-skill-frontmatter validate-agent-docs validate-templates validate-template-refs validate-versions validate-changelog-links validate-route-scoring-parity validate-gemini-imports validate-plugin-prompts validate-evals validate-evals-json validate-eval-files validate-evals-fixtures validate-workflow-vocab validate-ship-safety validate-dogfooding-docs validate-context-resume validate-adapter-config validate-advisory-contract validate-markdown-links
+.PHONY: validate demo validate-demo validate-json validate-no-python validate-slim-surface validate-ci-workflows validate-skills validate-skill-frontmatter validate-agent-docs validate-templates validate-template-refs validate-versions validate-changelog-links validate-route-scoring-parity validate-route-policy validate-gemini-imports validate-plugin-prompts validate-evals validate-evals-json validate-eval-files validate-evals-fixtures validate-workflow-vocab validate-ship-safety validate-dogfooding-docs validate-context-resume validate-adapter-config validate-advisory-contract validate-markdown-links
 
 PYTHON ?= python3
 
@@ -21,7 +21,7 @@ TEMPLATES := \
 	evolution-rule.md \
 	ship-summary.md
 
-validate: validate-no-python validate-slim-surface validate-ci-workflows validate-json validate-versions validate-changelog-links validate-route-scoring-parity validate-skills validate-agent-docs validate-templates validate-template-refs validate-demo validate-gemini-imports validate-plugin-prompts validate-evals validate-workflow-vocab validate-ship-safety validate-dogfooding-docs validate-context-resume validate-adapter-config validate-advisory-contract validate-markdown-links
+validate: validate-no-python validate-slim-surface validate-ci-workflows validate-json validate-versions validate-changelog-links validate-route-scoring-parity validate-route-policy validate-skills validate-agent-docs validate-templates validate-template-refs validate-demo validate-gemini-imports validate-plugin-prompts validate-evals validate-workflow-vocab validate-ship-safety validate-dogfooding-docs validate-context-resume validate-adapter-config validate-advisory-contract validate-markdown-links
 	@echo "OK: local validation passed"
 
 validate-evals: validate-evals-json validate-eval-files validate-evals-fixtures
@@ -145,6 +145,9 @@ validate-changelog-links:
 validate-route-scoring-parity:
 	@$(PYTHON) scripts/validate_route_scoring_parity.py
 	@grep -Fq "make validate-route-scoring-parity" README.md || { echo "ERROR: README local validation docs must include focused route-scoring parity validation"; exit 1; }
+
+validate-route-policy:
+	@$(PYTHON) scripts/validate_route_policy.py
 
 validate-skill-frontmatter:
 	@bash scripts/validate-skill-frontmatter.sh
