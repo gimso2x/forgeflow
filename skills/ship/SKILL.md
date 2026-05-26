@@ -272,9 +272,15 @@ Base branch is ambiguous when any of these are true:
 
 When ambiguous, stop and ask the user to choose the exact base branch. Do not present `Merge locally` or `Push and create a Pull Request` as ready-to-run options until the base branch is confirmed. `Keep the branch as-is` remains safe to offer.
 
-### Present exactly four options
+### Present disposition options
 
-Use the user's primary language for the prompt while preserving the canonical English option label in parentheses. For Korean users, use this wording unless the user requested a stricter format:
+Branch disposition differs by isolation mode.
+
+#### Worktree isolation (`isolation: worktree`)
+
+Under `--auto`: proceed directly to **Merge locally** without prompting. Execute merge + worktree cleanup automatically.
+
+Without `--auto`: present the 4-option choice.
 
 ```text
 구현과 검증이 끝났습니다. 브랜치를 어떻게 처리할지 결정해주세요.
@@ -285,6 +291,17 @@ Use the user's primary language for the prompt while preserving the canonical En
 4. 이번 작업 폐기 (Discard this work)
 
 어떤 방식으로 마무리할까요?
+```
+
+#### Non-worktree (small route / `--no-isolation` / working directly on main)
+
+No branch disposition needed — changes are already on the current branch. Skip the 4-option prompt entirely and proceed to finish report:
+
+1. Verify all changes are committed. If dirty files exist, commit them first (under `--auto`, commit automatically; otherwise ask).
+2. Output finish report directly. No merge, no cleanup, no PR needed.
+
+```text
+구현과 검증이 끝났습니다. 변경사항이 <branch-name>에 커밋되었습니다.
 ```
 
 The option labels must remain recognizable, either as the visible label or the parenthesized canonical label:
@@ -380,7 +397,10 @@ git branch -D <feature-branch>
 
 ## Safety rules
 
-- **`--auto` does not skip any branch disposition confirmations.** However, `--auto` DOES automate everything before branch disposition: ship-summary, evolution rules, artifact preservation, and verification all proceed without stopping. **Under `--auto`**, branch disposition defaults to "Merge locally" — execute the merge and worktree cleanup automatically without presenting the 4-option prompt. Only present the 4-option choice when `--auto` is NOT active. The `discard` confirmation always requires exact `discard` input regardless of auto mode.
+- **`--auto` branch disposition by isolation mode**:
+  - **Worktree**: merge + cleanup automatically. No 4-option prompt.
+  - **Non-worktree**: changes are already on the current branch. Commit if needed, then finish report. No merge needed.
+  - The `discard` confirmation always requires exact `discard` input regardless of auto mode.
 - Never run `git reset --hard` as a shortcut for finishing.
 - Never run `git clean -fd` unless the user explicitly named the exact disposable paths.
 - Never force-push as part of ship unless explicitly requested.
