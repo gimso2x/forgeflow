@@ -101,6 +101,10 @@ Run from the **main repository root** after the worktree branch is merged or dis
 TASK_ID="<task-id>"
 BRANCH="<branch-name>"  # From brief.md Task Isolation
 WT_PATH=".forgeflow/worktrees/${TASK_ID}"
+MAIN_ROOT="$(git rev-parse --show-toplevel)"
+
+# 0. Move to main repo (session may be inside worktree)
+cd "$MAIN_ROOT"
 
 # 1. Merge branch into main
 git checkout main
@@ -119,6 +123,11 @@ git branch -d "$BRANCH"
 ### Discard + cleanup
 
 ```bash
+MAIN_ROOT="$(git rev-parse --show-toplevel)"
+
+# 0. Move to main repo (session may be inside worktree)
+cd "$MAIN_ROOT"
+
 # 1. Remove symlink
 rm -f "${WT_PATH}/.forgeflow"
 

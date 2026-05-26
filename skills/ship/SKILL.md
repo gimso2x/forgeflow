@@ -330,11 +330,15 @@ If verification passes after merge, offer branch cleanup. Do not delete the bran
 
 **Worktree cleanup** (when `isolation: worktree`): after merge succeeds, clean up:
 ```bash
-# Remove symlink first (prevent rm -rf on shared .forgeflow)
+# 1. Move to main repo before removing worktree
+cd <main-repo-root>
+
+# 2. Remove symlink first (prevent rm -rf on shared .forgeflow)
 rm -f <worktree-path>/.forgeflow
 git worktree remove <worktree-path>
 git branch -d <feature-branch>
 ```
+After cleanup, the current working directory is the main repo root. Inform the user that the worktree has been removed and the session is now on `<base-branch>`.
 If the feature branch is the `<task-id>` worktree branch, remove the worktree and branch together.
 
 ### 2. Push and create a Pull Request
