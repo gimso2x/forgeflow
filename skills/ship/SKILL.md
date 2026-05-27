@@ -49,6 +49,10 @@ Evolution rule artifacts (optional, when reusable patterns are found):
 - `~/.forgeflow/evolution/active/<rule-name>.md` for global-advisory scope
 - `.forgeflow/evolution/active/<rule-name>.md` for project scope
 
+Post-review harness improvement tickets (optional, when human review surfaced process gaps):
+
+- `.forgeflow/tasks/<task-id>/harness-improvement-tickets.md` — ticket candidates extracted from human review discussion and artifacts; these are harness/docs/prompt improvements, not direct product-code edits.
+
 ## Exit Condition
 
 - Working tree state is understood
@@ -147,11 +151,15 @@ Do not capture:
 1. Check git status and diff only if command execution is allowed.
 2. Run final verification only if command execution is allowed.
 3. Ensure review passed; do not ship blocked work.
-4. Confirm there is no unresolved blocker, and that handoff evidence is preserved in the active task directory before preparing the final summary.
+4. **Human Review Gate preflight**: Inspect `review-report.md` for `사람 리뷰 게이트 (Human Review Gate)`.
+   - If `Decision: required`, do not ship until `Human Decision Status` records the human decision and the handoff target is `ship`.
+   - If `Decision: skipped`, require a skip rationale tied to the review gate criteria.
+   - If the section is missing on older artifacts, treat this as a review artifact gap and route back to `/forgeflow:review` unless the task is explicitly legacy/no-risk and the reviewer records a skip rationale.
+5. Confirm there is no unresolved blocker, and that handoff evidence is preserved in the active task directory before preparing the final summary.
 
-5. **Artifact completeness gate**: Before writing final handoff language, inspect `review-report.md`, `implementation-notes.md`, and the draft/final `ship-summary.md` for unresolved template residue. If `TODO`, `TBD`, `FIXME`, unresolved `<!-- ... -->`, or angle-bracket placeholders such as `<task-id>`, `<branch-name>`, or `<...>` remain as artifact-writing residue, stop and route back to `/forgeflow:execute` or `/forgeflow:review`. Do not preserve unfinished placeholders as ship evidence. Intentional Markdown checkboxes, code snippets, command output, or literal examples are not blockers by themselves.
+6. **Artifact completeness gate**: Before writing final handoff language, inspect `review-report.md`, `implementation-notes.md`, and the draft/final `ship-summary.md` for unresolved template residue. If `TODO`, `TBD`, `FIXME`, unresolved `<!-- ... -->`, or angle-bracket placeholders such as `<task-id>`, `<branch-name>`, or `<...>` remain as artifact-writing residue, stop and route back to `/forgeflow:execute` or `/forgeflow:review`. Do not preserve unfinished placeholders as ship evidence. Intentional Markdown checkboxes, code snippets, command output, or literal examples are not blockers by themselves.
 
-6. **Final Polish and Simplification Loop**: Analyze the **actually changed code** (`git diff HEAD~1 HEAD` or equivalent) for quality before shipping. This is a read-first analysis: if modifications are needed, hand back to execute rather than editing code during ship.
+7. **Final Polish and Simplification Loop**: Analyze the **actually changed code** (`git diff HEAD~1 HEAD` or equivalent) for quality before shipping. This is a read-first analysis: if modifications are needed, hand back to execute rather than editing code during ship.
 
 #### Analysis (read-only)
 
@@ -173,7 +181,7 @@ If the Triple-Lens analysis identifies meaningful improvements:
 Proceed to the final summary step directly.
 If `--auto` is active (see `_shared/automation.md`), proceed to branch disposition automatically after writing `ship-summary.md`.
 
-7. **Extract evolution rules**: Review task artifacts for reusable patterns. For each valid candidate:
+8. **Extract evolution rules**: Review task artifacts for reusable patterns. For each valid candidate:
    1. Check existing active rules (`~/.forgeflow/evolution/active/` and `.forgeflow/evolution/active/`) for duplicates.
    2. Determine scope: global-advisory (default) or project (project-specific architecture only).
    3. Write the rule in **compact format** (6 lines, no `.md` extension) directly to the matching `active/` directory:
@@ -189,8 +197,8 @@ If `--auto` is active (see `_shared/automation.md`), proceed to branch dispositi
    4. Global → `~/.forgeflow/evolution/active/<rule-name>`, Project → `.forgeflow/evolution/active/<rule-name>`. Create directories if they do not exist.
    5. Report what rules were created and why.
 
-8. Write `ship-summary.md` to the active task directory. Include the Quantitative Summary section with metrics from `implementation-notes.md` → Metrics.
-9. Preserve artifacts/evidence instead of burying them in chat.
+9. Write `ship-summary.md` to the active task directory. Include the Quantitative Summary section with metrics from `implementation-notes.md` → Metrics.
+10. Preserve artifacts/evidence instead of burying them in chat.
 
 ## Branch Disposition (final phase)
 

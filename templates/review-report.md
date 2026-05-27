@@ -107,6 +107,22 @@ scope_boundary:
 ## 열린 blocker (Open Blockers)
 <!-- List blockers or "none" -->
 
+## 사람 리뷰 게이트 (Human Review Gate)
+<!-- required | skipped -->
+- **Decision**: <!-- required | skipped -->
+- **Rationale**: <!-- complexity/risk evidence for requiring or skipping human review -->
+- **Human Decision Status**: <!-- not_needed | pending | accepted | changes_requested | risk_accepted | deferred -->
+
+## 사람 리뷰 패킷 (Human Review Packet)
+<!-- Fill when Human Review Gate is required; otherwise delete this section. -->
+- **Decision Needed**: <!-- concrete question/tradeoff for the human reviewer -->
+- **Design Intent**: <!-- why this design was chosen -->
+- **Tradeoffs**: <!-- options considered and consequences -->
+- **Automated Review Evidence**: <!-- verdict, blockers, residual risks, verification confidence -->
+- **Discussion Prompts**:
+  - <!-- question, not edit command -->
+- **Handoff Target**: <!-- ship after decision | execute for changes | keep/defer -->
+
 ## 다음 단계 진행 가능 여부 (Safe for Next Stage)
 <!-- yes | no -->
 

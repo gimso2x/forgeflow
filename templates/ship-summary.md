@@ -20,6 +20,9 @@
 ## 리뷰 판정 (Review Verdict)
 <!-- From review-report.md: approved | changes_requested | blocked -->
 
+## 사람 리뷰 결정 (Human Review Decision)
+<!-- From review-report.md Human Review Gate: required | skipped. If required, include the human decision, rationale, and handoff target: ship | execute | keep/defer. -->
+
 ## 잔여 위험 (Residual Risks)
 <!-- Risks that remain after ship -->
 

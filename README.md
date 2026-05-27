@@ -92,6 +92,15 @@ ForgeFlow는 artifact-first를 유지하면서 context compaction 후 재개 비
 
 `long-run`은 high/epic 라우트 ship 완료 후 자동으로 실행되며, 수동으로 `/forgeflow:long-run`을 호출할 수도 있습니다. 재사용 가능한 패턴과 실패 규칙만 `eval-record.md`에 기록합니다. small/medium 라우트에서는 실행하지 않습니다.
 
+### Review model
+
+ForgeFlow review는 두 층입니다.
+
+- **Automated review**: 기본 `/forgeflow:review` 단계입니다. spec/quality/security/ux/perf 관점에서 observed evidence와 reported evidence를 구분해 `review-report.md`에 기록합니다.
+- **Human review**: 자동 reviewer role이 아니라 `/forgeflow:review` 이후, `/forgeflow:ship` 이전의 decision-partner gate입니다. API/CLI/schema 변경, state/data 변경, 보안 영향, 넓은 영향 범위, reviewer 간 충돌, 자동 증거 부족처럼 사람 판단이 필요한 경우 `Human Review Packet`을 작성합니다.
+
+작고 국소적이며 established pattern을 반복하는 변경은 human review를 `skipped`로 기록할 수 있습니다. 그 외에는 사람이 `ship`, `execute`, `keep/defer` 중 handoff target을 결정해야 `/forgeflow:ship`이 진행됩니다. 자세한 기준은 [docs/review-model.md](docs/review-model.md)를 참고하세요.
+
 `benchmark`는 Claude/Codex/Gemini에 동일 프롬프트를 실행해 정량 비교 리포트를 생성합니다. ForgeFlow 파이프라인과 독립적으로 실행되며, 결과는 `/tmp/forgeflow-bench/` 아래에 기록됩니다. 자세한 절차는 [`skills/benchmark/SKILL.md`](skills/benchmark/SKILL.md)를 참고하세요.
 
 ## Routes (자동 선택)

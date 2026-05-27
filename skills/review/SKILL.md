@@ -296,6 +296,7 @@ Standalone mode and high/epic pipeline mode use role-based review. Each role has
 - medium: quality-reviewer only (medium-full may add spec-reviewer)
 - high/epic: spec-reviewer (pass 1) → quality-reviewer (pass 2), sequential gates
 - Any route: security/ux/perf-reviewer triggered by file-type heuristics above
+- Human review is a separate decision-partner gate, not an automated reviewer role. Apply the Human Review Gate below after automated review has produced `review-report.md`.
 
 **Standalone mode**:
 - No `--type` flag: quality-reviewer always runs. spec-reviewer runs if brief exists. Other roles triggered by file-type heuristics.
@@ -354,6 +355,39 @@ The report includes a **Role Summary** section:
 - Cross-role conflicts: <count> (marked with ⚠)
 ```
 
+## Human Review Gate
+
+Reference policy: `docs/review-model.md`.
+
+After automated review, classify whether a human decision-partner review is required.
+
+Human review may be skipped only when all of these are true:
+
+- Change scope is small/localized and repeats an established pattern.
+- Risk is low, rollback is easy, and no state/data/security/permission behavior changes are involved.
+- Automated verification is fresh and sufficient.
+- Similar prior work repeatedly received LGTM without discussion.
+- No cross-role automated-review conflict is present.
+
+Human review is required when any of these are true:
+
+- Public API, CLI surface, workflow contract, or artifact schema changes.
+- State, data persistence, deletion, migration, or branch-disposition behavior changes.
+- Security, permissions, authentication, secrets, or error-recovery behavior changes.
+- Broad impact, difficult rollback, or unclear ownership boundaries.
+- Repeated design disagreement or cross-role reviewer conflict.
+- Automated review is blocked, weakly evidenced, or missing required artifacts.
+
+When human review is required, append a **Human Review Packet** section to `review-report.md` with:
+
+- decision needed: concrete question/tradeoff for the human reviewer
+- context: design intent and selected tradeoffs
+- automated evidence: verdict, blockers, residual risks, verification quality
+- recommended discussion prompts: questions rather than edit commands
+- handoff target: `ship` only after human decision is recorded, otherwise `execute`
+
+When human review is skipped, record the skip reason in `review-report.md` and make it explicit that automated review is the final review gate for this task.
+
 ## Output Artifacts
 
 Write `review-report.md` (schema: review-report/v2, from `templates/review-report.md`) to the active task directory. The report must capture:
@@ -365,6 +399,8 @@ Write `review-report.md` (schema: review-report/v2, from `templates/review-repor
 - Spec Compliance checklist (for spec review)
 - Quality Assessment checklist (for quality review)
 - Open Blockers (list or "none")
+- Human Review Gate (`required | skipped`) and decision rationale
+- Human Review Packet when a human decision is required
 - Safe for Next Stage (yes | no)
 - Next Action
 - Approved By (only if verdict is approved)
@@ -472,7 +508,8 @@ Record in `review-report.md` → Code Quality Metrics section. Metrics exceeding
 - Critical/major findings block ship
 - `review-report.md` has been written to the active task directory **before** the exit summary
 - Approved review has no open blockers and is safe for next stage
-- Next step is `/forgeflow:ship` only if review passes
+- Human Review Gate is recorded. If it is `required`, a human decision is recorded before `/forgeflow:ship`; otherwise the skip rationale is recorded.
+- Next step is `/forgeflow:ship` only if review passes and the human review gate is satisfied
 
 **Standalone mode**:
 - `review-report.md` has been written to the synthetic task directory **before** the exit summary
