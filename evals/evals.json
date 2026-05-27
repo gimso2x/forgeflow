@@ -7046,6 +7046,98 @@
           ]
         }
       ]
+    },
+    {
+      "id": 108,
+      "name": "standalone-review-test-only-patch-boundary",
+      "prompt": "A user runs /forgeflow:review --standalone and provides a diff that only changes tests: tests/auth.test.ts adds assertions for expired tokens, but src/auth.ts and implementation files are unchanged. The user asks whether the feature is fixed. Produce only the standalone normalization summary, Findings, Evidence Classification, and Verdict fragments. Do not require ForgeFlow pipeline artifacts. Do not approve the feature fix from tests alone; distinguish useful test coverage from missing implementation evidence and request source/runtime verification before approving the fix.",
+      "expected_output": "A standalone review fragment that scopes the input as a test-only patch, treats the added tests as observed evidence of coverage intent, refuses to claim the production feature is fixed without implementation/source/runtime evidence, and avoids ForgeFlow artifact or provider/plugin E2E overclaims.",
+      "files": [
+        "skills/review/SKILL.md",
+        "templates/review-report.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output identifies standalone review mode and the test-only patch scope.",
+          "type": "contains_all",
+          "values": [
+            "standalone",
+            "test-only"
+          ]
+        },
+        {
+          "text": "Output names the changed test file.",
+          "type": "contains",
+          "value": "tests/auth.test.ts"
+        },
+        {
+          "text": "Output distinguishes tests as observed coverage intent or reported evidence rather than proof that production code is fixed.",
+          "type": "contains_any",
+          "values": [
+            "coverage intent",
+            "test coverage",
+            "tests alone",
+            "not proof",
+            "does not prove",
+            "missing implementation"
+          ]
+        },
+        {
+          "text": "Evidence Classification includes observed evidence and missing implementation or runtime evidence.",
+          "type": "contains_all",
+          "values": [
+            "Evidence Classification",
+            "Observed evidence",
+            "missing"
+          ]
+        },
+        {
+          "text": "Output requests source implementation evidence or runtime verification before approving the feature fix.",
+          "type": "contains_any",
+          "values": [
+            "src/auth.ts",
+            "implementation evidence",
+            "runtime verification",
+            "source change",
+            "before approving",
+            "cannot approve"
+          ]
+        },
+        {
+          "text": "Output refuses approval or marks changes requested instead of approving the feature fix.",
+          "type": "contains_any",
+          "values": [
+            "changes_requested",
+            "blocked",
+            "not approved",
+            "cannot approve",
+            "needs implementation"
+          ]
+        },
+        {
+          "text": "Output does not require missing ForgeFlow pipeline artifacts in standalone mode.",
+          "type": "not_contains_any",
+          "values": [
+            "missing implementation-notes.md",
+            "missing run-ledger.md",
+            "missing plan.md",
+            "missing brief.md",
+            "pipeline artifacts required"
+          ]
+        },
+        {
+          "text": "Output does not claim provider/plugin E2E or live CLI execution.",
+          "type": "not_contains_any",
+          "values": [
+            "provider E2E passed",
+            "plugin E2E passed",
+            "live CLI smoke passed",
+            "Claude verified",
+            "Codex verified",
+            "Gemini verified"
+          ]
+        }
+      ]
     }
   ]
 }
