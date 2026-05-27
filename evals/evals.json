@@ -6945,6 +6945,107 @@
           ]
         }
       ]
+    },
+    {
+      "id": 107,
+      "name": "standalone-review-generated-bundle-provenance",
+      "prompt": "A user runs /forgeflow:review --standalone and provides a diff that adds dist/app.bundle.js with 9,000 minified lines and changes package.json scripts to serve that bundle. There is no source map, source diff, generated-by command, checksum, or build verification evidence. Produce only the standalone normalization summary, Findings, Evidence Classification, and Verdict fragments. Do not require ForgeFlow pipeline artifacts, do not pretend to fully audit minified generated output, and do not approve until source/build provenance is supplied or the generated bundle is explicitly scoped out with rationale.",
+      "expected_output": "A standalone review fragment that treats the generated bundle as observed but not meaningfully auditable from minified output alone, reviews the visible package.json entry point change, classifies missing source/build provenance separately, refuses approval until source map/source diff/build command/checksum evidence is provided or scoped out, and avoids provider/plugin E2E claims.",
+      "files": [
+        "skills/review/SKILL.md",
+        "templates/review-report.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output identifies standalone review mode for a generated or minified bundle diff.",
+          "type": "contains_any",
+          "values": [
+            "standalone",
+            "generated",
+            "minified",
+            "bundle",
+            "no ForgeFlow task directory"
+          ]
+        },
+        {
+          "text": "Output names both the generated bundle and the package.json script change.",
+          "type": "contains_all",
+          "values": [
+            "dist/app.bundle.js",
+            "package.json"
+          ]
+        },
+        {
+          "text": "Output recognizes minified generated output as not meaningfully auditable without provenance.",
+          "type": "contains_any",
+          "values": [
+            "not meaningfully auditable",
+            "minified",
+            "generated output",
+            "source map",
+            "provenance",
+            "cannot fully audit"
+          ]
+        },
+        {
+          "text": "Output identifies missing source or build evidence such as source diff, source map, build command, checksum, or verification evidence.",
+          "type": "contains_any",
+          "values": [
+            "source diff",
+            "source map",
+            "build command",
+            "checksum",
+            "build verification",
+            "generated-by"
+          ]
+        },
+        {
+          "text": "Evidence Classification distinguishes observed pasted input from missing or unverified build provenance.",
+          "type": "contains_all",
+          "values": [
+            "Evidence Classification",
+            "Observed evidence",
+            "missing"
+          ]
+        },
+        {
+          "text": "Output refuses approval until provenance is supplied or the generated bundle is explicitly scoped out with rationale.",
+          "type": "contains_any",
+          "values": [
+            "changes_requested",
+            "blocked",
+            "not approved",
+            "cannot approve",
+            "scoped out",
+            "rationale"
+          ]
+        },
+        {
+          "text": "Output does not require missing ForgeFlow pipeline artifacts in standalone mode.",
+          "type": "not_contains_any",
+          "values": [
+            "missing implementation-notes.md",
+            "missing run-ledger.md",
+            "missing plan.md",
+            "missing brief.md",
+            "pipeline artifacts required"
+          ]
+        },
+        {
+          "text": "Output does not claim full minified bundle audit or provider/plugin E2E execution.",
+          "type": "not_contains_any",
+          "values": [
+            "fully audited dist/app.bundle.js",
+            "minified bundle approved",
+            "provider E2E passed",
+            "plugin E2E passed",
+            "live CLI smoke passed",
+            "Claude verified",
+            "Codex verified",
+            "Gemini verified"
+          ]
+        }
+      ]
     }
   ]
 }
