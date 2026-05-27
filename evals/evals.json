@@ -6846,6 +6846,105 @@
           ]
         }
       ]
+    },
+    {
+      "id": 106,
+      "name": "standalone-review-binary-asset-boundary",
+      "prompt": "A user runs /forgeflow:review --standalone and pastes a diff that replaces assets/logo.png with a binary patch and changes src/Header.tsx to render the new logo on every page. There is no ForgeFlow task directory and no image content, checksum, size, malware scan, or visual evidence is provided. Produce only the standalone normalization summary, Findings, Evidence Classification, and Verdict fragments. Do not require pipeline artifacts, do not pretend the binary image contents were inspected, and do not approve until review-relevant binary evidence is supplied or the asset is explicitly scoped out with rationale.",
+      "expected_output": "A standalone review fragment that treats the binary asset diff as observed but opaque, reviews the visible Header.tsx usage, classifies missing binary evidence separately, refuses approval until checksum/size/visual/security evidence is provided or scoped out, and avoids provider/plugin E2E claims.",
+      "files": [
+        "skills/review/SKILL.md",
+        "templates/review-report.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output identifies standalone review mode for pasted binary asset diff input.",
+          "type": "contains_any",
+          "values": [
+            "standalone",
+            "pasted diff",
+            "binary patch",
+            "no ForgeFlow task directory"
+          ]
+        },
+        {
+          "text": "Output names both the binary asset path and the source file that renders it.",
+          "type": "contains_all",
+          "values": [
+            "assets/logo.png",
+            "src/Header.tsx"
+          ]
+        },
+        {
+          "text": "Output recognizes the binary asset contents as opaque or not inspected from the pasted diff alone.",
+          "type": "contains_any",
+          "values": [
+            "opaque",
+            "binary contents",
+            "not inspected",
+            "cannot inspect",
+            "binary asset"
+          ]
+        },
+        {
+          "text": "Output identifies review-relevant missing binary evidence such as checksum, size, visual review, or security scan.",
+          "type": "contains_any",
+          "values": [
+            "checksum",
+            "size",
+            "visual evidence",
+            "malware scan",
+            "security scan",
+            "review-relevant binary evidence"
+          ]
+        },
+        {
+          "text": "Evidence Classification distinguishes observed pasted input from missing or unverified binary evidence.",
+          "type": "contains_all",
+          "values": [
+            "Evidence Classification",
+            "Observed evidence",
+            "missing"
+          ]
+        },
+        {
+          "text": "Output refuses approval until binary evidence is supplied or the asset is explicitly scoped out with rationale.",
+          "type": "contains_any",
+          "values": [
+            "changes_requested",
+            "blocked",
+            "not approved",
+            "cannot approve",
+            "scoped out",
+            "rationale"
+          ]
+        },
+        {
+          "text": "Output does not require missing ForgeFlow pipeline artifacts in standalone mode.",
+          "type": "not_contains_any",
+          "values": [
+            "missing implementation-notes.md",
+            "missing run-ledger.md",
+            "missing plan.md",
+            "missing brief.md",
+            "pipeline artifacts required"
+          ]
+        },
+        {
+          "text": "Output does not claim it inspected binary contents or provider/plugin E2E execution.",
+          "type": "not_contains_any",
+          "values": [
+            "binary contents inspected",
+            "image verified safe",
+            "provider E2E passed",
+            "plugin E2E passed",
+            "live CLI smoke passed",
+            "Claude verified",
+            "Codex verified",
+            "Gemini verified"
+          ]
+        }
+      ]
     }
   ]
 }
