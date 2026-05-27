@@ -20,3 +20,6 @@ Thumbs.db
 samples/
 forgeflow_runtime.egg-info/
 forgeflow-eval-workspace/
+eval-workspace/
+.codegraph/
+.cursor/
