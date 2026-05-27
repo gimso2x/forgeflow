@@ -5736,6 +5736,87 @@
           ]
         }
       ]
+    },
+    {
+      "id": 93,
+      "name": "standalone-review-test-diff-focus",
+      "prompt": "A user runs /forgeflow:review with a raw unified diff that only changes tests/session.test.ts and tests/auth.spec.ts. There is no prior ForgeFlow task directory. Produce only the standalone normalization summary and review-report scope/constraints classification. Do not require pipeline artifacts, and do not claim provider/plugin E2E execution.",
+      "expected_output": "Standalone review treats the input as diff/patch evidence, bootstraps synthetic standalone artifacts, scopes review to the two test files from diff headers, infers quality-reviewer with test-quality focus for test-only changes, marks evolution rule review not_applicable, and skips pipeline micro-gates and missing pipeline artifact findings.",
+      "files": [
+        "skills/review/SKILL.md",
+        "templates/review-report.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output identifies standalone mode for a review without prior pipeline artifacts.",
+          "type": "contains",
+          "value": "standalone"
+        },
+        {
+          "text": "Output classifies the raw unified diff as diff/patch evidence.",
+          "type": "contains_any",
+          "values": [
+            "diff/patch",
+            "unified diff",
+            "raw diff"
+          ]
+        },
+        {
+          "text": "Output names the synthetic standalone artifacts.",
+          "type": "contains_all",
+          "values": [
+            "input-source.md",
+            "normalized-input.md",
+            "review-report.md"
+          ]
+        },
+        {
+          "text": "Output scopes review to the test files from diff headers.",
+          "type": "contains_all",
+          "values": [
+            "tests/session.test.ts",
+            "tests/auth.spec.ts"
+          ]
+        },
+        {
+          "text": "Output infers the test-only quality review focus.",
+          "type": "contains_all",
+          "values": [
+            "quality-reviewer",
+            "test-quality"
+          ]
+        },
+        {
+          "text": "Output records standalone evolution rule review as not applicable.",
+          "type": "contains_any",
+          "values": [
+            "not_applicable",
+            "not applicable"
+          ]
+        },
+        {
+          "text": "Output does not require pipeline-only artifacts or execute micro-gates in standalone mode.",
+          "type": "not_contains_any",
+          "values": [
+            "missing implementation-notes.md",
+            "missing run-ledger.md",
+            "missing plan.md",
+            "missing brief.md",
+            "micro-gates required"
+          ]
+        },
+        {
+          "text": "Output does not claim live provider or plugin E2E execution.",
+          "type": "not_contains_any",
+          "values": [
+            "provider E2E passed",
+            "live plugin verified",
+            "Claude verified",
+            "Codex verified",
+            "Gemini verified"
+          ]
+        }
+      ]
     }
   ]
 }
