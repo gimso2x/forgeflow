@@ -5817,6 +5817,91 @@
           ]
         }
       ]
+    },
+    {
+      "id": 94,
+      "name": "standalone-review-url-advisory-boundary",
+      "prompt": "A user runs /forgeflow:review --type all https://github.com/example/shop/pull/42 from outside any ForgeFlow task directory. Produce only the standalone normalization summary and review-report mode/evidence/verdict preamble. Treat the URL review as advisory unless the fetched PR diff and exact revision are captured. Do not require pipeline artifacts, do not claim tests or provider/plugin E2E ran, and do not approve solely from the URL.",
+      "expected_output": "Standalone review records the PR URL as external input, creates synthetic standalone artifacts, requires captured URL content/diff plus revision or commit SHA as observed evidence before approval, marks the result advisory/human-judgment-gated, skips missing pipeline artifact findings, and avoids test/provider overclaims.",
+      "files": [
+        "skills/review/SKILL.md",
+        "templates/review-report.md",
+        "README.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output identifies standalone mode for URL review outside a task directory.",
+          "type": "contains",
+          "value": "standalone"
+        },
+        {
+          "text": "Output preserves the PR URL as the external input source.",
+          "type": "contains",
+          "value": "https://github.com/example/shop/pull/42"
+        },
+        {
+          "text": "Output names synthetic standalone artifacts.",
+          "type": "contains_all",
+          "values": [
+            "input-source.md",
+            "normalized-input.md",
+            "review-report.md"
+          ]
+        },
+        {
+          "text": "Output requires captured URL content, fetched diff, or exact revision evidence before approval.",
+          "type": "contains_any",
+          "values": [
+            "captured URL content",
+            "fetched diff",
+            "exact revision",
+            "commit SHA",
+            "observed evidence"
+          ]
+        },
+        {
+          "text": "Output marks the review as advisory or human-judgment gated.",
+          "type": "contains_any",
+          "values": [
+            "advisory",
+            "Human Judgment Gate",
+            "human judgment",
+            "reference only"
+          ]
+        },
+        {
+          "text": "Output does not approve solely from the URL string.",
+          "type": "not_contains_any",
+          "values": [
+            "Verdict: approved",
+            "approved based on URL",
+            "URL proves the change",
+            "safe to merge"
+          ]
+        },
+        {
+          "text": "Output does not require missing pipeline artifacts in standalone mode.",
+          "type": "not_contains_any",
+          "values": [
+            "missing implementation-notes.md",
+            "missing run-ledger.md",
+            "missing plan.md",
+            "missing brief.md"
+          ]
+        },
+        {
+          "text": "Output does not claim tests or live provider/plugin E2E execution.",
+          "type": "not_contains_any",
+          "values": [
+            "tests passed",
+            "provider E2E passed",
+            "live plugin verified",
+            "Claude verified",
+            "Codex verified",
+            "Gemini verified"
+          ]
+        }
+      ]
     }
   ]
 }
