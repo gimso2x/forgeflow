@@ -6141,6 +6141,97 @@
           ]
         }
       ]
+    },
+    {
+      "id": 98,
+      "name": "standalone-review-secret-redaction-boundary",
+      "prompt": "A user runs /forgeflow:review --type quality with a standalone pasted diff that includes src/config.ts and a newly added .env.example. The pasted diff visibly contains an AWS access key-like token and a database password value. There is no ForgeFlow task directory. Produce only the standalone normalization summary and review-report security finding preamble. Preserve enough evidence to identify the affected files and issue type, but redact secret values in artifacts and findings. Do not require pipeline artifacts or claim provider/plugin E2E execution.",
+      "expected_output": "Standalone review records synthetic standalone artifacts, identifies secret exposure in src/config.ts and .env.example as a security finding, redacts credential values in normalized evidence and review findings, skips missing pipeline artifacts, and avoids provider/plugin E2E overclaims.",
+      "files": [
+        "skills/review/SKILL.md",
+        "templates/review-report.md",
+        "README.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output identifies standalone mode for pasted diff review without pipeline artifacts.",
+          "type": "contains",
+          "value": "standalone"
+        },
+        {
+          "text": "Output names the synthetic standalone review artifacts.",
+          "type": "contains_all",
+          "values": [
+            "input-source.md",
+            "normalized-input.md",
+            "review-report.md"
+          ]
+        },
+        {
+          "text": "Output scopes the security issue to both affected files.",
+          "type": "contains_all",
+          "values": [
+            "src/config.ts",
+            ".env.example"
+          ]
+        },
+        {
+          "text": "Output identifies credential or secret exposure as the issue type.",
+          "type": "contains_any",
+          "values": [
+            "secret",
+            "credential",
+            "AWS access key",
+            "database password",
+            "security finding"
+          ]
+        },
+        {
+          "text": "Output redacts secret values rather than copying them into artifacts or findings.",
+          "type": "contains_any",
+          "values": [
+            "redact",
+            "redacted",
+            "[REDACTED]",
+            "do not copy secret values",
+            "secret values redacted"
+          ]
+        },
+        {
+          "text": "Output does not require missing pipeline artifacts in standalone mode.",
+          "type": "not_contains_any",
+          "values": [
+            "missing implementation-notes.md",
+            "missing run-ledger.md",
+            "missing plan.md",
+            "missing brief.md",
+            "pipeline artifacts required"
+          ]
+        },
+        {
+          "text": "Output does not reproduce plausible secret values from the pasted diff.",
+          "type": "not_contains_any",
+          "values": [
+            "AKIA",
+            "aws_secret_access_key=",
+            "DATABASE_PASSWORD=",
+            "db_password=",
+            "password=supersecret"
+          ]
+        },
+        {
+          "text": "Output does not claim live provider or plugin E2E execution.",
+          "type": "not_contains_any",
+          "values": [
+            "provider E2E passed",
+            "plugin E2E passed",
+            "live plugin verified",
+            "Claude verified",
+            "Codex verified",
+            "Gemini verified"
+          ]
+        }
+      ]
     }
   ]
 }
