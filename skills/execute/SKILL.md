@@ -131,6 +131,13 @@ For medium route test-after:
 3. Run tests to confirm pass.
 4. If tests fail, fix implementation (not the test — the test is written against working code).
 
+**Scoped lint for isolated changes**:
+When the full lint fails due to pre-existing errors outside the changed scope:
+1. Confirm the failure is not in newly changed code.
+2. Run scoped lint on changed files only.
+3. Record pre-existing errors as minor findings in `implementation-notes.md` Evidence.
+4. Do not block ship on pre-existing lint errors in unchanged code.
+
 For high/epic TDD:
 1. **Red**: Write a failing test that covers the objective. Run it and confirm failure.
 2. **Green**: Write the minimal code to pass the test.

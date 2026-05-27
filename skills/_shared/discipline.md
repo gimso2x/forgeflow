@@ -22,6 +22,11 @@ Each skill links here and adds skill-specific rules inline.
 - For long high/epic artifacts, put a short user-language summary near the top before detailed tables or checklists.
 - On stage resume after context compaction, follow `_shared/context-resume.md` (checkpoint-first, section-targeted reads).
 
+## Security discipline (core)
+
+- Token/secret/credential은 환경 변수에서만 읽는다. tool/API 입력 스키마에 token 필드를 배제하고, 오류 메시지에 token 값을 마스킹하거나 제외한다.
+- MCP tool 서버를 구현하거나 확장할 때, plan에서 contract(입력/출력 타입, read-only 범위)를 먼저 정의하고 server의 `tools/call`에서 unknown tool을 명시적 거부한다. write 기능이 필요한 경우에도 contract-first 원칙은 유지한다.
+
 ## Strict response constraints (core)
 
 - When the user asks for an exact count, exact format, or "only" output, that instruction overrides the normal artifact template. Return exactly what was requested and nothing extra.

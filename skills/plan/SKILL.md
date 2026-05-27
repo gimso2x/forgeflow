@@ -59,6 +59,10 @@ Read **Route Sub-band** from `brief.md` (clarify records `medium-light` or `medi
   - Add Journeys when 2+ plan tasks compose an end-to-end flow.
   - Consider fan-out/fan-in in Architecture Notes when 3+ independent file groups exist.
 
+## Dependency minimization for tool/script tasks
+
+When a plan task involves creating a new CLI tool, script, or external service adapter, evaluate whether the full SDK is necessary before adding a dependency. If the required scope is narrow (e.g., simple HTTP calls, JSON-RPC, file I/O) and the runtime built-in API (`fetch`, `readline`, `fs`) can cover it, prefer zero-dependency implementation. Record the decision in the task notes. If future expansion is anticipated, note "SDK 도입 검토" as a follow-up rather than pre-adding the dependency.
+
 ## Contract-first traceability for medium/high/epic or brownfield work
 
 For non-trivial work, plan the cross-module contract before task decomposition. Apply the **Architecture Glossary** to identify **deepening opportunities** — refactors that turn shallow modules into deep ones:
