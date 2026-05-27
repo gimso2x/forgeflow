@@ -20,7 +20,12 @@
     "shipping",
     "ai-agents"
   ],
-  "tags": ["workflow", "artifacts", "review", "planning"],
+  "tags": [
+    "workflow",
+    "artifacts",
+    "review",
+    "planning"
+  ],
   "skills": "./skills/",
   "rules": "./rules/"
 }
