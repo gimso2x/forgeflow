@@ -7230,6 +7230,99 @@
           ]
         }
       ]
+    },
+    {
+      "id": 110,
+      "name": "standalone-review-config-only-patch-boundary",
+      "prompt": "Run /forgeflow:review in standalone mode on a patch that only changes config/security.yml to set password_min_length: 14 for an advertised password-policy enforcement fix. The patch adds no application source, tests, migration notes, or runtime verification evidence. Produce only the Findings and Evidence Classification sections of review-report.md. Do not require ForgeFlow pipeline artifacts because this is standalone review.",
+      "expected_output": "A standalone review finding that treats the config-only change as observed configuration evidence, refuses to approve end-to-end password-policy enforcement without source/test/runtime evidence, and does not require ForgeFlow pipeline artifacts.",
+      "files": [],
+      "assertions": [
+        {
+          "text": "Output identifies standalone review mode and the config-only patch scope.",
+          "type": "contains_all",
+          "values": [
+            "standalone",
+            "config-only"
+          ]
+        },
+        {
+          "text": "Output names the changed configuration file or password_min_length setting.",
+          "type": "contains_any",
+          "values": [
+            "config/security.yml",
+            "password_min_length",
+            "security.yml"
+          ]
+        },
+        {
+          "text": "Output treats the configuration edit as observed config evidence, not proof of end-to-end enforcement.",
+          "type": "contains_any",
+          "values": [
+            "configuration evidence",
+            "config-only",
+            "not proof",
+            "does not prove",
+            "end-to-end"
+          ]
+        },
+        {
+          "text": "Evidence Classification includes observed evidence and missing source, test, migration, or runtime evidence.",
+          "type": "contains_all",
+          "values": [
+            "Evidence Classification",
+            "Observed evidence",
+            "missing"
+          ]
+        },
+        {
+          "text": "Output requests implementation, test, migration, or runtime verification before approving the password-policy enforcement claim.",
+          "type": "contains_any",
+          "values": [
+            "source change",
+            "test evidence",
+            "migration",
+            "runtime verification",
+            "password-policy",
+            "before approving",
+            "cannot approve"
+          ]
+        },
+        {
+          "text": "Output refuses approval or marks changes requested instead of approving the enforcement fix.",
+          "type": "contains_any",
+          "values": [
+            "changes_requested",
+            "blocked",
+            "not approved",
+            "cannot approve",
+            "needs implementation"
+          ]
+        },
+        {
+          "text": "Output does not require missing ForgeFlow pipeline artifacts in standalone mode.",
+          "type": "not_contains_any",
+          "values": [
+            "missing implementation-notes.md",
+            "missing run-ledger.md",
+            "missing plan.md",
+            "missing brief.md",
+            "pipeline artifacts required"
+          ]
+        },
+        {
+          "text": "Output does not claim provider/plugin E2E or live CLI execution.",
+          "type": "not_contains_any",
+          "values": [
+            "provider E2E passed",
+            "plugin E2E passed",
+            "live CLI smoke passed",
+            "Claude verified",
+            "Codex verified",
+            "Gemini verified"
+          ]
+        }
+      ]
     }
   ]
 }
