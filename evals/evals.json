@@ -7603,6 +7603,100 @@
           ]
         }
       ]
+    },
+    {
+      "id": 114,
+      "name": "standalone-review-dependency-only-patch-boundary",
+      "prompt": "Run /forgeflow:review in standalone mode on a patch that only updates package.json and pnpm-lock.yaml to bump @acme/payments-sdk for a claimed checkout timeout fix. The patch includes no application source changes, no changelog/release-note citation for the SDK fix, no lockfile provenance or install command output, and no runtime checkout verification. Produce only the Findings and Evidence Classification sections of review-report.md. Do not require ForgeFlow pipeline artifacts because this is standalone review.",
+      "expected_output": "A standalone review finding that treats dependency manifest and lockfile changes as observed dependency-update evidence, refuses to approve the checkout timeout fix without source/vendor-release/install/runtime evidence, and does not require ForgeFlow pipeline artifacts.",
+      "files": [],
+      "assertions": [
+        {
+          "text": "Output identifies standalone review mode and the dependency-only patch scope.",
+          "type": "contains_all",
+          "values": [
+            "standalone",
+            "dependency-only"
+          ]
+        },
+        {
+          "text": "Output names the dependency files or checkout timeout behavior.",
+          "type": "contains_any",
+          "values": [
+            "package.json",
+            "pnpm-lock.yaml",
+            "@acme/payments-sdk",
+            "checkout timeout"
+          ]
+        },
+        {
+          "text": "Output treats manifest and lockfile edits as observed dependency-update evidence, not proof of the runtime fix.",
+          "type": "contains_any",
+          "values": [
+            "dependency-update evidence",
+            "dependency-only",
+            "not proof",
+            "does not prove",
+            "runtime fix"
+          ]
+        },
+        {
+          "text": "Evidence Classification includes observed evidence and missing release-note, install, source, runtime, or command-output evidence.",
+          "type": "contains_all",
+          "values": [
+            "Evidence Classification",
+            "Observed evidence",
+            "missing"
+          ]
+        },
+        {
+          "text": "Output requests vendor release notes, lockfile/install provenance, source impact, or runtime checkout verification before approving the timeout fix claim.",
+          "type": "contains_any",
+          "values": [
+            "release notes",
+            "lockfile provenance",
+            "install command",
+            "source impact",
+            "runtime checkout verification",
+            "before approving",
+            "cannot approve"
+          ]
+        },
+        {
+          "text": "Output refuses approval or marks changes requested instead of approving the checkout timeout fix from dependency files alone.",
+          "type": "contains_any",
+          "values": [
+            "changes_requested",
+            "blocked",
+            "not approved",
+            "cannot approve",
+            "needs verification"
+          ]
+        },
+        {
+          "text": "Output does not require missing ForgeFlow pipeline artifacts in standalone mode.",
+          "type": "not_contains_any",
+          "values": [
+            "missing implementation-notes.md",
+            "missing run-ledger.md",
+            "missing plan.md",
+            "missing brief.md",
+            "pipeline artifacts required"
+          ]
+        },
+        {
+          "text": "Output does not claim provider/plugin E2E or live CLI execution.",
+          "type": "not_contains_any",
+          "values": [
+            "provider E2E passed",
+            "plugin E2E passed",
+            "live CLI smoke passed",
+            "Claude verified",
+            "Codex verified",
+            "Gemini verified"
+          ]
+        }
+      ]
     }
   ]
 }
