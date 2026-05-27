@@ -7138,6 +7138,98 @@
           ]
         }
       ]
+    },
+    {
+      "id": 109,
+      "name": "standalone-review-docs-only-patch-boundary",
+      "prompt": "Run /forgeflow:review in standalone mode on a patch that only changes docs/usage.md and README.md wording for an advertised security fix. The patch adds no source, config, test, or runtime verification evidence. Produce only the Findings and Evidence Classification sections of review-report.md. Do not require ForgeFlow pipeline artifacts because this is standalone review.",
+      "expected_output": "A standalone review finding that treats docs-only changes as observed documentation evidence, refuses to approve the claimed security fix without source/test/runtime evidence, and does not require ForgeFlow pipeline artifacts.",
+      "files": [],
+      "assertions": [
+        {
+          "text": "Output identifies standalone review mode and the docs-only patch scope.",
+          "type": "contains_all",
+          "values": [
+            "standalone",
+            "docs-only"
+          ]
+        },
+        {
+          "text": "Output names at least one changed documentation file.",
+          "type": "contains_any",
+          "values": [
+            "docs/usage.md",
+            "README.md"
+          ]
+        },
+        {
+          "text": "Output treats documentation edits as observed documentation evidence, not proof of the advertised security fix.",
+          "type": "contains_any",
+          "values": [
+            "documentation evidence",
+            "docs-only",
+            "not proof",
+            "does not prove",
+            "no source change"
+          ]
+        },
+        {
+          "text": "Evidence Classification includes observed evidence and missing source, test, or runtime evidence.",
+          "type": "contains_all",
+          "values": [
+            "Evidence Classification",
+            "Observed evidence",
+            "missing"
+          ]
+        },
+        {
+          "text": "Output requests implementation, test, or runtime verification before approving the security fix claim.",
+          "type": "contains_any",
+          "values": [
+            "source change",
+            "implementation evidence",
+            "test evidence",
+            "runtime verification",
+            "security fix",
+            "before approving",
+            "cannot approve"
+          ]
+        },
+        {
+          "text": "Output refuses approval or marks changes requested instead of approving the security fix.",
+          "type": "contains_any",
+          "values": [
+            "changes_requested",
+            "blocked",
+            "not approved",
+            "cannot approve",
+            "needs implementation"
+          ]
+        },
+        {
+          "text": "Output does not require missing ForgeFlow pipeline artifacts in standalone mode.",
+          "type": "not_contains_any",
+          "values": [
+            "missing implementation-notes.md",
+            "missing run-ledger.md",
+            "missing plan.md",
+            "missing brief.md",
+            "pipeline artifacts required"
+          ]
+        },
+        {
+          "text": "Output does not claim provider/plugin E2E or live CLI execution.",
+          "type": "not_contains_any",
+          "values": [
+            "provider E2E passed",
+            "plugin E2E passed",
+            "live CLI smoke passed",
+            "Claude verified",
+            "Codex verified",
+            "Gemini verified"
+          ]
+        }
+      ]
     }
   ]
 }
