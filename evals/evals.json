@@ -5653,6 +5653,89 @@
           "value": "failure_counts"
         }
       ]
+    },
+    {
+      "id": 92,
+      "name": "standalone-review-patch-scope",
+      "prompt": "A user runs /forgeflow:review --type security with a raw unified diff that changes src/api/session.ts and docs/session.md. There is no .forgeflow/tasks/<id>/ pipeline directory and no implementation-notes.md. Produce only the standalone review normalization summary plus the review-report scope/evidence classification. Do not flag missing pipeline artifacts as findings, and do not claim provider/plugin E2E execution.",
+      "expected_output": "Standalone review treats the raw diff as diff/patch input, creates a synthetic standalone task directory with input-source.md, normalized-input.md, and review-report.md, scopes findings to the diff headers for src/api/session.ts and docs/session.md, records evidence_source from the raw diff, applies the security review constraint, and skips pipeline-only artifact and micro-gate requirements.",
+      "files": [
+        "skills/review/SKILL.md",
+        "templates/review-report.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output identifies standalone mode rather than post-execute pipeline mode.",
+          "type": "contains",
+          "value": "standalone"
+        },
+        {
+          "text": "Output classifies the input as diff/patch or raw unified diff evidence.",
+          "type": "contains_any",
+          "values": [
+            "diff/patch",
+            "unified diff",
+            "raw diff"
+          ]
+        },
+        {
+          "text": "Output names the synthetic standalone review artifacts.",
+          "type": "contains_all",
+          "values": [
+            "input-source.md",
+            "normalized-input.md",
+            "review-report.md"
+          ]
+        },
+        {
+          "text": "Output limits review scope to files from diff headers.",
+          "type": "contains_all",
+          "values": [
+            "src/api/session.ts",
+            "docs/session.md"
+          ]
+        },
+        {
+          "text": "Output records evidence source or provenance from the raw diff.",
+          "type": "contains_any",
+          "values": [
+            "evidence_source",
+            "input-source",
+            "source: raw diff",
+            "raw diff evidence"
+          ]
+        },
+        {
+          "text": "Output applies the requested security review constraint.",
+          "type": "contains_any",
+          "values": [
+            "security",
+            "security-reviewer",
+            "--type security"
+          ]
+        },
+        {
+          "text": "Output does not treat absent pipeline artifacts as findings in standalone mode.",
+          "type": "not_contains_any",
+          "values": [
+            "missing implementation-notes.md",
+            "missing run-ledger.md",
+            "missing plan.md",
+            "missing brief.md"
+          ]
+        },
+        {
+          "text": "Output does not claim live provider or plugin E2E execution.",
+          "type": "not_contains_any",
+          "values": [
+            "provider E2E passed",
+            "live plugin verified",
+            "Claude verified",
+            "Codex verified",
+            "Gemini verified"
+          ]
+        }
+      ]
     }
   ]
 }
