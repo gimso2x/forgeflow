@@ -1,40 +1,26 @@
 {
   "name": "forgeflow",
+  "displayName": "ForgeFlow",
   "version": "1.7.0",
-  "description": "Artifact-first delivery workflow for Cursor: clarify, plan, execute, review, ship through markdown artifacts",
+  "description": "Artifact-first delivery workflow: clarify, plan, execute, review, ship through markdown artifacts with verification gates and independent review",
   "author": {
     "name": "gimso2x",
     "url": "https://github.com/gimso2x"
   },
+  "homepage": "https://github.com/gimso2x/forgeflow",
   "repository": "https://github.com/gimso2x/forgeflow",
   "license": "MIT",
+  "category": "developer-tools",
   "keywords": [
-    "ai-agents",
     "workflow",
     "artifacts",
-    "cursor"
+    "code-review",
+    "tdd",
+    "planning",
+    "shipping",
+    "ai-agents"
   ],
+  "tags": ["workflow", "artifacts", "review", "planning"],
   "skills": "./skills/",
-  "interface": {
-    "displayName": "ForgeFlow",
-    "shortDescription": "Artifact-first delivery workflow for coding agents",
-    "longDescription": "ForgeFlow guides coding agents through an artifact-backed pipeline: clarify requirements into a design brief, plan execution steps, implement with evidence tracking, review independently, then ship. All artifacts are markdown files. No runtime dependencies.",
-    "developerName": "gimso2x",
-    "category": "Coding",
-    "capabilities": [
-      "Interactive",
-      "Read",
-      "Write"
-    ],
-    "defaultPrompt": [
-      "/forgeflow:clarify <describe the coding task>",
-      "/forgeflow:plan",
-      "/forgeflow:execute",
-      "/forgeflow:review",
-      "/forgeflow:ship",
-      "/forgeflow:long-run",
-      "/forgeflow:benchmark",
-      "/forgeflow:config"
-    ]
-  }
+  "rules": "./rules/"
 }

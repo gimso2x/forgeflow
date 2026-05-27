@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1a1a2e"/>
+      <stop offset="100%" stop-color="#16213e"/>
+    </linearGradient>
+    <linearGradient id="flame" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#e94560"/>
+      <stop offset="50%" stop-color="#f5a623"/>
+      <stop offset="100%" stop-color="#f7dc6f"/>
+    </linearGradient>
+    <linearGradient id="flow" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0f3460"/>
+      <stop offset="100%" stop-color="#533483"/>
+    </linearGradient>
+  </defs>
+  <!-- Background plate -->
+  <rect width="512" height="512" rx="96" fill="url(#bg)"/>
+  <!-- Anvil base -->
+  <path d="M160 340 L352 340 L340 370 L172 370 Z" fill="#a0a0b8" opacity="0.9"/>
+  <path d="M172 370 L340 370 L330 390 L182 390 Z" fill="#8080900" opacity="0.7"/>
+  <!-- Anvil body -->
+  <path d="M190 240 L322 240 L340 340 L172 340 Z" fill="#c0c0d0"/>
+  <path d="M190 240 L240 240 L232 340 L172 340 Z" fill="#b0b0c0"/>
+  <!-- Anvil top (face) -->
+  <rect x="170" y="230" width="172" height="14" rx="4" fill="#d8d8e8"/>
+  <rect x="170" y="230" width="172" height="7" rx="3" fill="#e8e8f4"/>
+  <!-- Horn -->
+  <path d="M170 244 L170 237 Q170 230 163 230 L100 230 Q90 230 90 240 Q90 250 100 248 L170 244 Z" fill="#d0d0e0"/>
+  <!-- Flame -->
+  <g transform="translate(256, 200)">
+    <path d="M0 -80 C8 -60 30 -40 28 -10 C26 20 10 30 0 40 C-10 30 -26 20 -28 -10 C-30 -40 -8 -60 0 -80 Z" fill="url(#flame)" opacity="0.95"/>
+    <path d="M0 -50 C5 -35 16 -25 15 -5 C14 10 6 18 0 25 C-6 18 -14 10 -15 -5 C-16 -25 -5 -35 0 -50 Z" fill="#f7dc6f" opacity="0.8"/>
+    <path d="M0 -30 C3 -20 8 -15 8 -2 C7 8 3 12 0 16 C-3 12 -7 8 -8 -2 C-8 -15 -3 -20 0 -30 Z" fill="#fff8e0" opacity="0.9"/>
+  </g>
+  <!-- Flow lines -->
+  <g opacity="0.6" stroke="#e94560" stroke-width="3" fill="none" stroke-linecap="round">
+    <path d="M80 420 Q160 400 256 420 Q352 440 432 420"/>
+    <path d="M80 440 Q160 420 256 440 Q352 460 432 440"/>
+    <path d="M120 460 Q200 445 256 460 Q312 475 392 460"/>
+  </g>
+  <!-- Spark particles -->
+  <circle cx="220" cy="130" r="3" fill="#f5a623" opacity="0.7"/>
+  <circle cx="290" cy="120" r="2.5" fill="#f7dc6f" opacity="0.6"/>
+  <circle cx="250" cy="105" r="2" fill="#f5a623" opacity="0.8"/>
+  <circle cx="275" cy="140" r="1.8" fill="#e94560" opacity="0.5"/>
+  <circle cx="240" cy="145" r="2.2" fill="#f7dc6f" opacity="0.6"/>
+</svg>
