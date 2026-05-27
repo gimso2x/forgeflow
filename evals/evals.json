@@ -6567,6 +6567,96 @@
           ]
         }
       ]
+    },
+    {
+      "id": 103,
+      "name": "standalone-review-generated-lockfile-boundary",
+      "prompt": "A user runs /forgeflow:review --standalone and pastes a diff where package-lock.json changes thousands of lines and package.json changes one dependency from safe-lib 2.4.1 to safe-lib 2.5.0. The lockfile diff includes a new transitive package postinstall-runner with a postinstall script, but the package.json diff alone looks benign. There is no ForgeFlow task directory. Produce only the standalone normalization summary, Findings, Evidence Classification, and Verdict fragments. Do not require pipeline artifacts, do not ignore generated lockfile evidence, and do not claim npm install/audit or provider/plugin E2E execution.",
+      "expected_output": "A standalone review fragment that treats package.json and package-lock.json as observed pasted input, flags the lockfile-introduced postinstall transitive dependency as review-relevant evidence, requests changes or blocks approval pending investigation, skips missing pipeline artifacts, and avoids claiming npm audit/install or provider/plugin E2E execution.",
+      "files": [
+        "skills/review/SKILL.md",
+        "templates/review-report.md",
+        "README.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output identifies standalone review mode for pasted dependency and lockfile diff input.",
+          "type": "contains",
+          "value": "standalone"
+        },
+        {
+          "text": "Output names both manifest and lockfile paths.",
+          "type": "contains_all",
+          "values": [
+            "package.json",
+            "package-lock.json"
+          ]
+        },
+        {
+          "text": "Output treats lockfile evidence as review-relevant rather than generated noise.",
+          "type": "contains_any",
+          "values": [
+            "lockfile",
+            "package-lock.json",
+            "generated",
+            "transitive dependency",
+            "review-relevant"
+          ]
+        },
+        {
+          "text": "Output identifies the newly introduced postinstall transitive package risk.",
+          "type": "contains_all",
+          "values": [
+            "postinstall-runner",
+            "postinstall"
+          ]
+        },
+        {
+          "text": "Evidence Classification distinguishes observed pasted input from unverified command or pipeline evidence.",
+          "type": "contains_all",
+          "values": [
+            "Evidence Classification",
+            "Observed evidence"
+          ]
+        },
+        {
+          "text": "Output refuses approval or requests investigation/changes for the lockfile-introduced script risk.",
+          "type": "contains_any",
+          "values": [
+            "changes_requested",
+            "blocked",
+            "not approved",
+            "cannot approve",
+            "investigate",
+            "supply-chain"
+          ]
+        },
+        {
+          "text": "Output does not require missing ForgeFlow pipeline artifacts in standalone mode.",
+          "type": "not_contains_any",
+          "values": [
+            "missing implementation-notes.md",
+            "missing run-ledger.md",
+            "missing plan.md",
+            "missing brief.md",
+            "pipeline artifacts required"
+          ]
+        },
+        {
+          "text": "Output does not claim unrun npm/provider/plugin verification or dismiss the lockfile as generated-only.",
+          "type": "not_contains_any",
+          "values": [
+            "npm audit passed",
+            "npm install passed",
+            "provider E2E passed",
+            "plugin E2E passed",
+            "live plugin verified",
+            "lockfile-only noise",
+            "generated files ignored",
+            "safe to ignore package-lock.json"
+          ]
+        }
+      ]
     }
   ]
 }
