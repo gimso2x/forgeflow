@@ -6308,6 +6308,91 @@
           ]
         }
       ]
+    },
+    {
+      "id": 100,
+      "name": "standalone-review-truncated-diff-boundary",
+      "prompt": "A user runs /forgeflow:review --standalone and pastes a truncated diff. It includes full hunks for src/orders.ts showing a removed tenant ownership check, then the marker '[... truncated ...]' before files src/billing.ts and src/audit.ts. There is no ForgeFlow task directory. Produce only the standalone normalization summary, Evidence Classification, and Verdict fragments. Do not require pipeline artifacts, do not pretend the truncated files were inspected, and do not approve until the missing diff context is provided or scoped out explicitly.",
+      "expected_output": "A standalone review fragment that records the pasted diff as observed standalone input, limits concrete findings to the inspectable src/orders.ts hunk, marks src/billing.ts and src/audit.ts as unreviewed due to truncation, refuses approval until missing context is provided or explicitly scoped out, skips missing pipeline artifacts, and avoids provider/plugin E2E claims.",
+      "files": [
+        "skills/review/SKILL.md",
+        "templates/review-report.md",
+        "README.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output identifies standalone review mode for pasted truncated diff input.",
+          "type": "contains",
+          "value": "standalone"
+        },
+        {
+          "text": "Output classifies the pasted diff as observed input or observed evidence.",
+          "type": "contains_all",
+          "values": [
+            "Evidence Classification",
+            "Observed evidence"
+          ]
+        },
+        {
+          "text": "Output limits concrete inspected findings to the complete src/orders.ts hunk.",
+          "type": "contains",
+          "value": "src/orders.ts"
+        },
+        {
+          "text": "Output identifies the tenant ownership or authorization regression in the inspectable hunk.",
+          "type": "contains_any",
+          "values": [
+            "tenant ownership",
+            "ownership check",
+            "authorization",
+            "access control",
+            "security finding"
+          ]
+        },
+        {
+          "text": "Output marks truncated downstream files as unreviewed or missing context instead of inspected.",
+          "type": "contains_all",
+          "values": [
+            "src/billing.ts",
+            "src/audit.ts"
+          ]
+        },
+        {
+          "text": "Output explicitly mentions truncation or missing diff context as a review boundary.",
+          "type": "contains_any",
+          "values": [
+            "truncated",
+            "missing diff context",
+            "incomplete diff",
+            "unreviewed",
+            "not inspectable"
+          ]
+        },
+        {
+          "text": "Output refuses approval until missing context is provided or explicitly scoped out.",
+          "type": "contains_any",
+          "values": [
+            "blocked",
+            "changes_requested",
+            "not approved",
+            "cannot approve",
+            "scoped out"
+          ]
+        },
+        {
+          "text": "Output does not claim it inspected truncated files or require missing pipeline artifacts/provider E2E.",
+          "type": "not_contains_any",
+          "values": [
+            "src/billing.ts inspected",
+            "src/audit.ts inspected",
+            "missing implementation-notes.md",
+            "missing run-ledger.md",
+            "missing plan.md",
+            "provider E2E passed",
+            "live plugin verified"
+          ]
+        }
+      ]
     }
   ]
 }
