@@ -6751,6 +6751,101 @@
           ]
         }
       ]
+    },
+    {
+      "id": 105,
+      "name": "standalone-review-symlink-boundary",
+      "prompt": "A user runs /forgeflow:review --standalone and pastes a diff that adds public/uploads/latest-invoice.pdf as a symlink to ../../secrets/invoices/customer-42.pdf, plus src/download.ts starts serving files from public/uploads by path. There is no ForgeFlow task directory. Produce only the standalone normalization summary, Findings, Evidence Classification, and Verdict fragments. Do not require pipeline artifacts, do not treat the symlink as normal static content, and do not approve until the symlink traversal/exposure risk is fixed or explicitly scoped out with evidence.",
+      "expected_output": "A standalone review fragment that records the symlink diff as observed input, flags the path traversal or secret exposure risk across public/uploads/latest-invoice.pdf and src/download.ts, refuses approval or requests changes, skips missing pipeline artifacts, and avoids provider/plugin E2E claims.",
+      "files": [
+        "skills/review/SKILL.md",
+        "templates/review-report.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output identifies standalone review mode for pasted symlink diff input.",
+          "type": "contains_any",
+          "values": [
+            "standalone",
+            "pasted diff",
+            "symlink",
+            "no ForgeFlow task directory"
+          ]
+        },
+        {
+          "text": "Output names both the symlink path and the serving source file.",
+          "type": "contains_all",
+          "values": [
+            "public/uploads/latest-invoice.pdf",
+            "src/download.ts"
+          ]
+        },
+        {
+          "text": "Output recognizes the symlink target as escaping the public uploads tree or exposing secrets.",
+          "type": "contains_any",
+          "values": [
+            "../../secrets/invoices/customer-42.pdf",
+            "escapes",
+            "path traversal",
+            "secret exposure",
+            "outside public/uploads",
+            "symlink target"
+          ]
+        },
+        {
+          "text": "Output does not treat the symlink as ordinary static content.",
+          "type": "not_contains_any",
+          "values": [
+            "normal static content",
+            "harmless symlink",
+            "safe static asset",
+            "no security impact"
+          ]
+        },
+        {
+          "text": "Evidence Classification distinguishes observed pasted input from unverified pipeline evidence.",
+          "type": "contains_all",
+          "values": [
+            "Evidence Classification",
+            "Observed evidence"
+          ]
+        },
+        {
+          "text": "Output refuses approval or requests changes until the symlink traversal/exposure risk is fixed or explicitly scoped out with evidence.",
+          "type": "contains_any",
+          "values": [
+            "changes_requested",
+            "blocked",
+            "not approved",
+            "cannot approve",
+            "fix",
+            "scoped out"
+          ]
+        },
+        {
+          "text": "Output does not require missing ForgeFlow pipeline artifacts in standalone mode.",
+          "type": "not_contains_any",
+          "values": [
+            "missing implementation-notes.md",
+            "missing run-ledger.md",
+            "missing plan.md",
+            "missing brief.md",
+            "pipeline artifacts required"
+          ]
+        },
+        {
+          "text": "Output does not claim provider/plugin E2E or live CLI execution.",
+          "type": "not_contains_any",
+          "values": [
+            "provider E2E passed",
+            "plugin E2E passed",
+            "live CLI smoke passed",
+            "Claude verified",
+            "Codex verified",
+            "Gemini verified"
+          ]
+        }
+      ]
     }
   ]
 }
