@@ -1,10 +1,10 @@
 ---
 name: config
 version: "1.4"
-description: Manage ForgeFlow project defaults interactively. Toggle auto-chaining and worktree isolation. Supports init with reusable project context generation.
+description: Manage ForgeFlow project defaults interactively. Toggle auto-chaining and worktree isolation. Offers init from the config menu with reusable project context generation.
 validate_prompt: |
-  Must present current .forgeflow/defaults.md values, offer toggle by number, and write changes back without committing.
-  When invoked with init --mode=full, must detect repo type, documentation pointers, architecture/WBS signals, and generate project-draft.md as reusable project context.
+  Must present current .forgeflow/defaults.md values, offer toggle/init actions by number, and write changes back without committing.
+  When the user selects full project context init from the config menu, must detect repo type, documentation pointers, architecture/WBS signals, and generate project-draft.md as reusable project context.
 dependencies:
   - skills/_shared/automation.md
 ---
@@ -12,7 +12,7 @@ dependencies:
 # Skill: config
 
 Interactive project defaults manager for ForgeFlow. Reads and toggles settings in `.forgeflow/defaults.md`.
-Supports `init --mode=full` for reusable project context generation with auto-detected project structure, documentation pointers, and stable task guidance.
+The default `/forgeflow:config` flow must offer init as a numbered menu action, including reusable project context generation with auto-detected project structure, documentation pointers, and stable task guidance. Do not require the user to remember a separate manual init command.
 
 ## Input
 
@@ -41,13 +41,17 @@ ForgeFlow 설정
 
 1. auto (자동 체이닝)       — 현재: 꺼짐   (기본값: 꺼짐)
 2. isolation (worktree 격리) — 현재: 켜짐   (기본값: 켜짐)
-3. 종료
+3. init (기본 scaffolding) — .forgeflow/defaults.md 생성
+4. full init (프로젝트 컨텍스트 draft) — .forgeflow/project-draft.md 생성/갱신
+5. 종료
 
 번호를 선택하세요:
 ```
 
-3. On selection, toggle the value (off→on, on→off). Use Korean labels: 켜짐/꺼짐.
-4. Create or update `.forgeflow/defaults.md` with the new value. File format:
+3. On selection 1 or 2, toggle the value (off→on, on→off). Use Korean labels: 켜짐/꺼짐.
+4. On selection 3, run **Mode C: Basic init**.
+5. On selection 4, run **Mode B: Full project context init**.
+6. Create or update `.forgeflow/defaults.md` with the new value. File format:
 
 ```markdown
 # ForgeFlow Defaults
@@ -56,12 +60,12 @@ auto: true
 isolation: true
 ```
 
-5. Confirm the change to the user. Loop back to step 2 until user selects 종료.
-6. Do **not** commit `.forgeflow/defaults.md` to git — let the user decide.
+7. Confirm the change or generated artifact to the user. Loop back to step 2 until user selects 종료.
+8. Do **not** commit `.forgeflow/defaults.md` or `.forgeflow/project-draft.md` to git — let the user decide.
 
-### Mode B: init --mode=full (reusable project context generation)
+### Mode B: Full project context init
 
-When the user invokes `init --mode=full`, generate `.forgeflow/project-draft.md` as a reusable project context and architecture draft alongside standard scaffolding.
+When the user selects **full init (프로젝트 컨텍스트 draft)** from the `/forgeflow:config` menu, generate `.forgeflow/project-draft.md` as a reusable project context and architecture draft alongside standard scaffolding.
 
 1. **Standard init first**: Create `.forgeflow/` directory structure and `defaults.md` if they do not exist (same as basic init).
 2. **Detect project context** by reading project manifest files (prompt-based, agent reads and judges):

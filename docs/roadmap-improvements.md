@@ -191,9 +191,10 @@ specialist:
 
 ### 설계
 
-#### Init 모드 확장
+#### Config 메뉴의 full init
 ```
-/forgeflow:config init --mode=full
+/forgeflow:config
+→ full init (프로젝트 컨텍스트 draft)
 ```
 
 #### 생성 산출물

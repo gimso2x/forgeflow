@@ -30,6 +30,8 @@ Write `plan.md` to the active task directory using `templates/plan.md` as the st
 - Route
 - Dependencies (what must exist before execution starts)
 - Tasks with: objective, exact files, dependencies on other tasks, expected output, verification, fulfills (which acceptance criteria)
+- Reviewer-facing Design Intent: problem framing, chosen approach, alternatives considered, intentional exclusions, and review focus
+- Task-specific Review Criteria: applicable conventions, relevant decisions/ADRs, acceptance traces, risk checks, and out-of-scope checks
 - Verification Plan with typed targets and gates
 - Contracts (interfaces, invariants) when applicable
 - Journeys (end-to-end flow verification) when applicable
@@ -62,6 +64,17 @@ Read **Route Sub-band** from `brief.md` (clarify records `medium-light` or `medi
 ## Dependency minimization for tool/script tasks
 
 When a plan task involves creating a new CLI tool, script, or external service adapter, evaluate whether the full SDK is necessary before adding a dependency. If the required scope is narrow (e.g., simple HTTP calls, JSON-RPC, file I/O) and the runtime built-in API (`fetch`, `readline`, `fs`) can cover it, prefer zero-dependency implementation. Record the decision in the task notes. If future expansion is anticipated, note "SDK 도입 검토" as a follow-up rather than pre-adding the dependency.
+
+## Review intent and criteria
+
+Every plan must include reviewer-facing **Design Intent** and **Review Criteria** sections. These sections make `/forgeflow:review` less generic and prevent reviewers from inventing unapproved scope.
+
+1. Populate **Design Intent** from the brief objective, plan architecture notes, selected approach, rejected alternatives, and explicit non-goals.
+2. Populate **Review Criteria** from `brief.md` acceptance criteria, `docs/coding-convention.md` when present, active evolution rules, relevant ADR/architecture docs, and task-specific risk checks.
+3. If repo policy files such as `docs/adr.yaml`, `docs/adr.md`, `docs/code-convention.yaml`, `docs/coding-convention.md`, or `.forgeflow/evolution/active/*` exist, use only the task-relevant entries and cite repo-relative paths. Do not paste long policy bodies into `plan.md`.
+4. For small route, keep both sections compact: 1-3 bullets each is enough.
+5. For medium/high/epic, include enough criteria for reviewers to trace findings back to a named acceptance criterion, convention, ADR, active rule, or risk check.
+6. Record intentional exclusions explicitly so review findings can distinguish true defects from out-of-scope improvements.
 
 ## Contract-first traceability for medium/high/epic or brownfield work
 

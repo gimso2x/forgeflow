@@ -27,6 +27,22 @@
 <!-- high/epic: record Execution Pattern (pipeline | fan-out/fan-in) here -->
 <!-- medium-full: contract-first traceability required; medium-light: contracts optional unless brownfield -->
 
+## 설계 의도 (Design Intent)
+<!-- Reviewer-facing intent summary. State why this design is the intended shape, not just what will change. -->
+- **Problem framing**: <!-- what problem this design solves -->
+- **Chosen approach**: <!-- selected design and why it is preferred -->
+- **Alternatives considered**: <!-- viable alternatives rejected and why -->
+- **Intentional exclusions**: <!-- behavior/scope intentionally not handled in this task -->
+- **Review focus**: <!-- specific intent-code alignment risks reviewers should check -->
+
+## 작업별 리뷰 기준 (Review Criteria)
+<!-- Task-specific quality guide derived from brief.md constraints, docs/coding-convention.md, active rules, and relevant ADR/architecture docs if present. -->
+- **Applicable conventions**: <!-- repo conventions that apply to this task -->
+- **Applicable decisions/ADRs**: <!-- relevant ADR/design decision refs, or n/a -->
+- **Acceptance traces**: <!-- acceptance criteria that review must verify -->
+- **Risk checks**: <!-- security/data/API/state/rollback checks relevant to this task -->
+- **Out-of-scope checks**: <!-- what reviewers should NOT demand because it was intentionally excluded -->
+
 ## 실행 패턴 (Execution Pattern)
 <!-- Route strategy: small = direct single-worker; medium = pipeline; high = fan-out/fan-in when independent + separate spec/quality review; epic = milestone fan-out/fan-in -->
 

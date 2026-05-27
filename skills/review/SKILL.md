@@ -376,6 +376,7 @@ Human review is required when any of these are true:
 - Security, permissions, authentication, secrets, or error-recovery behavior changes.
 - Broad impact, difficult rollback, or unclear ownership boundaries.
 - Repeated design disagreement or cross-role reviewer conflict.
+- Any p1/p2 finding is rejected or marked `risk_accepted` rather than fixed.
 - Automated review is blocked, weakly evidenced, or missing required artifacts.
 
 When human review is required, append a **Human Review Packet** section to `review-report.md` with:
@@ -395,7 +396,7 @@ Write `review-report.md` (schema: review-report/v2, from `templates/review-repor
 - Review Type (spec | quality | security | ux | perf — or list multiple for standalone)
 - Verdict (approved | changes_requested | blocked) — never use "passed"
 - Reviewer (role or identifier)
-- Findings with severity (blocker | major | minor | nit) and category (spec-compliance | quality | maintainability | risk | security)
+- Findings with severity (blocker | major | minor | nit), priority (p1 | p2 | p3 | p4), category (spec-compliance | quality | maintainability | risk | security), Criteria Basis, Side Effect, Why This Remediation, Disposition, and Disposition Rationale when needed
 - Spec Compliance checklist (for spec review)
 - Quality Assessment checklist (for quality review)
 - Open Blockers (list or "none")
@@ -459,16 +460,37 @@ This field is mandatory for pipeline mode reviews. For standalone mode, scope_bo
 Questions to answer for every spec review:
 - Did the output satisfy the brief objective?
 - Were acceptance criteria met?
+- Does the implementation reflect the `plan.md` Design Intent rather than merely touching the named files?
+- Were task-specific Review Criteria applied, including relevant coding conventions, ADRs/decisions, active rules, and risk checks?
 - Did execution stay inside scope?
 - Did the change avoid silent fallback, dual write, or shadow-path ownership drift?
 - Is evidence sufficient for the claimed completion?
 
 Automatic fail conditions:
 - Missing acceptance coverage
+- Missing or ignored Design Intent / Review Criteria for medium/high/epic pipeline reviews
 - Unapproved scope drift
 - Silent fallback or dual-write drift
 - Evidence-free completion claim
 - Approved verdict with open blockers or safe_for_next_stage=false
+
+### Finding discipline
+
+For each finding, reviewers must make the recommendation auditable and decision-ready:
+
+1. Assign both **Severity** and **Priority**:
+   - `p1`: must fix before ship; usually blocker/major with high confidence.
+   - `p2`: strongly recommended before ship or requires human risk acceptance.
+   - `p3`: recommended improvement; may ship with documented residual risk.
+   - `p4`: minor/nit; never blocks by itself.
+2. Fill **Criteria Basis** with the exact source that makes the finding valid: `plan.md` Design Intent/Review Criteria, `brief.md` acceptance criterion, `docs/coding-convention.md`, ADR/decision doc, active evolution rule, or directly observed runtime evidence.
+3. Fill **Side Effect** for the remediation. Use `none` only when the change is truly side-effect free.
+4. Fill **Why This Remediation** with the tradeoff rationale. Do not issue bare edit commands.
+5. Set **Disposition**:
+   - During initial review: `pending`.
+   - After reflection/re-review: `accepted`, `rejected`, `risk_accepted`, or `fixed`.
+   - `rejected` and `risk_accepted` require **Disposition Rationale** and should usually trigger the Human Review Gate unless the risk is p3/p4 and low-impact.
+6. Do not invent criteria after the fact. If no basis exists but the concern is real, record it as advisory and recommend adding criteria in a future plan/evolution rule.
 
 ### Quality Review
 

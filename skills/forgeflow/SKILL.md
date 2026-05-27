@@ -57,7 +57,7 @@ Adapter-specific CLI flags and timeout guides: `docs/adapter-config.md`.
 | Review | `/forgeflow:review` (pipeline: after execute; standalone: with URL/repo/diff/files input) | `/review` (same) |
 | Ship | `/forgeflow:ship` | `/ship` |
 | Config | `/forgeflow:config` | `/config` |
-| Init (full) | `/forgeflow:config init --mode=full` | `/config init --mode=full` |
+| Init (full) | Select `full init` inside `/forgeflow:config` | Select `full init` inside `/config` |
 | Long-run | `/forgeflow:long-run` | `/long-run` |
 | Benchmark | `/forgeflow:benchmark` | `/benchmark` |
 
@@ -272,14 +272,17 @@ If an adapter exceeds the safety ceiling, terminate the process and record the t
 
       1. auto (자동 체이닝)       — 현재: 꺼짐   (기본값: 꺼짐)
       2. isolation (worktree 격리) — 현재: 켜짐   (기본값: 켜짐)
-      3. 종료
+      3. init (기본 scaffolding) — .forgeflow/defaults.md 생성
+      4. full init (프로젝트 컨텍스트 draft) — .forgeflow/project-draft.md 생성/갱신
+      5. 종료
 
       번호를 선택하세요:
       ```
-   3. On selection, toggle the value (off→on, on→off). Create or update `.forgeflow/defaults.md`. Confirm the change.
-   4. Supported fields: `auto` (`true`/`false`), `isolation` (`true`/`false`). Additional fields may be added in future versions.
-   5. Do **not** commit `.forgeflow/defaults.md` to git automatically — let the user decide.
-   6. **Full init mode**: When the user invokes `init --mode=full`, delegate to `skills/config/SKILL.md` Mode B to detect project context and generate `.forgeflow/project-draft.md` from `templates/project-draft.md`.
+   3. On selection 1 or 2, toggle the value (off→on, on→off). Create or update `.forgeflow/defaults.md`. Confirm the change.
+   4. On selection 3, run the basic init flow from `skills/config/SKILL.md` Mode C.
+   5. On selection 4, run the full project context init flow from `skills/config/SKILL.md` Mode B to detect project context and generate `.forgeflow/project-draft.md` from `templates/project-draft.md`.
+   6. Supported fields: `auto` (`true`/`false`), `isolation` (`true`/`false`). Additional fields may be added in future versions.
+   7. Do **not** commit `.forgeflow/defaults.md` or `.forgeflow/project-draft.md` to git automatically — let the user decide.
 4. If the user provides a slash command (other than config), route to the matching stage skill.
 5. If the user provides a free-form request, run `/forgeflow:clarify` to produce a brief with route selection.
 6. After clarify, follow the route's stage sequence (see Route model above).

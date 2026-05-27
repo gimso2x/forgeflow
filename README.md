@@ -67,10 +67,11 @@ ForgeFlow는 artifact-first를 유지하면서 context compaction 후 재개 비
 
 ### 공통 프로젝트 컨텍스트
 
-대상 프로젝트 루트에서 한 번 분석한 기획, 아키텍처, WBS, 검증 관례를 이후 태스크에서 재사용하려면 full init을 실행해 `.forgeflow/project-draft.md`를 생성합니다.
+대상 프로젝트 루트에서 한 번 분석한 기획, 아키텍처, WBS, 검증 관례를 이후 태스크에서 재사용하려면 `/forgeflow:config` 메뉴에서 **full init (프로젝트 컨텍스트 draft)** 를 선택해 `.forgeflow/project-draft.md`를 생성합니다.
 
 ```text
-/forgeflow:config init --mode=full
+/forgeflow:config
+→ 4. full init (프로젝트 컨텍스트 draft)
 ```
 
 이 파일은 source of truth가 아니라 repo-relative 포인터와 안정적인 결정 요약입니다. `clarify`는 새 태스크를 시작할 때 이 파일이 있으면 planning/WBS, architecture/contract, verification hints를 `brief.md`의 `Common Project Context`, WHERE, Constraints, Verification Gates에 반영합니다. `plan`과 `execute`는 필요한 섹션만 읽고 checkpoint에는 관련 섹션명이나 원본 문서 경로만 남겨 compact resume 비용을 늘리지 않습니다.
@@ -80,7 +81,7 @@ ForgeFlow는 artifact-first를 유지하면서 context compaction 후 재개 비
 ## 기본 워크플로우
 
 ```text
-/forgeflow:config            → 설정 메뉴 (auto 토글 등)
+/forgeflow:config            → 설정 메뉴 (auto 토글, basic/full init 선택)
 /forgeflow:clarify   → 작업 공간 생성 + 요구사항 정리 → brief.md
 /forgeflow:plan      → 작업 계획 → plan.md        (medium 이상; epic 시 마일스톤 분해 포함)
 /forgeflow:execute   → 구현 실행 → implementation-notes.md
@@ -98,6 +99,8 @@ ForgeFlow review는 두 층입니다.
 
 - **Automated review**: 기본 `/forgeflow:review` 단계입니다. spec/quality/security/ux/perf 관점에서 observed evidence와 reported evidence를 구분해 `review-report.md`에 기록합니다.
 - **Human review**: 자동 reviewer role이 아니라 `/forgeflow:review` 이후, `/forgeflow:ship` 이전의 decision-partner gate입니다. API/CLI/schema 변경, state/data 변경, 보안 영향, 넓은 영향 범위, reviewer 간 충돌, 자동 증거 부족처럼 사람 판단이 필요한 경우 `Human Review Packet`을 작성합니다.
+
+리뷰 입력은 `plan.md`의 **Design Intent**와 **Review Criteria**를 기준으로 합니다. plan 단계는 설계 의도, 선택한 접근, 대안, 의도적 제외사항, 적용 convention/ADR/risk check를 짧게 기록하고, review 단계는 각 finding에 `Priority`, `Criteria Basis`, `Side Effect`, `Why This Remediation`, `Disposition`, `Disposition Rationale`을 남깁니다. p1/p2 finding을 고치지 않고 거부하거나 risk-accept하면 보통 Human Review Gate가 필요합니다.
 
 작고 국소적이며 established pattern을 반복하는 변경은 human review를 `skipped`로 기록할 수 있습니다. 그 외에는 사람이 `ship`, `execute`, `keep/defer` 중 handoff target을 결정해야 `/forgeflow:ship`이 진행됩니다. 자세한 기준은 [docs/review-model.md](docs/review-model.md)를 참고하세요.
 

@@ -55,12 +55,18 @@ scope_boundary:
 - **Category**: <!-- spec-compliance | quality | maintainability | risk | security -->
 - **Role**: <!-- spec-reviewer | quality-reviewer | security-reviewer | ux-reviewer | perf-reviewer -->
 - **Confidence**: <!-- HIGH | MEDIUM | LOW | CONFLICT -->
+- **Priority**: <!-- p1 | p2 | p3 | p4; p1=must fix, p2=strongly recommended, p3=recommended, p4=minor -->
+- **Criteria Basis**: <!-- plan.md Review Criteria / coding convention / ADR / brief acceptance criterion / active rule -->
 - **Description**:
 - **Evidence**:
   - Observed:
   - Expected:
   - Missing:
 - **Remediation**:
+- **Side Effect**: <!-- expected side effects or "none" -->
+- **Why This Remediation**: <!-- why recommendation is worth the side effect/tradeoff -->
+- **Disposition**: <!-- pending | accepted | rejected | risk_accepted | fixed -->
+- **Disposition Rationale**: <!-- required when rejected or risk_accepted -->
 
 ## 리뷰어 역할 요약 (Reviewer Role Summary)
 <!-- Standalone mode and high/epic: summarize per-role verdicts and findings. -->
@@ -73,6 +79,8 @@ scope_boundary:
 <!-- For spec review -->
 - [ ] Brief objective satisfied
 - [ ] Acceptance criteria met
+- [ ] Design Intent from `plan.md` is reflected in implementation
+- [ ] Task-specific Review Criteria from `plan.md` applied
 - [ ] Execution stayed inside scope
 - [ ] No silent fallback or dual-write drift
 - [ ] Evidence sufficient for completion claim

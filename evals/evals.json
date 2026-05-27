@@ -4607,7 +4607,7 @@
     {
       "id": 69,
       "name": "project-draft-schema-validation",
-      "prompt": "A user runs /forgeflow:config init --mode=full on a Node.js project with package.json at the root. The project uses Jest for testing and has a CONTRIBUTING.md file. Produce the project-draft.md artifact that the config skill should generate. Use the template from templates/project-draft.md. Fill in all detected values based on the described project context.",
+      "prompt": "A user selects full init (프로젝트 컨텍스트 draft) from the /forgeflow:config menu on a Node.js project with package.json at the root. The project uses Jest for testing and has a CONTRIBUTING.md file. Produce the project-draft.md artifact that the config skill should generate. Use the template from templates/project-draft.md. Fill in all detected values based on the described project context.",
       "expected_output": "A project-draft.md artifact with valid YAML frontmatter (schema: project-draft/v1, generated ISO date, repo_type: node, adapter_preset), Detected Context section with Language/Framework as Node.js, Structure, Test Framework as Jest or similar, Team Structure section, Agent Configuration section with recommended adapter, Documentation Pointers with README and Contributing paths, and Init Checklist with unchecked items.",
       "files": [
         "templates/project-draft.md",
@@ -4669,7 +4669,7 @@
     {
       "id": 70,
       "name": "init-full-mode-detection-logic",
-      "prompt": "A user runs /forgeflow:config init --mode=full on a Python project. The project root contains pyproject.toml with pytest configuration, src/lib directory structure, and no CONTRIBUTING.md or CODEOWNERS. Produce the detection analysis and resulting project-draft.md that the config skill should generate. Focus on correct detection of repo_type as python, test framework as pytest, and structure as library.",
+      "prompt": "A user selects full init (프로젝트 컨텍스트 draft) from the /forgeflow:config menu on a Python project. The project root contains pyproject.toml with pytest configuration, src/lib directory structure, and no CONTRIBUTING.md or CODEOWNERS. Produce the detection analysis and resulting project-draft.md that the config skill should generate. Focus on correct detection of repo_type as python, test framework as pytest, and structure as library.",
       "expected_output": "A detection analysis showing pyproject.toml triggers python repo_type, pytest detected from pyproject.toml, library structure from src/lib, no team structure files found, and a complete project-draft.md with these values filled in correctly.",
       "files": [
         "templates/project-draft.md",

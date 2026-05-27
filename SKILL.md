@@ -15,9 +15,10 @@ ForgeFlow는 Claude Code, Codex, Gemini CLI, Cursor를 위한 **artifact-first d
 
 ```text
 /forgeflow:clarify       → task workspace + brief.md + route
+/forgeflow:config        → settings menu + optional full init for .forgeflow/project-draft.md
 /forgeflow:plan          → plan.md (medium+; epic decomposition for epic route)
 /forgeflow:execute       → implementation-notes.md + code
-/forgeflow:review        → review-report.md
+/forgeflow:review        → review-report.md + optional Human Review Packet
 /forgeflow:ship          → ship-summary.md + branch disposition
 ```
 
@@ -52,6 +53,7 @@ Route scoring, medium-light/full sub-band, artifacts 목록: [`skills/forgeflow/
 
 - Artifact는 Markdown; `templates/` 참조
 - Review는 읽기 전용 — findings 기록 후 worker에게 handoff
+- Review finding은 Design Intent/Review Criteria 기준과 disposition을 기록
 - Verification은 실제 명령만 (hallucinated command 금지)
 - 산출물 경로: `.forgeflow/tasks/<task-id>/`
 - Project active evolution rules는 required; global rules는 advisory only
