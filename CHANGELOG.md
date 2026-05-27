@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.7.0] - 2026-05-27
+
+### Fixed
+
+- **Release surface 정합성**: slim v1 배포 표면의 version, changelog, plugin prompt 계약 검증을 1.7.0 기준으로 동기화
+
 ## [1.6.0] - 2026-05-27
 
 ### Added
@@ -757,7 +763,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI gate with GitHub Actions workflow generation
 - Agent preset installer (Claude + Codex)
 
-[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v1.6.0...HEAD
+[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v1.7.0...HEAD
+[1.7.0]: https://github.com/gimso2x/forgeflow/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/gimso2x/forgeflow/compare/v1.5.2...v1.6.0
 [1.5.2]: https://github.com/gimso2x/forgeflow/compare/v1.5.1...v1.5.2
 [1.5.1]: https://github.com/gimso2x/forgeflow/compare/v1.5.0...v1.5.1

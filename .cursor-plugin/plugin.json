@@ -27,5 +27,17 @@
     "planning"
   ],
   "skills": "./skills/",
-  "rules": "./rules/"
+  "rules": "./rules/",
+  "interface": {
+    "defaultPrompt": [
+      "/forgeflow:clarify <describe the coding task>",
+      "/forgeflow:plan",
+      "/forgeflow:execute",
+      "/forgeflow:review",
+      "/forgeflow:ship",
+      "/forgeflow:long-run",
+      "/forgeflow:benchmark",
+      "/forgeflow:config"
+    ]
+  }
 }
