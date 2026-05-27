@@ -6475,6 +6475,98 @@
           ]
         }
       ]
+    },
+    {
+      "id": 102,
+      "name": "standalone-review-deleted-test-boundary",
+      "prompt": "A user runs /forgeflow:review --standalone and pastes a diff that deletes tests/payment-currency.test.ts while changing src/payment.ts currency validation from strict ISO codes to accepting any non-empty string. There is no ForgeFlow task directory. Produce only the standalone normalization summary, Findings, Evidence Classification, and Verdict fragments. Do not require pipeline artifacts, do not treat the deleted test as harmless cleanup, and do not claim provider/plugin E2E execution.",
+      "expected_output": "A standalone review fragment that treats the pasted diff as observed standalone input, flags the source validation weakening and deleted coverage together, skips missing ForgeFlow pipeline artifacts, refuses approval or requests changes, and avoids provider/plugin E2E claims.",
+      "files": [
+        "skills/review/SKILL.md",
+        "templates/review-report.md",
+        "README.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output identifies standalone review mode for pasted diff input.",
+          "type": "contains",
+          "value": "standalone"
+        },
+        {
+          "text": "Output names both the source change and deleted test paths.",
+          "type": "contains_all",
+          "values": [
+            "src/payment.ts",
+            "tests/payment-currency.test.ts"
+          ]
+        },
+        {
+          "text": "Output focuses the finding on weakened payment currency validation in source code.",
+          "type": "contains_any",
+          "values": [
+            "currency validation",
+            "ISO",
+            "non-empty string",
+            "src/payment.ts",
+            "payment validation"
+          ]
+        },
+        {
+          "text": "Output treats deleted test coverage as relevant evidence rather than harmless cleanup.",
+          "type": "contains_any",
+          "values": [
+            "deleted test",
+            "test coverage",
+            "coverage removed",
+            "tests/payment-currency.test.ts",
+            "regression test"
+          ]
+        },
+        {
+          "text": "Evidence Classification distinguishes observed pasted input from reported or unverified pipeline evidence.",
+          "type": "contains_all",
+          "values": [
+            "Evidence Classification",
+            "Observed evidence"
+          ]
+        },
+        {
+          "text": "Output refuses approval or requests changes for the validation weakening and coverage removal.",
+          "type": "contains_any",
+          "values": [
+            "changes_requested",
+            "blocked",
+            "not approved",
+            "cannot approve",
+            "regression"
+          ]
+        },
+        {
+          "text": "Output does not require missing ForgeFlow pipeline artifacts in standalone mode.",
+          "type": "not_contains_any",
+          "values": [
+            "missing implementation-notes.md",
+            "missing run-ledger.md",
+            "missing plan.md",
+            "missing brief.md",
+            "pipeline artifacts required"
+          ]
+        },
+        {
+          "text": "Output does not dismiss the deleted test as harmless cleanup or claim provider/plugin E2E ran.",
+          "type": "not_contains_any",
+          "values": [
+            "harmless cleanup",
+            "tests are unrelated",
+            "provider E2E passed",
+            "plugin E2E passed",
+            "live plugin verified",
+            "Claude verified",
+            "Codex verified",
+            "Gemini verified"
+          ]
+        }
+      ]
     }
   ]
 }
