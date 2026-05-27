@@ -5975,6 +5975,93 @@
           ]
         }
       ]
+    },
+    {
+      "id": 96,
+      "name": "standalone-review-binary-diff-boundary",
+      "prompt": "A user runs /forgeflow:review --type security with a raw git binary patch that changes public/logo.png and assets/payment-flow.png. There is no ForgeFlow task directory and the patch contains no readable source hunks. Produce only the standalone normalization summary and review-report evidence/verdict preamble. Do not invent image contents, do not require pipeline artifacts, and do not approve without inspectable evidence.",
+      "expected_output": "Standalone review records the binary patch as diff/patch input, creates synthetic standalone artifacts, scopes review to the two binary image paths, marks content inspection as unavailable or requiring external image review, refuses approval until inspectable evidence exists, skips missing pipeline artifacts, and avoids provider/plugin E2E claims.",
+      "files": [
+        "skills/review/SKILL.md",
+        "templates/review-report.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output identifies standalone mode for a binary patch without pipeline artifacts.",
+          "type": "contains",
+          "value": "standalone"
+        },
+        {
+          "text": "Output classifies the input as binary diff/patch evidence.",
+          "type": "contains_any",
+          "values": [
+            "binary patch",
+            "binary diff",
+            "diff/patch"
+          ]
+        },
+        {
+          "text": "Output scopes review to the binary image paths from the patch.",
+          "type": "contains_all",
+          "values": [
+            "public/logo.png",
+            "assets/payment-flow.png"
+          ]
+        },
+        {
+          "text": "Output names the synthetic standalone review artifacts.",
+          "type": "contains_all",
+          "values": [
+            "input-source.md",
+            "normalized-input.md",
+            "review-report.md"
+          ]
+        },
+        {
+          "text": "Output states readable content inspection is unavailable or requires image-specific evidence.",
+          "type": "contains_any",
+          "values": [
+            "content inspection unavailable",
+            "not inspectable",
+            "image review",
+            "external image evidence",
+            "binary content"
+          ]
+        },
+        {
+          "text": "Output refuses approval until inspectable observed evidence exists.",
+          "type": "contains_any",
+          "values": [
+            "blocked",
+            "changes_requested",
+            "not approved",
+            "cannot approve",
+            "observed evidence"
+          ]
+        },
+        {
+          "text": "Output does not invent image contents or security findings from unreadable binary data.",
+          "type": "not_contains_any",
+          "values": [
+            "logo contains",
+            "payment-flow shows",
+            "secret embedded",
+            "malware found",
+            "PII visible"
+          ]
+        },
+        {
+          "text": "Output does not require missing pipeline artifacts in standalone mode or claim live provider execution.",
+          "type": "not_contains_any",
+          "values": [
+            "missing implementation-notes.md",
+            "missing run-ledger.md",
+            "missing plan.md",
+            "provider E2E passed",
+            "live plugin verified"
+          ]
+        }
+      ]
     }
   ]
 }
