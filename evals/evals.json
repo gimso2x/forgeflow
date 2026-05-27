@@ -6393,6 +6393,88 @@
           ]
         }
       ]
+    },
+    {
+      "id": 101,
+      "name": "standalone-review-renamed-file-boundary",
+      "prompt": "A user runs /forgeflow:review --standalone and pastes a git diff for a rename from src/legacyAuth.ts to src/auth/legacyAuth.ts with 92% similarity. The diff also shows a small hand edit inside the renamed file that changes requireMfa: true to requireMfa: false for admin users. There is no ForgeFlow task directory. Produce only the standalone normalization summary, Findings, and Evidence Classification fragments. Do not treat the rename itself as the only change, do not require pipeline artifacts, and do not claim provider/plugin E2E execution.",
+      "expected_output": "A standalone review fragment that records the rename source and destination, recognizes the pasted diff as observed standalone input, focuses the finding on the admin MFA weakening inside the renamed file, skips missing pipeline artifacts, and avoids provider/plugin E2E claims.",
+      "files": [
+        "skills/review/SKILL.md",
+        "templates/review-report.md",
+        "README.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output identifies standalone review mode for pasted rename diff input.",
+          "type": "contains",
+          "value": "standalone"
+        },
+        {
+          "text": "Output records both rename source and destination paths.",
+          "type": "contains_all",
+          "values": [
+            "src/legacyAuth.ts",
+            "src/auth/legacyAuth.ts"
+          ]
+        },
+        {
+          "text": "Output recognizes the rename as a rename or moved file rather than losing path history.",
+          "type": "contains_any",
+          "values": [
+            "rename",
+            "renamed",
+            "moved",
+            "92% similarity",
+            "similarity"
+          ]
+        },
+        {
+          "text": "Output identifies the substantive admin MFA weakening inside the renamed file.",
+          "type": "contains_any",
+          "values": [
+            "MFA",
+            "multi-factor",
+            "requireMfa",
+            "admin users",
+            "security finding"
+          ]
+        },
+        {
+          "text": "Evidence Classification distinguishes observed pasted input from reported or unverified pipeline evidence.",
+          "type": "contains_all",
+          "values": [
+            "Evidence Classification",
+            "Observed evidence"
+          ]
+        },
+        {
+          "text": "Output does not require missing pipeline artifacts in standalone mode.",
+          "type": "not_contains_any",
+          "values": [
+            "missing implementation-notes.md",
+            "missing run-ledger.md",
+            "missing plan.md",
+            "missing brief.md",
+            "pipeline artifacts required"
+          ]
+        },
+        {
+          "text": "Output does not dismiss the edit as rename-only or claim live provider/plugin E2E execution.",
+          "type": "not_contains_any",
+          "values": [
+            "rename-only",
+            "only a rename",
+            "no code changes",
+            "provider E2E passed",
+            "plugin E2E passed",
+            "live plugin verified",
+            "Claude verified",
+            "Codex verified",
+            "Gemini verified"
+          ]
+        }
+      ]
     }
   ]
 }
