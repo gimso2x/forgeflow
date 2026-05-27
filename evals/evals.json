@@ -6232,6 +6232,82 @@
           ]
         }
       ]
+    },
+    {
+      "id": 99,
+      "name": "standalone-review-generated-file-boundary",
+      "prompt": "A user runs /forgeflow:review --standalone and pastes a diff containing generated files dist/bundle.js and coverage/lcov.info plus a hand-written change src/payment.ts that removes an authorization check. Produce only the standalone review Findings and Evidence Classification fragments. Do not require plan.md, implementation-notes.md, run-ledger.md, or other pipeline artifacts.",
+      "expected_output": "A standalone review fragment that treats generated artifacts as low-signal or out of scope, focuses the finding on src/payment.ts authorization regression, classifies the pasted diff as observed input for standalone review, and does not block on missing pipeline artifacts.",
+      "files": [
+        "skills/review/SKILL.md",
+        "templates/review-report.md",
+        "README.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output identifies standalone review mode for pasted diff input.",
+          "type": "contains",
+          "value": "standalone"
+        },
+        {
+          "text": "Output focuses the substantive finding on the hand-written payment file.",
+          "type": "contains",
+          "value": "src/payment.ts"
+        },
+        {
+          "text": "Output identifies the authorization regression as the review finding.",
+          "type": "contains_any",
+          "values": [
+            "authorization",
+            "authorization check",
+            "authz",
+            "access control",
+            "security finding"
+          ]
+        },
+        {
+          "text": "Output treats generated files as low-signal, generated, or out of scope rather than primary findings.",
+          "type": "contains_any",
+          "values": [
+            "generated",
+            "low-signal",
+            "out of scope",
+            "dist/bundle.js",
+            "coverage/lcov.info"
+          ]
+        },
+        {
+          "text": "Evidence Classification distinguishes observed pasted input from reported or unverified pipeline evidence.",
+          "type": "contains_all",
+          "values": [
+            "Evidence Classification",
+            "Observed evidence"
+          ]
+        },
+        {
+          "text": "Output does not require missing pipeline artifacts in standalone mode.",
+          "type": "not_contains_any",
+          "values": [
+            "missing implementation-notes.md",
+            "missing run-ledger.md",
+            "missing plan.md",
+            "missing brief.md",
+            "pipeline artifacts required"
+          ]
+        },
+        {
+          "text": "Output does not claim live provider or plugin E2E execution.",
+          "type": "not_contains_any",
+          "values": [
+            "provider E2E passed",
+            "plugin E2E passed",
+            "live plugin verified",
+            "Claude verified",
+            "Codex verified",
+            "Gemini verified"
+          ]
+        }
+      ]
     }
   ]
 }
