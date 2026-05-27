@@ -6657,6 +6657,100 @@
           ]
         }
       ]
+    },
+    {
+      "id": 104,
+      "name": "standalone-review-submodule-pointer-boundary",
+      "prompt": "A user runs /forgeflow:review --standalone and pastes a diff where libs/payments-sdk is a Git submodule pointer change from commit aaa111 to bbb222, plus src/checkout.ts starts calling paymentsSdk.authorizeWithoutCvv(order). There is no ForgeFlow task directory and no nested submodule diff content. Produce only the standalone normalization summary, Findings, Evidence Classification, and Verdict fragments. Do not require pipeline artifacts, do not pretend the submodule contents were inspected, and do not approve until the submodule delta or exact reviewed commit evidence is provided.",
+      "expected_output": "A standalone review fragment that records the submodule pointer change as observed but opaque, reviews the visible checkout call, marks the missing submodule delta as unreviewed evidence, and refuses approval until exact submodule commit/diff evidence is supplied or scoped out.",
+      "files": [
+        "skills/review/SKILL.md",
+        "templates/review-report.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output identifies standalone review mode for pasted submodule pointer diff input.",
+          "type": "contains_any",
+          "values": [
+            "standalone",
+            "pasted diff",
+            "submodule pointer",
+            "no ForgeFlow task directory"
+          ]
+        },
+        {
+          "text": "Output names the submodule path and source file path.",
+          "type": "contains_all",
+          "values": [
+            "libs/payments-sdk",
+            "src/checkout.ts"
+          ]
+        },
+        {
+          "text": "Output recognizes the submodule update as an opaque pointer or commit change, not inspected nested contents.",
+          "type": "contains_any",
+          "values": [
+            "submodule pointer",
+            "opaque",
+            "commit pointer",
+            "not inspected",
+            "nested diff"
+          ]
+        },
+        {
+          "text": "Output identifies the visible checkout authorization/CVV weakening risk.",
+          "type": "contains_any",
+          "values": [
+            "authorizeWithoutCvv",
+            "CVV",
+            "authorization",
+            "checkout",
+            "risk"
+          ]
+        },
+        {
+          "text": "Evidence Classification distinguishes observed pasted input from missing or unreviewed submodule contents.",
+          "type": "contains_all",
+          "values": [
+            "Evidence Classification",
+            "observed",
+            "unreviewed"
+          ]
+        },
+        {
+          "text": "Output refuses approval until exact submodule delta, nested diff, or reviewed commit evidence is provided or scoped out.",
+          "type": "contains_any",
+          "values": [
+            "changes_requested",
+            "blocked",
+            "cannot approve",
+            "submodule delta",
+            "nested diff",
+            "reviewed commit"
+          ]
+        },
+        {
+          "text": "Output does not require missing ForgeFlow pipeline artifacts in standalone mode.",
+          "type": "not_contains_any",
+          "values": [
+            "plan.md is required",
+            "implementation-notes.md is required",
+            "run-ledger.md is required",
+            "missing pipeline artifacts block standalone review"
+          ]
+        },
+        {
+          "text": "Output does not claim it inspected submodule contents or provider/plugin E2E execution.",
+          "type": "not_contains_any",
+          "values": [
+            "submodule contents inspected",
+            "nested submodule code reviewed",
+            "provider E2E passed",
+            "plugin E2E passed",
+            "live CLI smoke passed"
+          ]
+        }
+      ]
     }
   ]
 }
