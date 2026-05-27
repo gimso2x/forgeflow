@@ -7416,6 +7416,99 @@
           ]
         }
       ]
+    },
+    {
+      "id": 112,
+      "name": "standalone-review-test-only-patch-verification-boundary",
+      "prompt": "Run /forgeflow:review in standalone mode on a patch that only adds tests in tests/billing/discounts.test.ts for a claimed checkout discount rounding fix. The patch includes no production source changes, no failing-before/passing-after transcript, and no runtime command output. Produce only the Findings and Evidence Classification sections of review-report.md. Do not require ForgeFlow pipeline artifacts because this is standalone review.",
+      "expected_output": "A standalone review finding that treats the added tests as useful observed test coverage evidence, refuses to approve the production bug fix without source/runtime or before-after verification evidence, and does not require ForgeFlow pipeline artifacts.",
+      "files": [],
+      "assertions": [
+        {
+          "text": "Output identifies standalone review mode and the test-only patch scope.",
+          "type": "contains_all",
+          "values": [
+            "standalone",
+            "test-only"
+          ]
+        },
+        {
+          "text": "Output names the added test file or checkout discount rounding behavior.",
+          "type": "contains_any",
+          "values": [
+            "tests/billing/discounts.test.ts",
+            "discounts.test.ts",
+            "discount rounding",
+            "checkout discount"
+          ]
+        },
+        {
+          "text": "Output treats added tests as observed test coverage evidence, not proof that production behavior changed.",
+          "type": "contains_any",
+          "values": [
+            "test coverage evidence",
+            "observed test",
+            "test-only",
+            "does not prove",
+            "not proof"
+          ]
+        },
+        {
+          "text": "Evidence Classification includes observed evidence and missing production source, runtime, before-after, or command-output evidence.",
+          "type": "contains_all",
+          "values": [
+            "Evidence Classification",
+            "Observed evidence",
+            "missing"
+          ]
+        },
+        {
+          "text": "Output requests source/runtime evidence, before-after verification, or command output before approving the production bug fix claim.",
+          "type": "contains_any",
+          "values": [
+            "production source",
+            "runtime verification",
+            "before-after",
+            "command output",
+            "before approving",
+            "cannot approve"
+          ]
+        },
+        {
+          "text": "Output refuses approval or marks changes requested instead of approving the production fix from tests alone.",
+          "type": "contains_any",
+          "values": [
+            "changes_requested",
+            "blocked",
+            "not approved",
+            "cannot approve",
+            "needs verification"
+          ]
+        },
+        {
+          "text": "Output does not require missing ForgeFlow pipeline artifacts in standalone mode.",
+          "type": "not_contains_any",
+          "values": [
+            "missing implementation-notes.md",
+            "missing run-ledger.md",
+            "missing plan.md",
+            "missing brief.md",
+            "pipeline artifacts required"
+          ]
+        },
+        {
+          "text": "Output does not claim provider/plugin E2E or live CLI execution.",
+          "type": "not_contains_any",
+          "values": [
+            "provider E2E passed",
+            "plugin E2E passed",
+            "live CLI smoke passed",
+            "Claude verified",
+            "Codex verified",
+            "Gemini verified"
+          ]
+        }
+      ]
     }
   ]
 }
