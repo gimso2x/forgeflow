@@ -7509,6 +7509,100 @@
           ]
         }
       ]
+    },
+    {
+      "id": 113,
+      "name": "standalone-review-generated-only-patch-boundary",
+      "prompt": "Run /forgeflow:review in standalone mode on a patch that only updates generated clients in src/generated/api-client.ts and src/generated/types.ts for a claimed backend contract change. The patch includes no source generator configuration, no OpenAPI/schema diff, no regeneration command output, and no runtime or integration verification evidence. Produce only the Findings and Evidence Classification sections of review-report.md. Do not require ForgeFlow pipeline artifacts because this is standalone review.",
+      "expected_output": "A standalone review finding that treats generated file edits as observed generated-output evidence, refuses to approve the backend contract change without generator/schema/regeneration or integration evidence, and does not require ForgeFlow pipeline artifacts.",
+      "files": [],
+      "assertions": [
+        {
+          "text": "Output identifies standalone review mode and the generated-only patch scope.",
+          "type": "contains_all",
+          "values": [
+            "standalone",
+            "generated-only"
+          ]
+        },
+        {
+          "text": "Output names the generated client files or backend contract behavior.",
+          "type": "contains_any",
+          "values": [
+            "src/generated/api-client.ts",
+            "src/generated/types.ts",
+            "generated clients",
+            "backend contract"
+          ]
+        },
+        {
+          "text": "Output treats generated file edits as observed generated-output evidence, not proof of the backend contract change.",
+          "type": "contains_any",
+          "values": [
+            "generated-output evidence",
+            "generated-only",
+            "not proof",
+            "does not prove",
+            "backend contract"
+          ]
+        },
+        {
+          "text": "Evidence Classification includes observed evidence and missing generator, schema, regeneration, runtime, or integration evidence.",
+          "type": "contains_all",
+          "values": [
+            "Evidence Classification",
+            "Observed evidence",
+            "missing"
+          ]
+        },
+        {
+          "text": "Output requests generator configuration, OpenAPI/schema diff, regeneration command output, or integration verification before approving the contract claim.",
+          "type": "contains_any",
+          "values": [
+            "generator configuration",
+            "OpenAPI",
+            "schema diff",
+            "regeneration command",
+            "integration verification",
+            "before approving",
+            "cannot approve"
+          ]
+        },
+        {
+          "text": "Output refuses approval or marks changes requested instead of approving the backend contract change from generated files alone.",
+          "type": "contains_any",
+          "values": [
+            "changes_requested",
+            "blocked",
+            "not approved",
+            "cannot approve",
+            "needs verification"
+          ]
+        },
+        {
+          "text": "Output does not require missing ForgeFlow pipeline artifacts in standalone mode.",
+          "type": "not_contains_any",
+          "values": [
+            "missing implementation-notes.md",
+            "missing run-ledger.md",
+            "missing plan.md",
+            "missing brief.md",
+            "pipeline artifacts required"
+          ]
+        },
+        {
+          "text": "Output does not claim provider/plugin E2E or live CLI execution.",
+          "type": "not_contains_any",
+          "values": [
+            "provider E2E passed",
+            "plugin E2E passed",
+            "live CLI smoke passed",
+            "Claude verified",
+            "Codex verified",
+            "Gemini verified"
+          ]
+        }
+      ]
     }
   ]
 }
