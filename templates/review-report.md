@@ -18,6 +18,7 @@ scope_boundary:
 
 <!-- ForgeFlow review template. Created during review stage. -->
 <!-- Write prose in the user's primary language. Preserve canonical labels, enum values, commands, paths, and artifact filenames in English. -->
+<!-- small route: use compact fast-review. Keep only verdict, findings/none, observed evidence, blockers, residual risk, next action. Delete standalone/high-only sections unless escalated. Approved/no-finding small reviews should be ≤80 lines and must use bullets, not Markdown tables. -->
 <!-- high/epic: spec pass fills Spec Compliance first; quality pass completes Quality Assessment in this same file. -->
 <!-- standalone: Standalone Input Source and Reviewer Role Summary sections are filled; skip inapplicable sections. -->
 <!-- Prefer bullet lists over Markdown tables unless a compact matrix is clearly easier to scan. Always keep verdict, findings, evidence, changed files, risks, and next action readable in plain CLI/Telegram transcripts. -->

@@ -220,7 +220,7 @@ worker C ──┘
 
 | Route | During execute (`/forgeflow:execute`) | After execute (`/forgeflow:review`) |
 |-------|--------------------------------------|-------------------------------------|
-| small | Self-check + step verification; no micro-reviewer subagents | Single **quality** pass on `review-report.md` |
+| small | Self-check + one fast relevant verification gate; no micro-reviewer subagents | Single **fast-review quality** pass: changed-file scope + acceptance sanity + one observed gate + blocker scan |
 | medium | Step verification + contract checkpoint per plan step | Single **quality** pass |
 | high | Per-step **spec micro-check** (controller or `references/spec-reviewer-prompt.md`); optional quality micro-check after spec passes | **Spec** pass then **quality** pass (sequential, same `review-report.md`) |
 | epic | Same as high, per milestone plan step | Same as high, per milestone completion |
