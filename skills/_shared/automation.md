@@ -118,9 +118,9 @@ Complete **all** items before invoking the next stage or editing code outside th
 | Notes | `implementation-notes.md` updated per task (Decisions, Evidence, Deviations) |
 | Checkpoint | Updated after **each** task completes; `Active Task` must not stay stale on Task 1 while later tasks finish |
 | Evidence | Verification commands run; results in Evidence / Gate Results |
-| **Context refresh** | Adapter-neutral by default. After checkpoint, ledger, evidence are written to disk: set `checkpoint.md` `Active Task` to the real next task id and `Next Action` to the next execute step. Under `--auto`, continue unless context pressure is high. If refresh is needed, output adapter-specific hints from `_shared/context-resume.md` and STOP. Do not require Claude-only `/clear` in the shared workflow. |
+| **Context refresh** | Adapter-neutral by default. After checkpoint, ledger, evidence are written to disk: set `checkpoint.md` `Active Task` to the real next task id and `Next Action` to the next execute step. Under `--auto`, continue unless context pressure is high. If refresh is needed, output adapter-specific hints from `_shared/context-resume.md` and STOP. Do not require a Claude-only fresh-context command in the shared workflow. |
 | Chain | Call `Skill(skill: "forgeflow:review")` immediately when all tasks done — no `(y/n)` prompt. Do not just print the skill name. |
-| Forbidden | Deferring ledger/notes until the user asks "어디까지?"; coding after execute exit without review; treating context refresh as a Claude-only mandatory `/clear` step |
+| Forbidden | Deferring ledger/notes until the user asks "어디까지?"; coding after execute exit without review; treating context refresh as a Claude-only mandatory fresh-context step |
 
 #### review → ship
 
@@ -212,12 +212,12 @@ When `--auto` chains multiple stages in one turn, context pressure may trigger a
 | Between stage invocation (next skill loading) | **No** | No artifact written yet for the next stage |
 | Mid-review before verdict | **No** | Verdict not recorded |
 
-On resume after compact during auto-chain:
+On resume after context refresh during auto-chain:
 1. Read `checkpoint.md` first (see `_shared/context-resume.md`).
 2. If `Status: blocked`, treat as auto-break — do not resume chain until blocker is resolved.
 3. If `Status: in_progress` and `--auto` is still active, continue chain from `Next Action` without asking the user.
 
-Do **not** use compact as an excuse to pause auto-chain and wait for user input. The chain continues automatically unless an auto-break condition applies.
+Do **not** use context refresh as an excuse to pause auto-chain and wait for user input. The chain continues automatically unless an auto-break condition applies.
 
 ## General rule
 

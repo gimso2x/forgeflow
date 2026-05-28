@@ -61,9 +61,9 @@ Claude/Codex의 `/forgeflow:clarify` 등과 동일한 스킬입니다. 매핑은
 
 **설치 위치와 작업 위치를 분리하세요.** Claude/Codex/Gemini/Cursor의 plugin 또는 extension은 각 도구의 설치/cache 위치에 둘 수 있지만, `/forgeflow:clarify` 같은 실제 workflow 명령은 변경하려는 프로젝트 루트에서 실행해야 합니다. plugin/cache 디렉토리에서 실행 중이면 `--task-dir <project>/.forgeflow/tasks/<task-id>`처럼 명시 경로를 지정해 산출물이 대상 프로젝트에 기록되게 하세요.
 
-### Context efficiency / compact resume
+### Context efficiency / refresh resume
 
-ForgeFlow는 artifact-first를 유지하면서 context compaction 후 재개 비용을 줄입니다. stage 경계 또는 checkpoint 갱신 직후에 `/compact`하는 것이 안전합니다. 재개 시 `checkpoint.md` → `run-ledger.md` → `implementation-notes.md` 요약 → 필요한 섹션만 읽습니다. 상세 규칙은 [skills/_shared/context-resume.md](skills/_shared/context-resume.md)를 참고하세요.
+ForgeFlow는 artifact-first를 유지하면서 adapter-selected context refresh 후 재개 비용을 줄입니다. stage 경계 또는 checkpoint 갱신 직후에 context refresh가 안전합니다. 재개 시 `checkpoint.md` → `run-ledger.md` → `implementation-notes.md` 요약 → 필요한 섹션만 읽습니다. 어댑터별 명령 힌트는 [skills/_shared/context-resume.md](skills/_shared/context-resume.md)에만 둡니다.
 
 ### 공통 프로젝트 컨텍스트
 

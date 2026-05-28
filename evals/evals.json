@@ -895,7 +895,7 @@
     {
       "id": 15,
       "name": "compact-resume-read-discipline",
-      "prompt": "A ForgeFlow execute session resumes after /compact on a high-route task. The task directory has checkpoint.md, run-ledger.md, implementation-notes.md with Reader Summary/Evidence Index, and a 300-line plan.md. Produce only the resume preflight and next read actions. Be context-efficient and artifact-first; do not read every artifact from line 1 just to be safe.",
+      "prompt": "A ForgeFlow execute session resumes after adapter-selected context refresh on a high-route task. The task directory has checkpoint.md, run-ledger.md, implementation-notes.md with Reader Summary/Evidence Index, and a 300-line plan.md. Produce only the resume preflight and next read actions. Be context-efficient and artifact-first; do not read every artifact from line 1 just to be safe.",
       "expected_output": "Resume guidance that reads checkpoint.md first, uses the checkpoint Minimum Read Set, then reads run-ledger.md, implementation-notes.md Reader Summary/Evidence Index, and only the active plan section or named sections needed for the next action while avoiding a default full re-read.",
       "files": [
         "skills/_shared/context-resume.md",
@@ -919,7 +919,7 @@
             "Minimum Read Set",
             "minimum read set",
             "Next Action",
-            "Compact-Safe Context Notes"
+            "Refresh-Safe Context Notes"
           ]
         },
         {

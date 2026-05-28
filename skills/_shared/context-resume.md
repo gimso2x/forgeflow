@@ -1,4 +1,4 @@
-# Context Resume and Compact Safety
+# Context Refresh and Resume Safety
 
 Shared rules for adapter-specific context refresh timing, checkpoint-first resume, minimum read sets, and section-targeted reads across all ForgeFlow stages.
 
@@ -53,7 +53,7 @@ Before reading any file, ask: **full content, Reader Summary, or specific sectio
 2. If artifact has **Reader Summary** (high/epic), read it first (~30 lines max).
 3. Jump to named sections (e.g. `## 검증 계획 (Verification Plan)`, `### Task 3:`) instead of reading from line 1.
 4. Use Evidence Index compact strings before expanding full Evidence blocks.
-5. Record in checkpoint when you expand beyond minimum read set (brief note in Compact-Safe Context Notes).
+5. Record in checkpoint when you expand beyond minimum read set (brief note in Refresh-Safe Context Notes).
 
 ## Context budget heuristics
 

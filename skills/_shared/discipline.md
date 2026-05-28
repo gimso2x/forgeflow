@@ -20,7 +20,7 @@ Each skill links here and adds skill-specific rules inline.
 - Keep technical identifiers in English when they are part of the workflow contract: file paths, commands, code identifiers, artifact filenames, frontmatter keys, table keys, route labels (`small`, `medium`, `high`, `epic`), verdict enums (`approved`, `changes_requested`, `blocked`), and gate values (`PASS`, `FAIL`, `skip`, `n/a`).
 - Prefer localized section titles with the canonical English label preserved in parentheses, such as `## 검증 계획 (Verification Plan)`, so artifacts stay readable to the user without losing ForgeFlow traceability.
 - For long high/epic artifacts, put a short user-language summary near the top before detailed tables or checklists.
-- On stage resume after context compaction, follow `_shared/context-resume.md` (checkpoint-first, section-targeted reads).
+- On stage resume after context refresh, follow `_shared/context-resume.md` (checkpoint-first, section-targeted reads).
 
 ## Security discipline (core)
 

@@ -129,7 +129,7 @@ Apply rules this way:
 3. If a project active rule changes task ordering, file scope, or verification, record that under `Applied Evolution Rules` in plan.md.
 4. If no active rules apply, record `none` instead of silently skipping this section.
 
-## Context resume and compact safety
+## Context resume and refresh safety
 
 → `_shared/context-resume.md`.
 
@@ -137,8 +137,8 @@ Apply rules this way:
 - **Minimum read set (new)**: `brief.md` Objective, Scope, Acceptance Criteria, Applied Evolution Rules.
 - **Minimum read set (resume)**: `checkpoint.md` → brief summary → plan Reader Summary + Tasks + Verification Plan sections.
 - **Long plans**: keep section anchors (`## 작업 목록 (Tasks)`, `## 검증 계획 (Verification Plan)`) so execute/review can target tasks without full re-read. Large brownfield tasks may exceed ~300 lines — design for section-targeted resume, not full-document replay.
-- **Stage exit**: write `plan.md`, scaffolds (`implementation-notes.md`, `run-ledger.md`), update `checkpoint.md`. Safe to `/compact` after checkpoint update.
-- Do not compact mid-decomposition before minimum plan gate is satisfied.
+- **Stage exit**: write `plan.md`, scaffolds (`implementation-notes.md`, `run-ledger.md`), update `checkpoint.md`. Safe to refresh context after checkpoint update.
+- Do not refresh context mid-decomposition before minimum plan gate is satisfied.
 
 ## Minimum plan gate
 

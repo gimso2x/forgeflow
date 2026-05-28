@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Context refresh references in skills now centralize `/compact` and `/clear` adapter hints in `_shared/context-resume.md`; public stage skills use adapter-neutral wording.
 - **context refresh 문구 정합성**: shared automation/context-resume 문서와 eval을 `/clear` 강제 대신 adapter-neutral refresh로 정리
 
 ## [1.8.0] - 2026-05-27

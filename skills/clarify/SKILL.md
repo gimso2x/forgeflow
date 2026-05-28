@@ -131,14 +131,14 @@ When the user requests an exact output (label only, list only, dry run), return 
 - Exact-count questions: start directly with `1.` — no preamble.
 - List questions: list them inline. Do not call interactive tools unless the user asks.
 
-## Context resume and compact safety
+## Context resume and refresh safety
 
 → `_shared/context-resume.md`.
 
 - **Minimum read set (new task)**: user request + repo context as needed for scope.
 - **Minimum read set (resume)**: `checkpoint.md` → `brief.md` in-progress sections only.
-- **Stage exit**: update `checkpoint.md` with Current Stage, Next Action, Minimum Read Set. Safe to `/compact` after brief + checkpoint are written.
-- Do not compact mid-interview before `brief.md` is complete.
+- **Stage exit**: update `checkpoint.md` with Current Stage, Next Action, Minimum Read Set. Safe to refresh context after brief + checkpoint are written.
+- Do not refresh context mid-interview before `brief.md` is complete.
 
 ## Evolution preflight
 

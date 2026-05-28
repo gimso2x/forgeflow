@@ -263,14 +263,14 @@ validate-dogfooding-docs:
 	@echo "OK: Dogfooding fixture docs are linked and guarded"
 
 validate-context-resume:
-	@grep -Fq "skills/_shared/context-resume.md" README.md || { echo "ERROR: README must document compact/resume rules"; exit 1; }
+	@grep -Fq "skills/_shared/context-resume.md" README.md || { echo "ERROR: README must document context refresh/resume rules"; exit 1; }
 	@for f in skills/forgeflow/SKILL.md skills/clarify/SKILL.md skills/plan/SKILL.md skills/execute/SKILL.md skills/review/SKILL.md skills/ship/SKILL.md; do \
-		grep -Fq "_shared/context-resume.md" "$$f" || { echo "ERROR: $$f must reference shared compact/resume rules"; exit 1; }; \
+		grep -Fq "_shared/context-resume.md" "$$f" || { echo "ERROR: $$f must reference shared context refresh/resume rules"; exit 1; }; \
 	done
 	@grep -Fq "Checkpoint-first" skills/_shared/context-resume.md || { echo "ERROR: context-resume rules must keep checkpoint-first guidance"; exit 1; }
 	@grep -Fq "No default full re-read" skills/_shared/context-resume.md || { echo "ERROR: context-resume rules must guard against full artifact rereads"; exit 1; }
-	@grep -Fq "Minimum Read Set" templates/checkpoint.md || { echo "ERROR: checkpoint template must expose a Minimum Read Set for compact resume"; exit 1; }
-	@echo "OK: Compact/resume guidance is wired into core skills and checkpoint template"
+	@grep -Fq "Minimum Read Set" templates/checkpoint.md || { echo "ERROR: checkpoint template must expose a Minimum Read Set for context refresh resume"; exit 1; }
+	@echo "OK: Context refresh/resume guidance is wired into core skills and checkpoint template"
 
 validate-adapter-config:
 	@$(PYTHON) scripts/validate_adapter_config.py

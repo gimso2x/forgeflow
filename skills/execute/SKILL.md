@@ -207,15 +207,15 @@ Minimum warning contract:
    - **TDD Refactor**: Clean up implementation.
    - **Run Ledger**: When starting a task, set its status to `running` and **Assignee** to `worker` (or `specialist` if delegated). When completing, set to `done` with evidence refs. When blocked, set to `blocked` with blocker description. Update incrementally, not in batch. See **Run ledger assignee discipline** below.
    - **Per-task micro-gates (high/epic only)**: Before marking a step `done`, run the micro-gate checklist in **Per-task micro-gates** below. Optional spec/quality micro-reviewer subagents use `references/spec-reviewer-prompt.md` and `references/quality-reviewer-prompt.md`.
-   - **Checkpoint**: Update `checkpoint.md` after each task completes: set `Active Task` to the next task, update `Latest Artifacts` table. Ensures resume capability after context compaction or clear.
+   - **Checkpoint**: Update `checkpoint.md` after each task completes: set `Active Task` to the next task, update `Latest Artifacts` table. Ensures resume capability after adapter-selected context refresh.
      - **Step-boundary checkpoint (adapter-neutral)**: Once checkpoint, run-ledger, and evidence are all updated on disk for a completed step, set `checkpoint.md` `Active Task` to the real next task id and `Next Action` to `"Task N 시작; resume from checkpoint if context was refreshed"`. Then either continue immediately (normal `--auto` path) or, if context pressure is high, emit the adapter-specific refresh hint and STOP:
        ```
        ✅ Task N-1 완료. checkpoint/run-ledger/implementation-notes가 디스크에 저장되었습니다.
        컨텍스트가 크면 현재 어댑터의 context refresh를 실행한 뒤 같은 execute 단계를 재개하세요.
        Resume order: checkpoint → run-ledger → implementation-notes → plan active task.
        ```
-       Adapter hints live in `_shared/context-resume.md`: Claude Code and Codex CLI can both use `/compact` for ordinary pressure. For a fully fresh context, Claude Code can use `/clear` + `/forgeflow:execute --resume`; Codex can use interactive `/clear`/`/new` or a fresh `codex exec`/session with a prompt to resume from the task directory checkpoint. Do not make adapter-specific slash commands mandatory in core skill text.
-     - **Resume guard**: After any compact/clear/new-session refresh, the first action is to read `checkpoint.md`, then proceed to the active task. If all artifacts are on disk, proceed normally.
+       Adapter hints live in `_shared/context-resume.md`; do not duplicate or make adapter-specific slash commands mandatory in core skill text.
+     - **Resume guard**: After any adapter-selected context refresh, the first action is to read `checkpoint.md`, then proceed to the active task. If all artifacts are on disk, proceed normally.
    - **Role awareness**: You are the implementation role. You edit code and update artifacts, but you do not approve your own work. Review is a separate stage with a separate role boundary. Do not merge implementation and review in the same turn.
    - **Architectural Depth**: Ensure implementation follows the plan's architectural intent (Depth, Leverage, Locality) and avoids creating new shallow modules.
    - If blocked, apply **Hypothesis-Driven Debugging**.

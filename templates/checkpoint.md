@@ -1,7 +1,7 @@
 # Checkpoint
 
 <!-- ForgeFlow tactical resume pointer. Updated at stage entry/exit. -->
-<!-- This is NOT a progress report — it is the minimum state needed to resume after context compaction. -->
+<!-- This is NOT a progress report — it is the minimum state needed to resume after context refresh. -->
 <!-- See skills/_shared/context-resume.md for compact timing and read-order rules. -->
 
 ## Current Stage
@@ -38,5 +38,5 @@
 <!-- Compact evidence_index / verification / contract_check lines from implementation-notes or run-ledger -->
 <!-- Example: evidence_index: task=T2 gates=validate:PASS -->
 
-## Compact-Safe Context Notes
-<!-- Terse state that would be lost on compaction. NOT a progress report — decisions, blockers, next-file hints only. -->
+## Refresh-Safe Context Notes
+<!-- Terse state that would be lost on context refresh. NOT a progress report — decisions, blockers, next-file hints only. -->

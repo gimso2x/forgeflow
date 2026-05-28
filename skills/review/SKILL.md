@@ -510,7 +510,7 @@ All routes write a **single** `review-report.md` using `templates/review-report.
 
 - `skills/_shared/isolation.md` — Worktree detection and isolation handling (required for review inside worktrees)
 - `skills/_shared/preflight.md` — Checkpoint-first status analysis preflight
-- `skills/_shared/context-resume.md` — Compact/resume read discipline
+- `skills/_shared/context-resume.md` — Context refresh/resume read discipline
 - `skills/_shared/discipline.md` — File write and output discipline
 - `skills/_shared/automation.md` — Non-interactive approval mode
 - `templates/review-report.md` — Review report template
@@ -603,7 +603,7 @@ Evolution rules are generated during the **ship** stage. Review does not need to
 
 → Core procedure: `_shared/preflight.md` (checkpoint-first, section-targeted reads).
 
-→ Compact/resume rules: `_shared/context-resume.md`.
+→ Context refresh/resume rules: `_shared/context-resume.md`.
 
 Review-specific: reconstruct task state from artifacts, not chat memory. **Do not read all artifacts in full at entry.**
 
