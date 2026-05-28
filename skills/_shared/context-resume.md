@@ -8,11 +8,11 @@ Shared rules for `/compact` and `/clear` timing, checkpoint-first resume, minimu
 2. **Checkpoint-first** — on resume (after /compact or /clear), read `checkpoint.md` before any other task artifact when it exists.
 3. **No default full re-read** — expand to full artifacts only when verification, findings, or blockers require it.
 4. **Ledger = truth, notes = narrative** — task status from `run-ledger.md`; decisions from `implementation-notes.md`.
-5. **Step-complete = clear-recommended** — once a plan step finishes and checkpoint/ledger/evidence are updated on disk, output a `/clear` recommendation to the user and stop. `/clear` is a user CLI command the agent cannot execute. Resume from artifacts is mandatory, not optional.
+5. **Step-complete = clear-required** — once a plan step finishes and checkpoint/ledger/evidence are updated on disk, output a `/clear` instruction to the user and stop. `/clear` is a user CLI command the agent cannot execute. Resume from artifacts is mandatory, not optional.
 
 ## `/compact` and `/clear` timing
 
-Both `/compact` (summarize context) and `/clear` (wipe context) are safe when artifacts are up to date. **`/clear` is recommended between plan steps during execute** — `/clear` is a user CLI command (not an AI tool). The agent should output a clear message asking the user to run `/clear` and then STOP. The checkpoint-driven resume reads exactly what is needed from disk, making accumulated context wasteful.
+Both `/compact` (summarize context) and `/clear` (wipe context) are safe when artifacts are up to date. **`/clear` is required between plan steps during execute** — `/clear` is a user CLI command (not an AI tool). The agent must output a clear message instructing the user to run `/clear` and then STOP. The checkpoint-driven resume reads exactly what is needed from disk, making accumulated context wasteful.
 
 Compact or clear context at:
 

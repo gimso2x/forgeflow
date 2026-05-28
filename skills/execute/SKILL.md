@@ -208,12 +208,12 @@ Minimum warning contract:
    - **Run Ledger**: When starting a task, set its status to `running` and **Assignee** to `worker` (or `specialist` if delegated). When completing, set to `done` with evidence refs. When blocked, set to `blocked` with blocker description. Update incrementally, not in batch. See **Run ledger assignee discipline** below.
    - **Per-task micro-gates (high/epic only)**: Before marking a step `done`, run the micro-gate checklist in **Per-task micro-gates** below. Optional spec/quality micro-reviewer subagents use `references/spec-reviewer-prompt.md` and `references/quality-reviewer-prompt.md`.
    - **Checkpoint**: Update `checkpoint.md` after each task completes: set `Active Task` to the next task, update `Latest Artifacts` table. Ensures resume capability after context compaction or clear.
-     - **Step-boundary /clear (recommended)**: `/clear` is a user CLI command — you cannot execute it. Once checkpoint, run-ledger, and evidence are all updated on disk for a completed step, update `checkpoint.md` `Active Task` to `pending_clear` and `Next Action` to `"/clear 후 Task N 시작"`. Then output this message to the user and **STOP**:
+     - **Step-boundary /clear (required)**: `/clear` is a user CLI command — you cannot execute it. Once checkpoint, run-ledger, and evidence are all updated on disk for a completed step, update `checkpoint.md` `Active Task` to `pending_clear` and `Next Action` to `"/clear 후 Task N 시작"`. Then output this message to the user and **STOP**:
        ```
-       ✅ Task N 완료. checkpoint/run-ledger/implementation-notes가 디스크에 저장되었습니다.
+       ✅ Task N-1 완료. checkpoint/run-ledger/implementation-notes가 디스크에 저장되었습니다.
        다음 작업 전에 `/clear`를 실행해주세요. 세션이 초기화되면 checkpoint에서 자동 복원됩니다.
        ```
-       Under `--auto`: if the user does not /clear within a reasonable time, continue to the next task but record `context_accumulation_warning` in `implementation-notes.md` Evidence. Resume reads checkpoint → ledger → notes → plan active task (→ `_shared/context-resume.md`). This applies to all routes (small/medium/high/epic).
+       Do not start Task N in the same context. This applies to all routes (small/medium/high/epic) and also under `--auto`; auto-chain resumes only after `/clear` using checkpoint → ledger → notes → plan active task (→ `_shared/context-resume.md`).
      - **Resume guard**: After `/clear`, the first action is to read `checkpoint.md`. If `Active Task` is `pending_clear`, proceed to the next task. If `Active Task` is not `pending_clear` but all artifacts are on disk, proceed normally.
    - **Role awareness**: You are the implementation role. You edit code and update artifacts, but you do not approve your own work. Review is a separate stage with a separate role boundary. Do not merge implementation and review in the same turn.
    - **Architectural Depth**: Ensure implementation follows the plan's architectural intent (Depth, Leverage, Locality) and avoids creating new shallow modules.

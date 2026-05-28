@@ -3331,11 +3331,12 @@
       "id": 48,
       "name": "execute-clear-between-tasks",
       "prompt": "A ForgeFlow execute just completed Task 2 of a medium-route plan. checkpoint.md, run-ledger.md, and implementation-notes.md evidence are all updated on disk. Task 3 is next. Produce only the step-boundary /clear action and resume note for Task 3. The agent must not carry Task 2 context into Task 3.",
-      "expected_output": "A step-boundary action that mandates /clear before starting Task 3, with a resume note that reads checkpoint → ledger → notes → plan active task section. This applies regardless of route or --auto mode.",
+      "expected_output": "A step-boundary action that requires /clear before starting Task 3, sets checkpoint Active Task to pending_clear, and gives the checkpoint → run-ledger → implementation-notes → plan active task resume order. It must stop before Task 3 in all routes and also under --auto.",
       "files": [
         "skills/execute/SKILL.md",
         "skills/_shared/context-resume.md",
-        "skills/_shared/automation.md"
+        "skills/_shared/automation.md",
+        "templates/checkpoint.md"
       ],
       "assertions": [
         {
@@ -3380,6 +3381,24 @@
             "regardless of route",
             "모든 라우트",
             "--auto"
+          ]
+        },
+        {
+          "text": "Output records a pending_clear checkpoint state before the next task.",
+          "type": "contains_any",
+          "values": [
+            "pending_clear",
+            "Active Task: pending_clear"
+          ]
+        },
+        {
+          "text": "Output does not allow auto mode to continue without /clear.",
+          "type": "not_contains_any",
+          "values": [
+            "if the user does not /clear",
+            "continue to the next task",
+            "context_accumulation_warning",
+            "reasonable time"
           ]
         }
       ]

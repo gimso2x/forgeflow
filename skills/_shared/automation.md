@@ -118,7 +118,7 @@ Complete **all** items before invoking the next stage or editing code outside th
 | Notes | `implementation-notes.md` updated per task (Decisions, Evidence, Deviations) |
 | Checkpoint | Updated after **each** task completes; `Active Task` must not stay stale on Task 1 while later tasks finish |
 | Evidence | Verification commands run; results in Evidence / Gate Results |
-| **/clear** | **Mandatory between every task** — `/clear` is a user CLI command, not an AI tool. After checkpoint, ledger, evidence are written to disk: (1) output a clear message: `"✅ Task N 완료. checkpoint/run-ledger/implementation-notes 저장됨. 다음 작업 전 /clear 를 실행해주세요."` (2) **STOP** — do not start the next task in the same context. Under `--auto`: if the user does not /clear, continue the next task but note `context_accumulation_warning` in implementation-notes.md. Resume follows checkpoint-first protocol (→ `_shared/context-resume.md`). |
+| **/clear** | **Mandatory between every task** — `/clear` is a user CLI command, not an AI tool. After checkpoint, ledger, evidence are written to disk: (1) set `checkpoint.md` `Active Task: pending_clear` and `Next Action: /clear 후 Task N 시작`; (2) output a clear message: `"✅ Task N-1 완료. checkpoint/run-ledger/implementation-notes 저장됨. 다음 작업 전 /clear 를 실행해주세요."`; (3) **STOP** — do not start the next task in the same context. This applies even under `--auto`; auto-chain resumes only after `/clear` from checkpoint-first protocol (→ `_shared/context-resume.md`). |
 | Chain | Call `Skill(skill: "forgeflow:review")` immediately when all tasks done — no `(y/n)` prompt. Do not just print the skill name. |
 | Forbidden | Deferring ledger/notes until the user asks "어디까지?"; coding after execute exit without review; skipping `/clear` between tasks |
 
@@ -191,7 +191,7 @@ These patterns indicate `--auto` was **not** honored — correct on the next tas
 | API 429 → unapproved fallback → continue as if AC met | Auto-break or record approved fallback + partial gate; never silent continuation |
 | Printing "auto 진행합니다" text but NOT calling Skill tool | Call the Skill tool with exact skill name — text output alone is not invocation |
 | Asking "(y/n)" when `--auto` is active | Skip prompt and call Skill tool directly |
-| Chaining tasks in same context without /clear | Output /clear message, STOP, wait for user to /clear (or under auto: continue with context_accumulation_warning) |
+| Chaining tasks in same context without /clear | Output /clear message, set checkpoint `Active Task: pending_clear`, STOP, wait for user to /clear (also under `--auto`) |
 
 ### Resume after auto-break
 
