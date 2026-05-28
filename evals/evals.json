@@ -3330,8 +3330,8 @@
     {
       "id": 48,
       "name": "execute-clear-between-tasks",
-      "prompt": "A ForgeFlow execute just completed Task 2 of a medium-route plan. checkpoint.md, run-ledger.md, and implementation-notes.md evidence are all updated on disk. Task 3 is next. Produce only the step-boundary /clear action and resume note for Task 3. The agent must not carry Task 2 context into Task 3.",
-      "expected_output": "A step-boundary action that requires /clear before starting Task 3, sets checkpoint Active Task to pending_clear, and gives the checkpoint → run-ledger → implementation-notes → plan active task resume order. It must stop before Task 3 in all routes and also under --auto.",
+      "prompt": "A ForgeFlow execute just completed Task 2 of a medium-route plan in Claude Code. checkpoint.md, run-ledger.md, and implementation-notes.md evidence are all updated on disk. Task 3 is next. Produce only the step-boundary Claude Code /clear handoff and resume note for Task 3. The agent must not carry Task 2 context into Task 3.",
+      "expected_output": "A Claude Code step-boundary handoff that requires /clear before starting Task 3, sets checkpoint Active Task to pending_clear, tells the user to resume with /forgeflow:execute --resume, and gives the checkpoint → run-ledger → implementation-notes → plan active task resume order. It must stop before Task 3 in all routes and also under --auto.",
       "files": [
         "skills/execute/SKILL.md",
         "skills/_shared/context-resume.md",
@@ -3340,7 +3340,7 @@
       ],
       "assertions": [
         {
-          "text": "Output mandates /clear before starting the next task, not just recommends it.",
+          "text": "Output mandates Claude Code /clear before starting the next task, not just recommends it.",
           "type": "contains_any",
           "values": [
             "must /clear",
@@ -3349,6 +3349,7 @@
             "반드시",
             "의무",
             "Execute `/clear` now",
+            "/forgeflow:execute --resume",
             "required",
             "you MUST"
           ]
@@ -3392,7 +3393,7 @@
           ]
         },
         {
-          "text": "Output does not allow auto mode to continue without /clear.",
+          "text": "Output does not allow auto mode to continue without Claude Code /clear.",
           "type": "not_contains_any",
           "values": [
             "if the user does not /clear",

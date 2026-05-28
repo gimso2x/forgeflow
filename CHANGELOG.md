@@ -76,7 +76,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - **브랜치명 컨벤션**: task ID와 branch name 분리. `<type>/<YYYYMM>-<한글-설명>` 형식 적용 (예: `fix/202605-면적-슬라이더-정합`). 커밋 prefix가 `[fix/202605-면적-슬라이더-정합]` 형태로 프로젝트 컨벤션 정합
-- **execute step-boundary /clear 강제**: checkpoint에 `pending_clear` 상태 기록 + resume guard로 `/clear` 스킵 감지
+- **Claude Code execute step-boundary /clear 강제**: checkpoint에 `pending_clear` 상태 기록 + `/clear` 후 `/forgeflow:execute --resume` handoff로 다음 task를 새 컨텍스트에서 복원
 
 ### Changed
 

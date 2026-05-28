@@ -208,13 +208,14 @@ Minimum warning contract:
    - **Run Ledger**: When starting a task, set its status to `running` and **Assignee** to `worker` (or `specialist` if delegated). When completing, set to `done` with evidence refs. When blocked, set to `blocked` with blocker description. Update incrementally, not in batch. See **Run ledger assignee discipline** below.
    - **Per-task micro-gates (high/epic only)**: Before marking a step `done`, run the micro-gate checklist in **Per-task micro-gates** below. Optional spec/quality micro-reviewer subagents use `references/spec-reviewer-prompt.md` and `references/quality-reviewer-prompt.md`.
    - **Checkpoint**: Update `checkpoint.md` after each task completes: set `Active Task` to the next task, update `Latest Artifacts` table. Ensures resume capability after context compaction or clear.
-     - **Step-boundary /clear (required)**: `/clear` is a user CLI command — you cannot execute it. Once checkpoint, run-ledger, and evidence are all updated on disk for a completed step, update `checkpoint.md` `Active Task` to `pending_clear` and `Next Action` to `"/clear 후 Task N 시작"`. Then output this message to the user and **STOP**:
+     - **Claude Code step-boundary /clear (required)**: `/clear` is a Claude Code interactive slash command, not something a ForgeFlow skill can execute from inside its own response. Once checkpoint, run-ledger, and evidence are all updated on disk for a completed step, update `checkpoint.md` `Active Task` to `pending_clear` and `Next Action` to `"Claude Code에서 /clear 후 /forgeflow:execute --resume 로 Task N 시작"`. Then output this copy/paste handoff and **STOP**:
        ```
        ✅ Task N-1 완료. checkpoint/run-ledger/implementation-notes가 디스크에 저장되었습니다.
-       다음 작업 전에 `/clear`를 실행해주세요. 세션이 초기화되면 checkpoint에서 자동 복원됩니다.
+       Claude Code에서 `/clear`를 실행한 뒤 `/forgeflow:execute --resume`로 이어가세요.
+       세션이 초기화되면 checkpoint → run-ledger → implementation-notes → plan active task 순서로 자동 복원합니다.
        ```
-       Do not start Task N in the same context. This applies to all routes (small/medium/high/epic) and also under `--auto`; auto-chain resumes only after `/clear` using checkpoint → ledger → notes → plan active task (→ `_shared/context-resume.md`).
-     - **Resume guard**: After `/clear`, the first action is to read `checkpoint.md`. If `Active Task` is `pending_clear`, proceed to the next task. If `Active Task` is not `pending_clear` but all artifacts are on disk, proceed normally.
+       Do not start Task N in the same context. This applies to all routes (small/medium/high/epic) and also under `--auto`; auto-chain resumes only after the user runs Claude Code `/clear` and invokes the resume command (→ `_shared/context-resume.md`).
+     - **Resume guard**: After Claude Code `/clear`, the first action is to read `checkpoint.md`. If `Active Task` is `pending_clear`, proceed to the next task and replace `pending_clear` with the real task id. If `Active Task` is not `pending_clear` but all artifacts are on disk, proceed normally.
    - **Role awareness**: You are the implementation role. You edit code and update artifacts, but you do not approve your own work. Review is a separate stage with a separate role boundary. Do not merge implementation and review in the same turn.
    - **Architectural Depth**: Ensure implementation follows the plan's architectural intent (Depth, Leverage, Locality) and avoids creating new shallow modules.
    - If blocked, apply **Hypothesis-Driven Debugging**.
