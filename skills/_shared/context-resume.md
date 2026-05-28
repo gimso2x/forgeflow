@@ -12,7 +12,7 @@ Shared rules for `/compact` and `/clear` timing, checkpoint-first resume, minimu
 
 ## `/compact` and `/clear` timing
 
-Context refresh is safe when artifacts are up to date. Keep the core skill adapter-neutral: do not require a Claude-only slash command for every plan step. Prefer checkpoint-first continuation; use refresh only when context pressure or role bleed is visible. Claude Code can use `/compact` for ordinary pressure, or `/clear` + `/forgeflow:execute --resume` when a fully fresh context is required. Codex should start a fresh `codex exec`/session with an explicit "resume from .forgeflow/tasks/<task-id>/checkpoint.md" prompt. The checkpoint-driven resume reads exactly what is needed from disk, making accumulated context wasteful.
+Context refresh is safe when artifacts are up to date. Keep the core skill adapter-neutral: do not require a Claude-only slash command for every plan step. Prefer checkpoint-first continuation; use refresh only when context pressure or role bleed is visible. Claude Code and Codex CLI can both use `/compact` for ordinary pressure. For a fully fresh context, Claude Code can use `/clear` + `/forgeflow:execute --resume`; Codex can use `/clear`/`/new` when interactive, or start a fresh `codex exec`/session with an explicit "resume from .forgeflow/tasks/<task-id>/checkpoint.md" prompt. The checkpoint-driven resume reads exactly what is needed from disk, making accumulated context wasteful.
 
 Compact or clear context at:
 

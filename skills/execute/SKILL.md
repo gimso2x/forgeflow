@@ -214,7 +214,7 @@ Minimum warning contract:
        컨텍스트가 크면 현재 어댑터의 context refresh를 실행한 뒤 같은 execute 단계를 재개하세요.
        Resume order: checkpoint → run-ledger → implementation-notes → plan active task.
        ```
-       Adapter hints live in `_shared/context-resume.md`: Claude Code can use `/compact` (or `/clear` + `/forgeflow:execute --resume` when a fully fresh context is required); Codex should start a fresh `codex exec`/session with a prompt to resume from the task directory checkpoint. Do not make a Claude-only slash command mandatory in core skill text.
+       Adapter hints live in `_shared/context-resume.md`: Claude Code and Codex CLI can both use `/compact` for ordinary pressure. For a fully fresh context, Claude Code can use `/clear` + `/forgeflow:execute --resume`; Codex can use interactive `/clear`/`/new` or a fresh `codex exec`/session with a prompt to resume from the task directory checkpoint. Do not make adapter-specific slash commands mandatory in core skill text.
      - **Resume guard**: After any compact/clear/new-session refresh, the first action is to read `checkpoint.md`, then proceed to the active task. If all artifacts are on disk, proceed normally.
    - **Role awareness**: You are the implementation role. You edit code and update artifacts, but you do not approve your own work. Review is a separate stage with a separate role boundary. Do not merge implementation and review in the same turn.
    - **Architectural Depth**: Ensure implementation follows the plan's architectural intent (Depth, Leverage, Locality) and avoids creating new shallow modules.

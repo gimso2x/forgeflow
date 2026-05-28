@@ -3331,7 +3331,7 @@
       "id": 48,
       "name": "execute-clear-between-tasks",
       "prompt": "A ForgeFlow execute just completed Task 2 of a medium-route plan in an adapter-neutral run. checkpoint.md, run-ledger.md, and implementation-notes.md evidence are all updated on disk. Task 3 is next. Produce only the step-boundary checkpoint/resume note for Task 3. The core skill must work in both Claude Code and Codex, so it must not require a Claude-only slash command.",
-      "expected_output": "An adapter-neutral step-boundary note that records Task 3 as the real next Active Task, gives the checkpoint → run-ledger → implementation-notes → plan active task resume order, and continues under --auto unless context pressure is high. If refresh is needed, it mentions adapter-specific options such as Claude Code /compact or /clear + /forgeflow:execute --resume, and Codex fresh exec/session resume from checkpoint. It must not require Claude-only /clear or pending_clear in core workflow.",
+      "expected_output": "An adapter-neutral step-boundary note that records Task 3 as the real next Active Task, gives the checkpoint → run-ledger → implementation-notes → plan active task resume order, and continues under --auto unless context pressure is high. If refresh is needed, it mentions adapter-specific options such as Claude Code or Codex /compact for ordinary pressure, Claude Code /clear + /forgeflow:execute --resume for a full reset, and Codex /clear, /new, or fresh exec/session resume from checkpoint. It must not require Claude-only /clear or pending_clear in core workflow.",
       "files": [
         "skills/execute/SKILL.md",
         "skills/_shared/context-resume.md",

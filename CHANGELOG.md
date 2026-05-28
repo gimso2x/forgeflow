@@ -76,7 +76,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - **브랜치명 컨벤션**: task ID와 branch name 분리. `<type>/<YYYYMM>-<한글-설명>` 형식 적용 (예: `fix/202605-면적-슬라이더-정합`). 커밋 prefix가 `[fix/202605-면적-슬라이더-정합]` 형태로 프로젝트 컨벤션 정합
-- **adapter-neutral execute step checkpoint**: Claude-only `/clear` 강제를 제거하고 checkpoint-first continuation + 필요 시 adapter별 context refresh(`/compact`, fresh Codex session 등)로 정리
+- **adapter-neutral execute step checkpoint**: Claude-only `/clear` 강제를 제거하고 checkpoint-first continuation + 필요 시 adapter별 context refresh(Claude/Codex `/compact`, fresh session 등)로 정리
 
 ### Changed
 
