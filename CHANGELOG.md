@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **context refresh 문구 정합성**: shared automation/context-resume 문서와 eval을 `/clear` 강제 대신 adapter-neutral refresh로 정리
+
 ## [1.8.0] - 2026-05-27
 
 ### Added

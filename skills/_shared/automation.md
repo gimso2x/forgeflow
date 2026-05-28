@@ -120,7 +120,7 @@ Complete **all** items before invoking the next stage or editing code outside th
 | Evidence | Verification commands run; results in Evidence / Gate Results |
 | **Context refresh** | Adapter-neutral by default. After checkpoint, ledger, evidence are written to disk: set `checkpoint.md` `Active Task` to the real next task id and `Next Action` to the next execute step. Under `--auto`, continue unless context pressure is high. If refresh is needed, output adapter-specific hints from `_shared/context-resume.md` and STOP. Do not require Claude-only `/clear` in the shared workflow. |
 | Chain | Call `Skill(skill: "forgeflow:review")` immediately when all tasks done — no `(y/n)` prompt. Do not just print the skill name. |
-| Forbidden | Deferring ledger/notes until the user asks "어디까지?"; coding after execute exit without review; skipping `/clear` between tasks |
+| Forbidden | Deferring ledger/notes until the user asks "어디까지?"; coding after execute exit without review; treating context refresh as a Claude-only mandatory `/clear` step |
 
 #### review → ship
 
@@ -201,11 +201,11 @@ When stopping for auto-break:
 2. Do not edit application code until the user resolves the blocker or explicitly directs otherwise
 3. On resume with `--auto` still active: read checkpoint → resolve blocker → continue chain from `Next Action` without re-asking prior stage boundaries
 
-## Compact timing during auto-chain
+## Context refresh timing during auto-chain
 
-When `--auto` chains multiple stages in one turn, context pressure may trigger `/compact`. Follow `_shared/context-resume.md` timing rules, adapted for auto-chain:
+When `--auto` chains multiple stages in one turn, context pressure may trigger adapter-specific context refresh. Follow `_shared/context-resume.md` timing rules, adapted for auto-chain:
 
-| Auto-chain moment | Safe to compact? | Condition |
+| Auto-chain moment | Safe to refresh? | Condition |
 |---|---|---|
 | After stage artifact + checkpoint written | **Yes** | Both artifact and checkpoint are on disk |
 | Mid-execute, task done + evidence recorded | **Yes** | Ledger + notes + checkpoint updated for that task |
