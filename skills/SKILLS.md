@@ -12,6 +12,14 @@ Skills are markdown documents that live in `skills/`. Each skill defines a bound
 
 ## Workflow skills (ordered)
 
+Surface tiers:
+
+- **Core workflow**: `clarify`, `plan`, `execute`, `review`, `ship`
+- **Support**: `forgeflow`, `long-run`
+- **Utility / optional**: `benchmark`
+
+`config` is listed separately under Utility skills because it manages project defaults rather than advancing a task artifact chain.
+
 | # | Skill | Purpose |
 |---|-------|---------|
 | 00 | [`forgeflow`](forgeflow/SKILL.md) | Overview router for slash-style ForgeFlow prompts. |

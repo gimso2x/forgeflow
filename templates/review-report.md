@@ -134,6 +134,12 @@ scope_boundary:
 ## 다음 단계 진행 가능 여부 (Safe for Next Stage)
 <!-- yes | no -->
 
+## 하네스 후속 조치 (Harness Follow-up)
+<!-- Convert review learning into harness maintenance only when the same issue is likely to repeat. Use one or more values: none | eval-needed | skill-rule-needed | template-needed | docs-needed -->
+- **Needed**: <!-- none | eval-needed | skill-rule-needed | template-needed | docs-needed -->
+- **Reason**: <!-- why this should/should not become a harness improvement -->
+- **Suggested Artifact**: <!-- eval case, skill section, template path, docs path, or n/a -->
+
 ## 진화 규칙 리뷰 (Evolution Rule Review)
 <!-- Pipeline mode only. Standalone mode: delete this section (always not_applicable). -->
 <!-- approved | changes_requested | not_applicable -->

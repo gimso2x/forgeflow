@@ -403,6 +403,7 @@ Write `review-report.md` (schema: review-report/v2, from `templates/review-repor
 - Human Review Gate (`required | skipped`) and decision rationale
 - Human Review Packet when a human decision is required
 - Safe for Next Stage (yes | no)
+- Harness Follow-up (`none | eval-needed | skill-rule-needed | template-needed | docs-needed`) with reason and suggested artifact when the review exposes a repeatable harness gap
 - Next Action
 - Approved By (only if verdict is approved)
 

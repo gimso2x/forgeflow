@@ -7697,6 +7697,62 @@
           ]
         }
       ]
+    },
+    {
+      "id": 115,
+      "name": "review-harness-follow-up-classification",
+      "prompt": "A ForgeFlow review finds the same missing verification pattern for the third time: executors claim 'npm test passed' without observed command output or a log path. Produce only the Harness Follow-up and Next Action sections of review-report.md. Classify whether this should become harness maintenance, and name the likely artifact to update.",
+      "expected_output": "A review fragment that marks Harness Follow-up as needed, selects eval-needed and skill-rule-needed or template-needed, explains the repeated missing verification pattern, suggests an eval case or review/execute skill/template update, and sends the task back to execute or harness maintenance rather than silently shipping.",
+      "files": [
+        "skills/review/SKILL.md",
+        "templates/review-report.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output includes the Harness Follow-up section.",
+          "type": "contains",
+          "value": "Harness Follow-up"
+        },
+        {
+          "text": "Output selects at least one concrete harness maintenance category.",
+          "type": "contains_any",
+          "values": [
+            "eval-needed",
+            "skill-rule-needed",
+            "template-needed",
+            "docs-needed"
+          ]
+        },
+        {
+          "text": "Output explains that the missing verification pattern is repeated and should not stay chat-only.",
+          "type": "contains_any",
+          "values": [
+            "third time",
+            "repeated",
+            "recurring",
+            "same missing verification pattern"
+          ]
+        },
+        {
+          "text": "Output names a concrete likely artifact to update.",
+          "type": "contains_any",
+          "values": [
+            "eval",
+            "skills/review/SKILL.md",
+            "skills/execute/SKILL.md",
+            "templates/review-report.md",
+            "template"
+          ]
+        },
+        {
+          "text": "Output includes a Next Action section that avoids silent ship.",
+          "type": "contains_all",
+          "values": [
+            "Next Action",
+            "execute"
+          ]
+        }
+      ]
     }
   ]
 }

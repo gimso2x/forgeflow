@@ -80,6 +80,14 @@ ForgeFlow는 artifact-first를 유지하면서 context compaction 후 재개 비
 
 ## 기본 워크플로우
 
+### Active surface tiers
+
+ForgeFlow의 public entrypoint는 아래 등급으로 읽습니다. 새 사용자는 **Core**만 익히면 되고, Support/Utility는 필요할 때만 호출합니다.
+
+- **Core workflow**: `/forgeflow:clarify`, `/forgeflow:plan`, `/forgeflow:execute`, `/forgeflow:review`, `/forgeflow:ship`
+- **Support**: `/forgeflow:config`, `/forgeflow:long-run`
+- **Utility / optional**: `/forgeflow:benchmark` — delivery 파이프라인 밖의 cross-adapter 비교 도구
+
 ```text
 /forgeflow:config            → 설정 메뉴 (auto 토글, basic/full init 선택)
 /forgeflow:clarify   → 작업 공간 생성 + 요구사항 정리 → brief.md
