@@ -43,9 +43,11 @@ High route requires separate spec and quality review evidence. This smoke artifa
 
 ## Execute Micro-Gates
 
-| Plan step | micro_spec | micro_quality | Assignee (ledger) | Stage re-verified |
-|-----------|------------|---------------|-------------------|-------------------|
-| smoke high audit | missing | missing | missing | no |
+- **Plan step**: smoke high audit
+  - **micro_spec**: missing
+  - **micro_quality**: missing
+  - **Assignee (ledger)**: missing
+  - **Stage re-verified**: no
 
 ## Evidence Classification
 - **Observed evidence**: This persisted audit report file exists and now records a concrete `changes_requested` judgment.

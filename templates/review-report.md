@@ -20,6 +20,7 @@ scope_boundary:
 <!-- Write prose in the user's primary language. Preserve canonical labels, enum values, commands, paths, and artifact filenames in English. -->
 <!-- high/epic: spec pass fills Spec Compliance first; quality pass completes Quality Assessment in this same file. -->
 <!-- standalone: Standalone Input Source and Reviewer Role Summary sections are filled; skip inapplicable sections. -->
+<!-- Prefer bullet lists over Markdown tables unless a compact matrix is clearly easier to scan. Always keep verdict, findings, evidence, changed files, risks, and next action readable in plain CLI/Telegram transcripts. -->
 
 ## Standalone 입력 소스 (Standalone Input Source)
 <!-- Standalone mode only. Pipeline mode: delete this section. -->
@@ -103,9 +104,11 @@ scope_boundary:
 <!-- Copy summary from implementation-notes Evidence (micro_spec:*, micro_quality:*) and run-ledger. -->
 <!-- Stage reviewer must re-verify; treat micro-gate results as reported evidence unless independently observed. -->
 
-| Plan step | micro_spec | micro_quality | Assignee (ledger) | Stage re-verified |
-|-----------|------------|---------------|-------------------|-------------------|
-| <!-- step name --> | <!-- PASS/FAIL/skip --> | <!-- PASS/FAIL/skip/n/a --> | <!-- worker/specialist/spec-reviewer --> | <!-- yes | no --> |
+- <!-- Plan step -->
+  - **micro_spec**: <!-- PASS/FAIL/skip -->
+  - **micro_quality**: <!-- PASS/FAIL/skip/n/a -->
+  - **Assignee (ledger)**: <!-- worker/specialist/spec-reviewer -->
+  - **Stage re-verified**: <!-- yes | no -->
 
 ## 증거 분류 (Evidence Classification)
 <!-- Summarize evidence quality -->
@@ -163,13 +166,11 @@ scope_boundary:
 <!-- Pipeline mode or standalone with code input. Skip if reviewing non-code artifacts. -->
 <!-- Quantitative metrics from implementation-notes.md or collected during review -->
 
-| Metric | Value | Verdict |
-|--------|-------|---------|
-| TS errors | <!-- count, blocker if > 0 --> | <!-- PASS/FAIL --> |
-| Type assertions | <!-- count --> | <!-- PASS/REVIEW --> |
-| Debug artifacts | <!-- count, blocker if > 0 --> | <!-- PASS/FAIL --> |
-| Max component LOC | <!-- largest component, major if > 150L --> | <!-- PASS/FLAG --> |
-| Log volume | <!-- agent output size --> | <!-- PASS/NORMALIZE --> |
+- **TS errors**: <!-- count, blocker if > 0 --> — <!-- PASS/FAIL -->
+- **Type assertions**: <!-- count --> — <!-- PASS/REVIEW -->
+- **Debug artifacts**: <!-- count, blocker if > 0 --> — <!-- PASS/FAIL -->
+- **Max component LOC**: <!-- largest component, major if > 150L --> — <!-- PASS/FLAG -->
+- **Log volume**: <!-- agent output size --> — <!-- PASS/NORMALIZE -->
 
 <!-- If any metric exceeds blocker threshold, generate an automatic finding above. -->
 

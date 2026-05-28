@@ -43,9 +43,11 @@ Epic route requires milestone, plan, execute, separate review evidence, ship, an
 
 ## Execute Micro-Gates
 
-| Plan step | micro_spec | micro_quality | Assignee (ledger) | Stage re-verified |
-|-----------|------------|---------------|-------------------|-------------------|
-| smoke epic audit | missing | missing | missing | no |
+- **Plan step**: smoke epic audit
+  - **micro_spec**: missing
+  - **micro_quality**: missing
+  - **Assignee (ledger)**: missing
+  - **Stage re-verified**: no
 
 ## Evidence Classification
 - **Observed evidence**: This persisted audit report file exists and now records a concrete `changes_requested` judgment.

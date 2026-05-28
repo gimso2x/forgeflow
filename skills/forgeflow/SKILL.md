@@ -41,7 +41,7 @@ Adapter-specific usage examples:
 
 - Codex output normalization: strip raw diff before artifact parsing (see `docs/adapter-config.md` → Output normalization)
 - Gemini: leverage 1M+ token context for project-wide "WHERE grounding" and consistency checks. Enforce `import type` for `verbatimModuleSyntax` compliance.
-- Claude: expect structured table-format reports
+- Claude: expect structured reports, but prefer bullet/list artifacts over Markdown tables unless a compact matrix is clearly easier to scan.
 - Cursor: use slash names without `:` (`/clarify`, not `/forgeflow:clarify`); resolve templates per Template resolution below
 
 Adapter-specific CLI flags and timeout guides: `docs/adapter-config.md`.

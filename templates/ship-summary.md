@@ -13,9 +13,8 @@
 ## 검증 (Verification)
 <!-- Commands run and results -->
 
-| Command | Result |
-|---------|--------|
-| | |
+- **Command**: <!-- command -->
+  - **Result**: <!-- PASS/FAIL + key output -->
 
 ## 리뷰 판정 (Review Verdict)
 <!-- From review-report.md: approved | changes_requested | blocked -->
@@ -35,9 +34,10 @@
 <!-- medium route: 0-2 rules max -->
 <!-- high/epic route: full extraction -->
 
-| Rule | Scope | Trigger | Location |
-|------|-------|---------|----------|
-| | | | |
+- <!-- Rule name -->
+  - **Scope**: <!-- scope -->
+  - **Trigger**: <!-- trigger -->
+  - **Location**: <!-- location -->
 
 ## 단순화 후보 (Simplification Candidates)
 <!-- Optional: Triple-Lens findings from ship polish loop, or "none" -->
@@ -45,15 +45,13 @@
 ## 정량 요약 (Quantitative Summary)
 <!-- Aggregated metrics from execute → implementation-notes.md → Metrics -->
 
-| Metric | Value |
-|--------|-------|
-| Total LOC | |
-| TS errors | |
-| Type assertions | |
-| Debug artifacts | |
-| Max component LOC | |
-| Files changed | |
-|| Adapter | <!-- which adapter produced this --> |
+- **Total LOC**: <!-- count -->
+- **TS errors**: <!-- count -->
+- **Type assertions**: <!-- count -->
+- **Debug artifacts**: <!-- count -->
+- **Max component LOC**: <!-- count/path -->
+- **Files changed**: <!-- count -->
+- **Adapter**: <!-- which adapter produced this -->
 
 ## Worktree Metrics
 

@@ -405,6 +405,37 @@ make demo
 
 이 명령은 `mktemp -d` 아래에 `.forgeflow/tasks/demo-small/`을 만들고 `brief.md`, `plan.md`, `run-ledger.md`, `checkpoint.md`, `implementation-notes.md`, `review-report.md`, `ship-summary.md` 경로를 출력합니다. repo 안에 `.forgeflow/`를 만들거나 추적 파일을 수정하지 않으므로, 첫 clone 직후나 자동화 preflight에서 안전하게 실행할 수 있습니다. 생성된 임시 workspace를 열어 실제 작업에서는 `/forgeflow:clarify`부터 시작하세요.
 
+### Claude 설치 플러그인 E2E smoke
+
+`make demo`는 provider/plugin을 호출하지 않는 안전한 local smoke입니다. 실제 Claude Code에 설치된 ForgeFlow plugin이 현재 release와 맞는지 보려면, 대상 프로젝트와 분리된 disposable sample workspace에서 설치 버전 smoke를 별도로 실행합니다.
+
+1. 설치된 plugin 버전 확인 및 업데이트:
+
+```bash
+claude plugin list
+claude plugin update forgeflow@forgeflow
+claude plugin list
+```
+
+`forgeflow@forgeflow` 버전이 repo `VERSION`과 다른 경우 먼저 update/reinstall하고, Claude Code 안내처럼 새 프로세스에서 다시 실행합니다. checkout 자체를 검증할 때만 `--plugin-dir /path/to/forgeflow`를 사용하고, 설치 plugin smoke에서는 `--plugin-dir`를 빼야 실제 user-scope 설치본을 검증합니다.
+
+2. disposable sample project에서 실제 설치 plugin 실행:
+
+```bash
+mkdir -p /tmp/forgeflow-installed-smoke/src /tmp/forgeflow-installed-smoke/tests
+cd /tmp/forgeflow-installed-smoke
+
+claude -p --permission-mode bypassPermissions \
+  "Use the installed ForgeFlow plugin. Run /forgeflow:clarify --auto, /forgeflow:execute --auto, and /forgeflow:review for a tiny local code change. Run the project test command and report artifact paths."
+```
+
+3. 확인 기준:
+
+- `python3 -m pytest -q` 또는 해당 프로젝트 test command가 observed evidence로 기록됨
+- `.forgeflow/tasks/<task-id>/brief.md`, `implementation-notes.md`, `review-report.md`, `run-ledger.md`, `checkpoint.md`가 대상 프로젝트 아래 생성됨
+- `review-report.md` verdict가 `approved`이거나, `changes_requested`의 finding이 재현 가능한 증거를 포함함
+- 산출물이 ForgeFlow checkout/plugin cache가 아니라 sample project 아래에 생성됨
+
 ## 실제 외부 실행 안전 기준
 
 v1.x는 Python `exec-stage --real` 런타임을 포함하지 않습니다.

@@ -2,6 +2,7 @@
 
 <!-- ForgeFlow execution tracking. Updated throughout execute stage. -->
 <!-- Write prose in the user's primary language. Preserve canonical labels, enum values, commands, paths, and artifact filenames in English. -->
+<!-- Prefer bullet lists over Markdown tables unless a compact matrix is clearly easier to scan. Keep changed files, evidence, metrics, and blockers readable in plain CLI/Telegram transcripts. -->
 
 ## 사용자용 요약 (Reader Summary)
 <!-- For high/epic routes especially: summarize completed work, current status, verification evidence, and remaining risks in the user's language. -->
@@ -63,12 +64,10 @@
 <!-- Quantitative code quality metrics collected during execute -->
 <!-- Populated by adapter-aware execution code quality metrics step -->
 
-| Metric | Value |
-|--------|-------|
-| LOC generated | <!-- total lines in src/ --> |
-| TS errors | <!-- npx tsc --noEmit error count --> |
-| Type assertions | <!-- grep -r "as " count --> |
-| Debug artifacts | <!-- console.log/TODO/FIXME count, target: 0 --> |
-| Max component LOC | <!-- largest component, flag if > 100L --> |
-| Files created | <!-- count --> |
-| Files deleted | <!-- count --> |
+- **LOC generated**: <!-- total lines in src/ -->
+- **TS errors**: <!-- npx tsc --noEmit error count -->
+- **Type assertions**: <!-- grep -r "as " count -->
+- **Debug artifacts**: <!-- console.log/TODO/FIXME count, target: 0 -->
+- **Max component LOC**: <!-- largest component, flag if > 100L -->
+- **Files created**: <!-- count -->
+- **Files deleted**: <!-- count -->
