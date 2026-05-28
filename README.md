@@ -167,6 +167,21 @@ raw_score = file_count*1.0 + estimated_lines*0.1 + requirement_count*2.0 + depen
 
 telemetry 산출물은 `.forgeflow/telemetry/` 아래에 기록됩니다: `<task-id>.md` (이벤트 로그), `summary.md` (집계 리포트).
 
+### 실사용 surface 정기 점검
+
+ForgeFlow maintainer는 2~4주마다 문서상 존재하는 기능이 아니라 실제로 자주 쓰인 entrypoint와 산출물을 확인합니다.
+
+```bash
+make usage-audit
+```
+
+이 명령은 최근 28일 git history의 `/forgeflow:*` 언급과 현재 `.forgeflow/tasks/`, `.forgeflow/telemetry/` 산출물을 집계해 `.forgeflow/telemetry/surface-usage-audit.md`를 생성합니다. 결과는 제거 명령이 아니라 유지보수 신호입니다.
+
+- Core 5개가 `clarify → plan/execute → review → ship`으로 수렴하는지 확인합니다.
+- Support/Utility surface가 낮은 사용 빈도에도 README/skill 인지 비용을 만들고 있지 않은지 확인합니다.
+- 2회 연속 low-use인 항목은 유지 사유를 문서화하거나 병합/삭제 후보로 올립니다.
+- 반복 review finding은 `review-report.md`의 Harness Follow-up으로 eval/skill/template/docs 개선에 연결합니다.
+
 `review-report.md`의 **Execute Micro-Gates** 테이블(high/epic)은 execute 단계의 `micro_spec` / `micro_quality` 증거를 stage review가 reported로 받아 재검증할 때 씁니다.
 
 이 repo 안의 일부 `.forgeflow/tasks/*` 폴더는 검증 fixture로 의도적으로 tracked 상태입니다. 일반 consumer 프로젝트에서는 `.forgeflow/`를 gitignore에 두는 것이 기본이며, 자세한 기준은 [docs/dogfooding.md](docs/dogfooding.md)를 참고하세요.

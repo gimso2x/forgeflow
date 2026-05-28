@@ -98,6 +98,23 @@ Generate `.forgeflow/telemetry/summary.md` following `templates/metrics-dashboar
 - Compute stage duration percentiles (p50, p90), failure distribution, token cost by adapter, worktree stability, and route distribution.
 - Overwrite the previous summary or create a new period-specific file.
 
+### Surface usage audit
+
+Every 2-4 weeks, run a usage audit before adding or preserving low-use public surface:
+
+```bash
+make usage-audit
+```
+
+This writes `.forgeflow/telemetry/surface-usage-audit.md` from recent git history plus current `.forgeflow/tasks/` and `.forgeflow/telemetry/` artifacts. Use it to answer:
+
+- Which `/forgeflow:*` entrypoints were actually mentioned recently?
+- Which task artifacts are actually being produced?
+- Which support/utility skills are mostly inventory cost?
+- Does work still converge through the Core workflow rather than fragmenting into many entrypoints?
+
+Zero usage is a maintenance-review signal, not automatic deletion. If the same surface is low-use for two consecutive audits, document why it remains or propose merge/removal in the next harness-improvement task.
+
 ## Relationship to memory
 
 `eval-record.md` is the only required long-run artifact in the slim v1.x distribution. This skill does **not** create or update memory directories by default.
