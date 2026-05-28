@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.9.0] - 2026-05-29
+
+### Added
+
+- **Installed plugin E2E smoke**: README에 설치된 Claude 플러그인(≠ `--plugin-dir`) 기반 E2E 검증 절차 문서화; 플러그인 버전 불일치 방지 가이드 추가
+- **Small route fast-review**: small 라우트에 fast-review depth 적용 — 최소 검증 게이트(변경 파일 스코프, 수용 조건 확인, 최소 1개 독립 게이트, 블로커 스캔), 산출물 ≤80줄 목표, bullets-only(마크다운 테이블 금지), Specialist Assertions/Code Quality Metrics 섹션 생략
+
+### Changed
+
+- **산출물 포맷**: review-report, implementation-notes, ship-summary 템플릿의 메트릭/마이크로게이트 테이블을 불릿 리스트로 변환; eval fixture의 잔여 테이블도 정리
+- **Adapter config**: `docs/adapter-config.md`에 플러그인 버전 불일치 방지 섹션 추가
+- **Skill 가이던스**: `skills/_shared/discipline.md`에 "불릿 리스트 선호" 가이드 추가; `skills/forgeflow/SKILL.md`에 산출물 포맷 가이던스 업데이트
+
 ### Fixed
 
 - Context refresh references in skills now centralize `/compact` and `/clear` adapter hints in `_shared/context-resume.md`; public stage skills use adapter-neutral wording.
@@ -781,7 +794,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI gate with GitHub Actions workflow generation
 - Agent preset installer (Claude + Codex)
 
-[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v1.8.0...HEAD
+[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v1.9.0...HEAD
+[1.9.0]: https://github.com/gimso2x/forgeflow/compare/v1.8.0...v1.9.0
 [1.8.0]: https://github.com/gimso2x/forgeflow/compare/v1.7.0...v1.8.0
 [1.7.0]: https://github.com/gimso2x/forgeflow/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/gimso2x/forgeflow/compare/v1.5.2...v1.6.0

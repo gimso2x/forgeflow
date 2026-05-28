@@ -1,6 +1,6 @@
 {
   "name": "forgeflow",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "description": "Artifact-first delivery workflow for Codex: clarify, plan, execute, review, ship through markdown artifacts",
   "skills": "./skills/",
   "interface": {
