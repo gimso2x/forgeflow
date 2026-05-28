@@ -3330,8 +3330,8 @@
     {
       "id": 48,
       "name": "execute-clear-between-tasks",
-      "prompt": "A ForgeFlow execute just completed Task 2 of a medium-route plan in Claude Code. checkpoint.md, run-ledger.md, and implementation-notes.md evidence are all updated on disk. Task 3 is next. Produce only the step-boundary Claude Code /clear handoff and resume note for Task 3. The agent must not carry Task 2 context into Task 3.",
-      "expected_output": "A Claude Code step-boundary handoff that requires /clear before starting Task 3, sets checkpoint Active Task to pending_clear, tells the user to resume with /forgeflow:execute --resume, and gives the checkpoint → run-ledger → implementation-notes → plan active task resume order. It must stop before Task 3 in all routes and also under --auto.",
+      "prompt": "A ForgeFlow execute just completed Task 2 of a medium-route plan in an adapter-neutral run. checkpoint.md, run-ledger.md, and implementation-notes.md evidence are all updated on disk. Task 3 is next. Produce only the step-boundary checkpoint/resume note for Task 3. The core skill must work in both Claude Code and Codex, so it must not require a Claude-only slash command.",
+      "expected_output": "An adapter-neutral step-boundary note that records Task 3 as the real next Active Task, gives the checkpoint → run-ledger → implementation-notes → plan active task resume order, and continues under --auto unless context pressure is high. If refresh is needed, it mentions adapter-specific options such as Claude Code /compact or /clear + /forgeflow:execute --resume, and Codex fresh exec/session resume from checkpoint. It must not require Claude-only /clear or pending_clear in core workflow.",
       "files": [
         "skills/execute/SKILL.md",
         "skills/_shared/context-resume.md",
@@ -3340,7 +3340,7 @@
       ],
       "assertions": [
         {
-          "text": "Output mandates Claude Code /clear before starting the next task, not just recommends it.",
+          "text": "Output does not require a Claude-only slash command in the shared workflow.",
           "type": "contains_any",
           "values": [
             "must /clear",
@@ -3385,15 +3385,15 @@
           ]
         },
         {
-          "text": "Output records a pending_clear checkpoint state before the next task.",
+          "text": "Output records the real next task as the checkpoint Active Task.",
           "type": "contains_any",
           "values": [
-            "pending_clear",
-            "Active Task: pending_clear"
+            "Task 3",
+            "Active Task: Task 3"
           ]
         },
         {
-          "text": "Output does not allow auto mode to continue without Claude Code /clear.",
+          "text": "Output allows auto mode to continue unless context pressure requires adapter-specific refresh.",
           "type": "not_contains_any",
           "values": [
             "if the user does not /clear",

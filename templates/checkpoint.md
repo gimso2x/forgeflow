@@ -11,7 +11,7 @@
 <!-- in_progress | completed | blocked -->
 
 ## Active Task
-<!-- Which task from plan.md / run-ledger.md is currently in progress, `pending_clear` when the previous step is saved and the next step must wait for Claude Code /clear + /forgeflow:execute --resume, or "none" -->
+<!-- Which task from plan.md / run-ledger.md is currently in progress, or "none". If context refresh is needed, keep the real next task id here and describe the refresh/resume action in Next Action. -->
 
 ## Latest Artifacts
 
