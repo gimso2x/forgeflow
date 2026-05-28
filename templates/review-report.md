@@ -71,6 +71,7 @@ scope_boundary:
 ## 리뷰어 역할 요약 (Reviewer Role Summary)
 <!-- Standalone mode and high/epic: summarize per-role verdicts and findings. -->
 <!-- Small/medium pipeline: may be omitted or list quality-reviewer only. -->
+- Checklist source: `skills/review/references/role-checklists.md` <!-- include checklist version used -->
 - <!-- spec-reviewer -->: <!-- verdict -->, <!-- N --> findings (<!-- blockers --> blockers, <!-- majors --> major)
 - <!-- quality-reviewer -->: <!-- verdict -->, <!-- N --> findings (<!-- blockers --> blockers, <!-- majors --> major)
 - Cross-role conflicts: <!-- count --> (marked with ⚠)

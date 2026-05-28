@@ -204,18 +204,13 @@ Standalone mode and high/epic pipeline mode use role-based review. Each role has
 
 ### Role definitions
 
+Role-specific triggers stay inline so operators can decide which passes to run quickly. The detailed checklist items live in `skills/review/references/role-checklists.md`; load that reference before executing any role pass and cite the checklist version in `review-report.md`.
+
 #### spec-reviewer
 
 **Trigger**: Always runs in pipeline mode. In standalone mode, runs when a brief/requirement/spec document exists (auto-generated or user-provided).
 
-**Checklist** (in addition to the Spec Review rubric):
-- ☐ Every acceptance criterion has a corresponding evidence trace
-- ☐ No unexplained additions beyond stated scope
-- ☐ No silent removals of existing functionality
-- ☐ All referenced files/paths/symbols exist in the reviewed scope
-- ☐ Error handling is complete (no unchecked error paths for in-scope code)
-- ☐ Public API changes are backward-compatible or explicitly breaking
-- ☐ Configuration changes have migration path or are additive
+**Checklist source**: `skills/review/references/role-checklists.md#spec-reviewer` (in addition to the Spec Review rubric).
 
 **Standalone-specific**: When no explicit spec exists, the auto-generated brief becomes the de facto spec. The spec-reviewer checks whether the code/diff does what the brief describes — no more, no less. Flag scope that doesn't trace back to the brief as `major: unexplained scope`.
 
@@ -223,71 +218,27 @@ Standalone mode and high/epic pipeline mode use role-based review. Each role has
 
 **Trigger**: Always runs in both pipeline and standalone mode.
 
-**Checklist** (in addition to the Quality Review rubric):
-- ☐ No dead code introduced (unreachable branches, unused imports, commented-out blocks)
-- ☐ Naming follows existing codebase conventions (compare with nearby files)
-- ☐ No magic numbers/strings — constants are named
-- ☐ Error messages are actionable (tell the reader what to do, not just what failed)
-- ☐ No copy-pasted blocks that should be shared utilities
-- ☐ Logging follows project conventions (level, format, structured fields)
-- ☐ Thread safety / concurrency issues in shared state (if applicable)
-- ☐ File size: no changed file exceeds the project's documented line limit (default 300 lines for components, 300 for general source files). If oversized, flag as `major: quality / maintainability` with the file name and line count
+**Checklist source**: `skills/review/references/role-checklists.md#quality-reviewer` (in addition to the Quality Review rubric).
 
 **Standalone-specific**: Without implementation-notes, the quality-reviewer works from the code/diff directly. Apply heuristics without referencing executor claims.
 
 #### security-reviewer
 
-**Trigger**: Runs when `--focus security` is specified, or when in-scope changes touch:
-- Authentication/authorization code
-- Input validation / sanitization
-- Secret/key handling
-- API endpoints / network boundaries
-- File system operations
-- Dependency additions
+**Trigger**: Runs when `--focus security` is specified, or when in-scope changes touch authentication/authorization, input validation/sanitization, secret/key handling, API/network boundaries, file system operations, or dependency additions.
 
-**Checklist**:
-- ☐ No hardcoded secrets, keys, or tokens
-- ☐ User input is validated and sanitized before use
-- ☐ SQL queries use parameterized statements (no string interpolation)
-- ☐ File paths are sanitized (no path traversal)
-- ☐ Error responses don't leak internal state or stack traces
-- ☐ New dependencies are from trusted sources with reasonable maintenance
-- ☐ Authentication checks are present on all entry points that require them
-- ☐ No eval/exec/deserialization of untrusted input
+**Checklist source**: `skills/review/references/role-checklists.md#security-reviewer`.
 
 #### ux-reviewer
 
-**Trigger**: Runs when `--focus ux` is specified, or when in-scope changes touch:
-- UI component files (.tsx, .vue, .svelte, etc.)
-- CSS/styling files
-- User-facing text/labels/messages
-- Route/page definitions
-- Form handling code
+**Trigger**: Runs when `--focus ux` is specified, or when in-scope changes touch UI component files, CSS/styling, user-facing text/labels/messages, route/page definitions, or form handling code.
 
-**Checklist**:
-- ☐ Text is clear and follows project voice/guidelines
-- ☐ Error states are handled with user-facing messages
-- ☐ Loading states exist for async operations
-- ☐ Interactive elements have appropriate affordances
-- ☐ Layout is consistent with adjacent screens
-- ☐ Accessibility: ARIA labels, keyboard navigation, color contrast
+**Checklist source**: `skills/review/references/role-checklists.md#ux-reviewer`.
 
 #### perf-reviewer
 
-**Trigger**: Runs when `--focus perf` is specified, or when in-scope changes touch:
-- Database queries / ORM calls
-- Loops over large collections
-- Caching layers
-- Network call batching
-- Memory-intensive operations (large allocations, streaming)
+**Trigger**: Runs when `--focus perf` is specified, or when in-scope changes touch database queries/ORM calls, loops over large collections, caching layers, network call batching, or memory-intensive operations.
 
-**Checklist**:
-- ☐ No N+1 queries in loops
-- ☐ Large datasets use pagination or streaming
-- ☐ Expensive computations are memoized/cached where appropriate
-- ☐ No unnecessary re-renders or re-computations in reactive code
-- ☐ Database indexes exist for queried columns
-- ☐ No blocking I/O in async contexts
+**Checklist source**: `skills/review/references/role-checklists.md#perf-reviewer`.
 
 ### Role routing
 
