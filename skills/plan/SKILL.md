@@ -311,8 +311,8 @@ Apply these synthesis heuristics to convert five-angle analysis into milestone b
 
 2. Inspect the repo for existing conventions, test patterns, and file structure.
 
-   - If `.forgeflow/project-draft.md` exists, read only task-relevant sections such as `Reusable Project Context`, `Documentation Pointers`, `Context Usage Rules`, and `Verification Conventions`. Use those pointers to reduce repeated discovery, but keep `brief.md` and `plan.md` as the task-specific source of truth.
-   - When adding resume guidance to `checkpoint.md`, include only the relevant `.forgeflow/project-draft.md` section names or source document paths, not the full common context content.
+   - If `.forgeflow/project-draft.md` exists in the target project root, treat it as section-scoped shared context produced by `/forgeflow:config init --mode=full`. Read only task-relevant sections such as `Reusable Project Context`, `Documentation Pointers`, `Context Usage Rules`, and `Verification Conventions`. Use those pointers to reduce repeated discovery, but keep `brief.md` and `plan.md` as the task-specific source of truth.
+   - When adding resume guidance to `checkpoint.md`, include only the relevant `.forgeflow/project-draft.md` section names or source document paths, not the full common context content. Plans must not depend on copied project-draft prose when a repo-relative source document or code path can be referenced instead.
 
 3. **File Structure Mapping**: Before writing tasks, determine exactly which files will be created or modified:
    - Each file should have one clear responsibility

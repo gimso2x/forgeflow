@@ -280,6 +280,39 @@ Base branch is ambiguous when any of these are true:
 
 When ambiguous, stop and ask the user to choose the exact base branch. Do not present `Merge locally` or `Push and create a Pull Request` as ready-to-run options until the base branch is confirmed. `Keep the branch as-is` remains safe to offer.
 
+### Cleanup-only mode (`--cleanup-only`)
+
+When `--cleanup-only` is passed, skip summary writing, evolution rules, and branch disposition choice. Only clean up a worktree whose branch is already merged. Use this to resume a `partial` ship or clean up orphaned worktrees.
+
+Prerequisites:
+- `brief.md` Task Isolation section must have `isolation: worktree` and `branch`/`worktree_path`.
+- The feature branch must already be merged into the base branch (`git branch --merged <base-branch>`).
+
+Procedure:
+```bash
+MAIN_ROOT="$(git rev-parse --show-toplevel)"
+WT_PATH="<worktree-path from brief.md>"
+BRANCH="<branch from brief.md>"
+
+# 1. Move to main repo
+cd "$MAIN_ROOT"
+
+# 2. Verify branch is merged
+if git branch --merged HEAD | grep -q "$BRANCH"; then
+  # 3. Remove symlink
+  rm -f "${WT_PATH}/.forgeflow"
+  # 4. Remove worktree
+  git worktree remove "$WT_PATH"
+  # 5. Delete branch
+  git branch -d "$BRANCH"
+  echo "Cleanup complete: worktree and branch removed."
+else
+  echo "Branch $BRANCH is not merged. Cannot cleanup-only. Use full ship for branch disposition."
+fi
+```
+
+If the branch is not merged, stop and suggest running full `/forgeflow:ship` instead.
+
 ### Present disposition options
 
 Branch disposition differs by isolation mode.
@@ -413,6 +446,8 @@ git branch -D <feature-branch>
   - **Worktree**: merge + cleanup automatically. No 4-option prompt.
   - **Non-worktree**: changes are already on the current branch. Commit if needed, then finish report. No merge needed.
   - The `discard` confirmation always requires exact `discard` input regardless of auto mode.
+- **`--auto` must complete cleanup**: Under `--auto`, the chain must not end at `partial` ship. If merge succeeds but cleanup cannot complete (e.g. dirty worktree), record the blocker in `checkpoint.md` with `Status: blocked` and `Next Action: /forgeflow:ship --cleanup-only` so it can be resumed. Do not silently leave the worktree in place.
+- **Partial ship resume**: When resuming a session where ship was `partial`, read `checkpoint.md` first. If `Next Action` contains `cleanup pending`, run cleanup-only logic without re-running the full ship flow.
 - Never run `git reset --hard` as a shortcut for finishing.
 - Never run `git clean -fd` unless the user explicitly named the exact disposable paths.
 - Never force-push as part of ship unless explicitly requested.

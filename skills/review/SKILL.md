@@ -694,7 +694,10 @@ Do not enter standalone mode if pipeline artifacts exist, even if the user provi
 16. Return a clear verdict in chat that matches the file. If verdict is `changes_requested` or `blocked`, update `implementation-notes.md` so status reflects the review gate.
 17. **다음 단계 안내** — 반드시 사용자에게 출력:
     - If `approved` and `--auto` is active: invoke `/forgeflow:ship` directly (see `_shared/automation.md`).
-    - If `approved` (no `--auto`): "리뷰 통과. 출하 준비 완료. `/forgeflow:ship`을 실행해주세요."
+    - If `approved` (no `--auto`):
+      - "리뷰 통과. 출하 준비 완료. `/forgeflow:ship`을 실행해주세요."
+      - **Worktree isolation 경고**: If `brief.md` has `isolation: worktree`, append: "주의: 워크트리가 활성 상태입니다. `/forgeflow:ship` 없이 세션을 종료하면 워크트리가 정리되지 않습니다."
+      - Update `checkpoint.md`: `Next Action: /forgeflow:ship (worktree cleanup pending)` when worktree isolation is active.
     - If `changes_requested`: **always stop and present findings** (auto-break). "수정이 필요합니다:" + 각 P0/P1 이슈를 `file:line — description` 형태로 나열 + "`/forgeflow:execute`로 수정 후 다시 `/forgeflow:review`를 요청해주세요."
     - Do NOT auto-proceed to ship unless `--auto` is active. 반드시 사용자가 다음 단계를 실행하도록 대기.
 18. Do not call `/forgeflow:ship` unless verdict=approved, safe_for_next_stage=yes, and open_blockers=none are all true in the **written** `review-report.md`.

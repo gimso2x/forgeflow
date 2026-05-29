@@ -143,6 +143,65 @@ git branch -D "$BRANCH"
 
 If the user selects "keep branch as-is", do not remove the worktree or branch. The user may return to it later.
 
+## Orphan worktree detection and cleanup
+
+Standalone cleanup for worktrees whose task completed (review approved, ship ran or was skipped) but cleanup was never executed. This can happen when the session ends between review approval and ship completion, or when ship exits with `partial` outcome.
+
+### Detection
+
+List worktrees under `.forgeflow/worktrees/` and cross-reference with task state:
+
+```bash
+# List candidate worktrees
+ls -1d .forgeflow/worktrees/*/ 2>/dev/null
+```
+
+For each `<task-id>` directory found:
+
+1. Read `.forgeflow/telemetry/<task-id>.md`: check if ship stage exists with outcome `success` or `partial`.
+2. Read `.forgeflow/tasks/<task-id>/checkpoint.md`: check if `Current Stage` is `ship`.
+3. Read `.forgeflow/tasks/<task-id>/review-report.md`: check if verdict is `approved`.
+
+A worktree is **orphaned** when any of these is true:
+- Telemetry shows ship as `partial` or `success` but the worktree directory still exists.
+- Checkpoint shows `ship` stage AND review-report shows `approved`.
+- No telemetry/checkpoint exists but review-report shows `approved` (session ended abruptly).
+
+A worktree is **active** (not orphaned) when:
+- Checkpoint shows a stage before `ship` (execute, review in progress).
+- No review-report or review verdict is not `approved`.
+
+### Cleanup procedure
+
+For each orphaned worktree:
+
+```bash
+TASK_ID="<task-id>"
+WT_PATH=".forgeflow/worktrees/${TASK_ID}"
+BRANCH=$(git -C "$WT_PATH" branch --show-current 2>/dev/null)
+BASE_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's|refs/remotes/origin/||' || echo "main")
+
+# 1. Check if branch is already merged
+if git branch --merged "$BASE_BRANCH" | grep -q "$BRANCH"; then
+  # Safe to clean up
+  cd "$(git rev-parse --show-toplevel)"
+  rm -f "${WT_PATH}/.forgeflow"
+  git worktree remove "$WT_PATH"
+  git branch -d "$BRANCH"
+  echo "Orphan cleaned: ${TASK_ID} (branch ${BRANCH} was already merged)"
+else
+  # Branch not merged — warn only
+  echo "WARNING: ${TASK_ID} branch ${BRANCH} is NOT merged into ${BASE_BRANCH}."
+  echo "Run /forgeflow:ship to complete branch disposition, or merge manually first."
+fi
+```
+
+Do not auto-remove unmerged branches. Always warn and let the user decide.
+
+### Integration with config prune
+
+The `/forgeflow:config` prune option (Mode D) uses this detection logic to list orphans and offer batch cleanup. See `skills/config/SKILL.md`.
+
 ## Safety rules
 
 1. **Never `rm -rf` the `.forgeflow/` symlink inside a worktree** — use `rm -f` (no `-r`) to remove the symlink only.

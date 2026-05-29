@@ -1,18 +1,21 @@
 ---
 name: config
-version: "1.4"
-description: Manage ForgeFlow project defaults interactively. Toggle auto-chaining and worktree isolation. Offers init from the config menu with reusable project context generation.
+version: "1.5"
+description: Manage ForgeFlow project defaults interactively. Toggle auto-chaining and worktree isolation. Offers init from the config menu with reusable project context generation. Includes prune for orphan worktree cleanup.
 validate_prompt: |
-  Must present current .forgeflow/defaults.md values, offer toggle/init actions by number, and write changes back without committing.
+  Must present current .forgeflow/defaults.md values, offer toggle/init/prune actions by number, and write changes back without committing.
   When the user selects full project context init from the config menu, must detect repo type, documentation pointers, architecture/WBS signals, and generate project-draft.md as reusable project context.
+  When the user selects prune, must detect orphan worktrees and offer cleanup.
 dependencies:
   - skills/_shared/automation.md
+  - skills/_shared/isolation.md
 ---
 
 # Skill: config
 
 Interactive project defaults manager for ForgeFlow. Reads and toggles settings in `.forgeflow/defaults.md`.
 The default `/forgeflow:config` flow must offer init as a numbered menu action, including reusable project context generation with auto-detected project structure, documentation pointers, and stable task guidance. Do not require the user to remember a separate manual init command.
+Includes prune mode to detect and clean up orphan worktrees (see Mode D).
 
 ## Input
 
@@ -34,7 +37,8 @@ The default `/forgeflow:config` flow must offer init as a numbered menu action, 
 ### Mode A: Interactive config (default)
 
 1. Read `.forgeflow/defaults.md` if it exists. Parse supported fields: `auto`, `isolation`. When the file is missing, use hardcoded defaults: `auto: false`, `isolation: true`.
-2. Present current settings as a numbered menu:
+2. Count orphan worktrees: list directories under `.forgeflow/worktrees/` and apply detection logic from `_shared/isolation.md` → Orphan worktree detection.
+3. Present current settings as a numbered menu:
 
 ```
 ForgeFlow 설정
@@ -43,15 +47,19 @@ ForgeFlow 설정
 2. isolation (worktree 격리) — 현재: 켜짐   (기본값: 켜짐)
 3. init (기본 scaffolding) — .forgeflow/defaults.md 생성
 4. full init (프로젝트 컨텍스트 draft) — .forgeflow/project-draft.md 생성/갱신
-5. 종료
+5. prune (고아 워크트리 정리) — 현재: N개
+6. 종료
 
 번호를 선택하세요:
 ```
 
-3. On selection 1 or 2, toggle the value (off→on, on→off). Use Korean labels: 켜짐/꺼짐.
-4. On selection 3, run **Mode C: Basic init**.
-5. On selection 4, run **Mode B: Full project context init**.
-6. Create or update `.forgeflow/defaults.md` with the new value. File format:
+Where `N` is the count of orphaned worktrees from step 2. If `.forgeflow/worktrees/` does not exist, show `0개`.
+
+4. On selection 1 or 2, toggle the value (off→on, on→off). Use Korean labels: 켜짐/꺼짐.
+5. On selection 3, run **Mode C: Basic init**.
+6. On selection 4, run **Mode B: Full project context init**.
+7. On selection 5, run **Mode D: Prune orphan worktrees**.
+8. Create or update `.forgeflow/defaults.md` with the new value. File format:
 
 ```markdown
 # ForgeFlow Defaults
@@ -97,6 +105,32 @@ When the user selects **full init (프로젝트 컨텍스트 draft)** from the `
 2. Create `.forgeflow/defaults.md` with hardcoded defaults if it does not exist.
 3. Report completion. No draft generation.
 
+### Mode D: Prune orphan worktrees
+
+Detect and clean up worktrees that were left behind after review approval or partial ship. Uses detection logic from `_shared/isolation.md` → Orphan worktree detection.
+
+1. **Scan**: List directories under `.forgeflow/worktrees/`. If none exist, report "정리할 워크트리가 없습니다." and return to menu.
+2. **Classify**: For each `<task-id>` directory, apply orphan detection rules:
+   - Read `.forgeflow/telemetry/<task-id>.md` for ship stage outcome.
+   - Read `.forgeflow/tasks/<task-id>/checkpoint.md` for current stage.
+   - Read `.forgeflow/tasks/<task-id>/review-report.md` for verdict.
+   - Classify as `orphaned` (ship partial/success + worktree exists), `active` (pre-ship stage), or `unknown` (no artifacts found).
+3. **Present**: Show classification result:
+   ```
+   워크트리 정리 대상:
+
+   [고아] feature-map-ui-shell-b4c — ship 완료, 정리 안됨 (브랜치: 이미 병합됨)
+   [활성] feature-auth-redir-a3f  — 아직 작업 중
+   [미확인] feature-old-task-x1z  — 작업 산출물 없음
+
+   정리할 항목의 번호를 선택하세요 (전체: a, 취소: q):
+   ```
+4. **Cleanup**: For each selected orphaned worktree:
+   - Check if branch is already merged: `git branch --merged <base-branch>`.
+   - If merged: remove symlink → `git worktree remove` → `git branch -d`.
+   - If not merged: warn and skip. Suggest running `/forgeflow:ship` for full branch disposition.
+5. **Report**: Show cleanup results. Return to menu.
+
 ## Auto-Detection Logic (Prompt-Based)
 
 The detection is entirely prompt-driven. The agent reads files and makes judgments — no runtime code is involved.
@@ -132,11 +166,13 @@ Based on detected patterns in the project:
 - **Mode A**: User selects 종료 (exit) from the menu. `.forgeflow/defaults.md` reflects all toggled values.
 - **Mode B**: `.forgeflow/project-draft.md` is generated as reusable project context and presented to the user.
 - **Mode C**: `.forgeflow/defaults.md` exists with default values.
+- **Mode D**: Orphan worktrees are listed, user-selected cleanups executed, and results reported.
 
 ## Constraints
 
-- Only modify `.forgeflow/defaults.md` and `.forgeflow/project-draft.md` — no other files.
+- Only modify `.forgeflow/defaults.md` and `.forgeflow/project-draft.md` — no other files (except worktree cleanup in Mode D which removes worktree directories and branches).
 - Never auto-commit any generated files.
+- Never remove unmerged branches in prune mode — warn only.
 - Supported config fields only: `auto`, `isolation`. Ignore unknown fields.
 - Shared file-write rules: `_shared/discipline.md`.
 - Detection logic is prompt-based. Do not invent or assume project properties — read actual files.

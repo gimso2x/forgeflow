@@ -190,7 +190,7 @@ Minimum warning contract:
 4. Initialize `run-ledger.md` from `templates/run-ledger.md` if it does not exist. Set all task statuses from `plan.md` as `pending`.
 5. Write `checkpoint.md` from `templates/checkpoint.md` with `Current Stage: execute`, `Active Task: first pending task`, `Next Action: begin first plan step`.
 6. Read Contracts section from `plan.md` before editing when present.
-   - If `plan.md` or `brief.md` references `.forgeflow/project-draft.md`, treat it as shared context only: read the relevant section names and repo-relative pointers, then verify task-critical facts against the referenced source files or code before changing behavior.
+   - If `plan.md` or `brief.md` references `.forgeflow/project-draft.md`, treat it as section-scoped shared context produced by `/forgeflow:config init --mode=full`: read the relevant section names and repo-relative pointers only, then verify task-critical facts against the referenced source files or code before changing behavior. Do not copy the whole draft into execute artifacts, and keep `run-ledger.md` and `implementation-notes.md` as the task-specific source of truth.
    - **Environment safety net**: If `brief.md` lacks environment notes, run: `git rev-parse --is-inside-work-tree 2>/dev/null; ls node_modules .venv vendor 2>/dev/null | head -3`. If dependencies are missing and a package manager is detected:
      - **Under `--auto`**: install automatically using the detected package manager. Record the install command in `implementation-notes.md` Evidence. Do not stop or ask the user.
      - **Otherwise**: stop and ask: "종속성이 설치되지 않았습니다. 설치를 먼저 진행하시겠습니까?" Do NOT attempt installation yourself.

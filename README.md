@@ -74,9 +74,11 @@ ForgeFlow는 artifact-first를 유지하면서 adapter-selected context refresh 
 → 4. full init (프로젝트 컨텍스트 draft)
 ```
 
-이 파일은 source of truth가 아니라 repo-relative 포인터와 안정적인 결정 요약입니다. `clarify`는 새 태스크를 시작할 때 이 파일이 있으면 planning/WBS, architecture/contract, verification hints를 `brief.md`의 `Common Project Context`, WHERE, Constraints, Verification Gates에 반영합니다. `plan`과 `execute`는 필요한 섹션만 읽고 checkpoint에는 관련 섹션명이나 원본 문서 경로만 남겨 compact resume 비용을 늘리지 않습니다.
+이 명령은 현재 작업 중인 프로젝트의 `.forgeflow/project-draft.md`를 생성합니다. ForgeFlow plugin/cache 설치 디렉터리 안이 아니라 실제로 변경하려는 repository root에서 실행해야 하며, `config` skill이 이 artifact의 생성 책임을 가집니다.
 
-갱신이 필요한 경우 같은 명령으로 draft를 다시 생성하거나 파일을 직접 보정하세요. 토큰, API key, credential, private key 같은 비밀값은 이 파일에 복사하지 말고 정책 또는 환경 변수 이름만 포인터로 남깁니다.
+`.forgeflow/project-draft.md`는 source of truth가 아니라 repo-relative 포인터와 안정적인 결정 요약입니다. `clarify`는 새 태스크를 시작할 때 이 파일이 있으면 planning/WBS, architecture/contract, verification hints를 `brief.md`의 `Common Project Context`, WHERE, Constraints, Verification Gates에 반영합니다. `plan`은 task-relevant section만 읽어 작업 계획에 반영하고, `execute`는 plan/brief가 참조한 section과 원본 문서·코드를 재확인한 뒤 변경합니다. checkpoint에는 관련 섹션명이나 원본 문서 경로만 남겨 compact resume 비용을 늘리지 않습니다.
+
+갱신이 필요한 경우 같은 명령으로 draft를 다시 생성하거나 `.forgeflow/project-draft.md`를 직접 보정하세요. 토큰, API key, credential, private key 같은 비밀값은 이 파일에 복사하지 말고 정책 또는 환경 변수 이름만 포인터로 남깁니다.
 
 ## 기본 워크플로우
 
