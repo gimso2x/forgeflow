@@ -99,6 +99,16 @@ No heading. No preamble. No code fence. No third line.
 - Expand `plan.md`, full `implementation-notes.md`, or `brief.md` only when handoff, evolution extraction, or verification gaps require it.
 - Do not re-read all task artifacts by default before shipping.
 
+## Resume from checkpoint preflight
+
+세션이 중단된 후 ship을 재개할 때, checkpoint.md를 먼저 읽어 자동 복구를 시도한다:
+
+1. `checkpoint.md`의 `Next Action`에 `/forgeflow:ship`이 포함되어 있고 `ship-summary.md`가 존재하지 않으면 → ship을 실행한다 (별도 확인 불필요).
+2. `checkpoint.md`의 `Current Stage`가 `review`이고 `review-report.md`의 verdict가 `approved`이면 → ship을 실행한다.
+3. `checkpoint.md`의 `Status`가 `blocked`이면 → blockers를 먼저 확인하고 사용자에게 보고한다.
+
+이 복구 메커니즘은 auto-chain이 중간에 끊긴 경우(예: 컨텍스트 한도, 세션 종료)에 특히 중요하다.
+
 ## Evolution rule extraction
 
 Ship is the evolution rule generation point for **all routes** (small, medium, high, epic). This ensures every completed task can produce reusable rules, not just high/epic.
@@ -138,6 +148,31 @@ Do not capture:
 - Task status, session chatter, or one-off observations
 - Patterns so obvious they don't need enforcement
 - Rules without evidence
+
+### Extraction decision checklist
+
+다음 질문 중 하나라도 "예"이면 evolution rule을 추출한다:
+
+| # | 질문 | 예시 |
+|---|------|------|
+| 1 | 이 task에서 동일한 실수를 2회 이상 반복했는가? | scope boundary alert 2회 |
+| 2 | plan에 없던 파일을 execute 중 추가했는가? | unplanned test file |
+| 3 | 검증 단계에서 재시도가 2회 이상 발생했는가? | lint fix loop |
+| 4 | worktree 환경에서 특별한 workaround를 적용했는가? | ELOOP avoidance |
+| 5 | review에서 changes_requested가 발생하고 재실행했는가? | review re-request |
+| 6 | 프로젝트 특정 설정이 다른 프로젝트와 다른가? | Vite symlink issue |
+| 7 | 이 패턴이 향후 유사 task에 적용 가능한가? | medium test-after scope |
+
+### Mandatory extraction triggers
+
+다음 패턴이 관찰되면 evolution rule 추출을 **생략할 수 없다** (small route 제외):
+
+1. **verification retry >= 2**: 검증 실패 후 2회 이상 재시도한 경우
+2. **scope boundary violation**: plan scope 밖 파일이 추가된 경우
+3. **workaround applied**: 환경 문제로 인해 우회 경로를 사용한 경우
+4. **review re-request**: review findings 수정 후 재검토가 필요한 경우
+
+각 mandatory trigger에 대해 rule ID는 `<trigger-type>-<task-slug>` 형식으로 생성한다 (예: `workaround-vite-eloop`, `scope-test-file-inclusion`).
 
 ### Anti-patterns
 

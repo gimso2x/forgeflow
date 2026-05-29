@@ -29,6 +29,9 @@ Task tool:
     - Smallest safe change
     - No unnecessary abstractions added
     - TDD cycle followed when the plan step required it
+    - Code intent is clear without reading comments (readability)
+    - Abstraction level is consistent within each modified file
+    - Functions are short and focused (≤30 lines recommended)
 
     ## Output (compact — for implementation-notes + controller; NOT review-report.md)
 
@@ -57,6 +60,9 @@ Task tool:
     - [ ] Smallest safe change
     - [ ] No unnecessary abstractions added
     - [ ] TDD cycle followed (red → green → refactor)
+    - [ ] Code intent is clear without reading comments (readability)
+    - [ ] Abstraction level is consistent within each modified file
+    - [ ] Functions are short and focused (≤30 lines recommended)
 
     ### Safe to mark step done
     yes | no

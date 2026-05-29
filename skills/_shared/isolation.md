@@ -227,6 +227,24 @@ The `/forgeflow:config` prune option (Mode D) uses this detection logic to list 
 
 ## Known issues and workarounds
 
+### Vite/Vitest ELOOP preflight for worktrees
+
+worktree에서 Vite 또는 Vitest 프로젝트를 실행할 때, `.forgeflow` symlink가 watcher의 recursive scan을 유발하여 ELOOP(OOM exit 134)가 발생할 수 있다. individual symlink 방식(v1.10+)으로 대부분 해결되었지만, 일부 프레임워크(Nuxt, SvelteKit 등)는 설정 없이 watcher를 시작할 때 여전히 문제가 발생할 수 있다.
+
+**사전 감지 절차** (execute 단계에서 worktree 진입 시):
+1. `ls vite.config.* vitest.config.* 2>/dev/null` 실행
+2. 설정 파일이 발견되면: dev server(`pnpm dev`, `npm run dev`) 사용 전에 경고 출력
+3. Vitest 실행 시 `--exclude '**/.forgeflow/**'` 옵션 필수 추가
+4. ESLint 설정에 `.forgeflow/` ignorePatterns 추가 확인
+
+**경고 메시지**:
+```
+⚠️ Vite/Vitest 프로젝트에서 worktree symlink ELOOP가 발생할 수 있습니다.
+pnpm dev 대신 pnpm build && pnpm preview --host 127.0.0.1 을 사용하세요.
+```
+
+**Evidence 기록**: 대체 명령 사용 시 implementation-notes에 `dev_server_fallback: build+preview (worktree symlink ELOOP avoidance)` 기록.
+
 ### Dev server ELOOP with `.forgeflow` symlink (resolved)
 
 ~~The `.forgeflow` symlink causes Vite/webpack dev server file watchers to recursively scan the entire shared `.forgeflow/` directory (including all worktree task artifacts, review reports, and evolution rules). In medium+ projects this can trigger Node OOM crashes (exit 134).~~

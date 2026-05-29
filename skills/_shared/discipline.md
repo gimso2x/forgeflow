@@ -76,21 +76,25 @@ to generate `.forgeflow/telemetry/summary.md` with aggregated metrics.
 ### Manual event recording (when scripts are unavailable)
 
 When `telemetry_collect.py` cannot run, the agent must manually append an event
-block to `.forgeflow/telemetry/<task-id>.md`:
+block to `.forgeflow/telemetry/<task-id>.md`. **반드시 다음 형식을 준수한다**:
 
+```yaml
+### <ISO 8601 timestamp (예: 2026-05-29T14:30:00+09:00)>
+- **event**: stage_complete | stage_fail | boundary_alert | stage_start
+- **stage**: clarify | plan | execute | review | ship
+- **task_id**: <task-id>
+- **outcome**: success | partial | failed
+- **route**: small | medium | high | epic | unknown
+- **adapter**: claude | codex | gemini | cursor | unknown
+- **timestamp**: <ISO 8601>
 ```
-### <ISO timestamp>
-- **event**: stage_complete
-- **stage**: <clarify|plan|execute|review|ship>
-- **duration_seconds**: <N or <!-- N -->>
-- **tokens_used**: <N or <!-- N -->>
-- **model**: <model id or <!-- model id -->>
-- **adapter**: <claude|codex|gemini|cursor>
-- **route**: <small|medium|high|epic>
-- **specialist**: <none or specialist name>
-- **outcome**: <success|partial|failed>
-- **failure_type**: <!-- null or category -->
-```
+
+**필수 필드**: `event`, `stage`, `task_id`, `outcome`, `timestamp`는 반드시 기록한다. 나머지 필드는 알 수 없으면 `unknown` 또는 `n/a`로 기록한다. 필드를 생략하지 않는다.
+
+**금지 사항**:
+- 필드 이름을 임의로 변경하지 않는다 (예: `stage:` → `단계:` 사용 금지)
+- YAML frontmatter가 없는 telemetry 파일은 생성하지 않는다
+- 기존 이벤트를 덮어쓰지 않고 append만 한다
 
 ### Rules
 - Create `.forgeflow/telemetry/` if it does not exist.

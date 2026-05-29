@@ -187,7 +187,12 @@ Minimum warning contract:
 1. Confirm route and current stage. Read `brief.md` to determine route.
 2. Run Evolution rule enforcement before editing files.
 3. Initialize `implementation-notes.md` in the active task directory if it does not exist (use `templates/implementation-notes.md`). Set `Current Stage: execute`, `Status: in_progress`.
-4. Initialize `run-ledger.md` from `templates/run-ledger.md` if it does not exist. Set all task statuses from `plan.md` as `pending`.
+4. Initialize `run-ledger.md` from `templates/run-ledger.md` if it does not exist. Set all task statuses from `plan.md` as `pending`. **small route (plan.md 없음)**: `brief.md`에서 objective를 읽어 단일 task run-ledger를 생성한다. `templates/run-ledger.md`의 Small Route Minimal Format을 사용한다:
+   - Route: `small`
+   - Plan Reference: `brief.md` (plan 없음)
+   - Task 1: brief.md의 objective에서 추출, Status: `pending`
+   - Gate Results: 빈 테이블 (execute 완료 시 갱신)
+   - Completion Summary: Total Tasks: 1
 5. Write `checkpoint.md` from `templates/checkpoint.md` with `Current Stage: execute`, `Active Task: first pending task`, `Next Action: begin first plan step`.
 6. Read Contracts section from `plan.md` before editing when present.
    - If `plan.md` or `brief.md` references `.forgeflow/project-draft.md`, treat it as section-scoped shared context produced by `/forgeflow:config init --mode=full`: read the relevant section names and repo-relative pointers only, then verify task-critical facts against the referenced source files or code before changing behavior. Do not copy the whole draft into execute artifacts, and keep `run-ledger.md` and `implementation-notes.md` as the task-specific source of truth.
@@ -233,7 +238,12 @@ Minimum warning contract:
       - Logic/behavior change → `test` + `lint`
       - Multi-file integration → `build` + `test` + `lint` (full suite)
       - **Final step** (all routes): always run the full suite (`build` + `lint` + `test` minimum) regardless of change type
-    - **Worktree symlink precautions** (→ `_shared/isolation.md` Known issues): `.forgeflow` symlink로 인해 다음 문제가 발생할 수 있다:
+    - **Worktree symlink precautions** (→ `_shared/isolation.md` Known issues): worktree 환경에서 `.forgeflow` symlink로 인해 다음 문제가 발생할 수 있다:
+      - **ELOOP 사전 감지**: worktree에서 실행 시, Vite(`vite.config.*`) 또는 Vitest(`vitest.config.*`) 설정 파일이 존재하면 dev server 실행 전에 경고한다:
+        ```
+        ⚠️ Vite/Vitest 프로젝트에서 worktree symlink ELOOP가 발생할 수 있습니다.
+        pnpm dev 대신 pnpm build && pnpm preview --host 127.0.0.1 을 사용하세요.
+        ```
       - 테스트 러너 중복 파일 수집: Vitest는 `--exclude '**/.forgeflow/**'`, Jest는 `--testPathIgnorePatterns .forgeflow`로 제외
       - Lint 도구 중복 스캔: ESLint에 `.forgeflow/`를 `ignorePatterns`에 추가
       - Dev server OOM: `pnpm dev` 대신 `pnpm build && pnpm preview --host 127.0.0.1` 사용. Evidence에 `dev_server_fallback: build+preview (worktree symlink OOM avoidance)` 기록
@@ -242,6 +252,13 @@ Minimum warning contract:
 11. Update `implementation-notes.md` immediately when starting and finishing each step. Step state must be incremental: `pending -> in_progress -> completed`. Do not batch-mark all steps as `completed` only at the end. If a step cannot finish, mark it `blocked` with evidence.
    - **Contract checkpoint**: Before marking any plan task complete, verify: "Does this code violate a stated contract?" Record in evidence as `contract_check:PASS <task>` or `contract_check:FAIL <task> reason="..."`.
 12. After all steps complete, update implementation-notes.md to `Status: completed` with all passed gates in Evidence.
+    - **Completion Summary 갱신** (mandatory): run-ledger.md의 Completion Summary 섹션을 반드시 갱신한다. per-task loop에서 각 task의 status를 업데이트했더라도, Completion Summary 자체를 별도로 갱신하지 않으면 "Completed: 0, All Done: no"로 남는 버그가 발생한다:
+      - `Total Tasks`: plan.md의 task 수 (또는 small route의 경우 1)
+      - `Completed`: status가 `done`인 task 수
+      - `Blocked`: status가 `blocked`인 task 수
+      - `Skipped`: status가 `skipped`인 task 수
+      - `All Done`: 모든 task가 `done`이면 `yes`, 아니면 `no`
+    - **Gate Results 갱신** (mandatory): 각 verification gate 실행 후 run-ledger.md의 Gate Results 테이블을 실제 결과로 업데이트한다. `pending` 상태로 남겨두지 않는다. evidence ref를 Gate 열에 기록한다.
     - **Scope boundary check** (mandatory for medium/high/epic): After all steps, compare `git diff --name-only` against the plan's intended file scope. Record the result as `scope_boundary_check:PASS` (all changed files within plan scope) or `scope_boundary_check:WARN files=<unplanned-file-list>` in Evidence. If unplanned files are found, explain why in implementation-notes.md Deviations and decide whether to expand scope or revert. This prevents unexpected dirty files from blocking branch disposition during ship.
 13. Stop if requirements become ambiguous; return to `/forgeflow:clarify`.
 14. Deliver the route-aware exit prompt (see Exit Condition above). Before exiting, verify the **mandatory completion checklist**:

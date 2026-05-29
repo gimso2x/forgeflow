@@ -49,3 +49,46 @@
 - **Blocked**: 0
 - **Skipped**: 0
 - **All Done**: <!-- yes | no -->
+
+## Small Route Minimal Format
+
+small route에서는 plan.md가 없으므로, brief.md를 기반으로 최소 run-ledger를 생성한다:
+
+```markdown
+# Run Ledger
+
+## Route
+
+small
+
+## Plan Reference
+
+`brief.md` (small route — no plan)
+
+## Tasks
+
+### Task 1: <brief.md objective에서 추출>
+- **Plan Step**: Task 1
+- **Status**: pending
+- **Assignee**: worker
+- **Evidence Refs**:
+- **Blocker**: none
+- **Retry Count**: 0
+
+## Assignee discipline
+
+worker = direct implementation (small route는 specialist 사용 안 함)
+
+## Gate Results
+
+| Gate | Target | Result | Evidence |
+|------|--------|--------|----------|
+
+## Completion Summary
+
+- **Total Tasks**: 1
+- **Completed**: 0
+- **Blocked**: 0
+- **Skipped**: 0
+- **All Done**: no
+```

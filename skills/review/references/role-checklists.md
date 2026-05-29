@@ -28,6 +28,10 @@ Use in addition to the Quality Review rubric.
 - ☐ Logging follows project conventions (level, format, structured fields)
 - ☐ Thread safety / concurrency issues in shared state (if applicable)
 - ☐ File size: no changed file exceeds the project's documented line limit (default 300 lines for components, 300 for general source files). If oversized, flag as `major: quality / maintainability` with the file name and line count
+- ☐ Code intent is clear without reading comments — function/variable names convey purpose
+- ☐ Abstraction level is consistent within a file — no mixing of high-level orchestration with low-level implementation details in the same scope
+- ☐ Functions are short and focused (≤30 lines recommended); longer functions are justified or split
+- ☐ Magic values (numbers, strings) are extracted to named constants or config
 
 ## security-reviewer
 

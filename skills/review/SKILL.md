@@ -271,7 +271,7 @@ Specialist profiles define focused review lenses tied to the `specialist` field 
 | ux | UI/문구/접근성 | consistent terminology, a11y compliance, clear error messages, loading states for async operations |
 | perf | 성능/메모리/지연 | no N+1 queries, lazy load where appropriate, cache strategy documented, pagination/streaming for large datasets |
 | correctness | 로직/에러처리/엣지케이스 | edge cases covered, error propagation complete, idempotency where required, no unchecked error paths |
-| maintainability | 구조/네이밍/중복 | DRY adherence, single responsibility, naming convention consistency, no unnecessary abstractions |
+| maintainability | 구조/네이밍/중복/가독성 | DRY adherence, single responsibility, naming convention consistency, no unnecessary abstractions, code intent is clear without comments, consistent abstraction level within a module, short focused functions (≤30 lines recommended), magic values extracted to named constants |
 
 **Specialist assertion application logic**:
 
@@ -313,13 +313,31 @@ Reference policy: `docs/review-model.md`.
 
 After automated review, classify whether a human decision-partner review is required.
 
-Human review may be skipped only when all of these are true:
+### Mandatory human review triggers
+
+다음 조건 중 하나라도 해당하면 변경 범위와 관계없이 human review가 **필수**이다:
+
+| # | 트리거 | 이유 |
+|---|--------|------|
+| 1 | 공개 API, CLI 표면, 워크플로우 계약 변경 | 외부 의존성 영향 |
+| 2 | 인증/인가/권한/시크릿 변경 | 보안 리스크 |
+| 3 | 데이터 영속성(생성/수정/삭제/마이그레이션) 변경 | 데이터 무결성 |
+| 4 | 새 의존성 추가 또는 lockfile 변경 | 공급망 리스크 |
+| 5 | 환경 변수, 설정 파일, 배포 설정 변경 | 운영 리스크 |
+| 6 | 보안 인접 코드 변경 (입력 검증, 에러 처리, 네트워크 경계) | 간접 보안 영향 |
+| 7 | 상태 머신, 비즈니스 규칙, 결제/정산 로직 변경 | 비즈니스 로직 리스크 |
+| 8 | 크로스 모듈 계약, 인터페이스 시그니처 변경 | 통합 리스크 |
+
+mandatory trigger가 감지되면 review-report.md의 Human Review Gate에 `Decision: required`로 기록하고, 해당 trigger 번호와 이유를 명시한다.
+
+Human review may be skipped only when **all** of these are true:
 
 - Change scope is small/localized and repeats an established pattern.
 - Risk is low, rollback is easy, and no state/data/security/permission behavior changes are involved.
 - Automated verification is fresh and sufficient.
 - Similar prior work repeatedly received LGTM without discussion.
 - No cross-role automated-review conflict is present.
+- **None of the mandatory human review triggers above are matched.**
 
 Human review is required when any of these are true:
 

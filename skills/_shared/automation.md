@@ -128,7 +128,7 @@ Complete **all** items before invoking the next stage or editing code outside th
 |------|---------------------|
 | Artifact | `review-report.md` with written verdict |
 | Checkpoint | `Current Stage: review`; verdict reflected in `Next Action` |
-| Chain | If `approved`: call `Skill(skill: "forgeflow:ship")` immediately — no `(y/n)` prompt. Do not just print the skill name. If `changes_requested` with artifact-only findings: auto-fix artifacts then call `Skill(skill: "forgeflow:review")`. |
+| Chain | If `approved`: call `Skill(skill: "forgeflow:ship")` immediately — no `(y/n)` prompt. Do not just print the skill name. If `changes_requested` with artifact-only findings: auto-fix artifacts then call `Skill(skill: "forgeflow:review")`. **검증**: ship 호출 전 `review-report.md`의 verdict가 `approved`이고 `safe_for_next_stage`가 `yes`인지 확인. |
 | Forbidden | "리뷰 통과. ship 진행?" under `--auto`; proceeding to ship when verdict ≠ `approved`; auto-fixing code findings (must stop for code changes) |
 
 #### ship completion
