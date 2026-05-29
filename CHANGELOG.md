@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.9.2] - 2026-05-29
+
+### Added
+
+- **Post-task simplification loop**: 검증 통과 후 변경 코드에 대해 삼중 렌즈(코드 재사용, 품질, 효율) 분석을 반복 수행하는 정제 루프를 execute 스킬에 추가. small/medium은 마지막 단계 후 1회, high/epic은 매 단계 후 실행
+
+### Fixed
+
+- **marketplace.json 버전 동기화**: marketplace.json metadata.version이 1.9.0에 머물러 있던 문제 수정
+
 ## [1.9.1] - 2026-05-29
 
 ### Changed
