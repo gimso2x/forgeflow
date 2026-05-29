@@ -25,6 +25,7 @@ Review after execute stage. Requires pipeline artifacts from `.forgeflow/tasks/<
 - `plan.md` from plan stage
 - `implementation-notes.md` from execute stage
 - `run-ledger.md` from execute stage
+- `decision-log.md` from clarify/plan/execute stages (optional but recommended for tracing prior decisions)
 - Final codebase state
 - Verification commands/results
 

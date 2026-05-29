@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.9.1] - 2026-05-29
+
+### Changed
+
+- **워크트리 심볼릭 링크 순환 문제 근본 해결**: `.forgeflow` 전체 디렉터리 대신 비순환 서브디렉터리(tasks, telemetry, evolution, defaults.md 등)만 개별 symlink하여 Vite/webpack file watcher ELOOP crash 원천 차단
+- **워크트리 수명주기 개선**: 고아 워크트리 탐지, cleanup-only 모드, review 단계 워크트리 경고, config prune 명령 추가
+- **로컬 작업 산출물 무시 목록 정비**: `.gitignore`에 `.playwright-mcp/`, `samples/`, `forgeflow_runtime.egg-info/` 등 생성 산물 패턴 추가
+
+### Fixed
+
+- **config/SKILL.md 버전 포맷 정정**: schema version을 다른 skill과 동일한 `0.x.0` 포맷으로 통일
+- **roadmap 상태 동기화**: Priority 6(scope boundary) 완료 표시, Phase 3+ 상태 업데이트, 기준 버전을 v1.9.0으로 갱신
+- **.gitignore dogfooding 예외 명시화**: tracked `.forgeflow/tasks/*` fixture를 명시적 예외로 추가
+- **review/ship 스킬에 decision-log 참조 추가**: 이전 단계 결정 추적성 향상
+
 ## [1.9.0] - 2026-05-29
 
 ### Added
@@ -794,7 +809,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI gate with GitHub Actions workflow generation
 - Agent preset installer (Claude + Codex)
 
-[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v1.9.0...HEAD
+[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v1.9.1...HEAD
+[1.9.1]: https://github.com/gimso2x/forgeflow/compare/v1.9.0...v1.9.1
 [1.9.0]: https://github.com/gimso2x/forgeflow/compare/v1.8.0...v1.9.0
 [1.8.0]: https://github.com/gimso2x/forgeflow/compare/v1.7.0...v1.8.0
 [1.7.0]: https://github.com/gimso2x/forgeflow/compare/v1.6.0...v1.7.0

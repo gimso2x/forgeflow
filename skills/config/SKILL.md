@@ -1,6 +1,6 @@
 ---
 name: config
-version: "1.5"
+version: 0.6.0
 description: Manage ForgeFlow project defaults interactively. Toggle auto-chaining and worktree isolation. Offers init from the config menu with reusable project context generation. Includes prune for orphan worktree cleanup.
 validate_prompt: |
   Must present current .forgeflow/defaults.md values, offer toggle/init/prune actions by number, and write changes back without committing.
