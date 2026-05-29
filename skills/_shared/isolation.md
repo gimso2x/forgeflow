@@ -37,14 +37,27 @@ git branch "$BRANCH" HEAD
 mkdir -p .forgeflow/worktrees
 git worktree add "$WT_PATH" "$BRANCH"
 
-# 3. Symlink .forgeflow so artifacts are shared
-#    (worktree checkout won't have .forgeflow since it's gitignored)
-rm -rf "${WT_PATH}/.forgeflow"
-ln -s "${MAIN_ROOT}/.forgeflow" "${WT_PATH}/.forgeflow"
+# 3. Link .forgeflow artifacts so they are shared across worktrees.
+#    DO NOT symlink the entire .forgeflow/ directory — it creates a circular
+#    reference through .forgeflow/worktrees/ that causes ELOOP crashes in
+#    file watchers (Vite, webpack, etc.). Instead, create a real directory
+#    and symlink only the non-circular subdirectories.
+mkdir -p "${WT_PATH}/.forgeflow"
+for item in tasks telemetry evolution tmp-assets; do
+  if [ -e "${MAIN_ROOT}/.forgeflow/${item}" ]; then
+    ln -sf "${MAIN_ROOT}/.forgeflow/${item}" "${WT_PATH}/.forgeflow/${item}"
+  fi
+done
+for file in defaults.md project-draft.md; do
+  if [ -f "${MAIN_ROOT}/.forgeflow/${file}" ]; then
+    ln -sf "${MAIN_ROOT}/.forgeflow/${file}" "${WT_PATH}/.forgeflow/${file}"
+  fi
+done
 
 # 4. Verify
 test "$(git -C "$WT_PATH" branch --show-current)" = "$BRANCH"
-test -L "${WT_PATH}/.forgeflow"
+test -d "${WT_PATH}/.forgeflow"
+test -L "${WT_PATH}/.forgeflow/tasks"
 
 # 5. Install dependencies (node_modules is gitignored, not copied to worktree)
 #    Detect package manager from main repo lockfile and install in worktree.
@@ -111,8 +124,8 @@ cd "$MAIN_ROOT"
 git checkout main
 git merge --no-ff "$BRANCH"
 
-# 2. Remove symlink before worktree removal
-rm -f "${WT_PATH}/.forgeflow"
+# 2. Remove .forgeflow directory (contains individual symlinks, not a symlink itself)
+rm -rf "${WT_PATH}/.forgeflow"
 
 # 3. Remove worktree
 git worktree remove "$WT_PATH"
@@ -129,8 +142,8 @@ MAIN_ROOT="$(git rev-parse --show-toplevel)"
 # 0. Move to main repo (session may be inside worktree)
 cd "$MAIN_ROOT"
 
-# 1. Remove symlink
-rm -f "${WT_PATH}/.forgeflow"
+# 1. Remove .forgeflow directory (contains individual symlinks, not a symlink itself)
+rm -rf "${WT_PATH}/.forgeflow"
 
 # 2. Force-remove worktree (discards uncommitted changes)
 git worktree remove --force "$WT_PATH"
@@ -185,7 +198,7 @@ BASE_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's|ref
 if git branch --merged "$BASE_BRANCH" | grep -q "$BRANCH"; then
   # Safe to clean up
   cd "$(git rev-parse --show-toplevel)"
-  rm -f "${WT_PATH}/.forgeflow"
+  rm -rf "${WT_PATH}/.forgeflow"
   git worktree remove "$WT_PATH"
   git branch -d "$BRANCH"
   echo "Orphan cleaned: ${TASK_ID} (branch ${BRANCH} was already merged)"
@@ -204,7 +217,7 @@ The `/forgeflow:config` prune option (Mode D) uses this detection logic to list 
 
 ## Safety rules
 
-1. **Never `rm -rf` the `.forgeflow/` symlink inside a worktree** — use `rm -f` (no `-r`) to remove the symlink only.
+1. **`.forgeflow/` in worktrees is a real directory with individual symlinks**, not a single symlink to the entire `.forgeflow/`. This prevents circular references through `worktrees/`. When cleaning up, `rm -rf` is safe because the directory only contains symlinks, not actual data.
 2. **Never force-remove a dirty worktree without user confirmation.** If `git status --short` shows changes, ask first.
 3. **Branch naming**: use `<task-id>` as the branch name directly (e.g., `fix-area-range-slider-6a3`). This follows the project's commit convention `[브랜치명] 변경 내용 요약` — the branch name becomes the commit prefix. ForgeFlow worktrees are identifiable via `git worktree list` or the `.forgeflow/worktrees/` directory.
 4. **One worktree per task**: never share a worktree between tasks.
@@ -214,11 +227,13 @@ The `/forgeflow:config` prune option (Mode D) uses this detection logic to list 
 
 ## Known issues and workarounds
 
-### Dev server OOM with `.forgeflow` symlink
+### Dev server ELOOP with `.forgeflow` symlink (resolved)
 
-The `.forgeflow` symlink causes Vite/webpack dev server file watchers to recursively scan the entire shared `.forgeflow/` directory (including all worktree task artifacts, review reports, and evolution rules). In medium+ projects this can trigger Node OOM crashes (exit 134).
+~~The `.forgeflow` symlink causes Vite/webpack dev server file watchers to recursively scan the entire shared `.forgeflow/` directory (including all worktree task artifacts, review reports, and evolution rules). In medium+ projects this can trigger Node OOM crashes (exit 134).~~
 
-**Root cause fix**: Add `.forgeflow` to the dev server's watcher exclusion. This allows `pnpm dev` to run normally inside the worktree.
+**Resolved**: The creation procedure now uses individual symlinks for each subdirectory (`tasks`, `telemetry`, `evolution`, `tmp-assets`) instead of linking the entire `.forgeflow/` directory. This prevents the circular reference through `worktrees/` that caused ELOOP errors. No project-level Vite/webpack config changes are needed.
+
+If the old single-symlink approach was used (pre-v1.10), the workaround below still applies:
 
 Vite (`vite.config.ts`):
 ```ts

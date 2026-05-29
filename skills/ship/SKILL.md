@@ -300,7 +300,7 @@ cd "$MAIN_ROOT"
 # 2. Verify branch is merged
 if git branch --merged HEAD | grep -q "$BRANCH"; then
   # 3. Remove symlink
-  rm -f "${WT_PATH}/.forgeflow"
+  rm -rf "${WT_PATH}/.forgeflow"
   # 4. Remove worktree
   git worktree remove "$WT_PATH"
   # 5. Delete branch
@@ -374,8 +374,8 @@ If verification passes after merge, offer branch cleanup. Do not delete the bran
 # 1. Move to main repo before removing worktree
 cd <main-repo-root>
 
-# 2. Remove symlink first (prevent rm -rf on shared .forgeflow)
-rm -f <worktree-path>/.forgeflow
+# 2. Remove .forgeflow directory (individual symlinks, safe to rm -rf)
+rm -rf <worktree-path>/.forgeflow
 git worktree remove <worktree-path>
 git branch -d <feature-branch>
 ```
@@ -435,7 +435,7 @@ Never delete unrelated dirty working tree files. If unrelated dirty working tree
 
 **Worktree discard** (when `isolation: worktree`): after `discard` confirmation:
 ```bash
-rm -f <worktree-path>/.forgeflow    # remove symlink only
+rm -rf <worktree-path>/.forgeflow    # directory with individual symlinks
 git worktree remove --force <worktree-path>
 git branch -D <feature-branch>
 ```
