@@ -359,7 +359,7 @@ Do not add a fifth path. That is how branches become archaeology.
 
 ### 1. Merge locally
 
-Only after explicit choice:
+Only after explicit choice (or implicit under --auto):
 
 ```bash
 git checkout <base-branch>

@@ -60,7 +60,7 @@ The agent must **stop and wait for user input** when any of these occur, even un
 
 - **Failed verification**: build, lint, type_check, or test failure that the bounded fix loop cannot resolve
 - **Blockers**: unresolved open questions or missing dependencies in `brief.md`
-- **Review verdict: `changes_requested`**: must present findings and wait for user direction before re-executing
+- **Review verdict: `changes_requested`**: must present findings and wait for user direction before re-executing. Exception: if ALL findings are artifact-only (scope_files, brief, plan, implementation-notes 등 `.forgeflow/` 메타데이터 수정만 필요한 경우), auto-fix artifacts then re-invoke `/forgeflow:review` without stopping. 코드 로직 변경이 필요한 finding이 하나라도 있으면 기존대로 auto-break.
 - **Destructive actions**: ship branch-disposition discard confirmation (always requires exact `discard` input), force-push, branch deletion — note: "Merge locally" under `--auto` is NOT destructive and does not require confirmation
 - **Ambiguous route or scope change**: when the request no longer matches the original brief (see Scope change under --auto)
 - **Missing required artifact**: any mandatory artifact that could not be produced
@@ -128,8 +128,8 @@ Complete **all** items before invoking the next stage or editing code outside th
 |------|---------------------|
 | Artifact | `review-report.md` with written verdict |
 | Checkpoint | `Current Stage: review`; verdict reflected in `Next Action` |
-| Chain | If `approved`: call `Skill(skill: "forgeflow:ship")` immediately — no `(y/n)` prompt. Do not just print the skill name. |
-| Forbidden | "리뷰 통과. ship 진행?" under `--auto`; proceeding to ship when verdict ≠ `approved` |
+| Chain | If `approved`: call `Skill(skill: "forgeflow:ship")` immediately — no `(y/n)` prompt. Do not just print the skill name. If `changes_requested` with artifact-only findings: auto-fix artifacts then call `Skill(skill: "forgeflow:review")`. |
+| Forbidden | "리뷰 통과. ship 진행?" under `--auto`; proceeding to ship when verdict ≠ `approved`; auto-fixing code findings (must stop for code changes) |
 
 #### ship completion
 
