@@ -336,7 +336,7 @@ When a harness supports role-specific model selection, bind by capability rather
 - quality-reviewer → standard reasoning/coding model; upgrade to strongest reasoning for broad refactors, weak verification, or many interacting files.
 - ux-reviewer and perf-reviewer → standard reasoning model unless the normalized evidence shows accessibility, query-planning, caching, or large-data risk that needs specialist depth.
 
-Record any non-default role/model assignment in the role-pass record or adapter notes as a hint only. Model choice must never change role routing, evidence requirements, verdict enums, or the human review gate.
+Record any non-default role/model assignment in the role-pass record, adapter notes, or `review-report.md` Reviewer Role Summary as a hint only. Model choice must never change role routing, evidence requirements, evidence IDs, evidence levels, verdict enums, approval rules, or the human review gate.
 
 In standalone mode, if role/model or specialist profile selection is known before reviewer judgment, record it in `normalized-input.md` → `role capability hints`. Use provider-neutral capability language (`strongest reasoning available`, `standard reasoning/coding model`, or `not_applicable`) and treat the section as audit metadata only. Do not block review because an adapter lacks per-role model selection; block only if a capability hint is used to alter role routing, evidence IDs, evidence levels, verdict enums, approval rules, or human-gate semantics.
 

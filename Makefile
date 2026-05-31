@@ -339,6 +339,8 @@ validate-advisory-contract:
 	@grep -Fq "normalization gate" templates/normalized-input.md || { echo "ERROR: normalized input template must expose a reviewer preflight gate"; exit 1; }
 	@grep -Fq "Normalization Gate" templates/review-report.md || { echo "ERROR: review report template must surface standalone normalization gate status"; exit 1; }
 	@grep -Fq "Evidence requirements source" templates/review-report.md || { echo "ERROR: review report template must point to role evidence requirements"; exit 1; }
+	@grep -Fq "Role capability hints" templates/review-report.md || { echo "ERROR: review report template must expose advisory role capability hints"; exit 1; }
+	@grep -Fq "must not affect routing, evidence IDs, evidence levels, verdict enums, approval rules, or Human Review Gate" templates/review-report.md || { echo "ERROR: review report role capability hints must stay advisory-only"; exit 1; }
 	@grep -Fq "Review tool posture" skills/review/SKILL.md || { echo "ERROR: review skill must document inspection-only tool posture"; exit 1; }
 	@grep -Fq "role_reassignment_policy" templates/normalized-input.md || { echo "ERROR: normalized input template must guard delegated reviewer role reassignment"; exit 1; }
 	@grep -Fq "members cannot create additional reviewer roles" skills/review/SKILL.md || { echo "ERROR: review skill must keep delegated reviewer role creation lead-only"; exit 1; }

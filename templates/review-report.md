@@ -84,6 +84,7 @@ scope_boundary:
 - Role evidence map: <!-- cite normalized-input.md role evidence map; active roles must use only listed evidence IDs or record newly normalized evidence first -->
 - Role input packet readiness: <!-- cite normalized-input.md role input packet readiness; active roles must be READY and current after the latest evidence/scope/constraint/routing change, or record blocked judgment -->
 - Role criteria basis summary: <!-- cite each active role's criteria_basis from normalized-input.md role input packets; role approvals cannot borrow another role's criteria basis -->
+- Role capability hints: <!-- cite normalized-input.md role capability hints when present; advisory only and must not affect routing, evidence IDs, evidence levels, verdict enums, approval rules, or Human Review Gate -->
 - Evidence gap register: <!-- cite normalized-input.md Evidence Gap Register; write `none` only when no expected evidence is missing, partial, sampled, or blocked -->
 - Review ownership plan: <!-- cite normalized-input.md review ownership plan: exactly one lead reviewer, member assignments, aggregation owner, child-work/product-mutation policy -->
 - Conflict policy: <!-- cite normalized-input.md conflict_policy; unresolved cross-role conflicts stay visible and trigger Human Review Gate instead of being privately resolved by the lead -->
