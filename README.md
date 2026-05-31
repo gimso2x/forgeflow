@@ -61,6 +61,8 @@ Claude/Codex의 `/forgeflow:clarify` 등과 동일한 스킬입니다. 매핑은
 
 **설치 위치와 작업 위치를 분리하세요.** Claude/Codex/Gemini/Cursor의 plugin 또는 extension은 각 도구의 설치/cache 위치에 둘 수 있지만, `/forgeflow:clarify` 같은 실제 workflow 명령은 변경하려는 프로젝트 루트에서 실행해야 합니다. plugin/cache 디렉토리에서 실행 중이면 `--task-dir <project>/.forgeflow/tasks/<task-id>`처럼 명시 경로를 지정해 산출물이 대상 프로젝트에 기록되게 하세요.
 
+**Multi-harness 원칙:** ForgeFlow의 route, artifact schema, review verdict, human gate는 adapter-neutral core contract에 속합니다. Claude Code/Codex/Gemini/Cursor 차이는 slash command 이름, CLI flag, trust/permission mode, timeout, output normalization 같은 얇은 wrapper 표면에만 둡니다. 새 어댑터나 예외를 추가할 때는 [docs/adapter-config.md](docs/adapter-config.md)의 `Multi-harness routing invariants`와 [docs/review-runtime-contract.md](docs/review-runtime-contract.md)를 먼저 맞추고, hidden provider state나 chat transcript가 아니라 `.forgeflow/tasks/<task-id>/` markdown artifact로 handoff합니다.
+
 ### Context efficiency / refresh resume
 
 ForgeFlow는 artifact-first를 유지하면서 adapter-selected context refresh 후 재개 비용을 줄입니다. stage 경계 또는 checkpoint 갱신 직후에 context refresh가 안전합니다. 재개 시 `checkpoint.md` → `run-ledger.md` → `implementation-notes.md` 요약 → 필요한 섹션만 읽습니다. `checkpoint.md`의 `Handoff Boundary`는 현재 stage owner, 다음 owner, handoff reason, forbidden-action delegation을 기록해 역할/도구 경계가 refresh나 adapter 전환 중 흐려지지 않게 합니다. 어댑터별 명령 힌트는 [skills/_shared/context-resume.md](skills/_shared/context-resume.md)에만 둡니다.

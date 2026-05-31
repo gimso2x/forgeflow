@@ -33,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Standalone review now treats local `.diff`/`.patch` file paths as diff inputs with file-read provenance, rather than ambiguous file bundles.
 - Standalone review normalization now includes a role trigger matrix so security/ux/perf routing decisions cite normalized trigger evidence or explicit non-trigger reasons instead of chat-only intuition.
 - README standalone review guidance now exposes lead/member guardrails for delegated reviewer passes, and advisory validation guards those user-facing constraints.
+- Adapter configuration now documents multi-harness routing invariants so provider wrappers stay shallow, artifact handoff remains markdown-bound, and review adapters normalize before judging.
 
 ## [1.9.3] - 2026-05-31
 
