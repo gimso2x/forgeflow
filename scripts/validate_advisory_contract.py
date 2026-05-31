@@ -9,7 +9,8 @@ checks = {
     'skills/execute/SKILL.md': ['Claim marker before delegation/concurrency', 'role=<worker|specialist|spec-reviewer|quality-reviewer> scope=<repo paths or artifact section> at=<ISO8601>', 'Run ledger claim markers'],
     'skills/_shared/automation.md': ['Stage artifact/tool boundary catalog', 'clarify', 'plan', 'execute', 'review', 'ship', 'product code edits', 'Code findings hand back to execute'],
     'templates/brief.md': ['Route Rationale', 'Budget Note', 'Suggested Next Skill', 'Suggested specialists'],
-    'templates/review-report.md': ['Evidence Source', 'Evidence Level', 'observed | reported | missing', 'Checklist Version', 'role-pass record', 'Chat-only completion claims are not evidence'],
+    'templates/review-report.md': ['Evidence Source', 'Evidence Level', 'observed | reported | missing', 'Checklist Version', 'role-pass record', 'Chat-only completion claims are not evidence', 'Normalization Gate'],
+    'templates/normalized-input.md': ['brief_present', 'evidence_present_or_blocked', 'scope_explicit', 'constraints_explicit', 'limitations_visible'],
     'templates/plan.md': ['Execution Pattern', 'Applied Evolution Rules'],
     'templates/run-ledger.md': ['Claim Marker', 'role=<worker|specialist|spec-reviewer|quality-reviewer> scope=<repo paths or artifact section> at=<ISO8601>', 'not chat-only claims'],
     'docs/advisory-guidelines.md': ['Route Budget Guide', 'small:', 'medium:', 'high:', 'epic:', 'Non-goals'],
@@ -68,6 +69,22 @@ classification_fields = ['Source Classification Rationale', 'Why this type', 'Am
 missing_classification_fields = [field for field in classification_fields if field not in input_source_template]
 if missing_classification_fields:
     failures.append(f'templates/input-source.md: missing source classification fields {missing_classification_fields}')
+normalized_input_template = (root / 'templates/normalized-input.md').read_text(encoding='utf-8')
+normalization_gate_fields = [
+    'brief_present',
+    'evidence_present_or_blocked',
+    'scope_explicit',
+    'constraints_explicit',
+    'limitations_visible',
+]
+missing_gate_fields = [field for field in normalization_gate_fields if field not in normalized_input_template]
+if missing_gate_fields:
+    failures.append(f'templates/normalized-input.md: missing normalization gate fields {missing_gate_fields}')
+review_gate_pos = review_template.find('**Normalization Gate**')
+standalone_pos = review_template.find('## Standalone 입력 소스')
+reader_summary_pos = review_template.find('## 사용자용 요약')
+if not (standalone_pos != -1 and review_gate_pos != -1 and reader_summary_pos != -1 and standalone_pos < review_gate_pos < reader_summary_pos):
+    failures.append('templates/review-report.md: standalone normalization gate must be visible before reader summary')
 if failures:
     print('ERROR: advisory contract drift')
     [print(f'- {failure}') for failure in failures]
