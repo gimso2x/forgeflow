@@ -135,6 +135,7 @@ Standalone review creates a synthetic task directory:
 - `constraints`: role, focus, exclusions, and user rules
 - `role trigger matrix`: every supported reviewer role marked `run`, `skipped`, or `blocked`, with the normalized evidence ID(s), route rule, explicit flag, or explicit non-trigger signal that made the routing decision
 - `role evidence map`: every active reviewer role mapped to the evidence IDs it may use, or `none — <reason>` when blocked/not triggered
+- `role input packet readiness`: every active, blocked, or skipped reviewer role marked `READY`, `BLOCKED`, or `SKIPPED` based on whether trigger decision, evidence IDs, scope, constraints, and limitations are normalized before judgment
 - `review ownership plan`: the lead reviewer, any member assignments, aggregation owner, child-work policy, and product-mutation policy recorded before delegated or parallel reviewer passes start
 - `adapter handoff checklist`: source classified, fetch reproduced, normalization complete, limitations visible, and canonical review ownership recorded as `PASS`/`FAIL` before reviewer judgment begins
 
@@ -170,7 +171,7 @@ A role finding must cite:
 
 Every role pass, including passes with zero findings, must leave a compact role-pass record in `review-report.md` so the lead can audit what was inspected without reading chat logs. The record includes active role, markdown claim marker (`role=<reviewer> scope=<artifact section/evidence IDs> at=<ISO8601>`), checklist version, reviewed scope/evidence IDs, verification command(s) observed or reason none ran, limitations, an Independence Check that fails if implementer self-report or chat-only claims substituted for normalized/observed evidence, finding counts, and the role verdict. Chat-only role completion claims are not sufficient evidence.
 
-Before each role starts, the lead reviewer provides a role input packet from `normalized-input.md` only: trigger decision, allowed evidence IDs, scoped files/ranges/exclusions, constraints/focus flags, and visible limitations. The role-pass record echoes this packet. If the packet is missing, stale, or depends on hidden adapter state, that role is blocked until the evidence is normalized or recorded unavailable.
+Before each role starts, the lead reviewer provides a role input packet from `normalized-input.md` only: trigger decision, allowed evidence IDs, scoped files/ranges/exclusions, constraints/focus flags, and visible limitations. `normalized-input.md` records the role input packet readiness row as `READY`, `BLOCKED`, or `SKIPPED`, and the role-pass record echoes that status. If the packet is missing, stale, `BLOCKED`, or depends on hidden adapter state, that role is blocked until the evidence is normalized or recorded unavailable.
 
 Reviewer roles may cite only normalized evidence IDs from the role evidence map unless they first update `normalized-input.md` with a new evidence item and visible limitation note. Chat-only context, unrecorded web pages, or ad-hoc file reads are not valid role evidence.
 

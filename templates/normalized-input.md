@@ -54,6 +54,14 @@
 - **ux-reviewer**: <!-- E4 | none — not triggered -->
 - **perf-reviewer**: <!-- E5 | none — not triggered -->
 
+## role input packet readiness
+<!-- Fill once per active or blocked reviewer role before judgment. READY means the role has a trigger decision, allowed evidence IDs, scoped files/ranges/exclusions, constraints/focus flags, and visible limitations sourced only from this normalized input. BLOCKED means one or more packet fields are missing; the role must not judge until the missing field is normalized or recorded as unavailable. Skipped roles may use SKIPPED with an explicit non-trigger reason. -->
+- **spec-reviewer**: <!-- READY | BLOCKED | SKIPPED — packet fields present/missing: trigger,evidence_ids,scope,constraints,limitations; reason -->
+- **quality-reviewer**: <!-- READY | BLOCKED | SKIPPED — packet fields present/missing: trigger,evidence_ids,scope,constraints,limitations; reason -->
+- **security-reviewer**: <!-- READY | BLOCKED | SKIPPED — packet fields present/missing: trigger,evidence_ids,scope,constraints,limitations; reason -->
+- **ux-reviewer**: <!-- READY | BLOCKED | SKIPPED — packet fields present/missing: trigger,evidence_ids,scope,constraints,limitations; reason -->
+- **perf-reviewer**: <!-- READY | BLOCKED | SKIPPED — packet fields present/missing: trigger,evidence_ids,scope,constraints,limitations; reason -->
+
 ## review ownership plan
 <!-- Fill before any delegated or parallel reviewer pass starts. This keeps team-mode absorption declarative: one lead owns aggregation, each member owns at most one pass, and no role may spawn unmanaged child work or mutate product files. Member assignments are role claims, not a task scheduler: members must not create additional reviewer roles, reassign scope, or write outside their assigned review-report section. -->
 - **lead_reviewer**: <!-- identifier or role responsible for normalization, role routing, aggregation, conflicts, and human gate -->

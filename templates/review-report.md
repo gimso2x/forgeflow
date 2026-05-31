@@ -82,6 +82,7 @@ scope_boundary:
 - Evidence requirements source: `skills/review/references/role-checklists.md#evidence-requirements-by-role`
 - Role routing rationale: <!-- why each role ran or was skipped: route rule, --type/--focus flag, file-type heuristic, specialist trigger, or explicit non-trigger -->
 - Role evidence map: <!-- cite normalized-input.md role evidence map; active roles must use only listed evidence IDs or record newly normalized evidence first -->
+- Role input packet readiness: <!-- cite normalized-input.md role input packet readiness; active roles must be READY or record blocked judgment -->
 - Review ownership plan: <!-- cite normalized-input.md review ownership plan: lead reviewer, member assignments, aggregation owner, child-work/product-mutation policy -->
 - Active roles: <!-- roles that ran; must match normalized-input.md constraints.roles or route defaults -->
 - Skipped roles: <!-- role=reason pairs for every supported role that did not run; use explicit non-trigger rationale, not blank/implicit omission -->
@@ -103,6 +104,7 @@ scope_boundary:
 - **Role**: <!-- spec-reviewer | quality-reviewer | security-reviewer | ux-reviewer | perf-reviewer -->
 - **Claim Marker**: <!-- role=<spec-reviewer|quality-reviewer|security-reviewer|ux-reviewer|perf-reviewer> scope=<artifact section/evidence IDs> at=<ISO8601>; required before delegated/concurrent role work -->
 - **Trigger Rationale**: <!-- route rule, --type/--focus flag, file-type heuristic, specialist profile, or explicit non-trigger rationale -->
+- **Input Packet Readiness**: <!-- READY | BLOCKED; cite normalized-input.md role input packet readiness row -->
 - **Checklist Version**: <!-- exact `Checklist version: YYYY-MM-DD` value observed in the checklist file -->
 - **Scope/Evidence IDs Inspected**: <!-- normalized-input evidence IDs, artifact names, paths, or diff ranges -->
 - **Observed Verification**: <!-- command(s) rerun in this review turn, or `none — <no-command rationale>` -->

@@ -11,7 +11,7 @@ checks = {
     'skills/_shared/automation.md': ['Stage artifact/tool boundary catalog', 'clarify', 'plan', 'execute', 'review', 'ship', 'product code edits', 'Code findings hand back to execute'],
     'templates/brief.md': ['Route Rationale', 'Budget Note', 'Suggested Next Skill', 'Suggested specialists'],
     'templates/review-report.md': ['Evidence Source', 'Evidence Level', 'observed | reported | missing', 'Checklist Version', 'role-pass record', 'Chat-only completion claims are not evidence', 'Normalization Gate', 'Role routing rationale', 'Role evidence map', 'Review ownership plan', 'Active roles', 'Skipped roles', 'Trigger Rationale', 'Claim Marker', 'Independence Check', 'Evidence Escalation Log', 'Requester Role', 'Approval Impact'],
-    'templates/normalized-input.md': ['brief_present', 'evidence_present_or_blocked', 'scope_explicit', 'constraints_explicit', 'limitations_visible', 'role evidence map', 'stable evidence IDs', 'fetch_status', 'limitations', 'Role trigger matrix', 'run | skipped | blocked', 'review ownership plan', 'lead_reviewer', 'member_assignments', 'aggregation_owner', 'child_work_policy', 'product_mutation_policy', 'adapter handoff checklist', 'source_classified', 'fetch_reproduced', 'normalization_complete', 'canonical_review_ownership'],
+    'templates/normalized-input.md': ['brief_present', 'evidence_present_or_blocked', 'scope_explicit', 'constraints_explicit', 'limitations_visible', 'role evidence map', 'stable evidence IDs', 'fetch_status', 'limitations', 'Role trigger matrix', 'run | skipped | blocked', 'role input packet readiness', 'READY | BLOCKED | SKIPPED', 'review ownership plan', 'lead_reviewer', 'member_assignments', 'aggregation_owner', 'child_work_policy', 'product_mutation_policy', 'adapter handoff checklist', 'source_classified', 'fetch_reproduced', 'normalization_complete', 'canonical_review_ownership'],
     'templates/plan.md': ['Execution Pattern', 'Applied Evolution Rules'],
     'templates/run-ledger.md': ['Claim Marker', 'role=<worker|specialist|spec-reviewer|quality-reviewer> scope=<repo paths or artifact section> at=<ISO8601>', 'not chat-only claims'],
     'docs/advisory-guidelines.md': ['Route Budget Guide', 'small:', 'medium:', 'high:', 'epic:', 'Non-goals'],
@@ -104,11 +104,12 @@ role_trigger_roles = [
 ]
 trigger_matrix_pos = normalized_input_template.find('### Role trigger matrix')
 role_evidence_map_pos = normalized_input_template.find('## role evidence map')
+role_packet_readiness_pos = normalized_input_template.find('## role input packet readiness')
 ownership_plan_pos = normalized_input_template.find('## review ownership plan')
 normalization_gate_pos = normalized_input_template.find('## normalization gate')
 adapter_handoff_pos = normalized_input_template.find('## adapter handoff checklist')
-if not (trigger_matrix_pos != -1 and role_evidence_map_pos != -1 and ownership_plan_pos != -1 and normalization_gate_pos != -1 and adapter_handoff_pos != -1 and trigger_matrix_pos < role_evidence_map_pos < ownership_plan_pos < normalization_gate_pos < adapter_handoff_pos):
-    failures.append('templates/normalized-input.md: role trigger matrix must appear before role evidence map, review ownership plan, normalization gate, and adapter handoff checklist')
+if not (trigger_matrix_pos != -1 and role_evidence_map_pos != -1 and role_packet_readiness_pos != -1 and ownership_plan_pos != -1 and normalization_gate_pos != -1 and adapter_handoff_pos != -1 and trigger_matrix_pos < role_evidence_map_pos < role_packet_readiness_pos < ownership_plan_pos < normalization_gate_pos < adapter_handoff_pos):
+    failures.append('templates/normalized-input.md: role trigger matrix must appear before role evidence map, role input packet readiness, review ownership plan, normalization gate, and adapter handoff checklist')
 for role in role_trigger_roles:
     role_marker = f'**{role}**'
     if role_marker not in normalized_input_template:

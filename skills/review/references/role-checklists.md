@@ -20,6 +20,8 @@ Before starting a role pass, the lead reviewer must hand the role a compact **ro
 
 The role-pass record in `review-report.md` must echo that packet by citing the trigger decision, evidence IDs inspected, limitations seen, and any Evidence Escalation Log entry created. If the packet is missing, stale, or relies on chat-only/hidden adapter state, the role records `blocked: missing role input packet` rather than proceeding.
 
+Before judgment, confirm the role's `role input packet readiness` row in `normalized-input.md`. Only `READY` roles may produce approval-grade judgments. `BLOCKED` roles must record `blocked: missing role input packet` with the missing field names; `SKIPPED` roles must remain absent from active role-pass records except for the routing rationale summary.
+
 - `spec-reviewer`: cite the exact requirement source (`brief.md`, `plan.md` Design Intent/Review Criteria, user-provided spec, or normalized standalone brief) and the implementation evidence that satisfies or violates it.
 - `quality-reviewer`: cite directly observed code, diff hunks, metrics, or verification output. Executor claims from `implementation-notes.md` are reported evidence until independently checked.
 - `security-reviewer`: cite the trust boundary, data flow, secret/auth surface, dependency change, or input path under review. If exploitability cannot be confirmed from available evidence, mark confidence and missing evidence explicitly.
