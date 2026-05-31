@@ -146,6 +146,7 @@ Reviewer roles are independent lenses:
 A role finding must cite:
 
 - reviewer role
+- checklist source and exact checklist version used
 - confidence
 - criteria basis
 - evidence source

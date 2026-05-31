@@ -5,11 +5,11 @@ root = pathlib.Path('.')
 checks = {
     'skills/forgeflow/SKILL.md': ['intent:', 'inputs:', 'outputs:', 'dependencies:', 'docs/advisory-guidelines.md'],
     'skills/clarify/SKILL.md': ['intent:', 'inputs:', 'outputs:', 'dependencies:', '리뷰해줘', '계획 세워', 'suggested_next_skill', 'Keyword hints are advisory'],
-    'skills/review/SKILL.md': ['docs/review-runtime-contract.md', 'brief / evidence / scope / constraints', 'read-only except for review artifacts', 'observed evidence', 'Cross-role conflicts', 'Evidence Source', 'Evidence Level', 'observed | reported | missing', 'lead/member guardrails', 'does not spawn unmanaged child work', 'Adapter compliance checklist', 'source classified', 'fetch reproduced', 'normalization complete', 'limitations visible', 'review ownership delegated'],
+    'skills/review/SKILL.md': ['docs/review-runtime-contract.md', 'brief / evidence / scope / constraints', 'read-only except for review artifacts', 'observed evidence', 'Cross-role conflicts', 'Evidence Source', 'Evidence Level', 'observed | reported | missing', 'lead/member guardrails', 'does not spawn unmanaged child work', 'Adapter compliance checklist', 'source classified', 'fetch reproduced', 'normalization complete', 'limitations visible', 'review ownership delegated', 'Checklist Version'],
     'skills/execute/SKILL.md': ['Claim marker before delegation/concurrency', 'role=<worker|specialist|spec-reviewer|quality-reviewer> scope=<repo paths or artifact section> at=<ISO8601>', 'Run ledger claim markers'],
     'skills/_shared/automation.md': ['Stage artifact/tool boundary catalog', 'clarify', 'plan', 'execute', 'review', 'ship', 'product code edits', 'Code findings hand back to execute'],
     'templates/brief.md': ['Route Rationale', 'Budget Note', 'Suggested Next Skill', 'Suggested specialists'],
-    'templates/review-report.md': ['Evidence Source', 'Evidence Level', 'observed | reported | missing'],
+    'templates/review-report.md': ['Evidence Source', 'Evidence Level', 'observed | reported | missing', 'Checklist Version'],
     'templates/plan.md': ['Execution Pattern', 'Applied Evolution Rules'],
     'templates/run-ledger.md': ['Claim Marker', 'role=<worker|specialist|spec-reviewer|quality-reviewer> scope=<repo paths or artifact section> at=<ISO8601>', 'not chat-only claims'],
     'docs/advisory-guidelines.md': ['Route Budget Guide', 'small:', 'medium:', 'high:', 'epic:', 'Non-goals'],
@@ -50,6 +50,8 @@ level_pos = review_template.find('**Evidence Level**')
 description_pos = review_template.find('**Description**')
 if not (role_pos != -1 and source_pos != -1 and level_pos != -1 and description_pos != -1 and role_pos < source_pos < level_pos < description_pos):
     failures.append('templates/review-report.md: finding fields must include Role, Evidence Source, and Evidence Level before Description')
+if 'Checklist Version' not in review_template or 'Checklist version: YYYY-MM-DD' not in review_template:
+    failures.append('templates/review-report.md: reviewer role summary must capture the exact role checklist version')
 input_source_template = (root / 'templates/input-source.md').read_text(encoding='utf-8')
 classification_fields = ['Source Classification Rationale', 'Why this type', 'Ambiguities considered', 'Ambiguity outcome']
 missing_classification_fields = [field for field in classification_fields if field not in input_source_template]

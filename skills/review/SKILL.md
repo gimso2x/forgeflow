@@ -234,7 +234,7 @@ Standalone mode and high/epic pipeline mode use role-based review. Each role has
 
 ### Role definitions
 
-Role-specific triggers stay inline so operators can decide which passes to run quickly. The detailed checklist items and role-specific evidence requirements live in `skills/review/references/role-checklists.md`; load that reference before executing any role pass and cite the checklist version in `review-report.md`.
+Role-specific triggers stay inline so operators can decide which passes to run quickly. The detailed checklist items and role-specific evidence requirements live in `skills/review/references/role-checklists.md`; load that reference before executing any role pass and cite the exact `Checklist version: YYYY-MM-DD` value in `review-report.md` as `Checklist Version`.
 
 #### spec-reviewer
 
@@ -398,6 +398,7 @@ Write `review-report.md` (schema: review-report/v2, from `templates/review-repor
 - Verdict (approved | changes_requested | blocked) — never use "passed"
 - Reviewer (role or identifier)
 - Findings with severity (blocker | major | minor | nit), priority (p1 | p2 | p3 | p4), category (spec-compliance | quality | maintainability | risk | security), Criteria Basis, Evidence Source, Evidence Level (`observed | reported | missing`), Side Effect, Why This Remediation, Disposition, and Disposition Rationale when needed
+- Reviewer Role Summary with checklist source, exact `Checklist Version`, evidence requirements source, per-role verdict counts, and cross-role conflict count when role-based review runs
 - Spec Compliance checklist (for spec review)
 - Quality Assessment checklist (for quality review)
 - Open Blockers (list or "none")

@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Execute subagent and parallel handoffs now require run-ledger claim markers with role, scope, and timestamp before delegated work starts.
 - Standalone review normalization now has an explicit pre-role gate so missing brief/evidence/scope/constraints/limitations block approval instead of being inferred by reviewer roles.
 - Standalone review provenance now records source classification rationale so adapters must explain input-type selection and ambiguity handling before normalization.
+- Review role summaries now record the exact role checklist version used, with advisory validation guarding the field against template drift.
 
 ## [1.9.3] - 2026-05-31
 

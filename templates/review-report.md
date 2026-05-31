@@ -77,6 +77,7 @@ scope_boundary:
 <!-- Standalone mode and high/epic: summarize per-role verdicts and findings. -->
 <!-- Small/medium pipeline: may be omitted or list quality-reviewer only. -->
 - Checklist source: `skills/review/references/role-checklists.md` <!-- include checklist version used -->
+- Checklist Version: <!-- exact `Checklist version: YYYY-MM-DD` value observed in the checklist file -->
 - Evidence requirements source: `skills/review/references/role-checklists.md#evidence-requirements-by-role`
 - <!-- spec-reviewer -->: <!-- verdict -->, <!-- N --> findings (<!-- blockers --> blockers, <!-- majors --> major)
 - <!-- quality-reviewer -->: <!-- verdict -->, <!-- N --> findings (<!-- blockers --> blockers, <!-- majors --> major)
