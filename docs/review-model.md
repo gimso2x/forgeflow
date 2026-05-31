@@ -10,7 +10,7 @@ Automated review는 기본 `/forgeflow:review` 동작입니다.
 
 - `spec-reviewer`: 구현이 `brief.md`, `plan.md`, scope boundary, acceptance criteria를 만족하는지 확인합니다.
 - `quality-reviewer`: 유지보수성, 검증 품질, 잔여 위험, 불필요한 복잡도를 확인합니다.
-- 선택 specialist role(`security-reviewer`, `ux-reviewer`, `perf-reviewer`)은 scope나 명시 focus가 트리거할 때 실행합니다.
+- 선택 specialist role(`architecture-reviewer`, `security-reviewer`, `ux-reviewer`, `perf-reviewer`)은 scope나 명시 focus가 트리거할 때 실행합니다.
 - Automated review는 읽기 전용이며 `review-report.md`를 작성합니다.
 - Automated review findings는 evidence이며, 최종 사람 판단을 대체하지 않습니다.
 

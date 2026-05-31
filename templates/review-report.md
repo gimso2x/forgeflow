@@ -58,7 +58,7 @@ Behavioral guardrail finding categories may include `assumption-risk`, `overengi
 ### Finding 1: <!-- title -->
 - **Severity**: <!-- blocker | major | minor | nit -->
 - **Category**: <!-- spec-compliance | quality | maintainability | risk | security -->
-- **Role**: <!-- spec-reviewer | quality-reviewer | security-reviewer | ux-reviewer | perf-reviewer -->
+- **Role**: <!-- spec-reviewer | quality-reviewer | architecture-reviewer | security-reviewer | ux-reviewer | perf-reviewer -->
 - **Confidence**: <!-- HIGH | MEDIUM | LOW | CONFLICT -->
 - **Priority**: <!-- p1 | p2 | p3 | p4; p1=must fix, p2=strongly recommended, p3=recommended, p4=minor -->
 - **Criteria Basis**: <!-- plan.md Review Criteria / coding convention / ADR / brief acceptance criterion / active rule -->
@@ -98,7 +98,7 @@ Behavioral guardrail finding categories may include `assumption-risk`, `overengi
 
 ## 증거 에스컬레이션 로그 (Evidence Escalation Log)
 <!-- Required when any reviewer role needs evidence outside normalized-input.md role evidence map. If none, write `none`. New evidence is usable only after it is added to normalized-input.md and mirrored in input-source.md Evidence Source Map. -->
-- **Requester Role**: <!-- spec-reviewer | quality-reviewer | security-reviewer | ux-reviewer | perf-reviewer -->
+- **Requester Role**: <!-- spec-reviewer | quality-reviewer | architecture-reviewer | security-reviewer | ux-reviewer | perf-reviewer -->
 - **Requested Evidence**: <!-- file/diff/command/artifact/source needed -->
 - **Reason**: <!-- why existing role evidence map was insufficient -->
 - **Action Taken**: <!-- normalized new evidence | marked unavailable | narrowed scope -->
@@ -107,8 +107,8 @@ Behavioral guardrail finding categories may include `assumption-risk`, `overengi
 
 ### Role-pass record: <!-- reviewer role -->
 <!-- Duplicate this block for every active reviewer role, including zero-finding passes. -->
-- **Role**: <!-- spec-reviewer | quality-reviewer | security-reviewer | ux-reviewer | perf-reviewer -->
-- **Claim Marker**: <!-- role=<spec-reviewer|quality-reviewer|security-reviewer|ux-reviewer|perf-reviewer> scope=<artifact section/evidence IDs> at=<ISO8601>; required before delegated/concurrent role work -->
+- **Role**: <!-- spec-reviewer | quality-reviewer | architecture-reviewer | security-reviewer | ux-reviewer | perf-reviewer -->
+- **Claim Marker**: <!-- role=<spec-reviewer|quality-reviewer|architecture-reviewer|security-reviewer|ux-reviewer|perf-reviewer> scope=<artifact section/evidence IDs> at=<ISO8601>; required before delegated/concurrent role work -->
 - **Trigger Rationale**: <!-- route rule, --type/--focus flag, file-type heuristic, specialist profile, or explicit non-trigger rationale -->
 - **Input Packet Readiness**: <!-- READY | BLOCKED; cite normalized-input.md role input packet readiness row and packet_freshness -->
 - **Checklist Version**: <!-- exact `Checklist version: YYYY-MM-DD` value observed in the checklist file -->

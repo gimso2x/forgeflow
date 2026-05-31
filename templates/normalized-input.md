@@ -38,7 +38,7 @@
 - **scope_source_map**: <!-- map each in-scope file/range/content bound to normalized evidence ID(s), e.g., src/app.ts=E1 or url:section-2=E2; use none only for blocked/missing scope evidence -->
 
 ## constraints
-- **roles**: <!-- spec-reviewer | quality-reviewer | security-reviewer | ux-reviewer | perf-reviewer -->
+- **roles**: <!-- spec-reviewer | quality-reviewer | architecture-reviewer | security-reviewer | ux-reviewer | perf-reviewer -->
 - **focus**: <!-- user-requested or inferred focus areas -->
 - **user_rules**: <!-- exact user restrictions, or none -->
 - **inferred_rules**: <!-- route/input-derived constraints, large diff sampling, test-only focus, etc. -->
@@ -48,6 +48,7 @@
 <!-- For each supported reviewer role, record whether it ran or was skipped and cite the normalized evidence ID(s) or explicit non-trigger signal that made the decision. Do not route a role from chat-only context. -->
 - **spec-reviewer**: <!-- run | skipped | blocked — trigger: brief/spec present, --type, route, or none; evidence: E1,E2 | none -->
 - **quality-reviewer**: <!-- run | skipped | blocked — trigger: default, --type, route, or none; evidence: E1,E3 | none -->
+- **architecture-reviewer**: <!-- run | skipped | blocked — trigger: module-boundary/shared-abstraction/dependency-direction/public-contract/broad-refactor signal, --type/--focus, or explicit non-trigger; evidence: E2 | none -->
 - **security-reviewer**: <!-- run | skipped | blocked — trigger: auth/input/secrets/network/filesystem/dependency signal, --type/--focus, or explicit non-trigger; evidence: E2 | none -->
 - **ux-reviewer**: <!-- run | skipped | blocked — trigger: UI/text/route/form/a11y signal, --type/--focus, or explicit non-trigger; evidence: E4 | none -->
 - **perf-reviewer**: <!-- run | skipped | blocked — trigger: query/loop/cache/batching/memory signal, --type/--focus, or explicit non-trigger; evidence: E5 | none -->
@@ -57,6 +58,7 @@
 <!-- Consistency guard: every role listed in constraints.roles must be `run` or `blocked` in the Role trigger matrix and must have a non-empty evidence map entry or an explicit blocked rationale. Any role marked `run` here must also appear in constraints.roles. -->
 - **spec-reviewer**: <!-- E1, E2 | none — reason -->
 - **quality-reviewer**: <!-- E1, E3 | none — reason -->
+- **architecture-reviewer**: <!-- E2 | none — not triggered -->
 - **security-reviewer**: <!-- E2 | none — not triggered -->
 - **ux-reviewer**: <!-- E4 | none — not triggered -->
 - **perf-reviewer**: <!-- E5 | none — not triggered -->
@@ -74,6 +76,7 @@
 <!-- Fill once per active or blocked reviewer role before judgment, and refresh after any Evidence Escalation Log entry, new evidence item, scope change, constraint change, or role-routing change. READY means the role has a trigger decision, allowed evidence IDs, scoped files/ranges/exclusions, constraints/focus flags, role-specific criteria basis, visible limitations, and a packet freshness check sourced only from this normalized input. BLOCKED means one or more packet fields are missing or stale; the role must not judge until the missing/stale field is normalized or recorded as unavailable. Skipped roles may use SKIPPED with an explicit non-trigger reason. -->
 - **spec-reviewer**: <!-- READY | BLOCKED | SKIPPED — packet fields present/missing/stale: trigger,evidence_ids,scope,constraints,criteria_basis,limitations,packet_freshness; reason -->
 - **quality-reviewer**: <!-- READY | BLOCKED | SKIPPED — packet fields present/missing/stale: trigger,evidence_ids,scope,constraints,criteria_basis,limitations,packet_freshness; reason -->
+- **architecture-reviewer**: <!-- READY | BLOCKED | SKIPPED — packet fields present/missing/stale: trigger,evidence_ids,scope,constraints,criteria_basis,limitations,packet_freshness; reason -->
 - **security-reviewer**: <!-- READY | BLOCKED | SKIPPED — packet fields present/missing/stale: trigger,evidence_ids,scope,constraints,criteria_basis,limitations,packet_freshness; reason -->
 - **ux-reviewer**: <!-- READY | BLOCKED | SKIPPED — packet fields present/missing/stale: trigger,evidence_ids,scope,constraints,criteria_basis,limitations,packet_freshness; reason -->
 - **perf-reviewer**: <!-- READY | BLOCKED | SKIPPED — packet fields present/missing/stale: trigger,evidence_ids,scope,constraints,criteria_basis,limitations,packet_freshness; reason -->
@@ -82,6 +85,7 @@
 <!-- For every READY or BLOCKED reviewer role, write the compact packet the lead hands to that role. Each packet must be copied from normalized fields above, not chat memory or hidden adapter state. Skipped roles may be listed as `none — <explicit non-trigger reason>`. -->
 - **spec-reviewer**: <!-- trigger=<matrix row>; evidence_ids=<role evidence map IDs>; scope=<files/ranges/exclusions>; constraints=<roles/focus/user_rules/inferred_rules/ignored_flags>; criteria_basis=<brief/plan/user spec/review criteria evidence IDs>; limitations=<evidence limitations/truncation/fetch failures>; packet_freshness=<current after latest evidence/scope/constraint/routing change> -->
 - **quality-reviewer**: <!-- trigger=<matrix row>; evidence_ids=<role evidence map IDs>; scope=<files/ranges/exclusions>; constraints=<roles/focus/user_rules/inferred_rules/ignored_flags>; criteria_basis=<quality checklist/code standards/verification evidence IDs>; limitations=<evidence limitations/truncation/fetch failures>; packet_freshness=<current after latest evidence/scope/constraint/routing change> -->
+- **architecture-reviewer**: <!-- trigger=<matrix row>; evidence_ids=<role evidence map IDs>; scope=<files/ranges/exclusions>; constraints=<roles/focus/user_rules/inferred_rules/ignored_flags>; criteria_basis=<existing architecture/pattern/shared-module evidence IDs>; limitations=<evidence limitations/truncation/fetch failures>; packet_freshness=<current after latest evidence/scope/constraint/routing change> -->
 - **security-reviewer**: <!-- trigger=<matrix row>; evidence_ids=<role evidence map IDs>; scope=<files/ranges/exclusions>; constraints=<roles/focus/user_rules/inferred_rules/ignored_flags>; criteria_basis=<security checklist/risk trigger evidence IDs>; limitations=<evidence limitations/truncation/fetch failures>; packet_freshness=<current after latest evidence/scope/constraint/routing change> -->
 - **ux-reviewer**: <!-- trigger=<matrix row>; evidence_ids=<role evidence map IDs>; scope=<files/ranges/exclusions>; constraints=<roles/focus/user_rules/inferred_rules/ignored_flags>; criteria_basis=<ux checklist/user-facing trigger evidence IDs>; limitations=<evidence limitations/truncation/fetch failures>; packet_freshness=<current after latest evidence/scope/constraint/routing change> -->
 - **perf-reviewer**: <!-- trigger=<matrix row>; evidence_ids=<role evidence map IDs>; scope=<files/ranges/exclusions>; constraints=<roles/focus/user_rules/inferred_rules/ignored_flags>; criteria_basis=<perf checklist/hot-path trigger evidence IDs>; limitations=<evidence limitations/truncation/fetch failures>; packet_freshness=<current after latest evidence/scope/constraint/routing change> -->
@@ -90,6 +94,7 @@
 <!-- Optional, advisory only. Record any harness-selected reviewer model/profile/tooling hints for auditability, but role capability hints must not affect routing, evidence IDs, evidence levels, verdict enums, approval rules, or the human review gate. Use capability language such as strongest reasoning available or standard reasoning/coding model; do not require provider-specific requirements. -->
 - **spec-reviewer**: <!-- strongest reasoning available | standard reasoning | not_applicable; reason -->
 - **quality-reviewer**: <!-- standard reasoning/coding model | strongest reasoning available; reason -->
+- **architecture-reviewer**: <!-- strongest reasoning available | standard reasoning | not_applicable; reason -->
 - **security-reviewer**: <!-- strongest reasoning available | standard reasoning | not_applicable; reason -->
 - **ux-reviewer**: <!-- standard reasoning | strongest reasoning available; reason -->
 - **perf-reviewer**: <!-- standard reasoning | strongest reasoning available; reason -->

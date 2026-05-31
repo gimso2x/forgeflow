@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Added `architecture-reviewer` to standalone review routing, templates, checklist guidance, and eval coverage so architecture consistency can be reviewed separately from local code quality.
+
 ### Fixed
 
 - Clarified release maintainer instructions so `VERSION` remains the source of truth while locally validated manifest version fields are synchronized in release commits before CI runs.

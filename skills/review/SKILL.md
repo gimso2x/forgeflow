@@ -5,7 +5,7 @@ version: 0.5.0
 author: gimso2x
 validate_prompt: |
   Must preserve exact-output and dry-run constraints when requested.
-  Must separate findings by reviewer role (spec, quality, security, ux, perf).
+  Must separate findings by reviewer role (spec, quality, architecture, security, ux, perf).
   Must not approve work with unresolved blockers or missing verification evidence.
   Must apply applicable review rubric (Spec Review or Quality Review) per role.
 ---
@@ -266,7 +266,7 @@ Role-specific triggers stay inline so operators can decide which passes to run q
 
 Before running roles, write a compact role routing rationale in `review-report.md`: list `Active roles` and `Skipped roles` explicitly. For every role that runs or is intentionally skipped, cite the route rule, `--type`/`--focus` flag, file-type heuristic, specialist profile, or explicit non-trigger that decided it. A missing skipped-role reason is a routing gap, not a harmless omission. This prevents standalone adapters and parallel reviewers from silently broadening or narrowing review scope after normalization.
 
-In standalone mode, also fill `normalized-input.md` → `Role trigger matrix` before any role begins. Each supported role must have one row marked `run`, `skipped`, or `blocked`, with the normalized evidence ID(s) or explicit non-trigger signal that drove the decision. Do not activate security/ux/perf from chat-only intuition; first normalize the path, diff hunk, artifact, or command output that shows the trigger. If the trigger signal is missing because fetching failed or evidence was truncated away, mark that role `blocked` or `skipped — missing trigger evidence` instead of silently running a weak pass.
+In standalone mode, also fill `normalized-input.md` → `Role trigger matrix` before any role begins. Each supported role must have one row marked `run`, `skipped`, or `blocked`, with the normalized evidence ID(s) or explicit non-trigger signal that drove the decision. Do not activate architecture/security/ux/perf from chat-only intuition; first normalize the path, diff hunk, artifact, or command output that shows the trigger. If the trigger signal is missing because fetching failed or evidence was truncated away, mark that role `blocked` or `skipped — missing trigger evidence` instead of silently running a weak pass.
 
 #### spec-reviewer
 
@@ -283,6 +283,16 @@ In standalone mode, also fill `normalized-input.md` → `Role trigger matrix` be
 **Checklist source**: `skills/review/references/role-checklists.md#quality-reviewer` (in addition to the Quality Review rubric).
 
 **Standalone-specific**: Without implementation-notes, the quality-reviewer works from the code/diff directly. Apply heuristics without referencing executor claims.
+
+#### architecture-reviewer
+
+**Trigger**: Runs when `--focus architecture` is specified, or when in-scope changes touch module boundaries, public interfaces, shared abstractions, framework/layering patterns, dependency direction, state ownership, or broad refactors.
+
+**Trigger evidence**: cite the role trigger matrix row and normalized evidence IDs for the architecture/module-boundary/shared-pattern signal before opening findings.
+
+**Checklist source**: `skills/review/references/role-checklists.md#architecture-reviewer`.
+
+**Review priority**: Prioritize existing patterns, shared module reuse, avoiding unnecessary new implementations, architectural consistency, then local code quality. For projects that explicitly prefer functional style, flag new classes, singletons, or service-class abstractions unless the normalized evidence shows an existing project convention requiring them.
 
 #### security-reviewer
 
@@ -314,17 +324,18 @@ In standalone mode, also fill `normalized-input.md` → `Role trigger matrix` be
 - small: quality-reviewer only, using **fast-review** depth (see Route-aware review behavior)
 - medium: quality-reviewer only (medium-full may add spec-reviewer)
 - high/epic: spec-reviewer (pass 1) → quality-reviewer (pass 2), sequential gates
-- Any route: security/ux/perf-reviewer triggered by file-type heuristics above
+- Any route: architecture/security/ux/perf-reviewer triggered by file-type heuristics above
 - Human review is a separate decision-partner gate, not an automated reviewer role. Apply the Human Review Gate below after automated review has produced `review-report.md`.
 
 **Standalone mode**:
 - No `--type` flag: quality-reviewer always runs. spec-reviewer runs if brief exists. Other roles triggered by file-type heuristics.
 - `--type spec`: spec-reviewer only
 - `--type quality`: quality-reviewer only
+- `--type architecture`: architecture-reviewer only
 - `--type security`: security-reviewer only
 - `--type ux`: ux-reviewer only
 - `--type perf`: perf-reviewer only
-- `--type all`: run all 5 roles regardless of file-type heuristics (security, ux, perf included even if no matching files detected)
+- `--type all`: run all 6 roles regardless of file-type heuristics (architecture, security, ux, perf included even if no matching files detected)
 - `--focus <role>`: alias for `--type <role>`
 - **`--type` and `--focus` combined**: `--type` wins. `--focus` is ignored with a warning. Do not run two conflicting role sets.
 
@@ -332,7 +343,7 @@ In standalone mode, also fill `normalized-input.md` → `Role trigger matrix` be
 
 When a harness supports role-specific model selection, bind by capability rather than provider name and keep the decision advisory:
 
-- spec-reviewer, security-reviewer, and unresolved cross-role conflict aggregation → strongest reasoning available.
+- spec-reviewer, architecture-reviewer, security-reviewer, and unresolved cross-role conflict aggregation → strongest reasoning available.
 - quality-reviewer → standard reasoning/coding model; upgrade to strongest reasoning for broad refactors, weak verification, or many interacting files.
 - ux-reviewer and perf-reviewer → standard reasoning model unless the normalized evidence shows accessibility, query-planning, caching, or large-data risk that needs specialist depth.
 
@@ -374,7 +385,7 @@ When two roles produce conflicting findings:
 
 Each finding includes the reviewer role and evidence classification:
 ```
-- **Role**: spec-reviewer | quality-reviewer | security-reviewer | ux-reviewer | perf-reviewer
+- **Role**: spec-reviewer | quality-reviewer | architecture-reviewer | security-reviewer | ux-reviewer | perf-reviewer
 - **Evidence Source**: <artifact/diff/command/source label>
 - **Evidence Level**: observed | reported | missing
 ```
@@ -388,7 +399,7 @@ The report includes a **Role Summary** section:
 - Cross-role conflicts: <count> (marked with ⚠)
 ```
 
-Each active role must also leave a role-pass record, even when it finds nothing: markdown claim marker (`role=<reviewer> scope=<artifact section/evidence IDs> at=<ISO8601>`), trigger rationale, checklist version used, criteria basis used for that role, scope/evidence IDs inspected, observed verification command(s) or explicit no-command rationale, limitations/truncation seen, an Independence Check (`PASS` only when the role used normalized/observed evidence rather than implementer self-report or chat-only claims), finding counts, and role verdict. Do not use chat-only role completion claims as aggregation evidence. Criteria basis is role-specific: spec-reviewer cites requirement/spec sources, quality-reviewer cites code-quality or verification criteria, and specialist roles cite their own checklist trigger and risk criteria. One role's criteria basis cannot substitute for another role's pass.
+Each active role must also leave a role-pass record, even when it finds nothing: markdown claim marker (`role=<reviewer> scope=<artifact section/evidence IDs> at=<ISO8601>`), trigger rationale, checklist version used, criteria basis used for that role, scope/evidence IDs inspected, observed verification command(s) or explicit no-command rationale, limitations/truncation seen, an Independence Check (`PASS` only when the role used normalized/observed evidence rather than implementer self-report or chat-only claims), finding counts, and role verdict. Do not use chat-only role completion claims as aggregation evidence. Criteria basis is role-specific: spec-reviewer cites requirement/spec sources, quality-reviewer cites code-quality or verification criteria, architecture-reviewer cites existing architecture/pattern/shared-module evidence, and specialist roles cite their own checklist trigger and risk criteria. One role's criteria basis cannot substitute for another role's pass.
 
 ## Human Review Gate
 

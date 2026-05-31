@@ -48,7 +48,7 @@ scope:        # boundaries for review judgment
   scope_source_map: {target: [evidence_id]}
 
 constraints:  # role/focus/risk/user restrictions
-  roles: [spec-reviewer | quality-reviewer | security-reviewer | ux-reviewer | perf-reviewer]
+  roles: [spec-reviewer | quality-reviewer | architecture-reviewer | security-reviewer | ux-reviewer | perf-reviewer]
   focus: [string]
   user_rules: [string]
   inferred_rules: [string]
@@ -162,6 +162,7 @@ Reviewer roles are independent lenses:
 
 - `spec-reviewer`: checks traceability to brief, acceptance criteria, intended behavior, and planned scope.
 - `quality-reviewer`: checks maintainability, simplicity, verification quality, and residual risk.
+- `architecture-reviewer`: checks existing pattern compliance, shared-module reuse, unnecessary new implementations, layer/dependency consistency, public contracts, and project-level architectural rules.
 - `security-reviewer`: checks auth, authorization, secrets, input validation, dependency, filesystem, and network boundaries.
 - `ux-reviewer`: checks user-facing text, flows, accessibility, forms, loading/error states, and interaction clarity.
 - `perf-reviewer`: checks query patterns, loops, batching, caching, memory pressure, and large-data behavior.
@@ -191,19 +192,20 @@ Cross-role conflicts stay visible. The report must keep both findings, mark the 
 - Pipeline `small`: quality-reviewer with fast-review depth unless risk triggers escalation.
 - Pipeline `medium`: quality-reviewer; medium-full may add spec-reviewer when contract-first traceability exists.
 - Pipeline `high`/`epic`: spec-reviewer pass before quality-reviewer pass; quality does not run until spec is approved.
-- Standalone default: quality-reviewer always runs; spec-reviewer runs when a brief/spec exists or can be inferred; security/ux/perf run when requested or triggered by scoped evidence.
+- Standalone default: quality-reviewer always runs; spec-reviewer runs when a brief/spec exists or can be inferred; architecture/security/ux/perf run when requested or triggered by scoped evidence.
 - `--type <role>` narrows to the specified reviewer role.
 - `--type all` runs all reviewer roles.
 - `--focus <role>` is an alias unless `--type` is also present; `--type` wins and the ignored focus is recorded.
 
-Adapter source must never override these routing rules after normalization. The canonical `review-report.md` records both `Active roles` and `Skipped roles`; every skipped supported role needs a reason such as route depth, `--type` narrowing, file-type non-trigger, or unavailable evidence. Silent omission of a role is treated as an incomplete routing record. Security, UX, and performance roles may be triggered only from normalized evidence or an explicit user flag; if the apparent trigger exists only in chat context or was lost to truncation/fetch failure, record `blocked` or `skipped — missing trigger evidence` in the role trigger matrix rather than broadening review scope invisibly.
+Adapter source must never override these routing rules after normalization. The canonical `review-report.md` records both `Active roles` and `Skipped roles`; every skipped supported role needs a reason such as route depth, `--type` narrowing, file-type non-trigger, or unavailable evidence. Silent omission of a role is treated as an incomplete routing record. Architecture, security, UX, and performance roles may be triggered only from normalized evidence or an explicit user flag; if the apparent trigger exists only in chat context or was lost to truncation/fetch failure, record `blocked` or `skipped — missing trigger evidence` in the role trigger matrix rather than broadening review scope invisibly.
 
 ## Role model hints
 
 Harnesses that can choose models per role may use capability-based role model hints, but they remain adapter hints rather than review semantics:
 
-- spec-reviewer, security-reviewer, and cross-role conflict aggregation prefer the strongest reasoning available.
+- spec-reviewer, architecture-reviewer, security-reviewer, and cross-role conflict aggregation prefer the strongest reasoning available.
 - quality-reviewer can use a standard reasoning/coding model, escalating to strongest reasoning for broad refactors, weak verification, or many interacting files.
+- architecture-reviewer should use the strongest reasoning available when normalized evidence includes module-boundary, public-contract, dependency-direction, or broad-refactor risk.
 - ux-reviewer and perf-reviewer can use a standard reasoning model unless normalized evidence shows accessibility, query-planning, caching, or large-data risk that needs specialist depth.
 
 Adapters may record non-default role/model assignments in adapter notes or role-pass records for auditability. Model choice must not change role routing, role evidence maps, evidence levels, verdict enums, approval rules, or the human review gate. There is no central model database in the review contract.

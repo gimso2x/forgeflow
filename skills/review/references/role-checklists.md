@@ -22,12 +22,13 @@ Before starting a role pass, the lead reviewer must hand the role a compact **ro
 
 The role-pass record in `review-report.md` must echo that packet by citing the trigger decision, criteria basis used, evidence IDs inspected, limitations seen, packet freshness, and any Evidence Escalation Log entry created. If the packet is missing, stale, or relies on chat-only/hidden adapter state, the role records `blocked: missing role input packet` rather than proceeding.
 
-Role criteria are not interchangeable. A spec-reviewer cannot approve from passing tests alone without a requirement/spec trace; a quality-reviewer cannot approve from requirement satisfaction alone without direct code/verification quality evidence; security/ux/perf reviewers cannot borrow spec or quality approval when their trigger risk criteria lack normalized evidence.
+Role criteria are not interchangeable. A spec-reviewer cannot approve from passing tests alone without a requirement/spec trace; a quality-reviewer cannot approve from requirement satisfaction alone without direct code/verification quality evidence; architecture/security/ux/perf reviewers cannot borrow spec or quality approval when their trigger risk criteria lack normalized evidence.
 
 Before judgment, confirm the role's `role input packet readiness` row in `normalized-input.md`. Only `READY` roles may produce approval-grade judgments. `BLOCKED` roles must record `blocked: missing role input packet` with the missing field names; `SKIPPED` roles must remain absent from active role-pass records except for the routing rationale summary.
 
 - `spec-reviewer`: cite the exact requirement source (`brief.md`, `plan.md` Design Intent/Review Criteria, user-provided spec, or normalized standalone brief) and the implementation evidence that satisfies or violates it.
 - `quality-reviewer`: cite directly observed code, diff hunks, metrics, or verification output. Executor claims from `implementation-notes.md` are reported evidence until independently checked.
+- `architecture-reviewer`: cite the existing pattern, module boundary, shared abstraction, dependency direction, public contract, or project rule used as the architectural baseline. If baseline evidence is missing, mark it as missing rather than inventing a preferred architecture.
 - `security-reviewer`: cite the trust boundary, data flow, secret/auth surface, dependency change, or input path under review. If exploitability cannot be confirmed from available evidence, mark confidence and missing evidence explicitly.
 - `ux-reviewer`: cite user-facing text, UI state, route/page, form, accessibility attribute, or screenshot-equivalent source when available. Do not infer unseen UI behavior from code names alone.
 - `perf-reviewer`: cite the hot path, query/loop/cache boundary, payload size, or benchmark/trace evidence. If no runtime measurement exists, classify the concern as static evidence and record measurement as missing evidence when needed.
@@ -69,6 +70,27 @@ Use in addition to the Quality Review rubric.
 - ☐ Verification evidence matches the stated success criteria.
 - ☐ Unrelated cleanup/refactor was not mixed into the task.
 - Finding categories: `assumption-risk`, `overengineering`, `scope-creep`, `unverified-success`, `drive-by-refactor`.
+
+## architecture-reviewer
+
+Review priority order:
+
+1. Existing pattern compliance
+2. Shared/common module reuse
+3. Avoiding unnecessary new implementations
+4. Architectural consistency
+5. Local code quality
+
+Checklist:
+
+- ☐ Existing project patterns are identified before judging the change
+- ☐ Shared utilities/modules are reused instead of duplicated locally
+- ☐ No unnecessary new implementation, abstraction, framework, or dependency was introduced
+- ☐ Layer boundaries and dependency direction remain consistent with the repo
+- ☐ Public contracts, file organization, and naming align with adjacent modules
+- ☐ State ownership and side effects remain localized and traceable
+- ☐ Functional style is preferred when the project rules require it
+- ☐ No new classes, singletons, or service-class abstractions were introduced unless existing architecture explicitly requires them
 
 ## security-reviewer
 
