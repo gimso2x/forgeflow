@@ -83,7 +83,7 @@ The agent must **stop and wait for user input** when any of these occur, even un
 **Artifacts before code.** At every stage boundary and during execute:
 
 1. Write or update the stage artifact on disk
-2. Update `checkpoint.md` (`Current Stage`, `Status`, `Active Task`, `Next Action`, `Latest Artifacts`)
+2. Update `checkpoint.md` (`Current Stage`, `Status`, `Active Task`, `Next Action`, `Latest Artifacts`, and `Handoff Boundary`)
 3. Only then edit application code or invoke the next stage
 
 Never start implementation while `plan.md` is missing, `run-ledger.md` scaffolds are absent, or `checkpoint.md` still points at a prior stage.
@@ -99,6 +99,8 @@ Keep stage boundaries explicit. Each stage owns a small artifact set and a narro
 - **ship** — owns `ship-summary.md`, terminal checkpoint state, and selected branch/worktree disposition. Allowed posture: final verification, changelog/handoff checks, explicit merge/PR/keep/discard flow. Forbidden: deleting unrelated dirty files, changing external automation, bypassing unresolved human-review decisions.
 
 If a stage needs an action listed as forbidden for that stage, stop at the boundary, record the blocker or requested handoff in `checkpoint.md`, and invoke the correct next stage instead of doing the work inline.
+
+`checkpoint.md` must make ownership transfers explicit in `Handoff Boundary`: current owner, next owner, handoff reason, and any forbidden action being delegated. This keeps thin adapters and occasional lead/member work from silently changing which stage owns product edits, review verdicts, or ship disposition.
 
 ### Per-stage exit checklist
 

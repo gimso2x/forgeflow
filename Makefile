@@ -272,6 +272,9 @@ validate-context-resume:
 	@grep -Fq "Checkpoint-first" skills/_shared/context-resume.md || { echo "ERROR: context-resume rules must keep checkpoint-first guidance"; exit 1; }
 	@grep -Fq "No default full re-read" skills/_shared/context-resume.md || { echo "ERROR: context-resume rules must guard against full artifact rereads"; exit 1; }
 	@grep -Fq "Minimum Read Set" templates/checkpoint.md || { echo "ERROR: checkpoint template must expose a Minimum Read Set for context refresh resume"; exit 1; }
+	@grep -Fq "Handoff Boundary" templates/checkpoint.md || { echo "ERROR: checkpoint template must expose stage handoff boundary ownership"; exit 1; }
+	@grep -Fq "Handoff Boundary" skills/_shared/automation.md || { echo "ERROR: automation rules must require checkpoint handoff boundary ownership"; exit 1; }
+	@grep -Fq "forbidden-action delegation" README.md || { echo "ERROR: README context refresh docs must mention checkpoint handoff boundary ownership"; exit 1; }
 	@echo "OK: Context refresh/resume guidance is wired into core skills and checkpoint template"
 
 validate-adapter-config:

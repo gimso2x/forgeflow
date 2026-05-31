@@ -30,6 +30,13 @@
 ## Blockers
 <!-- List active blockers or "none" -->
 
+## Handoff Boundary
+<!-- Record stage ownership before crossing a boundary. -->
+<!-- Current owner: clarify | plan | execute | review | ship | long-run -->
+<!-- Next owner: clarify | plan | execute | review | ship | long-run | none -->
+<!-- Handoff reason: normal stage exit | artifact-only repair | auto-break | human decision | blocked -->
+<!-- Forbidden-action handoff: name any action the current stage must NOT perform and the stage that owns it, or "none". -->
+
 ## Minimum Read Set
 <!-- On resume: read these artifacts/sections before expanding further. See _shared/context-resume.md -->
 <!-- Example: checkpoint (this file) → run-ledger active task → implementation-notes Reader Summary → plan Task N section -->

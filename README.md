@@ -63,7 +63,7 @@ Claude/Codex의 `/forgeflow:clarify` 등과 동일한 스킬입니다. 매핑은
 
 ### Context efficiency / refresh resume
 
-ForgeFlow는 artifact-first를 유지하면서 adapter-selected context refresh 후 재개 비용을 줄입니다. stage 경계 또는 checkpoint 갱신 직후에 context refresh가 안전합니다. 재개 시 `checkpoint.md` → `run-ledger.md` → `implementation-notes.md` 요약 → 필요한 섹션만 읽습니다. 어댑터별 명령 힌트는 [skills/_shared/context-resume.md](skills/_shared/context-resume.md)에만 둡니다.
+ForgeFlow는 artifact-first를 유지하면서 adapter-selected context refresh 후 재개 비용을 줄입니다. stage 경계 또는 checkpoint 갱신 직후에 context refresh가 안전합니다. 재개 시 `checkpoint.md` → `run-ledger.md` → `implementation-notes.md` 요약 → 필요한 섹션만 읽습니다. `checkpoint.md`의 `Handoff Boundary`는 현재 stage owner, 다음 owner, handoff reason, forbidden-action delegation을 기록해 역할/도구 경계가 refresh나 adapter 전환 중 흐려지지 않게 합니다. 어댑터별 명령 힌트는 [skills/_shared/context-resume.md](skills/_shared/context-resume.md)에만 둡니다.
 
 ### 공통 프로젝트 컨텍스트
 
