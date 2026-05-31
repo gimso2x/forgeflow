@@ -205,7 +205,7 @@ make usage-audit
 - **When:** high/epic, 승인된 `plan.md`, 독립 파일 스코프의 step
 - **Prompts:** `skills/execute/references/*.md`
 - **Not a substitute for** `/forgeflow:review` — stage review는 여전히 필수
-- **Claim marker:** subagent/parallel pass를 시작하기 전에 `run-ledger.md`의 해당 task에 `Claim Marker: role=<...> scope=<...> at=<ISO8601>`를 기록합니다. Direct sequential controller work는 `Claim Marker: none`을 사용합니다.
+- **Claim marker:** subagent/parallel pass를 시작하기 전에 `run-ledger.md`의 해당 task에 `Claim Marker: role=<...> scope=<...> at=<ISO8601>`를 기록합니다. Marker 기록 후 같은 task row를 다시 읽어 role/scope/timestamp가 그대로인지 확인한 뒤 진행합니다. 다른 claim이 보이면 덮어쓰지 말고 controller handoff로 중단합니다. Direct sequential controller work는 `Claim Marker: none`을 사용합니다.
 
 자세한 절차는 [`skills/execute/SKILL.md`](skills/execute/SKILL.md)의 Subagent Per-Task Loop와 [`skills/forgeflow/SKILL.md`](skills/forgeflow/SKILL.md)의 Review depth by route를 참고하세요.
 

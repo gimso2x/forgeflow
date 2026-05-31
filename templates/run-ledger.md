@@ -36,6 +36,7 @@
 <!-- worker = controller or direct implementation; specialist = delegated subagent -->
 <!-- spec-reviewer / quality-reviewer = execute-stage micro-review only (high/epic) -->
 <!-- Claim markers are markdown state, not chat-only claims. Record them before any delegated or parallel pass touches files/sections. -->
+<!-- Claim markers are atomic at the artifact level: write the marker, re-read this task row, and proceed only if the row still names the same role/scope/timestamp. If another claim appears, stop and hand control back to the controller instead of racing or overwriting it. -->
 <!-- Claim marker format: role=<worker|specialist|spec-reviewer|quality-reviewer> scope=<repo paths or artifact section> at=<ISO8601> -->
 
 ## Gate Results
