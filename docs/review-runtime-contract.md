@@ -155,6 +155,8 @@ A role finding must cite:
 - side effect of the proposed remediation
 - disposition and disposition rationale when applicable
 
+Every role pass, including passes with zero findings, must leave a compact role-pass record in `review-report.md` so the lead can audit what was inspected without reading chat logs. The record includes active role, checklist version, reviewed scope/evidence IDs, verification command(s) observed or reason none ran, limitations, finding counts, and the role verdict. Chat-only role completion claims are not sufficient evidence.
+
 Cross-role conflicts stay visible. The report must keep both findings, mark the conflict as requiring human decision, and avoid silently choosing a winner.
 
 ## Role routing rules

@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Standalone review provenance now records source classification rationale so adapters must explain input-type selection and ambiguity handling before normalization.
 - Review role summaries now record the exact role checklist version used, with advisory validation guarding the field against template drift.
 - Review skill now carries the inspection-only tool posture inline, with validation guarding that code/product fixes are handed back to execute.
+- Role-based review now requires per-role pass records, including zero-finding passes, so aggregation depends on artifacted scope/evidence/verification/limitations instead of chat-only completion claims.
 
 ## [1.9.3] - 2026-05-31
 
