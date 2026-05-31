@@ -333,6 +333,8 @@ validate-advisory-contract:
 	@grep -Fq "Normalization Gate" templates/review-report.md || { echo "ERROR: review report template must surface standalone normalization gate status"; exit 1; }
 	@grep -Fq "Evidence requirements source" templates/review-report.md || { echo "ERROR: review report template must point to role evidence requirements"; exit 1; }
 	@grep -Fq "Review tool posture" skills/review/SKILL.md || { echo "ERROR: review skill must document inspection-only tool posture"; exit 1; }
+	@grep -Fq "role_reassignment_policy" templates/normalized-input.md || { echo "ERROR: normalized input template must guard delegated reviewer role reassignment"; exit 1; }
+	@grep -Fq "members cannot create additional reviewer roles" skills/review/SKILL.md || { echo "ERROR: review skill must keep delegated reviewer role creation lead-only"; exit 1; }
 	@grep -Fq "fetching declared review input through read-only commands" skills/review/SKILL.md || { echo "ERROR: review skill must keep external evidence fetches read-only"; exit 1; }
 	@grep -Fq "issue comments, PR reviews, approvals, labels, CI dispatch, deploys" skills/review/SKILL.md || { echo "ERROR: review skill must forbid remote review-side mutations"; exit 1; }
 	@grep -Fq "hand it back to execute" skills/review/SKILL.md || { echo "ERROR: review skill must hand code/product fixes back to execute"; exit 1; }
