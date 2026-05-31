@@ -135,6 +135,7 @@ Standalone review creates a synthetic task directory:
 - `constraints`: role, focus, exclusions, and user rules
 - `role trigger matrix`: every supported reviewer role marked `run`, `skipped`, or `blocked`, with the normalized evidence ID(s), route rule, explicit flag, or explicit non-trigger signal that made the routing decision
 - `role evidence map`: every active reviewer role mapped to the evidence IDs it may use, or `none — <reason>` when blocked/not triggered
+- `adapter handoff checklist`: source classified, fetch reproduced, normalization complete, limitations visible, and canonical review ownership recorded as `PASS`/`FAIL` before reviewer judgment begins
 
 `review-report.md` remains the single review result artifact. Adapter-specific reports are not allowed.
 

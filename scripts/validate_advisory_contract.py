@@ -10,7 +10,7 @@ checks = {
     'skills/_shared/automation.md': ['Stage artifact/tool boundary catalog', 'clarify', 'plan', 'execute', 'review', 'ship', 'product code edits', 'Code findings hand back to execute'],
     'templates/brief.md': ['Route Rationale', 'Budget Note', 'Suggested Next Skill', 'Suggested specialists'],
     'templates/review-report.md': ['Evidence Source', 'Evidence Level', 'observed | reported | missing', 'Checklist Version', 'role-pass record', 'Chat-only completion claims are not evidence', 'Normalization Gate', 'Role routing rationale', 'Role evidence map', 'Active roles', 'Skipped roles', 'Trigger Rationale', 'Claim Marker'],
-    'templates/normalized-input.md': ['brief_present', 'evidence_present_or_blocked', 'scope_explicit', 'constraints_explicit', 'limitations_visible', 'role evidence map', 'stable evidence IDs', 'fetch_status', 'limitations', 'Role trigger matrix', 'run | skipped | blocked'],
+    'templates/normalized-input.md': ['brief_present', 'evidence_present_or_blocked', 'scope_explicit', 'constraints_explicit', 'limitations_visible', 'role evidence map', 'stable evidence IDs', 'fetch_status', 'limitations', 'Role trigger matrix', 'run | skipped | blocked', 'adapter handoff checklist', 'source_classified', 'fetch_reproduced', 'normalization_complete', 'canonical_review_ownership'],
     'templates/plan.md': ['Execution Pattern', 'Applied Evolution Rules'],
     'templates/run-ledger.md': ['Claim Marker', 'role=<worker|specialist|spec-reviewer|quality-reviewer> scope=<repo paths or artifact section> at=<ISO8601>', 'not chat-only claims'],
     'docs/advisory-guidelines.md': ['Route Budget Guide', 'small:', 'medium:', 'high:', 'epic:', 'Non-goals'],

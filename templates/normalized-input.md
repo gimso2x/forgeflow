@@ -61,3 +61,11 @@
 - **scope_explicit**: <!-- PASS | FAIL -->
 - **constraints_explicit**: <!-- PASS | FAIL -->
 - **limitations_visible**: <!-- PASS | FAIL; truncation, auth failures, sampling, excluded paths, and ignored flags are listed above -->
+
+## adapter handoff checklist
+<!-- Complete before reviewer judgment. If any item is FAIL, the lead reviewer blocks approval unless the limitation is explicitly narrowed by a human. -->
+- **source_classified**: <!-- PASS | FAIL; input-source.md explains detected type and ambiguity outcome -->
+- **fetch_reproduced**: <!-- PASS | FAIL; every evidence ID maps to a command/API/source label -->
+- **normalization_complete**: <!-- PASS | FAIL; brief/evidence/scope/constraints are filled above -->
+- **limitations_visible**: <!-- PASS | FAIL; failed/partial/truncated/missing evidence remains visible -->
+- **canonical_review_ownership**: <!-- PASS | FAIL; no adapter-specific verdict/report/auto-approval path -->

@@ -115,6 +115,8 @@ Before reviewer roles begin, fill the template's **role evidence map**. Map ever
 
 Before any reviewer role begins, complete the template's **normalization gate**. If `brief_present`, `evidence_present_or_blocked`, `scope_explicit`, `constraints_explicit`, or `limitations_visible` is `FAIL`, stop with `blocked` and record the missing provenance in `review-report.md`; do not let reviewer roles fill gaps by assumption.
 
+Before reviewer judgment, also complete the template's **adapter handoff checklist**. Mark `source_classified`, `fetch_reproduced`, `normalization_complete`, `limitations_visible`, and `canonical_review_ownership` as `PASS` or `FAIL`. Any `FAIL` blocks approval unless a human explicitly narrows the review scope and records the limitation; adapters must not compensate by writing a parallel verdict or report.
+
 If `.forgeflow/` doesn't exist, create it. Do not initialize a full ForgeFlow workspace — only the task directory and its files.
 
 ### Standalone constraints
