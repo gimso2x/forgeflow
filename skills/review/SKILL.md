@@ -113,6 +113,8 @@ Create `normalized-input.md` from `templates/normalized-input.md`. It records th
 
 Before reviewer roles begin, fill the template's **role evidence map**. Map every active reviewer role to the normalized evidence IDs it may cite; for inactive or blocked roles, write `none — <reason>`. Roles must not cite chat-only or unnormalized evidence. If a role needs additional material, add it as a new evidence item in `normalized-input.md` first, including source, fetch status, evidence level, and limitation/truncation notes, then mirror its provenance in `input-source.md` Evidence Source Map.
 
+Before any delegated or parallel reviewer pass begins, fill the template's **review ownership plan**. Record exactly one lead reviewer for normalization, role routing, aggregation, conflict visibility, and the human gate; record each member assignment with one reviewer role, evidence/scope IDs, claim marker, and writable report section. If no delegation is used, write `member_assignments: none — single lead review`. Any missing lead, duplicate aggregation owner, unmanaged child-work allowance, or product-mutation allowance blocks approval until corrected.
+
 Before any reviewer role begins, complete the template's **normalization gate**. If `brief_present`, `evidence_present_or_blocked`, `scope_explicit`, `constraints_explicit`, or `limitations_visible` is `FAIL`, stop with `blocked` and record the missing provenance in `review-report.md`; do not let reviewer roles fill gaps by assumption.
 
 Before reviewer judgment, also complete the template's **adapter handoff checklist**. Mark `source_classified`, `fetch_reproduced`, `normalization_complete`, `limitations_visible`, and `canonical_review_ownership` as `PASS` or `FAIL`. Any `FAIL` blocks approval unless a human explicitly narrows the review scope and records the limitation; adapters must not compensate by writing a parallel verdict or report.
@@ -427,6 +429,7 @@ Write `review-report.md` (schema: review-report/v2, from `templates/review-repor
 - Reviewer (role or identifier)
 - Findings with severity (blocker | major | minor | nit), priority (p1 | p2 | p3 | p4), category (spec-compliance | quality | maintainability | risk | security), Criteria Basis, Evidence Source, Evidence Level (`observed | reported | missing`), Side Effect, Why This Remediation, Disposition, and Disposition Rationale when needed
 - Reviewer Role Summary with checklist source, exact `Checklist Version`, evidence requirements source, per-role verdict counts, and cross-role conflict count when role-based review runs
+- Review ownership plan citation with lead reviewer, member assignments, aggregation owner, child-work policy, and product-mutation policy when standalone or delegated review runs
 - Role-pass records for every active role, including zero-finding passes, with markdown claim marker, inspected scope/evidence, observed verification or no-command rationale, limitations, Independence Check, finding counts, and role verdict
 - Spec Compliance checklist (for spec review)
 - Quality Assessment checklist (for quality review)

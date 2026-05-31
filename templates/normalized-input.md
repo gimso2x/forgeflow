@@ -54,6 +54,15 @@
 - **ux-reviewer**: <!-- E4 | none — not triggered -->
 - **perf-reviewer**: <!-- E5 | none — not triggered -->
 
+## review ownership plan
+<!-- Fill before any delegated or parallel reviewer pass starts. This keeps team-mode absorption declarative: one lead owns aggregation, each member owns at most one pass, and no role may spawn unmanaged child work or mutate product files. -->
+- **lead_reviewer**: <!-- identifier or role responsible for normalization, role routing, aggregation, conflicts, and human gate -->
+- **member_assignments**:
+  - <!-- role=<reviewer> scope=<artifact section/evidence IDs> claim_marker=<role=... scope=... at=<ISO8601>> writes=<review-report section only> -->
+- **aggregation_owner**: <!-- must match lead_reviewer -->
+- **child_work_policy**: <!-- no unmanaged child work; evidence gaps use Evidence Escalation Log -->
+- **product_mutation_policy**: <!-- forbidden during review; findings hand back to execute -->
+
 ## normalization gate
 <!-- Complete this gate before any reviewer role starts. If any item is FAIL, review verdict is blocked until the missing provenance is fixed or explicitly recorded as unavailable. -->
 - **brief_present**: <!-- PASS | FAIL -->

@@ -135,6 +135,7 @@ Standalone review creates a synthetic task directory:
 - `constraints`: role, focus, exclusions, and user rules
 - `role trigger matrix`: every supported reviewer role marked `run`, `skipped`, or `blocked`, with the normalized evidence ID(s), route rule, explicit flag, or explicit non-trigger signal that made the routing decision
 - `role evidence map`: every active reviewer role mapped to the evidence IDs it may use, or `none — <reason>` when blocked/not triggered
+- `review ownership plan`: the lead reviewer, any member assignments, aggregation owner, child-work policy, and product-mutation policy recorded before delegated or parallel reviewer passes start
 - `adapter handoff checklist`: source classified, fetch reproduced, normalization complete, limitations visible, and canonical review ownership recorded as `PASS`/`FAIL` before reviewer judgment begins
 
 `review-report.md` remains the single review result artifact. Adapter-specific reports are not allowed.
@@ -285,6 +286,7 @@ When a future adapter or operator maps review work onto multiple agents, keep th
 - **Lead role**: owns input normalization, role routing, aggregation into `review-report.md`, cross-role conflict visibility, and the final human-gate recommendation.
 - **Member role**: owns exactly one delegated reviewer pass or evidence-gathering pass and writes only the assigned artifact/section. Members must not create new task directories, launch additional members, change route selection, or mutate product files.
 - **Claim marker**: if concurrent review passes are used, record the claimed role and target section in markdown before work starts (for example, in `review-report.md` draft notes or a task-local checkpoint) using `role=<reviewer> scope=<artifact section/evidence IDs> at=<ISO8601>`. The final role-pass record preserves that marker. Do not rely on chat-only claims.
+- **Ownership plan**: standalone normalization records the lead reviewer, member assignments, aggregation owner, no-child-work policy, and product-mutation policy in `normalized-input.md` before any delegated/member pass starts. The report cites that plan so aggregation can be audited without chat logs.
 - **Merge rule**: unresolved disagreement between members is recorded as a cross-role conflict. The lead aggregates; it does not silently override member findings.
 - **Non-goal**: this is not a team scheduler, persistent queue, or autonomous task marketplace. It is a safety boundary for occasional parallel reviewer passes.
 
