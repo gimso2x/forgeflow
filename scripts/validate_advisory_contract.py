@@ -5,9 +5,12 @@ root = pathlib.Path('.')
 checks = {
     'skills/forgeflow/SKILL.md': ['intent:', 'inputs:', 'outputs:', 'dependencies:', 'docs/advisory-guidelines.md'],
     'skills/clarify/SKILL.md': ['intent:', 'inputs:', 'outputs:', 'dependencies:', '리뷰해줘', '계획 세워', 'suggested_next_skill', 'Keyword hints are advisory'],
+    'skills/review/SKILL.md': ['docs/review-runtime-contract.md', 'brief / evidence / scope / constraints', 'read-only except for review artifacts', 'observed evidence', 'Cross-role conflicts'],
     'templates/brief.md': ['Route Rationale', 'Budget Note', 'Suggested Next Skill', 'Suggested specialists'],
     'templates/plan.md': ['Execution Pattern', 'Applied Evolution Rules'],
     'docs/advisory-guidelines.md': ['Route Budget Guide', 'small:', 'medium:', 'high:', 'epic:', 'Non-goals'],
+    'docs/review-runtime-contract.md': ['Adapter-neutral core', 'Thin adapter responsibilities', 'Role separation', 'Stage tool catalog', 'Evidence levels', 'Human review gate', 'Minimal team-mode absorption', 'input-source.md', 'normalized-input.md'],
+    'README.md': ['docs/review-runtime-contract.md', 'adapter-neutral input normalization', 'input-source.md', 'normalized-input.md', 'adapter별 별도 report나 자동 승인 경로 없음'],
 }
 failures = []
 for raw_path, needles in checks.items():

@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Review runtime contract documented as a thin adapter-neutral layer with standalone input provenance, role-separated evidence handling, read-only tool permissions, evidence levels, human review gate requirements, and minimal team-mode guardrails.
+
+## [1.9.3] - 2026-05-31
+
+### Fixed
+
+- Synchronized release manifests to `VERSION` 1.9.3.
+
 ## [1.9.2] - 2026-05-29
 
 ### Added
@@ -819,7 +829,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI gate with GitHub Actions workflow generation
 - Agent preset installer (Claude + Codex)
 
-[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v1.9.1...HEAD
+[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v1.9.3...HEAD
+[1.9.3]: https://github.com/gimso2x/forgeflow/compare/v1.9.2...v1.9.3
+[1.9.2]: https://github.com/gimso2x/forgeflow/compare/v1.9.1...v1.9.2
 [1.9.1]: https://github.com/gimso2x/forgeflow/compare/v1.9.0...v1.9.1
 [1.9.0]: https://github.com/gimso2x/forgeflow/compare/v1.8.0...v1.9.0
 [1.8.0]: https://github.com/gimso2x/forgeflow/compare/v1.7.0...v1.8.0

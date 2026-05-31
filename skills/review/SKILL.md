@@ -199,6 +199,18 @@ constraints:
   - additional_rules: [...]  (user-provided or inferred)
 ```
 
+## Runtime contract
+
+ForgeFlow review follows `docs/review-runtime-contract.md`. Load that document before changing review routing, standalone input handling, role output, tool permissions, evidence handling, or adapter behavior.
+
+Contract obligations:
+- Adapters are thin: detect input, fetch raw evidence, normalize to `brief / evidence / scope / constraints`, write `input-source.md` and `normalized-input.md`, then invoke canonical review.
+- Adapters must not change verdict enums, auto-approve findings, hide fetch failures, rewrite role routing, create adapter-specific `review-report.md` ownership, or mutate product files.
+- Reviewer roles remain independent. Every finding must cite role, confidence, criteria basis, evidence source, evidence level, priority/severity, side effect, and disposition state when applicable.
+- Cross-role conflicts stay visible and require human decision; do not silently pick a winner.
+- Review is read-only except for review artifacts, telemetry, and checkpoint updates required by the review skill. If code changes are needed, hand back to execute.
+- Approval-grade review requires observed evidence for at least one relevant verification gate unless `review-report.md` explicitly records why no such gate exists.
+
 ## Reviewer Roles
 
 Standalone mode and high/epic pipeline mode use role-based review. Each role has its own checklist and produces findings independently. The review report aggregates all role findings.
@@ -536,6 +548,7 @@ All routes write a **single** `review-report.md` using `templates/review-report.
 
 ## Dependencies
 
+- `docs/review-runtime-contract.md` — Adapter-neutral review contract, role separation, and read-only tool surface
 - `skills/_shared/isolation.md` — Worktree detection and isolation handling (required for review inside worktrees)
 - `skills/_shared/preflight.md` — Checkpoint-first status analysis preflight
 - `skills/_shared/context-resume.md` — Context refresh/resume read discipline
