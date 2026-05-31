@@ -33,3 +33,11 @@
 - **user_rules**: <!-- exact user restrictions, or none -->
 - **inferred_rules**: <!-- route/input-derived constraints, large diff sampling, test-only focus, etc. -->
 - **ignored_flags**: <!-- e.g., --focus ignored because --type wins, or none -->
+
+## normalization gate
+<!-- Complete this gate before any reviewer role starts. If any item is FAIL, review verdict is blocked until the missing provenance is fixed or explicitly recorded as unavailable. -->
+- **brief_present**: <!-- PASS | FAIL -->
+- **evidence_present_or_blocked**: <!-- PASS | FAIL; PASS means at least one concrete evidence item exists OR fetch failure is recorded as blocked -->
+- **scope_explicit**: <!-- PASS | FAIL -->
+- **constraints_explicit**: <!-- PASS | FAIL -->
+- **limitations_visible**: <!-- PASS | FAIL; truncation, auth failures, sampling, excluded paths, and ignored flags are listed above -->

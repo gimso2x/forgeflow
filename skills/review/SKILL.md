@@ -108,6 +108,8 @@ Create `input-source.md` from `templates/input-source.md`. It records:
 
 Create `normalized-input.md` from `templates/normalized-input.md`. It records the 4-field structure (see Input Normalization below).
 
+Before any reviewer role begins, complete the template's **normalization gate**. If `brief_present`, `evidence_present_or_blocked`, `scope_explicit`, `constraints_explicit`, or `limitations_visible` is `FAIL`, stop with `blocked` and record the missing provenance in `review-report.md`; do not let reviewer roles fill gaps by assumption.
+
 If `.forgeflow/` doesn't exist, create it. Do not initialize a full ForgeFlow workspace — only the task directory and its files.
 
 ### Standalone constraints
@@ -199,6 +201,17 @@ constraints:
   - excluded_paths: [...]  (if --scope narrows)
   - additional_rules: [...]  (user-provided or inferred)
 ```
+
+### Normalization gate
+
+After writing `brief`, `evidence`, `scope`, and `constraints`, mark the `normalization gate` in `normalized-input.md`:
+- `brief_present`: `PASS` only when the review target is named and sourced.
+- `evidence_present_or_blocked`: `PASS` only when concrete evidence exists, or evidence fetching failed and the failure is recorded as a blocker.
+- `scope_explicit`: `PASS` only when included/excluded files, ranges, or URL bounds are explicit.
+- `constraints_explicit`: `PASS` only when active roles/focus and ignored/conflicting flags are explicit.
+- `limitations_visible`: `PASS` only when truncation, sampling, auth/fetch failures, excluded paths, and missing evidence are visible to reviewer roles.
+
+Any `FAIL` blocks review approval. Record the failed gate item as missing evidence rather than continuing with inferred content.
 
 ## Runtime contract
 

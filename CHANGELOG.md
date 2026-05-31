@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Review runtime contract now includes markdown-bound lead/member guardrails for occasional parallel reviewer passes without adding a persistent team scheduler.
 - Review adapters now have an explicit compliance checklist for source classification, reproducible fetch labels, complete normalization, visible limitations, and single canonical report ownership.
 - Execute subagent and parallel handoffs now require run-ledger claim markers with role, scope, and timestamp before delegated work starts.
+- Standalone review normalization now has an explicit pre-role gate so missing brief/evidence/scope/constraints/limitations block approval instead of being inferred by reviewer roles.
 
 ## [1.9.3] - 2026-05-31
 

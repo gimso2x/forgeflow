@@ -31,6 +31,7 @@ scope_boundary:
 - **Normalized Brief**: <!-- Auto-generated brief -->
 - **Scope**: <!-- Files/directories/commit range -->
 - **Constraints**: <!-- Review focus, excluded paths, additional rules -->
+- **Normalization Gate**: <!-- PASS | FAIL; summarize failed items from normalized-input.md -->
 
 ## 사용자용 요약 (Reader Summary)
 <!-- Summarize verdict, main findings, verification confidence, blockers, and next action in the user's language. -->

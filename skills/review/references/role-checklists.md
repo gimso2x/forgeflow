@@ -8,6 +8,8 @@ Checklist version: 2026-05-28
 
 Every role must anchor findings in the normalized `brief / evidence / scope / constraints` bundle and must label whether evidence is `observed`, `reported`, or `missing`. Do not let one role's evidence substitute for another role's checklist.
 
+Before starting a role pass, confirm the `normalization gate` in `normalized-input.md` is complete. A role may proceed only when brief, evidence/blocker, scope, constraints, and limitations are explicit; otherwise the role records `blocked: incomplete normalized input` instead of guessing missing provenance.
+
 - `spec-reviewer`: cite the exact requirement source (`brief.md`, `plan.md` Design Intent/Review Criteria, user-provided spec, or normalized standalone brief) and the implementation evidence that satisfies or violates it.
 - `quality-reviewer`: cite directly observed code, diff hunks, metrics, or verification output. Executor claims from `implementation-notes.md` are reported evidence until independently checked.
 - `security-reviewer`: cite the trust boundary, data flow, secret/auth surface, dependency change, or input path under review. If exploitability cannot be confirmed from available evidence, mark confidence and missing evidence explicitly.

@@ -318,6 +318,10 @@ validate-evals-fixtures:
 validate-advisory-contract:
 	@$(PYTHON) scripts/validate_advisory_contract.py
 	@grep -Fq "Evidence requirements by role" skills/review/references/role-checklists.md || { echo "ERROR: review role checklists must document evidence requirements by role"; exit 1; }
+	@grep -Fq "normalization gate" skills/review/SKILL.md || { echo "ERROR: review skill must require a standalone normalization gate before role passes"; exit 1; }
+	@grep -Fq "normalization gate" skills/review/references/role-checklists.md || { echo "ERROR: role checklists must block on incomplete normalized input"; exit 1; }
+	@grep -Fq "normalization gate" templates/normalized-input.md || { echo "ERROR: normalized input template must expose a reviewer preflight gate"; exit 1; }
+	@grep -Fq "Normalization Gate" templates/review-report.md || { echo "ERROR: review report template must surface standalone normalization gate status"; exit 1; }
 	@grep -Fq "Evidence requirements source" templates/review-report.md || { echo "ERROR: review report template must point to role evidence requirements"; exit 1; }
 	@grep -Fq "role별 evidence requirement" README.md || { echo "ERROR: README standalone review docs must mention role-specific evidence requirements"; exit 1; }
 validate-markdown-links:
