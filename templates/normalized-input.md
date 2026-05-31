@@ -62,6 +62,14 @@
 - **ux-reviewer**: <!-- READY | BLOCKED | SKIPPED — packet fields present/missing: trigger,evidence_ids,scope,constraints,limitations; reason -->
 - **perf-reviewer**: <!-- READY | BLOCKED | SKIPPED — packet fields present/missing: trigger,evidence_ids,scope,constraints,limitations; reason -->
 
+## role input packets
+<!-- For every READY or BLOCKED reviewer role, write the compact packet the lead hands to that role. Each packet must be copied from normalized fields above, not chat memory or hidden adapter state. Skipped roles may be listed as `none — <explicit non-trigger reason>`. -->
+- **spec-reviewer**: <!-- trigger=<matrix row>; evidence_ids=<role evidence map IDs>; scope=<files/ranges/exclusions>; constraints=<roles/focus/user_rules/inferred_rules/ignored_flags>; limitations=<evidence limitations/truncation/fetch failures> -->
+- **quality-reviewer**: <!-- trigger=<matrix row>; evidence_ids=<role evidence map IDs>; scope=<files/ranges/exclusions>; constraints=<roles/focus/user_rules/inferred_rules/ignored_flags>; limitations=<evidence limitations/truncation/fetch failures> -->
+- **security-reviewer**: <!-- trigger=<matrix row>; evidence_ids=<role evidence map IDs>; scope=<files/ranges/exclusions>; constraints=<roles/focus/user_rules/inferred_rules/ignored_flags>; limitations=<evidence limitations/truncation/fetch failures> -->
+- **ux-reviewer**: <!-- trigger=<matrix row>; evidence_ids=<role evidence map IDs>; scope=<files/ranges/exclusions>; constraints=<roles/focus/user_rules/inferred_rules/ignored_flags>; limitations=<evidence limitations/truncation/fetch failures> -->
+- **perf-reviewer**: <!-- trigger=<matrix row>; evidence_ids=<role evidence map IDs>; scope=<files/ranges/exclusions>; constraints=<roles/focus/user_rules/inferred_rules/ignored_flags>; limitations=<evidence limitations/truncation/fetch failures> -->
+
 ## review ownership plan
 <!-- Fill before any delegated or parallel reviewer pass starts. This keeps team-mode absorption declarative: one lead owns aggregation, each member owns at most one pass, and no role may spawn unmanaged child work or mutate product files. Member assignments are role claims, not a task scheduler: members must not create additional reviewer roles, reassign scope, or write outside their assigned review-report section. -->
 - **lead_reviewer**: <!-- identifier or role responsible for normalization, role routing, aggregation, conflicts, and human gate -->

@@ -11,11 +11,11 @@ checks = {
     'skills/_shared/automation.md': ['Stage artifact/tool boundary catalog', 'clarify', 'plan', 'execute', 'review', 'ship', 'product code edits', 'Code findings hand back to execute'],
     'templates/brief.md': ['Route Rationale', 'Budget Note', 'Suggested Next Skill', 'Suggested specialists'],
     'templates/review-report.md': ['Evidence Source', 'Evidence Level', 'observed | reported | missing', 'Checklist Version', 'role-pass record', 'Chat-only completion claims are not evidence', 'Normalization Gate', 'Role routing rationale', 'Role evidence map', 'Review ownership plan', 'Active roles', 'Skipped roles', 'Trigger Rationale', 'Claim Marker', 'Independence Check', 'Evidence Escalation Log', 'Requester Role', 'Approval Impact'],
-    'templates/normalized-input.md': ['brief_present', 'evidence_present_or_blocked', 'scope_explicit', 'constraints_explicit', 'limitations_visible', 'role evidence map', 'stable evidence IDs', 'unique within this file', 'fetch_status', 'limitations', 'ignored_flags', 'Role trigger matrix', 'run | skipped | blocked', 'role input packet readiness', 'READY | BLOCKED | SKIPPED', 'review ownership plan', 'lead_reviewer', 'member_assignments', 'aggregation_owner', 'child_work_policy', 'product_mutation_policy', 'adapter handoff checklist', 'source_classified', 'fetch_reproduced', 'normalization_complete', 'canonical_review_ownership'],
+    'templates/normalized-input.md': ['brief_present', 'evidence_present_or_blocked', 'scope_explicit', 'constraints_explicit', 'limitations_visible', 'role evidence map', 'stable evidence IDs', 'unique within this file', 'fetch_status', 'limitations', 'ignored_flags', 'Role trigger matrix', 'run | skipped | blocked', 'role input packet readiness', 'READY | BLOCKED | SKIPPED', 'role input packets', 'trigger=<matrix row>', 'evidence_ids=<role evidence map IDs>', 'review ownership plan', 'lead_reviewer', 'member_assignments', 'aggregation_owner', 'child_work_policy', 'product_mutation_policy', 'adapter handoff checklist', 'source_classified', 'fetch_reproduced', 'normalization_complete', 'canonical_review_ownership'],
     'templates/plan.md': ['Execution Pattern', 'Applied Evolution Rules'],
     'templates/run-ledger.md': ['Claim Marker', 'role=<worker|specialist|spec-reviewer|quality-reviewer> scope=<repo paths or artifact section> at=<ISO8601>', 'not chat-only claims'],
     'docs/advisory-guidelines.md': ['Route Budget Guide', 'small:', 'medium:', 'high:', 'epic:', 'Non-goals'],
-    'docs/review-runtime-contract.md': ['Adapter-neutral core', 'Thin adapter responsibilities', 'Adapter compliance checklist', 'Source classified', 'Fetch reproduced', 'Normalization complete', 'Limitations visible', 'Review ownership delegated', 'Role separation', 'Stage tool catalog', 'Evidence levels', 'Human review gate', 'Minimal team-mode absorption', 'Lead/member guardrails', 'Claim marker', 'Ownership plan', 'role=<reviewer> scope=<artifact section/evidence IDs> at=<ISO8601>', 'Non-goal', 'input-source.md', 'normalized-input.md', 'source classification rationale', 'role-pass record', 'Active roles', 'Skipped roles', 'Chat-only role completion claims', 'role evidence map', 'stable, unique evidence ID', 'fetch_status', 'ignored_flags', 'Evidence Source Map', 'role trigger matrix', 'missing trigger evidence', '.diff` / `.patch` file path', 'Independence Check', 'Evidence escalation log', 'hidden adapter state', 'role input packet'],
+    'docs/review-runtime-contract.md': ['Adapter-neutral core', 'Thin adapter responsibilities', 'Adapter compliance checklist', 'Source classified', 'Fetch reproduced', 'Normalization complete', 'Limitations visible', 'Review ownership delegated', 'Role separation', 'Stage tool catalog', 'Evidence levels', 'Human review gate', 'Minimal team-mode absorption', 'Lead/member guardrails', 'Claim marker', 'Ownership plan', 'role=<reviewer> scope=<artifact section/evidence IDs> at=<ISO8601>', 'Non-goal', 'input-source.md', 'normalized-input.md', 'source classification rationale', 'role-pass record', 'Active roles', 'Skipped roles', 'Chat-only role completion claims', 'role evidence map', 'stable, unique evidence ID', 'fetch_status', 'ignored_flags', 'Evidence Source Map', 'role trigger matrix', 'missing trigger evidence', '.diff` / `.patch` file path', 'Independence Check', 'Evidence escalation log', 'hidden adapter state', 'role input packet', 'role input packets'],
     'README.md': ['docs/review-runtime-contract.md', 'adapter-neutral input normalization', 'input-source.md', 'normalized-input.md', 'source classification rationale', 'role trigger matrix', 'review ownership plan', 'ignored flags', 'adapter별 별도 report나 자동 승인 경로 없음', '.diff`/`.patch` 파일', 'lead reviewer', 'member reviewer', 'unmanaged child work', 'role=<reviewer> scope=<artifact section/evidence IDs> at=<ISO8601>', 'Multi-harness 원칙', 'adapter-neutral core contract', 'hidden provider state', 'Evidence Escalation Log', 'role input packet'],
     'docs/adapter-config.md': ['Multi-harness routing invariants', 'Canonical stage contract first', 'Harness-specific code paths stay shallow', 'Artifact handoff is the boundary', 'Review adapters normalize before judging', 'Validation follows touched surface'],
 }
@@ -105,11 +105,12 @@ role_trigger_roles = [
 trigger_matrix_pos = normalized_input_template.find('### Role trigger matrix')
 role_evidence_map_pos = normalized_input_template.find('## role evidence map')
 role_packet_readiness_pos = normalized_input_template.find('## role input packet readiness')
+role_packets_pos = normalized_input_template.find('## role input packets')
 ownership_plan_pos = normalized_input_template.find('## review ownership plan')
 normalization_gate_pos = normalized_input_template.find('## normalization gate')
 adapter_handoff_pos = normalized_input_template.find('## adapter handoff checklist')
-if not (trigger_matrix_pos != -1 and role_evidence_map_pos != -1 and role_packet_readiness_pos != -1 and ownership_plan_pos != -1 and normalization_gate_pos != -1 and adapter_handoff_pos != -1 and trigger_matrix_pos < role_evidence_map_pos < role_packet_readiness_pos < ownership_plan_pos < normalization_gate_pos < adapter_handoff_pos):
-    failures.append('templates/normalized-input.md: role trigger matrix must appear before role evidence map, role input packet readiness, review ownership plan, normalization gate, and adapter handoff checklist')
+if not (trigger_matrix_pos != -1 and role_evidence_map_pos != -1 and role_packet_readiness_pos != -1 and role_packets_pos != -1 and ownership_plan_pos != -1 and normalization_gate_pos != -1 and adapter_handoff_pos != -1 and trigger_matrix_pos < role_evidence_map_pos < role_packet_readiness_pos < role_packets_pos < ownership_plan_pos < normalization_gate_pos < adapter_handoff_pos):
+    failures.append('templates/normalized-input.md: role trigger matrix must appear before role evidence map, role input packet readiness, role input packets, review ownership plan, normalization gate, and adapter handoff checklist')
 def section_between(text, start_marker, end_marker):
     start = text.find(start_marker)
     if start == -1:
@@ -119,7 +120,8 @@ def section_between(text, start_marker, end_marker):
 
 role_trigger_section = section_between(normalized_input_template, '### Role trigger matrix', '## role evidence map')
 role_evidence_section = section_between(normalized_input_template, '## role evidence map', '## role input packet readiness')
-role_packet_section = section_between(normalized_input_template, '## role input packet readiness', '## review ownership plan')
+role_packet_section = section_between(normalized_input_template, '## role input packet readiness', '## role input packets')
+role_packets_section = section_between(normalized_input_template, '## role input packets', '## review ownership plan')
 for role in role_trigger_roles:
     role_marker = f'**{role}**'
     if role_marker not in role_trigger_section:
@@ -128,12 +130,18 @@ for role in role_trigger_roles:
         failures.append(f'templates/normalized-input.md: role evidence map must include {role}')
     if role_marker not in role_packet_section:
         failures.append(f'templates/normalized-input.md: role input packet readiness must include {role}')
+    if role_marker not in role_packets_section:
+        failures.append(f'templates/normalized-input.md: role input packets must include {role}')
 if 'trigger:' not in role_trigger_section or 'evidence:' not in role_trigger_section:
     failures.append('templates/normalized-input.md: role trigger rows must preserve trigger and evidence fields')
 packet_required_fragments = ['READY | BLOCKED | SKIPPED', 'trigger,evidence_ids,scope,constraints,limitations']
 missing_packet_fragments = [fragment for fragment in packet_required_fragments if fragment not in role_packet_section]
 if missing_packet_fragments:
     failures.append(f'templates/normalized-input.md: role input packet readiness must preserve readiness enum and required packet fields {missing_packet_fragments}')
+packet_row_fragments = ['trigger=<matrix row>', 'evidence_ids=<role evidence map IDs>', 'scope=<files/ranges/exclusions>', 'constraints=<roles/focus/user_rules/inferred_rules/ignored_flags>', 'limitations=<evidence limitations/truncation/fetch failures>']
+missing_packet_row_fragments = [fragment for fragment in packet_row_fragments if fragment not in role_packets_section]
+if missing_packet_row_fragments:
+    failures.append(f'templates/normalized-input.md: role input packets must preserve concrete packet row fields {missing_packet_row_fragments}')
 automation_doc = (root / 'skills/_shared/automation.md').read_text(encoding='utf-8')
 stage_order = ['clarify', 'plan', 'execute', 'review', 'ship']
 stage_positions = []

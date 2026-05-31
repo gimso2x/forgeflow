@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Standalone review normalized input now records concrete role input packets after readiness, so reviewer roles receive trigger, evidence IDs, scope, constraints, and limitations from artifacts rather than hidden adapter state.
 - Standalone review evidence IDs are now explicitly required to be unique within `normalized-input.md`, with advisory validation guarding the template, skill, and runtime contract against ID-reuse drift.
 - Standalone review constraints now explicitly preserve ignored flags such as `--focus` losing to `--type`, and advisory validation guards that field across the normalized input contract.
 - Standalone review `input-source.md` Evidence Source Map now mirrors normalized evidence type/status/level so adapters and reviewer roles can detect provenance mismatches before judgment.
