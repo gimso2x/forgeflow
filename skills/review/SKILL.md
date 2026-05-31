@@ -242,7 +242,7 @@ Standalone mode and high/epic pipeline mode use role-based review. Each role has
 
 Role-specific triggers stay inline so operators can decide which passes to run quickly. The detailed checklist items and role-specific evidence requirements live in `skills/review/references/role-checklists.md`; load that reference before executing any role pass and cite the exact `Checklist version: YYYY-MM-DD` value in `review-report.md` as `Checklist Version`.
 
-Before running roles, write a compact role routing rationale in `review-report.md`: for every role that runs or is intentionally skipped, cite the route rule, `--type`/`--focus` flag, file-type heuristic, specialist profile, or explicit non-trigger that decided it. This prevents standalone adapters and parallel reviewers from silently broadening or narrowing review scope after normalization.
+Before running roles, write a compact role routing rationale in `review-report.md`: list `Active roles` and `Skipped roles` explicitly. For every role that runs or is intentionally skipped, cite the route rule, `--type`/`--focus` flag, file-type heuristic, specialist profile, or explicit non-trigger that decided it. A missing skipped-role reason is a routing gap, not a harmless omission. This prevents standalone adapters and parallel reviewers from silently broadening or narrowing review scope after normalization.
 
 #### spec-reviewer
 

@@ -169,7 +169,7 @@ Cross-role conflicts stay visible. The report must keep both findings, mark the 
 - `--type all` runs all reviewer roles.
 - `--focus <role>` is an alias unless `--type` is also present; `--type` wins and the ignored focus is recorded.
 
-Adapter source must never override these routing rules after normalization.
+Adapter source must never override these routing rules after normalization. The canonical `review-report.md` records both `Active roles` and `Skipped roles`; every skipped supported role needs a reason such as route depth, `--type` narrowing, file-type non-trigger, or unavailable evidence. Silent omission of a role is treated as an incomplete routing record.
 
 ## Stage tool catalog
 
