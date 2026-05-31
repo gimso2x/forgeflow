@@ -124,13 +124,13 @@ Standalone review creates a synthetic task directory:
 - commands/API labels executed, when available
 - fetch status: `success`, `partial`, `failed`, or `not_applicable`
 - missing or truncated evidence notes
-- an Evidence Source Map that ties each normalized evidence ID to its fetch command/API/source label, fetch status, and integrity
+- an Evidence Source Map that ties each normalized evidence ID to its fetch command/API/source label, normalized evidence type, fetch status, evidence level, and integrity
 - timestamp or run label
 
 `normalized-input.md` should be created from `templates/normalized-input.md` and must include:
 
 - `brief`: explicit or inferred review target
-- `evidence`: each evidence item with a stable ID, source, fetch status, evidence level, and truncation/missing-evidence limitation note
+- `evidence`: each evidence item with a stable ID, source, fetch status, evidence level, and truncation/missing-evidence limitation note; its type/status/level must match the corresponding `input-source.md` Evidence Source Map row
 - `scope`: files/ranges/content boundaries reviewed
 - `constraints`: role, focus, exclusions, and user rules
 - `role trigger matrix`: every supported reviewer role marked `run`, `skipped`, or `blocked`, with the normalized evidence ID(s), route rule, explicit flag, or explicit non-trigger signal that made the routing decision

@@ -70,7 +70,7 @@ missing_role_pass_fields = [field for field in role_pass_fields if field not in 
 if missing_role_pass_fields:
     failures.append(f'templates/review-report.md: missing explicit role-pass fields {missing_role_pass_fields}')
 input_source_template = (root / 'templates/input-source.md').read_text(encoding='utf-8')
-classification_fields = ['Source Classification Rationale', 'Why this type', 'Ambiguities considered', 'Ambiguity outcome', 'Evidence Source Map']
+classification_fields = ['Source Classification Rationale', 'Why this type', 'Ambiguities considered', 'Ambiguity outcome', 'Evidence Source Map', 'type=diff|file|artifact|url|command_output|reported_summary|missing', 'evidence_level=observed|reported|missing']
 missing_classification_fields = [field for field in classification_fields if field not in input_source_template]
 if missing_classification_fields:
     failures.append(f'templates/input-source.md: missing source classification fields {missing_classification_fields}')
