@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Review role input packets and role-pass records now carry a role-specific `criteria_basis`, preventing spec, quality, security, UX, or performance approvals from borrowing another role's criteria.
 - Standalone review ownership plans now require delegated member claim markers to be unique and read back from the artifact before reviewer work proceeds, blocking duplicate or unreadable role claims.
 - Standalone review normalized input now includes an Evidence Gap Register so missing, partial, sampled, or blocked evidence classes are visible to reviewer roles before scope/routing and approval decisions.
 - Standalone review ownership plans now include an explicit conflict policy so delegated reviewer disagreements stay visible in `review-report.md` and route to the Human Review Gate instead of being privately resolved.

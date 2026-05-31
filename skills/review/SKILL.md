@@ -384,7 +384,7 @@ The report includes a **Role Summary** section:
 - Cross-role conflicts: <count> (marked with ⚠)
 ```
 
-Each active role must also leave a role-pass record, even when it finds nothing: markdown claim marker (`role=<reviewer> scope=<artifact section/evidence IDs> at=<ISO8601>`), trigger rationale, checklist version used, scope/evidence IDs inspected, observed verification command(s) or explicit no-command rationale, limitations/truncation seen, an Independence Check (`PASS` only when the role used normalized/observed evidence rather than implementer self-report or chat-only claims), finding counts, and role verdict. Do not use chat-only role completion claims as aggregation evidence.
+Each active role must also leave a role-pass record, even when it finds nothing: markdown claim marker (`role=<reviewer> scope=<artifact section/evidence IDs> at=<ISO8601>`), trigger rationale, checklist version used, criteria basis used for that role, scope/evidence IDs inspected, observed verification command(s) or explicit no-command rationale, limitations/truncation seen, an Independence Check (`PASS` only when the role used normalized/observed evidence rather than implementer self-report or chat-only claims), finding counts, and role verdict. Do not use chat-only role completion claims as aggregation evidence. Criteria basis is role-specific: spec-reviewer cites requirement/spec sources, quality-reviewer cites code-quality or verification criteria, and specialist roles cite their own checklist trigger and risk criteria. One role's criteria basis cannot substitute for another role's pass.
 
 ## Human Review Gate
 
