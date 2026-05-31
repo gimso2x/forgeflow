@@ -81,13 +81,14 @@
 - **perf-reviewer**: <!-- standard reasoning | strongest reasoning available; reason -->
 
 ## review ownership plan
-<!-- Fill before any delegated or parallel reviewer pass starts. This keeps team-mode absorption declarative: exactly one lead owns aggregation, each member owns at most one pass, and no role may spawn unmanaged child work or mutate product files. Member assignments are role claims, not a task scheduler: members must not create additional reviewer roles, reassign scope, or write outside their assigned review-report section. -->
+<!-- Fill before any delegated or parallel reviewer pass starts. This keeps team-mode absorption declarative: exactly one lead owns aggregation, each member owns at most one pass, cross-role conflicts stay visible for human-gate decisions, and no role may spawn unmanaged child work or mutate product files. Member assignments are role claims, not a task scheduler: members must not create additional reviewer roles, reassign scope, resolve conflicts privately, or write outside their assigned review-report section. -->
 - **lead_reviewer**: <!-- exactly one identifier or role responsible for normalization, role routing, aggregation, conflicts, and human gate -->
 - **member_assignments**:
   - <!-- role=<reviewer> scope=<artifact section/evidence IDs> claim_marker=<role=... scope=... at=<ISO8601>> writes=<review-report section only> -->
 - **aggregation_owner**: <!-- must match lead_reviewer -->
 - **child_work_policy**: <!-- no unmanaged child work; evidence gaps use Evidence Escalation Log -->
 - **role_reassignment_policy**: <!-- lead-only; members cannot create/reassign roles or broaden scope -->
+- **conflict_policy**: <!-- unresolved cross-role conflicts stay in review-report.md and trigger Human Review Gate; lead aggregates but does not silently choose a winner -->
 - **product_mutation_policy**: <!-- forbidden during review; findings hand back to execute -->
 
 ## normalization gate

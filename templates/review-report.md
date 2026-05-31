@@ -84,6 +84,7 @@ scope_boundary:
 - Role evidence map: <!-- cite normalized-input.md role evidence map; active roles must use only listed evidence IDs or record newly normalized evidence first -->
 - Role input packet readiness: <!-- cite normalized-input.md role input packet readiness; active roles must be READY and current after the latest evidence/scope/constraint/routing change, or record blocked judgment -->
 - Review ownership plan: <!-- cite normalized-input.md review ownership plan: exactly one lead reviewer, member assignments, aggregation owner, child-work/product-mutation policy -->
+- Conflict policy: <!-- cite normalized-input.md conflict_policy; unresolved cross-role conflicts stay visible and trigger Human Review Gate instead of being privately resolved by the lead -->
 - Active roles: <!-- roles that ran; must match normalized-input.md constraints.roles or route defaults -->
 - Skipped roles: <!-- role=reason pairs for every supported role that did not run; use explicit non-trigger rationale, not blank/implicit omission -->
 - <!-- spec-reviewer -->: <!-- verdict -->, <!-- N --> findings (<!-- blockers --> blockers, <!-- majors --> major)
