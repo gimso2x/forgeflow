@@ -361,7 +361,7 @@ The report includes a **Role Summary** section:
 - Cross-role conflicts: <count> (marked with ⚠)
 ```
 
-Each active role must also leave a role-pass record, even when it finds nothing: markdown claim marker (`role=<reviewer> scope=<artifact section/evidence IDs> at=<ISO8601>`), trigger rationale, checklist version used, scope/evidence IDs inspected, observed verification command(s) or explicit no-command rationale, limitations/truncation seen, finding counts, and role verdict. Do not use chat-only role completion claims as aggregation evidence.
+Each active role must also leave a role-pass record, even when it finds nothing: markdown claim marker (`role=<reviewer> scope=<artifact section/evidence IDs> at=<ISO8601>`), trigger rationale, checklist version used, scope/evidence IDs inspected, observed verification command(s) or explicit no-command rationale, limitations/truncation seen, an Independence Check (`PASS` only when the role used normalized/observed evidence rather than implementer self-report or chat-only claims), finding counts, and role verdict. Do not use chat-only role completion claims as aggregation evidence.
 
 ## Human Review Gate
 
@@ -424,7 +424,7 @@ Write `review-report.md` (schema: review-report/v2, from `templates/review-repor
 - Reviewer (role or identifier)
 - Findings with severity (blocker | major | minor | nit), priority (p1 | p2 | p3 | p4), category (spec-compliance | quality | maintainability | risk | security), Criteria Basis, Evidence Source, Evidence Level (`observed | reported | missing`), Side Effect, Why This Remediation, Disposition, and Disposition Rationale when needed
 - Reviewer Role Summary with checklist source, exact `Checklist Version`, evidence requirements source, per-role verdict counts, and cross-role conflict count when role-based review runs
-- Role-pass records for every active role, including zero-finding passes, with markdown claim marker, inspected scope/evidence, observed verification or no-command rationale, limitations, finding counts, and role verdict
+- Role-pass records for every active role, including zero-finding passes, with markdown claim marker, inspected scope/evidence, observed verification or no-command rationale, limitations, Independence Check, finding counts, and role verdict
 - Spec Compliance checklist (for spec review)
 - Quality Assessment checklist (for quality review)
 - Open Blockers (list or "none")

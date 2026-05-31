@@ -97,6 +97,7 @@ scope_boundary:
 - **Scope/Evidence IDs Inspected**: <!-- normalized-input evidence IDs, artifact names, paths, or diff ranges -->
 - **Observed Verification**: <!-- command(s) rerun in this review turn, or `none — <no-command rationale>` -->
 - **Limitations/Truncation Seen**: <!-- none | missing evidence | truncated evidence | auth/fetch failure | skipped scope -->
+- **Independence Check**: <!-- PASS | FAIL; role used normalized/observed evidence rather than implementer self-report or chat-only claims -->
 - **Finding Counts**: <!-- blockers=N, major=N, minor=N, nit=N -->
 - **Role Verdict**: <!-- approved | changes_requested | blocked -->
 

@@ -161,7 +161,7 @@ A role finding must cite:
 - side effect of the proposed remediation
 - disposition and disposition rationale when applicable
 
-Every role pass, including passes with zero findings, must leave a compact role-pass record in `review-report.md` so the lead can audit what was inspected without reading chat logs. The record includes active role, markdown claim marker (`role=<reviewer> scope=<artifact section/evidence IDs> at=<ISO8601>`), checklist version, reviewed scope/evidence IDs, verification command(s) observed or reason none ran, limitations, finding counts, and the role verdict. Chat-only role completion claims are not sufficient evidence.
+Every role pass, including passes with zero findings, must leave a compact role-pass record in `review-report.md` so the lead can audit what was inspected without reading chat logs. The record includes active role, markdown claim marker (`role=<reviewer> scope=<artifact section/evidence IDs> at=<ISO8601>`), checklist version, reviewed scope/evidence IDs, verification command(s) observed or reason none ran, limitations, an Independence Check that fails if implementer self-report or chat-only claims substituted for normalized/observed evidence, finding counts, and the role verdict. Chat-only role completion claims are not sufficient evidence.
 
 Reviewer roles may cite only normalized evidence IDs from the role evidence map unless they first update `normalized-input.md` with a new evidence item and visible limitation note. Chat-only context, unrecorded web pages, or ad-hoc file reads are not valid role evidence.
 
