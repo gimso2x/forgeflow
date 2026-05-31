@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Standalone review constraints now explicitly preserve ignored flags such as `--focus` losing to `--type`, and advisory validation guards that field across the normalized input contract.
 - Standalone review `input-source.md` Evidence Source Map now mirrors normalized evidence type/status/level so adapters and reviewer roles can detect provenance mismatches before judgment.
 - Standalone review normalized input now records role input packet readiness so each reviewer role is READY/BLOCKED/SKIPPED before judgment based on trigger, evidence IDs, scope, constraints, and limitations.
 - Review standalone normalization now records a `review ownership plan` so delegated reviewer passes have one lead, explicit member assignments, and artifact-bound no-child-work/product-mutation policies before judgment begins.

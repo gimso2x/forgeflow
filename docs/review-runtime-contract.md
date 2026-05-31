@@ -51,6 +51,7 @@ constraints:  # role/focus/risk/user restrictions
   focus: [string]
   user_rules: [string]
   inferred_rules: [string]
+  ignored_flags: [string]
 ```
 
 Markdown artifacts may use prose sections instead of this exact YAML block, but the same four fields must be present in `normalized-input.md` before reviewer judgment begins.
@@ -132,7 +133,7 @@ Standalone review creates a synthetic task directory:
 - `brief`: explicit or inferred review target
 - `evidence`: each evidence item with a stable ID, source, fetch status, evidence level, and truncation/missing-evidence limitation note; its type/status/level must match the corresponding `input-source.md` Evidence Source Map row
 - `scope`: files/ranges/content boundaries reviewed
-- `constraints`: role, focus, exclusions, and user rules
+- `constraints`: role, focus, exclusions, user rules, inferred rules, and any ignored adapter/user flags such as `--focus` losing to `--type`
 - `role trigger matrix`: every supported reviewer role marked `run`, `skipped`, or `blocked`, with the normalized evidence ID(s), route rule, explicit flag, or explicit non-trigger signal that made the routing decision
 - `role evidence map`: every active reviewer role mapped to the evidence IDs it may use, or `none — <reason>` when blocked/not triggered
 - `role input packet readiness`: every active, blocked, or skipped reviewer role marked `READY`, `BLOCKED`, or `SKIPPED` based on whether trigger decision, evidence IDs, scope, constraints, and limitations are normalized before judgment

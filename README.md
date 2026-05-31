@@ -247,7 +247,7 @@ Review runtime contract는 [docs/review-runtime-contract.md](docs/review-runtime
 
 - `input-source.md`: 입력 타입, 원본 입력, fetch command/source, fetch status, 누락/잘림 evidence, evidence ID별 source map 기록
 - `input-source.md`는 source classification rationale도 기록해 어떤 신호로 입력 타입을 골랐고, 가능한 ambiguity를 어떻게 처리했는지 남깁니다.
-- `normalized-input.md`: `brief / evidence / scope / constraints` 4-field 구조로 정규화하고, stable evidence IDs, per-item fetch status/limitations, role trigger matrix, role evidence map, role input packet readiness, review ownership plan으로 각 리뷰어 역할의 실행/스킵 근거, 인용 가능한 증거, 판단 전 READY/BLOCKED/SKIPPED 상태, lead/member 소유권을 고정
+- `normalized-input.md`: `brief / evidence / scope / constraints` 4-field 구조로 정규화하고, constraints에는 `--type` 때문에 무시된 `--focus` 같은 ignored flags를 남기며, stable evidence IDs, per-item fetch status/limitations, role trigger matrix, role evidence map, role input packet readiness, review ownership plan으로 각 리뷰어 역할의 실행/스킵 근거, 인용 가능한 증거, 판단 전 READY/BLOCKED/SKIPPED 상태, lead/member 소유권을 고정
 - `normalized-input.md`: adapter handoff checklist도 포함해 source classified, fetch reproduced, normalization complete, limitations visible, canonical review ownership을 reviewer judgment 전에 PASS/FAIL로 고정
 - `review-report.md`: 단일 최종 리뷰 산출물. adapter별 별도 report나 자동 승인 경로 없음
 
