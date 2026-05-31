@@ -83,6 +83,16 @@ normalization_gate_fields = [
 missing_gate_fields = [field for field in normalization_gate_fields if field not in normalized_input_template]
 if missing_gate_fields:
     failures.append(f'templates/normalized-input.md: missing normalization gate fields {missing_gate_fields}')
+adapter_handoff_fields = [
+    'source_classified',
+    'fetch_reproduced',
+    'normalization_complete',
+    'limitations_visible',
+    'canonical_review_ownership',
+]
+missing_handoff_fields = [field for field in adapter_handoff_fields if field not in normalized_input_template]
+if missing_handoff_fields:
+    failures.append(f'templates/normalized-input.md: missing adapter handoff checklist fields {missing_handoff_fields}')
 role_trigger_roles = [
     'spec-reviewer',
     'quality-reviewer',
@@ -93,8 +103,9 @@ role_trigger_roles = [
 trigger_matrix_pos = normalized_input_template.find('### Role trigger matrix')
 role_evidence_map_pos = normalized_input_template.find('## role evidence map')
 normalization_gate_pos = normalized_input_template.find('## normalization gate')
-if not (trigger_matrix_pos != -1 and role_evidence_map_pos != -1 and normalization_gate_pos != -1 and trigger_matrix_pos < role_evidence_map_pos < normalization_gate_pos):
-    failures.append('templates/normalized-input.md: role trigger matrix must appear before role evidence map and normalization gate')
+adapter_handoff_pos = normalized_input_template.find('## adapter handoff checklist')
+if not (trigger_matrix_pos != -1 and role_evidence_map_pos != -1 and normalization_gate_pos != -1 and adapter_handoff_pos != -1 and trigger_matrix_pos < role_evidence_map_pos < normalization_gate_pos < adapter_handoff_pos):
+    failures.append('templates/normalized-input.md: role trigger matrix must appear before role evidence map, normalization gate, and adapter handoff checklist')
 for role in role_trigger_roles:
     role_marker = f'**{role}**'
     if role_marker not in normalized_input_template:

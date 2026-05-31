@@ -36,6 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Adapter configuration now documents multi-harness routing invariants so provider wrappers stay shallow, artifact handoff remains markdown-bound, and review adapters normalize before judging.
 - Standalone `normalized-input.md` now includes an adapter handoff checklist so source classification, fetch reproducibility, normalization completeness, limitation visibility, and canonical review ownership are artifacted before reviewer judgment.
 - Advisory contract validation now guards standalone role trigger matrix ordering, complete reviewer-role coverage, and trigger/evidence fields so role routing provenance cannot drift out of the normalization template.
+- Advisory contract validation now guards standalone adapter handoff checklist fields and ordering after the normalization gate, preserving source/fetch/ownership provenance before reviewer judgment.
 
 ## [1.9.3] - 2026-05-31
 
