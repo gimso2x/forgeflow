@@ -291,6 +291,13 @@ validate-adapter-config:
 	@grep -Fq "**작업 위치 원칙:**" docs/adapter-config.md || { echo "ERROR: adapter config must state the shared workflow location principle"; exit 1; }
 	@grep -Fq "plugin/extension 설치·cache 위치" docs/adapter-config.md || { echo "ERROR: adapter config must distinguish plugin/extension cache from target projects"; exit 1; }
 	@grep -Fq -- "--task-dir <project>/.forgeflow/tasks/<task-id>" docs/adapter-config.md || { echo "ERROR: adapter config must document explicit task-dir fallback from cache contexts"; exit 1; }
+	@grep -Fq "Multi-harness routing invariants" docs/adapter-config.md || { echo "ERROR: adapter config must document multi-harness routing invariants"; exit 1; }
+	@grep -Fq "Canonical stage contract first" docs/adapter-config.md || { echo "ERROR: adapter config must keep canonical stage contract ahead of adapter exceptions"; exit 1; }
+	@grep -Fq "Harness-specific code paths stay shallow" docs/adapter-config.md || { echo "ERROR: adapter config must keep harness-specific code paths shallow"; exit 1; }
+	@grep -Fq "Artifact handoff is the boundary" docs/adapter-config.md || { echo "ERROR: adapter config must require markdown artifact handoff boundaries"; exit 1; }
+	@grep -Fq "Review adapters normalize before judging" docs/adapter-config.md || { echo "ERROR: adapter config must require review adapters to normalize before judging"; exit 1; }
+	@grep -Fq "Multi-harness 원칙" README.md || { echo "ERROR: README must expose multi-harness invariants to users"; exit 1; }
+	@grep -Fq "adapter-neutral core contract" README.md || { echo "ERROR: README must state adapter-neutral core contract boundaries"; exit 1; }
 	@grep -Fq "Disposable 또는 untrusted repo에서 headless smoke" docs/adapter-config.md || { echo "ERROR: Gemini adapter docs must mention --skip-trust for disposable/untrusted headless smoke"; exit 1; }
 
 validate-evals-fixtures:

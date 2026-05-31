@@ -47,6 +47,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Standalone review ownership plans now distinguish delegated reviewer role claims from task scheduling, keeping role creation/reassignment lead-only and blocking member-side scope broadening before judgment.
 - Advisory contract validation now enforces shared stage boundary catalog order and per-stage allowed/forbidden tool posture, preventing clarify/plan/execute/review/ship ownership drift.
 - Advisory contract validation now checks standalone role trigger, evidence-map, and role input packet readiness sections separately so reviewer-role coverage cannot be satisfied by the wrong normalization section.
+- Adapter configuration validation now guards multi-harness invariants in both the canonical adapter reference and README, keeping provider wrappers shallow and review handoffs artifact-bound.
 
 ## [1.9.3] - 2026-05-31
 
