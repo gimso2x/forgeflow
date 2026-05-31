@@ -247,6 +247,16 @@ ForgeFlow may borrow team-mode concepts only as guardrails:
 - markdown artifacts remain the state boundary
 - final judgment stays in `review-report.md` plus the human gate, not in agent chat summaries
 
+### Lead/member guardrails
+
+When a future adapter or operator maps review work onto multiple agents, keep the split declarative and artifact-bound:
+
+- **Lead role**: owns input normalization, role routing, aggregation into `review-report.md`, cross-role conflict visibility, and the final human-gate recommendation.
+- **Member role**: owns exactly one delegated reviewer pass or evidence-gathering pass and writes only the assigned artifact/section. Members must not create new task directories, launch additional members, change route selection, or mutate product files.
+- **Claim marker**: if concurrent review passes are used, record the claimed role and target section in markdown before work starts (for example, in `review-report.md` draft notes or a task-local checkpoint). Do not rely on chat-only claims.
+- **Merge rule**: unresolved disagreement between members is recorded as a cross-role conflict. The lead aggregates; it does not silently override member findings.
+- **Non-goal**: this is not a team scheduler, persistent queue, or autonomous task marketplace. It is a safety boundary for occasional parallel reviewer passes.
+
 ## Change requirements
 
 Any future change to review adapters, standalone input handling, role output, tool permissions, or verdict handling must update these surfaces together:

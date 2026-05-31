@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Review finding template now requires `Evidence Source` and `Evidence Level`, with advisory validation guarding those fields against drift.
 - Standalone review provenance artifacts now have explicit templates for `input-source.md` and `normalized-input.md`, so adapters share one markdown-first bootstrap surface.
 - Shared automation guidance now includes a stage artifact/tool boundary catalog so clarify, plan, execute, review, and ship preserve role separation while chaining.
+- Review runtime contract now includes markdown-bound lead/member guardrails for occasional parallel reviewer passes without adding a persistent team scheduler.
 
 ## [1.9.3] - 2026-05-31
 
