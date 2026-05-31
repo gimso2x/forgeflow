@@ -242,6 +242,8 @@ Standalone mode and high/epic pipeline mode use role-based review. Each role has
 
 Role-specific triggers stay inline so operators can decide which passes to run quickly. The detailed checklist items and role-specific evidence requirements live in `skills/review/references/role-checklists.md`; load that reference before executing any role pass and cite the exact `Checklist version: YYYY-MM-DD` value in `review-report.md` as `Checklist Version`.
 
+Before running roles, write a compact role routing rationale in `review-report.md`: for every role that runs or is intentionally skipped, cite the route rule, `--type`/`--focus` flag, file-type heuristic, specialist profile, or explicit non-trigger that decided it. This prevents standalone adapters and parallel reviewers from silently broadening or narrowing review scope after normalization.
+
 #### spec-reviewer
 
 **Trigger**: Always runs in pipeline mode. In standalone mode, runs when a brief/requirement/spec document exists (auto-generated or user-provided).
@@ -344,7 +346,7 @@ The report includes a **Role Summary** section:
 - Cross-role conflicts: <count> (marked with ⚠)
 ```
 
-Each active role must also leave a role-pass record, even when it finds nothing: checklist version used, scope/evidence IDs inspected, observed verification command(s) or explicit no-command rationale, limitations/truncation seen, finding counts, and role verdict. Do not use chat-only role completion claims as aggregation evidence.
+Each active role must also leave a role-pass record, even when it finds nothing: trigger rationale, checklist version used, scope/evidence IDs inspected, observed verification command(s) or explicit no-command rationale, limitations/truncation seen, finding counts, and role verdict. Do not use chat-only role completion claims as aggregation evidence.
 
 ## Human Review Gate
 

@@ -80,6 +80,7 @@ scope_boundary:
 - Checklist source: `skills/review/references/role-checklists.md` <!-- include checklist version used -->
 - Checklist Version: <!-- exact `Checklist version: YYYY-MM-DD` value observed in the checklist file -->
 - Evidence requirements source: `skills/review/references/role-checklists.md#evidence-requirements-by-role`
+- Role routing rationale: <!-- why each role ran or was skipped: route rule, --type/--focus flag, file-type heuristic, specialist trigger, or explicit non-trigger -->
 - <!-- spec-reviewer -->: <!-- verdict -->, <!-- N --> findings (<!-- blockers --> blockers, <!-- majors --> major)
 - <!-- quality-reviewer -->: <!-- verdict -->, <!-- N --> findings (<!-- blockers --> blockers, <!-- majors --> major)
 - Cross-role conflicts: <!-- count --> (marked with ⚠)
@@ -87,6 +88,7 @@ scope_boundary:
 ### Role-pass record: <!-- reviewer role -->
 <!-- Duplicate this block for every active reviewer role, including zero-finding passes. -->
 - **Role**: <!-- spec-reviewer | quality-reviewer | security-reviewer | ux-reviewer | perf-reviewer -->
+- **Trigger Rationale**: <!-- route rule, --type/--focus flag, file-type heuristic, specialist profile, or explicit non-trigger rationale -->
 - **Checklist Version**: <!-- exact `Checklist version: YYYY-MM-DD` value observed in the checklist file -->
 - **Scope/Evidence IDs Inspected**: <!-- normalized-input evidence IDs, artifact names, paths, or diff ranges -->
 - **Observed Verification**: <!-- command(s) rerun in this review turn, or `none — <no-command rationale>` -->

@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `checkpoint.md` now includes a `Handoff Boundary` section so stage owner, next owner, handoff reason, and forbidden-action delegation stay explicit across refreshes and adapter handoffs.
 - `review-report.md` now includes an explicit reusable role-pass record block for every active reviewer role, with advisory validation guarding scope/evidence, observed verification, limitations, finding counts, and role verdict fields.
 - Advisory contract validation now guards standalone review normalization-gate fields and requires the gate to stay visible before reviewer summaries.
+- Review role routing now records per-role trigger rationale so adapters and parallel reviewers cannot silently broaden or narrow review scope after standalone normalization.
 
 ## [1.9.3] - 2026-05-31
 

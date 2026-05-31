@@ -5,11 +5,11 @@ root = pathlib.Path('.')
 checks = {
     'skills/forgeflow/SKILL.md': ['intent:', 'inputs:', 'outputs:', 'dependencies:', 'docs/advisory-guidelines.md'],
     'skills/clarify/SKILL.md': ['intent:', 'inputs:', 'outputs:', 'dependencies:', '리뷰해줘', '계획 세워', 'suggested_next_skill', 'Keyword hints are advisory'],
-    'skills/review/SKILL.md': ['docs/review-runtime-contract.md', 'brief / evidence / scope / constraints', 'read-only except for review artifacts', 'observed evidence', 'Cross-role conflicts', 'Evidence Source', 'Evidence Level', 'observed | reported | missing', 'lead/member guardrails', 'does not spawn unmanaged child work', 'Adapter compliance checklist', 'source classified', 'fetch reproduced', 'normalization complete', 'limitations visible', 'review ownership delegated', 'Checklist Version', 'Review tool posture', 'hand it back to execute', 'role-pass record', 'chat-only role completion claims'],
+    'skills/review/SKILL.md': ['docs/review-runtime-contract.md', 'brief / evidence / scope / constraints', 'read-only except for review artifacts', 'observed evidence', 'Cross-role conflicts', 'Evidence Source', 'Evidence Level', 'observed | reported | missing', 'lead/member guardrails', 'does not spawn unmanaged child work', 'Adapter compliance checklist', 'source classified', 'fetch reproduced', 'normalization complete', 'limitations visible', 'review ownership delegated', 'Checklist Version', 'Review tool posture', 'hand it back to execute', 'role-pass record', 'chat-only role completion claims', 'role routing rationale', 'silently broadening or narrowing review scope'],
     'skills/execute/SKILL.md': ['Claim marker before delegation/concurrency', 'role=<worker|specialist|spec-reviewer|quality-reviewer> scope=<repo paths or artifact section> at=<ISO8601>', 'Run ledger claim markers'],
     'skills/_shared/automation.md': ['Stage artifact/tool boundary catalog', 'clarify', 'plan', 'execute', 'review', 'ship', 'product code edits', 'Code findings hand back to execute'],
     'templates/brief.md': ['Route Rationale', 'Budget Note', 'Suggested Next Skill', 'Suggested specialists'],
-    'templates/review-report.md': ['Evidence Source', 'Evidence Level', 'observed | reported | missing', 'Checklist Version', 'role-pass record', 'Chat-only completion claims are not evidence', 'Normalization Gate'],
+    'templates/review-report.md': ['Evidence Source', 'Evidence Level', 'observed | reported | missing', 'Checklist Version', 'role-pass record', 'Chat-only completion claims are not evidence', 'Normalization Gate', 'Role routing rationale', 'Trigger Rationale'],
     'templates/normalized-input.md': ['brief_present', 'evidence_present_or_blocked', 'scope_explicit', 'constraints_explicit', 'limitations_visible'],
     'templates/plan.md': ['Execution Pattern', 'Applied Evolution Rules'],
     'templates/run-ledger.md': ['Claim Marker', 'role=<worker|specialist|spec-reviewer|quality-reviewer> scope=<repo paths or artifact section> at=<ISO8601>', 'not chat-only claims'],
@@ -56,6 +56,7 @@ if 'Checklist Version' not in review_template or 'Checklist version: YYYY-MM-DD'
 role_pass_fields = [
     'Role-pass record:',
     '**Scope/Evidence IDs Inspected**',
+    '**Trigger Rationale**',
     '**Observed Verification**',
     '**Limitations/Truncation Seen**',
     '**Finding Counts**',
