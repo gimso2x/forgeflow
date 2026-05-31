@@ -320,6 +320,16 @@ In standalone mode, also fill `normalized-input.md` → `Role trigger matrix` be
 - `--focus <role>`: alias for `--type <role>`
 - **`--type` and `--focus` combined**: `--type` wins. `--focus` is ignored with a warning. Do not run two conflicting role sets.
 
+### Role model hints
+
+When a harness supports role-specific model selection, bind by capability rather than provider name and keep the decision advisory:
+
+- spec-reviewer, security-reviewer, and unresolved cross-role conflict aggregation → strongest reasoning available.
+- quality-reviewer → standard reasoning/coding model; upgrade to strongest reasoning for broad refactors, weak verification, or many interacting files.
+- ux-reviewer and perf-reviewer → standard reasoning model unless the normalized evidence shows accessibility, query-planning, caching, or large-data risk that needs specialist depth.
+
+Record any non-default role/model assignment in the role-pass record or adapter notes as a hint only. Model choice must never change role routing, evidence requirements, verdict enums, or the human review gate.
+
 ### Specialist Profiles
 
 Specialist profiles define focused review lenses tied to the `specialist` field in `brief.md` YAML frontmatter. When review reads `brief.md`, it extracts the specialist primary and secondary values and automatically applies the corresponding assertion sets below. These assertions supplement (not replace) the standard reviewer role checklists.

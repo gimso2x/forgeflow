@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Review now documents advisory role model hints for harnesses that support per-role model binding, while forbidding model choice from changing routing, evidence, verdict, or human-gate semantics.
 - Standalone review normalized input now records concrete role input packets after readiness, so reviewer roles receive trigger, evidence IDs, scope, constraints, and limitations from artifacts rather than hidden adapter state.
 - Standalone review evidence IDs are now explicitly required to be unique within `normalized-input.md`, with advisory validation guarding the template, skill, and runtime contract against ID-reuse drift.
 - Standalone review constraints now explicitly preserve ignored flags such as `--focus` losing to `--type`, and advisory validation guards that field across the normalized input contract.

@@ -191,6 +191,16 @@ Cross-role conflicts stay visible. The report must keep both findings, mark the 
 
 Adapter source must never override these routing rules after normalization. The canonical `review-report.md` records both `Active roles` and `Skipped roles`; every skipped supported role needs a reason such as route depth, `--type` narrowing, file-type non-trigger, or unavailable evidence. Silent omission of a role is treated as an incomplete routing record. Security, UX, and performance roles may be triggered only from normalized evidence or an explicit user flag; if the apparent trigger exists only in chat context or was lost to truncation/fetch failure, record `blocked` or `skipped — missing trigger evidence` in the role trigger matrix rather than broadening review scope invisibly.
 
+## Role model hints
+
+Harnesses that can choose models per role may use capability-based role model hints, but they remain adapter hints rather than review semantics:
+
+- spec-reviewer, security-reviewer, and cross-role conflict aggregation prefer the strongest reasoning available.
+- quality-reviewer can use a standard reasoning/coding model, escalating to strongest reasoning for broad refactors, weak verification, or many interacting files.
+- ux-reviewer and perf-reviewer can use a standard reasoning model unless normalized evidence shows accessibility, query-planning, caching, or large-data risk that needs specialist depth.
+
+Adapters may record non-default role/model assignments in adapter notes or role-pass records for auditability. Model choice must not change role routing, role evidence maps, evidence levels, verdict enums, approval rules, or the human review gate. There is no central model database in the review contract.
+
 ## Stage tool catalog
 
 Review is an inspection gate. The preferred tool surface is read-only or verification-oriented.
