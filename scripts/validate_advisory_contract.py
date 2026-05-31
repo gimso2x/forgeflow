@@ -110,12 +110,30 @@ normalization_gate_pos = normalized_input_template.find('## normalization gate')
 adapter_handoff_pos = normalized_input_template.find('## adapter handoff checklist')
 if not (trigger_matrix_pos != -1 and role_evidence_map_pos != -1 and role_packet_readiness_pos != -1 and ownership_plan_pos != -1 and normalization_gate_pos != -1 and adapter_handoff_pos != -1 and trigger_matrix_pos < role_evidence_map_pos < role_packet_readiness_pos < ownership_plan_pos < normalization_gate_pos < adapter_handoff_pos):
     failures.append('templates/normalized-input.md: role trigger matrix must appear before role evidence map, role input packet readiness, review ownership plan, normalization gate, and adapter handoff checklist')
+def section_between(text, start_marker, end_marker):
+    start = text.find(start_marker)
+    if start == -1:
+        return ''
+    end = text.find(end_marker, start + len(start_marker))
+    return text[start:end if end != -1 else len(text)]
+
+role_trigger_section = section_between(normalized_input_template, '### Role trigger matrix', '## role evidence map')
+role_evidence_section = section_between(normalized_input_template, '## role evidence map', '## role input packet readiness')
+role_packet_section = section_between(normalized_input_template, '## role input packet readiness', '## review ownership plan')
 for role in role_trigger_roles:
     role_marker = f'**{role}**'
-    if role_marker not in normalized_input_template:
-        failures.append(f'templates/normalized-input.md: role trigger matrix/map must include {role}')
-if 'trigger:' not in normalized_input_template or 'evidence:' not in normalized_input_template:
+    if role_marker not in role_trigger_section:
+        failures.append(f'templates/normalized-input.md: role trigger matrix must include {role}')
+    if role_marker not in role_evidence_section:
+        failures.append(f'templates/normalized-input.md: role evidence map must include {role}')
+    if role_marker not in role_packet_section:
+        failures.append(f'templates/normalized-input.md: role input packet readiness must include {role}')
+if 'trigger:' not in role_trigger_section or 'evidence:' not in role_trigger_section:
     failures.append('templates/normalized-input.md: role trigger rows must preserve trigger and evidence fields')
+packet_required_fragments = ['READY | BLOCKED | SKIPPED', 'trigger,evidence_ids,scope,constraints,limitations']
+missing_packet_fragments = [fragment for fragment in packet_required_fragments if fragment not in role_packet_section]
+if missing_packet_fragments:
+    failures.append(f'templates/normalized-input.md: role input packet readiness must preserve readiness enum and required packet fields {missing_packet_fragments}')
 automation_doc = (root / 'skills/_shared/automation.md').read_text(encoding='utf-8')
 stage_order = ['clarify', 'plan', 'execute', 'review', 'ship']
 stage_positions = []
