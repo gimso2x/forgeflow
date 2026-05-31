@@ -37,6 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Standalone `normalized-input.md` now includes an adapter handoff checklist so source classification, fetch reproducibility, normalization completeness, limitation visibility, and canonical review ownership are artifacted before reviewer judgment.
 - Advisory contract validation now guards standalone role trigger matrix ordering, complete reviewer-role coverage, and trigger/evidence fields so role routing provenance cannot drift out of the normalization template.
 - Advisory contract validation now guards standalone adapter handoff checklist fields and ordering after the normalization gate, preserving source/fetch/ownership provenance before reviewer judgment.
+- Review tool posture now explicitly limits external-system access to read-only evidence fetching and forbids issue/PR/CI/deploy mutations during review.
 
 ## [1.9.3] - 2026-05-31
 

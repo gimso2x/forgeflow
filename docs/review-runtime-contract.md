@@ -187,13 +187,14 @@ Allowed in review:
 
 - read artifacts and source files
 - inspect git status, diff, log, and changed-file lists
-- fetch declared external input
+- fetch declared external input through read-only commands, APIs, or web extraction
 - run deterministic verification commands such as tests, lint, typecheck, build, or docs validators
 - write review artifacts only: `input-source.md`, `normalized-input.md`, `review-report.md`, telemetry, checkpoint updates required by the review skill
 
 Not allowed in review:
 
 - implement product fixes
+- mutate remote systems through issue comments, PR reviews, approvals, labels, CI dispatch, deploys, or state-changing API calls
 - mutate unrelated project state
 - perform destructive cleanup
 - change branches or release artifacts

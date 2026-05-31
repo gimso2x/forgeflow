@@ -237,9 +237,9 @@ Contract obligations:
 
 ### Review tool posture
 
-Review is an inspection gate, not a repair stage. Allowed actions are limited to reading artifacts/source, inspecting git status/diffs/logs, fetching declared review input, running deterministic verification commands, and writing review-owned artifacts (`input-source.md`, `normalized-input.md`, `review-report.md`, telemetry, and checkpoint updates required by this skill).
+Review is an inspection gate, not a repair stage. Allowed actions are limited to reading artifacts/source, inspecting git status/diffs/logs, fetching declared review input through read-only commands, APIs, or web extraction, running deterministic verification commands, and writing review-owned artifacts (`input-source.md`, `normalized-input.md`, `review-report.md`, telemetry, and checkpoint updates required by this skill).
 
-Forbidden actions include product fixes, branch changes, destructive cleanup, release/ship mutations, hiding failed verification behind a passing summary, and approving solely from implementer self-report. If a finding requires code or product changes, record the finding and hand it back to execute instead of fixing it during review.
+Forbidden actions include product fixes, branch changes, destructive cleanup, release/ship mutations, remote mutations such as issue comments, PR reviews, approvals, labels, CI dispatch, deploys, or state-changing API calls, hiding failed verification behind a passing summary, and approving solely from implementer self-report. If a finding requires code or product changes, record the finding and hand it back to execute instead of fixing it during review.
 
 ## Reviewer Roles
 
