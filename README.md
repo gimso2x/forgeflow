@@ -238,6 +238,7 @@ Review runtime contract는 [docs/review-runtime-contract.md](docs/review-runtime
 독립 리뷰의 산출물 계약:
 
 - `input-source.md`: 입력 타입, 원본 입력, fetch command/source, fetch status, 누락/잘림 evidence 기록
+- `input-source.md`는 source classification rationale도 기록해 어떤 신호로 입력 타입을 골랐고, 가능한 ambiguity를 어떻게 처리했는지 남깁니다.
 - `normalized-input.md`: `brief / evidence / scope / constraints` 4-field 구조로 정규화
 - `review-report.md`: 단일 최종 리뷰 산출물. adapter별 별도 report나 자동 승인 경로 없음
 

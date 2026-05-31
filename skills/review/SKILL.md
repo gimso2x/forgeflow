@@ -100,6 +100,7 @@ When standalone mode is detected, create a synthetic task directory:
 
 Create `input-source.md` from `templates/input-source.md`. It records:
 - Input type detected
+- Source classification rationale: why the type was selected, plausible ambiguities considered, and whether ambiguity was resolved or blocked
 - Original input value (URL, path, diff snippet)
 - Fetch command used (if applicable)
 - Fetch result status (success/partial/failed)

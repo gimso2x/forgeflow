@@ -116,6 +116,7 @@ Standalone review creates a synthetic task directory:
 `input-source.md` should be created from `templates/input-source.md` and must include:
 
 - detected input type
+- source classification rationale: the concrete signal used, plausible alternate source classes considered, and whether ambiguity was resolved or blocked
 - original user input
 - adapter or tool used to fetch input
 - commands/API labels executed, when available
