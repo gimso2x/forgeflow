@@ -104,6 +104,7 @@ Create `input-source.md` from `templates/input-source.md`. It records:
 - Source classification rationale: why the type was selected, plausible ambiguities considered, and whether ambiguity was resolved or blocked
 - Original input value (URL, path, diff snippet)
 - Fetch command used (if applicable)
+- Access posture and mutation check for the fetch method, proving evidence collection stayed read-only/verification-only and did not comment, approve, label, dispatch CI, deploy, write product files, change branches, or perform destructive cleanup
 - Fetch result status (success/partial/failed)
 - Missing/truncated evidence notes
 - Evidence Source Map linking each normalized evidence ID to the fetch command/API/source label, normalized evidence type, fetch status, evidence level, and integrity
@@ -240,6 +241,7 @@ Contract obligations:
 - Adapters are thin: detect input, fetch raw evidence, normalize to `brief / evidence / scope / constraints`, write `input-source.md` and `normalized-input.md`, then invoke canonical review.
 - `normalized-input.md` must include stable evidence IDs and a role evidence map so reviewer roles cite only normalized, provenance-visible material.
 - Adapter handoff must satisfy the contract's Adapter compliance checklist: source classified, fetch reproduced, normalization complete, limitations visible, and review ownership delegated to the canonical review skill.
+- Evidence fetch provenance must include a read-only/verification-only access posture and mutation check; any state-changing fetch path blocks approval unless a human records a narrowed, safe scope.
 - Adapters must not change verdict enums, auto-approve findings, hide fetch failures, rewrite role routing, create adapter-specific `review-report.md` ownership, or mutate product files.
 - Reviewer roles remain independent. Every finding must cite role, confidence, criteria basis, evidence source, evidence level, priority/severity, side effect, and disposition state when applicable.
 - Cross-role conflicts stay visible and require human decision; do not silently pick a winner.

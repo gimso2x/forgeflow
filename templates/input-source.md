@@ -17,6 +17,8 @@
 ## Fetch Method
 - **Adapter/Tool**: <!-- Claude Code | Codex | Gemini CLI | Cursor | gh | git | web_extract | file-read | not_applicable -->
 - **Command/API Label**: <!-- exact command/API/source label used, or not_applicable -->
+- **Access Posture**: <!-- read_only | verification_only | not_applicable; state-changing remote/API actions are forbidden for review evidence fetch -->
+- **Mutation Check**: <!-- PASS | FAIL; PASS means the fetch method did not comment, approve, label, dispatch CI, deploy, write product files, change branches, or perform destructive cleanup -->
 
 ## Fetch Status
 <!-- success | partial | failed | not_applicable -->

@@ -100,6 +100,7 @@ Before invoking the canonical review skill, every adapter must leave an auditabl
 
 - **Source classified**: which input source class was detected, and why other plausible classes were not used when ambiguous.
 - **Fetch reproduced**: the exact command, API label, or tool/source label used to obtain each evidence item.
+- **Fetch posture constrained**: every evidence fetch is recorded as read-only, verification-only, or not-applicable; any state-changing remote/API action or product mutation during evidence fetch fails the handoff.
 - **Normalization complete**: `brief`, `evidence`, `scope`, and `constraints` are all present in `normalized-input.md`.
 - **Limitations visible**: every failed, partial, missing, or truncated fetch is recorded as an evidence item with `evidence_level: missing` or an explicit truncation note.
 - **Review ownership delegated**: the adapter hands off to the canonical review skill and does not keep a parallel verdict, report file, or hidden approval path.
@@ -124,6 +125,7 @@ Standalone review creates a synthetic task directory:
 - original user input
 - adapter or tool used to fetch input
 - commands/API labels executed, when available
+- access posture for each fetch (`read_only`, `verification_only`, or `not_applicable`) plus a mutation check proving the fetch did not comment, approve, label, dispatch CI, deploy, write product files, change branches, or perform destructive cleanup
 - fetch status: `success`, `partial`, `failed`, or `not_applicable`
 - missing or truncated evidence notes
 - an Evidence Source Map that ties each normalized evidence ID to its fetch command/API/source label, normalized evidence type, fetch status, evidence level, and integrity

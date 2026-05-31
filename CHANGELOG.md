@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Standalone review `input-source.md` now records fetch access posture and mutation checks so adapter evidence collection remains read-only/verification-only before canonical review judgment.
 - Standalone review normalized input now includes an evidence integrity check that blocks reviewer judgment when cited evidence IDs are missing, duplicated, mismatched against `input-source.md`, or stale in role packets.
 - Review role input packets and role-pass records now carry a role-specific `criteria_basis`, preventing spec, quality, security, UX, or performance approvals from borrowing another role's criteria.
 - Standalone review ownership plans now require delegated member claim markers to be unique and read back from the artifact before reviewer work proceeds, blocking duplicate or unreadable role claims.
