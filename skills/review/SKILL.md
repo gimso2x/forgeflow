@@ -105,11 +105,12 @@ Create `input-source.md` from `templates/input-source.md`. It records:
 - Fetch command used (if applicable)
 - Fetch result status (success/partial/failed)
 - Missing/truncated evidence notes
+- Evidence Source Map linking each normalized evidence ID to the fetch command/API/source label, fetch status, and integrity
 - Timestamp
 
 Create `normalized-input.md` from `templates/normalized-input.md`. It records the 4-field structure (see Input Normalization below).
 
-Before reviewer roles begin, fill the template's **role evidence map**. Map every active reviewer role to the normalized evidence IDs it may cite; for inactive or blocked roles, write `none — <reason>`. Roles must not cite chat-only or unnormalized evidence. If a role needs additional material, add it as a new evidence item in `normalized-input.md` first, including source, evidence level, and limitation/truncation notes.
+Before reviewer roles begin, fill the template's **role evidence map**. Map every active reviewer role to the normalized evidence IDs it may cite; for inactive or blocked roles, write `none — <reason>`. Roles must not cite chat-only or unnormalized evidence. If a role needs additional material, add it as a new evidence item in `normalized-input.md` first, including source, fetch status, evidence level, and limitation/truncation notes, then mirror its provenance in `input-source.md` Evidence Source Map.
 
 Before any reviewer role begins, complete the template's **normalization gate**. If `brief_present`, `evidence_present_or_blocked`, `scope_explicit`, `constraints_explicit`, or `limitations_visible` is `FAIL`, stop with `blocked` and record the missing provenance in `review-report.md`; do not let reviewer roles fill gaps by assumption.
 

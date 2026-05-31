@@ -26,5 +26,9 @@
 - **Truncated Evidence**: <!-- none or what was truncated and why -->
 - **Integrity**: <!-- complete | partial | failed | truncated:<N/M lines> -->
 
+## Evidence Source Map
+<!-- One row per normalized evidence item. IDs must match normalized-input.md. This keeps fetch provenance auditable before reviewer roles cite evidence. -->
+- **E1**: <!-- source label or command/API used; status=success|partial|failed|not_applicable; integrity=complete|partial|failed|truncated:<N/M lines> -->
+
 ## Timestamp
 <!-- ISO timestamp or run label -->

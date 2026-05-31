@@ -10,11 +10,11 @@ checks = {
     'skills/_shared/automation.md': ['Stage artifact/tool boundary catalog', 'clarify', 'plan', 'execute', 'review', 'ship', 'product code edits', 'Code findings hand back to execute'],
     'templates/brief.md': ['Route Rationale', 'Budget Note', 'Suggested Next Skill', 'Suggested specialists'],
     'templates/review-report.md': ['Evidence Source', 'Evidence Level', 'observed | reported | missing', 'Checklist Version', 'role-pass record', 'Chat-only completion claims are not evidence', 'Normalization Gate', 'Role routing rationale', 'Role evidence map', 'Active roles', 'Skipped roles', 'Trigger Rationale', 'Claim Marker'],
-    'templates/normalized-input.md': ['brief_present', 'evidence_present_or_blocked', 'scope_explicit', 'constraints_explicit', 'limitations_visible', 'role evidence map', 'stable evidence IDs'],
+    'templates/normalized-input.md': ['brief_present', 'evidence_present_or_blocked', 'scope_explicit', 'constraints_explicit', 'limitations_visible', 'role evidence map', 'stable evidence IDs', 'fetch_status', 'limitations'],
     'templates/plan.md': ['Execution Pattern', 'Applied Evolution Rules'],
     'templates/run-ledger.md': ['Claim Marker', 'role=<worker|specialist|spec-reviewer|quality-reviewer> scope=<repo paths or artifact section> at=<ISO8601>', 'not chat-only claims'],
     'docs/advisory-guidelines.md': ['Route Budget Guide', 'small:', 'medium:', 'high:', 'epic:', 'Non-goals'],
-    'docs/review-runtime-contract.md': ['Adapter-neutral core', 'Thin adapter responsibilities', 'Adapter compliance checklist', 'Source classified', 'Fetch reproduced', 'Normalization complete', 'Limitations visible', 'Review ownership delegated', 'Role separation', 'Stage tool catalog', 'Evidence levels', 'Human review gate', 'Minimal team-mode absorption', 'Lead/member guardrails', 'Claim marker', 'role=<reviewer> scope=<artifact section/evidence IDs> at=<ISO8601>', 'Non-goal', 'input-source.md', 'normalized-input.md', 'source classification rationale', 'role-pass record', 'Active roles', 'Skipped roles', 'Chat-only role completion claims', 'role evidence map', 'stable ID'],
+    'docs/review-runtime-contract.md': ['Adapter-neutral core', 'Thin adapter responsibilities', 'Adapter compliance checklist', 'Source classified', 'Fetch reproduced', 'Normalization complete', 'Limitations visible', 'Review ownership delegated', 'Role separation', 'Stage tool catalog', 'Evidence levels', 'Human review gate', 'Minimal team-mode absorption', 'Lead/member guardrails', 'Claim marker', 'role=<reviewer> scope=<artifact section/evidence IDs> at=<ISO8601>', 'Non-goal', 'input-source.md', 'normalized-input.md', 'source classification rationale', 'role-pass record', 'Active roles', 'Skipped roles', 'Chat-only role completion claims', 'role evidence map', 'stable ID', 'fetch_status', 'Evidence Source Map'],
     'README.md': ['docs/review-runtime-contract.md', 'adapter-neutral input normalization', 'input-source.md', 'normalized-input.md', 'source classification rationale', 'adapter별 별도 report나 자동 승인 경로 없음'],
 }
 failures = []
@@ -67,7 +67,7 @@ missing_role_pass_fields = [field for field in role_pass_fields if field not in 
 if missing_role_pass_fields:
     failures.append(f'templates/review-report.md: missing explicit role-pass fields {missing_role_pass_fields}')
 input_source_template = (root / 'templates/input-source.md').read_text(encoding='utf-8')
-classification_fields = ['Source Classification Rationale', 'Why this type', 'Ambiguities considered', 'Ambiguity outcome']
+classification_fields = ['Source Classification Rationale', 'Why this type', 'Ambiguities considered', 'Ambiguity outcome', 'Evidence Source Map']
 missing_classification_fields = [field for field in classification_fields if field not in input_source_template]
 if missing_classification_fields:
     failures.append(f'templates/input-source.md: missing source classification fields {missing_classification_fields}')

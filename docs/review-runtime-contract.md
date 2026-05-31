@@ -34,9 +34,11 @@ evidence:     # concrete observed or reported material available to review
     - id: string
       type: diff | file | artifact | url | command_output | reported_summary | missing
       source: string
+      fetch_status: success | partial | failed | not_applicable
       content: string | null
       evidence_level: observed | reported | missing
       truncated: boolean
+      limitations: string
 
 scope:        # boundaries for review judgment
   files: [string]
@@ -122,12 +124,13 @@ Standalone review creates a synthetic task directory:
 - commands/API labels executed, when available
 - fetch status: `success`, `partial`, `failed`, or `not_applicable`
 - missing or truncated evidence notes
+- an Evidence Source Map that ties each normalized evidence ID to its fetch command/API/source label, fetch status, and integrity
 - timestamp or run label
 
 `normalized-input.md` should be created from `templates/normalized-input.md` and must include:
 
 - `brief`: explicit or inferred review target
-- `evidence`: each evidence item with a stable ID, source, evidence level, and truncation/missing-evidence note
+- `evidence`: each evidence item with a stable ID, source, fetch status, evidence level, and truncation/missing-evidence limitation note
 - `scope`: files/ranges/content boundaries reviewed
 - `constraints`: role, focus, exclusions, and user rules
 - `role evidence map`: every active reviewer role mapped to the evidence IDs it may use, or `none — <reason>` when blocked/not triggered
