@@ -2,13 +2,23 @@
 
 These role checklists are loaded by `skills/review/SKILL.md` during role-based review. Keep operator routing and output structure in the main skill; keep detailed per-role assertions here to reduce main-skill surface area.
 
-Checklist version: 2026-05-28
+Checklist version: 2026-05-31
 
 ## Evidence requirements by role
 
 Every role must anchor findings in the normalized `brief / evidence / scope / constraints` bundle and must label whether evidence is `observed`, `reported`, or `missing`. Do not let one role's evidence substitute for another role's checklist.
 
 Before starting a role pass, confirm the `normalization gate` in `normalized-input.md` is complete. A role may proceed only when brief, evidence/blocker, scope, constraints, and limitations are explicit; otherwise the role records `blocked: incomplete normalized input` instead of guessing missing provenance.
+
+Before starting a role pass, the lead reviewer must hand the role a compact **role input packet** sourced only from `normalized-input.md`:
+
+- active role name and trigger decision from the Role trigger matrix
+- allowed evidence IDs from the role evidence map
+- scoped files/ranges/exclusions relevant to that role
+- constraints/focus flags and any ignored conflicting flags
+- visible limitations/truncation/missing evidence for those evidence IDs
+
+The role-pass record in `review-report.md` must echo that packet by citing the trigger decision, evidence IDs inspected, limitations seen, and any Evidence Escalation Log entry created. If the packet is missing, stale, or relies on chat-only/hidden adapter state, the role records `blocked: missing role input packet` rather than proceeding.
 
 - `spec-reviewer`: cite the exact requirement source (`brief.md`, `plan.md` Design Intent/Review Criteria, user-provided spec, or normalized standalone brief) and the implementation evidence that satisfies or violates it.
 - `quality-reviewer`: cite directly observed code, diff hunks, metrics, or verification output. Executor claims from `implementation-notes.md` are reported evidence until independently checked.
