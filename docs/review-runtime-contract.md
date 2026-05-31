@@ -136,6 +136,7 @@ Standalone review creates a synthetic task directory:
 - `constraints`: role, focus, exclusions, user rules, inferred rules, and any ignored adapter/user flags such as `--focus` losing to `--type`
 - `role trigger matrix`: every supported reviewer role marked `run`, `skipped`, or `blocked`, with the normalized evidence ID(s), route rule, explicit flag, or explicit non-trigger signal that made the routing decision
 - `role evidence map`: every active reviewer role mapped to the evidence IDs it may use, or `none — <reason>` when blocked/not triggered
+- Role routing consistency: every role listed in `constraints.roles` must be `run` or `blocked` in the role trigger matrix and must have either allowed evidence IDs or an explicit blocked rationale in the role evidence map; a role marked `run` must not be absent from `constraints.roles`.
 - `role input packet readiness`: every active, blocked, or skipped reviewer role marked `READY`, `BLOCKED`, or `SKIPPED` based on whether trigger decision, evidence IDs, scope, constraints, and limitations are normalized before judgment
 - `role input packets`: for every `READY` or `BLOCKED` role, the exact trigger, evidence IDs, scope, constraints, and limitations handed to the role, copied from normalized fields rather than chat memory or hidden adapter state
 - `review ownership plan`: the lead reviewer, any member assignments, aggregation owner, child-work policy, and product-mutation policy recorded before delegated or parallel reviewer passes start

@@ -48,6 +48,7 @@
 
 ## role evidence map
 <!-- Before reviewer roles start, map each active role to the evidence IDs it may use. This prevents roles from silently relying on unnormalized or chat-only evidence. Use `none — <reason>` only when a role is intentionally blocked or no evidence type exists for that role. -->
+<!-- Consistency guard: every role listed in constraints.roles must be `run` or `blocked` in the Role trigger matrix and must have a non-empty evidence map entry or an explicit blocked rationale. Any role marked `run` here must also appear in constraints.roles. -->
 - **spec-reviewer**: <!-- E1, E2 | none — reason -->
 - **quality-reviewer**: <!-- E1, E3 | none — reason -->
 - **security-reviewer**: <!-- E2 | none — not triggered -->
