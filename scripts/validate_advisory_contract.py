@@ -52,6 +52,17 @@ if not (role_pos != -1 and source_pos != -1 and level_pos != -1 and description_
     failures.append('templates/review-report.md: finding fields must include Role, Evidence Source, and Evidence Level before Description')
 if 'Checklist Version' not in review_template or 'Checklist version: YYYY-MM-DD' not in review_template:
     failures.append('templates/review-report.md: reviewer role summary must capture the exact role checklist version')
+role_pass_fields = [
+    'Role-pass record:',
+    '**Scope/Evidence IDs Inspected**',
+    '**Observed Verification**',
+    '**Limitations/Truncation Seen**',
+    '**Finding Counts**',
+    '**Role Verdict**',
+]
+missing_role_pass_fields = [field for field in role_pass_fields if field not in review_template]
+if missing_role_pass_fields:
+    failures.append(f'templates/review-report.md: missing explicit role-pass fields {missing_role_pass_fields}')
 input_source_template = (root / 'templates/input-source.md').read_text(encoding='utf-8')
 classification_fields = ['Source Classification Rationale', 'Why this type', 'Ambiguities considered', 'Ambiguity outcome']
 missing_classification_fields = [field for field in classification_fields if field not in input_source_template]

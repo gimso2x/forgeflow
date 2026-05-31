@@ -84,6 +84,16 @@ scope_boundary:
 - <!-- quality-reviewer -->: <!-- verdict -->, <!-- N --> findings (<!-- blockers --> blockers, <!-- majors --> major)
 - Cross-role conflicts: <!-- count --> (marked with ⚠)
 
+### Role-pass record: <!-- reviewer role -->
+<!-- Duplicate this block for every active reviewer role, including zero-finding passes. -->
+- **Role**: <!-- spec-reviewer | quality-reviewer | security-reviewer | ux-reviewer | perf-reviewer -->
+- **Checklist Version**: <!-- exact `Checklist version: YYYY-MM-DD` value observed in the checklist file -->
+- **Scope/Evidence IDs Inspected**: <!-- normalized-input evidence IDs, artifact names, paths, or diff ranges -->
+- **Observed Verification**: <!-- command(s) rerun in this review turn, or `none — <no-command rationale>` -->
+- **Limitations/Truncation Seen**: <!-- none | missing evidence | truncated evidence | auth/fetch failure | skipped scope -->
+- **Finding Counts**: <!-- blockers=N, major=N, minor=N, nit=N -->
+- **Role Verdict**: <!-- approved | changes_requested | blocked -->
+
 ## 명세 준수 (Spec Compliance)
 <!-- For spec review -->
 - [ ] Brief objective satisfied

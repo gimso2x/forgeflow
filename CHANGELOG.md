@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Review skill now carries the inspection-only tool posture inline, with validation guarding that code/product fixes are handed back to execute.
 - Role-based review now requires per-role pass records, including zero-finding passes, so aggregation depends on artifacted scope/evidence/verification/limitations instead of chat-only completion claims.
 - `checkpoint.md` now includes a `Handoff Boundary` section so stage owner, next owner, handoff reason, and forbidden-action delegation stay explicit across refreshes and adapter handoffs.
+- `review-report.md` now includes an explicit reusable role-pass record block for every active reviewer role, with advisory validation guarding scope/evidence, observed verification, limitations, finding counts, and role verdict fields.
 
 ## [1.9.3] - 2026-05-31
 
