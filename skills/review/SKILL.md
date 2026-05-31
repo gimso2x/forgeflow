@@ -206,6 +206,7 @@ ForgeFlow review follows `docs/review-runtime-contract.md`. Load that document b
 
 Contract obligations:
 - Adapters are thin: detect input, fetch raw evidence, normalize to `brief / evidence / scope / constraints`, write `input-source.md` and `normalized-input.md`, then invoke canonical review.
+- Adapter handoff must satisfy the contract's Adapter compliance checklist: source classified, fetch reproduced, normalization complete, limitations visible, and review ownership delegated to the canonical review skill.
 - Adapters must not change verdict enums, auto-approve findings, hide fetch failures, rewrite role routing, create adapter-specific `review-report.md` ownership, or mutate product files.
 - Reviewer roles remain independent. Every finding must cite role, confidence, criteria basis, evidence source, evidence level, priority/severity, side effect, and disposition state when applicable.
 - Cross-role conflicts stay visible and require human decision; do not silently pick a winner.

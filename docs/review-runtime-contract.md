@@ -90,6 +90,18 @@ Adapters must not:
 - bypass the human review gate
 - introduce new stage names or verdict enums
 
+### Adapter compliance checklist
+
+Before invoking the canonical review skill, every adapter must leave an auditable handoff that answers these questions in markdown:
+
+- **Source classified**: which input source class was detected, and why other plausible classes were not used when ambiguous.
+- **Fetch reproduced**: the exact command, API label, or tool/source label used to obtain each evidence item.
+- **Normalization complete**: `brief`, `evidence`, `scope`, and `constraints` are all present in `normalized-input.md`.
+- **Limitations visible**: every failed, partial, missing, or truncated fetch is recorded as an evidence item with `evidence_level: missing` or an explicit truncation note.
+- **Review ownership delegated**: the adapter hands off to the canonical review skill and does not keep a parallel verdict, report file, or hidden approval path.
+
+If any checklist item cannot be satisfied, the adapter should still write `input-source.md` and `normalized-input.md`, but the review verdict must be `blocked` unless a human explicitly narrows the scope and records the limitation.
+
 ## Provenance artifacts
 
 Standalone review creates a synthetic task directory:
