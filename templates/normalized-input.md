@@ -11,6 +11,7 @@
 ## evidence
 
 <!-- stable evidence IDs are the handoff boundary between adapters and reviewer roles. Keep IDs stable, unique within this file, and cite them from review-report.md role-pass records. If evidence is sampled or truncated, the item ID still points to the sampled content and its limitation note. -->
+<!-- Before scope/routing, fill the Evidence Gap Register below for every expected evidence class that is missing, partial, sampled, or blocked. Do not hide unavailable PR metadata, changed-file lists, command output, referenced artifacts, or large-diff omissions behind a generic limitation note. -->
 
 ### Evidence Item 1
 - **id**: <!-- e.g., E1; unique evidence ID, do not reuse for another item -->
@@ -24,6 +25,10 @@
   ```text
   <!-- concrete fetched/provided evidence, or null for missing evidence -->
   ```
+
+### Evidence Gap Register
+<!-- Record one row per known missing/partial/sampled evidence class before reviewer roles run. If there are no gaps, write `none`. Reviewer roles may cite these gap IDs when limiting or blocking judgment. -->
+- **G1**: <!-- missing | partial | sampled | blocked; source=<expected command/API/file/artifact>; affects=<brief|evidence|scope|constraints|role>; roles=<reviewer roles affected>; disposition=<blocked|limited|not_applicable>; reason -->
 
 ## scope
 - **files**: <!-- changed/listed files, or none -->

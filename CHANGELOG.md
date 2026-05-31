@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Standalone review normalized input now includes an Evidence Gap Register so missing, partial, sampled, or blocked evidence classes are visible to reviewer roles before scope/routing and approval decisions.
 - Standalone review ownership plans now include an explicit conflict policy so delegated reviewer disagreements stay visible in `review-report.md` and route to the Human Review Gate instead of being privately resolved.
 - Standalone review normalized input now includes a `scope_source_map` so every in-scope file, range, or content bound traces back to normalized evidence IDs before reviewer roles judge.
 - Execute subagent and parallel claim markers now require an artifact-level write/read-back check before delegated work proceeds, preventing concurrent workers from overwriting another active claim.
