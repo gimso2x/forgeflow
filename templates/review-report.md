@@ -81,6 +81,7 @@ scope_boundary:
 - Checklist Version: <!-- exact `Checklist version: YYYY-MM-DD` value observed in the checklist file -->
 - Evidence requirements source: `skills/review/references/role-checklists.md#evidence-requirements-by-role`
 - Role routing rationale: <!-- why each role ran or was skipped: route rule, --type/--focus flag, file-type heuristic, specialist trigger, or explicit non-trigger -->
+- Role evidence map: <!-- cite normalized-input.md role evidence map; active roles must use only listed evidence IDs or record newly normalized evidence first -->
 - Active roles: <!-- roles that ran; must match normalized-input.md constraints.roles or route defaults -->
 - Skipped roles: <!-- role=reason pairs for every supported role that did not run; use explicit non-trigger rationale, not blank/implicit omission -->
 - <!-- spec-reviewer -->: <!-- verdict -->, <!-- N --> findings (<!-- blockers --> blockers, <!-- majors --> major)

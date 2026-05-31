@@ -109,6 +109,8 @@ Create `input-source.md` from `templates/input-source.md`. It records:
 
 Create `normalized-input.md` from `templates/normalized-input.md`. It records the 4-field structure (see Input Normalization below).
 
+Before reviewer roles begin, fill the template's **role evidence map**. Map every active reviewer role to the normalized evidence IDs it may cite; for inactive or blocked roles, write `none — <reason>`. Roles must not cite chat-only or unnormalized evidence. If a role needs additional material, add it as a new evidence item in `normalized-input.md` first, including source, evidence level, and limitation/truncation notes.
+
 Before any reviewer role begins, complete the template's **normalization gate**. If `brief_present`, `evidence_present_or_blocked`, `scope_explicit`, `constraints_explicit`, or `limitations_visible` is `FAIL`, stop with `blocked` and record the missing provenance in `review-report.md`; do not let reviewer roles fill gaps by assumption.
 
 If `.forgeflow/` doesn't exist, create it. Do not initialize a full ForgeFlow workspace — only the task directory and its files.
@@ -220,6 +222,7 @@ ForgeFlow review follows `docs/review-runtime-contract.md`. Load that document b
 
 Contract obligations:
 - Adapters are thin: detect input, fetch raw evidence, normalize to `brief / evidence / scope / constraints`, write `input-source.md` and `normalized-input.md`, then invoke canonical review.
+- `normalized-input.md` must include stable evidence IDs and a role evidence map so reviewer roles cite only normalized, provenance-visible material.
 - Adapter handoff must satisfy the contract's Adapter compliance checklist: source classified, fetch reproduced, normalization complete, limitations visible, and review ownership delegated to the canonical review skill.
 - Adapters must not change verdict enums, auto-approve findings, hide fetch failures, rewrite role routing, create adapter-specific `review-report.md` ownership, or mutate product files.
 - Reviewer roles remain independent. Every finding must cite role, confidence, criteria basis, evidence source, evidence level, priority/severity, side effect, and disposition state when applicable.

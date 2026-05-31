@@ -10,6 +10,8 @@
 
 ## evidence
 
+<!-- stable evidence IDs are the handoff boundary between adapters and reviewer roles. Keep IDs stable and cite them from review-report.md role-pass records. If evidence is sampled or truncated, the item ID still points to the sampled content and its limitation note. -->
+
 ### Evidence Item 1
 - **id**: <!-- e.g., E1 -->
 - **type**: <!-- diff | file | artifact | url | command_output | reported_summary | missing -->
@@ -33,6 +35,14 @@
 - **user_rules**: <!-- exact user restrictions, or none -->
 - **inferred_rules**: <!-- route/input-derived constraints, large diff sampling, test-only focus, etc. -->
 - **ignored_flags**: <!-- e.g., --focus ignored because --type wins, or none -->
+
+## role evidence map
+<!-- Before reviewer roles start, map each active role to the evidence IDs it may use. This prevents roles from silently relying on unnormalized or chat-only evidence. Use `none — <reason>` only when a role is intentionally blocked or no evidence type exists for that role. -->
+- **spec-reviewer**: <!-- E1, E2 | none — reason -->
+- **quality-reviewer**: <!-- E1, E3 | none — reason -->
+- **security-reviewer**: <!-- E2 | none — not triggered -->
+- **ux-reviewer**: <!-- E4 | none — not triggered -->
+- **perf-reviewer**: <!-- E5 | none — not triggered -->
 
 ## normalization gate
 <!-- Complete this gate before any reviewer role starts. If any item is FAIL, review verdict is blocked until the missing provenance is fixed or explicitly recorded as unavailable. -->

@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Review role summaries now separate `Active roles` from `Skipped roles`, requiring explicit skip reasons for every supported role that does not run.
 - Context-resume validation now guards the shared stage artifact/tool boundary catalog so every workflow stage keeps explicit owned artifacts plus allowed/forbidden tool posture.
 - Review role-pass records now preserve markdown claim markers for delegated or concurrent reviewer passes, making lead/member handoffs auditable without chat-only claims.
+- Standalone review normalized input now includes stable evidence IDs and a role evidence map so reviewer roles cite only provenance-visible evidence.
 
 ## [1.9.3] - 2026-05-31
 

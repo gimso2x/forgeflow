@@ -127,9 +127,10 @@ Standalone review creates a synthetic task directory:
 `normalized-input.md` should be created from `templates/normalized-input.md` and must include:
 
 - `brief`: explicit or inferred review target
-- `evidence`: each evidence item with source and evidence level
+- `evidence`: each evidence item with a stable ID, source, evidence level, and truncation/missing-evidence note
 - `scope`: files/ranges/content boundaries reviewed
 - `constraints`: role, focus, exclusions, and user rules
+- `role evidence map`: every active reviewer role mapped to the evidence IDs it may use, or `none — <reason>` when blocked/not triggered
 
 `review-report.md` remains the single review result artifact. Adapter-specific reports are not allowed.
 
@@ -156,6 +157,8 @@ A role finding must cite:
 - disposition and disposition rationale when applicable
 
 Every role pass, including passes with zero findings, must leave a compact role-pass record in `review-report.md` so the lead can audit what was inspected without reading chat logs. The record includes active role, markdown claim marker (`role=<reviewer> scope=<artifact section/evidence IDs> at=<ISO8601>`), checklist version, reviewed scope/evidence IDs, verification command(s) observed or reason none ran, limitations, finding counts, and the role verdict. Chat-only role completion claims are not sufficient evidence.
+
+Reviewer roles may cite only normalized evidence IDs from the role evidence map unless they first update `normalized-input.md` with a new evidence item and visible limitation note. Chat-only context, unrecorded web pages, or ad-hoc file reads are not valid role evidence.
 
 Cross-role conflicts stay visible. The report must keep both findings, mark the conflict as requiring human decision, and avoid silently choosing a winner.
 
