@@ -31,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Standalone review normalized input now includes stable evidence IDs and a role evidence map so reviewer roles cite only provenance-visible evidence.
 - Standalone review evidence items now carry per-item fetch status and limitations, with `input-source.md` recording an Evidence Source Map from evidence IDs to fetch provenance.
 - Standalone review now treats local `.diff`/`.patch` file paths as diff inputs with file-read provenance, rather than ambiguous file bundles.
+- Standalone review normalization now includes a role trigger matrix so security/ux/perf routing decisions cite normalized trigger evidence or explicit non-trigger reasons instead of chat-only intuition.
 
 ## [1.9.3] - 2026-05-31
 

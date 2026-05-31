@@ -133,6 +133,7 @@ Standalone review creates a synthetic task directory:
 - `evidence`: each evidence item with a stable ID, source, fetch status, evidence level, and truncation/missing-evidence limitation note
 - `scope`: files/ranges/content boundaries reviewed
 - `constraints`: role, focus, exclusions, and user rules
+- `role trigger matrix`: every supported reviewer role marked `run`, `skipped`, or `blocked`, with the normalized evidence ID(s), route rule, explicit flag, or explicit non-trigger signal that made the routing decision
 - `role evidence map`: every active reviewer role mapped to the evidence IDs it may use, or `none — <reason>` when blocked/not triggered
 
 `review-report.md` remains the single review result artifact. Adapter-specific reports are not allowed.
@@ -175,7 +176,7 @@ Cross-role conflicts stay visible. The report must keep both findings, mark the 
 - `--type all` runs all reviewer roles.
 - `--focus <role>` is an alias unless `--type` is also present; `--type` wins and the ignored focus is recorded.
 
-Adapter source must never override these routing rules after normalization. The canonical `review-report.md` records both `Active roles` and `Skipped roles`; every skipped supported role needs a reason such as route depth, `--type` narrowing, file-type non-trigger, or unavailable evidence. Silent omission of a role is treated as an incomplete routing record.
+Adapter source must never override these routing rules after normalization. The canonical `review-report.md` records both `Active roles` and `Skipped roles`; every skipped supported role needs a reason such as route depth, `--type` narrowing, file-type non-trigger, or unavailable evidence. Silent omission of a role is treated as an incomplete routing record. Security, UX, and performance roles may be triggered only from normalized evidence or an explicit user flag; if the apparent trigger exists only in chat context or was lost to truncation/fetch failure, record `blocked` or `skipped — missing trigger evidence` in the role trigger matrix rather than broadening review scope invisibly.
 
 ## Stage tool catalog
 

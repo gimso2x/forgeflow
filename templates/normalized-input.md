@@ -38,6 +38,14 @@
 - **inferred_rules**: <!-- route/input-derived constraints, large diff sampling, test-only focus, etc. -->
 - **ignored_flags**: <!-- e.g., --focus ignored because --type wins, or none -->
 
+### Role trigger matrix
+<!-- For each supported reviewer role, record whether it ran or was skipped and cite the normalized evidence ID(s) or explicit non-trigger signal that made the decision. Do not route a role from chat-only context. -->
+- **spec-reviewer**: <!-- run | skipped | blocked — trigger: brief/spec present, --type, route, or none; evidence: E1,E2 | none -->
+- **quality-reviewer**: <!-- run | skipped | blocked — trigger: default, --type, route, or none; evidence: E1,E3 | none -->
+- **security-reviewer**: <!-- run | skipped | blocked — trigger: auth/input/secrets/network/filesystem/dependency signal, --type/--focus, or explicit non-trigger; evidence: E2 | none -->
+- **ux-reviewer**: <!-- run | skipped | blocked — trigger: UI/text/route/form/a11y signal, --type/--focus, or explicit non-trigger; evidence: E4 | none -->
+- **perf-reviewer**: <!-- run | skipped | blocked — trigger: query/loop/cache/batching/memory signal, --type/--focus, or explicit non-trigger; evidence: E5 | none -->
+
 ## role evidence map
 <!-- Before reviewer roles start, map each active role to the evidence IDs it may use. This prevents roles from silently relying on unnormalized or chat-only evidence. Use `none — <reason>` only when a role is intentionally blocked or no evidence type exists for that role. -->
 - **spec-reviewer**: <!-- E1, E2 | none — reason -->

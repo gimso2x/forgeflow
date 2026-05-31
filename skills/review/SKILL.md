@@ -249,6 +249,8 @@ Role-specific triggers stay inline so operators can decide which passes to run q
 
 Before running roles, write a compact role routing rationale in `review-report.md`: list `Active roles` and `Skipped roles` explicitly. For every role that runs or is intentionally skipped, cite the route rule, `--type`/`--focus` flag, file-type heuristic, specialist profile, or explicit non-trigger that decided it. A missing skipped-role reason is a routing gap, not a harmless omission. This prevents standalone adapters and parallel reviewers from silently broadening or narrowing review scope after normalization.
 
+In standalone mode, also fill `normalized-input.md` → `Role trigger matrix` before any role begins. Each supported role must have one row marked `run`, `skipped`, or `blocked`, with the normalized evidence ID(s) or explicit non-trigger signal that drove the decision. Do not activate security/ux/perf from chat-only intuition; first normalize the path, diff hunk, artifact, or command output that shows the trigger. If the trigger signal is missing because fetching failed or evidence was truncated away, mark that role `blocked` or `skipped — missing trigger evidence` instead of silently running a weak pass.
+
 #### spec-reviewer
 
 **Trigger**: Always runs in pipeline mode. In standalone mode, runs when a brief/requirement/spec document exists (auto-generated or user-provided).
@@ -269,17 +271,23 @@ Before running roles, write a compact role routing rationale in `review-report.m
 
 **Trigger**: Runs when `--focus security` is specified, or when in-scope changes touch authentication/authorization, input validation/sanitization, secret/key handling, API/network boundaries, file system operations, or dependency additions.
 
+**Trigger evidence**: cite the role trigger matrix row and normalized evidence IDs for the auth/input/secrets/network/filesystem/dependency signal before opening findings.
+
 **Checklist source**: `skills/review/references/role-checklists.md#security-reviewer`.
 
 #### ux-reviewer
 
 **Trigger**: Runs when `--focus ux` is specified, or when in-scope changes touch UI component files, CSS/styling, user-facing text/labels/messages, route/page definitions, or form handling code.
 
+**Trigger evidence**: cite the role trigger matrix row and normalized evidence IDs for the UI/text/route/form/accessibility signal before opening findings.
+
 **Checklist source**: `skills/review/references/role-checklists.md#ux-reviewer`.
 
 #### perf-reviewer
 
 **Trigger**: Runs when `--focus perf` is specified, or when in-scope changes touch database queries/ORM calls, loops over large collections, caching layers, network call batching, or memory-intensive operations.
+
+**Trigger evidence**: cite the role trigger matrix row and normalized evidence IDs for the query/loop/cache/batching/memory signal before opening findings.
 
 **Checklist source**: `skills/review/references/role-checklists.md#perf-reviewer`.
 
