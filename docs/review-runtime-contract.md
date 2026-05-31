@@ -139,6 +139,7 @@ Standalone review creates a synthetic task directory:
 - Role routing consistency: every role listed in `constraints.roles` must be `run` or `blocked` in the role trigger matrix and must have either allowed evidence IDs or an explicit blocked rationale in the role evidence map; a role marked `run` must not be absent from `constraints.roles`.
 - `role input packet readiness`: every active, blocked, or skipped reviewer role marked `READY`, `BLOCKED`, or `SKIPPED` based on whether trigger decision, evidence IDs, scope, constraints, limitations, and packet freshness are normalized before judgment; readiness must be refreshed after any Evidence Escalation Log entry, new evidence item, scope change, constraint change, or role-routing change
 - `role input packets`: for every `READY` or `BLOCKED` role, the exact trigger, evidence IDs, scope, constraints, limitations, and packet freshness handed to the role, copied from normalized fields rather than chat memory or hidden adapter state
+- `role capability hints`: optional advisory model/profile/tooling hints per reviewer role, recorded only for auditability; they must use capability language rather than provider-specific requirements and must not affect routing, evidence IDs, evidence levels, verdict enums, approval rules, or the human review gate
 - `review ownership plan`: the lead reviewer, any member assignments, aggregation owner, child-work policy, and product-mutation policy recorded before delegated or parallel reviewer passes start
 - `adapter handoff checklist`: source classified, fetch reproduced, normalization complete, limitations visible, and canonical review ownership recorded as `PASS`/`FAIL` before reviewer judgment begins
 
@@ -201,6 +202,8 @@ Harnesses that can choose models per role may use capability-based role model hi
 - ux-reviewer and perf-reviewer can use a standard reasoning model unless normalized evidence shows accessibility, query-planning, caching, or large-data risk that needs specialist depth.
 
 Adapters may record non-default role/model assignments in adapter notes or role-pass records for auditability. Model choice must not change role routing, role evidence maps, evidence levels, verdict enums, approval rules, or the human review gate. There is no central model database in the review contract.
+
+When the assignment is known before reviewer judgment, record it in `normalized-input.md` under `role capability hints` so the lead and member reviewers share the same advisory profile map. Leave roles as `not_applicable` when the harness has no per-role model/profile selection. A missing or provider-neutral hint is not a review blocker; a hint that changes route/evidence/verdict semantics is a contract violation.
 
 ## Stage tool catalog
 

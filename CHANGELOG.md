@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Standalone review normalized input now includes optional role capability hints so harness-selected reviewer model/profile metadata is auditable without changing routing, evidence, verdict, approval, or human-gate semantics.
 - Review role checklists now require role input packets to carry and echo packet freshness, aligning role handoffs with standalone normalization freshness gates.
 - Standalone review role input packets now carry a freshness check and must be refreshed after evidence escalation, new evidence, scope, constraint, or routing changes before reviewer judgment continues.
 - Standalone review normalization now requires a routing consistency check between `constraints.roles`, the Role trigger matrix, and the role evidence map so adapters cannot run, drop, or block reviewer roles inconsistently before judgment.

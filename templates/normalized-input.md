@@ -71,6 +71,14 @@
 - **ux-reviewer**: <!-- trigger=<matrix row>; evidence_ids=<role evidence map IDs>; scope=<files/ranges/exclusions>; constraints=<roles/focus/user_rules/inferred_rules/ignored_flags>; limitations=<evidence limitations/truncation/fetch failures>; packet_freshness=<current after latest evidence/scope/constraint/routing change> -->
 - **perf-reviewer**: <!-- trigger=<matrix row>; evidence_ids=<role evidence map IDs>; scope=<files/ranges/exclusions>; constraints=<roles/focus/user_rules/inferred_rules/ignored_flags>; limitations=<evidence limitations/truncation/fetch failures>; packet_freshness=<current after latest evidence/scope/constraint/routing change> -->
 
+## role capability hints
+<!-- Optional, advisory only. Record any harness-selected reviewer model/profile/tooling hints for auditability, but role capability hints must not affect routing, evidence IDs, evidence levels, verdict enums, approval rules, or the human review gate. Use capability language such as strongest reasoning available or standard reasoning/coding model; do not require provider-specific requirements. -->
+- **spec-reviewer**: <!-- strongest reasoning available | standard reasoning | not_applicable; reason -->
+- **quality-reviewer**: <!-- standard reasoning/coding model | strongest reasoning available; reason -->
+- **security-reviewer**: <!-- strongest reasoning available | standard reasoning | not_applicable; reason -->
+- **ux-reviewer**: <!-- standard reasoning | strongest reasoning available; reason -->
+- **perf-reviewer**: <!-- standard reasoning | strongest reasoning available; reason -->
+
 ## review ownership plan
 <!-- Fill before any delegated or parallel reviewer pass starts. This keeps team-mode absorption declarative: exactly one lead owns aggregation, each member owns at most one pass, and no role may spawn unmanaged child work or mutate product files. Member assignments are role claims, not a task scheduler: members must not create additional reviewer roles, reassign scope, or write outside their assigned review-report section. -->
 - **lead_reviewer**: <!-- exactly one identifier or role responsible for normalization, role routing, aggregation, conflicts, and human gate -->

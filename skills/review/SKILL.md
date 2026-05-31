@@ -332,6 +332,8 @@ When a harness supports role-specific model selection, bind by capability rather
 
 Record any non-default role/model assignment in the role-pass record or adapter notes as a hint only. Model choice must never change role routing, evidence requirements, verdict enums, or the human review gate.
 
+In standalone mode, if role/model or specialist profile selection is known before reviewer judgment, record it in `normalized-input.md` → `role capability hints`. Use provider-neutral capability language (`strongest reasoning available`, `standard reasoning/coding model`, or `not_applicable`) and treat the section as audit metadata only. Do not block review because an adapter lacks per-role model selection; block only if a capability hint is used to alter role routing, evidence IDs, evidence levels, verdict enums, approval rules, or human-gate semantics.
+
 ### Specialist Profiles
 
 Specialist profiles define focused review lenses tied to the `specialist` field in `brief.md` YAML frontmatter. When review reads `brief.md`, it extracts the specialist primary and secondary values and automatically applies the corresponding assertion sets below. These assertions supplement (not replace) the standard reviewer role checklists.
