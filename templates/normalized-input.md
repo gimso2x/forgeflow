@@ -71,8 +71,8 @@
 - **perf-reviewer**: <!-- trigger=<matrix row>; evidence_ids=<role evidence map IDs>; scope=<files/ranges/exclusions>; constraints=<roles/focus/user_rules/inferred_rules/ignored_flags>; limitations=<evidence limitations/truncation/fetch failures> -->
 
 ## review ownership plan
-<!-- Fill before any delegated or parallel reviewer pass starts. This keeps team-mode absorption declarative: one lead owns aggregation, each member owns at most one pass, and no role may spawn unmanaged child work or mutate product files. Member assignments are role claims, not a task scheduler: members must not create additional reviewer roles, reassign scope, or write outside their assigned review-report section. -->
-- **lead_reviewer**: <!-- identifier or role responsible for normalization, role routing, aggregation, conflicts, and human gate -->
+<!-- Fill before any delegated or parallel reviewer pass starts. This keeps team-mode absorption declarative: exactly one lead owns aggregation, each member owns at most one pass, and no role may spawn unmanaged child work or mutate product files. Member assignments are role claims, not a task scheduler: members must not create additional reviewer roles, reassign scope, or write outside their assigned review-report section. -->
+- **lead_reviewer**: <!-- exactly one identifier or role responsible for normalization, role routing, aggregation, conflicts, and human gate -->
 - **member_assignments**:
   - <!-- role=<reviewer> scope=<artifact section/evidence IDs> claim_marker=<role=... scope=... at=<ISO8601>> writes=<review-report section only> -->
 - **aggregation_owner**: <!-- must match lead_reviewer -->
