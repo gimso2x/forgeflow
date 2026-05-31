@@ -4,6 +4,16 @@ These role checklists are loaded by `skills/review/SKILL.md` during role-based r
 
 Checklist version: 2026-05-28
 
+## Evidence requirements by role
+
+Every role must anchor findings in the normalized `brief / evidence / scope / constraints` bundle and must label whether evidence is `observed`, `reported`, or `missing`. Do not let one role's evidence substitute for another role's checklist.
+
+- `spec-reviewer`: cite the exact requirement source (`brief.md`, `plan.md` Design Intent/Review Criteria, user-provided spec, or normalized standalone brief) and the implementation evidence that satisfies or violates it.
+- `quality-reviewer`: cite directly observed code, diff hunks, metrics, or verification output. Executor claims from `implementation-notes.md` are reported evidence until independently checked.
+- `security-reviewer`: cite the trust boundary, data flow, secret/auth surface, dependency change, or input path under review. If exploitability cannot be confirmed from available evidence, mark confidence and missing evidence explicitly.
+- `ux-reviewer`: cite user-facing text, UI state, route/page, form, accessibility attribute, or screenshot-equivalent source when available. Do not infer unseen UI behavior from code names alone.
+- `perf-reviewer`: cite the hot path, query/loop/cache boundary, payload size, or benchmark/trace evidence. If no runtime measurement exists, classify the concern as static evidence and record measurement as missing evidence when needed.
+
 ## spec-reviewer
 
 Use in addition to the Spec Review rubric.

@@ -219,7 +219,7 @@ Standalone mode and high/epic pipeline mode use role-based review. Each role has
 
 ### Role definitions
 
-Role-specific triggers stay inline so operators can decide which passes to run quickly. The detailed checklist items live in `skills/review/references/role-checklists.md`; load that reference before executing any role pass and cite the checklist version in `review-report.md`.
+Role-specific triggers stay inline so operators can decide which passes to run quickly. The detailed checklist items and role-specific evidence requirements live in `skills/review/references/role-checklists.md`; load that reference before executing any role pass and cite the checklist version in `review-report.md`.
 
 #### spec-reviewer
 
@@ -307,9 +307,11 @@ When two roles produce conflicting findings:
 
 ### Role output structure in review-report.md
 
-Each finding includes the reviewer role:
+Each finding includes the reviewer role and evidence classification:
 ```
 - **Role**: spec-reviewer | quality-reviewer | security-reviewer | ux-reviewer | perf-reviewer
+- **Evidence Source**: <artifact/diff/command/source label>
+- **Evidence Level**: observed | reported | missing
 ```
 
 The report includes a **Role Summary** section:

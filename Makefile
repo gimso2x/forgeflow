@@ -317,6 +317,9 @@ validate-evals-fixtures:
 
 validate-advisory-contract:
 	@$(PYTHON) scripts/validate_advisory_contract.py
+	@grep -Fq "Evidence requirements by role" skills/review/references/role-checklists.md || { echo "ERROR: review role checklists must document evidence requirements by role"; exit 1; }
+	@grep -Fq "Evidence requirements source" templates/review-report.md || { echo "ERROR: review report template must point to role evidence requirements"; exit 1; }
+	@grep -Fq "role별 evidence requirement" README.md || { echo "ERROR: README standalone review docs must mention role-specific evidence requirements"; exit 1; }
 validate-markdown-links:
 	@PYTHON="$(PYTHON)" bash scripts/validate-markdown-links.sh
 
