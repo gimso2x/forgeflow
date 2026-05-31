@@ -155,7 +155,7 @@ A role finding must cite:
 - side effect of the proposed remediation
 - disposition and disposition rationale when applicable
 
-Every role pass, including passes with zero findings, must leave a compact role-pass record in `review-report.md` so the lead can audit what was inspected without reading chat logs. The record includes active role, checklist version, reviewed scope/evidence IDs, verification command(s) observed or reason none ran, limitations, finding counts, and the role verdict. Chat-only role completion claims are not sufficient evidence.
+Every role pass, including passes with zero findings, must leave a compact role-pass record in `review-report.md` so the lead can audit what was inspected without reading chat logs. The record includes active role, markdown claim marker (`role=<reviewer> scope=<artifact section/evidence IDs> at=<ISO8601>`), checklist version, reviewed scope/evidence IDs, verification command(s) observed or reason none ran, limitations, finding counts, and the role verdict. Chat-only role completion claims are not sufficient evidence.
 
 Cross-role conflicts stay visible. The report must keep both findings, mark the conflict as requiring human decision, and avoid silently choosing a winner.
 
@@ -269,7 +269,7 @@ When a future adapter or operator maps review work onto multiple agents, keep th
 
 - **Lead role**: owns input normalization, role routing, aggregation into `review-report.md`, cross-role conflict visibility, and the final human-gate recommendation.
 - **Member role**: owns exactly one delegated reviewer pass or evidence-gathering pass and writes only the assigned artifact/section. Members must not create new task directories, launch additional members, change route selection, or mutate product files.
-- **Claim marker**: if concurrent review passes are used, record the claimed role and target section in markdown before work starts (for example, in `review-report.md` draft notes or a task-local checkpoint). Do not rely on chat-only claims.
+- **Claim marker**: if concurrent review passes are used, record the claimed role and target section in markdown before work starts (for example, in `review-report.md` draft notes or a task-local checkpoint) using `role=<reviewer> scope=<artifact section/evidence IDs> at=<ISO8601>`. The final role-pass record preserves that marker. Do not rely on chat-only claims.
 - **Merge rule**: unresolved disagreement between members is recorded as a cross-role conflict. The lead aggregates; it does not silently override member findings.
 - **Non-goal**: this is not a team scheduler, persistent queue, or autonomous task marketplace. It is a safety boundary for occasional parallel reviewer passes.
 

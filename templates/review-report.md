@@ -90,6 +90,7 @@ scope_boundary:
 ### Role-pass record: <!-- reviewer role -->
 <!-- Duplicate this block for every active reviewer role, including zero-finding passes. -->
 - **Role**: <!-- spec-reviewer | quality-reviewer | security-reviewer | ux-reviewer | perf-reviewer -->
+- **Claim Marker**: <!-- role=<spec-reviewer|quality-reviewer|security-reviewer|ux-reviewer|perf-reviewer> scope=<artifact section/evidence IDs> at=<ISO8601>; required before delegated/concurrent role work -->
 - **Trigger Rationale**: <!-- route rule, --type/--focus flag, file-type heuristic, specialist profile, or explicit non-trigger rationale -->
 - **Checklist Version**: <!-- exact `Checklist version: YYYY-MM-DD` value observed in the checklist file -->
 - **Scope/Evidence IDs Inspected**: <!-- normalized-input evidence IDs, artifact names, paths, or diff ranges -->
