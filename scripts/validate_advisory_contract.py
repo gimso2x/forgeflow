@@ -116,6 +116,26 @@ for role in role_trigger_roles:
         failures.append(f'templates/normalized-input.md: role trigger matrix/map must include {role}')
 if 'trigger:' not in normalized_input_template or 'evidence:' not in normalized_input_template:
     failures.append('templates/normalized-input.md: role trigger rows must preserve trigger and evidence fields')
+automation_doc = (root / 'skills/_shared/automation.md').read_text(encoding='utf-8')
+stage_order = ['clarify', 'plan', 'execute', 'review', 'ship']
+stage_positions = []
+for stage in stage_order:
+    marker = f'- **{stage}** — owns'
+    pos = automation_doc.find(marker)
+    if pos == -1:
+        failures.append(f'skills/_shared/automation.md: missing stage boundary entry {marker!r}')
+    else:
+        stage_positions.append((stage, pos))
+        line_end = automation_doc.find('\n', pos)
+        stage_line = automation_doc[pos: line_end if line_end != -1 else len(automation_doc)]
+        if 'Allowed posture:' not in stage_line or 'Forbidden:' not in stage_line:
+            failures.append(f'skills/_shared/automation.md: stage boundary entry for {stage} must include Allowed posture and Forbidden on the same line')
+if len(stage_positions) == len(stage_order):
+    ordered_positions = [pos for _, pos in stage_positions]
+    if ordered_positions != sorted(ordered_positions):
+        failures.append('skills/_shared/automation.md: stage boundary entries must stay in workflow order clarify → plan → execute → review → ship')
+if 'forbidden action being delegated' not in automation_doc:
+    failures.append('skills/_shared/automation.md: Handoff Boundary must record forbidden-action delegation')
 review_gate_pos = review_template.find('**Normalization Gate**')
 standalone_pos = review_template.find('## Standalone 입력 소스')
 reader_summary_pos = review_template.find('## 사용자용 요약')

@@ -45,6 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Review reports now include an Evidence Escalation Log so reviewer roles cannot use evidence outside the normalized role evidence map without recorded provenance or blocked/limited judgment.
 - Review role checklists now require a normalized role input packet before each role pass, so triggers, evidence IDs, scoped files/ranges, constraints, and visible limitations are handed off from artifacts rather than chat-only state.
 - Standalone review ownership plans now distinguish delegated reviewer role claims from task scheduling, keeping role creation/reassignment lead-only and blocking member-side scope broadening before judgment.
+- Advisory contract validation now enforces shared stage boundary catalog order and per-stage allowed/forbidden tool posture, preventing clarify/plan/execute/review/ship ownership drift.
 
 ## [1.9.3] - 2026-05-31
 
