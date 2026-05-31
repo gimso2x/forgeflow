@@ -61,6 +61,15 @@
 - **ux-reviewer**: <!-- E4 | none — not triggered -->
 - **perf-reviewer**: <!-- E5 | none — not triggered -->
 
+## evidence integrity check
+<!-- Complete after the role evidence map and before packet readiness. Every evidence ID cited by constraints.roles, the Role trigger matrix, role evidence map, scope_source_map, or role input packets must resolve to exactly one evidence item above and to one matching input-source.md Evidence Source Map row. Mismatched type/fetch_status/evidence_level, missing IDs, duplicated IDs, or stale packet references block reviewer judgment until normalized. -->
+- **id_resolution**: <!-- PASS | FAIL; every cited evidence ID exists exactly once in normalized-input.md -->
+- **source_map_match**: <!-- PASS | FAIL; type/fetch_status/evidence_level/source match input-source.md Evidence Source Map -->
+- **scope_map_coverage**: <!-- PASS | FAIL; every scope_source_map evidence ID resolves or records blocked/missing scope evidence -->
+- **role_map_coverage**: <!-- PASS | FAIL; every active role evidence ID resolves and matches the role trigger matrix -->
+- **packet_reference_freshness**: <!-- PASS | FAIL; role input packets do not cite removed, renamed, or superseded evidence IDs -->
+- **blocking_notes**: <!-- none | list missing/duplicate/mismatched/stale evidence references and affected roles -->
+
 ## role input packet readiness
 <!-- Fill once per active or blocked reviewer role before judgment, and refresh after any Evidence Escalation Log entry, new evidence item, scope change, constraint change, or role-routing change. READY means the role has a trigger decision, allowed evidence IDs, scoped files/ranges/exclusions, constraints/focus flags, role-specific criteria basis, visible limitations, and a packet freshness check sourced only from this normalized input. BLOCKED means one or more packet fields are missing or stale; the role must not judge until the missing/stale field is normalized or recorded as unavailable. Skipped roles may use SKIPPED with an explicit non-trigger reason. -->
 - **spec-reviewer**: <!-- READY | BLOCKED | SKIPPED — packet fields present/missing/stale: trigger,evidence_ids,scope,constraints,criteria_basis,limitations,packet_freshness; reason -->
