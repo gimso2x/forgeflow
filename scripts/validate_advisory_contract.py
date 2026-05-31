@@ -6,6 +6,7 @@ checks = {
     'skills/forgeflow/SKILL.md': ['intent:', 'inputs:', 'outputs:', 'dependencies:', 'docs/advisory-guidelines.md'],
     'skills/clarify/SKILL.md': ['intent:', 'inputs:', 'outputs:', 'dependencies:', '리뷰해줘', '계획 세워', 'suggested_next_skill', 'Keyword hints are advisory'],
     'skills/review/SKILL.md': ['docs/review-runtime-contract.md', 'brief / evidence / scope / constraints', 'read-only except for review artifacts', 'observed evidence', 'Cross-role conflicts', 'Evidence Source', 'Evidence Level', 'observed | reported | missing'],
+    'skills/_shared/automation.md': ['Stage artifact/tool boundary catalog', 'clarify', 'plan', 'execute', 'review', 'ship', 'product code edits', 'Code findings hand back to execute'],
     'templates/brief.md': ['Route Rationale', 'Budget Note', 'Suggested Next Skill', 'Suggested specialists'],
     'templates/review-report.md': ['Evidence Source', 'Evidence Level', 'observed | reported | missing'],
     'templates/plan.md': ['Execution Pattern', 'Applied Evolution Rules'],
@@ -51,5 +52,5 @@ if failures:
     print('ERROR: advisory contract drift')
     [print(f'- {failure}') for failure in failures]
     sys.exit(1)
-print('OK: advisory metadata, alias hints, advisory docs, and YAML frontmatter integrity')
+print('OK: advisory metadata, alias hints, stage tool boundaries, advisory docs, and YAML frontmatter integrity')
 

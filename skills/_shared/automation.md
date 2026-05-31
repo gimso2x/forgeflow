@@ -88,6 +88,18 @@ The agent must **stop and wait for user input** when any of these occur, even un
 
 Never start implementation while `plan.md` is missing, `run-ledger.md` scaffolds are absent, or `checkpoint.md` still points at a prior stage.
 
+### Stage artifact/tool boundary catalog
+
+Keep stage boundaries explicit. Each stage owns a small artifact set and a narrow tool posture; later stages may read prior artifacts, but they must not silently take over another stage's mutation authority.
+
+- **clarify** — owns `brief.md`, `checkpoint.md`, and optional `decision-log.md` entries. Allowed posture: read project context, ask or infer requirements, inspect files for scoping. Forbidden: product code edits, implementation planning beyond route/scope/AC, shipping decisions.
+- **plan** — owns `plan.md`, task scaffolds (`implementation-notes.md`, `run-ledger.md`), `checkpoint.md`, and optional `decision-log.md` entries. Allowed posture: read code/artifacts, decompose work, define verification gates. Forbidden: product code edits, review verdicts, branch disposition.
+- **execute** — owns product changes within `brief.md`/`plan.md` scope plus `implementation-notes.md`, `run-ledger.md`, `checkpoint.md`, and verification evidence. Allowed posture: edit in-scope files, run tests/builds/validators, record deviations. Forbidden: expanding scope without a brief/plan update, approving its own work, merging/shipping.
+- **review** — owns `review-report.md` and standalone provenance artifacts (`input-source.md`, `normalized-input.md`) when applicable. Allowed posture: read artifacts/source, inspect diffs/logs, fetch declared review input, run verification commands. Forbidden: product fixes, branch changes, destructive cleanup, hidden auto-approval. Code findings hand back to execute.
+- **ship** — owns `ship-summary.md`, terminal checkpoint state, and selected branch/worktree disposition. Allowed posture: final verification, changelog/handoff checks, explicit merge/PR/keep/discard flow. Forbidden: deleting unrelated dirty files, changing external automation, bypassing unresolved human-review decisions.
+
+If a stage needs an action listed as forbidden for that stage, stop at the boundary, record the blocker or requested handoff in `checkpoint.md`, and invoke the correct next stage instead of doing the work inline.
+
 ### Per-stage exit checklist
 
 Complete **all** items before invoking the next stage or editing code outside the current stage scope.
