@@ -38,6 +38,9 @@
 -
 
 ## 증거 (Evidence)
+
+- `surgical_scope:PASS task=<id> changed=<paths> rationale="maps to approved plan scope"`
+- `simplicity_check:PASS task=<id> rationale="no speculative abstraction/configuration added"`
 <!-- Gate results, test outputs, verification outcomes -->
 <!-- Use compact strings parseable by review/ship preflight: verification:PASS/FAIL, contract_check:PASS/FAIL, evidence_index:task=... -->
 -

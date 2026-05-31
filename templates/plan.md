@@ -28,6 +28,12 @@
 <!-- medium-full: contract-first traceability required; medium-light: contracts optional unless brownfield -->
 
 ## 설계 의도 (Design Intent)
+
+## 단순성 점검 (Simplicity Check)
+
+- **Minimal solution**:
+- **Rejected abstraction/flexibility**:
+- **Why this is enough now**:
 <!-- Reviewer-facing intent summary. State why this design is the intended shape, not just what will change. -->
 - **Problem framing**: <!-- what problem this design solves -->
 - **Chosen approach**: <!-- selected design and why it is preferred -->

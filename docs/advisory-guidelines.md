@@ -1,5 +1,34 @@
 # ForgeFlow Advisory Guidelines
 
+## Coding Agent Behavior Guardrails
+
+These guardrails are advisory but should be considered during clarify, plan, execute, and review. They adapt common LLM coding failure modes into ForgeFlow's artifact-first workflow.
+
+### 1. Think Before Coding
+
+- Surface assumptions before implementation.
+- If multiple interpretations exist, record the selected interpretation in `brief.md` or `decision-log.md`.
+- If ambiguity changes files, data, security, or user-visible behavior, ask or block instead of guessing.
+
+### 2. Simplicity First
+
+- Prefer the minimum implementation that satisfies acceptance criteria.
+- Do not add speculative abstraction, configurability, dependencies, or future-proofing.
+- If an implementation grows materially larger than expected, simplify before marking the task done.
+
+### 3. Surgical Changes
+
+- Every changed line should trace to the approved brief or plan.
+- Do not refactor adjacent code unless the plan names it.
+- Remove only unused code introduced by the current change.
+
+### 4. Goal-Driven Execution
+
+- Convert vague tasks into verifiable acceptance criteria.
+- Each plan task needs a verification check.
+- Bugs should have reproduction evidence before fix when practical.
+
+
 > **Last updated**: 2026-05-21 | **Status**: advisory only — does not hard-block execution.
 
 ForgeFlow stays markdown-only and no-runtime. These guidelines are advisory checklists for `clarify`, `plan`, and `review`; they do not hard-block execution.

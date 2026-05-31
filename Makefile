@@ -1,4 +1,4 @@
-.PHONY: validate demo validate-demo validate-json validate-no-python validate-slim-surface validate-ci-workflows validate-skills validate-skill-frontmatter validate-agent-docs validate-templates validate-template-refs validate-versions validate-changelog-links validate-route-scoring-parity validate-route-policy validate-gemini-imports validate-plugin-prompts validate-evals validate-evals-json validate-eval-files validate-evals-fixtures validate-workflow-vocab validate-ship-safety validate-dogfooding-docs validate-context-resume validate-adapter-config validate-advisory-contract validate-markdown-links telemetry telemetry-collect telemetry-aggregate usage-audit
+.PHONY: validate demo validate-demo validate-behavior-guardrails validate-json validate-no-python validate-slim-surface validate-ci-workflows validate-skills validate-skill-frontmatter validate-agent-docs validate-templates validate-template-refs validate-versions validate-changelog-links validate-route-scoring-parity validate-route-policy validate-gemini-imports validate-plugin-prompts validate-evals validate-evals-json validate-eval-files validate-evals-fixtures validate-workflow-vocab validate-ship-safety validate-dogfooding-docs validate-context-resume validate-adapter-config validate-advisory-contract validate-behavior-guardrails validate-markdown-links telemetry telemetry-collect telemetry-aggregate usage-audit
 
 PYTHON ?= python3
 
@@ -349,6 +349,10 @@ validate-advisory-contract:
 	@grep -Fq "hand it back to execute" skills/review/SKILL.md || { echo "ERROR: review skill must hand code/product fixes back to execute"; exit 1; }
 	@grep -Fq "role별 evidence requirement" README.md || { echo "ERROR: README standalone review docs must mention role-specific evidence requirements"; exit 1; }
 	@grep -Fq "external-system access to read-only evidence fetching" README.md || { echo "ERROR: README standalone review docs must expose read-only external-system posture"; exit 1; }
+
+validate-behavior-guardrails:
+	@$(PYTHON) scripts/validate_behavior_guardrails.py
+
 validate-markdown-links:
 	@PYTHON="$(PYTHON)" bash scripts/validate-markdown-links.sh
 

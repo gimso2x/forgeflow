@@ -70,8 +70,15 @@ scope_boundary:
 <!-- 0.0 to 1.0. Above 0.2 requires blocker resolution or bounded assumptions. -->
 
 ## 가정 (Assumptions)
-<!-- Bounded assumptions for non-blocking unknowns -->
--
+
+- <!-- known assumptions -->
+
+## 가정과 해석 (Assumptions and Interpretation)
+
+- **Selected interpretation**:
+- **Assumptions**:
+- **Open ambiguity**:
+- **Why safe to proceed**:
 
 ## 적용된 진화 규칙 (Applied Evolution Rules)
 <!-- Rules loaded during clarify. Project active rules are required; global rules are advisory. -->

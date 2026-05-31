@@ -61,6 +61,15 @@ Use in addition to the Quality Review rubric.
 - ☐ Functions are short and focused (≤30 lines recommended); longer functions are justified or split
 - ☐ Magic values (numbers, strings) are extracted to named constants or config
 
+### Behavioral Guardrail Review
+
+- ☐ Assumptions are explicit or harmless.
+- ☐ No speculative feature, abstraction, configurability, or defensive branch was added without requirement.
+- ☐ Changed files/lines trace to brief/plan scope.
+- ☐ Verification evidence matches the stated success criteria.
+- ☐ Unrelated cleanup/refactor was not mixed into the task.
+- Finding categories: `assumption-risk`, `overengineering`, `scope-creep`, `unverified-success`, `drive-by-refactor`.
+
 ## security-reviewer
 
 - ☐ No hardcoded secrets, keys, or tokens

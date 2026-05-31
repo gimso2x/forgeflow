@@ -71,10 +71,12 @@ Every plan must include reviewer-facing **Design Intent** and **Review Criteria*
 
 1. Populate **Design Intent** from the brief objective, plan architecture notes, selected approach, rejected alternatives, and explicit non-goals.
 2. Populate **Review Criteria** from `brief.md` acceptance criteria, `docs/coding-convention.md` when present, active evolution rules, relevant ADR/architecture docs, and task-specific risk checks.
+3. Populate **Simplicity Check** with the minimal solution, rejected abstraction/flexibility, and why this is enough now. Keep speculative extensibility as follow-up, not task scope.
 3. If repo policy files such as `docs/adr.yaml`, `docs/adr.md`, `docs/code-convention.yaml`, `docs/coding-convention.md`, or `.forgeflow/evolution/active/*` exist, use only the task-relevant entries and cite repo-relative paths. Do not paste long policy bodies into `plan.md`.
 4. For small route, keep both sections compact: 1-3 bullets each is enough.
 5. For medium/high/epic, include enough criteria for reviewers to trace findings back to a named acceptance criterion, convention, ADR, active rule, or risk check.
 6. Record intentional exclusions explicitly so review findings can distinguish true defects from out-of-scope improvements.
+7. For each task, name the surgical scope: why the listed files are necessary and why adjacent refactor is excluded unless explicitly planned.
 
 ## Contract-first traceability for medium/high/epic or brownfield work
 

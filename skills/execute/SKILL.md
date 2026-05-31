@@ -252,6 +252,7 @@ Minimum warning contract:
     Small routes require at least 1 gate. Medium+ require at least 2 gates including build.
 11. Update `implementation-notes.md` immediately when starting and finishing each step. Step state must be incremental: `pending -> in_progress -> completed`. Do not batch-mark all steps as `completed` only at the end. If a step cannot finish, mark it `blocked` with evidence.
    - **Contract checkpoint**: Before marking any plan task complete, verify: "Does this code violate a stated contract?" Record in evidence as `contract_check:PASS <task>` or `contract_check:FAIL <task> reason="..."`.
+   - **Behavioral guardrail checkpoint**: Before marking any plan task complete, confirm each changed file maps to the active task objective, any new abstraction/configuration is required now, and unrelated cleanup was left as notes instead of edits. Record `surgical_scope:PASS|WARN` and `simplicity_check:PASS|WARN` in Evidence.
 12. After all steps complete, update implementation-notes.md to `Status: completed` with all passed gates in Evidence.
     - **Completion Summary 갱신** (mandatory): run-ledger.md의 Completion Summary 섹션을 반드시 갱신한다. per-task loop에서 각 task의 status를 업데이트했더라도, Completion Summary 자체를 별도로 갱신하지 않으면 "Completed: 0, All Done: no"로 남는 버그가 발생한다:
       - `Total Tasks`: plan.md의 task 수 (또는 small route의 경우 1)

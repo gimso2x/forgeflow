@@ -7,8 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.9.4] - 2026-06-01
+
 ### Changed
 
+- Added behavior guardrails for assumption surfacing, simplicity-first implementation, surgical diffs, and goal-driven verification, with validation coverage across shared discipline, templates, review checklist, and README.
 - Review reports now surface standalone role capability hints as advisory-only metadata, with validation guarding that model/profile hints cannot affect routing, evidence, verdict, approval, or human-gate semantics.
 - Standalone review `input-source.md` now records fetch access posture and mutation checks so adapter evidence collection remains read-only/verification-only before canonical review judgment.
 - Standalone review normalized input now includes an evidence integrity check that blocks reviewer judgment when cited evidence IDs are missing, duplicated, mismatched against `input-source.md`, or stale in role packets.
@@ -885,7 +888,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI gate with GitHub Actions workflow generation
 - Agent preset installer (Claude + Codex)
 
-[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v1.9.3...HEAD
+[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v1.9.4...HEAD
+[1.9.4]: https://github.com/gimso2x/forgeflow/compare/v1.9.3...v1.9.4
 [1.9.3]: https://github.com/gimso2x/forgeflow/compare/v1.9.2...v1.9.3
 [1.9.2]: https://github.com/gimso2x/forgeflow/compare/v1.9.1...v1.9.2
 [1.9.1]: https://github.com/gimso2x/forgeflow/compare/v1.9.0...v1.9.1

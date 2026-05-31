@@ -7771,6 +7771,114 @@
           ]
         }
       ]
+    },
+    {
+      "id": 116,
+      "name": "clarify-surfaces-material-assumptions",
+      "prompt": "Run /forgeflow:clarify for: export user data. The requester gives no field list, destination, privacy constraints, or authorization model. Produce the relevant brief.md sections only.",
+      "expected_output": "A brief fragment that records the selected interpretation if any, lists assumptions, keeps material ambiguity visible, and asks or blocks when ambiguity affects data, privacy, security, files, or user-visible behavior.",
+      "files": [
+        "skills/clarify/SKILL.md",
+        "templates/brief.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output includes the Assumptions and Interpretation section.",
+          "type": "contains",
+          "value": "Assumptions and Interpretation"
+        },
+        {
+          "text": "Output records open ambiguity instead of silently choosing behavior.",
+          "type": "contains_any",
+          "values": [
+            "Open ambiguity",
+            "privacy",
+            "authorization",
+            "blocker"
+          ]
+        },
+        {
+          "text": "Output explains why it is or is not safe to proceed.",
+          "type": "contains_any",
+          "values": [
+            "Why safe to proceed",
+            "not safe to proceed",
+            "blocked"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 117,
+      "name": "plan-rejects-speculative-abstraction",
+      "prompt": "Run /forgeflow:plan for a brief that asks for one simple discount function in one existing billing module. Produce Design Intent, Simplicity Check, and one task only.",
+      "expected_output": "A plan fragment that chooses the minimal implementation, explicitly rejects unnecessary strategy/class hierarchy or future configurability, and keeps the task scope surgical with verification.",
+      "files": [
+        "skills/plan/SKILL.md",
+        "templates/plan.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output includes the Simplicity Check section.",
+          "type": "contains",
+          "value": "Simplicity Check"
+        },
+        {
+          "text": "Output rejects speculative abstraction or flexibility.",
+          "type": "contains_any",
+          "values": [
+            "Rejected abstraction/flexibility",
+            "strategy",
+            "class hierarchy",
+            "future configurability"
+          ]
+        },
+        {
+          "text": "Output includes surgical scope or focused files.",
+          "type": "contains_any",
+          "values": [
+            "Surgical scope",
+            "single existing billing module",
+            "focused"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 118,
+      "name": "review-catches-drive-by-refactor",
+      "prompt": "Run /forgeflow:review on a task whose plan names one validation file, but the diff also reformats unrelated modules and extracts a helper not required by the acceptance criteria. Produce Findings and Next Action only.",
+      "expected_output": "A review fragment that reports scope creep or drive-by refactor, flags overengineering if the helper is speculative, and sends remediation back to execute instead of approving silently.",
+      "files": [
+        "skills/review/references/role-checklists.md",
+        "templates/review-report.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output flags scope creep or drive-by refactor.",
+          "type": "contains_any",
+          "values": [
+            "scope-creep",
+            "drive-by-refactor"
+          ]
+        },
+        {
+          "text": "Output can flag overengineering for speculative helper extraction.",
+          "type": "contains_any",
+          "values": [
+            "overengineering",
+            "speculative"
+          ]
+        },
+        {
+          "text": "Output includes a next action that returns remediation to execute.",
+          "type": "contains_all",
+          "values": [
+            "Next Action",
+            "execute"
+          ]
+        }
+      ]
     }
   ]
 }

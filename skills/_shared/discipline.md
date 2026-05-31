@@ -1,5 +1,15 @@
 # Shared Discipline Rules
 
+## Behavioral Guardrails
+
+When writing or reviewing code, apply the advisory guardrails in `docs/advisory-guidelines.md`:
+
+- **Think Before Coding**: do not silently pick among materially different interpretations.
+- **Simplicity First**: avoid speculative abstractions or features not required by the brief.
+- **Surgical Changes**: changed lines must trace to the user request, brief, or plan.
+- **Goal-Driven Execution**: success must be verifiable by artifact evidence or command output.
+
+
 Common file-write and response discipline shared across ForgeFlow workflow skills.
 Each skill links here and adds skill-specific rules inline.
 

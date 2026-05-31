@@ -53,6 +53,8 @@ scope_boundary:
 
 ## 발견 사항 (Findings)
 
+Behavioral guardrail finding categories may include `assumption-risk`, `overengineering`, `scope-creep`, `unverified-success`, or `drive-by-refactor` when clarify/plan/execute drift from the advisory guardrails.
+
 ### Finding 1: <!-- title -->
 - **Severity**: <!-- blocker | major | minor | nit -->
 - **Category**: <!-- spec-compliance | quality | maintainability | risk | security -->

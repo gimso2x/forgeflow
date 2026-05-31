@@ -3,6 +3,8 @@
 ForgeFlow는 AI coding agent를 위한 artifact-first delivery workflow입니다.
 채팅 기억에 의존하지 않고 **명시적인 markdown 산출물, 프롬프트 기반 게이트, 독립 review**로 작업하게 만듭니다.
 
+ForgeFlow에는 coding agent behavior guardrails도 포함됩니다: assumption surfacing, simplicity-first implementation, surgical diffs, goal-driven verification. 이 규칙은 clarify/plan/execute 단계에서는 advisory로 작동하고, review 단계에서는 `assumption-risk`, `overengineering`, `scope-creep`, `unverified-success`, `drive-by-refactor` finding으로 검출할 수 있습니다. 로컬 focused 검증은 `make validate-behavior-guardrails`입니다.
+
 ## 누가 왜 쓰나
 
 - AI 코딩 에이전트로 **실제 프로덕션 코드**를 작성하는 개발자
