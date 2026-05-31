@@ -17,8 +17,9 @@ Before starting a role pass, the lead reviewer must hand the role a compact **ro
 - scoped files/ranges/exclusions relevant to that role
 - constraints/focus flags and any ignored conflicting flags
 - visible limitations/truncation/missing evidence for those evidence IDs
+- packet freshness status proving the packet was refreshed after the latest evidence escalation, new evidence item, scope change, constraint change, or role-routing change
 
-The role-pass record in `review-report.md` must echo that packet by citing the trigger decision, evidence IDs inspected, limitations seen, and any Evidence Escalation Log entry created. If the packet is missing, stale, or relies on chat-only/hidden adapter state, the role records `blocked: missing role input packet` rather than proceeding.
+The role-pass record in `review-report.md` must echo that packet by citing the trigger decision, evidence IDs inspected, limitations seen, packet freshness, and any Evidence Escalation Log entry created. If the packet is missing, stale, or relies on chat-only/hidden adapter state, the role records `blocked: missing role input packet` rather than proceeding.
 
 Before judgment, confirm the role's `role input packet readiness` row in `normalized-input.md`. Only `READY` roles may produce approval-grade judgments. `BLOCKED` roles must record `blocked: missing role input packet` with the missing field names; `SKIPPED` roles must remain absent from active role-pass records except for the routing rationale summary.
 

@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Review role checklists now require role input packets to carry and echo packet freshness, aligning role handoffs with standalone normalization freshness gates.
 - Standalone review role input packets now carry a freshness check and must be refreshed after evidence escalation, new evidence, scope, constraint, or routing changes before reviewer judgment continues.
 - Standalone review normalization now requires a routing consistency check between `constraints.roles`, the Role trigger matrix, and the role evidence map so adapters cannot run, drop, or block reviewer roles inconsistently before judgment.
 - Advisory validation now guards standalone review ownership plans for exactly one lead reviewer and matching aggregation ownership, preventing delegated reviewer passes from drifting into unmanaged team-mode control.
