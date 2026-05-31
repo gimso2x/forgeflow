@@ -98,14 +98,15 @@ When standalone mode is detected, create a synthetic task directory:
 └── review-report.md      # Output (written during review)
 ```
 
-**input-source.md** records:
+Create `input-source.md` from `templates/input-source.md`. It records:
 - Input type detected
 - Original input value (URL, path, diff snippet)
 - Fetch command used (if applicable)
 - Fetch result status (success/partial/failed)
+- Missing/truncated evidence notes
 - Timestamp
 
-**normalized-input.md** records the 4-field structure (see Input Normalization below).
+Create `normalized-input.md` from `templates/normalized-input.md`. It records the 4-field structure (see Input Normalization below).
 
 If `.forgeflow/` doesn't exist, create it. Do not initialize a full ForgeFlow workspace — only the task directory and its files.
 

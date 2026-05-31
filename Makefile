@@ -14,6 +14,8 @@ TEMPLATES := \
 	plan.md \
 	review-report.md \
 	implementation-notes.md \
+	input-source.md \
+	normalized-input.md \
 	eval-record.md \
 	roadmap.md \
 	checkpoint.md \

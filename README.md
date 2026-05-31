@@ -159,6 +159,8 @@ raw_score = file_count*1.0 + estimated_lines*0.1 + requirement_count*2.0 + depen
 | `run-ledger.md`           | 실행 상태 truth (pending/done) | execute |
 | `checkpoint.md`           | 재개용 전술 포인터           | execute |
 | `implementation-notes.md` | 실행 진행, 결정 기록, 편차   | 전체    |
+| `input-source.md`         | standalone review 입력 출처/fetch 상태 | standalone review |
+| `normalized-input.md`     | standalone review 4-field 정규화 입력 | standalone review |
 | `review-report.md`        | 독립 검증 (high/epic: spec+quality) | 전체    |
 | `ship-summary.md`         | ship handoff 요약            | 전체    |
 | `roadmap.md`              | 마일스톤 분해                | epic    |

@@ -101,7 +101,7 @@ Standalone review creates a synthetic task directory:
 └── review-report.md
 ```
 
-`input-source.md` must include:
+`input-source.md` should be created from `templates/input-source.md` and must include:
 
 - detected input type
 - original user input
@@ -111,7 +111,7 @@ Standalone review creates a synthetic task directory:
 - missing or truncated evidence notes
 - timestamp or run label
 
-`normalized-input.md` must include:
+`normalized-input.md` should be created from `templates/normalized-input.md` and must include:
 
 - `brief`: explicit or inferred review target
 - `evidence`: each evidence item with source and evidence level

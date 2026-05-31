@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Review runtime contract documented as a thin adapter-neutral layer with standalone input provenance, role-separated evidence handling, read-only tool permissions, evidence levels, human review gate requirements, and minimal team-mode guardrails.
 - Review finding template now requires `Evidence Source` and `Evidence Level`, with advisory validation guarding those fields against drift.
+- Standalone review provenance artifacts now have explicit templates for `input-source.md` and `normalized-input.md`, so adapters share one markdown-first bootstrap surface.
 
 ## [1.9.3] - 2026-05-31
 
