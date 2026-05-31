@@ -117,6 +117,8 @@ Before any reviewer role begins, complete the template's **normalization gate**.
 
 Before reviewer judgment, also complete the template's **adapter handoff checklist**. Mark `source_classified`, `fetch_reproduced`, `normalization_complete`, `limitations_visible`, and `canonical_review_ownership` as `PASS` or `FAIL`. Any `FAIL` blocks approval unless a human explicitly narrows the review scope and records the limitation; adapters must not compensate by writing a parallel verdict or report.
 
+If any reviewer role needs evidence outside the role evidence map, pause that role and add an **Evidence Escalation Log** entry in `review-report.md` before judgment continues. The lead reviewer must either add a new evidence item to `normalized-input.md` and mirror its provenance in `input-source.md`, or record the request as unavailable with the affected role blocked/limited. Do not use chat memory, hidden adapter state, or unrecorded file reads to satisfy the gap.
+
 If `.forgeflow/` doesn't exist, create it. Do not initialize a full ForgeFlow workspace — only the task directory and its files.
 
 ### Standalone constraints
@@ -234,6 +236,7 @@ Contract obligations:
 - Review is read-only except for review artifacts, telemetry, and checkpoint updates required by the review skill. If code changes are needed, hand back to execute.
 - Approval-grade review requires observed evidence for at least one relevant verification gate unless `review-report.md` explicitly records why no such gate exists.
 - If multiple agents are used for reviewer passes, apply the contract's lead/member guardrails: one lead aggregates and owns final `review-report.md`; each member owns exactly one assigned pass/section, records a markdown claim marker, does not spawn unmanaged child work, and does not mutate product files.
+- Evidence gaps discovered by reviewer roles must go through the Evidence Escalation Log; new evidence is usable only after it is normalized with provenance, otherwise the role records blocked/limited judgment.
 
 ### Review tool posture
 

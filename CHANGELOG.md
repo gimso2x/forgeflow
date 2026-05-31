@@ -39,6 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Advisory contract validation now guards standalone adapter handoff checklist fields and ordering after the normalization gate, preserving source/fetch/ownership provenance before reviewer judgment.
 - Review tool posture now explicitly limits external-system access to read-only evidence fetching and forbids issue/PR/CI/deploy mutations during review.
 - Review role-pass records now include an Independence Check so reviewer roles explicitly reject implementer self-report or chat-only claims as standalone evidence.
+- Review reports now include an Evidence Escalation Log so reviewer roles cannot use evidence outside the normalized role evidence map without recorded provenance or blocked/limited judgment.
 
 ## [1.9.3] - 2026-05-31
 

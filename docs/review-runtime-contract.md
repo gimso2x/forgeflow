@@ -139,6 +139,12 @@ Standalone review creates a synthetic task directory:
 
 `review-report.md` remains the single review result artifact. Adapter-specific reports are not allowed.
 
+### Evidence escalation log
+
+If a reviewer role needs material that is not already present in the role evidence map, it must pause judgment and record an evidence escalation before using that material. The lead reviewer either adds a new normalized evidence item and mirrors its provenance in `input-source.md`, or marks the request unavailable and records the affected role as blocked/limited. The escalation record lives in `review-report.md` and includes requester role, requested evidence, reason, action taken, resulting evidence ID or blocked rationale, and approval impact.
+
+Reviewer roles must not satisfy evidence gaps from chat memory, hidden adapter state, or unrecorded file reads. This keeps parallel role passes auditable and prevents member reviewers from silently expanding scope after normalization.
+
 ## Role separation
 
 Reviewer roles are independent lenses:

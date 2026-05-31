@@ -88,6 +88,15 @@ scope_boundary:
 - <!-- quality-reviewer -->: <!-- verdict -->, <!-- N --> findings (<!-- blockers --> blockers, <!-- majors --> major)
 - Cross-role conflicts: <!-- count --> (marked with ⚠)
 
+## 증거 에스컬레이션 로그 (Evidence Escalation Log)
+<!-- Required when any reviewer role needs evidence outside normalized-input.md role evidence map. If none, write `none`. New evidence is usable only after it is added to normalized-input.md and mirrored in input-source.md Evidence Source Map. -->
+- **Requester Role**: <!-- spec-reviewer | quality-reviewer | security-reviewer | ux-reviewer | perf-reviewer -->
+- **Requested Evidence**: <!-- file/diff/command/artifact/source needed -->
+- **Reason**: <!-- why existing role evidence map was insufficient -->
+- **Action Taken**: <!-- normalized new evidence | marked unavailable | narrowed scope -->
+- **Resulting Evidence ID / Blocked Rationale**: <!-- E<N> | blocked/limited because ... -->
+- **Approval Impact**: <!-- none | weak evidence | blocked | human review required -->
+
 ### Role-pass record: <!-- reviewer role -->
 <!-- Duplicate this block for every active reviewer role, including zero-finding passes. -->
 - **Role**: <!-- spec-reviewer | quality-reviewer | security-reviewer | ux-reviewer | perf-reviewer -->
