@@ -83,6 +83,24 @@ normalization_gate_fields = [
 missing_gate_fields = [field for field in normalization_gate_fields if field not in normalized_input_template]
 if missing_gate_fields:
     failures.append(f'templates/normalized-input.md: missing normalization gate fields {missing_gate_fields}')
+role_trigger_roles = [
+    'spec-reviewer',
+    'quality-reviewer',
+    'security-reviewer',
+    'ux-reviewer',
+    'perf-reviewer',
+]
+trigger_matrix_pos = normalized_input_template.find('### Role trigger matrix')
+role_evidence_map_pos = normalized_input_template.find('## role evidence map')
+normalization_gate_pos = normalized_input_template.find('## normalization gate')
+if not (trigger_matrix_pos != -1 and role_evidence_map_pos != -1 and normalization_gate_pos != -1 and trigger_matrix_pos < role_evidence_map_pos < normalization_gate_pos):
+    failures.append('templates/normalized-input.md: role trigger matrix must appear before role evidence map and normalization gate')
+for role in role_trigger_roles:
+    role_marker = f'**{role}**'
+    if role_marker not in normalized_input_template:
+        failures.append(f'templates/normalized-input.md: role trigger matrix/map must include {role}')
+if 'trigger:' not in normalized_input_template or 'evidence:' not in normalized_input_template:
+    failures.append('templates/normalized-input.md: role trigger rows must preserve trigger and evidence fields')
 review_gate_pos = review_template.find('**Normalization Gate**')
 standalone_pos = review_template.find('## Standalone 입력 소스')
 reader_summary_pos = review_template.find('## 사용자용 요약')
