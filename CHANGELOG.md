@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Standalone review role input packets now carry a freshness check and must be refreshed after evidence escalation, new evidence, scope, constraint, or routing changes before reviewer judgment continues.
 - Standalone review normalization now requires a routing consistency check between `constraints.roles`, the Role trigger matrix, and the role evidence map so adapters cannot run, drop, or block reviewer roles inconsistently before judgment.
 - Advisory validation now guards standalone review ownership plans for exactly one lead reviewer and matching aggregation ownership, preventing delegated reviewer passes from drifting into unmanaged team-mode control.
 - Review now documents advisory role model hints for harnesses that support per-role model binding, while forbidding model choice from changing routing, evidence, verdict, or human-gate semantics.
