@@ -228,6 +228,12 @@ Contract obligations:
 - Approval-grade review requires observed evidence for at least one relevant verification gate unless `review-report.md` explicitly records why no such gate exists.
 - If multiple agents are used for reviewer passes, apply the contract's lead/member guardrails: one lead aggregates and owns final `review-report.md`; each member owns exactly one assigned pass/section, records a markdown claim marker, does not spawn unmanaged child work, and does not mutate product files.
 
+### Review tool posture
+
+Review is an inspection gate, not a repair stage. Allowed actions are limited to reading artifacts/source, inspecting git status/diffs/logs, fetching declared review input, running deterministic verification commands, and writing review-owned artifacts (`input-source.md`, `normalized-input.md`, `review-report.md`, telemetry, and checkpoint updates required by this skill).
+
+Forbidden actions include product fixes, branch changes, destructive cleanup, release/ship mutations, hiding failed verification behind a passing summary, and approving solely from implementer self-report. If a finding requires code or product changes, record the finding and hand it back to execute instead of fixing it during review.
+
 ## Reviewer Roles
 
 Standalone mode and high/epic pipeline mode use role-based review. Each role has its own checklist and produces findings independently. The review report aggregates all role findings.

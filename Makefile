@@ -323,6 +323,8 @@ validate-advisory-contract:
 	@grep -Fq "normalization gate" templates/normalized-input.md || { echo "ERROR: normalized input template must expose a reviewer preflight gate"; exit 1; }
 	@grep -Fq "Normalization Gate" templates/review-report.md || { echo "ERROR: review report template must surface standalone normalization gate status"; exit 1; }
 	@grep -Fq "Evidence requirements source" templates/review-report.md || { echo "ERROR: review report template must point to role evidence requirements"; exit 1; }
+	@grep -Fq "Review tool posture" skills/review/SKILL.md || { echo "ERROR: review skill must document inspection-only tool posture"; exit 1; }
+	@grep -Fq "hand it back to execute" skills/review/SKILL.md || { echo "ERROR: review skill must hand code/product fixes back to execute"; exit 1; }
 	@grep -Fq "role별 evidence requirement" README.md || { echo "ERROR: README standalone review docs must mention role-specific evidence requirements"; exit 1; }
 validate-markdown-links:
 	@PYTHON="$(PYTHON)" bash scripts/validate-markdown-links.sh
