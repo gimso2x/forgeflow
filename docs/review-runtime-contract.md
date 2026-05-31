@@ -131,7 +131,7 @@ Standalone review creates a synthetic task directory:
 `normalized-input.md` should be created from `templates/normalized-input.md` and must include:
 
 - `brief`: explicit or inferred review target
-- `evidence`: each evidence item with a stable ID, source, fetch status, evidence level, and truncation/missing-evidence limitation note; its type/status/level must match the corresponding `input-source.md` Evidence Source Map row
+- `evidence`: each evidence item with a stable, unique evidence ID, source, fetch status, evidence level, and truncation/missing-evidence limitation note; its type/status/level must match the corresponding `input-source.md` Evidence Source Map row, and IDs must not be reused for different content
 - `scope`: files/ranges/content boundaries reviewed
 - `constraints`: role, focus, exclusions, user rules, inferred rules, and any ignored adapter/user flags such as `--focus` losing to `--type`
 - `role trigger matrix`: every supported reviewer role marked `run`, `skipped`, or `blocked`, with the normalized evidence ID(s), route rule, explicit flag, or explicit non-trigger signal that made the routing decision

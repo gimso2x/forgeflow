@@ -10,10 +10,10 @@
 
 ## evidence
 
-<!-- stable evidence IDs are the handoff boundary between adapters and reviewer roles. Keep IDs stable and cite them from review-report.md role-pass records. If evidence is sampled or truncated, the item ID still points to the sampled content and its limitation note. -->
+<!-- stable evidence IDs are the handoff boundary between adapters and reviewer roles. Keep IDs stable, unique within this file, and cite them from review-report.md role-pass records. If evidence is sampled or truncated, the item ID still points to the sampled content and its limitation note. -->
 
 ### Evidence Item 1
-- **id**: <!-- e.g., E1 -->
+- **id**: <!-- e.g., E1; unique evidence ID, do not reuse for another item -->
 - **type**: <!-- diff | file | artifact | url | command_output | reported_summary | missing -->
 - **source**: <!-- gh pr diff <n> | git diff <range> | file-read:path | web_extract:url | run-ledger.md | etc. -->
 - **fetch_status**: <!-- success | partial | failed | not_applicable; must match input-source.md Evidence Source Map -->
