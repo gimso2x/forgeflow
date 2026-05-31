@@ -5,8 +5,9 @@ root = pathlib.Path('.')
 checks = {
     'skills/forgeflow/SKILL.md': ['intent:', 'inputs:', 'outputs:', 'dependencies:', 'docs/advisory-guidelines.md'],
     'skills/clarify/SKILL.md': ['intent:', 'inputs:', 'outputs:', 'dependencies:', '리뷰해줘', '계획 세워', 'suggested_next_skill', 'Keyword hints are advisory'],
-    'skills/review/SKILL.md': ['docs/review-runtime-contract.md', 'brief / evidence / scope / constraints', 'read-only except for review artifacts', 'observed evidence', 'Cross-role conflicts'],
+    'skills/review/SKILL.md': ['docs/review-runtime-contract.md', 'brief / evidence / scope / constraints', 'read-only except for review artifacts', 'observed evidence', 'Cross-role conflicts', 'Evidence Source', 'Evidence Level', 'observed | reported | missing'],
     'templates/brief.md': ['Route Rationale', 'Budget Note', 'Suggested Next Skill', 'Suggested specialists'],
+    'templates/review-report.md': ['Evidence Source', 'Evidence Level', 'observed | reported | missing'],
     'templates/plan.md': ['Execution Pattern', 'Applied Evolution Rules'],
     'docs/advisory-guidelines.md': ['Route Budget Guide', 'small:', 'medium:', 'high:', 'epic:', 'Non-goals'],
     'docs/review-runtime-contract.md': ['Adapter-neutral core', 'Thin adapter responsibilities', 'Role separation', 'Stage tool catalog', 'Evidence levels', 'Human review gate', 'Minimal team-mode absorption', 'input-source.md', 'normalized-input.md'],
@@ -39,6 +40,13 @@ for sf in ['skills/forgeflow/SKILL.md', 'skills/clarify/SKILL.md']:
         {k: v for k, v in [line.split(':', 1) for line in yaml_block.strip().splitlines() if ':' in line and not line.strip().startswith('-')]}
     except Exception as exc:
         failures.append(f'{sf}: frontmatter parse error: {exc}')
+review_template = (root / 'templates/review-report.md').read_text(encoding='utf-8')
+role_pos = review_template.find('**Role**')
+source_pos = review_template.find('**Evidence Source**')
+level_pos = review_template.find('**Evidence Level**')
+description_pos = review_template.find('**Description**')
+if not (role_pos != -1 and source_pos != -1 and level_pos != -1 and description_pos != -1 and role_pos < source_pos < level_pos < description_pos):
+    failures.append('templates/review-report.md: finding fields must include Role, Evidence Source, and Evidence Level before Description')
 if failures:
     print('ERROR: advisory contract drift')
     [print(f'- {failure}') for failure in failures]

@@ -378,7 +378,7 @@ Write `review-report.md` (schema: review-report/v2, from `templates/review-repor
 - Review Type (spec | quality | security | ux | perf — or list multiple for standalone)
 - Verdict (approved | changes_requested | blocked) — never use "passed"
 - Reviewer (role or identifier)
-- Findings with severity (blocker | major | minor | nit), priority (p1 | p2 | p3 | p4), category (spec-compliance | quality | maintainability | risk | security), Criteria Basis, Side Effect, Why This Remediation, Disposition, and Disposition Rationale when needed
+- Findings with severity (blocker | major | minor | nit), priority (p1 | p2 | p3 | p4), category (spec-compliance | quality | maintainability | risk | security), Criteria Basis, Evidence Source, Evidence Level (`observed | reported | missing`), Side Effect, Why This Remediation, Disposition, and Disposition Rationale when needed
 - Spec Compliance checklist (for spec review)
 - Quality Assessment checklist (for quality review)
 - Open Blockers (list or "none")

@@ -59,6 +59,8 @@ scope_boundary:
 - **Confidence**: <!-- HIGH | MEDIUM | LOW | CONFLICT -->
 - **Priority**: <!-- p1 | p2 | p3 | p4; p1=must fix, p2=strongly recommended, p3=recommended, p4=minor -->
 - **Criteria Basis**: <!-- plan.md Review Criteria / coding convention / ADR / brief acceptance criterion / active rule -->
+- **Evidence Source**: <!-- observed file/diff/artifact/command/source label, e.g. git diff, file-read:path, run-ledger.md -->
+- **Evidence Level**: <!-- observed | reported | missing -->
 - **Description**:
 - **Evidence**:
   - Observed:
