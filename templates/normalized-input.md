@@ -86,10 +86,11 @@
 - **perf-reviewer**: <!-- standard reasoning | strongest reasoning available; reason -->
 
 ## review ownership plan
-<!-- Fill before any delegated or parallel reviewer pass starts. This keeps team-mode absorption declarative: exactly one lead owns aggregation, each member owns at most one pass, cross-role conflicts stay visible for human-gate decisions, and no role may spawn unmanaged child work or mutate product files. Member assignments are role claims, not a task scheduler: members must not create additional reviewer roles, reassign scope, resolve conflicts privately, or write outside their assigned review-report section. -->
+<!-- Fill before any delegated or parallel reviewer pass starts. This keeps team-mode absorption declarative: exactly one lead owns aggregation, each member owns at most one pass, cross-role conflicts stay visible for human-gate decisions, and no role may spawn unmanaged child work or mutate product files. Member assignments are role claims, not a task scheduler: members must not create additional reviewer roles, reassign scope, resolve conflicts privately, or write outside their assigned review-report section. Each member claim marker must be unique, written to the artifact before work starts, then read back from the artifact before the member proceeds; duplicate or unreadable claim markers block delegated review. -->
 - **lead_reviewer**: <!-- exactly one identifier or role responsible for normalization, role routing, aggregation, conflicts, and human gate -->
 - **member_assignments**:
   - <!-- role=<reviewer> scope=<artifact section/evidence IDs> claim_marker=<role=... scope=... at=<ISO8601>> writes=<review-report section only> -->
+- **claim_marker_integrity**: <!-- unique | duplicate | unreadable | not_applicable; record artifact path/section read back before delegated work proceeds -->
 - **aggregation_owner**: <!-- must match lead_reviewer -->
 - **child_work_policy**: <!-- no unmanaged child work; evidence gaps use Evidence Escalation Log -->
 - **role_reassignment_policy**: <!-- lead-only; members cannot create/reassign roles or broaden scope -->
