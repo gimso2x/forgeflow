@@ -274,8 +274,14 @@ validate-context-resume:
 	@grep -Fq "Minimum Read Set" templates/checkpoint.md || { echo "ERROR: checkpoint template must expose a Minimum Read Set for context refresh resume"; exit 1; }
 	@grep -Fq "Handoff Boundary" templates/checkpoint.md || { echo "ERROR: checkpoint template must expose stage handoff boundary ownership"; exit 1; }
 	@grep -Fq "Handoff Boundary" skills/_shared/automation.md || { echo "ERROR: automation rules must require checkpoint handoff boundary ownership"; exit 1; }
+	@for stage in clarify plan execute review ship; do \
+		grep -Fq -- "- **$$stage** — owns" skills/_shared/automation.md || { echo "ERROR: automation stage catalog must define owned artifacts for $$stage"; exit 1; }; \
+	done
+	@grep -Fq "Allowed posture:" skills/_shared/automation.md || { echo "ERROR: automation stage catalog must define allowed tool posture"; exit 1; }
+	@grep -Fq "Forbidden:" skills/_shared/automation.md || { echo "ERROR: automation stage catalog must define forbidden tool posture"; exit 1; }
+	@grep -Fq "If a stage needs an action listed as forbidden" skills/_shared/automation.md || { echo "ERROR: automation stage catalog must define forbidden-action handoff behavior"; exit 1; }
 	@grep -Fq "forbidden-action delegation" README.md || { echo "ERROR: README context refresh docs must mention checkpoint handoff boundary ownership"; exit 1; }
-	@echo "OK: Context refresh/resume guidance is wired into core skills and checkpoint template"
+	@echo "OK: Context refresh/resume guidance is wired into core skills, checkpoint template, and stage boundary catalog"
 
 validate-adapter-config:
 	@$(PYTHON) scripts/validate_adapter_config.py

@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Advisory contract validation now guards standalone review normalization-gate fields and requires the gate to stay visible before reviewer summaries.
 - Review role routing now records per-role trigger rationale so adapters and parallel reviewers cannot silently broaden or narrow review scope after standalone normalization.
 - Review role summaries now separate `Active roles` from `Skipped roles`, requiring explicit skip reasons for every supported role that does not run.
+- Context-resume validation now guards the shared stage artifact/tool boundary catalog so every workflow stage keeps explicit owned artifacts plus allowed/forbidden tool posture.
 
 ## [1.9.3] - 2026-05-31
 
