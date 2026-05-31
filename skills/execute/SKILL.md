@@ -201,6 +201,7 @@ Minimum warning contract:
      - **Otherwise**: stop and ask: "종속성이 설치되지 않았습니다. 설치를 먼저 진행하시겠습니까?" Do NOT attempt installation yourself.
      - If no git and route is medium/high, warn that ship cannot commit/PR, then continue.
 7. For each task in the plan:
+   - **Claim marker before delegation/concurrency**: Before dispatching a specialist, implementer subagent, spec micro-reviewer, quality micro-reviewer, or any concurrent pass, write a `Claim Marker` in `run-ledger.md` for that task: `role=<worker|specialist|spec-reviewer|quality-reviewer> scope=<repo paths or artifact section> at=<ISO8601>`. Direct sequential controller work may use `Claim Marker: none`. Do not rely on chat-only claims, and do not start delegated work until the markdown marker is on disk.
    - **TDD Red**: Write/update tests to fail.
    - **Execute Implementation**: Implement minimal code to pass. Prefer the smallest implementation that satisfies the acceptance criteria.
    - **Context budget**: → `_shared/context-resume.md`. Execute addendum:
@@ -313,7 +314,7 @@ Do **not** use for small route (overhead exceeds benefit).
 For each plan step in dependency order:
 
 ```text
-1. Controller sets run-ledger: running, Assignee worker
+1. Controller sets run-ledger: running, Assignee worker, Claim Marker with role/scope/timestamp
    → Record dispatch: "implementer-prompt.md"
 2. Dispatch implementer subagent (references/implementer-prompt.md)
 3. If NEEDS_CONTEXT → provide context and re-dispatch
@@ -336,7 +337,7 @@ For each plan step in dependency order:
 ### Parallelism
 
 - **Implementer subagents:** one at a time per conflicting file set (same rule as execute delegation)
-- **Fan-out:** only when plan marks steps `(none)` dependency and disjoint file scopes; still **fan-in** with per-step micro-gates before marking done
+- **Fan-out:** only when plan marks steps `(none)` dependency and disjoint file scopes; write a Claim Marker for each fanned-out task before dispatch, then **fan-in** with per-step micro-gates before marking done
 - Do not run two implementers that touch the same file concurrently
 
 ### Model hints
@@ -381,6 +382,16 @@ Micro-gates run **during execute** on **high** and **epic** routes. They do not 
 | Blocked | `blocked` | role that hit the blocker |
 
 Record worker escalation in implementation-notes when subagents report `DONE_WITH_CONCERNS`, `NEEDS_CONTEXT`, or `BLOCKED` (see **Subagent reference prompts**).
+
+### Run ledger claim markers
+
+Claim markers make opt-in subagent and parallel execution auditable without adding a scheduler. They are required when work leaves the direct sequential controller path.
+
+- Write the marker before dispatching delegated/concurrent work, not after the result returns.
+- Scope must name the file paths, plan step, or artifact section owned by that role.
+- A role may only touch its claimed scope; if scope must expand, update `implementation-notes.md` with the reason and refresh the marker before editing.
+- If two markers would touch the same file or section at the same time, do not dispatch in parallel; serialize the steps under the controller.
+- Clear ambiguity by setting later inactive tasks back to `pending` with `Claim Marker: none` rather than leaving stale ownership claims.
 
 ## Subagent reference prompts
 

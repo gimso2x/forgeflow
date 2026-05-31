@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Shared automation guidance now includes a stage artifact/tool boundary catalog so clarify, plan, execute, review, and ship preserve role separation while chaining.
 - Review runtime contract now includes markdown-bound lead/member guardrails for occasional parallel reviewer passes without adding a persistent team scheduler.
 - Review adapters now have an explicit compliance checklist for source classification, reproducible fetch labels, complete normalization, visible limitations, and single canonical report ownership.
+- Execute subagent and parallel handoffs now require run-ledger claim markers with role, scope, and timestamp before delegated work starts.
 
 ## [1.9.3] - 2026-05-31
 

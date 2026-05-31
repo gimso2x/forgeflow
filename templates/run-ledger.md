@@ -16,6 +16,7 @@
 - **Plan Step**: <!-- which plan step this corresponds to -->
 - **Status**: <!-- pending | running | done | blocked | skipped -->
 - **Assignee**: <!-- required when status is running/done/blocked/skipped: worker | specialist | spec-reviewer | quality-reviewer -->
+- **Claim Marker**: <!-- required before subagent/concurrent work starts: role=<assignee> scope=<files/section> at=<ISO8601>; none for direct sequential worker -->
 - **Evidence Refs**: <!-- compact strings: verification:PASS gate=... | contract_check:PASS | evidence_index:task=... -->
 - **Blocker**: <!-- description or "none" -->
 - **Retry Count**: <!-- 0 -->
@@ -24,6 +25,7 @@
 - **Plan Step**:
 - **Status**: pending
 - **Assignee**:
+- **Claim Marker**: none
 - **Evidence Refs**:
 - **Blocker**: none
 - **Retry Count**: 0
@@ -33,6 +35,8 @@
 <!-- Updated by execute per skills/execute/SKILL.md -->
 <!-- worker = controller or direct implementation; specialist = delegated subagent -->
 <!-- spec-reviewer / quality-reviewer = execute-stage micro-review only (high/epic) -->
+<!-- Claim markers are markdown state, not chat-only claims. Record them before any delegated or parallel pass touches files/sections. -->
+<!-- Claim marker format: role=<worker|specialist|spec-reviewer|quality-reviewer> scope=<repo paths or artifact section> at=<ISO8601> -->
 
 ## Gate Results
 <!-- Gate evaluations from execute stage; include micro_spec / micro_quality when high/epic -->
@@ -71,6 +75,7 @@ small
 - **Plan Step**: Task 1
 - **Status**: pending
 - **Assignee**: worker
+- **Claim Marker**: none
 - **Evidence Refs**:
 - **Blocker**: none
 - **Retry Count**: 0
