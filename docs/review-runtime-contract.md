@@ -64,7 +64,7 @@ Standalone review accepts several source classes. Detection must be explicit and
 - GitHub compare/range: original input is a range; fetch changed files and range diff.
 - Other URL: fetch page content and record fetch method/status.
 - Repo path/current tree: inspect git status, staged diff, unstaged diff, and recent log if clean.
-- Diff/patch text: preserve raw diff text and parsed file headers.
+- Diff/patch text or `.diff` / `.patch` file path: preserve raw diff text and parsed file headers; when the input is a patch file path, record provenance as `file-read:<path>` while scope comes from the diff headers.
 - File bundle: read only listed files; missing files are missing evidence, not silently skipped.
 - Existing ForgeFlow artifact/task directory: read declared artifacts and referenced files that exist.
 

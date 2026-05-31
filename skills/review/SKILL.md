@@ -70,7 +70,8 @@ Detect input type by pattern, in this priority order:
    - Single commit → `git show <sha> --stat` + `git diff <sha>~1 <sha>`.
    - **Failure handling**: If directory doesn't exist or isn't a git repo, record as `blocked: invalid repo path — <path>`.
 
-3. **Diff/patch** — Input contains unified diff markers (`--- a/`, `+++ b/`, `@@`) or is provided with `--diff` flag.
+3. **Diff/patch** — Input contains unified diff markers (`--- a/`, `+++ b/`, `@@`), is provided with `--diff` flag, or is a local file path ending in `.diff` or `.patch`.
+   - For `.diff` / `.patch` paths, read the file first and record `input-source.md` with original input as the file path and fetch command/source as `file-read:<path>`.
    - Parse hunks: extract file paths from `---`/`+++` headers, line ranges from `@@` markers.
    - Build a virtual file map: for each file in the diff, record additions, deletions, and context lines.
    - **Failure handling**: If diff cannot be parsed (no markers, malformed hunks), attempt to treat as file bundle. If neither works, record as `blocked: unparseable diff input`.
@@ -158,7 +159,7 @@ The concrete content to review. Extraction rules:
 | Other URL | Extracted page content (markdown). If page is a code host, extract code blocks. |
 | Repo path (current) | `git diff HEAD` + `git diff --cached`. If clean, `git log --oneline -10` + tree listing. |
 | Repo path (range) | `git diff <range>`. Same large-diff sampling rule as compare. |
-| Diff/patch | The raw diff text. Parse into per-file hunks. |
+| Diff/patch | The raw diff text, including content read from `.diff` / `.patch` file paths. Parse into per-file hunks. |
 | File bundle | Each file's full content. If a file exceeds 2000 lines, read first 500 + last 200 and note truncation. |
 | Existing artifact | Full artifact content. |
 
@@ -179,7 +180,7 @@ What range is in scope for this review:
 | Other URL | Entire fetched content. |
 | Repo path (current) | All uncommitted changes + staged changes. If clean: last 5 commits. |
 | Repo path (range) | Files changed in the range. |
-| Diff/patch | Files mentioned in diff headers (`---`/`+++`). |
+| Diff/patch | Files mentioned in diff headers (`---`/`+++`); for `.diff` / `.patch` files, the patch file itself is provenance, not review scope unless explicitly requested. |
 | File bundle | The listed files only. |
 | Existing artifact | The artifact itself + any referenced files that exist. |
 

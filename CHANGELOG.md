@@ -30,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Review role-pass records now preserve markdown claim markers for delegated or concurrent reviewer passes, making lead/member handoffs auditable without chat-only claims.
 - Standalone review normalized input now includes stable evidence IDs and a role evidence map so reviewer roles cite only provenance-visible evidence.
 - Standalone review evidence items now carry per-item fetch status and limitations, with `input-source.md` recording an Evidence Source Map from evidence IDs to fetch provenance.
+- Standalone review now treats local `.diff`/`.patch` file paths as diff inputs with file-read provenance, rather than ambiguous file bundles.
 
 ## [1.9.3] - 2026-05-31
 
