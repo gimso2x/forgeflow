@@ -45,6 +45,7 @@ scope:        # boundaries for review judgment
   ranges: [string]
   exclusions: [string]
   rationale: string
+  scope_source_map: {target: [evidence_id]}
 
 constraints:  # role/focus/risk/user restrictions
   roles: [spec-reviewer | quality-reviewer | security-reviewer | ux-reviewer | perf-reviewer]
@@ -132,7 +133,7 @@ Standalone review creates a synthetic task directory:
 
 - `brief`: explicit or inferred review target
 - `evidence`: each evidence item with a stable, unique evidence ID, source, fetch status, evidence level, and truncation/missing-evidence limitation note; its type/status/level must match the corresponding `input-source.md` Evidence Source Map row, and IDs must not be reused for different content
-- `scope`: files/ranges/content boundaries reviewed
+- `scope`: files/ranges/content boundaries reviewed, plus a `scope_source_map` tying every in-scope file, range, or content bound back to normalized evidence IDs or an explicit blocked/missing scope-evidence note
 - `constraints`: role, focus, exclusions, user rules, inferred rules, and any ignored adapter/user flags such as `--focus` losing to `--type`
 - `role trigger matrix`: every supported reviewer role marked `run`, `skipped`, or `blocked`, with the normalized evidence ID(s), route rule, explicit flag, or explicit non-trigger signal that made the routing decision
 - `role evidence map`: every active reviewer role mapped to the evidence IDs it may use, or `none — <reason>` when blocked/not triggered
@@ -175,7 +176,7 @@ A role finding must cite:
 
 Every role pass, including passes with zero findings, must leave a compact role-pass record in `review-report.md` so the lead can audit what was inspected without reading chat logs. The record includes active role, markdown claim marker (`role=<reviewer> scope=<artifact section/evidence IDs> at=<ISO8601>`), checklist version, reviewed scope/evidence IDs, verification command(s) observed or reason none ran, limitations, an Independence Check that fails if implementer self-report or chat-only claims substituted for normalized/observed evidence, finding counts, and the role verdict. Chat-only role completion claims are not sufficient evidence.
 
-Before each role starts, the lead reviewer provides a role input packet from `normalized-input.md` only: trigger decision, allowed evidence IDs, scoped files/ranges/exclusions, constraints/focus flags, visible limitations, and packet freshness relative to the latest evidence/scope/constraint/routing state. `normalized-input.md` records both the role input packet readiness row (`READY`, `BLOCKED`, or `SKIPPED`) and the concrete packet row for each READY/BLOCKED role; the role-pass record echoes that packet status and cited evidence IDs. If the packet is missing, stale, `BLOCKED`, or depends on hidden adapter state, that role is blocked until the evidence is normalized or recorded unavailable.
+Before each role starts, the lead reviewer provides a role input packet from `normalized-input.md` only: trigger decision, allowed evidence IDs, scoped files/ranges/exclusions, scope source map IDs, constraints/focus flags, visible limitations, and packet freshness relative to the latest evidence/scope/constraint/routing state. `normalized-input.md` records both the role input packet readiness row (`READY`, `BLOCKED`, or `SKIPPED`) and the concrete packet row for each READY/BLOCKED role; the role-pass record echoes that packet status and cited evidence IDs. If the packet is missing, stale, `BLOCKED`, or depends on hidden adapter state, that role is blocked until the evidence is normalized or recorded unavailable.
 
 Reviewer roles may cite only normalized evidence IDs from the role evidence map unless they first update `normalized-input.md` with a new evidence item and visible limitation note. Chat-only context, unrecorded web pages, or ad-hoc file reads are not valid role evidence.
 

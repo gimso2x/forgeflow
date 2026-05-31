@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Standalone review normalized input now includes a `scope_source_map` so every in-scope file, range, or content bound traces back to normalized evidence IDs before reviewer roles judge.
 - Execute subagent and parallel claim markers now require an artifact-level write/read-back check before delegated work proceeds, preventing concurrent workers from overwriting another active claim.
 - Standalone review normalized input now includes optional role capability hints so harness-selected reviewer model/profile metadata is auditable without changing routing, evidence, verdict, approval, or human-gate semantics.
 - Review role checklists now require role input packets to carry and echo packet freshness, aligning role handoffs with standalone normalization freshness gates.

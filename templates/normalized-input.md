@@ -30,6 +30,7 @@
 - **ranges**: <!-- commit ranges, hunk ranges, URL content bounds, or none -->
 - **exclusions**: <!-- paths/areas excluded by user scope or adapter limits -->
 - **rationale**: <!-- why this is the review boundary -->
+- **scope_source_map**: <!-- map each in-scope file/range/content bound to normalized evidence ID(s), e.g., src/app.ts=E1 or url:section-2=E2; use none only for blocked/missing scope evidence -->
 
 ## constraints
 - **roles**: <!-- spec-reviewer | quality-reviewer | security-reviewer | ux-reviewer | perf-reviewer -->
