@@ -28,10 +28,10 @@ Use this skill to execute the selected ForgeFlow route.
 
 - Code changes matching the plan
 - `implementation-notes.md` — real-time log maintained throughout execution (template: `templates/implementation-notes.md`)
-- `run-ledger.md` — execution truth tracking per-task status (template: `templates/run-ledger.md`)
+- `ledger.md` — unified plan items + execution tracking (template: `templates/ledger.md`, schema: ledger/v1)
 - `evidence-manifest.md` — structured evidence contract generated at completion (template: `templates/evidence-manifest.md`). Every gate result, scope boundary, and metric in one review-consumable artifact. A completion declaration without this manifest is incomplete.
 - `checkpoint.md` — tactical resume pointer updated at stage entry/exit (template: `templates/checkpoint.md`)
-- `decision-log.md` (from `templates/decision-log.md`, schema: decision-log/v1) — append execution-stage decisions (deviation rationale, tradeoff choices, blocker resolution) to the decision log started during clarify
+- decisions in `implementation-notes.md` Decisions section (deviation rationale, tradeoff choices, blocker resolution)
 - Verification output summary
 
 ### implementation-notes.md
@@ -116,12 +116,12 @@ On execute entry, check if `re-execution-conditions.md` exists in the task direc
 1. If present, this is a **re-execution cycle** — read it before reading plan.md or brief.md.
 2. Apply the corrected execution conditions as overrides to the plan.
 3. Execute rollback instructions first (`git restore <paths>` or `git stash`) to revert failed changes.
-4. Increment the loop counter in `run-ledger.md`.
+4. Increment the loop counter in `ledger.md`.
 5. Record in `implementation-notes.md`: which conditions changed and why.
 
 ### Loop counter discipline
 
-- Track loop iterations in `run-ledger.md` Completion Summary: `loop_iterations: N`.
+- Track loop iterations in `ledger.md` Completion Summary: `loop_iterations: N`.
 - Maximum 3 re-execution cycles. If N=3, do not proceed — set status to `blocked` and report to user.
 - Each cycle must show progress. If the same finding recurs, the approach is fundamentally wrong — recommend re-planning.
 
@@ -180,7 +180,7 @@ Minimum warning contract:
 1. Confirm route and current stage. Read `brief.md` to determine route.
 2. Run Evolution rule enforcement before editing files.
 3. Initialize `implementation-notes.md` in the active task directory if it does not exist (use `templates/implementation-notes.md`). Set `Current Stage: execute`, `Status: in_progress`.
-4. Initialize `run-ledger.md` from `templates/run-ledger.md` if it does not exist. Set all task statuses from `plan.md` as `pending`. **small route (plan.md 없음)**: `brief.md`에서 objective를 읽어 단일 task run-ledger를 생성한다. `templates/run-ledger.md`의 Small Route Minimal Format을 사용한다:
+4. Initialize `ledger.md` from `templates/ledger.md` if it does not exist. Set all task statuses from `plan.md` as `pending`. **small route (plan.md 없음)**: `brief.md`에서 objective를 읽어 단일 task ledger를 생성한다. `templates/ledger.md`의 Small Route Minimal Format을 사용한다:
    - Route: `small`
    - Plan Reference: `brief.md` (plan 없음)
    - Task 1: brief.md의 objective에서 추출, Status: `pending`
@@ -188,18 +188,18 @@ Minimum warning contract:
    - Completion Summary: Total Tasks: 1
 5. Write `checkpoint.md` from `templates/checkpoint.md` with `Current Stage: execute`, `Active Task: first pending task`, `Next Action: begin first plan step`.
 6. Read Contracts section from `plan.md` before editing when present.
-   - If `plan.md` or `brief.md` references `.forgeflow/project-draft.md`, treat it as section-scoped shared context produced by `/forgeflow:ff-config init --mode=full`: read the relevant section names and repo-relative pointers only, then verify task-critical facts against the referenced source files or code before changing behavior. Do not copy the whole draft into execute artifacts, and keep `run-ledger.md` and `implementation-notes.md` as the task-specific source of truth.
+   - If `plan.md` or `brief.md` references `.forgeflow/project-draft.md`, treat it as section-scoped shared context produced by `/forgeflow:ff-config init --mode=full`: read the relevant section names and repo-relative pointers only, then verify task-critical facts against the referenced source files or code before changing behavior. Do not copy the whole draft into execute artifacts, and keep `ledger.md` and `implementation-notes.md` as the task-specific source of truth.
    - **Environment safety net**: If `brief.md` lacks environment notes, run: `git rev-parse --is-inside-work-tree 2>/dev/null; ls node_modules .venv vendor 2>/dev/null | head -3`. If dependencies are missing and a package manager is detected:
      - **Under `--auto`**: install automatically using the detected package manager. Record the install command in `implementation-notes.md` Evidence. Do not stop or ask the user.
      - **Otherwise**: stop and ask: "종속성이 설치되지 않았습니다. 설치를 먼저 진행하시겠습니까?" Do NOT attempt installation yourself.
      - If no git and route is medium/high, warn that ship cannot commit/PR, then continue.
 7. For each task in the plan:
-   - **Claim marker before delegation/concurrency**: Before dispatching a specialist, implementer subagent, spec micro-reviewer, quality micro-reviewer, or any concurrent pass, write a `Claim Marker` in `run-ledger.md` for that task: `role=<worker|specialist|spec-reviewer|quality-reviewer> scope=<repo paths or artifact section> at=<ISO8601>`. Direct sequential controller work may use `Claim Marker: none`. Do not rely on chat-only claims, and do not start delegated work until the markdown marker is on disk.
+   - **Claim marker before delegation/concurrency**: Before dispatching a specialist, implementer subagent, spec micro-reviewer, quality micro-reviewer, or any concurrent pass, write a `Claim Marker` in `ledger.md` for that task: `role=<worker|specialist|spec-reviewer|quality-reviewer> scope=<repo paths or artifact section> at=<ISO8601>`. Direct sequential controller work may use `Claim Marker: none`. Do not rely on chat-only claims, and do not start delegated work until the markdown marker is on disk.
    - **TDD Red**: Write/update tests to fail.
    - **Execute Implementation**: Implement minimal code to pass. Prefer the smallest implementation that satisfies the acceptance criteria.
    - **Context budget**: → `_shared/context-resume.md`. Execute addendum:
-     - **Resume minimum read set**: `checkpoint.md` → `run-ledger.md` active task + Gate Results → `implementation-notes.md` Reader Summary + Evidence Index → active `plan.md` task section only.
-     - If the active task references `.forgeflow/project-draft.md`, read only the named section or repo-relative source pointers needed for that task. Do not copy the entire common project context into `implementation-notes.md`, `run-ledger.md`, or `checkpoint.md`.
+     - **Resume minimum read set**: `checkpoint.md` → `ledger.md` active task + Gate Results → `implementation-notes.md` Reader Summary + Evidence Index → active `plan.md` task section only.
+     - If the active task references `.forgeflow/project-draft.md`, read only the named section or repo-relative source pointers needed for that task. Do not copy the entire common project context into `implementation-notes.md`, `ledger.md`, or `checkpoint.md`.
      - Do not re-read a file already in context unless edited since. Before reading, ask: full content, Reader Summary, or specific section? Batch parallel tool calls where possible.
      - After each task completes, append compact evidence index line to `implementation-notes.md` Evidence (e.g. `evidence_index: task=T3 gates=build:PASS,lint:PASS`).
    - **Implementation Notes**: When a decision is made that was not in the plan, when the implementation deviates from the spec, when a tradeoff is chosen, or when an open question arises — **append an entry to `implementation-notes.md` immediately**. Do not batch these until the end.
@@ -207,11 +207,11 @@ Minimum warning contract:
    - **Run Ledger**: When starting a task, set its status to `running` and **Assignee** to `worker` (or `specialist` if delegated). When completing, set to `done` with evidence refs. When blocked, set to `blocked` with blocker description. Update incrementally, not in batch. See **Run ledger assignee discipline** below.
    - **Per-task micro-gates (high/epic only)**: Before marking a step `done`, run the micro-gate checklist in **Per-task micro-gates** below. Optional spec/quality micro-reviewer subagents use `references/spec-reviewer-prompt.md` and `references/quality-reviewer-prompt.md`.
    - **Checkpoint**: Update `checkpoint.md` after each task completes: set `Active Task` to the next task, update `Latest Artifacts` table. Ensures resume capability after adapter-selected context refresh.
-     - **Step-boundary checkpoint (adapter-neutral)**: Once checkpoint, run-ledger, and evidence are all updated on disk for a completed step, set `checkpoint.md` `Active Task` to the real next task id and `Next Action` to `"Task N 시작; resume from checkpoint if context was refreshed"`. Then either continue immediately (normal `--auto` path) or, if context pressure is high, emit the adapter-specific refresh hint and STOP:
+     - **Step-boundary checkpoint (adapter-neutral)**: Once checkpoint, ledger, and evidence are all updated on disk for a completed step, set `checkpoint.md` `Active Task` to the real next task id and `Next Action` to `"Task N 시작; resume from checkpoint if context was refreshed"`. Then either continue immediately (normal `--auto` path) or, if context pressure is high, emit the adapter-specific refresh hint and STOP:
        ```
-       ✅ Task N-1 완료. checkpoint/run-ledger/implementation-notes가 디스크에 저장되었습니다.
+       ✅ Task N-1 완료. checkpoint/ledger/implementation-notes가 디스크에 저장되었습니다.
        컨텍스트가 크면 현재 어댑터의 context refresh를 실행한 뒤 같은 execute 단계를 재개하세요.
-       Resume order: checkpoint → run-ledger → implementation-notes → plan active task.
+       Resume order: checkpoint → ledger → implementation-notes → plan active task.
        ```
        Adapter hints live in `_shared/context-resume.md`; do not duplicate or make adapter-specific slash commands mandatory in core skill text.
      - **Resume guard**: After any adapter-selected context refresh, the first action is to read `checkpoint.md`, then proceed to the active task. If all artifacts are on disk, proceed normally.
@@ -247,13 +247,13 @@ Minimum warning contract:
    - **Contract checkpoint**: Before marking any plan task complete, verify: "Does this code violate a stated contract?" Record in evidence as `contract_check:PASS <task>` or `contract_check:FAIL <task> reason="..."`.
    - **Behavioral guardrail checkpoint**: Before marking any plan task complete, confirm each changed file maps to the active task objective, any new abstraction/configuration is required now, and unrelated cleanup was left as notes instead of edits. Record `surgical_scope:PASS|WARN` and `simplicity_check:PASS|WARN` in Evidence.
 12. After all steps complete, update implementation-notes.md to `Status: completed` with all passed gates in Evidence.
-    - **Completion Summary 갱신** (mandatory): run-ledger.md의 Completion Summary 섹션을 반드시 갱신한다. per-task loop에서 각 task의 status를 업데이트했더라도, Completion Summary 자체를 별도로 갱신하지 않으면 "Completed: 0, All Done: no"로 남는 버그가 발생한다:
+    - **Completion Summary 갱신** (mandatory): ledger.md의 Completion Summary 섹션을 반드시 갱신한다. per-task loop에서 각 task의 status를 업데이트했더라도, Completion Summary 자체를 별도로 갱신하지 않으면 "Completed: 0, All Done: no"로 남는 버그가 발생한다:
       - `Total Tasks`: plan.md의 task 수 (또는 small route의 경우 1)
       - `Completed`: status가 `done`인 task 수
       - `Blocked`: status가 `blocked`인 task 수
       - `Skipped`: status가 `skipped`인 task 수
       - `All Done`: 모든 task가 `done`이면 `yes`, 아니면 `no`
-    - **Gate Results 갱신** (mandatory): 각 verification gate 실행 후 run-ledger.md의 Gate Results 테이블을 실제 결과로 업데이트한다. `pending` 상태로 남겨두지 않는다. evidence ref를 Gate 열에 기록한다.
+    - **Gate Results 갱신** (mandatory): 각 verification gate 실행 후 ledger.md의 Gate Results 테이블을 실제 결과로 업데이트한다. `pending` 상태로 남겨두지 않는다. evidence ref를 Gate 열에 기록한다.
     - **Scope boundary check** (mandatory for medium/high/epic): After all steps, compare `git diff --name-only` against the plan's intended file scope. Record the result as `scope_boundary_check:PASS` (all changed files within plan scope) or `scope_boundary_check:WARN files=<unplanned-file-list>` in Evidence. If unplanned files are found, explain why in implementation-notes.md Deviations and decide whether to expand scope or revert. This prevents unexpected dirty files from blocking branch disposition during ship.
 13. Stop if requirements become ambiguous; return to `/forgeflow:clarify`.
 14. Deliver the route-aware exit prompt (see Exit Condition above). Before exiting, verify the **mandatory completion checklist**:
@@ -308,7 +308,7 @@ Do **not** use for small route (overhead exceeds benefit).
 For each plan step in dependency order:
 
 ```text
-1. Controller sets run-ledger: running, Assignee worker, Claim Marker with role/scope/timestamp
+1. Controller sets ledger: running, Assignee worker, Claim Marker with role/scope/timestamp
    → Record dispatch: "implementer-prompt.md"
 2. Dispatch implementer subagent (references/implementer-prompt.md)
 3. If NEEDS_CONTEXT → provide context and re-dispatch
@@ -322,7 +322,7 @@ For each plan step in dependency order:
    → Record dispatch: "quality-reviewer-prompt.md"
    → micro_quality:PASS|FAIL in implementation-notes
 8. If quality not approved → implementer fixes → re-review quality (loop)
-9. Mark step done in run-ledger only after steps 4–8 pass
+9. Mark step done in ledger only after steps 4–8 pass
 10. Update checkpoint.md → next step
 ```
 
@@ -364,7 +364,7 @@ Micro-gates run **during execute** on **high** and **epic** routes. They do not 
 
 ## Run ledger assignee discipline
 
-`run-ledger.md` must reflect **who did the work**, not only status:
+`ledger.md` must reflect **who did the work**, not only status:
 
 | Event | Status | Assignee |
 |-------|--------|----------|
@@ -518,7 +518,7 @@ Use the Agent tool with `references/implementer-prompt.md`. Required prompt fiel
 After the agent returns:
 1. Verify the claimed changes exist (`git diff --stat`)
 2. Run verification commands to confirm the agent's evidence
-3. Set run-ledger **Assignee** to `specialist` while verifying; then apply **Per-task micro-gates**
+3. Set ledger **Assignee** to `specialist` while verifying; then apply **Per-task micro-gates**
 4. Update `implementation-notes.md` with verified result — agent self-report alone is not evidence
 
 Handle worker status:
@@ -586,7 +586,7 @@ After each plan step passes verification, run an iterative refinement loop on th
 - Gate results in the manifest must come from **actual command execution**, not claims.
 - A FAIL gate must record: what failed, root cause, corrective action taken, and **next execution condition** (what should change to prevent recurrence).
 - Review must treat a missing evidence-manifest as `blocked` — the execution is incomplete without it.
-- The manifest is the single source of truth for review to verify. `run-ledger.md` and `implementation-notes.md` are narrative; the manifest is the contract.
+- The manifest is the single source of truth for review to verify. `ledger.md` and `implementation-notes.md` are narrative; the manifest is the contract.
 
 ## Telemetry
 

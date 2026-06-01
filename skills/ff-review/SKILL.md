@@ -24,9 +24,9 @@ Review after execute stage. Requires pipeline artifacts from `.forgeflow/tasks/<
 - `brief.md` from clarify stage
 - `plan.md` from plan stage
 - `implementation-notes.md` from execute stage
-- `run-ledger.md` from execute stage
+- `ledger.md` from execute stage
 - `evidence-manifest.md` from execute stage (required — missing manifest → `blocked` verdict)
-- `decision-log.md` from clarify/plan/execute stages (optional but recommended for tracing prior decisions)
+- `implementation-notes.md Decisions` from clarify/plan/execute stages (optional but recommended for tracing prior decisions)
 - Final codebase state
 - Verification commands/results
 
@@ -44,7 +44,7 @@ When in standalone mode, set `evidence_source` in `normalized-input.md` to recor
 
 | Input Source | Artifact | Evidence | Scope |
 |---|---|---|---|
-| Post-execute | implementation-notes.md | run-ledger.md | plan.md scope |
+| Post-execute | implementation-notes.md | ledger.md | plan.md scope |
 | URL (PR diff) | diff URL | diff hunks | changed files |
 | Repo snapshot | directory structure | file listing | specified paths |
 | File bundle | file list | file contents | specified files |
@@ -135,7 +135,7 @@ If `.forgeflow/` doesn't exist, create it. Do not initialize a full ForgeFlow wo
 
 ### Standalone constraints
 
-- No `brief.md`, `plan.md`, `run-ledger.md`, or `implementation-notes.md` is expected. Do not flag their absence as findings.
+- No `brief.md`, `plan.md`, `ledger.md`, or `implementation-notes.md` is expected. Do not flag their absence as findings.
 - No route selection (small/medium/high/epic) — standalone mode always runs as a single comprehensive pass unless `--type` is specified.
 - No execute micro-gates table — skip that section in the report.
 - Evolution rule review is always `not_applicable` in standalone mode.
@@ -478,7 +478,7 @@ When review verdict is `changes_requested` or `blocked`, generate `re-execution-
    - **Failure Analysis**: Each major/blocker finding with root cause and required fix.
    - **Corrected Execution Conditions**: What constraints, scope, or verification gates must change.
    - **Rollback Instructions**: Which files to revert (`git restore <paths>` or `git stash`).
-   - **Loop Counter**: Current iteration number (increment from run-ledger or start at 1).
+   - **Loop Counter**: Current iteration number (increment from ledger or start at 1).
 3. Record the failure in Memory Bank:
    ```bash
    python3 scripts/forgeflow_fact_store.py add --content "<root cause pattern>" --type bug_fix --domain <domain> --source-task <task-id>
@@ -554,7 +554,7 @@ For exact-count list prompts, output numbered lines only. No preamble, heading, 
 
 Review evidence is not fan fiction. Use a blocker-first verdict: unresolved blocker, missing required artifact, failed required verification, or uninspected claimed evidence prevents approval before any quality praise matters.
 
-**Role separation principle**: The implementing session's self-report is input for review, not a substitute. Do not approve work based solely on the implementer's summary. Cross-check claimed evidence against `run-ledger.md` and `implementation-notes.md`. If the implementer says a test passed, verify it independently. The reviewer is an independent role with a separate responsibility boundary.
+**Role separation principle**: The implementing session's self-report is input for review, not a substitute. Do not approve work based solely on the implementer's summary. Cross-check claimed evidence against `ledger.md` and `implementation-notes.md`. If the implementer says a test passed, verify it independently. The reviewer is an independent role with a separate responsibility boundary.
 
 **Small-route evidence budget**: For route `small`, cross-check only the minimum read set, changed files, and one fastest relevant verification command by default. Escalate to medium-style review only if the diff exceeds the small route threshold, touches security/data/state/API boundaries, verification fails, artifacts are missing enough to hide scope, or a concrete finding requires deeper evidence.
 
@@ -628,7 +628,7 @@ Evolution rules are generated during the **ship** stage. Review does not need to
 
 Review-specific: reconstruct task state from artifacts, not chat memory. **Do not read all artifacts in full at entry.**
 
-- **Minimum read set**: checkpoint → run-ledger gates + active/completion summary → implementation-notes Reader Summary + Evidence Index → brief Acceptance Criteria → plan Requirements + Verification Plan + implicated task sections only.
+- **Minimum read set**: checkpoint → ledger gates + active/completion summary → implementation-notes Reader Summary + Evidence Index → brief Acceptance Criteria → plan Requirements + Verification Plan + implicated task sections only.
 - Expand `implementation-notes.md` Decisions/Evidence only when findings or blockers require it.
 - Expand `plan.md` beyond Requirements/Verification Plan/implicated tasks only when scope or fulfills traceability demands it.
 - For **high/epic**, collect `micro_spec:*` and `micro_quality:*` from Evidence Index or Evidence. Summarize in `review-report.md` → **Execute Micro-Gates**. Treat as **reported evidence** until re-verified.
@@ -639,7 +639,7 @@ Review-specific: reconstruct task state from artifacts, not chat memory. **Do no
 
 Before approving review, inspect required ForgeFlow artifacts for unresolved template residue. Treat unresolved placeholders as `changes_requested` or `blocked` before quality praise:
 
-- Check `brief.md`, `plan.md`, `implementation-notes.md`, `run-ledger.md`, `evidence-manifest.md`, and any existing `review-report.md`.
+- Check `brief.md`, `plan.md`, `implementation-notes.md`, `ledger.md`, `evidence-manifest.md`, and any existing `review-report.md`.
 - Flag unresolved `TODO`, `TBD`, `FIXME`, template comments such as `<!-- ... -->`, and angle-bracket placeholders such as `<task-id>`, `<branch-name>`, or `<...>` when they are artifact-writing residue.
 - Do not flag intentional Markdown checkboxes, code snippets, command output, or literal examples when they are clearly part of the reviewed content rather than unfinished artifact fields.
 - If placeholder residue remains in an artifact required for the current route, do not approve. Name the file and the unresolved marker in Findings.
@@ -681,8 +681,8 @@ Do not enter standalone mode if pipeline artifacts exist, even if the user provi
     - Open questions with status `open` are blockers until resolved.
     - Tradeoffs should be evaluated: was the chosen alternative the smallest safe option?
     - If `implementation-notes.md` is missing entirely, note it as a minor finding (the execute stage should have created it).
-9. **Cross-check run-ledger.md**: Verify that claimed task completions in implementation-notes match the run-ledger status. If a task is marked `done` in implementation-notes but `running` or `pending` in run-ledger, flag it as an inconsistency. The run-ledger is the execution truth. For high/epic, if a step is `done` but lacks `micro_spec:PASS` (when execute should have run micro-gates), record a **major** spec-compliance finding.
-10. **Execute Micro-Gates table** (high/epic): Fill `review-report.md` → Execute Micro-Gates from implementation-notes and run-ledger. Re-run spec/quality checks independently; do not approve because micro-gates passed during execute.
+9. **Cross-check ledger.md**: Verify that claimed task completions in implementation-notes match the ledger status. If a task is marked `done` in implementation-notes but `running` or `pending` in ledger, flag it as an inconsistency. The ledger is the execution truth. For high/epic, if a step is `done` but lacks `micro_spec:PASS` (when execute should have run micro-gates), record a **major** spec-compliance finding.
+10. **Execute Micro-Gates table** (high/epic): Fill `review-report.md` → Execute Micro-Gates from implementation-notes and ledger. Re-run spec/quality checks independently; do not approve because micro-gates passed during execute.
 11. **Check active evolution rules**: If `.forgeflow/evolution/active/*.md` exists, verify the work is consistent with active project rules. Do not generate or validate new evolution rules — that is ship's responsibility.
 12. Apply the appropriate review rubric (Spec or Quality — see Review Rubrics section above). For quality review, also apply these discipline heuristics:
    - Every changed line should trace directly to the user's request; anything else needs explicit scope approval.

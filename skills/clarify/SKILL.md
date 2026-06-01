@@ -81,7 +81,7 @@ Plugin-cache/extension-cache safety rule: never create task artifacts under a pa
 Write `brief.md` to the active task directory using `templates/brief.md` as the structure. The brief must capture:
 
 Additionally, produce:
-- `decision-log.md` (from `templates/decision-log.md`, schema: decision-log/v1) — structured decision records for key choices made during clarify (route selection, scope boundaries, bounded assumptions treated as decisions)
+- `decision-log.md` (from `templates/decision-log.md`, schema: decision-log/v1) — **deprecated v1.11+**: record decisions in `implementation-notes.md` Decisions section instead. Legacy decision-log.md may still be created for backward compatibility.
 
 - Objective (one-sentence goal)
 - WHERE/context grounding for non-trivial work

@@ -26,7 +26,7 @@ Shared file-write, cache-location, and provider-E2E claim rules: `_shared/discip
 | `brief.md` | Clarify stage |
 | `plan.md` | Plan stage |
 | `implementation-notes.md` | Execute stage |
-| `run-ledger.md` | Execute stage |
+| `ledger.md` | Execute stage |
 | `review-report.md` | Review stage |
 
 ## When to run
@@ -124,7 +124,7 @@ When durable learning should be promoted outside the task artifact, write a **Me
 
 - Target type: `project-pattern`, `project-decision`, or `global-advisory`
 - Suggested path or owner if the project already has a memory store
-- Evidence refs from `brief.md`, `implementation-notes.md`, `run-ledger.md`, or `review-report.md`
+- Evidence refs from `brief.md`, `implementation-notes.md`, `ledger.md`, or `review-report.md`
 - Privacy check confirming no user-private context or session chatter is being retained
 
 The recommendation must point back to evidence and wait for explicit operator/project process before any memory write. No evidence, no memory.

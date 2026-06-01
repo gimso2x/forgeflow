@@ -14,6 +14,7 @@
 
 ## Blockers
 <!-- List active blockers or "none" -->
-
+## Handoff Boundary
+<!-- Current owner, next owner, handoff reason, forbidden action -->
 ## Minimum Read Set
 <!-- Example: checkpoint → ledger → implementation-notes Reader Summary → plan Task N -->

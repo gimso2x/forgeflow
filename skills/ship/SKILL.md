@@ -29,7 +29,7 @@ Use this skill to prepare the final handoff after review passes, extract reusabl
 - `brief.md` if available
 - `plan.md` if available
 - `implementation-notes.md` if available
-- `decision-log.md` if available (for tracing decisions that may affect evolution rule extraction)
+- `implementation-notes.md Decisions` if available (for tracing decisions that may affect evolution rule extraction)
 - `eval-record.md` if available (from long-run, high/epic routes)
 - Git diff/status
 - Verification evidence
@@ -142,7 +142,7 @@ After evolution rule extraction and SOFT→HARD promotion, extract structured fa
 - **high/epic**: Full extraction. No hard limit.
 
 **Extraction sources:**
-- `decision-log.md` → type `decision` (architectural choices, tradeoffs)
+- `implementation-notes.md Decisions` → type `decision` (architectural choices, tradeoffs)
 - `implementation-notes.md` deviations/workarounds → type `pattern` or `bug_fix`
 - `review-report.md` findings → type `constraint` or `discovery`
 - User preferences expressed during task → type `preference`

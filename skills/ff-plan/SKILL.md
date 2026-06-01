@@ -39,10 +39,10 @@ Write `plan.md` to the active task directory using `templates/plan.md` as the st
 
 Also create empty scaffolds for the execute stage to fill:
 - `implementation-notes.md` (from `templates/implementation-notes.md`) — decisions, deviations, evidence
-- `run-ledger.md` (from `templates/run-ledger.md`) — per-task execution truth
+- `ledger.md` (from `templates/ledger.md`, schema: ledger/v1) — unified plan items + execution tracking
 
 Additionally, produce:
-- `plan-ledger.md` (from `templates/plan-ledger.md`, schema: plan-ledger/v1) — standardized task ledger with items, types, scopes, dependencies, estimates, and decisions
+- `ledger.md` (from `templates/ledger.md`, schema: ledger/v1) — standardized task ledger with plan items, execution tracking, and decisions. Replaces the deprecated `plan-ledger.md` and `run-ledger.md`.
 
 For **epic** route, also produce:
 - `roadmap.md` (from `templates/roadmap.md`) — milestone definitions, dependency DAG, statuses
@@ -150,7 +150,7 @@ Apply rules this way:
 - **Minimum read set (new)**: `brief.md` Objective, Scope, Acceptance Criteria, Applied Evolution Rules.
 - **Minimum read set (resume)**: `checkpoint.md` → brief summary → plan Reader Summary + Tasks + Verification Plan sections.
 - **Long plans**: keep section anchors (`## 작업 목록 (Tasks)`, `## 검증 계획 (Verification Plan)`) so execute/review can target tasks without full re-read. Large brownfield tasks may exceed ~300 lines — design for section-targeted resume, not full-document replay.
-- **Stage exit**: write `plan.md`, scaffolds (`implementation-notes.md`, `run-ledger.md`), update `checkpoint.md`. Safe to refresh context after checkpoint update.
+- **Stage exit**: write `plan.md`, scaffolds (`implementation-notes.md`, `ledger.md`), update `checkpoint.md`. Safe to refresh context after checkpoint update.
 - Do not refresh context mid-decomposition before minimum plan gate is satisfied.
 
 ## Minimum plan gate

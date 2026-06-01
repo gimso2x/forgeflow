@@ -64,4 +64,4 @@ Task tool:
     - **Deviations:** from plan or "none"
 ```
 
-After the subagent returns, the **controller** (main session) must verify `git diff --stat`, rerun verification, update `run-ledger.md` and `implementation-notes.md`. Subagent self-report is not evidence.
+After the subagent returns, the **controller** (main session) must verify `git diff --stat`, rerun verification, update `ledger.md` and `implementation-notes.md`. Subagent self-report is not evidence.

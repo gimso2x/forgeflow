@@ -72,4 +72,4 @@ Verdict → controller mapping:
 
 Controller actions after micro-review:
 - If not approved: fix before `done`
-- Set run-ledger **Assignee** to `spec-reviewer` for this micro-review pass
+- Set ledger **Assignee** to `spec-reviewer` for this micro-review pass

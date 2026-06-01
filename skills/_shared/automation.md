@@ -86,15 +86,15 @@ The agent must **stop and wait for user input** when any of these occur, even un
 2. Update `checkpoint.md` (`Current Stage`, `Status`, `Active Task`, `Next Action`, `Latest Artifacts`, and `Handoff Boundary`)
 3. Only then edit application code or invoke the next stage
 
-Never start implementation while `plan.md` is missing, `run-ledger.md` scaffolds are absent, or `checkpoint.md` still points at a prior stage.
+Never start implementation while `plan.md` is missing, `ledger.md` scaffolds are absent, or `checkpoint.md` still points at a prior stage.
 
 ### Stage artifact/tool boundary catalog
 
 Keep stage boundaries explicit. Each stage owns a small artifact set and a narrow tool posture; later stages may read prior artifacts, but they must not silently take over another stage's mutation authority.
 
-- **clarify** — owns `brief.md`, `checkpoint.md`, and optional `decision-log.md` entries. Allowed posture: read project context, ask or infer requirements, inspect files for scoping. Forbidden: product code edits, implementation planning beyond route/scope/AC, shipping decisions.
-- **plan** — owns `plan.md`, task scaffolds (`implementation-notes.md`, `run-ledger.md`), `checkpoint.md`, and optional `decision-log.md` entries. Allowed posture: read code/artifacts, decompose work, define verification gates. Forbidden: product code edits, review verdicts, branch disposition.
-- **execute** — owns product changes within `brief.md`/`plan.md` scope plus `implementation-notes.md`, `run-ledger.md`, `checkpoint.md`, and verification evidence. Allowed posture: edit in-scope files, run tests/builds/validators, record deviations. Before delegated or parallel work, write the `run-ledger.md` claim marker and re-read the same row; proceed only if role/scope/timestamp still match. Forbidden: expanding scope without a brief/plan update, approving its own work, merging/shipping, or overwriting another active claim.
+- **clarify** — owns `brief.md`, `checkpoint.md`, and optional `implementation-notes.md` Decisions entries. Allowed posture: read project context, ask or infer requirements, inspect files for scoping. Forbidden: product code edits, implementation planning beyond route/scope/AC, shipping decisions.
+- **plan** — owns `plan.md`, task scaffolds (`implementation-notes.md`, `ledger.md`), `checkpoint.md`, and optional `implementation-notes.md` Decisions entries. Allowed posture: read code/artifacts, decompose work, define verification gates. Forbidden: product code edits, review verdicts, branch disposition.
+- **execute** — owns product changes within `brief.md`/`plan.md` scope plus `implementation-notes.md`, `ledger.md`, `checkpoint.md`, and verification evidence. Allowed posture: edit in-scope files, run tests/builds/validators, record deviations. Before delegated or parallel work, write the `ledger.md` claim marker and re-read the same row; proceed only if role/scope/timestamp still match. Forbidden: expanding scope without a brief/plan update, approving its own work, merging/shipping, or overwriting another active claim.
 - **review** — owns `review-report.md` and standalone provenance artifacts (`input-source.md`, `normalized-input.md`) when applicable. Allowed posture: read artifacts/source, inspect diffs/logs, fetch declared review input, run verification commands. Forbidden: product fixes, branch changes, destructive cleanup, hidden auto-approval. Code findings hand back to execute.
 - **ship** — owns `ship-summary.md`, terminal checkpoint state, and selected branch/worktree disposition. Allowed posture: final verification, changelog/handoff checks, explicit merge/PR/keep/discard flow. Forbidden: deleting unrelated dirty files, changing external automation, bypassing unresolved human-review decisions.
 
@@ -119,7 +119,7 @@ Complete **all** items before invoking the next stage or editing code outside th
 
 | Step | Required before execute |
 |------|------------------------|
-| Artifact | `plan.md` + scaffolds: `implementation-notes.md`, `run-ledger.md` |
+| Artifact | `plan.md` + scaffolds: `implementation-notes.md`, `ledger.md` |
 | Checkpoint | `Current Stage: plan`; `Active Task: Task 1` (or first pending); `Next Action: begin Task 1` |
 | Chain | Call `Skill(skill: "forgeflow:execute")` immediately — no `(y/n)` prompt. Do not just print the skill name. |
 | Forbidden | Implementing plan tasks in the plan turn; asking "execute 진행?" under `--auto` |
@@ -183,7 +183,7 @@ When a verification step depends on an external service:
 
 | Situation | Under --auto |
 |-----------|--------------|
-| Transient error (429, timeout) | Bounded retry (≤2) with backoff; record attempt in `run-ledger.md` Gate Results |
+| Transient error (429, timeout) | Bounded retry (≤2) with backoff; record attempt in `ledger.md` Gate Results |
 | Retry exhausted; brief requires live API success | **Auto-break**: checkpoint blocker, stop; do not mark AC met via unapproved fallback |
 | Brief or plan documents an approved fallback path | May use fallback; record `Decision` in `implementation-notes.md` and Gate Results as `partial`/`fallback` |
 | User requests ad-hoc fallback mid-execute | Treat as scope/process change — update brief/plan or auto-break |
@@ -199,7 +199,7 @@ These patterns indicate `--auto` was **not** honored — correct on the next tas
 | `brief.md` written, then code edits in same clarify/plan turn | Finish stage artifact + checkpoint, invoke next stage, implement only in execute |
 | `plan.md` exists but no plan-stage checkpoint / scaffolds | Write scaffolds + checkpoint before any implementation |
 | `checkpoint.md` stuck at `execute` / Task 1 while Task 2–3 complete | Update checkpoint after **each** task |
-| `run-ledger.md` / `implementation-notes.md` created only when user asks progress | Create scaffolds at plan exit; update incrementally during execute |
+| `ledger.md` / `implementation-notes.md` created only when user asks progress | Create scaffolds at plan exit; update incrementally during execute |
 | Review passed but agent waits for "ship까지?" | Call `Skill(skill: "forgeflow:ship")` immediately |
 | Out-of-scope work (e.g. area tab slider when brief says informational only) without brief update | Auto-break + scope amendment |
 | API 429 → unapproved fallback → continue as if AC met | Auto-break or record approved fallback + partial gate; never silent continuation |

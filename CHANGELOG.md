@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.11.1] - 2026-06-01
+
+### Changed
+
+- **산출물 통합 리팩터링**: `run-ledger.md`/`plan-ledger.md` → `ledger.md`, `decision-log.md` → `implementation-notes.md` Decisions로 통합. 14개 skills/ 파일 + templates/checkpoint.md 일관성 업데이트.
+- `templates/checkpoint.md`: Handoff Boundary 복원, 20줄 경량화 유지.
+
 ## [1.11.0] - 2026-06-01
 
 ### Added

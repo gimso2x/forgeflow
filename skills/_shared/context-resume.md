@@ -7,7 +7,7 @@ Shared rules for adapter-specific context refresh timing, checkpoint-first resum
 1. **Artifact-first stays** — context refresh does not replace artifacts; it makes resume discipline mandatory.
 2. **Checkpoint-first** — on resume after any adapter refresh, read `checkpoint.md` before any other task artifact when it exists.
 3. **No default full re-read** — expand to full artifacts only when verification, findings, or blockers require it.
-4. **Ledger = truth, notes = narrative** — task status from `run-ledger.md`; decisions from `implementation-notes.md`.
+4. **Ledger = truth, notes = narrative** — task status from `ledger.md`; decisions from `implementation-notes.md`.
 5. **Step-complete = checkpoint-first** — once a plan step finishes and checkpoint/ledger/evidence are updated on disk, the next step must be resumable from artifacts. Context refresh is adapter-selected and used only when context pressure is high or role bleed appears; resume from artifacts is mandatory.
 
 ## Context refresh timing
@@ -17,14 +17,14 @@ Context refresh is safe when artifacts are up to date. Keep the core skill adapt
 Refresh context at:
 
 - **Stage boundary** — after the stage's exit artifact is written (e.g. `brief.md`, `plan.md`, `review-report.md`).
-- **Step boundary (execute)** — after a plan step completes and `checkpoint.md`, `run-ledger.md`, and `implementation-notes.md` evidence are all updated on disk. Continue to the next task from the checkpoint in `--auto`; if context pressure is high, output an adapter-specific refresh hint and stop.
-- **Checkpoint refresh** — after task completion when `run-ledger.md`, evidence, and `checkpoint.md` are updated on disk.
+- **Step boundary (execute)** — after a plan step completes and `checkpoint.md`, `ledger.md`, and `implementation-notes.md` evidence are all updated on disk. Continue to the next task from the checkpoint in `--auto`; if context pressure is high, output an adapter-specific refresh hint and stop.
+- **Checkpoint refresh** — after task completion when `ledger.md`, evidence, and `checkpoint.md` are updated on disk.
 
 Do **not** refresh context when:
 
 - A file edit is in progress and not saved to artifact or codebase.
 - Verification ran but results are not yet in `implementation-notes.md` Evidence.
-- A subagent/worker is `running` in `run-ledger.md` without evidence refs.
+- A subagent/worker is `running` in `ledger.md` without evidence refs.
 - You are mid-review before verdict is recorded.
 
 | Stage | Safe to refresh after | Unsafe during |
@@ -39,7 +39,7 @@ Do **not** refresh context when:
 
 ```text
 checkpoint.md
-  → run-ledger.md (active task + gates)
+  → ledger.md (active task + gates)
   → implementation-notes.md (Reader Summary + Evidence Index)
   → checkpoint Minimum Read Set sections in other artifacts
   → full artifact (only if needed)

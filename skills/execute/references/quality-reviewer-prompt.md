@@ -77,4 +77,4 @@ Verdict → controller mapping:
 
 Controller actions after micro-review:
 - If changes_requested or blocked: do not mark step `done` until fixed and re-reviewed
-- Set run-ledger **Assignee** to `quality-reviewer` for this pass
+- Set ledger **Assignee** to `quality-reviewer` for this pass
