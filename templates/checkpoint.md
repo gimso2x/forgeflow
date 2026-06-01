@@ -1,9 +1,5 @@
 # Checkpoint
 
-<!-- ForgeFlow tactical resume pointer. Updated at stage entry/exit. -->
-<!-- This is NOT a progress report — it is the minimum state needed to resume after context refresh. -->
-<!-- See skills/_shared/context-resume.md for compact timing and read-order rules. -->
-
 ## Current Stage
 <!-- clarify | plan | execute | review | ship | long-run -->
 
@@ -11,18 +7,7 @@
 <!-- in_progress | completed | blocked -->
 
 ## Active Task
-<!-- Which task from plan.md / run-ledger.md is currently in progress, or "none". If context refresh is needed, keep the real next task id here and describe the refresh/resume action in Next Action. -->
-
-## Latest Artifacts
-
-| Artifact | Path | Status |
-|----------|------|--------|
-| brief.md | <!-- path --> | <!-- exists | missing --> |
-| plan.md | <!-- path --> | <!-- exists | missing --> |
-| run-ledger.md | <!-- path --> | <!-- exists | missing --> |
-| implementation-notes.md | <!-- path --> | <!-- exists | missing --> |
-| review-report.md | <!-- path --> | <!-- exists | missing --> |
-| ship-summary.md | <!-- path --> | <!-- exists | missing --> |
+<!-- Which task from plan.md / ledger.md is currently in progress, or "none" -->
 
 ## Next Action
 <!-- The single action to take when resuming -->
@@ -30,20 +15,5 @@
 ## Blockers
 <!-- List active blockers or "none" -->
 
-## Handoff Boundary
-<!-- Record stage ownership before crossing a boundary. -->
-<!-- Current owner: clarify | plan | execute | review | ship | long-run -->
-<!-- Next owner: clarify | plan | execute | review | ship | long-run | none -->
-<!-- Handoff reason: normal stage exit | artifact-only repair | auto-break | human decision | blocked -->
-<!-- Forbidden-action handoff: name any action the current stage must NOT perform and the stage that owns it, or "none". -->
-
 ## Minimum Read Set
-<!-- On resume: read these artifacts/sections before expanding further. See _shared/context-resume.md -->
-<!-- Example: checkpoint (this file) → run-ledger active task → implementation-notes Reader Summary → plan Task N section -->
-
-## Evidence Index Refs
-<!-- Compact evidence_index / verification / contract_check lines from implementation-notes or run-ledger -->
-<!-- Example: evidence_index: task=T2 gates=validate:PASS -->
-
-## Refresh-Safe Context Notes
-<!-- Terse state that would be lost on context refresh. NOT a progress report — decisions, blockers, next-file hints only. -->
+<!-- Example: checkpoint → ledger → implementation-notes Reader Summary → plan Task N -->

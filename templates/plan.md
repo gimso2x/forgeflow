@@ -7,11 +7,10 @@
 <!-- For high/epic routes especially: summarize what will change, touched areas, verification, and key risks in the user's language. -->
 
 ## 라우트 (Route)
-<!-- small | medium | high | epic -->
-<!-- medium sub-band: medium-light | medium-full (from brief.md) -->
+<!-- → brief.md 참조 -->
 
 ## 라우트 하위 밴드 (Route Sub-band)
-<!-- medium-light | medium-full | n/a -->
+<!-- → brief.md 참조 -->
 
 ## 실행 준비도 (Plan Readiness)
 <!-- Complete before asking the user to cross the plan -> execute boundary. -->
