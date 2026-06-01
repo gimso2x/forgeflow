@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Moved standalone review input normalization details into `skills/ff-review/references/input-normalization.md` to reduce the default review skill body while preserving the same contract.
+- Moved execute route-aware testing and debugging details into `skills/execute/references/testing-discipline.md` so the execute skill body stays lighter while preserving route-specific verification rules.
 
 ## [1.10.1] - 2026-06-01
 

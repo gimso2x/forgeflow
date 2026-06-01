@@ -153,7 +153,7 @@ Before crossing `plan -> execute`, the plan must make these sections explicit:
 
 State assumptions and success criteria before proposing tasks. If an assumption changes the implementation path, record it as a bounded assumption or return to `/forgeflow:clarify`; do not hide it inside a task title.
 
-**Testing Principle** (route-aware, → `skills/execute/SKILL.md` Route-aware Testing):
+**Testing Principle** (route-aware, → `skills/execute/references/testing-discipline.md`):
 - **small**: No test steps in plan. Lint/build verification only.
 - **medium**: Do NOT create a dedicated "write failing tests" task. Integrate test writing into the implementation step (test-after). Example: "X를 구현하고 테스트 작성" instead of separate T1=test, T2=impl. **테스트 파일을 plan task의 Files 목록에 반드시 포함한다** (예: `src/features/map/components/map-marker-layer.test.tsx`). 이렇게 하면 execute 단계에서 테스트 파일 추가 시 scope boundary alert가 발생하지 않는다.
 - **high/epic**: TDD applies — plan test-first steps for logic/contract changes. Style/config steps use test-after.

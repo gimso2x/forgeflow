@@ -115,46 +115,8 @@ Keep execution evidence in `.forgeflow/tasks/<task-id>/implementation-notes.md` 
 
 Step state must be incremental, not a final recap. Each plan step must move through progress tracking: `pending -> in_progress -> completed`. Do not batch-mark all steps as `completed` only at the end. If a step cannot finish, mark it `blocked` with evidence instead of leaving the last known state ambiguous.
 
-**Route-aware Testing**:
-Testing approach differs by route to balance speed and safety:
-
-| Route | Approach | Rationale |
-|-------|----------|-----------|
-| small | No mandatory tests. Run lint/build only. | 1-2 file changes; overhead exceeds value |
-| medium | **Test-after**: implement first, then write tests to cover the happy path + key edge cases. No dedicated "Red" step. | 구현 후 테스트가 빠르고 토큰 절약. T1 테스트 전용 단계를 plan에 넣지 마라 |
-| high | **TDD for logic steps only**: Red→Green→Refactor for steps that change business logic, state management, or API contracts. Style/config steps use test-after. | 핵심 로직은 TDD, 나머지는 경량화 |
-| epic | **Full TDD**: Red→Green→Refactor for every implementation step. | 가장 높은 품질 보장 필요 |
-
-For medium route test-after:
-1. Implement the code change.
-2. Write tests covering the objective's happy path and critical edge cases.
-3. Run tests to confirm pass.
-4. If tests fail, fix implementation (not the test — the test is written against working code).
-
-**Scoped lint for isolated changes**:
-When the full lint fails due to pre-existing errors outside the changed scope:
-1. Confirm the failure is not in newly changed code.
-2. Run scoped lint on changed files only.
-3. Record pre-existing errors as minor findings in `implementation-notes.md` Evidence.
-4. Do not block ship on pre-existing lint errors in unchanged code.
-
-For high/epic TDD:
-1. **Red**: Write a failing test that covers the objective. Run it and confirm failure.
-2. **Green**: Write the minimal code to pass the test.
-3. **Refactor**: Improve the code while keeping tests green.
-
-**Hypothesis-Driven Debugging**:
-If a bug or failure occurs during implementation/verification:
-1. Document the reproduction steps and observed issue in implementation-notes.md.
-2. List causal hypotheses.
-3. Test each hypothesis.
-4. Apply the fix only after the root cause is verified. Avoid "trial and error" coding.
-
-**Progress and timestamp discipline:**
-
-All timestamps in implementation-notes.md must be real ISO 8601 values, not placeholders.
-
-If the task directory is missing, bootstrap or recover it first. Do not jump straight into source edits while the workflow state lives nowhere.
+**Route-aware Testing / Debugging**:
+Read `skills/execute/references/testing-discipline.md` before choosing test depth, applying TDD/test-after, treating pre-existing lint failures, debugging verification failures, or writing timestamped execution evidence. Keep step state incremental, use real ISO 8601 timestamps, and apply hypothesis-driven debugging instead of trial-and-error fixes.
 
 ## Strict response constraints
 
@@ -224,7 +186,7 @@ Minimum warning contract:
      - **Resume guard**: After any adapter-selected context refresh, the first action is to read `checkpoint.md`, then proceed to the active task. If all artifacts are on disk, proceed normally.
    - **Role awareness**: You are the implementation role. You edit code and update artifacts, but you do not approve your own work. Review is a separate stage with a separate role boundary. Do not merge implementation and review in the same turn.
    - **Architectural Depth**: Ensure implementation follows the plan's architectural intent (Depth, Leverage, Locality) and avoids creating new shallow modules.
-   - If blocked, apply **Hypothesis-Driven Debugging**.
+   - If blocked, apply hypothesis-driven debugging from `skills/execute/references/testing-discipline.md`.
    - Nothing speculative: no drive-by abstractions, unrelated cleanup, hidden migrations, or "while I'm here" rewrites unless the approved plan names them.
 8. Apply adapter-aware execution: keep ForgeFlow artifacts, gates, and evidence paths backend-neutral. If the backend cannot produce required evidence, record that limitation in implementation-notes.md and block or downgrade the affected verification gate instead of silently proceeding.
 9. Treat fulfills, journeys, and verify_plan as verification obligations, not decoration.
