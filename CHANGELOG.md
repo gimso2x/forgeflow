@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Moved standalone review input normalization details into `skills/ff-review/references/input-normalization.md` to reduce the default review skill body while preserving the same contract.
 - Moved execute route-aware testing and debugging details into `skills/execute/references/testing-discipline.md` so the execute skill body stays lighter while preserving route-specific verification rules.
 - Moved ship evolution rule extraction criteria into `skills/ship/references/evolution-extraction.md` so the ship skill body stays focused on handoff and branch disposition.
+- Moved review human-gate trigger details into `skills/ff-review/references/human-review-gate.md` so the review skill body keeps only the gate decision contract.
 
 ## [1.10.1] - 2026-06-01
 

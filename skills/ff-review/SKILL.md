@@ -316,55 +316,9 @@ Each active role must also leave a role-pass record, even when it finds nothing:
 
 ## Human Review Gate
 
-Reference policy: `docs/review-model.md`.
+After automated review, classify whether a human decision-partner review is required. Apply `docs/review-model.md` and read `skills/ff-review/references/human-review-gate.md` before marking Human Review Gate as `required` or `skipped`, especially when API/CLI/schema, state/data, security, dependency, config/deploy, business-rule, cross-module contract, p1/p2 risk-acceptance, weak evidence, or cross-role conflict signals exist.
 
-After automated review, classify whether a human decision-partner review is required.
-
-### Mandatory human review triggers
-
-다음 조건 중 하나라도 해당하면 변경 범위와 관계없이 human review가 **필수**이다:
-
-| # | 트리거 | 이유 |
-|---|--------|------|
-| 1 | 공개 API, CLI 표면, 워크플로우 계약 변경 | 외부 의존성 영향 |
-| 2 | 인증/인가/권한/시크릿 변경 | 보안 리스크 |
-| 3 | 데이터 영속성(생성/수정/삭제/마이그레이션) 변경 | 데이터 무결성 |
-| 4 | 새 의존성 추가 또는 lockfile 변경 | 공급망 리스크 |
-| 5 | 환경 변수, 설정 파일, 배포 설정 변경 | 운영 리스크 |
-| 6 | 보안 인접 코드 변경 (입력 검증, 에러 처리, 네트워크 경계) | 간접 보안 영향 |
-| 7 | 상태 머신, 비즈니스 규칙, 결제/정산 로직 변경 | 비즈니스 로직 리스크 |
-| 8 | 크로스 모듈 계약, 인터페이스 시그니처 변경 | 통합 리스크 |
-
-mandatory trigger가 감지되면 review-report.md의 Human Review Gate에 `Decision: required`로 기록하고, 해당 trigger 번호와 이유를 명시한다.
-
-Human review may be skipped only when **all** of these are true:
-
-- Change scope is small/localized and repeats an established pattern.
-- Risk is low, rollback is easy, and no state/data/security/permission behavior changes are involved.
-- Automated verification is fresh and sufficient.
-- Similar prior work repeatedly received LGTM without discussion.
-- No cross-role automated-review conflict is present.
-- **None of the mandatory human review triggers above are matched.**
-
-Human review is required when any of these are true:
-
-- Public API, CLI surface, workflow contract, or artifact schema changes.
-- State, data persistence, deletion, migration, or branch-disposition behavior changes.
-- Security, permissions, authentication, secrets, or error-recovery behavior changes.
-- Broad impact, difficult rollback, or unclear ownership boundaries.
-- Repeated design disagreement or cross-role reviewer conflict.
-- Any p1/p2 finding is rejected or marked `risk_accepted` rather than fixed.
-- Automated review is blocked, weakly evidenced, or missing required artifacts.
-
-When human review is required, append a **Human Review Packet** section to `review-report.md` with:
-
-- decision needed: concrete question/tradeoff for the human reviewer
-- context: design intent and selected tradeoffs
-- automated evidence: verdict, blockers, residual risks, verification quality
-- recommended discussion prompts: questions rather than edit commands
-- handoff target: `ship` only after human decision is recorded, otherwise `execute`
-
-When human review is skipped, record the skip reason in `review-report.md` and make it explicit that automated review is the final review gate for this task.
+When required, append a Human Review Packet to `review-report.md`; when skipped, record the skip reason and make it explicit that automated review is the final review gate for this task.
 
 ## Output Artifacts
 
