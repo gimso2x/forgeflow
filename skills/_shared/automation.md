@@ -38,7 +38,7 @@ Under `--auto`, "invoke the next stage" means **calling the Skill tool**, not pr
 ```
 ✅ Correct: Call Skill(skill: "forgeflow:plan", args: "--task-id <id>")
 ✅ Correct: Call Skill(skill: "forgeflow:execute", args: "--task-id <id>")
-❌ Wrong: Printing "/forgeflow:plan" as text without calling Skill tool
+❌ Wrong: Printing "/forgeflow:ff-plan" as text without calling Skill tool
 ❌ Wrong: Printing "defaults에 auto: true가 설정되어 있어 자동 진행합니다" then stopping
 ❌ Wrong: Asking "(y/n)" under --auto
 ```
@@ -60,7 +60,7 @@ The agent must **stop and wait for user input** when any of these occur, even un
 
 - **Failed verification**: build, lint, type_check, or test failure that the bounded fix loop cannot resolve
 - **Blockers**: unresolved open questions or missing dependencies in `brief.md`
-- **Review verdict: `changes_requested`**: must present findings and wait for user direction before re-executing. Exception: if ALL findings are artifact-only (scope_files, brief, plan, implementation-notes 등 `.forgeflow/` 메타데이터 수정만 필요한 경우), auto-fix artifacts then re-invoke `/forgeflow:review` without stopping. 코드 로직 변경이 필요한 finding이 하나라도 있으면 기존대로 auto-break.
+- **Review verdict: `changes_requested`**: must present findings and wait for user direction before re-executing. Exception: if ALL findings are artifact-only (scope_files, brief, plan, implementation-notes 등 `.forgeflow/` 메타데이터 수정만 필요한 경우), auto-fix artifacts then re-invoke `/forgeflow:ff-review` without stopping. 코드 로직 변경이 필요한 finding이 하나라도 있으면 기존대로 auto-break.
 - **Destructive actions**: ship branch-disposition discard confirmation (always requires exact `discard` input), force-push, branch deletion — note: "Merge locally" under `--auto` is NOT destructive and does not require confirmation
 - **Ambiguous route or scope change**: when the request no longer matches the original brief (see Scope change under --auto)
 - **Missing required artifact**: any mandatory artifact that could not be produced
@@ -111,7 +111,7 @@ Complete **all** items before invoking the next stage or editing code outside th
 | Step | Required before next stage |
 |------|---------------------------|
 | Artifact | `brief.md` with route, scope, AC, blockers resolved |
-| Checkpoint | `Current Stage: clarify` → exit update; `Next Action: invoke /forgeflow:plan` (medium+) or `/forgeflow:execute` (small) |
+| Checkpoint | `Current Stage: clarify` → exit update; `Next Action: invoke /forgeflow:ff-plan` (medium+) or `/forgeflow:execute` (small) |
 | Chain | Call `Skill(skill: "forgeflow:plan")` or `Skill(skill: "forgeflow:execute")` **immediately** — no `(y/n)` prompt. Do not print the skill name as text without calling the Skill tool. |
 | Forbidden | Starting code edits in the clarify turn; skipping plan on medium/high/epic |
 
@@ -158,9 +158,9 @@ Complete **all** items before invoking the next stage or editing code outside th
 
 Do **not** emit these (or equivalent) while `--auto` is active:
 
-- `다음 스텝으로 /forgeflow:plan을 진행하시겠습니까? (y/n)`
+- `다음 스텝으로 /forgeflow:ff-plan을 진행하시겠습니까? (y/n)`
 - `계획은 여기까지 확정됐습니다. /forgeflow:execute을 진행하시겠습니까? (y/n)`
-- `구현 완료. /forgeflow:review를 진행하시겠습니까? (y/n)`
+- `구현 완료. /forgeflow:ff-review를 진행하시겠습니까? (y/n)`
 - `리뷰 통과. /forgeflow:ship을 실행해주세요.` (without immediately invoking ship)
 - `execute하고 리뷰해야겠지?` / `ship까지?` — rhetorical checks that wait for user confirmation
 

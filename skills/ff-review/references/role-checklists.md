@@ -1,6 +1,6 @@
 # Review Role Checklists
 
-These role checklists are loaded by `skills/review/SKILL.md` during role-based review. Keep operator routing and output structure in the main skill; keep detailed per-role assertions here to reduce main-skill surface area.
+These role checklists are loaded by `skills/ff-review/SKILL.md` during role-based review. Keep operator routing and output structure in the main skill; keep detailed per-role assertions here to reduce main-skill surface area.
 
 Checklist version: 2026-05-31
 

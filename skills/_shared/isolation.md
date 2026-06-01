@@ -213,7 +213,7 @@ Do not auto-remove unmerged branches. Always warn and let the user decide.
 
 ### Integration with config prune
 
-The `/forgeflow:config` prune option (Mode D) uses this detection logic to list orphans and offer batch cleanup. See `skills/config/SKILL.md`.
+The `/forgeflow:ff-config` prune option (Mode D) uses this detection logic to list orphans and offer batch cleanup. See `skills/ff-config/SKILL.md`.
 
 ## Safety rules
 

@@ -52,12 +52,12 @@ Adapter-specific CLI flags and timeout guides: `docs/adapter-config.md`.
 |-------|-------------------------|--------|
 | Overview | `/forgeflow` | `/forgeflow` |
 | Clarify | `/forgeflow:clarify` | `/clarify` |
-| Plan | `/forgeflow:plan` | `/plan` |
+| Plan | `/forgeflow:ff-plan` | `/ff-plan` |
 | Execute | `/forgeflow:execute` | `/execute` |
-| Review | `/forgeflow:review` (pipeline: after execute; standalone: with URL/repo/diff/files input) | `/review` (same) |
+| Review | `/forgeflow:ff-review` (pipeline: after execute; standalone: with URL/repo/diff/files input) | `/ff-review` (same) |
 | Ship | `/forgeflow:ship` | `/ship` |
-| Config | `/forgeflow:config` | `/config` |
-| Init (full) | Select `full init` inside `/forgeflow:config` | Select `full init` inside `/config` |
+| Config | `/forgeflow:ff-config` | `/ff-config` |
+| Init (full) | Select `full init` inside `/forgeflow:ff-config` | Select `full init` inside `/ff-config` |
 | Long-run | `/forgeflow:long-run` | `/long-run` |
 | Benchmark | `/forgeflow:benchmark` | `/benchmark` |
 
@@ -218,7 +218,7 @@ worker C ──┘
 
 ### Review depth by route
 
-| Route | During execute (`/forgeflow:execute`) | After execute (`/forgeflow:review`) |
+| Route | During execute (`/forgeflow:execute`) | After execute (`/forgeflow:ff-review`) |
 |-------|--------------------------------------|-------------------------------------|
 | small | Self-check + one fast relevant verification gate; no micro-reviewer subagents | Single **fast-review quality** pass: changed-file scope + acceptance sanity + one observed gate + blocker scan |
 | medium | Step verification + contract checkpoint per plan step | Single **quality** pass |
@@ -264,7 +264,7 @@ If an adapter exceeds the safety ceiling, terminate the process and record the t
 
 1. Detect the adapter environment (see `docs/adapter-config.md`).
 2. **Read project defaults**: if `.forgeflow/defaults.md` exists in the project root, parse it for default settings. Supported fields: `auto` (bool), `isolation` (bool). See `docs/adapter-config.md` → Project Defaults.
-3. **Handle `/forgeflow:config`** (or `/config` in Cursor): interactive project defaults manager (`--mode=full` for architecture draft generation via `templates/project-draft.md`).
+3. **Handle `/forgeflow:ff-config`** (or `/ff-config` in Cursor): interactive project defaults manager (`--mode=full` for architecture draft generation via `templates/project-draft.md`).
    1. Read `.forgeflow/defaults.md` if it exists. Show current settings. When missing, use hardcoded defaults: `auto: false`, `isolation: true`.
    2. Present available options with current values:
       ```
@@ -279,11 +279,11 @@ If an adapter exceeds the safety ceiling, terminate the process and record the t
       번호를 선택하세요:
       ```
    3. On selection 1 or 2, toggle the value (off→on, on→off). Create or update `.forgeflow/defaults.md`. Confirm the change.
-   4. On selection 3, run the basic init flow from `skills/config/SKILL.md` Mode C.
-   5. On selection 4, run the full project context init flow from `skills/config/SKILL.md` Mode B to detect project context and generate `.forgeflow/project-draft.md` from `templates/project-draft.md`.
+   4. On selection 3, run the basic init flow from `skills/ff-config/SKILL.md` Mode C.
+   5. On selection 4, run the full project context init flow from `skills/ff-config/SKILL.md` Mode B to detect project context and generate `.forgeflow/project-draft.md` from `templates/project-draft.md`.
    6. Supported fields: `auto` (`true`/`false`), `isolation` (`true`/`false`). Additional fields may be added in future versions.
    7. Do **not** commit `.forgeflow/defaults.md` or `.forgeflow/project-draft.md` to git automatically — let the user decide.
-4. If the user provides a slash command (other than config), route to the matching stage skill.
+4. If the user provides a slash command (other than ff-config), route to the matching stage skill.
 5. If the user provides a free-form request, run `/forgeflow:clarify` to produce a brief with route selection.
 6. After clarify, follow the route's stage sequence (see Route model above).
 7. Each stage skill handles its own procedure, artifacts, and gates.

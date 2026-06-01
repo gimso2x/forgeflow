@@ -49,7 +49,7 @@ Maintain this file **throughout execution**, not as a post-hoc summary. Append e
 Guidelines:
 - Every entry must state **why** — not just what changed.
 - Record a deviation even if you consider it minor; review will judge severity.
-- This artifact is reviewed during `/forgeflow:review` and ships with the task evidence.
+- This artifact is reviewed during `/forgeflow:ff-review` and ships with the task evidence.
 
 ## Exit Condition
 
@@ -69,19 +69,19 @@ The exit prompt and next-step guidance depend on the active route.
 
 - **small** route: After implementation, run at least one smoke check (build, lint, or type check — whichever is fastest). Update `implementation-notes.md` with `Status: completed`, then prompt the user:
   ```
-  구현 완료. 검증 통과. /forgeflow:review로 리뷰를 진행하시겠습니까? (y/n)
+  구현 완료. 검증 통과. /forgeflow:ff-review로 리뷰를 진행하시겠습니까? (y/n)
   ```
 - **medium** route: Update progress after each step completes. After final step, prompt:
   ```
-  모든 계획 단계 실행 완료. /forgeflow:review를 진행해야 합니다. (y/n)
+  모든 계획 단계 실행 완료. /forgeflow:ff-review를 진행해야 합니다. (y/n)
   ```
 - **high** route: Update progress after each step completes. After final step, review is mandatory — output this prompt and wait for user confirmation:
   ```
-  high route 실행 완료. 독립 review가 필수입니다. /forgeflow:review --type spec 을 진행하시겠습니까? (y/n)
+  high route 실행 완료. 독립 review가 필수입니다. /forgeflow:ff-review --type spec 을 진행하시겠습니까? (y/n)
   ```
 - **epic** route: Update progress after each step of the current milestone completes. After the final step of the current milestone:
   ```
-  마일스톤 실행 완료. 독립 review가 필수입니다. /forgeflow:review --type spec 을 진행하시겠습니까? (y/n)
+  마일스톤 실행 완료. 독립 review가 필수입니다. /forgeflow:ff-review --type spec 을 진행하시겠습니까? (y/n)
   ```
 
 Do not end the execute stage without updating `implementation-notes.md`. An execute pass that leaves no state artifact is incomplete.
@@ -195,7 +195,7 @@ Minimum warning contract:
    - Completion Summary: Total Tasks: 1
 5. Write `checkpoint.md` from `templates/checkpoint.md` with `Current Stage: execute`, `Active Task: first pending task`, `Next Action: begin first plan step`.
 6. Read Contracts section from `plan.md` before editing when present.
-   - If `plan.md` or `brief.md` references `.forgeflow/project-draft.md`, treat it as section-scoped shared context produced by `/forgeflow:config init --mode=full`: read the relevant section names and repo-relative pointers only, then verify task-critical facts against the referenced source files or code before changing behavior. Do not copy the whole draft into execute artifacts, and keep `run-ledger.md` and `implementation-notes.md` as the task-specific source of truth.
+   - If `plan.md` or `brief.md` references `.forgeflow/project-draft.md`, treat it as section-scoped shared context produced by `/forgeflow:ff-config init --mode=full`: read the relevant section names and repo-relative pointers only, then verify task-critical facts against the referenced source files or code before changing behavior. Do not copy the whole draft into execute artifacts, and keep `run-ledger.md` and `implementation-notes.md` as the task-specific source of truth.
    - **Environment safety net**: If `brief.md` lacks environment notes, run: `git rev-parse --is-inside-work-tree 2>/dev/null; ls node_modules .venv vendor 2>/dev/null | head -3`. If dependencies are missing and a package manager is detected:
      - **Under `--auto`**: install automatically using the detected package manager. Record the install command in `implementation-notes.md` Evidence. Do not stop or ask the user.
      - **Otherwise**: stop and ask: "종속성이 설치되지 않았습니다. 설치를 먼저 진행하시겠습니까?" Do NOT attempt installation yourself.
@@ -278,17 +278,17 @@ Minimum warning contract:
     2. 검증 결과: lint/build/test 각각 pass/fail + 숫자
     3. 변경 파일 목록
     4. 주의사항 (있는 경우): contract_check 실패, environment warning, 미해결 decisions
-    **`--auto`가 활성 상태면**: 완료 보고를 출력한 뒤 checkpoint를 업데이트하고 **`Skill(skill: "forgeflow:review", args: "--task-id <task-id>")`를 호출**한다. 텍스트로만 "/forgeflow:review"를 출력하지 않는다. 사용자에게 다음 단계를 묻지 않는다(automation.md strict auto-chain).
+    **`--auto`가 활성 상태면**: 완료 보고를 출력한 뒤 checkpoint를 업데이트하고 **`Skill(skill: "forgeflow:review", args: "--task-id <task-id>")`를 호출**한다. 텍스트로만 "/forgeflow:ff-review"를 출력하지 않는다. 사용자에게 다음 단계를 묻지 않는다(automation.md strict auto-chain).
     **`--auto`가 아니면**: 반드시 사용자가 다음 단계를 실행하도록 대기.
 
 Contract-aware execution rules:
 
 - Do not change an interface or invariant named in contracts unless the plan explicitly authorizes it.
 - For each step with fulfills, record evidence against those requirement/sub-requirement IDs.
-- For each journey in the plan, preserve end-to-end verification until `/forgeflow:review`; a passed unit test alone is not enough for a journey gate.
+- For each journey in the plan, preserve end-to-end verification until `/forgeflow:ff-review`; a passed unit test alone is not enough for a journey gate.
 - If verify_plan exists and a target cannot be verified, mark the task blocked instead of pretending it is done.
 
-Worker self-report is not approval. `/forgeflow:review` still has to happen.
+Worker self-report is not approval. `/forgeflow:ff-review` still has to happen.
 
 ## Subagent Per-Task Loop (opt-in, `--subagent-per-task`)
 
@@ -351,7 +351,7 @@ When the shell supports role-specific models:
 
 ## Per-task micro-gates
 
-Micro-gates run **during execute** on **high** and **epic** routes. They do not replace stage-level `/forgeflow:review`.
+Micro-gates run **during execute** on **high** and **epic** routes. They do not replace stage-level `/forgeflow:ff-review`.
 
 ### All routes (every plan step before `done`)
 

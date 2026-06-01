@@ -1,0 +1,12 @@
+{
+  "name": "forgeflow",
+  "plugins": [
+    {
+      "name": "forgeflow",
+      "source": {
+        "source": "local",
+        "path": "."
+      }
+    }
+  ]
+}

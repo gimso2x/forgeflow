@@ -1,7 +1,7 @@
 # ForgeFlow Spec Micro-Reviewer Prompt
 
 Use during `/forgeflow:execute` on **high** or **epic** routes after a plan step is implemented.
-This is a **micro-gate** — it does not replace `/forgeflow:review --type spec` or writing `review-report.md`.
+This is a **micro-gate** — it does not replace `/forgeflow:ff-review --type spec` or writing `review-report.md`.
 Dispatch only after controller-verified diff and step verification exist.
 
 Align output vocabulary with `templates/review-report.md` (Findings, Spec Compliance checklist).

@@ -14,19 +14,19 @@ Skills are markdown documents that live in `skills/`. Each skill defines a bound
 
 Surface tiers:
 
-- **Core workflow**: `clarify`, `plan`, `execute`, `review`, `ship`
+- **Core workflow**: `clarify`, `ff-plan`, `execute`, `ff-review`, `ship`
 - **Support**: `forgeflow`, `long-run`
 - **Utility / optional**: `benchmark`
 
-`config` is listed separately under Utility skills because it manages project defaults rather than advancing a task artifact chain.
+`ff-config` is listed separately under Utility skills because it manages project defaults rather than advancing a task artifact chain.
 
 | # | Skill | Purpose |
 |---|-------|---------|
 | 00 | [`forgeflow`](forgeflow/SKILL.md) | Overview router for slash-style ForgeFlow prompts. |
 | 01 | [`clarify`](clarify/SKILL.md) | Bootstrap task workspace, resolve ambiguity, explore codebase, emit a **brief.md** with complexity routing. |
-| 02 | [`plan`](plan/SKILL.md) | Turn requirements into an executable **plan.md** with task contracts; includes epic decomposition for epic route. |
+| 02 | [`ff-plan`](ff-plan/SKILL.md) | Turn requirements into an executable **plan.md** with task contracts; includes epic decomposition for epic route. |
 | 03 | [`execute`](execute/SKILL.md) | Execute plan tasks with checkpoint/recovery tracking; includes opt-in subagent per-task loop. |
-| 04 | [`review`](review/SKILL.md) | **Information-isolated** verification. Pipeline mode: verify executed work against the plan. Standalone mode: review external input (URL/repo/diff/files) independently with role-based review. |
+| 04 | [`ff-review`](ff-review/SKILL.md) | **Information-isolated** verification. Pipeline mode: verify executed work against the plan. Standalone mode: review external input (URL/repo/diff/files) independently with role-based review. |
 | 05 | [`ship`](ship/SKILL.md) | Final handoff, evolution rule extraction, and branch disposition (merge/PR/keep/discard). |
 | 06 | [`long-run`](long-run/SKILL.md) | Record reusable learnings after high/epic route completion. |
 | 07 | [`benchmark`](benchmark/SKILL.md) | Cross-adapter benchmark: same prompt → multiple agents → comparison report. |
@@ -71,12 +71,12 @@ User: "Build a complete e-commerce platform"
 ## Standalone review lifecycle (no pipeline)
 
 ```
-User: "/forgeflow:review https://github.com/org/repo/pull/42"
+User: "/forgeflow:ff-review https://github.com/org/repo/pull/42"
   → review (standalone)     → synthetic task dir + normalized-input.md + review-report.md
 ```
 
 ```
-User: "/forgeflow:review --type security ./src/"
+User: "/forgeflow:ff-review --type security ./src/"
   → review (standalone)     → security-reviewer only → review-report.md
 ```
 
@@ -84,7 +84,7 @@ User: "/forgeflow:review --type security ./src/"
 
 | # | Skill | Purpose |
 |---|-------|---------|
-| U1 | [`config`](config/SKILL.md) | Manage ForgeFlow project defaults interactively. Toggle auto-chaining and worktree isolation. |
+| U1 | [`ff-config`](ff-config/SKILL.md) | Manage ForgeFlow project defaults interactively. Toggle auto-chaining and worktree isolation. |
 
 ## Adding a new skill
 

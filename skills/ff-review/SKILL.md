@@ -1,6 +1,6 @@
 ---
-name: review
-description: Perform independent ForgeFlow review. Use as /review or /forgeflow:review — either after execute (pipeline mode) or directly with external input (standalone mode).
+name: ff-review
+description: Perform independent ForgeFlow review. Use as /ff-review or /forgeflow:ff-review — either after execute (pipeline mode) or directly with external input (standalone mode).
 version: 0.5.0
 author: gimso2x
 validate_prompt: |
@@ -262,7 +262,7 @@ Standalone mode and high/epic pipeline mode use role-based review. Each role has
 
 ### Role definitions
 
-Role-specific triggers stay inline so operators can decide which passes to run quickly. The detailed checklist items and role-specific evidence requirements live in `skills/review/references/role-checklists.md`; load that reference before executing any role pass and cite the exact `Checklist version: YYYY-MM-DD` value in `review-report.md` as `Checklist Version`. Before each role begins, the lead reviewer must provide the role input packet required by that reference from `normalized-input.md` only and cite its **role input packet readiness** row; missing, `BLOCKED`, or chat-only packets block that role instead of allowing inferred evidence.
+Role-specific triggers stay inline so operators can decide which passes to run quickly. The detailed checklist items and role-specific evidence requirements live in `skills/ff-review/references/role-checklists.md`; load that reference before executing any role pass and cite the exact `Checklist version: YYYY-MM-DD` value in `review-report.md` as `Checklist Version`. Before each role begins, the lead reviewer must provide the role input packet required by that reference from `normalized-input.md` only and cite its **role input packet readiness** row; missing, `BLOCKED`, or chat-only packets block that role instead of allowing inferred evidence.
 
 Before running roles, write a compact role routing rationale in `review-report.md`: list `Active roles` and `Skipped roles` explicitly. For every role that runs or is intentionally skipped, cite the route rule, `--type`/`--focus` flag, file-type heuristic, specialist profile, or explicit non-trigger that decided it. A missing skipped-role reason is a routing gap, not a harmless omission. This prevents standalone adapters and parallel reviewers from silently broadening or narrowing review scope after normalization.
 
@@ -272,7 +272,7 @@ In standalone mode, also fill `normalized-input.md` → `Role trigger matrix` be
 
 **Trigger**: Always runs in pipeline mode. In standalone mode, runs when a brief/requirement/spec document exists (auto-generated or user-provided).
 
-**Checklist source**: `skills/review/references/role-checklists.md#spec-reviewer` (in addition to the Spec Review rubric).
+**Checklist source**: `skills/ff-review/references/role-checklists.md#spec-reviewer` (in addition to the Spec Review rubric).
 
 **Standalone-specific**: When no explicit spec exists, the auto-generated brief becomes the de facto spec. The spec-reviewer checks whether the code/diff does what the brief describes — no more, no less. Flag scope that doesn't trace back to the brief as `major: unexplained scope`.
 
@@ -280,7 +280,7 @@ In standalone mode, also fill `normalized-input.md` → `Role trigger matrix` be
 
 **Trigger**: Always runs in both pipeline and standalone mode.
 
-**Checklist source**: `skills/review/references/role-checklists.md#quality-reviewer` (in addition to the Quality Review rubric).
+**Checklist source**: `skills/ff-review/references/role-checklists.md#quality-reviewer` (in addition to the Quality Review rubric).
 
 **Standalone-specific**: Without implementation-notes, the quality-reviewer works from the code/diff directly. Apply heuristics without referencing executor claims.
 
@@ -290,7 +290,7 @@ In standalone mode, also fill `normalized-input.md` → `Role trigger matrix` be
 
 **Trigger evidence**: cite the role trigger matrix row and normalized evidence IDs for the architecture/module-boundary/shared-pattern signal before opening findings.
 
-**Checklist source**: `skills/review/references/role-checklists.md#architecture-reviewer`.
+**Checklist source**: `skills/ff-review/references/role-checklists.md#architecture-reviewer`.
 
 **Review priority**: Prioritize existing patterns, shared module reuse, avoiding unnecessary new implementations, architectural consistency, then local code quality. For projects that explicitly prefer functional style, flag new classes, singletons, or service-class abstractions unless the normalized evidence shows an existing project convention requiring them.
 
@@ -300,7 +300,7 @@ In standalone mode, also fill `normalized-input.md` → `Role trigger matrix` be
 
 **Trigger evidence**: cite the role trigger matrix row and normalized evidence IDs for the auth/input/secrets/network/filesystem/dependency signal before opening findings.
 
-**Checklist source**: `skills/review/references/role-checklists.md#security-reviewer`.
+**Checklist source**: `skills/ff-review/references/role-checklists.md#security-reviewer`.
 
 #### ux-reviewer
 
@@ -308,7 +308,7 @@ In standalone mode, also fill `normalized-input.md` → `Role trigger matrix` be
 
 **Trigger evidence**: cite the role trigger matrix row and normalized evidence IDs for the UI/text/route/form/accessibility signal before opening findings.
 
-**Checklist source**: `skills/review/references/role-checklists.md#ux-reviewer`.
+**Checklist source**: `skills/ff-review/references/role-checklists.md#ux-reviewer`.
 
 #### perf-reviewer
 
@@ -316,7 +316,7 @@ In standalone mode, also fill `normalized-input.md` → `Role trigger matrix` be
 
 **Trigger evidence**: cite the role trigger matrix row and normalized evidence IDs for the query/loop/cache/batching/memory signal before opening findings.
 
-**Checklist source**: `skills/review/references/role-checklists.md#perf-reviewer`.
+**Checklist source**: `skills/ff-review/references/role-checklists.md#perf-reviewer`.
 
 ### Role routing
 
@@ -626,8 +626,8 @@ All routes write a **single** `review-report.md` using `templates/review-report.
   - **medium-light** (brief sub-band): Verify task coverage and verification gates; Contracts/Journeys in plan are optional unless present.
   - **medium-full** (brief sub-band): Verify contract-first traceability — every acceptance criterion maps to plan tasks; Contracts and Verification Plan targets must be checked if present in `plan.md`.
 - **high/epic** route: Two separate review **passes** are **required** (same file, sequential gates):
-  1. `/forgeflow:review --type spec` — Create or update `review-report.md`. Set Review Type: spec. Complete Spec Compliance and Evolution Rule Review. Record spec verdict. Do not proceed to quality until spec verdict is approved.
-  2. `/forgeflow:review --type quality` — Update the same `review-report.md`. Set Review Type: quality (or note both passes in Findings). Complete Quality Assessment. Final verdict must reflect quality pass.
+  1. `/forgeflow:ff-review --type spec` — Create or update `review-report.md`. Set Review Type: spec. Complete Spec Compliance and Evolution Rule Review. Record spec verdict. Do not proceed to quality until spec verdict is approved.
+  2. `/forgeflow:ff-review --type quality` — Update the same `review-report.md`. Set Review Type: quality (or note both passes in Findings). Complete Quality Assessment. Final verdict must reflect quality pass.
 
   For high/epic, if Spec Compliance is missing, incomplete, or spec verdict != approved, do not proceed to the quality pass. Each pass is an independent gate; do not merge both passes into one review turn.
 
@@ -815,8 +815,8 @@ Do not enter standalone mode if pipeline artifacts exist, even if the user provi
       - "리뷰 통과. 출하 준비 완료. `/forgeflow:ship`을 실행해주세요."
       - **Worktree isolation 경고**: If `brief.md` has `isolation: worktree`, append: "주의: 워크트리가 활성 상태입니다. `/forgeflow:ship` 없이 세션을 종료하면 워크트리가 정리되지 않습니다."
       - Update `checkpoint.md`: `Next Action: /forgeflow:ship (worktree cleanup pending)` when worktree isolation is active.
-    - If `changes_requested` and ALL findings are artifact-only (scope_files, brief, plan, implementation-notes 등 `.forgeflow/` 메타데이터 수정만 필요): auto-fix scope/brief/plan/notes artifacts, update `checkpoint.md`, then re-invoke `/forgeflow:review` without stopping. 코드 변경이 필요한 finding이 있으면 아래로 fallthrough.
-    - If `changes_requested` (code findings exist): **always stop and present findings** (auto-break). "수정이 필요합니다:" + 각 P0/P1 이슈를 `file:line — description` 형태로 나열 + "`/forgeflow:execute`로 수정 후 다시 `/forgeflow:review`를 요청해주세요."
+    - If `changes_requested` and ALL findings are artifact-only (scope_files, brief, plan, implementation-notes 등 `.forgeflow/` 메타데이터 수정만 필요): auto-fix scope/brief/plan/notes artifacts, update `checkpoint.md`, then re-invoke `/forgeflow:ff-review` without stopping. 코드 변경이 필요한 finding이 있으면 아래로 fallthrough.
+    - If `changes_requested` (code findings exist): **always stop and present findings** (auto-break). "수정이 필요합니다:" + 각 P0/P1 이슈를 `file:line — description` 형태로 나열 + "`/forgeflow:execute`로 수정 후 다시 `/forgeflow:ff-review`를 요청해주세요."
     - Do NOT auto-proceed to ship unless `--auto` is active. 반드시 사용자가 다음 단계를 실행하도록 대기.
 18. Do not call `/forgeflow:ship` unless verdict=approved, safe_for_next_stage=yes, and open_blockers=none are all true in the **written** `review-report.md`.
 
@@ -911,7 +911,7 @@ A review with overrides must still be written to the artifact before it counts. 
 If asked:
 
 ```text
-/forgeflow:review Dry run only. List exactly two review checks. Do not write files. Do not run commands.
+/forgeflow:ff-review Dry run only. List exactly two review checks. Do not write files. Do not run commands.
 ```
 
 Return exactly two review checks. Do not add a verdict, extra commentary, or file writes.

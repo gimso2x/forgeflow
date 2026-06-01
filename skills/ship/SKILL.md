@@ -190,10 +190,10 @@ Do not capture:
 4. **Human Review Gate preflight**: Inspect `review-report.md` for `사람 리뷰 게이트 (Human Review Gate)`.
    - If `Decision: required`, do not ship until `Human Decision Status` records the human decision and the handoff target is `ship`.
    - If `Decision: skipped`, require a skip rationale tied to the review gate criteria.
-   - If the section is missing on older artifacts, treat this as a review artifact gap and route back to `/forgeflow:review` unless the task is explicitly legacy/no-risk and the reviewer records a skip rationale.
+   - If the section is missing on older artifacts, treat this as a review artifact gap and route back to `/forgeflow:ff-review` unless the task is explicitly legacy/no-risk and the reviewer records a skip rationale.
 5. Confirm there is no unresolved blocker, and that handoff evidence is preserved in the active task directory before preparing the final summary.
 
-6. **Artifact completeness gate**: Before writing final handoff language, inspect `review-report.md`, `implementation-notes.md`, and the draft/final `ship-summary.md` for unresolved template residue. If `TODO`, `TBD`, `FIXME`, unresolved `<!-- ... -->`, or angle-bracket placeholders such as `<task-id>`, `<branch-name>`, or `<...>` remain as artifact-writing residue, stop and route back to `/forgeflow:execute` or `/forgeflow:review`. Do not preserve unfinished placeholders as ship evidence. Intentional Markdown checkboxes, code snippets, command output, or literal examples are not blockers by themselves.
+6. **Artifact completeness gate**: Before writing final handoff language, inspect `review-report.md`, `implementation-notes.md`, and the draft/final `ship-summary.md` for unresolved template residue. If `TODO`, `TBD`, `FIXME`, unresolved `<!-- ... -->`, or angle-bracket placeholders such as `<task-id>`, `<branch-name>`, or `<...>` remain as artifact-writing residue, stop and route back to `/forgeflow:execute` or `/forgeflow:ff-review`. Do not preserve unfinished placeholders as ship evidence. Intentional Markdown checkboxes, code snippets, command output, or literal examples are not blockers by themselves.
 
 7. **Final Polish and Simplification Loop**: Analyze the **actually changed code** (`git diff HEAD~1 HEAD` or equivalent) for quality before shipping. This is a read-first analysis: if modifications are needed, hand back to execute rather than editing code during ship.
 

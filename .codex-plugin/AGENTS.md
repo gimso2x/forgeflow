@@ -1,0 +1,17 @@
+@./skills/SKILLS.md
+@./skills/forgeflow/SKILL.md
+@./skills/clarify/SKILL.md
+@./skills/plan/SKILL.md
+@./skills/execute/SKILL.md
+@./skills/review/SKILL.md
+@./skills/ship/SKILL.md
+@./skills/long-run/SKILL.md
+@./skills/benchmark/SKILL.md
+@./skills/config/SKILL.md
+@./skills/_shared/discipline.md
+@./skills/_shared/isolation.md
+@./skills/_shared/automation.md
+@./skills/_shared/preflight.md
+@./skills/_shared/context-resume.md
+@./docs/advisory-guidelines.md
+@./docs/adapter-config.md

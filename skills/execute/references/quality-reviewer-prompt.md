@@ -2,7 +2,7 @@
 
 Use during `/forgeflow:execute` on **high** or **epic** routes **only after** spec micro-review verdict is **approved**.
 Optional for **medium** when a plan step is high-risk (security, migration) — record why in implementation-notes.
-Does not replace `/forgeflow:review --type quality` or writing `review-report.md`.
+Does not replace `/forgeflow:ff-review --type quality` or writing `review-report.md`.
 
 Align output with `templates/review-report.md` (Findings, Quality Assessment checklist).
 

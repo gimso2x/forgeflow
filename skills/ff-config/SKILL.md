@@ -1,5 +1,5 @@
 ---
-name: config
+name: ff-config
 version: 0.6.0
 description: Manage ForgeFlow project defaults interactively. Toggle auto-chaining and worktree isolation. Offers init from the config menu with reusable project context generation. Includes prune for orphan worktree cleanup.
 validate_prompt: |
@@ -14,7 +14,7 @@ dependencies:
 # Skill: config
 
 Interactive project defaults manager for ForgeFlow. Reads and toggles settings in `.forgeflow/defaults.md`.
-The default `/forgeflow:config` flow must offer init as a numbered menu action, including reusable project context generation with auto-detected project structure, documentation pointers, and stable task guidance. Do not require the user to remember a separate manual init command.
+The default `/forgeflow:ff-config` flow must offer init as a numbered menu action, including reusable project context generation with auto-detected project structure, documentation pointers, and stable task guidance. Do not require the user to remember a separate manual init command.
 Includes prune mode to detect and clean up orphan worktrees (see Mode D).
 
 ## Input
@@ -73,7 +73,7 @@ isolation: true
 
 ### Mode B: Full project context init
 
-When the user selects **full init (프로젝트 컨텍스트 draft)** from the `/forgeflow:config` menu, generate `.forgeflow/project-draft.md` as a reusable project context and architecture draft alongside standard scaffolding.
+When the user selects **full init (프로젝트 컨텍스트 draft)** from the `/forgeflow:ff-config` menu, generate `.forgeflow/project-draft.md` as a reusable project context and architecture draft alongside standard scaffolding.
 
 1. **Standard init first**: Create `.forgeflow/` directory structure and `defaults.md` if they do not exist (same as basic init).
 2. **Detect project context** by reading project manifest files (prompt-based, agent reads and judges):

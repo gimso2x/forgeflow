@@ -1,6 +1,6 @@
 ---
-name: plan
-description: Create an executable ForgeFlow plan with exact tasks, files, acceptance criteria, and verification steps. Includes epic decomposition for epic route. Use when the user types /plan or /forgeflow:plan.
+name: ff-plan
+description: Create an executable ForgeFlow plan with exact tasks, files, acceptance criteria, and verification steps. Includes epic decomposition for epic route. Use when the user types /ff-plan or /forgeflow:ff-plan.
 version: 0.6.0
 author: gimso2x
 validate_prompt: |
@@ -67,7 +67,7 @@ When a plan task involves creating a new CLI tool, script, or external service a
 
 ## Review intent and criteria
 
-Every plan must include reviewer-facing **Design Intent** and **Review Criteria** sections. These sections make `/forgeflow:review` less generic and prevent reviewers from inventing unapproved scope.
+Every plan must include reviewer-facing **Design Intent** and **Review Criteria** sections. These sections make `/forgeflow:ff-review` less generic and prevent reviewers from inventing unapproved scope.
 
 1. Populate **Design Intent** from the brief objective, plan architecture notes, selected approach, rejected alternatives, and explicit non-goals.
 2. Populate **Review Criteria** from `brief.md` acceptance criteria, `docs/coding-convention.md` when present, active evolution rules, relevant ADR/architecture docs, and task-specific risk checks.
@@ -313,7 +313,7 @@ Apply these synthesis heuristics to convert five-angle analysis into milestone b
 
 2. Inspect the repo for existing conventions, test patterns, and file structure.
 
-   - If `.forgeflow/project-draft.md` exists in the target project root, treat it as section-scoped shared context produced by `/forgeflow:config init --mode=full`. Read only task-relevant sections such as `Reusable Project Context`, `Documentation Pointers`, `Context Usage Rules`, and `Verification Conventions`. Use those pointers to reduce repeated discovery, but keep `brief.md` and `plan.md` as the task-specific source of truth.
+   - If `.forgeflow/project-draft.md` exists in the target project root, treat it as section-scoped shared context produced by `/forgeflow:ff-config init --mode=full`. Read only task-relevant sections such as `Reusable Project Context`, `Documentation Pointers`, `Context Usage Rules`, and `Verification Conventions`. Use those pointers to reduce repeated discovery, but keep `brief.md` and `plan.md` as the task-specific source of truth.
    - When adding resume guidance to `checkpoint.md`, include only the relevant `.forgeflow/project-draft.md` section names or source document paths, not the full common context content. Plans must not depend on copied project-draft prose when a repo-relative source document or code path can be referenced instead.
 
 3. **File Structure Mapping**: Before writing tasks, determine exactly which files will be created or modified:
@@ -400,7 +400,7 @@ Do not code during planning unless the user explicitly asks for a tiny small-rou
 If asked:
 
 ```text
-/forgeflow:plan For route small, list exactly two plan steps. Do not write files.
+/forgeflow:ff-plan For route small, list exactly two plan steps. Do not write files.
 ```
 
 Return exactly the requested steps in the response. Do not create `plan.md` for this dry-run variant.
@@ -408,7 +408,7 @@ Return exactly the requested steps in the response. Do not create `plan.md` for 
 If asked:
 
 ```text
-/forgeflow:plan Write plan.md under .forgeflow/tasks/<task-id>
+/forgeflow:ff-plan Write plan.md under .forgeflow/tasks/<task-id>
 ```
 
 Then and only then write `.forgeflow/tasks/<task-id>/plan.md`.
