@@ -1,25 +1,31 @@
-# Run Ledger
+---
+schema: ledger/v1
+task_id: <!-- TASK_ID -->
+route: <!-- small|medium|high|epic -->
+total_items: <!-- N -->
+---
 
-> **DEPRECATED**: This template is replaced by `templates/ledger.md` (v1.11+).
-> Use `ledger.md` which combines Plan Items + Execution Tracking in one file.
+# Ledger
 
-<!-- ForgeFlow execution truth. plan.md is intent; ledger.md is what actually happened. -->
-<!-- Updated by execute stage. Read by review, ship stages. -->
+<!-- ForgeFlow unified tracking. Plan stage writes Plan Items; Execute stage updates Execution Tracking. -->
+<!-- Replaces plan-ledger.md and run-ledger.md (both deprecated as of v1.11). -->
 <!-- Status truth lives here; implementation-notes.md holds decision narrative — read ledger first on resume. -->
 
-## Route
-<!-- small | medium | high | epic -->
+## Plan Items
 
-## Plan Reference
-<!-- Path to the plan.md this ledger tracks -->
+### [ ] <!-- item title -->
+- **Type**: <!-- feature|fix|refactor|docs -->
+- **Scope**: <!-- file list -->
+- **Dependencies**: <!-- item refs or none -->
+- **Estimate**: <!-- small|medium|large -->
 
-## Tasks
+## Execution Tracking
 
 ### Task 1: <!-- name -->
-- **Plan Step**: <!-- which plan step this corresponds to -->
+- **Plan Step**: <!-- which plan step or brief objective -->
 - **Status**: <!-- pending | running | done | blocked | skipped -->
-- **Assignee**: <!-- required when status is running/done/blocked/skipped: worker | specialist | spec-reviewer | quality-reviewer -->
-- **Claim Marker**: <!-- required before subagent/concurrent work starts: role=<assignee> scope=<files/section> at=<ISO8601>; none for direct sequential worker -->
+- **Assignee**: <!-- worker | specialist | spec-reviewer | quality-reviewer -->
+- **Claim Marker**: <!-- role=<assignee> scope=<files/section> at=<ISO8601>; none for direct sequential worker -->
 - **Evidence Refs**: <!-- compact strings: verification:PASS gate=... | contract_check:PASS | evidence_index:task=... -->
 - **Blocker**: <!-- description or "none" -->
 - **Retry Count**: <!-- 0 -->
@@ -33,24 +39,24 @@
 - **Blocker**: none
 - **Retry Count**: 0
 
+## Decisions
+
+- <!-- decision -->: <!-- rationale -->
+
 ## Assignee discipline
 
-<!-- Updated by execute per skills/execute/SKILL.md -->
 <!-- worker = controller or direct implementation; specialist = delegated subagent -->
 <!-- spec-reviewer / quality-reviewer = execute-stage micro-review only (high/epic) -->
 <!-- Claim markers are markdown state, not chat-only claims. Record them before any delegated or parallel pass touches files/sections. -->
-<!-- Claim markers are atomic at the artifact level: write the marker, re-read this task row, and proceed only if the row still names the same role/scope/timestamp. If another claim appears, stop and hand control back to the controller instead of racing or overwriting it. -->
-<!-- Claim marker format: role=<worker|specialist|spec-reviewer|quality-reviewer> scope=<repo paths or artifact section> at=<ISO8601> -->
+<!-- Claim markers are atomic at the artifact level: write the marker, re-read this task row, and proceed only if the row still names the same role/scope/timestamp. -->
 
 ## Gate Results
-<!-- Gate evaluations from execute stage; include micro_spec / micro_quality when high/epic -->
 
 | Gate | Target | Result | Evidence |
 |------|--------|--------|----------|
 | <!-- gate name --> | <!-- what was checked --> | <!-- pass | fail | skipped --> | <!-- ref --> |
 
 ## Completion Summary
-<!-- Filled when all tasks are done or blocked -->
 
 - **Total Tasks**: 0
 - **Completed**: 0
@@ -60,20 +66,27 @@
 
 ## Small Route Minimal Format
 
-small route에서는 plan.md가 없으므로, brief.md를 기반으로 최소 run-ledger를 생성한다:
+small route에서는 plan.md가 없으므로, brief.md를 기반으로 최소 ledger를 생성한다:
 
 ```markdown
-# Run Ledger
+---
+schema: ledger/v1
+task_id: <!-- TASK_ID -->
+route: small
+total_items: 1
+---
 
-## Route
+# Ledger
 
-small
+## Plan Items
 
-## Plan Reference
+### [ ] <brief.md objective에서 추출>
+- **Type**: <!-- feature|fix|refactor|docs -->
+- **Scope**: <!-- file list -->
+- **Dependencies**: none
+- **Estimate**: small
 
-`brief.md` (small route — no plan)
-
-## Tasks
+## Execution Tracking
 
 ### Task 1: <brief.md objective에서 추출>
 - **Plan Step**: Task 1
@@ -83,6 +96,8 @@ small
 - **Evidence Refs**:
 - **Blocker**: none
 - **Retry Count**: 0
+
+## Decisions
 
 ## Assignee discipline
 

@@ -24,7 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `skills/ff-review/SKILL.md`: evidence-manifest 필수 입력 추가, artifact completeness gate에 manifest 검증 추가, Closed Loop 섹션 추가.
 - `skills/ship/SKILL.md`: SOFT→HARD auto-promotion check 섹션, Fact Extraction 섹션 추가.
 - `skills/clarify/SKILL.md`: Fact Recall (Memory Bank L4) 섹션 추가.
-- `skills/long-run/SKILL.md`: 팩트 추출 추가.
+- `skills/long-run/SKILL.md`: Memory Recommendation과 evolution candidate 기록 흐름 정리.
 
 ## [1.10.1] - 2026-06-01
 
@@ -923,7 +923,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI gate with GitHub Actions workflow generation
 - Agent preset installer (Claude + Codex)
 
-[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v1.10.1...HEAD
+[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v1.11.0...HEAD
+[1.11.0]: https://github.com/gimso2x/forgeflow/compare/v1.10.1...v1.11.0
 [1.10.1]: https://github.com/gimso2x/forgeflow/compare/v1.10.0...v1.10.1
 [1.10.0]: https://github.com/gimso2x/forgeflow/compare/v1.9.4...v1.10.0
 [1.9.4]: https://github.com/gimso2x/forgeflow/compare/v1.9.3...v1.9.4

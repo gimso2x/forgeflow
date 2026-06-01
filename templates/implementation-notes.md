@@ -15,14 +15,22 @@
 
 ## 결정 사항 (Decisions)
 
-### Decision 1: <!-- title -->
+<!-- Primary decision record. Replaces decision-log.md (deprecated as of v1.11). -->
+<!-- Append entries as decisions arise throughout all stages (clarify → plan → execute → review → ship). -->
+
+### D-001: <!-- title -->
+- **Stage**: <!-- clarify|plan|execute|review|ship -->
 - **Category**: <!-- scope | plan | execution | review | recovery | routing -->
-- **Context**:
-- **Choice**:
-- **Rationale**:
+- **Context**: <!-- why this decision was needed -->
+- **Options**:
+  - A: <!-- option A -->
+  - B: <!-- option B -->
+- **Chosen**: <!-- A or B -->
+- **Rationale**: <!-- why this option was selected -->
 - **Alternatives Considered**: <!-- what else was evaluated -->
 - **Tradeoff**: <!-- what was gained vs sacrificed -->
 - **Rollback Implication**: <!-- what happens if this is reversed, or "irreversible" -->
+- **Reversible**: <!-- yes|no -->
 
 ## 계획 대비 변경 (Deviations from Plan)
 <!-- Any deviations from the approved plan and why -->

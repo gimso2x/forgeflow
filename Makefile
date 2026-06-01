@@ -3,6 +3,7 @@
 PYTHON ?= python3
 
 PLUGIN_JSON := \
+	.agents/plugins/marketplace.json \
 	.claude-plugin/plugin.json \
 	.claude-plugin/marketplace.json \
 	.codex-plugin/plugin.json \

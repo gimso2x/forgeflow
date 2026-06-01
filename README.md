@@ -30,15 +30,15 @@ gemini extensions list
 
 `gemini extensions update forgeflow`는 확인 프롬프트가 뜰 수 있어 자동화에서는 위처럼 명시 승인 입력을 파이프합니다. 업데이트 후 `gemini extensions list`에서 `forgeflow`가 보이는지 확인합니다. 로컬 checkout에서 검증하거나 개발 중인 버전을 연결할 때는 `gemini extensions validate .` 후 `gemini extensions link .`를 사용합니다. Gemini extension manifest는 루트 `GEMINI.md`를 context file로 로드합니다.
 
-**Codex (CLI + Windows 앱):**
+**Codex (CLI + Codex App):**
 
-Codex는 marketplace를 통한 설치와 로컬 복사 두 가지를 지원합니다.
+Codex App은 WSL backend에서도 Codex CLI와 같은 plugin marketplace 설정을 읽습니다. 따라서 Codex App에서 쓰려면 WSL 안에서 아래 명령을 실행한 뒤 앱을 새로 시작하세요.
 
 *방법 1 — Marketplace (권장):*
 
 ```bash
-# ForgeFlow를 marketplace로 등록
-codex plugin marketplace add /path/to/forgeflow/.codex-plugin
+# ForgeFlow checkout의 repo root를 marketplace로 등록
+codex plugin marketplace add /path/to/forgeflow
 
 # 플러그인 설치
 codex plugin add forgeflow@forgeflow
@@ -47,12 +47,16 @@ codex plugin add forgeflow@forgeflow
 codex plugin list
 ```
 
+`/path/to/forgeflow`에는 `.agents/plugins/marketplace.json`, `plugins/forgeflow` symlink, `.codex-plugin/plugin.json`, `skills/`, `templates/`가 함께 있어야 합니다. 이 repo는 그 구조를 그대로 제공하므로 checkout root를 marketplace source로 쓰면 됩니다.
+
 원격 Git marketplace로도 등록 가능합니다:
 
 ```bash
 codex plugin marketplace add gimso2x/forgeflow
 codex plugin add forgeflow@forgeflow
 ```
+
+이미 예전 로컬 marketplace(`forgeflow@local-codex-plugins`)로 설치했다면 중복 skill 노출을 피하려고 새 `forgeflow@forgeflow`만 enabled 상태로 남기는 것을 권장합니다. Codex App 재시작 후 새 대화에서 `/forgeflow:clarify <작업>`처럼 호출하면 됩니다.
 
 *방법 2 — 로컬 복사:*
 
@@ -70,14 +74,14 @@ cp -R /path/to/forgeflow/.codex-plugin/plugin.json \
 
 *방법 3 — 개발용 심볼릭 링크:*
 
-ForgeFlow repo를 직접 수정하며 테스트할 때 사용합니다.
+ForgeFlow repo를 직접 수정하며 테스트할 때 사용합니다. symlink 대상은 `.codex-plugin` 하위 디렉토리가 아니라 `skills/`, `templates/`, `.codex-plugin/plugin.json`을 모두 포함하는 repo root여야 합니다.
 
 ```bash
 # 대상 프로젝트에서
-ln -s /path/to/forgeflow/.codex-plugin .codex/plugins/forgeflow
+ln -s /path/to/forgeflow .codex/plugins/forgeflow
 ```
 
-**Windows Codex 앱:** WSL을 backend로 사용하므로 위 설치 방법 동일하게 적용됩니다. WSL 내에서 Codex CLI를 설치하고 plugin을 등록하면 Windows 앱에서도 사용 가능합니다.
+**Codex App + WSL:** WSL 안의 `codex plugin marketplace add /path/to/forgeflow`와 `codex plugin add forgeflow@forgeflow`가 기준입니다. Windows 쪽 앱 UI는 재시작 후 해당 WSL Codex 설정에서 enabled plugin을 읽습니다.
 
 **Cursor (로컬 플러그인):**
 

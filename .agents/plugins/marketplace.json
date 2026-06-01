@@ -1,0 +1,20 @@
+{
+  "name": "forgeflow",
+  "interface": {
+    "displayName": "ForgeFlow"
+  },
+  "plugins": [
+    {
+      "name": "forgeflow",
+      "source": {
+        "source": "local",
+        "path": "./plugins/forgeflow"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}
