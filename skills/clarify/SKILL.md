@@ -151,6 +151,24 @@ Unless the prompt is exact-output, label-only, dry-run, or says not to inspect f
 5. Project active rules are required constraints for this repository. Global rules are advisory only: they may guide clarify/plan, but they must not block or force hard enforcement.
 6. If a project active rule conflicts with the user request, surface it as a blocker question with a recommended resolution.
 
+## Fact Recall (Memory Bank L4)
+
+After evolution preflight, search the ForgeFlow Memory Bank for facts relevant to the current request:
+
+1. Run `python3 scripts/forgeflow_fact_store.py search --query "<objective keywords>"` to find relevant facts.
+2. If facts are found, record them in the brief's `Applied Memory Facts` section with their IDs and content.
+3. Facts inform WHERE grounding, constraints, assumptions, and verification gates — they are context, not commands.
+4. If no facts are found, record a bounded assumption: "Memory Bank에 관련 팩트 없음" and continue normally.
+5. Prefer high-confidence facts over low-confidence ones when they conflict.
+
+Fact types and their clarify usage:
+- `decision`: Past architectural choices that may constrain the current task.
+- `constraint`: Known limitations or requirements from prior work.
+- `pattern`: Reusable approaches that succeeded before.
+- `bug_fix`: Past failure modes to watch for.
+- `preference`: User-stated preferences from earlier sessions.
+- `discovery`: Found behaviors or properties of the codebase.
+
 This is how ForgeFlow learns from prior work: long-run proposes rules, review validates them, active rules are loaded automatically by future clarify/plan/execute stages.
 
 ## WHERE grounding

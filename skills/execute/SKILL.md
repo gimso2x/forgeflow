@@ -29,6 +29,7 @@ Use this skill to execute the selected ForgeFlow route.
 - Code changes matching the plan
 - `implementation-notes.md` — real-time log maintained throughout execution (template: `templates/implementation-notes.md`)
 - `run-ledger.md` — execution truth tracking per-task status (template: `templates/run-ledger.md`)
+- `evidence-manifest.md` — structured evidence contract generated at completion (template: `templates/evidence-manifest.md`). Every gate result, scope boundary, and metric in one review-consumable artifact. A completion declaration without this manifest is incomplete.
 - `checkpoint.md` — tactical resume pointer updated at stage entry/exit (template: `templates/checkpoint.md`)
 - `decision-log.md` (from `templates/decision-log.md`, schema: decision-log/v1) — append execution-stage decisions (deviation rationale, tradeoff choices, blocker resolution) to the decision log started during clarify
 - Verification output summary
@@ -104,6 +105,36 @@ Apply them this way:
 3. Record applied rules and any ignored advisory rules in `implementation-notes.md` under Decisions or Evidence.
 4. If a project active rule would be violated, stop before editing and mark the step `blocked` with the rule id and expected behavior.
 5. If the plan omitted an applicable active rule, treat it as a plan deviation and record why before continuing.
+
+## Closed Loop — Re-Execution (L6)
+
+"사과가 아니라 조건이 바뀌어 루프가 닫힌다."
+
+### Re-execution condition intake
+
+On execute entry, check if `re-execution-conditions.md` exists in the task directory:
+1. If present, this is a **re-execution cycle** — read it before reading plan.md or brief.md.
+2. Apply the corrected execution conditions as overrides to the plan.
+3. Execute rollback instructions first (`git restore <paths>` or `git stash`) to revert failed changes.
+4. Increment the loop counter in `run-ledger.md`.
+5. Record in `implementation-notes.md`: which conditions changed and why.
+
+### Loop counter discipline
+
+- Track loop iterations in `run-ledger.md` Completion Summary: `loop_iterations: N`.
+- Maximum 3 re-execution cycles. If N=3, do not proceed — set status to `blocked` and report to user.
+- Each cycle must show progress. If the same finding recurs, the approach is fundamentally wrong — recommend re-planning.
+
+### Automatic rollback on FAIL
+
+When a verification gate fails irrecoverably (3 attempts in bounded fix loop):
+1. `git restore <changed-files>` to revert to pre-step state.
+2. Record the rollback in `implementation-notes.md` Evidence: `rollback: files=<paths> reason=<why>`.
+3. Record the failure pattern in Memory Bank:
+   ```bash
+   python3 scripts/forgeflow_fact_store.py add --content "<failure pattern>" --type bug_fix --domain <domain> --source-task <task-id>
+   ```
+4. Proceed to the next step if possible, or mark task as `blocked`.
 
 ## File write and output discipline
 
@@ -381,6 +412,7 @@ Before marking execute as completed, verify ALL items:
 | 7 | Code quality metrics collected in implementation-notes.md | all routes |
 | 8 | File size gate: oversized files (>300 lines or project limit) flagged with split plan | all routes |
 | 9 | Scope boundary check: changed files compared to plan scope, unplanned files explained | medium, high, epic |
+| 10 | evidence-manifest.md generated with all gate results, scope boundary, and metrics | all routes |
 
 If any required item is missing, the execute stage is incomplete. Do not deliver the exit prompt until all items are present.
 
@@ -400,6 +432,7 @@ Provide checklist responses under a **`### Completion Response`** heading (not u
 7. **Metrics**: LOC, TS errors, type assertions, debug artifacts, max component LOC
 8. **File size gate**: list any files exceeding 300 lines (or project limit) with split plan, or "all within limit"
 9. **Scope boundary**: `PASS` or `WARN files=<list>` with explanation for unplanned changes (medium/high/epic only)
+10. **Evidence manifest**: path to generated `evidence-manifest.md` (all routes)
 ```
 
 ## Output normalization
@@ -544,6 +577,16 @@ After each plan step passes verification, run an iterative refinement loop on th
 
 - **small / medium**: Run once after the final step only.
 - **high / epic**: Run after every step.
+
+## Evidence Contract
+
+"완료 선언은 증거가 아니다, 완료는 계약이다."
+
+- Every completion declaration must be backed by an `evidence-manifest.md` artifact.
+- Gate results in the manifest must come from **actual command execution**, not claims.
+- A FAIL gate must record: what failed, root cause, corrective action taken, and **next execution condition** (what should change to prevent recurrence).
+- Review must treat a missing evidence-manifest as `blocked` — the execution is incomplete without it.
+- The manifest is the single source of truth for review to verify. `run-ledger.md` and `implementation-notes.md` are narrative; the manifest is the contract.
 
 ## Telemetry
 

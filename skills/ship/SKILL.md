@@ -115,6 +115,57 @@ Ship is the evolution rule generation point for all routes. Read `skills/ship/re
 
 Keep generated rules evidence-backed by review-approved task artifacts. Skip small-route extraction unless explicitly requested, and never create rules from vague sentiment, session chatter, or one-off observations.
 
+## SOFT→HARD auto-promotion check
+
+After extracting evolution rules, check if any advisory (soft) rules have reached the promotion threshold:
+
+1. Run `python3 scripts/forgeflow_evolution_promote.py list-failures` to see current failure counts.
+2. For each advisory rule extracted in this session, run `python3 scripts/forgeflow_evolution_promote.py check-promote --rule <rule-id>`.
+3. If a rule is auto-promoted (exit 2), inform the user:
+   - Which rule was promoted
+   - The advisory path → hard rule path
+   - That Claude Code hooks can now enforce it via `scripts/forgeflow_hook_check.sh`
+4. If promotion is premature, the user can manually promote later with `python3 scripts/forgeflow_evolution_promote.py promote --rule <rule-id>`.
+
+When a review or execution failure occurs (verification retry ≥ 2, scope boundary violation, workaround applied), record it:
+- `python3 scripts/forgeflow_evolution_promote.py record-fail --rule <rule-id>`
+
+This enables the closed-loop principle: failure → rule extraction → hard enforcement → compound learning.
+
+## Fact Extraction (Memory Bank L4)
+
+After evolution rule extraction and SOFT→HARD promotion, extract structured facts from task artifacts into the ForgeFlow Memory Bank.
+
+**Route-aware extraction:**
+- **small**: Skip fact extraction.
+- **medium**: Maximum 3 facts. Only high-confidence items.
+- **high/epic**: Full extraction. No hard limit.
+
+**Extraction sources:**
+- `decision-log.md` → type `decision` (architectural choices, tradeoffs)
+- `implementation-notes.md` deviations/workarounds → type `pattern` or `bug_fix`
+- `review-report.md` findings → type `constraint` or `discovery`
+- User preferences expressed during task → type `preference`
+
+**Quality criteria:**
+- Each fact must have a concrete source artifact (not vague sentiment).
+- Content must be a self-contained statement reusable in future tasks.
+- Assign a domain: auth, api, ui, infra, testing, project, architecture, tooling, general.
+- Assign confidence: high (verified by review), medium (observed pattern), low (preliminary).
+
+**Command:**
+```bash
+python3 scripts/forgeflow_fact_store.py add \
+  --content "<fact statement>" \
+  --type <decision|constraint|preference|pattern|bug_fix|discovery> \
+  --domain <domain> \
+  --confidence <high|medium|low> \
+  --source-task <task-id> \
+  --tags <comma-separated>
+```
+
+**Skip when:** No reusable knowledge was produced (trivial fixes, pure formatting, no decisions).
+
 ## Procedure
 
 1. Check git status and diff only if command execution is allowed.

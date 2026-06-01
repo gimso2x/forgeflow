@@ -8,6 +8,7 @@ When writing or reviewing code, apply the advisory guardrails in `docs/advisory-
 - **Simplicity First**: avoid speculative abstractions or features not required by the brief.
 - **Surgical Changes**: changed lines must trace to the user request, brief, or plan.
 - **Goal-Driven Execution**: success must be verifiable by artifact evidence or command output.
+- **Evidence Contract**: a completion declaration without an `evidence-manifest.md` is incomplete. Gate results must come from actual command execution, not claims. Review must treat a missing manifest as `blocked`.
 
 
 Common file-write and response discipline shared across ForgeFlow workflow skills.
@@ -69,6 +70,34 @@ Each skill links here and adds skill-specific rules inline.
 - execute 중 scope 파일 수가 route 임계값을 초과하면 경고
 - review에서 scope boundary 위반을 탐지
 - advisory로 "scope creep 의심" 발행
+
+## Harness Level Principles
+
+ForgeFlow는 키노트 "도구보다 구조, 구조보다 검증 루프"의 Harness L0→L7 프레임워크를 따른다.
+
+### Evidence Contract (L3)
+- 완료 선언은 증거가 아니다, 완료는 계약이다.
+- `evidence-manifest.md` 없는 completion declaration은 불완전.
+- Gate 결과는 실제 명령 실행 기반이어야 하며, claim이 아님.
+- FAIL 시 실패 원인·교정 조치·다음 실행 조건을 기록.
+
+### Hook Pipeline (L5)
+- 규칙은 적는 게 아니라 강제되어야 한다.
+- SOFT 규칙(advisory markdown)이 반복 FAIL하면 HARD 규칙(json, `exit 2`)으로 자동 승격.
+- `scripts/forgeflow_hook_check.sh`로 Claude Code hooks에서 검증 호출.
+
+### Memory Bank (L4)
+- 기억은 저장이 아니라 다음 실행 조건.
+- 팩트는 출처(artifact, task-id)와 함께 저장. 요약으로 대체 불가.
+- `scripts/forgeflow_fact_store.py`로 팩트 추가/검색/정리.
+- ship과 long-run에서 팩트 추출. clarify에서 관련 팩트 자동 회수.
+- 승격 이력은 audit-log에 기록.
+
+### Closed Loop (L6)
+- 사과가 아니라 조건이 바뀌어 루프가 닫힌다.
+- review FAIL → re-execution-conditions.md 자동 생성 → execute 재진입.
+- 실패 시 rollback(git restore), Memory Bank에 실패 패턴 기록.
+- 최대 3회 루프. 3회 초과 시 blocked. 동일 finding 반복 시 재계획 권장.
 
 ## Telemetry Event Recording
 

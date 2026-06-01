@@ -71,6 +71,20 @@ Write `.forgeflow/tasks/<task-id>/eval-record.md` following the format in `templ
 - **What Failed**: specific failure modes with root causes
 - **Reusable Patterns**: patterns worth reusing in future tasks
 - **Failure Rules**: anti-patterns or mistakes to avoid
+
+After writing the eval-record, extract high-value findings as facts into the Memory Bank:
+
+```bash
+python3 scripts/forgeflow_fact_store.py add \
+  --content "<self-contained fact statement>" \
+  --type <decision|constraint|preference|pattern|bug_fix|discovery> \
+  --domain <domain> \
+  --confidence <high|medium|low> \
+  --source-task <task-id> \
+  --tags <comma-separated>
+```
+
+Prioritize: recurring patterns, architectural decisions, repeated failure modes, project-specific constraints. Skip one-off observations and vague sentiments.
 - **Recommendations**: for future tasks of similar nature
 - **Memory Recommendation**: optional promotion note; long-run does not write memory directly
 - **Evolution Rule Candidates**: optional candidate notes for recurring workflow rules; long-run records candidates only and does not write `.forgeflow/evolution/proposed/` files directly
