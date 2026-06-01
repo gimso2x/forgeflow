@@ -7,12 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.11.0] - 2026-06-01
+
+### Added
+
+- **Harness L3 (Evidence 검증)**: `templates/evidence-manifest.md` — execute 완료 시 구조화된 증거 계약 자동 생성. review에서 manifest 누락 시 `blocked` 판정.
+- **Harness L4 (Memory Bank)**: `scripts/forgeflow_fact_store.py` — 팩트 저장/검색/정리 CLI. ship과 long-run에서 팩트 추출, clarify에서 관련 팩트 자동 회수. `templates/fact-extraction.md` 가이드.
+- **Harness L5 (Hook Pipeline)**: `scripts/forgeflow_hook_check.sh` — hard rule 검증 스크립트. `scripts/forgeflow_evolution_promote.py` — SOFT→HARD 자동 승격. `docs/hook-setup.md` 설정 가이드.
+- **Harness L6 (폐루프)**: `templates/re-execution-conditions.md` — review FAIL 시 재실행 조건 자동 생성. execute에 rollback, 루프 카운터(최대 3회), 재실행 조건 수신 추가.
+- **Script resolution**: `skills/forgeflow/SKILL.md`에 스크립트 경로 해석 메커니즘 추가 (template resolution과 동일 패턴).
+- **Harness Level Principles**: `skills/_shared/discipline.md`에 L3-L6 원칙 섹션 추가.
+
 ### Changed
 
-- Moved standalone review input normalization details into `skills/ff-review/references/input-normalization.md` to reduce the default review skill body while preserving the same contract.
-- Moved execute route-aware testing and debugging details into `skills/execute/references/testing-discipline.md` so the execute skill body stays lighter while preserving route-specific verification rules.
-- Moved ship evolution rule extraction criteria into `skills/ship/references/evolution-extraction.md` so the ship skill body stays focused on handoff and branch disposition.
-- Moved review human-gate trigger details into `skills/ff-review/references/human-review-gate.md` so the review skill body keeps only the gate decision contract.
+- `skills/execute/SKILL.md`: Output Artifacts에 evidence-manifest 필수화, completion checklist 항목 추가, Evidence Contract 섹션 추가, Closed Loop 섹션 추가.
+- `skills/ff-review/SKILL.md`: evidence-manifest 필수 입력 추가, artifact completeness gate에 manifest 검증 추가, Closed Loop 섹션 추가.
+- `skills/ship/SKILL.md`: SOFT→HARD auto-promotion check 섹션, Fact Extraction 섹션 추가.
+- `skills/clarify/SKILL.md`: Fact Recall (Memory Bank L4) 섹션 추가.
+- `skills/long-run/SKILL.md`: 팩트 추출 추가.
 
 ## [1.10.1] - 2026-06-01
 

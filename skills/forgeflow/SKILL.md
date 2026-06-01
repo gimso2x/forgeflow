@@ -77,6 +77,25 @@ Skills reference paths like `templates/brief.md`. Resolve the template root befo
 4. If no template root is found, stop and tell the user to install ForgeFlow locally or add `templates/` to the workspace. Do not invent artifact structure.
 5. Always write task artifacts under `<workspace>/.forgeflow/tasks/<task-id>/`, never under a plugin install or cache directory.
 
+## Script resolution (all adapters)
+
+Skills reference scripts like `scripts/forgeflow_fact_store.py`. Resolve the script root before executing any script:
+
+1. If `<workspace>/scripts/forgeflow_fact_store.py` exists (developing ForgeFlow itself), use `<workspace>/scripts/`.
+2. Otherwise search for the ForgeFlow plugin `scripts/` directory (first match wins):
+   - `~/.cursor/plugins/local/forgeflow/scripts/`
+   - Any `~/.cursor/plugins/**/forgeflow/scripts/`
+   - Any `~/.claude/plugins/cache/forgeflow/**/scripts/`
+   - Any path under `.codex/plugins` that ends with `forgeflow/scripts/`
+3. When a script root is found, run `python3 <script_root>/forgeflow_fact_store.py` using the resolved absolute path.
+4. If no script root is found, skip the script-dependent feature and record a bounded assumption in the artifact. Do not fail the pipeline.
+
+Scripts included in ForgeFlow:
+- `forgeflow_fact_store.py` — Memory Bank fact store (L4)
+- `forgeflow_evolution_promote.py` — SOFT→HARD rule promotion (L5)
+- `forgeflow_hook_check.sh` — Hard rule verification for hooks (L5)
+- `telemetry_collect.py` / `telemetry_aggregate.py` — Telemetry collection
+
 ## Input
 
 - User request or issue
@@ -252,7 +271,7 @@ ForgeFlow turns repeated patterns and mistakes into Markdown rules during the **
   - Artifact/location: `.forgeflow/evolution/retired/` (project) or `~/.forgeflow/evolution/retired/` (global) with reason
   - Next state: not loaded
 
-Global rules are generated directly in `~/.forgeflow/evolution/` from long-run, reviewed in place, and activated by ship. They are advisory only and cannot hard block a project task.
+Global rule candidates may be recorded by long-run. Ship materializes proposed global rule artifacts in `~/.forgeflow/evolution/`, supports review in place, and activates approved rules. They are advisory only and cannot hard block a project task.
 
 ## Adapter performance guide
 
@@ -274,15 +293,17 @@ If an adapter exceeds the safety ceiling, terminate the process and record the t
       2. isolation (worktree 격리) — 현재: 켜짐   (기본값: 켜짐)
       3. init (기본 scaffolding) — .forgeflow/defaults.md 생성
       4. full init (프로젝트 컨텍스트 draft) — .forgeflow/project-draft.md 생성/갱신
-      5. 종료
+      5. prune (고아 워크트리 정리) — 현재: N개
+      6. 종료
 
       번호를 선택하세요:
       ```
    3. On selection 1 or 2, toggle the value (off→on, on→off). Create or update `.forgeflow/defaults.md`. Confirm the change.
    4. On selection 3, run the basic init flow from `skills/ff-config/SKILL.md` Mode C.
    5. On selection 4, run the full project context init flow from `skills/ff-config/SKILL.md` Mode B to detect project context and generate `.forgeflow/project-draft.md` from `templates/project-draft.md`.
-   6. Supported fields: `auto` (`true`/`false`), `isolation` (`true`/`false`). Additional fields may be added in future versions.
-   7. Do **not** commit `.forgeflow/defaults.md` or `.forgeflow/project-draft.md` to git automatically — let the user decide.
+   6. On selection 5, run the prune flow from `skills/ff-config/SKILL.md` Mode D.
+   7. Supported fields: `auto` (`true`/`false`), `isolation` (`true`/`false`). Additional fields may be added in future versions.
+   8. Do **not** commit `.forgeflow/defaults.md` or `.forgeflow/project-draft.md` to git automatically — let the user decide.
 4. If the user provides a slash command (other than ff-config), route to the matching stage skill.
 5. If the user provides a free-form request, run `/forgeflow:clarify` to produce a brief with route selection.
 6. After clarify, follow the route's stage sequence (see Route model above).

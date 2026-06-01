@@ -171,7 +171,7 @@ python3 scripts/forgeflow_fact_store.py add \
 1. Check git status and diff only if command execution is allowed.
 2. Run final verification only if command execution is allowed.
 3. Ensure review passed; do not ship blocked work.
-4. **Human Review Gate preflight**: Inspect `review-report.md` for `사람 리뷰 게이트 (Human Review Gate)`.
+4. **Human Review Gate preflight**: Inspect `review-report.md` for `Human Review Gate`.
    - If `Decision: required`, do not ship until `Human Decision Status` records the human decision and the handoff target is `ship`.
    - If `Decision: skipped`, require a skip rationale tied to the review gate criteria.
    - If the section is missing on older artifacts, treat this as a review artifact gap and route back to `/forgeflow:ff-review` unless the task is explicitly legacy/no-risk and the reviewer records a skip rationale.
