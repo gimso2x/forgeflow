@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.10.0] - 2026-06-01
+
 ### Changed
 
 - Added `architecture-reviewer` to standalone review routing, templates, checklist guidance, and eval coverage so architecture consistency can be reviewed separately from local code quality.
