@@ -62,9 +62,9 @@ for route, pipeline in FORGEFLOW_PIPELINES.items():
 # clarify/SKILL.md Exit Condition: verify each route maps to correct next skill
 CLARIFY_EXIT_MAPPINGS = {
     "small": "/forgeflow:execute",
-    "medium": "/forgeflow:plan",
-    "high": "/forgeflow:plan",
-    "epic": "/forgeflow:plan",
+    "medium": "/forgeflow:ff-plan",
+    "high": "/forgeflow:ff-plan",
+    "epic": "/forgeflow:ff-plan",
 }
 
 for route, next_skill in CLARIFY_EXIT_MAPPINGS.items():

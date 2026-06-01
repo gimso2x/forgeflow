@@ -37,7 +37,7 @@ first_run_marker = '## 첫 실행 예시'
 first_run = readme.split(first_run_marker, 1)[1] if first_run_marker in readme else ''
 if '> /forgeflow:clarify' not in first_run:
     failures.append('README.md: first-run example must start with /forgeflow:clarify')
-if '> /forgeflow:plan' in first_run and 'route: small' in first_run:
+if '> /forgeflow:ff-plan' in first_run and 'route: small' in first_run:
     failures.append('README.md: first-run example must not route small and then run plan; small route skips plan')
 for needle in ('plugin cache', '--task-dir'):
     if needle not in first_run:

@@ -82,7 +82,7 @@ review 단계에서 scope_boundary 위반 탐지 시 advisory를 발행합니다
 - **route 임계값 초과**: 총 수정 파일수가 route threshold 초과 → advisory "scope split 권장 — route 임계값 초과"
 - **boundary 정상**: 위반 없음 → `scope_boundary.violations` 빈 배열로 기록, advisory 없음
 
-review는 `brief.md` YAML frontmatter의 `scope_boundary` (files_planned, files_limit, boundary_status)와 실제 수정 파일을 비교합니다. 자세한 절차는 `skills/review/SKILL.md` Scope Boundary Verification 섹션을 참조.
+review는 `brief.md` YAML frontmatter의 `scope_boundary` (files_planned, files_limit, boundary_status)와 실제 수정 파일을 비교합니다. 자세한 절차는 `skills/ff-review/SKILL.md` Scope Boundary Verification 섹션을 참조.
 
 ## Non-goals
 

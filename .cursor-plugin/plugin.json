@@ -31,13 +31,13 @@
   "interface": {
     "defaultPrompt": [
       "/forgeflow:clarify <describe the coding task>",
-      "/forgeflow:plan",
+      "/forgeflow:ff-plan",
       "/forgeflow:execute",
-      "/forgeflow:review",
+      "/forgeflow:ff-review",
       "/forgeflow:ship",
       "/forgeflow:long-run",
       "/forgeflow:benchmark",
-      "/forgeflow:config"
+      "/forgeflow:ff-config"
     ]
   }
 }

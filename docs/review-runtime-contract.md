@@ -321,7 +321,7 @@ When a future adapter or operator maps review work onto multiple agents, keep th
 Any future change to review adapters, standalone input handling, role output, tool permissions, or verdict handling must update these surfaces together:
 
 1. `docs/review-runtime-contract.md`
-2. `skills/review/SKILL.md`
+2. `skills/ff-review/SKILL.md`
 3. `templates/review-report.md` if report fields change
 4. `README.md` if user-visible behavior changes
 5. `scripts/validate_advisory_contract.py` for exact contract literals

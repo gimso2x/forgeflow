@@ -6,7 +6,7 @@ ForgeFlow review는 automated review와 human review를 분리합니다. Automat
 
 ### 1. 자동 리뷰 (Automated Review)
 
-Automated review는 기본 `/forgeflow:review` 동작입니다.
+Automated review는 기본 `/forgeflow:ff-review` 동작입니다.
 
 - `spec-reviewer`: 구현이 `brief.md`, `plan.md`, scope boundary, acceptance criteria를 만족하는지 확인합니다.
 - `quality-reviewer`: 유지보수성, 검증 품질, 잔여 위험, 불필요한 복잡도를 확인합니다.

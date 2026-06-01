@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.10.1] - 2026-06-01
+
+### Fixed
+
+- Synchronized the active `ff-plan`, `ff-review`, and `ff-config` skill names across Codex, Gemini, Cursor, README, templates, eval fixtures, and validation guards.
+
 ## [1.10.0] - 2026-06-01
 
 ### Changed
@@ -898,7 +904,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI gate with GitHub Actions workflow generation
 - Agent preset installer (Claude + Codex)
 
-[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v1.9.4...HEAD
+[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v1.10.1...HEAD
+[1.10.1]: https://github.com/gimso2x/forgeflow/compare/v1.10.0...v1.10.1
+[1.10.0]: https://github.com/gimso2x/forgeflow/compare/v1.9.4...v1.10.0
 [1.9.4]: https://github.com/gimso2x/forgeflow/compare/v1.9.3...v1.9.4
 [1.9.3]: https://github.com/gimso2x/forgeflow/compare/v1.9.2...v1.9.3
 [1.9.2]: https://github.com/gimso2x/forgeflow/compare/v1.9.1...v1.9.2

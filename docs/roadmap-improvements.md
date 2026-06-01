@@ -28,7 +28,7 @@
 
 #### SKILL.md 변경 포인트
 ```yaml
-# skills/review/SKILL.md — dependencies 확장
+# skills/ff-review/SKILL.md — dependencies 확장
 dependencies:
   - skills/_shared/preflight.md
   - skills/_shared/discipline.md
@@ -193,7 +193,7 @@ specialist:
 
 #### Config 메뉴의 full init
 ```
-/forgeflow:config
+/forgeflow:ff-config
 → full init (프로젝트 컨텍스트 draft)
 ```
 

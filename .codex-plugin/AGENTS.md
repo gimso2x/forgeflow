@@ -1,13 +1,13 @@
 @./skills/SKILLS.md
 @./skills/forgeflow/SKILL.md
 @./skills/clarify/SKILL.md
-@./skills/plan/SKILL.md
+@./skills/ff-plan/SKILL.md
 @./skills/execute/SKILL.md
-@./skills/review/SKILL.md
+@./skills/ff-review/SKILL.md
 @./skills/ship/SKILL.md
 @./skills/long-run/SKILL.md
 @./skills/benchmark/SKILL.md
-@./skills/config/SKILL.md
+@./skills/ff-config/SKILL.md
 @./skills/_shared/discipline.md
 @./skills/_shared/isolation.md
 @./skills/_shared/automation.md

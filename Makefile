@@ -212,7 +212,7 @@ validate-agent-docs:
 	@for f in skills/*/SKILL.md; do \
 		grep -Fq "_shared/discipline.md" "$$f" || { echo "ERROR: $$f must reference shared discipline rules"; exit 1; }; \
 	done
-	@for f in skills/forgeflow/SKILL.md skills/clarify/SKILL.md skills/plan/SKILL.md skills/execute/SKILL.md skills/review/SKILL.md skills/ship/SKILL.md; do \
+	@for f in skills/forgeflow/SKILL.md skills/clarify/SKILL.md skills/ff-plan/SKILL.md skills/execute/SKILL.md skills/ff-review/SKILL.md skills/ship/SKILL.md; do \
 		grep -Fq "_shared/automation.md" "$$f" || { echo "ERROR: $$f must reference shared automation rules"; exit 1; }; \
 	done
 	@echo "OK: AGENTS/preflight docs and shared discipline/automation links are covered by focused validation"
@@ -245,7 +245,7 @@ validate-eval-files:
 
 validate-workflow-vocab:
 	@$(PYTHON) scripts/validate_workflow_vocab.py
-	@grep -Fq "같은 \`/forgeflow:review\`" README.md || { echo "ERROR: README must clarify high/epic spec/quality passes use the same review command"; exit 1; }
+	@grep -Fq "같은 \`/forgeflow:ff-review\`" README.md || { echo "ERROR: README must clarify high/epic spec/quality passes use the same review command"; exit 1; }
 	@grep -Fq "observe" README.md || { echo "ERROR: README evolution lifecycle must describe ship-based observe stage"; exit 1; }
 	@grep -Fq "extract" README.md || { echo "ERROR: README evolution lifecycle must describe ship-based extract stage"; exit 1; }
 	@if grep -Fq 'proposed' README.md; then grep -Fq '별도 `proposed`' README.md || { echo "ERROR: README evolution lifecycle must not reference old proposed stage without explaining it was replaced"; exit 1; }; fi
@@ -266,7 +266,7 @@ validate-dogfooding-docs:
 
 validate-context-resume:
 	@grep -Fq "skills/_shared/context-resume.md" README.md || { echo "ERROR: README must document context refresh/resume rules"; exit 1; }
-	@for f in skills/forgeflow/SKILL.md skills/clarify/SKILL.md skills/plan/SKILL.md skills/execute/SKILL.md skills/review/SKILL.md skills/ship/SKILL.md; do \
+	@for f in skills/forgeflow/SKILL.md skills/clarify/SKILL.md skills/ff-plan/SKILL.md skills/execute/SKILL.md skills/ff-review/SKILL.md skills/ship/SKILL.md; do \
 		grep -Fq "_shared/context-resume.md" "$$f" || { echo "ERROR: $$f must reference shared context refresh/resume rules"; exit 1; }; \
 	done
 	@grep -Fq "Checkpoint-first" skills/_shared/context-resume.md || { echo "ERROR: context-resume rules must keep checkpoint-first guidance"; exit 1; }
@@ -333,20 +333,20 @@ validate-evals-fixtures:
 
 validate-advisory-contract:
 	@$(PYTHON) scripts/validate_advisory_contract.py
-	@grep -Fq "Evidence requirements by role" skills/review/references/role-checklists.md || { echo "ERROR: review role checklists must document evidence requirements by role"; exit 1; }
-	@grep -Fq "normalization gate" skills/review/SKILL.md || { echo "ERROR: review skill must require a standalone normalization gate before role passes"; exit 1; }
-	@grep -Fq "normalization gate" skills/review/references/role-checklists.md || { echo "ERROR: role checklists must block on incomplete normalized input"; exit 1; }
+	@grep -Fq "Evidence requirements by role" skills/ff-review/references/role-checklists.md || { echo "ERROR: review role checklists must document evidence requirements by role"; exit 1; }
+	@grep -Fq "normalization gate" skills/ff-review/SKILL.md || { echo "ERROR: review skill must require a standalone normalization gate before role passes"; exit 1; }
+	@grep -Fq "normalization gate" skills/ff-review/references/role-checklists.md || { echo "ERROR: role checklists must block on incomplete normalized input"; exit 1; }
 	@grep -Fq "normalization gate" templates/normalized-input.md || { echo "ERROR: normalized input template must expose a reviewer preflight gate"; exit 1; }
 	@grep -Fq "Normalization Gate" templates/review-report.md || { echo "ERROR: review report template must surface standalone normalization gate status"; exit 1; }
 	@grep -Fq "Evidence requirements source" templates/review-report.md || { echo "ERROR: review report template must point to role evidence requirements"; exit 1; }
 	@grep -Fq "Role capability hints" templates/review-report.md || { echo "ERROR: review report template must expose advisory role capability hints"; exit 1; }
 	@grep -Fq "must not affect routing, evidence IDs, evidence levels, verdict enums, approval rules, or Human Review Gate" templates/review-report.md || { echo "ERROR: review report role capability hints must stay advisory-only"; exit 1; }
-	@grep -Fq "Review tool posture" skills/review/SKILL.md || { echo "ERROR: review skill must document inspection-only tool posture"; exit 1; }
+	@grep -Fq "Review tool posture" skills/ff-review/SKILL.md || { echo "ERROR: review skill must document inspection-only tool posture"; exit 1; }
 	@grep -Fq "role_reassignment_policy" templates/normalized-input.md || { echo "ERROR: normalized input template must guard delegated reviewer role reassignment"; exit 1; }
-	@grep -Fq "members cannot create additional reviewer roles" skills/review/SKILL.md || { echo "ERROR: review skill must keep delegated reviewer role creation lead-only"; exit 1; }
-	@grep -Fq "fetching declared review input through read-only commands" skills/review/SKILL.md || { echo "ERROR: review skill must keep external evidence fetches read-only"; exit 1; }
-	@grep -Fq "issue comments, PR reviews, approvals, labels, CI dispatch, deploys" skills/review/SKILL.md || { echo "ERROR: review skill must forbid remote review-side mutations"; exit 1; }
-	@grep -Fq "hand it back to execute" skills/review/SKILL.md || { echo "ERROR: review skill must hand code/product fixes back to execute"; exit 1; }
+	@grep -Fq "members cannot create additional reviewer roles" skills/ff-review/SKILL.md || { echo "ERROR: review skill must keep delegated reviewer role creation lead-only"; exit 1; }
+	@grep -Fq "fetching declared review input through read-only commands" skills/ff-review/SKILL.md || { echo "ERROR: review skill must keep external evidence fetches read-only"; exit 1; }
+	@grep -Fq "issue comments, PR reviews, approvals, labels, CI dispatch, deploys" skills/ff-review/SKILL.md || { echo "ERROR: review skill must forbid remote review-side mutations"; exit 1; }
+	@grep -Fq "hand it back to execute" skills/ff-review/SKILL.md || { echo "ERROR: review skill must hand code/product fixes back to execute"; exit 1; }
 	@grep -Fq "role별 evidence requirement" README.md || { echo "ERROR: README standalone review docs must mention role-specific evidence requirements"; exit 1; }
 	@grep -Fq "external-system access to read-only evidence fetching" README.md || { echo "ERROR: README standalone review docs must expose read-only external-system posture"; exit 1; }
 

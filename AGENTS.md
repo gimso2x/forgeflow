@@ -29,13 +29,13 @@ ForgeFlow v1.x is a slim, markdown-only distribution. Do not assume the older `f
 skills/                   # 각 스킬 디렉토리 (SKILL.md 포함)
   forgeflow/              # 메인 라우터 (canonical contract, 영문)
   clarify/                # 작업 공간 초기화 + 요구사항 정리 → brief.md
-  plan/                   # 계획 수립 → plan.md; epic 라우트 시 마일스톤 분해
+  ff-plan/                # 계획 수립 → plan.md; epic 라우트 시 마일스톤 분해
   execute/                # 구현 실행 → implementation-notes.md (+ references/ subagent prompts; opt-in subagent per-task loop)
-  review/                 # 독립 검증 → review-report.md
+  ff-review/              # 독립 검증 → review-report.md
   ship/                   # 배포/마무리 + 브랜치 정리 (merge/PR/keep/discard)
   long-run/               # 학습 기록 → eval-record.md
   benchmark/              # cross-adapter 벤치마크
-  config/                 # 프로젝트 기본값 관리 (auto, isolation 토글)
+  ff-config/              # 프로젝트 기본값 관리 (auto, isolation 토글)
 templates/                # Markdown 산출물 템플릿
 docs/                     # adapter-config 등 참조 문서
 .claude-plugin/           # Claude Code 플러그인 설정

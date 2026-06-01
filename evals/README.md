@@ -46,7 +46,7 @@ These validators ensure that:
 ## When adding a fixture
 
 1. Add the eval object to `evals/evals.json` with the next sequential `id`.
-2. Keep prompts on the current public workflow-stage surface: `/forgeflow:clarify`, `/forgeflow:plan`, `/forgeflow:execute`, `/forgeflow:review`, `/forgeflow:ship`, and `/forgeflow:long-run`; benchmark fixtures must use `/forgeflow:benchmark` and keep benchmark sizes (`small`/`medium`/`large`) distinct from workflow route labels (`small`/`medium`/`high`/`epic`).
+2. Keep prompts on the current public workflow-stage surface: `/forgeflow:clarify`, `/forgeflow:ff-plan`, `/forgeflow:execute`, `/forgeflow:ff-review`, `/forgeflow:ship`, and `/forgeflow:long-run`; benchmark fixtures must use `/forgeflow:benchmark` and keep benchmark sizes (`small`/`medium`/`large`) distinct from workflow route labels (`small`/`medium`/`high`/`epic`).
 3. Reference only files that are committed in this repo.
 4. Prefer assertions that prove exact contract behavior; keep `expected_output` as human-readable context only.
 5. Put every required pass/fail contract string in `assertions` (`contains*`, `equals`, `not_contains*`) so deterministic validators and future harnesses can evaluate it without interpreting prose.
