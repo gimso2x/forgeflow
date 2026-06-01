@@ -111,76 +111,9 @@ No heading. No preamble. No code fence. No third line.
 
 ## Evolution rule extraction
 
-Ship is the evolution rule generation point for **all routes** (small, medium, high, epic). This ensures every completed task can produce reusable rules, not just high/epic.
+Ship is the evolution rule generation point for all routes. Read `skills/ship/references/evolution-extraction.md` before deciding whether to extract reusable rules, choosing global-advisory vs project scope, handling mandatory extraction triggers, or writing active evolution rule files.
 
-### Rule lifecycle
-
-```
-observe (ship) → propose (ship) → activate (ship) → retire (ship or manual)
-```
-
-Ship consolidates the propose→validate→activate cycle because review has already validated the work. Evolution rules generated here are evidence-backed by the review-approved task artifacts.
-
-### Scope decision
-
-- **Global-advisory** (default): Rules applicable across projects. Written to `~/.forgeflow/evolution/active/<rule-name>.md`. Advisory only — cannot hard-block future tasks.
-- **Project**: Rules specific to this repository's architecture/conventions. Written to `.forgeflow/evolution/active/<rule-name>.md`. Required constraints for this project.
-
-Use project scope only when the rule depends on project-specific architecture (e.g., auth store structure, routing conventions). Default to global.
-
-### Route-aware extraction
-
-- **small**: Skip evolution rule extraction entirely. The change is too small to produce durable patterns.
-- **medium**: Extract only if an obvious, high-confidence pattern emerges. Maximum 1-2 rules.
-- **high/epic**: Full extraction. No hard limit, but prefer quality over quantity.
-
-### Capture criteria
-
-Extract an evolution rule when:
-
-1. The pattern has concrete evidence from task artifacts (implementation-notes, review-report, eval-record, code diff).
-2. It describes a trigger condition and expected behavior, not a vague sentiment.
-3. It is not already covered by an existing active rule (check `~/.forgeflow/evolution/active/` and `.forgeflow/evolution/active/`).
-4. It will actually save time or prevent mistakes in future tasks.
-
-Do not capture:
-
-- Task status, session chatter, or one-off observations
-- Patterns so obvious they don't need enforcement
-- Rules without evidence
-
-### Extraction decision checklist
-
-다음 질문 중 하나라도 "예"이면 evolution rule을 추출한다:
-
-| # | 질문 | 예시 |
-|---|------|------|
-| 1 | 이 task에서 동일한 실수를 2회 이상 반복했는가? | scope boundary alert 2회 |
-| 2 | plan에 없던 파일을 execute 중 추가했는가? | unplanned test file |
-| 3 | 검증 단계에서 재시도가 2회 이상 발생했는가? | lint fix loop |
-| 4 | worktree 환경에서 특별한 workaround를 적용했는가? | ELOOP avoidance |
-| 5 | review에서 changes_requested가 발생하고 재실행했는가? | review re-request |
-| 6 | 프로젝트 특정 설정이 다른 프로젝트와 다른가? | Vite symlink issue |
-| 7 | 이 패턴이 향후 유사 task에 적용 가능한가? | medium test-after scope |
-
-### Mandatory extraction triggers
-
-다음 패턴이 관찰되면 evolution rule 추출을 **생략할 수 없다** (small route 제외):
-
-1. **verification retry >= 2**: 검증 실패 후 2회 이상 재시도한 경우
-2. **scope boundary violation**: plan scope 밖 파일이 추가된 경우
-3. **workaround applied**: 환경 문제로 인해 우회 경로를 사용한 경우
-4. **review re-request**: review findings 수정 후 재검토가 필요한 경우
-
-각 mandatory trigger에 대해 rule ID는 `<trigger-type>-<task-slug>` 형식으로 생성한다 (예: `workaround-vite-eloop`, `scope-test-file-inclusion`).
-
-### Anti-patterns
-
-| Anti-Pattern | Why It Fails |
-|---|---|
-| Proposing rules without evidence | Rules without grounding become cargo cult |
-| Auto-generating trivial rules | Noise drowns signal |
-| Retiring rules silently | Lost history makes the same mistake recur |
+Keep generated rules evidence-backed by review-approved task artifacts. Skip small-route extraction unless explicitly requested, and never create rules from vague sentiment, session chatter, or one-off observations.
 
 ## Procedure
 
