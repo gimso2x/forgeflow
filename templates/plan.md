@@ -13,6 +13,15 @@
 ## 라우트 하위 밴드 (Route Sub-band)
 <!-- medium-light | medium-full | n/a -->
 
+## 실행 준비도 (Plan Readiness)
+<!-- Complete before asking the user to cross the plan -> execute boundary. -->
+- **Goal**: <!-- explicit and testable -->
+- **Requirements**: <!-- mapped to stable IDs and acceptance criteria -->
+- **Implementation Steps**: <!-- every step has files, expected output, verification, fulfills -->
+- **Verification**: <!-- gates cover each requirement and contract -->
+- **Scope Boundary**: <!-- changed files stay within approved scope; exclusions preserved -->
+- **Approval Boundary**: <!-- non-auto mode stops here and asks before /forgeflow:execute -->
+
 ## 요구사항 (Requirements)
 <!-- Derived from brief.md acceptance criteria -->
 

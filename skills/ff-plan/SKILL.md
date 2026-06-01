@@ -65,6 +65,17 @@ Read **Route Sub-band** from `brief.md` (clarify records `medium-light` or `medi
 
 When a plan task involves creating a new CLI tool, script, or external service adapter, evaluate whether the full SDK is necessary before adding a dependency. If the required scope is narrow (e.g., simple HTTP calls, JSON-RPC, file I/O) and the runtime built-in API (`fetch`, `readline`, `fs`) can cover it, prefer zero-dependency implementation. Record the decision in the task notes. If future expansion is anticipated, note "SDK 도입 검토" as a follow-up rather than pre-adding the dependency.
 
+## Plan-mode adaptation guardrails
+
+Treat Claude Code's plan-mode behavior as a UX pattern, not an implementation dependency:
+
+1. **Explore before planning**: inspect the brief, active artifacts, relevant source files, templates, and verification conventions before decomposing tasks. Ask the user only for blocker decisions that repo inspection cannot answer.
+2. **Artifact-first plan**: write `plan.md` and supporting ledgers as the source of truth. Do not leave the executable plan only in chat.
+3. **Approval boundary**: planning stops at the `plan -> execute` boundary unless `--auto` is active. Non-auto plans must end with the closed execute-stage question.
+4. **No implementation in plan**: do not edit product/source files while planning, except when the user explicitly asks for a tiny small-route direct execution.
+5. **Safe reference policy**: external examples may inspire general interaction patterns, but non-public, leaked, or unofficial source must not be fetched, quoted, copied, or treated as normative. Record this as a constraint when a user provides such a reference.
+6. **Readiness check**: before exit, verify Goal, Requirements, Implementation Steps, Verification, scope boundary, dependencies, fulfills, and approval boundary are explicit enough for `/forgeflow:execute` to run without guessing.
+
 ## Review intent and criteria
 
 Every plan must include reviewer-facing **Design Intent** and **Review Criteria** sections. These sections make `/forgeflow:ff-review` less generic and prevent reviewers from inventing unapproved scope.
