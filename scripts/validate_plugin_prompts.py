@@ -4,6 +4,8 @@ import json, pathlib, sys
 root = pathlib.Path('.')
 active = {p.name for p in (root / 'skills').iterdir() if p.is_dir() and not p.name.startswith('_')}
 files = [root / '.codex-plugin/plugin.json', root / '.cursor-plugin/plugin.json']
+legacy_tokens = ('/forgeflow:plan', '/forgeflow:review', 'forgeflow:plan', 'forgeflow:review')
+scan_files = [root / 'README.md', root / 'SKILL.md'] + sorted((root / 'skills').glob('**/*.md'))
 failures = []
 for path in files:
     data = json.loads(path.read_text(encoding='utf-8'))
@@ -24,6 +26,11 @@ for path in files:
         if command in seen:
             failures.append(f'{path}: duplicate defaultPrompt command {command!r}')
         seen.add(command)
+for path in scan_files:
+    text = path.read_text(encoding='utf-8')
+    for token in legacy_tokens:
+        if token in text:
+            failures.append(f'{path}: legacy plan/review skill reference {token!r}; use ff-plan/ff-review')
 if failures:
     print('ERROR: Plugin defaultPrompt contract failed')
     [print(f'- {failure}') for failure in failures]

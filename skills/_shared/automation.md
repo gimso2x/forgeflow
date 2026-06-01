@@ -27,7 +27,7 @@ When `--auto` is active (set via flag, `brief.md` auto field, or user instructio
 
 1. Writes the required artifact for the current stage
 2. Updates `checkpoint.md` at stage exit (see Strict auto-chain)
-3. **Calls the `Skill` tool** with the next stage skill name (e.g. `Skill(skill: "forgeflow:plan")`, `Skill(skill: "forgeflow:execute")`, `Skill(skill: "forgeflow:review")`, `Skill(skill: "forgeflow:ship")`) in the same turn — **never** just print the skill name as text without actually calling the Skill tool
+3. **Calls the `Skill` tool** with the next stage skill name (e.g. `Skill(skill: "forgeflow:ff-plan")`, `Skill(skill: "forgeflow:execute")`, `Skill(skill: "forgeflow:ff-review")`, `Skill(skill: "forgeflow:ship")`) in the same turn — **never** just print the skill name as text without actually calling the Skill tool
 4. If context limits prevent the next Skill call in the same turn, write checkpoint with `Next Action: invoke /forgeflow:<next>` and continue in the **next assistant turn** without asking the user
 5. Continues chaining until the workflow completes or hits an auto-break condition
 
@@ -36,7 +36,7 @@ When `--auto` is active (set via flag, `brief.md` auto field, or user instructio
 Under `--auto`, "invoke the next stage" means **calling the Skill tool**, not printing text. Correct pattern:
 
 ```
-✅ Correct: Call Skill(skill: "forgeflow:plan", args: "--task-id <id>")
+✅ Correct: Call Skill(skill: "forgeflow:ff-plan", args: "--task-id <id>")
 ✅ Correct: Call Skill(skill: "forgeflow:execute", args: "--task-id <id>")
 ❌ Wrong: Printing "/forgeflow:ff-plan" as text without calling Skill tool
 ❌ Wrong: Printing "defaults에 auto: true가 설정되어 있어 자동 진행합니다" then stopping
@@ -112,7 +112,7 @@ Complete **all** items before invoking the next stage or editing code outside th
 |------|---------------------------|
 | Artifact | `brief.md` with route, scope, AC, blockers resolved |
 | Checkpoint | `Current Stage: clarify` → exit update; `Next Action: invoke /forgeflow:ff-plan` (medium+) or `/forgeflow:execute` (small) |
-| Chain | Call `Skill(skill: "forgeflow:plan")` or `Skill(skill: "forgeflow:execute")` **immediately** — no `(y/n)` prompt. Do not print the skill name as text without calling the Skill tool. |
+| Chain | Call `Skill(skill: "forgeflow:ff-plan")` or `Skill(skill: "forgeflow:execute")` **immediately** — no `(y/n)` prompt. Do not print the skill name as text without calling the Skill tool. |
 | Forbidden | Starting code edits in the clarify turn; skipping plan on medium/high/epic |
 
 #### plan → execute
@@ -133,7 +133,7 @@ Complete **all** items before invoking the next stage or editing code outside th
 | Checkpoint | Updated after **each** task completes; `Active Task` must not stay stale on Task 1 while later tasks finish |
 | Evidence | Verification commands run; results in Evidence / Gate Results |
 | **Context refresh** | Adapter-neutral by default. After checkpoint, ledger, evidence are written to disk: set `checkpoint.md` `Active Task` to the real next task id and `Next Action` to the next execute step. Under `--auto`, continue unless context pressure is high. If refresh is needed, output adapter-specific hints from `_shared/context-resume.md` and STOP. Do not require a Claude-only fresh-context command in the shared workflow. |
-| Chain | Call `Skill(skill: "forgeflow:review")` immediately when all tasks done — no `(y/n)` prompt. Do not just print the skill name. |
+| Chain | Call `Skill(skill: "forgeflow:ff-review")` immediately when all tasks done — no `(y/n)` prompt. Do not just print the skill name. |
 | Forbidden | Deferring ledger/notes until the user asks "어디까지?"; coding after execute exit without review; treating context refresh as a Claude-only mandatory fresh-context step |
 
 #### review → ship
@@ -142,7 +142,7 @@ Complete **all** items before invoking the next stage or editing code outside th
 |------|---------------------|
 | Artifact | `review-report.md` with written verdict |
 | Checkpoint | `Current Stage: review`; verdict reflected in `Next Action` |
-| Chain | If `approved`: call `Skill(skill: "forgeflow:ship")` immediately — no `(y/n)` prompt. Do not just print the skill name. If `changes_requested` with artifact-only findings: auto-fix artifacts then call `Skill(skill: "forgeflow:review")`. **검증**: ship 호출 전 `review-report.md`의 verdict가 `approved`이고 `safe_for_next_stage`가 `yes`인지 확인. |
+| Chain | If `approved`: call `Skill(skill: "forgeflow:ship")` immediately — no `(y/n)` prompt. Do not just print the skill name. If `changes_requested` with artifact-only findings: auto-fix artifacts then call `Skill(skill: "forgeflow:ff-review")`. **검증**: ship 호출 전 `review-report.md`의 verdict가 `approved`이고 `safe_for_next_stage`가 `yes`인지 확인. |
 | Forbidden | "리뷰 통과. ship 진행?" under `--auto`; proceeding to ship when verdict ≠ `approved`; auto-fixing code findings (must stop for code changes) |
 
 #### ship completion

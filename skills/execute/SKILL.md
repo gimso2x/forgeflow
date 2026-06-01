@@ -64,7 +64,7 @@ Guidelines:
 
 The exit prompt and next-step guidance depend on the active route.
 
-**If `--auto` is active** (set via `--auto` flag, `.forgeflow/defaults.md` `auto: true`, `brief.md` `auto: true`, or user instruction — see `_shared/automation.md`): skip the route-specific prompt below and **call `Skill(skill: "forgeflow:review", args: "--task-id <task-id>")` directly**. Do NOT just print the skill name or ask "(y/n)".
+**If `--auto` is active** (set via `--auto` flag, `.forgeflow/defaults.md` `auto: true`, `brief.md` `auto: true`, or user instruction — see `_shared/automation.md`): skip the route-specific prompt below and **call `Skill(skill: "forgeflow:ff-review", args: "--task-id <task-id>")` directly**. Do NOT just print the skill name or ask "(y/n)".
 
 **Otherwise**, prompt the user:
 
@@ -271,7 +271,7 @@ Minimum warning contract:
     2. 검증 결과: lint/build/test 각각 pass/fail + 숫자
     3. 변경 파일 목록
     4. 주의사항 (있는 경우): contract_check 실패, environment warning, 미해결 decisions
-    **`--auto`가 활성 상태면**: 완료 보고를 출력한 뒤 checkpoint를 업데이트하고 **`Skill(skill: "forgeflow:review", args: "--task-id <task-id>")`를 호출**한다. 텍스트로만 "/forgeflow:ff-review"를 출력하지 않는다. 사용자에게 다음 단계를 묻지 않는다(automation.md strict auto-chain).
+    **`--auto`가 활성 상태면**: 완료 보고를 출력한 뒤 checkpoint를 업데이트하고 **`Skill(skill: "forgeflow:ff-review", args: "--task-id <task-id>")`를 호출**한다. 텍스트로만 "/forgeflow:ff-review"를 출력하지 않는다. 사용자에게 다음 단계를 묻지 않는다(automation.md strict auto-chain).
     **`--auto`가 아니면**: 반드시 사용자가 다음 단계를 실행하도록 대기.
 
 Contract-aware execution rules:

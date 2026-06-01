@@ -401,8 +401,8 @@ When all blockers are resolved:
 
 **If `--auto` is active** (set via `--auto` flag, `.forgeflow/defaults.md` `auto: true`, `brief.md` `auto: true`, or user instruction — see `_shared/automation.md`): skip the prompt and **call the `Skill` tool** to invoke the next stage. Do NOT just print the skill name as text.
 - `small` → `Skill(skill: "forgeflow:execute", args: "--task-id <task-id>")`
-- `medium` or `high` → `Skill(skill: "forgeflow:plan", args: "--task-id <task-id>")`
-- `epic` → `Skill(skill: "forgeflow:plan", args: "--task-id <task-id>")`
+- `medium` or `high` → `Skill(skill: "forgeflow:ff-plan", args: "--task-id <task-id>")`
+- `epic` → `Skill(skill: "forgeflow:ff-plan", args: "--task-id <task-id>")`
 
 **Otherwise**, end with a route-specific next step:
 - `small`: `요구사항 충분. small route입니다. 다음 스텝으로 /forgeflow:execute을 진행하시겠습니까? (y/n)`
