@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - stage role boundary 검증을 강화해 member가 unmanaged child work 생성, role 재할당, scope 확장, claimed section 외 작성을 하지 못하고 lead-owned artifact update를 거치도록 명시했습니다.
 - Stage forbidden-action escalation에 explicit stop condition과 artifact update location을 추가하고 `make validate-stage-tool-boundaries`가 공유 automation 문서와 함께 이를 검증하도록 강화했습니다.
 - `docs/stage-tool-boundaries.md`의 escalation rule을 checkpoint `Handoff Boundary` 필드셋(current/next owner, handoff reason, requested/forbidden action, evidence/artifact trigger, stop condition, exact artifact location)과 정렬하고 focused validator가 drift를 잡도록 보강했습니다.
+- `templates/checkpoint.md`와 shared automation guidance가 forbidden-action handoff의 `next owner / owning next stage` 및 `handoff reason` 필드를 동일하게 요구하도록 정렬하고 advisory validator를 강화했습니다.
 
 ### Changed
 

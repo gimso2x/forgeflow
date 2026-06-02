@@ -100,7 +100,7 @@ Keep stage boundaries explicit. Each stage owns a small artifact set and a narro
 
 If a stage needs an action listed as forbidden for that stage, stop at the boundary, record the blocker or requested handoff in `checkpoint.md`, and invoke the correct next stage instead of doing the work inline. The handoff record must name the requested action, the evidence or artifact that triggered it, the owning next stage, blocker/limitation impact, explicit stop condition, and exact artifact update location.
 
-`checkpoint.md` must make ownership transfers explicit in `Handoff Boundary`: current owner, next owner, handoff reason, requested/forbidden action, evidence/artifact trigger, blocker/limitation impact, explicit stop condition, and exact artifact update location. This keeps thin adapters and occasional lead/member work from silently changing which stage owns product edits, review verdicts, or ship disposition.
+`checkpoint.md` must make ownership transfers explicit in `Handoff Boundary`: current owner, next owner / owning next stage, handoff reason, requested/forbidden action, evidence/artifact trigger, blocker/limitation impact, explicit stop condition, and exact artifact update location. This keeps thin adapters and occasional lead/member work from silently changing which stage owns product edits, review verdicts, or ship disposition.
 
 ### Per-stage exit checklist
 

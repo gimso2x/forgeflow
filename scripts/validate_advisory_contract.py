@@ -196,6 +196,8 @@ readme_handoff_line = next((line for line in readme_doc.splitlines() if '`Handof
 handoff_boundary_required_fragments = [
     'current owner',
     'next owner',
+    'owning next stage',
+    'handoff reason',
     'requested/forbidden action',
     'evidence/artifact trigger',
     'blocker/limitation impact',
@@ -221,6 +223,8 @@ handoff_boundary_section = section_between(checkpoint_template, '## Handoff Boun
 checkpoint_handoff_boundary_required_fragments = [
     'current owner',
     'next owner',
+    'owning next stage',
+    'handoff reason',
     'requested/forbidden action',
     'evidence or artifact trigger',
     'blocker/limitation impact',
