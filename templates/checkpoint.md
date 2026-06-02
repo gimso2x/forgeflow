@@ -15,7 +15,7 @@
 ## Blockers
 <!-- List active blockers or "none" -->
 ## Handoff Boundary
-<!-- Current owner, next owner, handoff reason, forbidden action -->
+<!-- Required when ownership changes or a stage needs a forbidden action. Record: current owner, next owner, requested/forbidden action, evidence or artifact trigger, handoff reason, blocker/limitation impact, explicit stop condition, and exact artifact update location. -->
 ## Minimum Read Set
 <!-- Example: checkpoint → ledger → implementation-notes Reader Summary → plan Task N -->
 

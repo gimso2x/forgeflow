@@ -171,6 +171,7 @@ review_ownership_line = next((line for line in review_template.splitlines() if '
 if 'exactly one lead reviewer' not in review_ownership_line or 'aggregation owner' not in review_ownership_line:
     failures.append('templates/review-report.md: review ownership plan citation must require exactly one lead reviewer and aggregation owner')
 automation_doc = (root / 'skills/_shared/automation.md').read_text(encoding='utf-8')
+checkpoint_template = (root / 'templates/checkpoint.md').read_text(encoding='utf-8')
 stage_order = ['clarify', 'plan', 'execute', 'review', 'ship']
 stage_positions = []
 for stage in stage_order:
@@ -190,6 +191,19 @@ if len(stage_positions) == len(stage_order):
         failures.append('skills/_shared/automation.md: stage boundary entries must stay in workflow order clarify → plan → execute → review → ship')
 if 'forbidden action being delegated' not in automation_doc:
     failures.append('skills/_shared/automation.md: Handoff Boundary must record forbidden-action delegation')
+handoff_boundary_section = section_between(checkpoint_template, '## Handoff Boundary', '## Minimum Read Set')
+handoff_boundary_required_fragments = [
+    'current owner',
+    'next owner',
+    'requested/forbidden action',
+    'evidence or artifact trigger',
+    'blocker/limitation impact',
+    'explicit stop condition',
+    'exact artifact update location',
+]
+missing_handoff_boundary_fragments = [fragment for fragment in handoff_boundary_required_fragments if fragment not in handoff_boundary_section]
+if missing_handoff_boundary_fragments:
+    failures.append(f'templates/checkpoint.md: Handoff Boundary must preserve forbidden-action escalation fields {missing_handoff_boundary_fragments}')
 review_gate_pos = review_template.find('**Normalization Gate**')
 standalone_pos = review_template.find('## Standalone 입력 소스')
 reader_summary_pos = review_template.find('## 사용자용 요약')
