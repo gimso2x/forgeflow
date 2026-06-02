@@ -299,6 +299,9 @@ validate-adapter-config:
 	@grep -Fq "Review adapters normalize before judging" docs/adapter-config.md || { echo "ERROR: adapter config must require review adapters to normalize before judging"; exit 1; }
 	@grep -Fq "Multi-harness 원칙" README.md || { echo "ERROR: README must expose multi-harness invariants to users"; exit 1; }
 	@grep -Fq "adapter-neutral core contract" README.md || { echo "ERROR: README must state adapter-neutral core contract boundaries"; exit 1; }
+	@grep -Fq "역할 경계 원칙" README.md || { echo "ERROR: README must expose stage-owned role boundary principles"; exit 1; }
+	@grep -Fq "Stage-owned role boundaries" docs/stage-tool-boundaries.md || { echo "ERROR: stage tool boundary docs must document role boundaries"; exit 1; }
+	@grep -Fq "not a license to create a parallel runtime" docs/stage-tool-boundaries.md || { echo "ERROR: role boundary docs must prevent parallel runtime drift"; exit 1; }
 	@grep -Fq "Disposable 또는 untrusted repo에서 headless smoke" docs/adapter-config.md || { echo "ERROR: Gemini adapter docs must mention --skip-trust for disposable/untrusted headless smoke"; exit 1; }
 
 validate-evals-fixtures:

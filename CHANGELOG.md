@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - `docs/stage-tool-boundaries.md`를 추가해 clarify/plan/execute/review/ship 단계별 허용 tool posture, 필수 산출물, 금지 side effect를 adapter-neutral 계약으로 정리했습니다.
+- stage-owned role boundary 원칙을 문서화해 planner/worker/reviewer/lead/member 분리가 별도 팀 런타임이나 hidden approval path로 확장되지 않도록 했습니다.
 
 ### Fixed
 
