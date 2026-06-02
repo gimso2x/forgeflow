@@ -27,3 +27,7 @@ forgeflow-eval-workspace/
 eval-workspace/
 .codegraph/
 .cursor/
+
+# Node.js
+node_modules/
+dist/

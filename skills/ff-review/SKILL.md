@@ -1,6 +1,6 @@
 ---
 name: ff-review
-description: Perform independent ForgeFlow review. Use as /ff-review or /forgeflow:ff-review — either after execute (pipeline mode) or directly with external input (standalone mode).
+description: Perform independent ForgeFlow review. Use as /ff-review or /forgeflow:ff-review — either after execute (pipeline mode) or directly with external input (standalone mode). Also use when the user says 'review this', 'audit changes', 'check implementation', 'code review', or 'review PR' in a ForgeFlow context.
 version: 0.5.0
 author: gimso2x
 validate_prompt: |
@@ -8,6 +8,15 @@ validate_prompt: |
   Must separate findings by reviewer role (spec, quality, architecture, security, ux, perf).
   Must not approve work with unresolved blockers or missing verification evidence.
   Must apply applicable review rubric (Spec Review or Quality Review) per role.
+  Must handle standalone mode input detection (URL, repo, diff, files) and synthetic task directory bootstrapping.
+  Must enforce evidence discipline — every finding must cite observed evidence, not inference.
+  Must run artifact completeness gate before starting review.
+dependencies:
+  - skills/_shared/discipline.md
+  - skills/_shared/isolation.md
+  - skills/_shared/preflight.md
+  - skills/_shared/automation.md
+  - skills/_shared/context-resume.md
 ---
 
 # Review

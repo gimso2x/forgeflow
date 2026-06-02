@@ -1,6 +1,6 @@
 ---
 name: ship
-description: "Finalize ForgeFlow work after review: summarize, verify, prepare PR/commit handoff, preserve evidence, extract evolution rules, and handle branch disposition. Use when the user types /ship or /forgeflow:ship."
+description: "Finalize ForgeFlow work after review: summarize, verify, prepare PR/commit handoff, preserve evidence, extract evolution rules, and handle branch disposition. Use when the user types /ship or /forgeflow:ship. Also use when the user says 'wrap up', 'finalize', 'merge', 'create PR', 'ship it', or 'finish up' after implementation work."
 version: 0.4.0
 author: gimso2x
 validate_prompt: |
@@ -8,8 +8,14 @@ validate_prompt: |
   Must confirm review approval, intended diff scope, and final verification before shipping.
   Must not hide residual risks or unrelated dirty working tree changes.
   Must require fresh verification, git status, git diff, review evidence, and residual risk review before presenting finish options.
-  Must present exactly four safe outcomes: merge locally, push and create PR, keep branch, or discard work.
+  Must present safe outcomes: merge locally, push and create PR, keep branch, or discard work. Worktree isolation may add cleanup-only mode.
   Must never run destructive cleanup, branch deletion, or discard without explicit confirmation.
+dependencies:
+  - skills/_shared/discipline.md
+  - skills/_shared/automation.md
+  - skills/_shared/isolation.md
+  - skills/_shared/context-resume.md
+  - skills/_shared/preflight.md
 ---
 
 # Ship

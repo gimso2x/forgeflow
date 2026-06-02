@@ -11,6 +11,9 @@ validate_prompt: |
   Must not dispatch parallel implementer subagents for steps that touch the same file.
 dependencies:
   - skills/_shared/preflight.md
+  - skills/_shared/discipline.md
+  - skills/_shared/automation.md
+  - skills/_shared/context-resume.md
 ---
 
 # Execute

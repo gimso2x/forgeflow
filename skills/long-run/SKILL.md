@@ -1,6 +1,6 @@
 ---
 name: long-run
-description: Record reusable learnings after high or epic route completion. Produces eval-record.md with evidence-backed reusable patterns, failure rules, and improvement suggestions. High/epic route only unless manually invoked. Use when the user types /long-run or /forgeflow:long-run.
+description: Record reusable learnings after high or epic route completion. Produces eval-record.md with evidence-backed reusable patterns, failure rules, and improvement suggestions. High/epic route only unless manually invoked. Use when the user types /long-run or /forgeflow:long-run. Also use when the user says 'extract patterns', 'what did we learn', 'evolution rules', 'capture learnings', or 'retrospective' after complex implementation work.
 version: 0.5.0
 author: gimso2x
 dependencies:

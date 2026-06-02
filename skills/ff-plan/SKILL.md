@@ -1,15 +1,20 @@
 ---
 name: ff-plan
-description: Create an executable ForgeFlow plan with exact tasks, files, acceptance criteria, and verification steps. Includes epic decomposition for epic route. Use when the user types /ff-plan or /forgeflow:ff-plan.
+description: Create an executable ForgeFlow plan with exact tasks, files, acceptance criteria, and verification steps. Includes epic decomposition for epic route. Use when the user types /ff-plan or /forgeflow:ff-plan. Also use when the user says 'make a plan', 'break this down', 'decompose tasks', or 'plan this out' for implementation work.
 version: 0.6.0
 author: gimso2x
 validate_prompt: |
   Must preserve exact-output and dry-run constraints when requested.
   Must default to artifact-first behavior and produce `plan.md` in the active task directory unless the user explicitly requests dry-run or no-write output.
   Must keep contracts, fulfills, journeys, and verify_plan consistent when present.
+  Must include contract-first traceability for medium/high/epic or brownfield work.
+  Must support refactor mode with requirement traceability when brief indicates refactoring.
   For epic route, must produce `roadmap.md` conforming to `templates/roadmap.md` format with measurable success criteria per milestone and integration verification as final node.
 dependencies:
   - skills/_shared/isolation.md
+  - skills/_shared/discipline.md
+  - skills/_shared/automation.md
+  - skills/_shared/context-resume.md
 ---
 
 # Plan
@@ -42,7 +47,7 @@ Also create empty scaffolds for the execute stage to fill:
 - `ledger.md` (from `templates/ledger.md`, schema: ledger/v1) — unified plan items + execution tracking
 
 Additionally, produce:
-- `ledger.md` (from `templates/ledger.md`, schema: ledger/v1) — standardized task ledger with plan items, execution tracking, and decisions. Replaces the deprecated `plan-ledger.md` and `run-ledger.md`.
+- `ledger.md` (from `templates/ledger.md`, schema: ledger/v1) — standardized task ledger with plan items, execution tracking, and decisions.
 
 For **epic** route, also produce:
 - `roadmap.md` (from `templates/roadmap.md`) — milestone definitions, dependency DAG, statuses

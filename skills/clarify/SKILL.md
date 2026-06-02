@@ -3,21 +3,18 @@ name: clarify
 description: Turn a vague request into a scoped ForgeFlow brief and route decision. Bootstraps task workspace if missing. Use when the user types /clarify or /forgeflow:clarify, or first for new implementation/refactor/debug requests unless the user already provided a complete brief.
 version: 0.6.0
 author: gimso2x
-intent: "Analyze the user request, repository context, route, specialists, and verification gates, then write a scoped brief."
-inputs:
-  - user_request: string
-  - target_repository: path
-  - constraints: markdown
-  - task_id: string (optional; auto-generated if omitted)
-outputs:
-  - brief.md: artifact
+validate_prompt: |
+  Must produce brief.md with route selection, scope boundary, and acceptance criteria.
+  Must bootstrap task workspace (.forgeflow/tasks/<task-id>/) if missing.
+  Must include WHERE grounding for non-trivial work.
+  Must detect tech stack and auto-detect verification gates.
+  Must not skip scope boundary definition or route rationale.
+  Must preserve exact-output and dry-run constraints when requested.
 dependencies:
   - templates/brief.md
   - skills/_shared/discipline.md
   - skills/_shared/isolation.md
-validate_prompt: |
-  Must preserve exact-output and dry-run constraints when requested.
-  Must return a clear route or brief artifact only when the prompt asks for it.
+  - skills/_shared/context-resume.md
   Must default to artifact-first behavior and write `brief.md` to the active task directory unless the user explicitly requests dry-run or no-write output.
   Must include WHERE/risk grounding for non-trivial work when artifact writing is allowed.
   Must create `.forgeflow/tasks/<task-id>/` if it does not already exist.
@@ -79,9 +76,6 @@ Plugin-cache/extension-cache safety rule: never create task artifacts under a pa
 ## Output Artifacts
 
 Write `brief.md` to the active task directory using `templates/brief.md` as the structure. The brief must capture:
-
-Additionally, produce:
-- `decision-log.md` (from `templates/decision-log.md`, schema: decision-log/v1) — **deprecated v1.11+**: record decisions in `implementation-notes.md` Decisions section instead. Legacy decision-log.md may still be created for backward compatibility.
 
 - Objective (one-sentence goal)
 - WHERE/context grounding for non-trivial work

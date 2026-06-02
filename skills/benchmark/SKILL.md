@@ -1,6 +1,6 @@
 ---
 name: benchmark
-description: Run cross-adapter benchmark tests to compare AI agent ForgeFlow workflow compatibility. Use when the user types /benchmark or /forgeflow:benchmark.
+description: Run cross-adapter benchmark tests to compare AI agent ForgeFlow workflow compatibility. Use when the user types /benchmark or /forgeflow:benchmark. Also use when the user says 'compare adapters', 'test Claude vs Codex', 'benchmark workflow', or wants to evaluate ForgeFlow compliance across different AI agents.
 version: 0.3.0
 author: gimso2x
 dependencies:

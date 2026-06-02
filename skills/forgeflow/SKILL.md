@@ -1,22 +1,18 @@
 ---
 name: forgeflow
-description: Artifact-first delivery workflow for AI coding agents. Routes work through clarify → plan → execute → review → ship stages with Markdown artifacts, verification gates, and independent review. Use when the user types /forgeflow, /forgeflow:<stage>, or asks to implement, refactor, debug, review, or ship code through a structured workflow.
+description: Artifact-first delivery workflow for AI coding agents. Routes work through clarify → plan → execute → review → ship stages with Markdown artifacts, verification gates, and independent review. Use when the user types /forgeflow, /forgeflow:<stage>, or asks to implement, refactor, debug, review, or ship code through a structured workflow. Also use when the user mentions "ForgeFlow", "staged workflow", "artifact-backed", or wants structured multi-stage code delivery.
 version: 0.3.0
 author: gimso2x
-intent: "Route implementation, refactor, debug, review, and ship work through explicit artifact-backed stages."
-inputs:
-  - user_request: string
-  - target_repository: path
-  - existing_artifacts: markdown
-outputs:
-  - brief.md: artifact
-  - plan.md: artifact
-  - implementation-notes.md: artifact
-  - review-report.md: artifact
-  - ship-summary.md: artifact
+validate_prompt: |
+  Must route to correct stage skill based on user input.
+  Must read .forgeflow/defaults.md when present for auto/isolation settings.
+  Must resolve template root before reading any template.
+  Must not invent artifact structure when templates are missing.
+  Must follow route model (small/medium/high/epic) for stage sequencing.
 dependencies:
   - skills/_shared/discipline.md
-  - skills/_shared/isolation.md
+  - skills/_shared/automation.md
+  - skills/_shared/context-resume.md
   - docs/adapter-config.md
   - docs/advisory-guidelines.md
   - templates/brief.md
