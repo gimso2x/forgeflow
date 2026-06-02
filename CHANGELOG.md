@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Standalone review role-packet handoff eval fixture를 추가해, adapter가 `normalized-input.md`의 `constraints.roles`, `Role trigger matrix`, role evidence/readiness/packet, adapter handoff checklist를 채운 뒤 canonical review로 넘기는지 검증합니다.
 - README and shared automation guidance now keep the complete checkpoint Handoff Boundary escalation fields aligned with the template, and advisory validation guards that user-facing resume guidance from falling behind.
 - Checkpoint handoff template now records the full forbidden-action escalation fields, and advisory validation guards the checkpoint boundary contract from drifting behind the stage-boundary docs.
+- Compact-resume guidance and eval expectations now preserve the full checkpoint Handoff Boundary escalation field set, including handoff reason, forbidden action, stop condition, and artifact update location.
 - Adapter config의 multi-harness invariant에 standalone review role packet handoff를 추가하고 검증해, 어댑터가 `constraints.roles`/role trigger/evidence/readiness/packet 없이 reviewer judgment로 건너뛰지 못하도록 했습니다.
 - Standalone review normalized evidence에 `fetched_at`/`freshness_status`와 integrity `freshness_match`를 추가해 오래되었거나 출처 시간이 불명확한 evidence가 승인 근거로 조용히 쓰이지 않도록 했습니다.
 - `make validate-stage-tool-boundaries`를 추가해 stage별 artifact ownership, adapter-neutral handoff 원칙, standalone review provenance artifact, review read-only posture가 `docs/stage-tool-boundaries.md`와 README에 유지되는지 검증합니다.

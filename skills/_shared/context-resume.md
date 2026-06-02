@@ -50,7 +50,7 @@ Before reading any file, ask: **full content, Reader Summary, or specific sectio
 ## Section-targeted read procedure
 
 1. Read `checkpoint.md` → `Handoff Boundary`, `Minimum Read Set`, and `Next Action`.
-2. If `Handoff Boundary` names a different next owner, a requested/forbidden action, an evidence/artifact trigger, blocker/limitation impact, or an explicit stop condition, honor that boundary before resuming stage work. Do not let context refresh erase ownership, delegation, or stop conditions.
+2. If `Handoff Boundary` names a current owner, next owner / owning next stage, handoff reason, requested/forbidden action, evidence/artifact trigger, blocker/limitation impact, explicit stop condition, or exact artifact update location, honor that boundary before resuming stage work. Do not let context refresh erase ownership, delegation, handoff rationale, artifact update location, or stop conditions.
 3. If artifact has **Reader Summary** (high/epic), read it first (~30 lines max).
 4. Jump to named sections (e.g. `## 검증 계획 (Verification Plan)`, `### Task 3:`) instead of reading from line 1.
 5. Use Evidence Index compact strings before expanding full Evidence blocks.
