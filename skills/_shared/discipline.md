@@ -24,6 +24,20 @@ Each skill links here and adds skill-specific rules inline.
 - If the user says "do not write files", "return only", "dry run", "just list", or asks for a label/summary only, obey that output constraint exactly and do not attempt any filesystem mutation.
 - When artifacts are mentioned without an explicit path, assume `.forgeflow/tasks/<task-id>/`, not chat-only fallback.
 
+## Template resolution (core)
+
+Skills reference templates as `templates/<file>.md`. Resolve the actual path in this order (first match wins):
+
+1. `.forgeflow/templates/<file>.md` in the workspace — exists when `ff-config init` has been run.
+2. Plugin cache `templates/<file>.md` — search these paths:
+   - `~/.claude/plugins/cache/forgeflow/**/templates/<file>.md`
+   - `~/.cursor/plugins/local/forgeflow/templates/<file>.md`
+   - `~/.cursor/plugins/**/forgeflow/templates/<file>.md`
+   - `.codex/plugins/**/forgeflow/templates/<file>.md`
+3. If no template file is found, generate the artifact structure from the fields listed in the skill's procedure section. Do not invent structure beyond what the skill specifies.
+
+When creating `.forgeflow/templates/` during init, copy all `*.md` files from the resolved plugin `templates/` directory to `.forgeflow/templates/` so subsequent runs do not depend on plugin cache paths.
+
 ## User language and artifact readability (core)
 
 - Detect the user's primary language from the current request and recent conversation. Write user-facing replies and Markdown artifact prose in that language.

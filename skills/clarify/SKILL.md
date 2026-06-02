@@ -14,7 +14,7 @@ validate_prompt: |
   Must not skip scope boundary definition or route rationale.
   Must preserve exact-output and dry-run constraints when requested.
 dependencies:
-  - templates/brief.md
+  - templates/brief.md (resolve: `.forgeflow/templates/brief.md` first, then plugin cache)
   - skills/_shared/discipline.md
   - skills/_shared/isolation.md
   - skills/_shared/context-resume.md
@@ -78,7 +78,7 @@ Plugin-cache/extension-cache safety rule: never create task artifacts under a pa
 
 ## Output Artifacts
 
-Write `brief.md` to the active task directory using `templates/brief.md` as the structure. The brief must capture:
+Write `brief.md` to the active task directory using the `brief.md` template as the structure. Resolve the template path: first check `.forgeflow/templates/brief.md` in the workspace, then fall back to the plugin cache `templates/brief.md` (see main `forgeflow` skill template resolution). If neither exists, generate the structure from the fields listed below. The brief must capture:
 
 - Objective (one-sentence goal)
 - WHERE/context grounding for non-trivial work
@@ -337,7 +337,7 @@ clarify에서는 예상 수정 파일 목록(`scope_files`)을 명시적으로 �
     - If `.forgeflow/defaults.md` does not exist, set `auto: false`, `isolation: false`.
     - **Do not skip this step.** If `defaults.md` says `auto: true` but the brief has `auto: false`, the chain will break at the y/n prompt.
 
-11. Produce `brief.md` using `templates/brief.md` as the structure, unless an exact-output/label-only instruction applies.
+11. Produce `brief.md` using the `brief.md` template as the structure (resolve path: `.forgeflow/templates/brief.md` first, then plugin cache), unless an exact-output/label-only instruction applies.
 
 12. If the request is actionable, record remaining non-blocking unknowns as bounded assumptions and make the next stage obvious without asking the user to do your planning work, unless an exact-output/label-only instruction applies.
 

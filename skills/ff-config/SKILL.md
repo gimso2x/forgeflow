@@ -103,7 +103,11 @@ When the user selects **full init (프로젝트 컨텍스트 draft)** from the `
 
 1. Create `.forgeflow/` directory if it does not exist.
 2. Create `.forgeflow/defaults.md` with hardcoded defaults if it does not exist.
-3. Report completion. No draft generation.
+3. **Copy templates** to `.forgeflow/templates/` if the directory does not exist or is empty:
+   - Resolve the plugin `templates/` directory using the template resolution logic from the main `forgeflow` skill (check `<workspace>/templates/`, then `~/.claude/plugins/cache/forgeflow/**/templates/`, then `~/.cursor/plugins/**/forgeflow/templates/`).
+   - Copy all `*.md` files from the resolved plugin `templates/` directory to `.forgeflow/templates/`.
+   - This ensures all ForgeFlow skills can resolve templates locally without depending on plugin cache paths.
+4. Report completion. No draft generation.
 
 ### Mode D: Prune orphan worktrees
 
