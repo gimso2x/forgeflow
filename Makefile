@@ -310,7 +310,7 @@ validate-stage-tool-boundaries:
 	@grep -Fq "evidence or artifact trigger" docs/stage-tool-boundaries.md || { echo "ERROR: stage boundary docs must name evidence/artifact trigger for escalations"; exit 1; }
 	@grep -Fq "explicit stop condition" docs/stage-tool-boundaries.md || { echo "ERROR: stage boundary docs must require explicit stop condition for escalations"; exit 1; }
 	@grep -Fq "exact artifact update location" docs/stage-tool-boundaries.md || { echo "ERROR: stage boundary docs must require exact artifact update location for escalations"; exit 1; }
-	@grep -Fq "The handoff record must name the requested action" skills/_shared/automation.md || { echo "ERROR: automation stage catalog must mirror escalation handoff fields"; exit 1; }
+	@grep -Fq "same escalation field set as the checkpoint boundary" skills/_shared/automation.md || { echo "ERROR: automation stage catalog must mirror escalation handoff fields"; exit 1; }
 	@grep -Fq "must not change artifact names, route semantics, review verdicts, or human-gate rules" docs/stage-tool-boundaries.md || { echo "ERROR: stage boundary docs must keep adapter exceptions from changing canonical semantics"; exit 1; }
 	@grep -Fq "review-report.md" docs/stage-tool-boundaries.md || { echo "ERROR: stage boundary docs must require review-report.md for ff-review"; exit 1; }
 	@grep -Fq "input-source.md" docs/stage-tool-boundaries.md || { echo "ERROR: stage boundary docs must include standalone review provenance artifacts"; exit 1; }

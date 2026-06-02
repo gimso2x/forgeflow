@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Shared automation guidance now describes forbidden-action handoffs with the same full checkpoint boundary field set at the initial stop rule, so stage owners do not miss `current owner` or `handoff reason` before the dedicated `Handoff Boundary` reminder; the focused stage-boundary validator now guards the updated wording.
 - Context-resume guidance and the compact-resume eval now require reading checkpoint `Handoff Boundary` ownership/delegation before continuing after context refresh, preventing refresh from erasing forbidden-action handoffs or stop conditions.
 - README와 canonical `skills/forgeflow/SKILL.md`에 현재 release/version 기준과 init intelligence(project type/domain/change detection) 설명을 보강했습니다.
 - Standalone review 입력 정규화 reference의 기본 role routing을 canonical `ff-review` 계약과 맞춰, `quality-reviewer`는 항상 실행하되 `spec-reviewer`와 specialist roles는 명시 spec 또는 normalized evidence trigger가 있을 때만 실행하도록 명확히 했습니다.
