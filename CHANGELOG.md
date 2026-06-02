@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.11.4] - 2026-06-02
+
+### Fixed
+
+- **clarify defaults propagation 강화**: `defaults.md`의 `auto: true` 설정이 brief frontmatter에 반영되지 않는 버그 수정. defaults propagation을 step 10에서 분리하여 별도 단계로 승격하고, "Do not skip this step" 경고 추가.
+
 ## [1.11.3] - 2026-06-02
 
 ### Fixed
