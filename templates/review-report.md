@@ -30,6 +30,8 @@ scope_boundary:
 - **Fetch Status**: <!-- success | partial | failed -->
 - **Fetched At**: <!-- ISO8601 timestamp or run label from input-source.md -->
 - **Freshness Status**: <!-- current | stale | unknown; must match normalized-input.md evidence freshness -->
+- **Access Posture**: <!-- read_only | verification_only | not_applicable; must match input-source.md Access Posture -->
+- **Mutation Check**: <!-- PASS | FAIL; confirm fetch did not comment/approve/label/dispatch CI/deploy/write product files/change branches/clean destructively -->
 - **Normalized Brief**: <!-- Auto-generated brief -->
 - **Scope**: <!-- Files/directories/commit range -->
 - **Constraints**: <!-- Review focus, excluded paths, additional rules -->

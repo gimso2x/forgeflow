@@ -150,7 +150,7 @@ Standalone review creates a synthetic task directory:
 - `review ownership plan`: the lead reviewer, any member assignments, aggregation owner, claim marker integrity, child-work policy, conflict policy, and product-mutation policy recorded before delegated or parallel reviewer passes start
 - `adapter handoff checklist`: source classified, fetch reproduced, fetch posture constrained, normalization complete, limitations visible, and canonical review ownership recorded as `PASS`/`FAIL` before reviewer judgment begins
 
-`review-report.md` remains the single review result artifact. In standalone mode its Standalone Input Source summary must echo the fetch status plus fetched_at/run label and freshness status from `input-source.md`/`normalized-input.md`, so readers can see stale or unknown evidence posture without reopening the normalization artifacts. Adapter-specific reports are not allowed.
+`review-report.md` remains the single review result artifact. In standalone mode its Standalone Input Source summary must echo the fetch status plus fetched_at/run label, freshness status, access posture, and mutation check from `input-source.md`/`normalized-input.md`, so readers can see stale or unknown evidence posture and whether fetches stayed read-only/verification-only without reopening the normalization artifacts. Adapter-specific reports are not allowed.
 
 ### Evidence escalation log
 
