@@ -11,10 +11,16 @@ settings; environment variables take precedence.
 """
 from __future__ import annotations
 
+import argparse
 import hashlib
+import json
 import os
 import pathlib
 import re
+import sys
+
+
+RUN_STATE_SCHEMA = "run-state/v1"
 
 
 def _slugify(name: str) -> str:
@@ -97,6 +103,12 @@ def tasks_dir(project_dir: pathlib.Path | str = ".") -> pathlib.Path:
     return storage_root(project_dir) / "tasks"
 
 
+def task_dir(project_dir: pathlib.Path | str = ".", task_id: str = "") -> pathlib.Path:
+    if not task_id:
+        raise ValueError("task_id is required")
+    return tasks_dir(project_dir) / task_id
+
+
 def telemetry_dir(project_dir: pathlib.Path | str = ".") -> pathlib.Path:
     return storage_root(project_dir) / "telemetry"
 
@@ -117,6 +129,10 @@ def worktrees_dir(project_dir: pathlib.Path | str = ".") -> pathlib.Path:
     return storage_root(project_dir) / "worktrees"
 
 
+def run_state_file(project_dir: pathlib.Path | str = ".", task_id: str = "") -> pathlib.Path:
+    return task_dir(project_dir, task_id) / "run-state.json"
+
+
 def project_metadata(project_dir: pathlib.Path | str = ".", task_id: str | None = None) -> dict[str, str]:
     project_dir = pathlib.Path(project_dir).resolve()
     data = {
@@ -128,3 +144,77 @@ def project_metadata(project_dir: pathlib.Path | str = ".", task_id: str | None 
     if task_id is not None:
         data["task_id"] = task_id
     return data
+
+
+def run_state(project_dir: pathlib.Path | str = ".", task_id: str = "") -> dict[str, str]:
+    if not task_id:
+        raise ValueError("task_id is required")
+    return {"schema": RUN_STATE_SCHEMA, **project_metadata(project_dir, task_id)}
+
+
+def write_run_state(
+    project_dir: pathlib.Path | str = ".",
+    task_id: str = "",
+    *,
+    overwrite: bool = False,
+) -> pathlib.Path:
+    """Create <storage-root>/tasks/<task-id>/run-state.json with real values."""
+    path = run_state_file(project_dir, task_id)
+    if path.exists() and not overwrite:
+        return path
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(run_state(project_dir, task_id), ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    return path
+
+
+def _build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description="Resolve ForgeFlow storage paths and bootstrap task metadata.")
+    parser.add_argument("--project-dir", default=".", help="Project/repo root to resolve from (default: cwd).")
+    parser.add_argument("--task-id", help="Task identifier for task-specific commands.")
+    parser.add_argument("--write-run-state", action="store_true", help="Create run-state.json for --task-id.")
+    parser.add_argument("--overwrite", action="store_true", help="Overwrite an existing run-state.json.")
+    parser.add_argument(
+        "--print",
+        choices=("storage-root", "tasks-dir", "task-dir", "run-state-file", "metadata", "run-state"),
+        dest="print_target",
+        help="Print a resolved path or JSON payload.",
+    )
+    return parser
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = _build_parser().parse_args(argv)
+    project_dir = pathlib.Path(args.project_dir)
+
+    if args.write_run_state:
+        if not args.task_id:
+            raise SystemExit("ERROR: --write-run-state requires --task-id")
+        print(write_run_state(project_dir, args.task_id, overwrite=args.overwrite))
+        return 0
+
+    if args.print_target == "storage-root":
+        print(storage_root(project_dir))
+    elif args.print_target == "tasks-dir":
+        print(tasks_dir(project_dir))
+    elif args.print_target == "task-dir":
+        if not args.task_id:
+            raise SystemExit("ERROR: --print task-dir requires --task-id")
+        print(task_dir(project_dir, args.task_id))
+    elif args.print_target == "run-state-file":
+        if not args.task_id:
+            raise SystemExit("ERROR: --print run-state-file requires --task-id")
+        print(run_state_file(project_dir, args.task_id))
+    elif args.print_target == "metadata":
+        print(json.dumps(project_metadata(project_dir, args.task_id), ensure_ascii=False, indent=2))
+    elif args.print_target == "run-state":
+        if not args.task_id:
+            raise SystemExit("ERROR: --print run-state requires --task-id")
+        print(json.dumps(run_state(project_dir, args.task_id), ensure_ascii=False, indent=2))
+    else:
+        _build_parser().print_help(sys.stderr)
+        return 2
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

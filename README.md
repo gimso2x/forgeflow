@@ -206,7 +206,7 @@ raw_score = file_count*1.0 + estimated_lines*0.1 + requirement_count*2.0 + depen
 
 `project-slug`는 기본적으로 `basename(repo_root)`이고, 같은 이름의 체크아웃이 충돌하면 절대 경로 해시를 붙입니다(예: `forgeflow-a13f9c`). `tasks/` 앞에 프로젝트 폴더가 있어야 여러 레포 작업이 섞이지 않습니다. 레포 안의 `<repo>/.forgeflow/tasks/<task-id>/`는 `storage.mode: local` 또는 명시 `--task-dir`일 때만 쓰는 호환/팀 공유 옵션입니다.
 
-각 task state에는 `run-state.json`을 생성하고 최소한 `repo_root`, `project_name`, `project_slug`, `storage_root`, `task_id`를 기록해 글로벌 저장소에서도 원본 프로젝트를 항상 복원할 수 있어야 합니다.
+각 task state에는 `run-state.json`을 생성하고 최소한 `repo_root`, `project_name`, `project_slug`, `storage_root`, `task_id`를 기록해 글로벌 저장소에서도 원본 프로젝트를 항상 복원할 수 있어야 합니다. 스크립트 부트스트랩은 `python3 scripts/forgeflow_storage.py --project-dir <repo-root> --task-id <task-id> --write-run-state`를 사용합니다.
 
 기록되는 markdown 파일:
 

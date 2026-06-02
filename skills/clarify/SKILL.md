@@ -117,7 +117,13 @@ Write `brief.md` to the active task directory using the `brief.md` template as t
 
 Follow the user language rules there: write user-facing replies and artifact prose in the user's primary language, while preserving canonical English labels, commands, paths, artifact filenames, and enum values.
 
-Write `brief.md` under `<task-dir>`. If the task directory is missing, create it first. Also create `<task-dir>/run-state.json` from `templates/run-state.json` with resolved project/storage identity if it is missing. Do not return a pseudo-brief in chat only when the workflow expects artifacts.
+Write `brief.md` under `<task-dir>`. If the task directory is missing, create it first. Also create `<task-dir>/run-state.json` with resolved project/storage identity if it is missing. Preferred deterministic bootstrap:
+
+```bash
+python3 <forgeflow-checkout>/scripts/forgeflow_storage.py --project-dir <repo-root> --task-id <task-id> --write-run-state
+```
+
+Do not return a pseudo-brief in chat only when the workflow expects artifacts.
 
 ## Strict response constraints
 
