@@ -13,6 +13,7 @@ ForgeFlow의 core contract는 `skills/`, `templates/`, `docs/review-runtime-cont
 - **Harness-specific code paths stay shallow**: 어댑터별 차이는 slash command 이름, CLI flag, trust/permission mode, output normalization, timeout hint에 한정합니다. 판단 로직, role routing, approval/ship behavior는 어댑터 wrapper에 두지 않습니다.
 - **Artifact handoff is the boundary**: 어댑터가 다른 도구나 subagent로 넘길 때도 `.forgeflow/tasks/<task-id>/` markdown artifact가 handoff source of truth입니다. Chat transcript, provider memory, hidden tool state는 다음 stage 입력으로 간주하지 않습니다.
 - **Review adapters normalize before judging**: standalone review entrypoint는 `input-source.md`와 `normalized-input.md`를 먼저 남긴 뒤 canonical review skill에 위임합니다. Adapter별 별도 `review-report.md`, 자동 승인, hidden fallback은 금지합니다.
+- **Role packet handoff is explicit**: review adapter는 `constraints.roles`, `Role trigger matrix`, `role evidence map`, `role input packet readiness`, `role input packets`를 모두 채운 뒤 canonical review에 넘깁니다. Role reviewer는 hidden provider state나 chat transcript가 아니라 이 packet만 기준으로 판단합니다.
 - **Validation follows touched surface**: adapter behavior를 바꾸면 focused target으로 `make validate-adapter-config validate-advisory-contract validate-markdown-links`를 실행하고, 마지막에 `make validate`로 전체 markdown contract drift를 확인합니다.
 
 ## 어댑터 CLI 플래그
