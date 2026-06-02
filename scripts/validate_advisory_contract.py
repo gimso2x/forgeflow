@@ -189,10 +189,35 @@ if len(stage_positions) == len(stage_order):
     ordered_positions = [pos for _, pos in stage_positions]
     if ordered_positions != sorted(ordered_positions):
         failures.append('skills/_shared/automation.md: stage boundary entries must stay in workflow order clarify → plan → execute → review → ship')
-if 'forbidden action being delegated' not in automation_doc:
-    failures.append('skills/_shared/automation.md: Handoff Boundary must record forbidden-action delegation')
-handoff_boundary_section = section_between(checkpoint_template, '## Handoff Boundary', '## Minimum Read Set')
+automation_handoff_line = next((line for line in automation_doc.splitlines() if 'Handoff Boundary' in line and 'current owner' in line), '')
+readme_doc = (root / 'README.md').read_text(encoding='utf-8')
+readme_handoff_line = next((line for line in readme_doc.splitlines() if '`Handoff Boundary`' in line and '현재 stage owner' in line), '')
 handoff_boundary_required_fragments = [
+    'current owner',
+    'next owner',
+    'requested/forbidden action',
+    'evidence/artifact trigger',
+    'blocker/limitation impact',
+    'explicit stop condition',
+    'exact artifact update location',
+]
+missing_automation_handoff_fragments = [fragment for fragment in handoff_boundary_required_fragments if fragment not in automation_handoff_line]
+if missing_automation_handoff_fragments:
+    failures.append(f'skills/_shared/automation.md: Handoff Boundary docs must preserve forbidden-action escalation fields {missing_automation_handoff_fragments}')
+readme_handoff_required_fragments = [
+    '현재 stage owner',
+    '다음 owner',
+    'requested/forbidden action',
+    'evidence/artifact trigger',
+    'blocker/limitation impact',
+    'explicit stop condition',
+    'exact artifact update location',
+]
+missing_readme_handoff_fragments = [fragment for fragment in readme_handoff_required_fragments if fragment not in readme_handoff_line]
+if missing_readme_handoff_fragments:
+    failures.append(f'README.md: context refresh Handoff Boundary docs must preserve forbidden-action escalation fields {missing_readme_handoff_fragments}')
+handoff_boundary_section = section_between(checkpoint_template, '## Handoff Boundary', '## Minimum Read Set')
+checkpoint_handoff_boundary_required_fragments = [
     'current owner',
     'next owner',
     'requested/forbidden action',
@@ -201,7 +226,7 @@ handoff_boundary_required_fragments = [
     'explicit stop condition',
     'exact artifact update location',
 ]
-missing_handoff_boundary_fragments = [fragment for fragment in handoff_boundary_required_fragments if fragment not in handoff_boundary_section]
+missing_handoff_boundary_fragments = [fragment for fragment in checkpoint_handoff_boundary_required_fragments if fragment not in handoff_boundary_section]
 if missing_handoff_boundary_fragments:
     failures.append(f'templates/checkpoint.md: Handoff Boundary must preserve forbidden-action escalation fields {missing_handoff_boundary_fragments}')
 review_gate_pos = review_template.find('**Normalization Gate**')

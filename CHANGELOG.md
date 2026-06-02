@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- README and shared automation guidance now keep the complete checkpoint Handoff Boundary escalation fields aligned with the template, and advisory validation guards that user-facing resume guidance from falling behind.
 - Checkpoint handoff template now records the full forbidden-action escalation fields, and advisory validation guards the checkpoint boundary contract from drifting behind the stage-boundary docs.
 - Adapter config의 multi-harness invariant에 standalone review role packet handoff를 추가하고 검증해, 어댑터가 `constraints.roles`/role trigger/evidence/readiness/packet 없이 reviewer judgment로 건너뛰지 못하도록 했습니다.
 - Standalone review normalized evidence에 `fetched_at`/`freshness_status`와 integrity `freshness_match`를 추가해 오래되었거나 출처 시간이 불명확한 evidence가 승인 근거로 조용히 쓰이지 않도록 했습니다.
