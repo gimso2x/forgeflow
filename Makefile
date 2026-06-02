@@ -326,6 +326,7 @@ validate-adapter-config:
 	@grep -Fq "설치 위치와 작업 위치를 분리하세요" README.md || { echo "ERROR: README quickstart must separate plugin/extension install location from target project workflow location"; exit 1; }
 	@grep -Fq "make validate-adapter-config" README.md || { echo "ERROR: README local validation docs must include focused adapter config validation"; exit 1; }
 	@grep -Fq "**작업 위치 원칙:**" docs/adapter-config.md || { echo "ERROR: adapter config must state the shared workflow location principle"; exit 1; }
+	@grep -Fq "\`<task-dir>/brief.md\`, \`plan.md\`, \`implementation-notes.md\`, \`review-report.md\`, \`ledger.md\`, \`checkpoint.md\`, \`run-state.json\`" README.md || { echo "ERROR: README installed plugin smoke criteria must include the plan.md artifact"; exit 1; }
 	@grep -Fq "plugin/extension 설치·cache 위치" docs/adapter-config.md || { echo "ERROR: adapter config must distinguish plugin/extension cache from target projects"; exit 1; }
 	@grep -Fq -- "--task-dir ~/.forgeflow/projects/<project-slug>/tasks/<task-id>" docs/adapter-config.md || { echo "ERROR: adapter config must document explicit global task-dir fallback from cache contexts"; exit 1; }
 	@grep -Fq "Multi-harness routing invariants" docs/adapter-config.md || { echo "ERROR: adapter config must document multi-harness routing invariants"; exit 1; }

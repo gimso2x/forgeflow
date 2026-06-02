@@ -35,6 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- README의 installed plugin smoke 확인 기준이 `plan.md` 산출물을 빠뜨리지 않도록 보완하고, adapter config 검증이 해당 첫 실행 artifact 목록 drift를 잡도록 했습니다.
 - Review 계약의 renamed skill 경로(`skills/ff-review/...`)를 템플릿, standalone review 설계 문서, behavior guardrail 검증 스크립트에 반영하고 `make validate`에 focused behavior guardrail 검증을 포함했습니다.
 
 ## [1.11.6] - 2026-06-02

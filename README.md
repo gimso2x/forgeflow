@@ -537,7 +537,7 @@ claude -p --permission-mode bypassPermissions \
 3. 확인 기준:
 
 - `python3 -m pytest -q` 또는 해당 프로젝트 test command가 observed evidence로 기록됨
-- `<task-dir>/brief.md`, `implementation-notes.md`, `review-report.md`, `ledger.md`, `checkpoint.md`, `run-state.json`가 대상 프로젝트 아래 생성됨
+- `<task-dir>/brief.md`, `plan.md`, `implementation-notes.md`, `review-report.md`, `ledger.md`, `checkpoint.md`, `run-state.json`가 대상 프로젝트 아래 생성됨
 - `review-report.md` verdict가 `approved`이거나, `changes_requested`의 finding이 재현 가능한 증거를 포함함
 - 산출물이 ForgeFlow checkout/plugin cache가 아니라 sample project 아래에 생성됨
 
