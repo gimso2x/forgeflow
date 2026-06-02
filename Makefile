@@ -20,6 +20,7 @@ TEMPLATES := \
 	eval-record.md \
 	roadmap.md \
 	checkpoint.md \
+	run-state.json \
 	ledger.md \
 	evolution-rule.md \
 	ship-summary.md
@@ -38,6 +39,7 @@ demo:
 	cp templates/plan.md "$$task_dir/plan.md"; \
 	cp templates/ledger.md "$$task_dir/ledger.md"; \
 	cp templates/checkpoint.md "$$task_dir/checkpoint.md"; \
+	cp templates/run-state.json "$$task_dir/run-state.json"; \
 	cp templates/implementation-notes.md "$$task_dir/implementation-notes.md"; \
 	cp templates/review-report.md "$$task_dir/review-report.md"; \
 	cp templates/ship-summary.md "$$task_dir/ship-summary.md"; \
@@ -52,7 +54,7 @@ validate-demo:
 	trap 'rm -rf "$$tmp"' EXIT; \
 	task_dir="$$tmp/.forgeflow/tasks/demo-small"; \
 	mkdir -p "$$task_dir"; \
-	for artifact in brief.md plan.md ledger.md checkpoint.md implementation-notes.md review-report.md ship-summary.md; do \
+	for artifact in brief.md plan.md ledger.md checkpoint.md run-state.json implementation-notes.md review-report.md ship-summary.md; do \
 		cp "templates/$$artifact" "$$task_dir/$$artifact"; \
 		test -s "$$task_dir/$$artifact" || { echo "ERROR: demo artifact missing or empty: $$artifact"; exit 1; }; \
 		grep -Fq "$$artifact" README.md || { echo "ERROR: README first-run demo docs must mention $$artifact"; exit 1; }; \
@@ -65,8 +67,8 @@ validate-demo:
 	grep -Fq "추적 파일을 수정하지 않으므로" README.md || { echo "ERROR: README demo docs must state repo-local artifacts are not mutated"; exit 1; }; \
 	grep -Fq "not provider/plugin E2E" Makefile || { echo "ERROR: make demo output must not overclaim provider/plugin E2E"; exit 1; }; \
 	count="$$(find "$$task_dir" -maxdepth 1 -type f | wc -l)"; \
-	if [ "$$count" -ne 7 ]; then \
-		echo "ERROR: demo workspace expected 7 artifacts, got $$count"; \
+	if [ "$$count" -ne 8 ]; then \
+		echo "ERROR: demo workspace expected 8 artifacts, got $$count"; \
 		exit 1; \
 	fi
 	@echo "OK: demo workspace creates and documents first-run artifacts"

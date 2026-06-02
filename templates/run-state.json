@@ -1,0 +1,8 @@
+{
+  "schema": "run-state/v1",
+  "project_name": "<!-- PROJECT_NAME -->",
+  "project_slug": "<!-- PROJECT_SLUG -->",
+  "repo_root": "<!-- ABSOLUTE_REPO_ROOT -->",
+  "storage_root": "<!-- RESOLVED_STORAGE_ROOT -->",
+  "task_id": "<!-- TASK_ID -->"
+}

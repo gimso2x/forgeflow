@@ -8,7 +8,7 @@ inputs: Raw user request, target repository/path, constraints, existing codebase
 outputs: brief.md with objective, scope boundary, route, acceptance criteria, and verification gates.
 validate_prompt: |
   Must produce brief.md with route selection, scope boundary, and acceptance criteria.
-  Must bootstrap task workspace (<task-dir>/) if missing.
+  Must bootstrap task workspace (<task-dir>/) and run-state.json if missing.
   Must include WHERE grounding for non-trivial work.
   Must detect tech stack and auto-detect verification gates.
   Must not skip scope boundary definition or route rationale.
@@ -35,6 +35,7 @@ Use this skill to convert a raw request into a ForgeFlow context brief (`brief.m
 - Constraints, acceptance criteria, risk notes if provided
 - Existing codebase context if available
 - Shared project context from `<storage-root>/project-draft.md` if present
+- Resolved task identity for `run-state.json`: `repo_root`, `project_name`, `project_slug`, `storage_root`, `task_id`
 - `--task-id`: stable task identifier (optional; auto-generated if omitted)
 
 ## Task ID generation
@@ -116,7 +117,7 @@ Write `brief.md` to the active task directory using the `brief.md` template as t
 
 Follow the user language rules there: write user-facing replies and artifact prose in the user's primary language, while preserving canonical English labels, commands, paths, artifact filenames, and enum values.
 
-Write `brief.md` under `<task-dir>`. If the task directory is missing, create it first. Do not return a pseudo-brief in chat only when the workflow expects artifacts.
+Write `brief.md` under `<task-dir>`. If the task directory is missing, create it first. Also create `<task-dir>/run-state.json` from `templates/run-state.json` with resolved project/storage identity if it is missing. Do not return a pseudo-brief in chat only when the workflow expects artifacts.
 
 ## Strict response constraints
 

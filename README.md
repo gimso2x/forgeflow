@@ -206,7 +206,7 @@ raw_score = file_count*1.0 + estimated_lines*0.1 + requirement_count*2.0 + depen
 
 `project-slug`는 기본적으로 `basename(repo_root)`이고, 같은 이름의 체크아웃이 충돌하면 절대 경로 해시를 붙입니다(예: `forgeflow-a13f9c`). `tasks/` 앞에 프로젝트 폴더가 있어야 여러 레포 작업이 섞이지 않습니다. 레포 안의 `<repo>/.forgeflow/tasks/<task-id>/`는 `storage.mode: local` 또는 명시 `--task-dir`일 때만 쓰는 호환/팀 공유 옵션입니다.
 
-각 task state에는 최소한 `repo_root`, `project_name`, `project_slug`, `task_id`를 기록해 글로벌 저장소에서도 원본 프로젝트를 항상 복원할 수 있어야 합니다.
+각 task state에는 `run-state.json`을 생성하고 최소한 `repo_root`, `project_name`, `project_slug`, `storage_root`, `task_id`를 기록해 글로벌 저장소에서도 원본 프로젝트를 항상 복원할 수 있어야 합니다.
 
 기록되는 markdown 파일:
 
@@ -216,6 +216,7 @@ raw_score = file_count*1.0 + estimated_lines*0.1 + requirement_count*2.0 + depen
 | `plan.md`                 | 작업 계획, 태스크 분해, 검증 | medium+ |
 | `ledger.md`               | 실행 상태 truth (pending/done) | execute |
 | `checkpoint.md`           | 재개용 전술 포인터           | execute |
+| `run-state.json`          | 프로젝트/스토리지 식별 상태  | clarify |
 | `implementation-notes.md` | 실행 진행, 결정 기록, 편차   | 전체    |
 | `input-source.md`         | standalone review 입력 출처/fetch 상태 | standalone review |
 | `normalized-input.md`     | standalone review 4-field 정규화 입력 | standalone review |
@@ -493,7 +494,7 @@ make validate-evals-json validate-eval-files validate-evals-fixtures
 make demo
 ```
 
-이 명령은 `mktemp -d` 아래에 `.forgeflow/tasks/demo-small/`을 만들고 `brief.md`, `plan.md`, `run-ledger.md`, `checkpoint.md`, `implementation-notes.md`, `review-report.md`, `ship-summary.md` 경로를 출력합니다. repo 안에 `.forgeflow/`를 만들거나 추적 파일을 수정하지 않으므로, 첫 clone 직후나 자동화 preflight에서 안전하게 실행할 수 있습니다. 생성된 임시 workspace를 열어 실제 작업에서는 `/forgeflow:clarify`부터 시작하세요.
+이 명령은 `mktemp -d` 아래에 `.forgeflow/tasks/demo-small/`을 만들고 `brief.md`, `plan.md`, `ledger.md`, `checkpoint.md`, `run-state.json`, `implementation-notes.md`, `review-report.md`, `ship-summary.md` 경로를 출력합니다. repo 안에 `.forgeflow/`를 만들거나 추적 파일을 수정하지 않으므로, 첫 clone 직후나 자동화 preflight에서 안전하게 실행할 수 있습니다. 생성된 임시 workspace를 열어 실제 작업에서는 `/forgeflow:clarify`부터 시작하세요.
 
 ### Claude 설치 플러그인 E2E smoke
 
@@ -522,7 +523,7 @@ claude -p --permission-mode bypassPermissions \
 3. 확인 기준:
 
 - `python3 -m pytest -q` 또는 해당 프로젝트 test command가 observed evidence로 기록됨
-- `<task-dir>/brief.md`, `implementation-notes.md`, `review-report.md`, `run-ledger.md`, `checkpoint.md`가 대상 프로젝트 아래 생성됨
+- `<task-dir>/brief.md`, `implementation-notes.md`, `review-report.md`, `ledger.md`, `checkpoint.md`, `run-state.json`가 대상 프로젝트 아래 생성됨
 - `review-report.md` verdict가 `approved`이거나, `changes_requested`의 finding이 재현 가능한 증거를 포함함
 - 산출물이 ForgeFlow checkout/plugin cache가 아니라 sample project 아래에 생성됨
 
