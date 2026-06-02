@@ -32,7 +32,7 @@ Use this skill to execute the selected ForgeFlow route.
 - Code changes matching the plan
 - `implementation-notes.md` — real-time log maintained throughout execution (template: `templates/implementation-notes.md`)
 - `ledger.md` — unified plan items + execution tracking (template: `templates/ledger.md`, schema: ledger/v1)
-- `evidence-manifest.md` — structured evidence contract generated at completion (template: `templates/evidence-manifest.md`). Every gate result, scope boundary, and metric in one review-consumable artifact. A completion declaration without this manifest is incomplete.
+- `ship-summary.md` Evidence Manifest section — structured evidence contract generated at completion (template: `templates/ship-summary.md`). Every gate result, scope boundary, and metric in one review-consumable artifact. A completion declaration without this section is incomplete.
 - `checkpoint.md` — tactical resume pointer updated at stage entry/exit (template: `templates/checkpoint.md`)
 - decisions in `implementation-notes.md` Decisions section (deviation rationale, tradeoff choices, blocker resolution)
 - Verification output summary
@@ -115,7 +115,7 @@ Apply them this way:
 
 ### Re-execution condition intake
 
-On execute entry, check if `re-execution-conditions.md` exists in the task directory:
+On execute entry, check if `checkpoint.md` contains a `## Re-Execution Conditions` section:
 1. If present, this is a **re-execution cycle** — read it before reading plan.md or brief.md.
 2. Apply the corrected execution conditions as overrides to the plan.
 3. Execute rollback instructions first (`git restore <paths>` or `git stash`) to revert failed changes.
@@ -415,7 +415,7 @@ Before marking execute as completed, verify ALL items:
 | 7 | Code quality metrics collected in implementation-notes.md | all routes |
 | 8 | File size gate: oversized files (>300 lines or project limit) flagged with split plan | all routes |
 | 9 | Scope boundary check: changed files compared to plan scope, unplanned files explained | medium, high, epic |
-| 10 | evidence-manifest.md generated with all gate results, scope boundary, and metrics | all routes |
+| 10 | ship-summary.md Evidence Manifest section generated with all gate results, scope boundary, and metrics | all routes |
 
 If any required item is missing, the execute stage is incomplete. Do not deliver the exit prompt until all items are present.
 
@@ -435,7 +435,7 @@ Provide checklist responses under a **`### Completion Response`** heading (not u
 7. **Metrics**: LOC, TS errors, type assertions, debug artifacts, max component LOC
 8. **File size gate**: list any files exceeding 300 lines (or project limit) with split plan, or "all within limit"
 9. **Scope boundary**: `PASS` or `WARN files=<list>` with explanation for unplanned changes (medium/high/epic only)
-10. **Evidence manifest**: path to generated `evidence-manifest.md` (all routes)
+10. **Evidence manifest**: path to `ship-summary.md` Evidence Manifest section (all routes)
 ```
 
 ## Output normalization
@@ -585,10 +585,10 @@ After each plan step passes verification, run an iterative refinement loop on th
 
 "완료 선언은 증거가 아니다, 완료는 계약이다."
 
-- Every completion declaration must be backed by an `evidence-manifest.md` artifact.
+- Every completion declaration must be backed by a `ship-summary.md` Evidence Manifest section.
 - Gate results in the manifest must come from **actual command execution**, not claims.
 - A FAIL gate must record: what failed, root cause, corrective action taken, and **next execution condition** (what should change to prevent recurrence).
-- Review must treat a missing evidence-manifest as `blocked` — the execution is incomplete without it.
+- Review must treat a missing Evidence Manifest section as `blocked` — the execution is incomplete without it.
 - The manifest is the single source of truth for review to verify. `ledger.md` and `implementation-notes.md` are narrative; the manifest is the contract.
 
 ## Telemetry

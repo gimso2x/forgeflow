@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.11.5] - 2026-06-02
+
+### Changed
+
+- **산출물 통합**: `re-execution-conditions.md` → `checkpoint.md` Re-Execution Conditions 섹션으로 병합. review FAIL 시 checkpoint에 재실행 조건 기록.
+- **산출물 통합**: `evidence-manifest.md` → `ship-summary.md` Evidence Manifest 섹션으로 병합. execute 완료 시 ship-summary에 증뢰 계약 기록.
+- 태스크 산출물 9파일 → 7파일 축소 (brief, plan, checkpoint, implementation-notes, ledger, review-report, ship-summary).
+- 기존 템플릿 파일은 deprecated stub으로 보존 (하위호환).
+
 ## [1.11.4] - 2026-06-02
 
 ### Fixed
@@ -954,7 +963,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI gate with GitHub Actions workflow generation
 - Agent preset installer (Claude + Codex)
 
-[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v1.11.3...HEAD
+[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v1.11.5...HEAD
+[1.11.5]: https://github.com/gimso2x/forgeflow/compare/v1.11.4...v1.11.5
+[1.11.4]: https://github.com/gimso2x/forgeflow/compare/v1.11.3...v1.11.4
 [1.11.3]: https://github.com/gimso2x/forgeflow/compare/v1.11.2...v1.11.3
 [1.11.2]: https://github.com/gimso2x/forgeflow/compare/v1.11.1...v1.11.2
 [1.11.1]: https://github.com/gimso2x/forgeflow/compare/v1.11.0...v1.11.1

@@ -8,7 +8,7 @@ When writing or reviewing code, apply the advisory guardrails in `docs/advisory-
 - **Simplicity First**: avoid speculative abstractions or features not required by the brief.
 - **Surgical Changes**: changed lines must trace to the user request, brief, or plan.
 - **Goal-Driven Execution**: success must be verifiable by artifact evidence or command output.
-- **Evidence Contract**: a completion declaration without an `evidence-manifest.md` is incomplete. Gate results must come from actual command execution, not claims. Review must treat a missing manifest as `blocked`.
+- **Evidence Contract**: a completion declaration without a `ship-summary.md` Evidence Manifest section is incomplete. Gate results must come from actual command execution, not claims. Review must treat a missing Evidence Manifest as `blocked`.
 
 
 Common file-write and response discipline shared across ForgeFlow workflow skills.
@@ -91,7 +91,7 @@ ForgeFlow는 키노트 "도구보다 구조, 구조보다 검증 루프"의 Harn
 
 ### Evidence Contract (L3)
 - 완료 선언은 증거가 아니다, 완료는 계약이다.
-- `evidence-manifest.md` 없는 completion declaration은 불완전.
+- `ship-summary.md` Evidence Manifest 섹션 없는 completion declaration은 불완전.
 - Gate 결과는 실제 명령 실행 기반이어야 하며, claim이 아님.
 - FAIL 시 실패 원인·교정 조치·다음 실행 조건을 기록.
 
@@ -109,7 +109,7 @@ ForgeFlow는 키노트 "도구보다 구조, 구조보다 검증 루프"의 Harn
 
 ### Closed Loop (L6)
 - 사과가 아니라 조건이 바뀌어 루프가 닫힌다.
-- review FAIL → re-execution-conditions.md 자동 생성 → execute 재진입.
+- review FAIL → checkpoint.md Re-Execution Conditions 섹션 자동 작성 → execute 재진입.
 - 실패 시 rollback(git restore), Memory Bank에 실패 패턴 기록.
 - 최대 3회 루프. 3회 초과 시 blocked. 동일 finding 반복 시 재계획 권장.
 

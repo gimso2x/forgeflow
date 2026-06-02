@@ -36,7 +36,7 @@ Review after execute stage. Requires pipeline artifacts from `.forgeflow/tasks/<
 - `plan.md` from plan stage
 - `implementation-notes.md` from execute stage
 - `ledger.md` from execute stage
-- `evidence-manifest.md` from execute stage (required — missing manifest → `blocked` verdict)
+- `ship-summary.md` Evidence Manifest section from execute stage (required — missing Evidence Manifest → `blocked` verdict)
 - `implementation-notes.md Decisions` from clarify/plan/execute stages (optional but recommended for tracing prior decisions)
 - Final codebase state
 - Verification commands/results
@@ -484,12 +484,12 @@ Record in `review-report.md` → Code Quality Metrics section. Metrics exceeding
 
 ## Closed Loop — Re-Execution Condition Generation (L6)
 
-When review verdict is `changes_requested` or `blocked`, generate `re-execution-conditions.md` (template: `templates/re-execution-conditions.md`) in the active task directory. This closes the loop — review FAIL doesn't just flag problems, it produces the **corrected conditions** for the next execute cycle.
+When review verdict is `changes_requested` or `blocked`, write re-execution conditions into `checkpoint.md` under the `## Re-Execution Conditions` section (see `templates/checkpoint.md`). This closes the loop — review FAIL doesn't just flag problems, it produces the **corrected conditions** for the next execute cycle.
 
 ### Procedure on FAIL verdict
 
 1. Write `review-report.md` with findings and verdict as normal.
-2. Create `re-execution-conditions.md`:
+2. Update `checkpoint.md` Re-Execution Conditions section:
    - **Failure Analysis**: Each major/blocker finding with root cause and required fix.
    - **Corrected Execution Conditions**: What constraints, scope, or verification gates must change.
    - **Rollback Instructions**: Which files to revert (`git restore <paths>` or `git stash`).
@@ -654,13 +654,13 @@ Review-specific: reconstruct task state from artifacts, not chat memory. **Do no
 
 Before approving review, inspect required ForgeFlow artifacts for unresolved template residue. Treat unresolved placeholders as `changes_requested` or `blocked` before quality praise:
 
-- Check `brief.md`, `plan.md`, `implementation-notes.md`, `ledger.md`, `evidence-manifest.md`, and any existing `review-report.md`.
+- Check `brief.md`, `plan.md`, `implementation-notes.md`, `ledger.md`, `ship-summary.md` (including Evidence Manifest section), and any existing `review-report.md`.
 - Flag unresolved `TODO`, `TBD`, `FIXME`, template comments such as `<!-- ... -->`, and angle-bracket placeholders such as `<task-id>`, `<branch-name>`, or `<...>` when they are artifact-writing residue.
 - Do not flag intentional Markdown checkboxes, code snippets, command output, or literal examples when they are clearly part of the reviewed content rather than unfinished artifact fields.
 - If placeholder residue remains in an artifact required for the current route, do not approve. Name the file and the unresolved marker in Findings.
 - **Completion checklist completeness**: For medium/high/epic routes, verify `implementation-notes.md` has filled sections for `## 컴포넌트/함수 역할 (Role Descriptions)` and `## 엣지 케이스 (Edge Cases)`. If either section is missing or still contains only template comments, flag as a `major` finding with category `process / artifact-completeness`. Empty sections mean the execute stage did not complete its mandatory checklist.
 - **File size gate**: Check `## 지표 (Metrics)` for `oversized_file` entries. If any changed file exceeds the project's line limit (default 300) and no split plan is documented, flag as a `major` finding with category `quality / maintainability`.
-- **Evidence manifest gate**: For post-execute mode, `evidence-manifest.md` must exist and have all verification gates filled (not template placeholders). If missing or incomplete, set verdict to `blocked` — the execute stage did not fulfill its evidence contract. Review must independently verify each gate result listed in the manifest.
+- **Evidence manifest gate**: For post-execute mode, `ship-summary.md` Evidence Manifest section must exist and have all verification gates filled (not template placeholders). If missing or incomplete, set verdict to `blocked` — the execute stage did not fulfill its evidence contract. Review must independently verify each gate result listed in the manifest.
 
 ## Procedure
 
