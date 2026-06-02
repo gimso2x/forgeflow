@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `docs/stage-tool-boundaries.md`를 추가해 clarify/plan/execute/review/ship 단계별 허용 tool posture, 필수 산출물, 금지 side effect를 adapter-neutral 계약으로 정리했습니다.
+
 ### Fixed
 
 - Review 계약의 renamed skill 경로(`skills/ff-review/...`)를 템플릿, standalone review 설계 문서, behavior guardrail 검증 스크립트에 반영하고 `make validate`에 focused behavior guardrail 검증을 포함했습니다.
