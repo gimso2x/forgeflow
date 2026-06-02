@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.11.3] - 2026-06-02
+
+### Fixed
+
+- **`forgeflow_evolution_promote.py` 버그 수정**: advisory 룰 검색 시 `.md` 확장자 제한 제거, `generate_hard_rule`이 생성하는 hard rule을 advisory mode로 변경하여 hook_check.sh 무한 루프 방지.
+- **`no-env-commit-rule.json` check command 수정**: 존재하지 않는 `forgeflow_evolution.py` 참조를 직접 git+grep 명령으로 교체.
+
 ## [1.11.2] - 2026-06-02
 
 ### Added
@@ -941,7 +948,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI gate with GitHub Actions workflow generation
 - Agent preset installer (Claude + Codex)
 
-[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v1.11.2...HEAD
+[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v1.11.3...HEAD
+[1.11.3]: https://github.com/gimso2x/forgeflow/compare/v1.11.2...v1.11.3
 [1.11.2]: https://github.com/gimso2x/forgeflow/compare/v1.11.1...v1.11.2
 [1.11.1]: https://github.com/gimso2x/forgeflow/compare/v1.11.0...v1.11.1
 [1.11.0]: https://github.com/gimso2x/forgeflow/compare/v1.10.1...v1.11.0

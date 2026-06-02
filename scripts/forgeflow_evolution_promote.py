@@ -75,7 +75,7 @@ def find_advisory_rule(rule_id: str, project: str | None = None) -> Path | None:
     for d in dirs:
         if d.exists():
             for f in d.iterdir():
-                if f.is_file() and f.suffix == ".md" and rule_id in f.stem:
+                if f.is_file() and rule_id in f.stem:
                     return f
     return None
 
@@ -84,12 +84,19 @@ def generate_hard_rule(rule_id: str, advisory_path: Path) -> dict:
     """Generate a hard rule JSON from an advisory markdown rule."""
     content = advisory_path.read_text()
     summary = ""
+    trigger = ""
+    stage = ""
     for line in content.split("\n"):
-        line = line.strip()
-        if line and not line.startswith("#") and not line.startswith("<!--"):
-            summary = line
-            break
+        stripped = line.strip()
+        if stripped and not summary and not stripped.startswith("#") and not stripped.startswith("<!--"):
+            summary = stripped
+        if stripped.lower().startswith("trigger:"):
+            trigger = stripped.split(":", 1)[1].strip()
+        if stripped.lower().startswith("stage:"):
+            stage = stripped.split(":", 1)[1].strip()
 
+    # Advisory rules describe manual checks — no deterministic command exists.
+    # Use advisory check mode so hook_check.sh skips command eval for this rule.
     return {
         "id": rule_id,
         "title": summary[:80] if summary else rule_id,
@@ -97,16 +104,17 @@ def generate_hard_rule(rule_id: str, advisory_path: Path) -> dict:
         "lifecycle": "adopted_hard",
         "source_signal": "auto_promote",
         "summary": summary if summary else f"Auto-promoted from advisory rule: {rule_id}",
+        "trigger": trigger,
+        "stage": stage,
         "check": {
-            "kind": "command",
+            "kind": "advisory",
             "command_id": rule_id,
-            "command": f"bash scripts/forgeflow_hook_check.sh --rule {rule_id}",
-            "expected_exit_code": 0,
+            "advisory_source": str(advisory_path),
         },
         "enforcement": {
-            "mode": "hard_exit_2",
-            "deterministic": True,
-            "message": f"Hard rule enforced: {summary[:60] if summary else rule_id}",
+            "mode": "advisory",
+            "deterministic": False,
+            "message": f"Advisory rule enforced: {summary[:60] if summary else rule_id}",
         },
         "hard_gate_evidence": {
             "auto_promoted": True,
