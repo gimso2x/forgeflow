@@ -53,7 +53,7 @@ def markdown_anchors(path: pathlib.Path) -> set[str]:
 
 
 for path in sorted(root.rglob('*.md')):
-    if '.git' in path.parts or '.venv' in path.parts:
+    if '.git' in path.parts or '.venv' in path.parts or 'node_modules' in path.parts:
         continue
     text = path.read_text(encoding='utf-8')
     line_starts = [0]
