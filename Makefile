@@ -302,6 +302,8 @@ validate-adapter-config:
 	@grep -Fq "역할 경계 원칙" README.md || { echo "ERROR: README must expose stage-owned role boundary principles"; exit 1; }
 	@grep -Fq "Stage-owned role boundaries" docs/stage-tool-boundaries.md || { echo "ERROR: stage tool boundary docs must document role boundaries"; exit 1; }
 	@grep -Fq "not a license to create a parallel runtime" docs/stage-tool-boundaries.md || { echo "ERROR: role boundary docs must prevent parallel runtime drift"; exit 1; }
+	@grep -Fq "Members must not spawn unmanaged child work" docs/stage-tool-boundaries.md || { echo "ERROR: role boundary docs must block unmanaged member child-work"; exit 1; }
+	@grep -Fq "lead-owned artifact update before work continues" docs/stage-tool-boundaries.md || { echo "ERROR: role boundary docs must require lead-owned artifact updates for member scope changes"; exit 1; }
 	@grep -Fq "Disposable 또는 untrusted repo에서 headless smoke" docs/adapter-config.md || { echo "ERROR: Gemini adapter docs must mention --skip-trust for disposable/untrusted headless smoke"; exit 1; }
 
 validate-evals-fixtures:

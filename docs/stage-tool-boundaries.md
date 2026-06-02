@@ -16,7 +16,7 @@ Role names describe the lens for a stage-owned pass; they are not a license to c
 - **Planner / spec roles** may clarify intent, derive acceptance criteria, and judge traceability, but must not implement product fixes during plan or review.
 - **Worker / execute roles** may mutate scoped product/docs files and collect verification evidence, but must not approve their own work or ship cleanup.
 - **Reviewer roles** may inspect, verify, and write review artifacts, but must not repair product code, broaden scope from hidden state, or resolve cross-role conflicts privately.
-- **Lead/member splits** are artifact-local coordination only: one lead owns routing/aggregation, each member owns exactly one declared pass/section, and claim markers must be recorded before concurrent work proceeds.
+- **Lead/member splits** are artifact-local coordination only: one lead owns routing/aggregation, each member owns exactly one declared pass/section, and claim markers must be recorded before concurrent work proceeds. Members must not spawn unmanaged child work, reassign roles, broaden scope, or write outside the claimed artifact section; any of those needs a lead-owned artifact update before work continues.
 - **Human decision partner** remains outside automated role routing; when risk, weak evidence, or role conflict requires judgment, record a `Human Review Packet` instead of inventing an automated approval path.
 
 ## Catalog
