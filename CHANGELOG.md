@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.11.6] - 2026-06-02
+
+### Changed
+
+- **deprecated artifact guardrail**: `skills/_shared/discipline.md`에 "Deprecated artifact names (MUST NOT generate)" 섹션 추가. `plan-ledger.md`, `run-ledger.md`, `decision-log.md`, `evidence-manifest.md`, `re-execution-conditions.md` 생성 금지와 canonical 대체 위치 명시.
+- **template stub 강화**: `templates/evidence-manifest.md`, `templates/re-execution-conditions.md` deprecation 경고를 "DEPRECATED — DO NOT USE"로 강화. 신규 태스크에서 구형 파일명 산출물 생성 방지.
+
 ## [1.11.5] - 2026-06-02
 
 ### Changed
@@ -963,7 +970,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI gate with GitHub Actions workflow generation
 - Agent preset installer (Claude + Codex)
 
-[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v1.11.5...HEAD
+[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v1.11.6...HEAD
+[1.11.6]: https://github.com/gimso2x/forgeflow/compare/v1.11.5...v1.11.6
 [1.11.5]: https://github.com/gimso2x/forgeflow/compare/v1.11.4...v1.11.5
 [1.11.4]: https://github.com/gimso2x/forgeflow/compare/v1.11.3...v1.11.4
 [1.11.3]: https://github.com/gimso2x/forgeflow/compare/v1.11.2...v1.11.3

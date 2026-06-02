@@ -1,7 +1,7 @@
 ---
 name: forgeflow
 description: Artifact-first delivery workflow for AI coding agents
-version: "1.11.5"
+version: "1.11.6"
 category: engineering
 tags: [ai-agents, workflow, artifacts, claude-code, codex, gemini, cursor]
 ---

@@ -24,6 +24,20 @@ Each skill links here and adds skill-specific rules inline.
 - If the user says "do not write files", "return only", "dry run", "just list", or asks for a label/summary only, obey that output constraint exactly and do not attempt any filesystem mutation.
 - When artifacts are mentioned without an explicit path, assume `.forgeflow/tasks/<task-id>/`, not chat-only fallback.
 
+## Deprecated artifact names (MUST NOT generate)
+
+These filenames were used in earlier ForgeFlow versions. They are **superseded** and must not be created as standalone files in new tasks. All content belongs in the canonical artifact listed under "Write to".
+
+| Deprecated filename | Write to instead | Since |
+|---|---|---|
+| `plan-ledger.md` | `ledger.md` Plan Items section | v1.11 |
+| `run-ledger.md` | `ledger.md` Execution Tracking section | v1.11 |
+| `decision-log.md` | `implementation-notes.md` Decisions section | v1.11 |
+| `evidence-manifest.md` | `ship-summary.md` Evidence Manifest section | v1.11.5 |
+| `re-execution-conditions.md` | `checkpoint.md` Re-Execution Conditions section | v1.11.5 |
+
+When resuming a task that has deprecated files from an earlier run, read the deprecated file for context but do not create new ones. Write updates to the canonical artifact only.
+
 ## Template resolution (core)
 
 Skills reference templates as `templates/<file>.md`. Resolve the actual path in this order (first match wins):
