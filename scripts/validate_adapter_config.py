@@ -25,7 +25,7 @@ if gemini_update not in readme:
     failures.append('README.md: Gemini automated update example must pipe explicit Y confirmation')
 if 'gemini extensions list' not in readme:
     failures.append('README.md: Gemini quickstart must verify extension visibility with gemini extensions list')
-for needle in ('대상 프로젝트 루트', '.codex/plugins/forgeflow', '.codex-plugin/plugin.json', '/path/to/forgeflow/skills', '/path/to/forgeflow/templates'):
+for needle in ('대상 프로젝트 루트', '.codex/plugins/forgeflow', 'install-codex-local', 'CODEX_LOCAL_PLUGIN_DIR', 'plugin.json', 'skills/', 'templates/'):
     if needle not in readme:
         failures.append(f'README.md: Codex quickstart must document {needle!r}')
 for needle in ('대상 프로젝트 루트', 'plugin cache'):

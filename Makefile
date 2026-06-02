@@ -1,4 +1,4 @@
-.PHONY: validate demo validate-demo validate-behavior-guardrails validate-json validate-no-python validate-slim-surface validate-ci-workflows validate-skills validate-skill-frontmatter validate-agent-docs validate-templates validate-template-refs validate-versions validate-changelog-links validate-route-scoring-parity validate-route-policy validate-gemini-imports validate-plugin-prompts validate-evals validate-evals-json validate-eval-files validate-evals-fixtures validate-workflow-vocab validate-ship-safety validate-dogfooding-docs validate-context-resume validate-stage-tool-boundaries validate-adapter-config validate-advisory-contract validate-behavior-guardrails validate-markdown-links telemetry telemetry-collect telemetry-aggregate usage-audit
+.PHONY: validate demo validate-demo install-codex-local validate-behavior-guardrails validate-json validate-no-python validate-slim-surface validate-ci-workflows validate-skills validate-skill-frontmatter validate-agent-docs validate-templates validate-template-refs validate-versions validate-changelog-links validate-route-scoring-parity validate-route-policy validate-gemini-imports validate-plugin-prompts validate-evals validate-evals-json validate-eval-files validate-evals-fixtures validate-workflow-vocab validate-ship-safety validate-dogfooding-docs validate-context-resume validate-stage-tool-boundaries validate-adapter-config validate-advisory-contract validate-behavior-guardrails validate-markdown-links telemetry telemetry-collect telemetry-aggregate usage-audit
 
 PYTHON ?= python3
 
@@ -30,6 +30,17 @@ validate: validate-no-python validate-slim-surface validate-ci-workflows validat
 
 validate-evals: validate-evals-json validate-eval-files validate-evals-fixtures
 	@echo "OK: eval fixture validation bundle passed"
+
+CODEX_LOCAL_PLUGIN_DIR ?= .codex/plugins/forgeflow
+
+install-codex-local:
+	@set -eu; \
+	dest="$${CODEX_LOCAL_PLUGIN_DIR:-$(CODEX_LOCAL_PLUGIN_DIR)}"; \
+	rm -rf "$$dest"; \
+	mkdir -p "$$dest"; \
+	cp -a .codex-plugin/plugin.json skills templates "$$dest"; \
+	printf 'Installed ForgeFlow Codex local plugin to %s\n' "$$dest"; \
+	printf 'Run from the target project root, then restart Codex App/CLI session if needed.\n'
 
 demo:
 	@tmp="$$(mktemp -d)"; \

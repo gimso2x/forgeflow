@@ -1,15 +1,19 @@
 # ForgeFlow
 
+[![validate](https://github.com/gimso2x/forgeflow/actions/workflows/validate.yml/badge.svg)](https://github.com/gimso2x/forgeflow/actions/workflows/validate.yml) [![evals](https://github.com/gimso2x/forgeflow/actions/workflows/evals.yml/badge.svg)](https://github.com/gimso2x/forgeflow/actions/workflows/evals.yml)
+
 ForgeFlow는 AI coding agent를 위한 artifact-first delivery workflow입니다.
 채팅 기억에 의존하지 않고 **명시적인 markdown 산출물, 프롬프트 기반 게이트, 독립 review**로 작업하게 만듭니다.
 
-ForgeFlow에는 coding agent behavior guardrails도 포함됩니다: assumption surfacing, simplicity-first implementation, surgical diffs, goal-driven verification. 이 규칙은 clarify/plan/execute 단계에서는 advisory로 작동하고, review 단계에서는 `assumption-risk`, `overengineering`, `scope-creep`, `unverified-success`, `drive-by-refactor` finding으로 검출할 수 있습니다. 로컬 focused 검증은 `make validate-behavior-guardrails`입니다.
+ForgeFlow에는 coding agent behavior guardrails도 포함됩니다: 숨은 가정 드러내기(assumption surfacing), 단순한 구현 우선(simplicity-first implementation), 필요한 범위만 고치는 국소 diff(surgical diffs), 목표 기준 검증(goal-driven verification). 이 규칙은 clarify/plan/execute 단계에서는 advisory로 작동하고, review 단계에서는 `assumption-risk`, `overengineering`, `scope-creep`, `unverified-success`, `drive-by-refactor` finding으로 검출할 수 있습니다. 로컬 focused 검증은 `make validate-behavior-guardrails`입니다.
 
 ## 누가 왜 쓰나
 
 - AI 코딩 에이전트로 **실제 프로덕션 코드**를 작성하는 개발자
 - 에이전트의 작업을 **검증 가능한 산출물**로 추적하고 싶은 팀
 - "에이전트가 뭘 했는지 모르겠다"는 문제를 해결하고 싶은 사람
+
+English quickstart: [README_en.md](README_en.md)
 
 ## 30초 퀵스타트
 
@@ -29,6 +33,23 @@ gemini extensions list
 ```
 
 `gemini extensions update forgeflow`는 확인 프롬프트가 뜰 수 있어 자동화에서는 위처럼 명시 승인 입력을 파이프합니다. 업데이트 후 `gemini extensions list`에서 `forgeflow`가 보이는지 확인합니다. 로컬 checkout에서 검증하거나 개발 중인 버전을 연결할 때는 `gemini extensions validate .` 후 `gemini extensions link .`를 사용합니다. Gemini extension manifest는 루트 `GEMINI.md`를 context file로 로드합니다.
+
+**Cursor (로컬 플러그인):**
+
+ForgeFlow repo checkout을 Cursor 로컬 플러그인으로 연결한 뒤 Cursor에서 `Developer: Reload Window`를 실행합니다. Cursor는 콜론(`:`)이 없는 짧은 slash command를 씁니다.
+
+```bash
+mkdir -p ~/.cursor/plugins/local
+ln -s /path/to/forgeflow ~/.cursor/plugins/local/forgeflow
+```
+
+```text
+/clarify   로그인 페이지에 소셜 로그인 버튼 추가
+/ff-plan
+/execute
+/ff-review
+/ship
+```
 
 **Codex (CLI + Codex App):**
 
@@ -58,19 +79,16 @@ codex plugin add forgeflow@forgeflow
 
 이미 예전 로컬 marketplace(`forgeflow@local-codex-plugins`)로 설치했다면 중복 skill 노출을 피하려고 새 `forgeflow@forgeflow`만 enabled 상태로 남기는 것을 권장합니다. Codex App 재시작 후 새 대화에서 `/forgeflow:clarify <작업>`처럼 호출하면 됩니다.
 
-*방법 2 — 로컬 복사:*
+*방법 2 — 로컬 설치 타겟:*
 
-대상 프로젝트 루트에서 실행하세요. ForgeFlow repo나 Codex plugin cache 안에서 실행하면 산출물이 잘못된 위치에 생길 수 있습니다.
+대상 프로젝트 루트에서 실행하세요. ForgeFlow repo나 Codex plugin cache 안에서 실행하면 산출물이 잘못된 위치에 생길 수 있습니다. 수동 `cp -R` 대신 Make target이 `plugin.json`, `skills/`, `templates/`를 한 번에 복사하므로 숨김 파일/심볼릭 링크 처리 실수를 줄일 수 있습니다.
 
 ```bash
-mkdir -p .codex/plugins/forgeflow
-cp -R /path/to/forgeflow/.codex-plugin/plugin.json \
-      /path/to/forgeflow/skills \
-      /path/to/forgeflow/templates \
-      .codex/plugins/forgeflow/
+# 대상 프로젝트 루트에서
+make -C /path/to/forgeflow install-codex-local CODEX_LOCAL_PLUGIN_DIR="$PWD/.codex/plugins/forgeflow"
 ```
 
-업데이트할 때는 같은 `cp -R` 명령을 다시 실행해 `plugin.json`, `skills/`, `templates/`를 함께 갱신합니다.
+업데이트할 때도 같은 명령을 다시 실행합니다. 기본 설치 위치는 `.codex/plugins/forgeflow`입니다.
 
 *방법 3 — 개발용 심볼릭 링크:*
 
@@ -83,25 +101,7 @@ ln -s /path/to/forgeflow .codex/plugins/forgeflow
 
 **Codex App + WSL:** WSL 안의 `codex plugin marketplace add /path/to/forgeflow`와 `codex plugin add forgeflow@forgeflow`가 기준입니다. Windows 쪽 앱 UI는 재시작 후 해당 WSL Codex 설정에서 enabled plugin을 읽습니다.
 
-**Cursor (로컬 플러그인):**
-
-```bash
-mkdir -p ~/.cursor/plugins/local
-ln -s /path/to/forgeflow ~/.cursor/plugins/local/forgeflow
-# Cursor: Developer: Reload Window
-```
-
-Agent chat에서 스킬을 호출합니다. Cursor는 콜론(`:`)이 없는 짧은 이름을 사용합니다.
-
-```text
-/clarify   로그인 페이지에 소셜 로그인 버튼 추가
-/ff-plan
-/execute
-/ff-review
-/ship
-```
-
-Claude/Codex의 `/forgeflow:clarify` 등과 동일한 스킬입니다. 매핑은 [skills/forgeflow/SKILL.md](skills/forgeflow/SKILL.md)를 참고하세요.
+Cursor의 `/clarify` 등은 Claude/Codex의 `/forgeflow:clarify` 등과 동일한 스킬입니다. 매핑은 [skills/forgeflow/SKILL.md](skills/forgeflow/SKILL.md)를 참고하세요.
 
 **설치 위치와 작업 위치를 분리하세요.** Claude/Codex/Gemini/Cursor의 plugin 또는 extension은 각 도구의 설치/cache 위치에 둘 수 있지만, `/forgeflow:clarify` 같은 실제 workflow 명령은 변경하려는 프로젝트 루트에서 실행해야 합니다. 기본 task 산출물은 repo 안이 아니라 `~/.forgeflow/projects/<project-slug>/tasks/<task-id>/`에 기록됩니다. plugin/cache 디렉토리에서 실행 중이면 `--task-dir ~/.forgeflow/projects/<project-slug>/tasks/<task-id>`처럼 명시 경로를 지정해 산출물이 대상 프로젝트 저장소에 기록되게 하세요.
 
@@ -382,6 +382,8 @@ ForgeFlow 설정
 
 어댑터별 CLI 플래그, 타임아웃, 감지 방법: [docs/adapter-config.md](docs/adapter-config.md)
 
+루트에는 현재 marketplace/extension 호환성을 위해 `.claude-plugin/`, `.codex-plugin/`, `.cursor-plugin/`, `.gemini`, `.agents`, `plugins/`, `gemini-extension.json`가 남아 있습니다. 새 어댑터 surface를 추가하거나 정리할 때는 [docs/adapter-layout.md](docs/adapter-layout.md)의 `adapters/` 수렴 원칙을 따릅니다.
+
 ## Release version policy
 
 루트 `VERSION` 파일을 단일 버전 기준으로 사용합니다.
@@ -484,7 +486,7 @@ make validate-evals
 make validate-evals-json validate-eval-files validate-evals-fixtures
 ```
 
-각 focused target은 exit code 0이면 통과이며, 실패 시 어떤 계약이 깨졌는지 출력합니다. 특히 [첫 성공 데모](#첫-성공-데모)는 provider/plugin 없이 산출물 위치를 확인하는 안전한 smoke입니다. push/PR에서는 `.github/workflows/validate.yml`의 `validate` workflow가 전체 `make validate`를, `.github/workflows/evals.yml`의 `evals` workflow가 eval fixture 계약(`make validate-evals`; 내부적으로 `validate-evals-json`, `validate-eval-files`, `validate-evals-fixtures`)을 검사합니다. eval fixture를 추가하거나 수정할 때는 [evals/README.md](evals/README.md)의 로컬 체크리스트를 따릅니다.
+각 focused target은 exit code 0이면 통과이며, 실패 시 어떤 계약이 깨졌는지 출력합니다. 특히 [첫 성공 데모](#첫-성공-데모)는 provider/plugin 없이 산출물 위치를 확인하는 안전한 smoke입니다. push/PR에서는 상단 badge와 연결된 `.github/workflows/validate.yml`의 `validate` workflow가 전체 `make validate`를, `.github/workflows/evals.yml`의 `evals` workflow가 eval fixture 계약(`make validate-evals`; 내부적으로 `validate-evals-json`, `validate-eval-files`, `validate-evals-fixtures`)을 검사합니다. 두 workflow 모두 read-only `contents: read` permissions를 사용합니다. eval fixture를 추가하거나 수정할 때는 [evals/README.md](evals/README.md)의 로컬 체크리스트를 따릅니다.
 
 ### 첫 성공 데모
 
