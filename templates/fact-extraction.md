@@ -9,7 +9,7 @@ Extract a fact when:
 
 | # | Signal | Fact Type | Example |
 |---|--------|-----------|---------|
-| 1 | Architectural choice in decision-log | `decision` | "상태 관리는 서버 컴포넌트에서 계산, 클라이언트는 표현만" |
+| 1 | Architectural choice in implementation-notes | `decision` | "상태 관리는 서버 컴포넌트에서 계산, 클라이언트는 표현만" |
 | 2 | Hard constraint discovered | `constraint` | "이 프로젝트는 pnpm만 사용, npm/yarn 금지" |
 | 3 | User-stated preference | `preference` | "에러 메시지는 한국어로 작성" |
 | 4 | Reusable pattern that worked | `pattern` | "범위 수정은 항상 git diff로 확인 후 적용" |

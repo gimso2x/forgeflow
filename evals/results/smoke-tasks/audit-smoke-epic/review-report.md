@@ -52,7 +52,7 @@ Epic route requires milestone, plan, execute, separate review evidence, ship, an
 ## Evidence Classification
 - **Observed evidence**: This persisted audit report file exists and now records a concrete `changes_requested` judgment.
 - **Reported evidence**: None available in this smoke result directory.
-- **Missing evidence**: `brief.md`, `roadmap.md`, `plan.md`, `implementation-notes.md`, `run-ledger.md`, command output, and independent code/artifact inspection evidence.
+- **Missing evidence**: `brief.md`, `roadmap.md`, `plan.md`, `implementation-notes.md`, `ledger.md`, command output, and independent code/artifact inspection evidence.
 
 ## Open Blockers
 - Missing milestone, execution, and verification evidence required to approve epic-route completion.

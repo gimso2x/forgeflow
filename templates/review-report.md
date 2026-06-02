@@ -62,7 +62,7 @@ Behavioral guardrail finding categories may include `assumption-risk`, `overengi
 - **Confidence**: <!-- HIGH | MEDIUM | LOW | CONFLICT -->
 - **Priority**: <!-- p1 | p2 | p3 | p4; p1=must fix, p2=strongly recommended, p3=recommended, p4=minor -->
 - **Criteria Basis**: <!-- plan.md Review Criteria / coding convention / ADR / brief acceptance criterion / active rule -->
-- **Evidence Source**: <!-- observed file/diff/artifact/command/source label, e.g. git diff, file-read:path, run-ledger.md -->
+- **Evidence Source**: <!-- observed file/diff/artifact/command/source label, e.g. git diff, file-read:path, ledger.md -->
 - **Evidence Level**: <!-- observed | reported | missing -->
 - **Description**:
 - **Evidence**:
@@ -144,7 +144,7 @@ Behavioral guardrail finding categories may include `assumption-risk`, `overengi
 ## Execute 마이크로 게이트 (Execute Micro-Gates)
 <!-- Pipeline mode, high/epic only. Standalone mode or small/medium: delete this section. -->
 <!-- Per-step gates from execute; NOT a substitute for this review pass. -->
-<!-- Copy summary from implementation-notes Evidence (micro_spec:*, micro_quality:*) and run-ledger. -->
+<!-- Copy summary from implementation-notes Evidence (micro_spec:*, micro_quality:*) and ledger. -->
 <!-- Stage reviewer must re-verify; treat micro-gate results as reported evidence unless independently observed. -->
 
 - <!-- Plan step -->
@@ -156,7 +156,7 @@ Behavioral guardrail finding categories may include `assumption-risk`, `overengi
 ## 증거 분류 (Evidence Classification)
 <!-- Summarize evidence quality -->
 - **Observed evidence**: <!-- what was directly verified in THIS review turn -->
-- **Reported evidence**: <!-- executor claims, micro_spec/micro_quality from execute, run-ledger refs -->
+- **Reported evidence**: <!-- executor claims, micro_spec/micro_quality from execute, ledger refs -->
 - **Missing evidence**: <!-- what should exist but doesn't -->
 
 ## 열린 blocker (Open Blockers)

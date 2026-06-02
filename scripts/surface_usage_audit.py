@@ -32,7 +32,7 @@ ENTRYPOINTS = [
 ARTIFACTS = [
     "brief.md",
     "plan.md",
-    "run-ledger.md",
+    "ledger.md",
     "checkpoint.md",
     "implementation-notes.md",
     "review-report.md",

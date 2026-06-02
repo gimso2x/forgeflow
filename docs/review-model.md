@@ -64,7 +64,7 @@ Minimum bundle:
 - `brief.md`: objective, constraints, route, specialist profile
 - `plan.md`: task decomposition, acceptance mapping, Design Intent, Review Criteria
 - `implementation-notes.md`: implementation summary, deviations, metrics, verification
-- `run-ledger.md`: command와 gate evidence, 있으면 포함
+- `ledger.md`: command와 gate evidence, 있으면 포함
 - `review-report.md`: automated findings, blocker state, evidence classification
 - diff summary: changed files와 notable risk areas
 - discussion prompts: reviewer에게 물을 specific questions/tradeoffs

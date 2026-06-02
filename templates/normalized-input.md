@@ -16,7 +16,7 @@
 ### Evidence Item 1
 - **id**: <!-- e.g., E1; unique evidence ID, do not reuse for another item -->
 - **type**: <!-- diff | file | artifact | url | command_output | reported_summary | missing -->
-- **source**: <!-- gh pr diff <n> | git diff <range> | file-read:path | web_extract:url | run-ledger.md | etc. -->
+- **source**: <!-- gh pr diff <n> | git diff <range> | file-read:path | web_extract:url | ledger.md | etc. -->
 - **fetch_status**: <!-- success | partial | failed | not_applicable; must match input-source.md Evidence Source Map -->
 - **evidence_level**: <!-- observed | reported | missing -->
 - **truncated**: <!-- true | false -->

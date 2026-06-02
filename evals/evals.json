@@ -198,12 +198,12 @@
     {
       "id": 3,
       "name": "fan-out-execute-ledger",
-      "prompt": "You are executing a high-route ForgeFlow plan with fan-out/fan-in. Two independent plan steps ran in parallel via specialist subagents (Step A: src/api/auth.ts only; Step B: src/ui/login.tsx only). Both report DONE. Produce only the run-ledger.md fragment for both tasks after controller verification, plus one implementation-notes.md Evidence line each for micro_spec. Assume controller ran git diff --stat and step verification for both; spec micro-check PASS for both. Use Assignee discipline from skills/execute/SKILL.md.",
-      "expected_output": "Run-ledger entries with specialist assignees during work, done status with evidence refs, micro_spec:PASS per step, and no step marked done from self-report alone.",
+      "prompt": "You are executing a high-route ForgeFlow plan with fan-out/fan-in. Two independent plan steps ran in parallel via specialist subagents (Step A: src/api/auth.ts only; Step B: src/ui/login.tsx only). Both report DONE. Produce only the ledger.md fragment for both tasks after controller verification, plus one implementation-notes.md Evidence line each for micro_spec. Assume controller ran git diff --stat and step verification for both; spec micro-check PASS for both. Use Assignee discipline from skills/execute/SKILL.md.",
+      "expected_output": "Ledger entries with specialist assignees during work, done status with evidence refs, micro_spec:PASS per step, and no step marked done from self-report alone.",
       "files": [],
       "assertions": [
         {
-          "text": "Output includes run-ledger task entries for both parallel steps.",
+          "text": "Output includes ledger task entries for both parallel steps.",
           "type": "contains_all",
           "values": [
             "auth.ts",
@@ -230,7 +230,7 @@
           "value": "self-reported DONE"
         },
         {
-          "text": "Run-ledger shows Assignee specialist during work and transitions to worker on done (per Assignee discipline).",
+          "text": "Ledger shows Assignee specialist during work and transitions to worker on done (per Assignee discipline).",
           "type": "contains_all",
           "values": [
             "specialist",
@@ -252,7 +252,7 @@
     {
       "id": 4,
       "name": "review-micro-gates-table",
-      "prompt": "You are running /forgeflow:ff-review --type spec on a completed high-route task. implementation-notes.md contains: micro_spec:PASS step=Add auth handler, micro_spec:PASS step=Add login UI. run-ledger shows both steps done with Assignee specialist. Produce only the Execute Micro-Gates section and Evidence Classification reported-evidence bullet for review-report.md. Mark stage re-verified as no until you independently inspect code.",
+      "prompt": "You are running /forgeflow:ff-review --type spec on a completed high-route task. implementation-notes.md contains: micro_spec:PASS step=Add auth handler, micro_spec:PASS step=Add login UI. ledger shows both steps done with Assignee specialist. Produce only the Execute Micro-Gates section and Evidence Classification reported-evidence bullet for review-report.md. Mark stage re-verified as no until you independently inspect code.",
       "expected_output": "Execute Micro-Gates table with both steps, micro_spec PASS, reported evidence listing micro_* lines, and explicit that micro-gates are not approval without re-verification.",
       "files": [],
       "assertions": [
@@ -895,8 +895,8 @@
     {
       "id": 15,
       "name": "compact-resume-read-discipline",
-      "prompt": "A ForgeFlow execute session resumes after adapter-selected context refresh on a high-route task. The task directory has checkpoint.md, run-ledger.md, implementation-notes.md with Reader Summary/Evidence Index, and a 300-line plan.md. Produce only the resume preflight and next read actions. Be context-efficient and artifact-first; do not read every artifact from line 1 just to be safe.",
-      "expected_output": "Resume guidance that reads checkpoint.md first, uses the checkpoint Minimum Read Set, then reads run-ledger.md, implementation-notes.md Reader Summary/Evidence Index, and only the active plan section or named sections needed for the next action while avoiding a default full re-read.",
+      "prompt": "A ForgeFlow execute session resumes after adapter-selected context refresh on a high-route task. The task directory has checkpoint.md, ledger.md, implementation-notes.md with Reader Summary/Evidence Index, and a 300-line plan.md. Produce only the resume preflight and next read actions. Be context-efficient and artifact-first; do not read every artifact from line 1 just to be safe.",
+      "expected_output": "Resume guidance that reads checkpoint.md first, uses the checkpoint Minimum Read Set, then reads ledger.md, implementation-notes.md Reader Summary/Evidence Index, and only the active plan section or named sections needed for the next action while avoiding a default full re-read.",
       "files": [
         "skills/_shared/context-resume.md",
         "README.md"
@@ -926,7 +926,7 @@
           "text": "Output reads ledger and implementation notes summaries/evidence before full artifacts.",
           "type": "contains_all",
           "values": [
-            "run-ledger.md",
+            "ledger.md",
             "implementation-notes.md"
           ]
         },
@@ -1575,7 +1575,7 @@
       "id": 25,
       "name": "compact-resume-boundary",
       "prompt": "A ForgeFlow run is about to compact context immediately after checkpoint.md was updated during execute. Produce the compact-resume handoff note the next agent should use. It must preserve artifact-first resume order and avoid rereading the whole repo or trusting chat memory. Reference the shared context-resume rules and name the minimum artifacts to inspect before continuing.",
-      "expected_output": "A compact resume note that resumes from checkpoint.md, then run-ledger.md, then implementation-notes.md, limits repo rereads to necessary sections, and avoids chat-memory-only state.",
+      "expected_output": "A compact resume note that resumes from checkpoint.md, then ledger.md, then implementation-notes.md, limits repo rereads to necessary sections, and avoids chat-memory-only state.",
       "files": [
         "README.md",
         "skills/_shared/context-resume.md"
@@ -1587,10 +1587,10 @@
           "value": "checkpoint.md"
         },
         {
-          "text": "Output includes run-ledger.md and implementation-notes.md in the resume artifact set.",
+          "text": "Output includes ledger.md and implementation-notes.md in the resume artifact set.",
           "type": "contains_all",
           "values": [
-            "run-ledger.md",
+            "ledger.md",
             "implementation-notes.md"
           ]
         },
@@ -2482,7 +2482,7 @@
     {
       "id": 39,
       "name": "standalone-review-diff-input",
-      "prompt": "You are running /forgeflow:ff-review in standalone mode. No .forgeflow/tasks/ directory exists and no pipeline artifacts (brief.md, plan.md, implementation-notes.md, run-ledger.md) are present. The user provides the following unified diff as input:\n\n--- a/src/api/auth.ts\n+++ b/src/api/auth.ts\n@@ -12,6 +12,8 @@\n import { validateEmail } from './validators';\n+import { logEvent } from './logger';\n+// TODO: remove debug\n+console.log('login attempt', email);\n   const token = generateToken(user);\n+  logEvent('auth.success', { userId: user.id });\n   return { token, user };\n--- a/src/api/validators.ts\n+++ b/src/api/validators.ts\n@@ -5,3 +5,8 @@\n export function validateEmail(email: string): boolean {\n-  return /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email);\n+  if (!email || typeof email !== 'string') {\n+    return false;\n+  }\n+  const trimmed = email.trim();\n+  return /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(trimmed);\n }\n\nProduce only the review-report.md for this standalone review. Detect input type as diff, bootstrap a synthetic task directory, normalize input, and run the quality-reviewer. Do not include Execute Micro-Gates, Route Compliance, or Evolution Rule Review sections — they are not applicable in standalone mode. Do not auto-proceed to ship. The review report is the final artifact.",
+      "prompt": "You are running /forgeflow:ff-review in standalone mode. No .forgeflow/tasks/ directory exists and no pipeline artifacts (brief.md, plan.md, implementation-notes.md, ledger.md) are present. The user provides the following unified diff as input:\n\n--- a/src/api/auth.ts\n+++ b/src/api/auth.ts\n@@ -12,6 +12,8 @@\n import { validateEmail } from './validators';\n+import { logEvent } from './logger';\n+// TODO: remove debug\n+console.log('login attempt', email);\n   const token = generateToken(user);\n+  logEvent('auth.success', { userId: user.id });\n   return { token, user };\n--- a/src/api/validators.ts\n+++ b/src/api/validators.ts\n@@ -5,3 +5,8 @@\n export function validateEmail(email: string): boolean {\n-  return /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email);\n+  if (!email || typeof email !== 'string') {\n+    return false;\n+  }\n+  const trimmed = email.trim();\n+  return /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(trimmed);\n }\n\nProduce only the review-report.md for this standalone review. Detect input type as diff, bootstrap a synthetic task directory, normalize input, and run the quality-reviewer. Do not include Execute Micro-Gates, Route Compliance, or Evolution Rule Review sections — they are not applicable in standalone mode. Do not auto-proceed to ship. The review report is the final artifact.",
       "expected_output": "A standalone review-report.md that detects diff input, bootstraps a synthetic task directory under .forgeflow/tasks/standalone-*, includes Standalone Input Source with Input Type diff, runs quality-reviewer, identifies debug artifacts (console.log, TODO) as findings, notes the improved validation in validators.ts, skips inapplicable pipeline-mode sections, and does not auto-ship.",
       "files": [
         "skills/ff-review/SKILL.md",
@@ -2575,7 +2575,7 @@
     {
       "id": 40,
       "name": "standalone-review-file-bundle",
-      "prompt": "You are running /forgeflow:ff-review in standalone mode. No .forgeflow/tasks/ directory exists and no pipeline artifacts (brief.md, plan.md, implementation-notes.md, run-ledger.md) are present. The user provides two local file paths as input:\n\n1. src/utils/string-helpers.ts — a utility module with string manipulation functions\n2. src/utils/string-helpers.test.ts — a unit test file for the utility module\n\nBoth files exist on disk. The user says: \"Review these two files for code quality and test coverage.\"\n\nProduce only the review-report.md for this standalone review. Detect input type as file-bundle, bootstrap a synthetic task directory, normalize input (auto-generate brief from file names and user description), and run the quality-reviewer. Since the input is a file bundle of code and tests, also trigger spec-reviewer checks against the auto-generated brief. Do not include Execute Micro-Gates, Route Compliance, or Evolution Rule Review sections — they are not applicable in standalone mode. Do not auto-proceed to ship. The review report is the final artifact.",
+      "prompt": "You are running /forgeflow:ff-review in standalone mode. No .forgeflow/tasks/ directory exists and no pipeline artifacts (brief.md, plan.md, implementation-notes.md, ledger.md) are present. The user provides two local file paths as input:\n\n1. src/utils/string-helpers.ts — a utility module with string manipulation functions\n2. src/utils/string-helpers.test.ts — a unit test file for the utility module\n\nBoth files exist on disk. The user says: \"Review these two files for code quality and test coverage.\"\n\nProduce only the review-report.md for this standalone review. Detect input type as file-bundle, bootstrap a synthetic task directory, normalize input (auto-generate brief from file names and user description), and run the quality-reviewer. Since the input is a file bundle of code and tests, also trigger spec-reviewer checks against the auto-generated brief. Do not include Execute Micro-Gates, Route Compliance, or Evolution Rule Review sections — they are not applicable in standalone mode. Do not auto-proceed to ship. The review report is the final artifact.",
       "expected_output": "A standalone review-report.md that detects file-bundle input type, bootstraps a synthetic task directory under .forgeflow/tasks/standalone-*, includes Standalone Input Source with Input Type file-bundle, auto-generates a brief from file names and user description, runs quality-reviewer and spec-reviewer, lists files in scope, skips inapplicable pipeline-mode sections, and does not auto-ship.",
       "files": [
         "skills/ff-review/SKILL.md",
@@ -2668,7 +2668,7 @@
     {
       "id": 41,
       "name": "standalone-review-github-pr-url",
-      "prompt": "You are running /forgeflow:ff-review in standalone mode. No .forgeflow/tasks/ directory exists and no pipeline artifacts (brief.md, plan.md, implementation-notes.md, run-ledger.md) are present. The user provides the following input:\n\nhttps://github.com/acme/webapp/pull/42\n\nThe PR title is \"Add password reset flow\" and the body says \"Implements /auth/reset-password endpoint with email verification and rate limiting. Closes #15.\" The PR changes 3 files: src/auth/reset.ts (new, 120 lines), src/auth/email.ts (modified, +30 lines), tests/auth/reset.test.ts (new, 80 lines). The diff adds a POST /auth/reset-password route, an email sending helper, and unit tests. No security-reviewer or perf-reviewer is explicitly requested.\n\nProduce only the review-report.md for this standalone review. Detect input type as URL (GitHub PR), bootstrap a synthetic task directory, normalize input (auto-generate brief from PR title and body, extract evidence as the full diff, scope as the 3 changed files), and run quality-reviewer and spec-reviewer. Since the changes touch authentication code, also trigger security-reviewer. Do not include Execute Micro-Gates, Route Compliance, or Evolution Rule Review sections — they are not applicable in standalone mode. Do not auto-proceed to ship. The review report is the final artifact.",
+      "prompt": "You are running /forgeflow:ff-review in standalone mode. No .forgeflow/tasks/ directory exists and no pipeline artifacts (brief.md, plan.md, implementation-notes.md, ledger.md) are present. The user provides the following input:\n\nhttps://github.com/acme/webapp/pull/42\n\nThe PR title is \"Add password reset flow\" and the body says \"Implements /auth/reset-password endpoint with email verification and rate limiting. Closes #15.\" The PR changes 3 files: src/auth/reset.ts (new, 120 lines), src/auth/email.ts (modified, +30 lines), tests/auth/reset.test.ts (new, 80 lines). The diff adds a POST /auth/reset-password route, an email sending helper, and unit tests. No security-reviewer or perf-reviewer is explicitly requested.\n\nProduce only the review-report.md for this standalone review. Detect input type as URL (GitHub PR), bootstrap a synthetic task directory, normalize input (auto-generate brief from PR title and body, extract evidence as the full diff, scope as the 3 changed files), and run quality-reviewer and spec-reviewer. Since the changes touch authentication code, also trigger security-reviewer. Do not include Execute Micro-Gates, Route Compliance, or Evolution Rule Review sections — they are not applicable in standalone mode. Do not auto-proceed to ship. The review report is the final artifact.",
       "expected_output": "A standalone review-report.md that detects URL input type (GitHub PR), bootstraps a synthetic task directory under .forgeflow/tasks/standalone-*, includes Standalone Input Source with Input Type url, Original Input the PR URL, auto-generates brief from PR title+body, runs quality-reviewer, spec-reviewer, and security-reviewer (triggered by auth code), lists all 3 changed files in scope, records source metadata (gh pr diff / gh pr view), skips inapplicable pipeline-mode sections, and does not auto-ship.",
       "files": [
         "skills/ff-review/SKILL.md",
@@ -2797,7 +2797,7 @@
     {
       "id": 42,
       "name": "standalone-review-repo-path",
-      "prompt": "You are running /forgeflow:ff-review in standalone mode. No .forgeflow/tasks/ directory exists and no pipeline artifacts (brief.md, plan.md, implementation-notes.md, run-ledger.md) are present. The user provides the following input:\n\n/home/projects/webapp\n\nThis is a local git repository. The current branch is feature/search. The working tree has uncommitted changes in 2 files: src/search/index.ts (+45 lines, new file) and src/search/utils.ts (+12 lines, modified). The diff adds a search indexing function and a text normalization utility. No branch range or commit SHA is specified. The repository has a package.json with a \"test\" script. No --type or --focus flags are provided.\n\nProduce only the review-report.md for this standalone review. Detect input type as repo path (current worktree), bootstrap a synthetic task directory, normalize input (auto-generate brief from working tree summary, extract evidence from git diff HEAD, scope as the 2 changed files), and run quality-reviewer and spec-reviewer (default standalone behavior). Do not include Execute Micro-Gates, Route Compliance, or Evolution Rule Review sections — they are not applicable in standalone mode. Do not auto-proceed to ship. The review report is the final artifact.",
+      "prompt": "You are running /forgeflow:ff-review in standalone mode. No .forgeflow/tasks/ directory exists and no pipeline artifacts (brief.md, plan.md, implementation-notes.md, ledger.md) are present. The user provides the following input:\n\n/home/projects/webapp\n\nThis is a local git repository. The current branch is feature/search. The working tree has uncommitted changes in 2 files: src/search/index.ts (+45 lines, new file) and src/search/utils.ts (+12 lines, modified). The diff adds a search indexing function and a text normalization utility. No branch range or commit SHA is specified. The repository has a package.json with a \"test\" script. No --type or --focus flags are provided.\n\nProduce only the review-report.md for this standalone review. Detect input type as repo path (current worktree), bootstrap a synthetic task directory, normalize input (auto-generate brief from working tree summary, extract evidence from git diff HEAD, scope as the 2 changed files), and run quality-reviewer and spec-reviewer (default standalone behavior). Do not include Execute Micro-Gates, Route Compliance, or Evolution Rule Review sections — they are not applicable in standalone mode. Do not auto-proceed to ship. The review report is the final artifact.",
       "expected_output": "A standalone review-report.md that detects input type as repo path, bootstraps a synthetic task directory under .forgeflow/tasks/standalone-*, includes Standalone Input Source with Input Type repo, Original Input the local path, auto-generates brief from working tree summary (Review of working tree in <repo>), runs quality-reviewer and spec-reviewer, lists both changed files in scope, records source metadata (git diff HEAD / file read), skips inapplicable pipeline-mode sections, and does not auto-ship.",
       "files": [
         "skills/ff-review/SKILL.md",
@@ -2917,7 +2917,7 @@
     {
       "id": 43,
       "name": "standalone-review-existing-artifact",
-      "prompt": "You are running /forgeflow:ff-review in standalone mode. The user provides the following input:\n\n.forgeflow/tasks/ship-updates-20260514/\n\nThis is a path to an existing ForgeFlow task directory containing pipeline artifacts (brief.json, checkpoint.json, implementation-notes.md, run-ledger.md, etc.). No prior pipeline context is assumed — the review is invoked independently. The task was a documentation update for a project. The --type flag is not provided. Produce only the review-report.md for this standalone review. Detect input type as existing artifact (type 5: path to a .forgeflow/tasks/ directory), bootstrap a synthetic task directory, normalize input (auto-generate brief from the artifact content, read all artifacts found inside for context, extract evidence from artifact files), and run quality-reviewer and spec-reviewer with default standalone behavior. Do not include Execute Micro-Gates, Route Compliance, or Evolution Rule Review sections — they are not applicable in standalone mode. Do not auto-proceed to ship.",
+      "prompt": "You are running /forgeflow:ff-review in standalone mode. The user provides the following input:\n\n.forgeflow/tasks/ship-updates-20260514/\n\nThis is a path to an existing ForgeFlow task directory containing pipeline artifacts (brief.json, checkpoint.json, implementation-notes.md, ledger.md, etc.). No prior pipeline context is assumed — the review is invoked independently. The task was a documentation update for a project. The --type flag is not provided. Produce only the review-report.md for this standalone review. Detect input type as existing artifact (type 5: path to a .forgeflow/tasks/ directory), bootstrap a synthetic task directory, normalize input (auto-generate brief from the artifact content, read all artifacts found inside for context, extract evidence from artifact files), and run quality-reviewer and spec-reviewer with default standalone behavior. Do not include Execute Micro-Gates, Route Compliance, or Evolution Rule Review sections — they are not applicable in standalone mode. Do not auto-proceed to ship.",
       "expected_output": "A standalone review-report.md that detects input type as existing artifact, bootstraps a synthetic task directory, reads artifacts from the referenced task directory for evidence, includes Standalone Input Source with Input Type artifact (or existing artifact), runs quality-reviewer and spec-reviewer, scopes review to the artifact content and any referenced files that exist, skips inapplicable pipeline-mode sections, and does not auto-ship.",
       "files": [
         "skills/ff-review/SKILL.md",
@@ -3154,7 +3154,7 @@
     {
       "id": 45,
       "name": "standalone-review-ambiguous-input",
-      "prompt": "You are running /forgeflow:ff-review in standalone mode. No .forgeflow/tasks/ directory exists and no pipeline artifacts (brief.md, plan.md, implementation-notes.md, run-ledger.md) are present. The user provides the following input:\n\n\"Check if the thing looks good\"\n\nThis input is a vague natural-language string. It is not a URL (no https:// or http:// prefix), not a repo path (no .git/ directory or git worktree context), not a diff/patch (no --- a/, +++ b/, @@ markers), not a file bundle (no file paths), and not an existing artifact path (no .forgeflow/tasks/ reference). According to the review skill input type detection, this is ambiguous input (type 6).\n\nProduce only the review-report.md for this standalone review attempt.\nThe review must detect that the input is ambiguous and cannot be classified into any of the 5 known input types (URL, repo path, diff/patch, file bundle, existing artifact). Per the review skill contract, when no input type matches, the review should record a blocked status, explain that the input cannot be classified, and request clarification from the user. Do not guess the input type or proceed with wrong assumptions. Do not fabricate evidence.",
+      "prompt": "You are running /forgeflow:ff-review in standalone mode. No .forgeflow/tasks/ directory exists and no pipeline artifacts (brief.md, plan.md, implementation-notes.md, ledger.md) are present. The user provides the following input:\n\n\"Check if the thing looks good\"\n\nThis input is a vague natural-language string. It is not a URL (no https:// or http:// prefix), not a repo path (no .git/ directory or git worktree context), not a diff/patch (no --- a/, +++ b/, @@ markers), not a file bundle (no file paths), and not an existing artifact path (no .forgeflow/tasks/ reference). According to the review skill input type detection, this is ambiguous input (type 6).\n\nProduce only the review-report.md for this standalone review attempt.\nThe review must detect that the input is ambiguous and cannot be classified into any of the 5 known input types (URL, repo path, diff/patch, file bundle, existing artifact). Per the review skill contract, when no input type matches, the review should record a blocked status, explain that the input cannot be classified, and request clarification from the user. Do not guess the input type or proceed with wrong assumptions. Do not fabricate evidence.",
       "expected_output": "A standalone review-report.md that records the input as ambiguous/unclassifiable, sets the verdict to blocked, explains that none of the 5 input types match, and requests the user to clarify the input type. The report must not fabricate evidence or guess an input type.",
       "files": [
         "skills/ff-review/SKILL.md",
@@ -3331,8 +3331,8 @@
     {
       "id": 48,
       "name": "execute-refresh-between-tasks",
-      "prompt": "A ForgeFlow execute just completed Task 2 of a medium-route plan in an adapter-neutral run. checkpoint.md, run-ledger.md, and implementation-notes.md evidence are all updated on disk. Task 3 is next. Produce only the step-boundary checkpoint/resume note for Task 3. The core skill must work in both Claude Code and Codex, so it must not require a Claude-only slash command.",
-      "expected_output": "An adapter-neutral step-boundary note that records Task 3 as the real next Active Task, gives the checkpoint → run-ledger → implementation-notes → plan active task resume order, and continues under --auto unless context pressure is high. If refresh is needed, it mentions adapter-specific options such as Claude Code or Codex /compact for ordinary pressure, Claude Code /clear + /forgeflow:execute --resume for a full reset, and Codex /clear, /new, or fresh exec/session resume from checkpoint. It must not require Claude-only /clear or pending_clear in core workflow.",
+      "prompt": "A ForgeFlow execute just completed Task 2 of a medium-route plan in an adapter-neutral run. checkpoint.md, ledger.md, and implementation-notes.md evidence are all updated on disk. Task 3 is next. Produce only the step-boundary checkpoint/resume note for Task 3. The core skill must work in both Claude Code and Codex, so it must not require a Claude-only slash command.",
+      "expected_output": "An adapter-neutral step-boundary note that records Task 3 as the real next Active Task, gives the checkpoint → ledger → implementation-notes → plan active task resume order, and continues under --auto unless context pressure is high. If refresh is needed, it mentions adapter-specific options such as Claude Code or Codex /compact for ordinary pressure, Claude Code /clear + /forgeflow:execute --resume for a full reset, and Codex /clear, /new, or fresh exec/session resume from checkpoint. It must not require Claude-only /clear or pending_clear in core workflow.",
       "files": [
         "skills/execute/SKILL.md",
         "skills/_shared/context-resume.md",
@@ -3359,7 +3359,7 @@
           "type": "contains_all",
           "values": [
             "checkpoint",
-            "run-ledger",
+            "ledger",
             "implementation-notes"
           ]
         },
@@ -4001,7 +4001,7 @@
     {
       "id": 60,
       "name": "long-run-capture-decision-filter",
-      "prompt": "After shipping a high-route ForgeFlow task, the agent reviews artifacts for long-run capture. The task produced: brief.md with scope and route, implementation-notes.md with 3 successful refactoring steps, run-ledger.md with micro_spec PASS entries, and review-report.md with no issues found. The agent also remembers that the user mentioned preferring coffee over tea during a break, and the user said the code style looks nice. Produce only the eval-record.md content. Apply the long-run capture decision gate: only preserve learning that is reusable outside the current task.",
+      "prompt": "After shipping a high-route ForgeFlow task, the agent reviews artifacts for long-run capture. The task produced: brief.md with scope and route, implementation-notes.md with 3 successful refactoring steps, ledger.md with micro_spec PASS entries, and review-report.md with no issues found. The agent also remembers that the user mentioned preferring coffee over tea during a break, and the user said the code style looks nice. Produce only the eval-record.md content. Apply the long-run capture decision gate: only preserve learning that is reusable outside the current task.",
       "expected_output": "An eval-record.md that captures the successful refactoring pattern as a reusable workflow pattern with evidence references, records the high-route completion outcome, and explicitly excludes the coffee preference, style compliment, and any session chatter. No evidence-less entries.",
       "files": [
         "skills/long-run/SKILL.md",
@@ -4028,11 +4028,11 @@
           ]
         },
         {
-          "text": "Output references concrete evidence from implementation-notes or run-ledger.",
+          "text": "Output references concrete evidence from implementation-notes or ledger.",
           "type": "contains_any",
           "values": [
             "implementation-notes",
-            "run-ledger",
+            "ledger",
             "micro_spec"
           ]
         },
@@ -4467,17 +4467,17 @@
     },
     {
       "id": 67,
-      "name": "plan-ledger-schema-validation",
-      "prompt": "A ForgeFlow plan skill has been invoked for a medium route task with task id eval-plan-ledger. The plan includes 3 items: add validator module (feature), update config (refactor), write docs (docs). Produce a plan-ledger.md artifact following templates/plan-ledger.md with schema plan-ledger/v1. Include all required frontmatter fields and at least one decision entry.",
-      "expected_output": "A plan-ledger.md artifact with YAML frontmatter containing schema: plan-ledger/v1, task_id, route, and total_items. The Items section lists 3 items with Type, Scope, Dependencies, and Estimate fields. The Decisions section has at least one entry.",
+      "name": "ledger-schema-validation",
+      "prompt": "A ForgeFlow plan skill has been invoked for a medium route task with task id eval-ledger. The plan includes 3 items: add validator module (feature), update config (refactor), write docs (docs). Produce a ledger.md artifact following templates/ledger.md with schema ledger/v1. Include all required frontmatter fields and at least one decision entry.",
+      "expected_output": "A ledger.md artifact with YAML frontmatter containing schema: ledger/v1, task_id, route, and total_items. The Items section lists 3 items with Type, Scope, Dependencies, and Estimate fields. The Decisions section has at least one entry.",
       "files": [
-        "templates/plan-ledger.md"
+        "templates/ledger.md"
       ],
       "assertions": [
         {
-          "text": "Output includes YAML frontmatter with schema: plan-ledger/v1.",
+          "text": "Output includes YAML frontmatter with schema: ledger/v1.",
           "type": "contains",
-          "value": "schema: plan-ledger/v1"
+          "value": "schema: ledger/v1"
         },
         {
           "text": "Output includes task_id in frontmatter.",
@@ -4550,17 +4550,17 @@
     },
     {
       "id": 68,
-      "name": "decision-log-schema-validation",
-      "prompt": "During ForgeFlow clarify stage, the agent selected route high for task id eval-decision-log after considering medium and high. The key decision was whether to use TDD or test-after. Produce a decision-log.md artifact following templates/decision-log.md with schema decision-log/v1. Include the route selection decision and the testing approach decision.",
-      "expected_output": "A decision-log.md artifact with YAML frontmatter containing schema: decision-log/v1 and task_id. Contains at least two decision entries (D-001 and D-002), each with Context, Options (A and B), Chosen, Rationale, Stage, and Reversible fields.",
+      "name": "implementation-notes-schema-validation",
+      "prompt": "During ForgeFlow clarify stage, the agent selected route high for task id eval-implementation-notes after considering medium and high. The key decision was whether to use TDD or test-after. Produce a implementation-notes.md artifact following templates/implementation-notes.md with schema implementation-notes/v1. Include the route selection decision and the testing approach decision.",
+      "expected_output": "A implementation-notes.md artifact with YAML frontmatter containing schema: implementation-notes/v1 and task_id. Contains at least two decision entries (D-001 and D-002), each with Context, Options (A and B), Chosen, Rationale, Stage, and Reversible fields.",
       "files": [
-        "templates/decision-log.md"
+        "templates/implementation-notes.md"
       ],
       "assertions": [
         {
-          "text": "Output includes YAML frontmatter with schema: decision-log/v1.",
+          "text": "Output includes YAML frontmatter with schema: implementation-notes/v1.",
           "type": "contains",
-          "value": "schema: decision-log/v1"
+          "value": "schema: implementation-notes/v1"
         },
         {
           "text": "Output includes task_id in frontmatter.",
@@ -5739,7 +5739,7 @@
           "type": "not_contains_any",
           "values": [
             "missing implementation-notes.md",
-            "missing run-ledger.md",
+            "missing ledger.md",
             "missing plan.md",
             "missing brief.md"
           ]
@@ -5819,7 +5819,7 @@
           "type": "not_contains_any",
           "values": [
             "missing implementation-notes.md",
-            "missing run-ledger.md",
+            "missing ledger.md",
             "missing plan.md",
             "missing brief.md",
             "micro-gates required"
@@ -5904,7 +5904,7 @@
           "type": "not_contains_any",
           "values": [
             "missing implementation-notes.md",
-            "missing run-ledger.md",
+            "missing ledger.md",
             "missing plan.md",
             "missing brief.md"
           ]
@@ -5926,7 +5926,7 @@
     {
       "id": 95,
       "name": "standalone-review-local-path-boundary",
-      "prompt": "A user runs /forgeflow:ff-review --type all ./src/payments from outside any ForgeFlow task directory. There is no brief.md, plan.md, implementation-notes.md, or run-ledger.md. Produce only the standalone normalization summary and review-report scope/evidence preamble. Scope the review to the local path, require concrete file inspection evidence before findings or approval, and do not require pipeline artifacts or claim provider/plugin E2E execution.",
+      "prompt": "A user runs /forgeflow:ff-review --type all ./src/payments from outside any ForgeFlow task directory. There is no brief.md, plan.md, implementation-notes.md, or ledger.md. Produce only the standalone normalization summary and review-report scope/evidence preamble. Scope the review to the local path, require concrete file inspection evidence before findings or approval, and do not require pipeline artifacts or claim provider/plugin E2E execution.",
       "expected_output": "Standalone review creates synthetic standalone artifacts for a local path input, scopes review to ./src/payments, records path/file inspection as the needed observed evidence, skips missing pipeline artifacts and execute micro-gates, and avoids provider/plugin E2E overclaims.",
       "files": [
         "skills/ff-review/SKILL.md",
@@ -5969,7 +5969,7 @@
           "type": "not_contains_any",
           "values": [
             "missing implementation-notes.md",
-            "missing run-ledger.md",
+            "missing ledger.md",
             "missing plan.md",
             "missing brief.md"
           ]
@@ -6075,7 +6075,7 @@
           "type": "not_contains_any",
           "values": [
             "missing implementation-notes.md",
-            "missing run-ledger.md",
+            "missing ledger.md",
             "missing plan.md",
             "provider E2E passed",
             "live plugin verified"
@@ -6142,7 +6142,7 @@
           "type": "not_contains_any",
           "values": [
             "missing implementation-notes.md",
-            "missing run-ledger.md",
+            "missing ledger.md",
             "missing plan.md",
             "missing brief.md",
             "micro-gates required"
@@ -6222,7 +6222,7 @@
           "type": "not_contains_any",
           "values": [
             "missing implementation-notes.md",
-            "missing run-ledger.md",
+            "missing ledger.md",
             "missing plan.md",
             "missing brief.md",
             "pipeline artifacts required"
@@ -6256,7 +6256,7 @@
     {
       "id": 99,
       "name": "standalone-review-generated-file-boundary",
-      "prompt": "A user runs /forgeflow:ff-review --standalone and pastes a diff containing generated files dist/bundle.js and coverage/lcov.info plus a hand-written change src/payment.ts that removes an authorization check. Produce only the standalone review Findings and Evidence Classification fragments. Do not require plan.md, implementation-notes.md, run-ledger.md, or other pipeline artifacts.",
+      "prompt": "A user runs /forgeflow:ff-review --standalone and pastes a diff containing generated files dist/bundle.js and coverage/lcov.info plus a hand-written change src/payment.ts that removes an authorization check. Produce only the standalone review Findings and Evidence Classification fragments. Do not require plan.md, implementation-notes.md, ledger.md, or other pipeline artifacts.",
       "expected_output": "A standalone review fragment that treats generated artifacts as low-signal or out of scope, focuses the finding on src/payment.ts authorization regression, classifies the pasted diff as observed input for standalone review, and does not block on missing pipeline artifacts.",
       "files": [
         "skills/ff-review/SKILL.md",
@@ -6309,7 +6309,7 @@
           "type": "not_contains_any",
           "values": [
             "missing implementation-notes.md",
-            "missing run-ledger.md",
+            "missing ledger.md",
             "missing plan.md",
             "missing brief.md",
             "pipeline artifacts required"
@@ -6406,7 +6406,7 @@
             "src/billing.ts inspected",
             "src/audit.ts inspected",
             "missing implementation-notes.md",
-            "missing run-ledger.md",
+            "missing ledger.md",
             "missing plan.md",
             "provider E2E passed",
             "live plugin verified"
@@ -6473,7 +6473,7 @@
           "type": "not_contains_any",
           "values": [
             "missing implementation-notes.md",
-            "missing run-ledger.md",
+            "missing ledger.md",
             "missing plan.md",
             "missing brief.md",
             "pipeline artifacts required"
@@ -6566,7 +6566,7 @@
           "type": "not_contains_any",
           "values": [
             "missing implementation-notes.md",
-            "missing run-ledger.md",
+            "missing ledger.md",
             "missing plan.md",
             "missing brief.md",
             "pipeline artifacts required"
@@ -6656,7 +6656,7 @@
           "type": "not_contains_any",
           "values": [
             "missing implementation-notes.md",
-            "missing run-ledger.md",
+            "missing ledger.md",
             "missing plan.md",
             "missing brief.md",
             "pipeline artifacts required"
@@ -6755,7 +6755,7 @@
           "values": [
             "plan.md is required",
             "implementation-notes.md is required",
-            "run-ledger.md is required",
+            "ledger.md is required",
             "missing pipeline artifacts block standalone review"
           ]
         },
@@ -6847,7 +6847,7 @@
           "type": "not_contains_any",
           "values": [
             "missing implementation-notes.md",
-            "missing run-ledger.md",
+            "missing ledger.md",
             "missing plan.md",
             "missing brief.md",
             "pipeline artifacts required"
@@ -6944,7 +6944,7 @@
           "type": "not_contains_any",
           "values": [
             "missing implementation-notes.md",
-            "missing run-ledger.md",
+            "missing ledger.md",
             "missing plan.md",
             "missing brief.md",
             "pipeline artifacts required"
@@ -7045,7 +7045,7 @@
           "type": "not_contains_any",
           "values": [
             "missing implementation-notes.md",
-            "missing run-ledger.md",
+            "missing ledger.md",
             "missing plan.md",
             "missing brief.md",
             "pipeline artifacts required"
@@ -7139,7 +7139,7 @@
           "type": "not_contains_any",
           "values": [
             "missing implementation-notes.md",
-            "missing run-ledger.md",
+            "missing ledger.md",
             "missing plan.md",
             "missing brief.md",
             "pipeline artifacts required"
@@ -7231,7 +7231,7 @@
           "type": "not_contains_any",
           "values": [
             "missing implementation-notes.md",
-            "missing run-ledger.md",
+            "missing ledger.md",
             "missing plan.md",
             "missing brief.md",
             "pipeline artifacts required"
@@ -7324,7 +7324,7 @@
           "type": "not_contains_any",
           "values": [
             "missing implementation-notes.md",
-            "missing run-ledger.md",
+            "missing ledger.md",
             "missing plan.md",
             "missing brief.md",
             "pipeline artifacts required"
@@ -7417,7 +7417,7 @@
           "type": "not_contains_any",
           "values": [
             "missing implementation-notes.md",
-            "missing run-ledger.md",
+            "missing ledger.md",
             "missing plan.md",
             "missing brief.md",
             "pipeline artifacts required"
@@ -7510,7 +7510,7 @@
           "type": "not_contains_any",
           "values": [
             "missing implementation-notes.md",
-            "missing run-ledger.md",
+            "missing ledger.md",
             "missing plan.md",
             "missing brief.md",
             "pipeline artifacts required"
@@ -7604,7 +7604,7 @@
           "type": "not_contains_any",
           "values": [
             "missing implementation-notes.md",
-            "missing run-ledger.md",
+            "missing ledger.md",
             "missing plan.md",
             "missing brief.md",
             "pipeline artifacts required"
@@ -7698,7 +7698,7 @@
           "type": "not_contains_any",
           "values": [
             "missing implementation-notes.md",
-            "missing run-ledger.md",
+            "missing ledger.md",
             "missing plan.md",
             "missing brief.md",
             "pipeline artifacts required"

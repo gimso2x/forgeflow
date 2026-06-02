@@ -93,7 +93,7 @@ When the user selects **full init (프로젝트 컨텍스트 draft)** from the `
    - Rust: built-in `cargo test`
    - Go: built-in `go test`
 5. **Detect team structure**: Look for `CONTRIBUTING.md`, `CODEOWNERS`, `.github/PULL_REQUEST_TEMPLATE.md` to infer roles and review policy.
-6. **Detect reusable project context pointers**: Look for stable project guidance and planning sources, including `README.md`, `AGENTS.md`, `CLAUDE.md`, `docs/`, `spec*`, `prd*`, `architecture*`, `roadmap*`, `wbs*`, `milestone*`, and ADR/decision-log files. Prefer repo-relative paths and short decision labels over long copied prose.
+6. **Detect reusable project context pointers**: Look for stable project guidance and planning sources, including `README.md`, `AGENTS.md`, `CLAUDE.md`, `docs/`, `spec*`, `prd*`, `architecture*`, `roadmap*`, `wbs*`, `milestone*`, and ADR/implementation-notes files. Prefer repo-relative paths and short decision labels over long copied prose.
 7. **Generate `.forgeflow/project-draft.md`** using `templates/project-draft.md` as the template, filling in all detected values. Set `generated` to the current ISO date. Set `schema` to `project-draft/v1`.
 8. **Redact sensitive values**: Never copy token, API key, credential, private key, or secret values into `.forgeflow/project-draft.md`. It is acceptable to point to the policy or env var name without the value.
 9. **Present the draft** to the user and ask them to review, correct stale assumptions, and add missing planning/architecture/WBS pointers before proceeding.

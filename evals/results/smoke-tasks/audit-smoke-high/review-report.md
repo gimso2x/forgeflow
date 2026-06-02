@@ -52,7 +52,7 @@ High route requires separate spec and quality review evidence. This smoke artifa
 ## Evidence Classification
 - **Observed evidence**: This persisted audit report file exists and now records a concrete `changes_requested` judgment.
 - **Reported evidence**: None available in this smoke result directory.
-- **Missing evidence**: `brief.md`, `plan.md`, `implementation-notes.md`, `run-ledger.md`, command output, and independent code/artifact inspection evidence.
+- **Missing evidence**: `brief.md`, `plan.md`, `implementation-notes.md`, `ledger.md`, command output, and independent code/artifact inspection evidence.
 
 ## Open Blockers
 - Missing task artifacts and verification output required to approve high-route completion.

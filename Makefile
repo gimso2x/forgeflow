@@ -20,7 +20,7 @@ TEMPLATES := \
 	eval-record.md \
 	roadmap.md \
 	checkpoint.md \
-	run-ledger.md \
+	ledger.md \
 	evolution-rule.md \
 	ship-summary.md
 
@@ -36,7 +36,7 @@ demo:
 	mkdir -p "$$task_dir"; \
 	cp templates/brief.md "$$task_dir/brief.md"; \
 	cp templates/plan.md "$$task_dir/plan.md"; \
-	cp templates/run-ledger.md "$$task_dir/run-ledger.md"; \
+	cp templates/ledger.md "$$task_dir/ledger.md"; \
 	cp templates/checkpoint.md "$$task_dir/checkpoint.md"; \
 	cp templates/implementation-notes.md "$$task_dir/implementation-notes.md"; \
 	cp templates/review-report.md "$$task_dir/review-report.md"; \
@@ -52,7 +52,7 @@ validate-demo:
 	trap 'rm -rf "$$tmp"' EXIT; \
 	task_dir="$$tmp/.forgeflow/tasks/demo-small"; \
 	mkdir -p "$$task_dir"; \
-	for artifact in brief.md plan.md run-ledger.md checkpoint.md implementation-notes.md review-report.md ship-summary.md; do \
+	for artifact in brief.md plan.md ledger.md checkpoint.md implementation-notes.md review-report.md ship-summary.md; do \
 		cp "templates/$$artifact" "$$task_dir/$$artifact"; \
 		test -s "$$task_dir/$$artifact" || { echo "ERROR: demo artifact missing or empty: $$artifact"; exit 1; }; \
 		grep -Fq "$$artifact" README.md || { echo "ERROR: README first-run demo docs must mention $$artifact"; exit 1; }; \

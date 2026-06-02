@@ -1,7 +1,7 @@
 {
   "name": "forgeflow",
   "displayName": "ForgeFlow",
-  "version": "1.11.1",
+  "version": "1.11.2",
   "description": "Artifact-first delivery workflow: clarify, plan, execute, review, ship through markdown artifacts with verification gates and independent review",
   "author": {
     "name": "gimso2x",

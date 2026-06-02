@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.11.2] - 2026-06-02
+
+### Added
+
+- **React 샘플 3개**: `examples/react-small`, `react-medium`, `react-large` — E2E 테스트 및 벤치마크용 프로젝트 추가.
+- `skills/audit-report.md`: 감사 리포트 스킬 추가.
+
+### Removed
+
+- `templates/decision-log.md`, `templates/plan-ledger.md`, `templates/run-ledger.md`: v1.11.1 통합 리팩터링에서 삭제된 레거시 템플릿 정리.
+
 ## [1.11.1] - 2026-06-01
 
 ### Changed
@@ -930,7 +941,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI gate with GitHub Actions workflow generation
 - Agent preset installer (Claude + Codex)
 
-[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v1.11.0...HEAD
+[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v1.11.2...HEAD
+[1.11.2]: https://github.com/gimso2x/forgeflow/compare/v1.11.1...v1.11.2
+[1.11.1]: https://github.com/gimso2x/forgeflow/compare/v1.11.0...v1.11.1
 [1.11.0]: https://github.com/gimso2x/forgeflow/compare/v1.10.1...v1.11.0
 [1.10.1]: https://github.com/gimso2x/forgeflow/compare/v1.10.0...v1.10.1
 [1.10.0]: https://github.com/gimso2x/forgeflow/compare/v1.9.4...v1.10.0

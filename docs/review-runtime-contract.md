@@ -240,7 +240,7 @@ If a finding requires code changes, report it and hand back to execute.
 ## Evidence levels
 
 - Observed evidence: directly inspected file content, diff, artifact, or command output from the current review turn.
-- Reported evidence: executor notes, CI summaries, previous agent claims, user summaries, or run-ledger claims not independently rerun.
+- Reported evidence: executor notes, CI summaries, previous agent claims, user summaries, or ledger claims not independently rerun.
 - Missing evidence: required artifact, diff, source, or verification command could not be obtained.
 
 Approval-grade review requires observed evidence for at least one relevant verification gate unless the report explicitly records why no such gate exists.

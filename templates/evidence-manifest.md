@@ -50,7 +50,7 @@
 ## Evidence Contract Statement
 
 <!-- Execute must fill: -->
-<!-- "이 evidence manifest는 run-ledger.md와 implementation-notes.md의 증거를 기반으로 작성되었으며, -->
+<!-- "이 evidence manifest는 ledger.md와 implementation-notes.md의 증거를 기반으로 작성되었으며, -->
 <!-- 모든 verification gate의 결과는 실제 명령 실행으로 확인되었습니다." -->
 
 ## Small Route Minimal Format

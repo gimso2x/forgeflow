@@ -7,7 +7,7 @@ These guardrails are advisory but should be considered during clarify, plan, exe
 ### 1. Think Before Coding
 
 - Surface assumptions before implementation.
-- If multiple interpretations exist, record the selected interpretation in `brief.md` or `decision-log.md`.
+- If multiple interpretations exist, record the selected interpretation in `brief.md` or `implementation-notes.md`.
 - If ambiguity changes files, data, security, or user-visible behavior, ask or block instead of guessing.
 
 ### 2. Simplicity First

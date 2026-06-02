@@ -109,7 +109,7 @@ Claude/Codex의 `/forgeflow:clarify` 등과 동일한 스킬입니다. 매핑은
 
 ### Context efficiency / refresh resume
 
-ForgeFlow는 artifact-first를 유지하면서 adapter-selected context refresh 후 재개 비용을 줄입니다. stage 경계 또는 checkpoint 갱신 직후에 context refresh가 안전합니다. 재개 시 `checkpoint.md` → `run-ledger.md` → `implementation-notes.md` 요약 → 필요한 섹션만 읽습니다. `checkpoint.md`의 `Handoff Boundary`는 현재 stage owner, 다음 owner, handoff reason, forbidden-action delegation을 기록해 역할/도구 경계가 refresh나 adapter 전환 중 흐려지지 않게 합니다. 어댑터별 명령 힌트는 [skills/_shared/context-resume.md](skills/_shared/context-resume.md)에만 둡니다.
+ForgeFlow는 artifact-first를 유지하면서 adapter-selected context refresh 후 재개 비용을 줄입니다. stage 경계 또는 checkpoint 갱신 직후에 context refresh가 안전합니다. 재개 시 `checkpoint.md` → `ledger.md` → `implementation-notes.md` 요약 → 필요한 섹션만 읽습니다. `checkpoint.md`의 `Handoff Boundary`는 현재 stage owner, 다음 owner, handoff reason, forbidden-action delegation을 기록해 역할/도구 경계가 refresh나 adapter 전환 중 흐려지지 않게 합니다. 어댑터별 명령 힌트는 [skills/_shared/context-resume.md](skills/_shared/context-resume.md)에만 둡니다.
 
 ### 공통 프로젝트 컨텍스트
 
@@ -202,7 +202,7 @@ raw_score = file_count*1.0 + estimated_lines*0.1 + requirement_count*2.0 + depen
 | ------------------------- | ---------------------------- | ------- |
 | `brief.md`                | 요구사항, 라우트, 제약사항   | 전체    |
 | `plan.md`                 | 작업 계획, 태스크 분해, 검증 | medium+ |
-| `run-ledger.md`           | 실행 상태 truth (pending/done) | execute |
+| `ledger.md`               | 실행 상태 truth (pending/done) | execute |
 | `checkpoint.md`           | 재개용 전술 포인터           | execute |
 | `implementation-notes.md` | 실행 진행, 결정 기록, 편차   | 전체    |
 | `input-source.md`         | standalone review 입력 출처/fetch 상태 | standalone review |
@@ -249,7 +249,7 @@ make usage-audit
 - **When:** high/epic, 승인된 `plan.md`, 독립 파일 스코프의 step
 - **Prompts:** `skills/execute/references/*.md`
 - **Not a substitute for** `/forgeflow:ff-review` — stage review는 여전히 필수
-- **Claim marker:** subagent/parallel pass를 시작하기 전에 `run-ledger.md`의 해당 task에 `Claim Marker: role=<...> scope=<...> at=<ISO8601>`를 기록합니다. Marker 기록 후 같은 task row를 다시 읽어 role/scope/timestamp가 그대로인지 확인한 뒤 진행합니다. 다른 claim이 보이면 덮어쓰지 말고 controller handoff로 중단합니다. Direct sequential controller work는 `Claim Marker: none`을 사용합니다.
+- **Claim marker:** subagent/parallel pass를 시작하기 전에 `ledger.md`의 해당 task에 `Claim Marker: role=<...> scope=<...> at=<ISO8601>`를 기록합니다. Marker 기록 후 같은 task row를 다시 읽어 role/scope/timestamp가 그대로인지 확인한 뒤 진행합니다. 다른 claim이 보이면 덮어쓰지 말고 controller handoff로 중단합니다. Direct sequential controller work는 `Claim Marker: none`을 사용합니다.
 
 자세한 절차는 [`skills/execute/SKILL.md`](skills/execute/SKILL.md)의 Subagent Per-Task Loop와 [`skills/forgeflow/SKILL.md`](skills/forgeflow/SKILL.md)의 Review depth by route를 참고하세요.
 

@@ -37,7 +37,7 @@ This artifact is generated at the target project root as `.forgeflow/project-dra
 
 ## Context Usage Rules
 - Treat this artifact as shared context only, not the task-specific source of truth.
-- `brief.md`, `plan.md`, `run-ledger.md`, and `implementation-notes.md` remain the source of truth for a specific task.
+- `brief.md`, `plan.md`, `ledger.md`, and `implementation-notes.md` remain the source of truth for a specific task.
 - Prefer repo-relative document pointers and short decision labels over copying long source documents into task artifacts.
 - `clarify`, `plan`, and `execute` should read only task-relevant sections and referenced source paths.
 - Before changing behavior, verify task-critical facts against the referenced source documents or code.
