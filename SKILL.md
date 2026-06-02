@@ -15,7 +15,7 @@ ForgeFlow는 Claude Code, Codex, Gemini CLI, Cursor를 위한 **artifact-first d
 
 ```text
 /forgeflow:clarify       → task workspace + brief.md + route
-/forgeflow:config        → settings menu + optional full init for .forgeflow/project-draft.md
+/forgeflow:config        → settings menu + optional full init for <storage-root>/project-draft.md
 /forgeflow:ff-plan       → plan.md (medium+; epic decomposition for epic route)
 /forgeflow:execute       → implementation-notes.md + code
 /forgeflow:ff-review     → review-report.md + optional Human Review Packet

@@ -1,16 +1,23 @@
 #!/usr/bin/env python3
-"""Aggregate .forgeflow/telemetry/ event logs into summary.md.
+"""Aggregate ForgeFlow telemetry event logs into summary.md.
 
-Reads all <task-id>.md files in .forgeflow/telemetry/, parses event blocks,
-and generates .forgeflow/telemetry/summary.md following templates/metrics-dashboard.md.
+Reads all <task-id>.md files in <storage-root>/telemetry/, parses event blocks,
+and generates <storage-root>/telemetry/summary.md following templates/metrics-dashboard.md.
 
 Usage:
     python3 scripts/telemetry_aggregate.py [--project-dir DIR]
+
+Default storage is global/project-scoped:
+    ~/.forgeflow/projects/<project-slug>/telemetry/
+
+Set FORGEFLOW_STORAGE_MODE=local for legacy <project>/.forgeflow/telemetry.
 """
 import pathlib
 import re
 import sys
 from collections import defaultdict
+
+from forgeflow_storage import telemetry_dir
 
 ROOT = pathlib.Path(".")
 
@@ -65,10 +72,10 @@ def _fmt_duration(seconds_str):
 
 
 def aggregate(project_dir):
-    tel_dir = project_dir / ".forgeflow" / "telemetry"
+    tel_dir = telemetry_dir(project_dir)
 
     if not tel_dir.exists():
-        print("OK: no .forgeflow/telemetry/ directory, nothing to aggregate")
+        print(f"OK: no telemetry directory at {tel_dir}, nothing to aggregate")
         return
 
     all_events = []
@@ -209,7 +216,7 @@ def aggregate(project_dir):
     summary_path = tel_dir / "summary.md"
     summary_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
-    print(f"OK: aggregated {len(all_events)} events from {total_tasks} tasks -> .forgeflow/telemetry/summary.md")
+    print(f"OK: aggregated {len(all_events)} events from {total_tasks} tasks -> {summary_path}")
 
 
 def main():

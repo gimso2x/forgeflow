@@ -3708,7 +3708,7 @@
     {
       "id": 55,
       "name": "config-isolation-toggle",
-      "prompt": "A ForgeFlow user runs /forgeflow:ff-config and selects the isolation toggle. The project currently has .forgeflow/defaults.md with isolation: false. The user wants to enable worktree isolation for execute stage. Produce only the updated .forgeflow/defaults.md content and the config response message.",
+      "prompt": "A ForgeFlow user runs /forgeflow:ff-config and selects the isolation toggle. The project currently has <storage-root>/defaults.md with isolation: false. The user wants to enable worktree isolation for execute stage. Produce only the updated <storage-root>/defaults.md content and the config response message.",
       "expected_output": "An updated defaults.md that sets isolation to true and a config response confirming the change, listing the current state of all settings, and noting that worktree isolation will take effect on the next execute run.",
       "files": [
         "skills/ff-config/SKILL.md"

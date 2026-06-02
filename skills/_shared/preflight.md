@@ -25,7 +25,7 @@ When acting as a ForgeFlow maintainer on this repository (cron loop, scheduled i
 ## Procedure
 
 1. Read `checkpoint.md` from the active task directory when present. Use its `Minimum Read Set`, `Next Action`, and `Blockers` before opening other artifacts.
-2. Identify the active task from checkpoint `Active Task` or the most recent `.forgeflow/tasks/<task-id>/` with artifacts.
+2. Identify the active task from checkpoint `Active Task` or the most recent `<task-dir>` with artifacts.
 3. Read `ledger.md` — active task row, Gate Results, Completion Summary. Cross-check claimed completion against ledger (ledger = execution truth).
 4. Read `implementation-notes.md` — **Reader Summary** and **Evidence Index** first; expand Decisions/Evidence sections only when findings require it.
 5. Expand other artifacts per checkpoint Minimum Read Set — **not** all files by default:

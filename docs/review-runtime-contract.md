@@ -114,7 +114,7 @@ If any checklist item cannot be satisfied, the adapter should still write `input
 Standalone review creates a synthetic task directory:
 
 ```text
-.forgeflow/tasks/standalone-<YYYYMMDD-HHMMSS>/
+<task-dir>
 ├── input-source.md
 ├── normalized-input.md
 └── review-report.md

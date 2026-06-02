@@ -25,7 +25,7 @@ Use this skill to turn a ForgeFlow brief or requirements document into an execut
 
 - `brief.md` from `/forgeflow:clarify`
 - Codebase context
-- Shared project context from `.forgeflow/project-draft.md` when present
+- Shared project context from `<storage-root>/project-draft.md` when present
 - Route selected by `/forgeflow:clarify`
 
 ## Output Artifacts
@@ -237,7 +237,7 @@ Do not proceed to `/forgeflow:execute` if one of those is missing for non-trivia
 
 Follow the user language rules there: write user-facing replies and artifact prose in the user's primary language, while preserving canonical English labels, commands, paths, artifact filenames, and enum values.
 
-Write `plan.md` under `.forgeflow/tasks/<task-id>/`. If the task directory is missing, bootstrap it first. Do not downgrade planning into a chat transcript when the workflow expects artifacts.
+Write `plan.md` under `<task-dir>`. If the task directory is missing, bootstrap it first. Do not downgrade planning into a chat transcript when the workflow expects artifacts.
 
 ## Strict response constraints
 
@@ -329,8 +329,8 @@ Apply these synthesis heuristics to convert five-angle analysis into milestone b
 
 2. Inspect the repo for existing conventions, test patterns, and file structure.
 
-   - If `.forgeflow/project-draft.md` exists in the target project root, treat it as section-scoped shared context produced by `/forgeflow:ff-config init --mode=full`. Read only task-relevant sections such as `Reusable Project Context`, `Documentation Pointers`, `Context Usage Rules`, and `Verification Conventions`. Use those pointers to reduce repeated discovery, but keep `brief.md` and `plan.md` as the task-specific source of truth.
-   - When adding resume guidance to `checkpoint.md`, include only the relevant `.forgeflow/project-draft.md` section names or source document paths, not the full common context content. Plans must not depend on copied project-draft prose when a repo-relative source document or code path can be referenced instead.
+   - If `<storage-root>/project-draft.md` exists in the target project root, treat it as section-scoped shared context produced by `/forgeflow:ff-config init --mode=full`. Read only task-relevant sections such as `Reusable Project Context`, `Documentation Pointers`, `Context Usage Rules`, and `Verification Conventions`. Use those pointers to reduce repeated discovery, but keep `brief.md` and `plan.md` as the task-specific source of truth.
+   - When adding resume guidance to `checkpoint.md`, include only the relevant `<storage-root>/project-draft.md` section names or source document paths, not the full common context content. Plans must not depend on copied project-draft prose when a repo-relative source document or code path can be referenced instead.
 
 3. **File Structure Mapping**: Before writing tasks, determine exactly which files will be created or modified:
    - Each file should have one clear responsibility
@@ -424,14 +424,14 @@ Return exactly the requested steps in the response. Do not create `plan.md` for 
 If asked:
 
 ```text
-/forgeflow:ff-plan Write plan.md under .forgeflow/tasks/<task-id>
+/forgeflow:ff-plan Write plan.md under resolved task directory (`~/.forgeflow/projects/<project-slug>/tasks/<task-id>` by default)
 ```
 
-Then and only then write `.forgeflow/tasks/<task-id>/plan.md`.
+Then and only then write `<task-dir>/plan.md`.
 
 ## Telemetry
 
-On completion of this stage, record a telemetry event to `.forgeflow/telemetry/<task-id>.md`:
+On completion of this stage, record a telemetry event to `<telemetry-dir>/<task-id>.md`:
 - **event**: `stage_complete` on success, `stage_fail` on error/failure
 - **stage**: plan
 - **outcome**: `success` | `partial` | `failed`

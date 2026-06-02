@@ -24,7 +24,7 @@ Use this skill to execute the selected ForgeFlow route.
 
 - `plan.md` or a clear small-route brief
 - `brief.md` from `/forgeflow:clarify`
-- Shared project context from `.forgeflow/project-draft.md` when the active plan references it
+- Shared project context from `<storage-root>/project-draft.md` when the active plan references it
 - Target repository
 
 ## Output Artifacts
@@ -67,7 +67,7 @@ Guidelines:
 
 The exit prompt and next-step guidance depend on the active route.
 
-**If `--auto` is active** (set via `--auto` flag, `.forgeflow/defaults.md` `auto: true`, `brief.md` `auto: true`, or user instruction — see `_shared/automation.md`): skip the route-specific prompt below and **call `Skill(skill: "forgeflow:ff-review", args: "--task-id <task-id>")` directly**. Do NOT just print the skill name or ask "(y/n)".
+**If `--auto` is active** (set via `--auto` flag, `<storage-root>/defaults.md` `auto: true`, `brief.md` `auto: true`, or user instruction — see `_shared/automation.md`): skip the route-specific prompt below and **call `Skill(skill: "forgeflow:ff-review", args: "--task-id <task-id>")` directly**. Do NOT just print the skill name or ask "(y/n)".
 
 **Otherwise**, prompt the user:
 
@@ -145,7 +145,7 @@ When a verification gate fails irrecoverably (3 attempts in bounded fix loop):
 
 Follow the user language rules there: write user-facing replies and artifact prose in the user's primary language, while preserving canonical English labels, commands, paths, artifact filenames, and enum values.
 
-Keep execution evidence in `.forgeflow/tasks/<task-id>/implementation-notes.md` and update it before and after code changes.
+Keep execution evidence in `<task-dir>/implementation-notes.md` and update it before and after code changes.
 
 Step state must be incremental, not a final recap. Each plan step must move through progress tracking: `pending -> in_progress -> completed`. Do not batch-mark all steps as `completed` only at the end. If a step cannot finish, mark it `blocked` with evidence instead of leaving the last known state ambiguous.
 
@@ -191,7 +191,7 @@ Minimum warning contract:
    - Completion Summary: Total Tasks: 1
 5. Write `checkpoint.md` from `templates/checkpoint.md` with `Current Stage: execute`, `Active Task: first pending task`, `Next Action: begin first plan step`.
 6. Read Contracts section from `plan.md` before editing when present.
-   - If `plan.md` or `brief.md` references `.forgeflow/project-draft.md`, treat it as section-scoped shared context produced by `/forgeflow:ff-config init --mode=full`: read the relevant section names and repo-relative pointers only, then verify task-critical facts against the referenced source files or code before changing behavior. Do not copy the whole draft into execute artifacts, and keep `ledger.md` and `implementation-notes.md` as the task-specific source of truth.
+   - If `plan.md` or `brief.md` references `<storage-root>/project-draft.md`, treat it as section-scoped shared context produced by `/forgeflow:ff-config init --mode=full`: read the relevant section names and repo-relative pointers only, then verify task-critical facts against the referenced source files or code before changing behavior. Do not copy the whole draft into execute artifacts, and keep `ledger.md` and `implementation-notes.md` as the task-specific source of truth.
    - **Environment safety net**: If `brief.md` lacks environment notes, run: `git rev-parse --is-inside-work-tree 2>/dev/null; ls node_modules .venv vendor 2>/dev/null | head -3`. If dependencies are missing and a package manager is detected:
      - **Under `--auto`**: install automatically using the detected package manager. Record the install command in `implementation-notes.md` Evidence. Do not stop or ask the user.
      - **Otherwise**: stop and ask: "종속성이 설치되지 않았습니다. 설치를 먼저 진행하시겠습니까?" Do NOT attempt installation yourself.
@@ -202,7 +202,7 @@ Minimum warning contract:
    - **Execute Implementation**: Implement minimal code to pass. Prefer the smallest implementation that satisfies the acceptance criteria.
    - **Context budget**: → `_shared/context-resume.md`. Execute addendum:
      - **Resume minimum read set**: `checkpoint.md` → `ledger.md` active task + Gate Results → `implementation-notes.md` Reader Summary + Evidence Index → active `plan.md` task section only.
-     - If the active task references `.forgeflow/project-draft.md`, read only the named section or repo-relative source pointers needed for that task. Do not copy the entire common project context into `implementation-notes.md`, `ledger.md`, or `checkpoint.md`.
+     - If the active task references `<storage-root>/project-draft.md`, read only the named section or repo-relative source pointers needed for that task. Do not copy the entire common project context into `implementation-notes.md`, `ledger.md`, or `checkpoint.md`.
      - Do not re-read a file already in context unless edited since. Before reading, ask: full content, Reader Summary, or specific section? Batch parallel tool calls where possible.
      - After each task completes, append compact evidence index line to `implementation-notes.md` Evidence (e.g. `evidence_index: task=T3 gates=build:PASS,lint:PASS`).
    - **Implementation Notes**: When a decision is made that was not in the plan, when the implementation deviates from the spec, when a tradeoff is chosen, or when an open question arises — **append an entry to `implementation-notes.md` immediately**. Do not batch these until the end.
@@ -507,7 +507,7 @@ Use the Agent tool with `references/implementer-prompt.md`. Required prompt fiel
 
 - Full plan step text (objective, files, acceptance criteria, verification)
 - `Files you MAY change` / `Files you MUST NOT change`
-- Task directory `.forgeflow/tasks/<task-id>/`
+- Task directory `<task-dir>`
 - Report format: `DONE` | `DONE_WITH_CONCERNS` | `NEEDS_CONTEXT` | `BLOCKED`
 
 **Red flags (never):**
@@ -593,7 +593,7 @@ After each plan step passes verification, run an iterative refinement loop on th
 
 ## Telemetry
 
-On completion of this stage, record a telemetry event to `.forgeflow/telemetry/<task-id>.md`:
+On completion of this stage, record a telemetry event to `<telemetry-dir>/<task-id>.md`:
 - **event**: `stage_complete` on success, `stage_fail` on error/failure
 - **stage**: execute
 - **outcome**: `success` | `partial` | `failed`

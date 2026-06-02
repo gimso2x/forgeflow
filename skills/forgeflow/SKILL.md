@@ -4,11 +4,11 @@ description: Artifact-first delivery workflow for AI coding agents. Routes work 
 version: 0.3.0
 author: gimso2x
 intent: Route user requests to the correct ForgeFlow stage skill and manage stage sequencing.
-inputs: User request text, .forgeflow/defaults.md (optional), existing task artifacts.
+inputs: User request text, <storage-root>/defaults.md (optional), existing task artifacts.
 outputs: Stage skill invocation with correct route, auto/isolation settings, and template root resolution.
 validate_prompt: |
   Must route to correct stage skill based on user input.
-  Must read .forgeflow/defaults.md when present for auto/isolation settings.
+  Must read <storage-root>/defaults.md when present for auto/isolation settings.
   Must resolve template root before reading any template.
   Must not invent artifact structure when templates are missing.
   Must follow route model (small/medium/high/epic) for stage sequencing.
@@ -74,7 +74,7 @@ Skills reference paths like `templates/brief.md`. Resolve the template root befo
    - Any path under `.codex/plugins` that ends with `forgeflow/templates/`
 3. When a template root is found, read `templates/<file>.md` relative to that root using the resolved absolute path.
 4. If no template root is found, stop and tell the user to install ForgeFlow locally or add `templates/` to the workspace. Do not invent artifact structure.
-5. Always write task artifacts under `<workspace>/.forgeflow/tasks/<task-id>/`, never under a plugin install or cache directory.
+5. Always write task artifacts under the resolved `<task-dir>` (`~/.forgeflow/projects/<project-slug>/tasks/<task-id>/` by default), never under a plugin install or cache directory.
 
 ## Script resolution (all adapters)
 
@@ -139,7 +139,7 @@ raw_score = file_count*1.0 + estimated_lines*0.1 + requirement_count*2.0 + depen
 
 ## Output Artifacts
 
-All artifacts are Markdown files written to `.forgeflow/tasks/<task-id>/`:
+All artifacts are Markdown files written to `<task-dir>`:
 
 - `brief.md` — clarified objective, constraints, risk, route (template: `templates/brief.md`)
 - `plan.md` — task decomposition with steps, verification, contracts (template: `templates/plan.md`)
@@ -166,7 +166,7 @@ Before choosing the next stage for an existing task, inspect the active task dir
 
 → Core rules: `_shared/discipline.md`.
 
-When artifacts are mentioned without an explicit path, assume `.forgeflow/tasks/<task-id>/`, not chat-only fallback.
+When artifacts are mentioned without an explicit path, assume `<task-dir>`, not chat-only fallback.
 
 ## Role Boundaries
 
@@ -281,33 +281,33 @@ If an adapter exceeds the safety ceiling, terminate the process and record the t
 ## Procedure
 
 1. Detect the adapter environment (see `docs/adapter-config.md`).
-2. **Read project defaults**: if `.forgeflow/defaults.md` exists in the project root, parse it for default settings. Supported fields: `auto` (bool), `isolation` (bool). See `docs/adapter-config.md` → Project Defaults.
+2. **Read project defaults**: if `<storage-root>/defaults.md` exists in the project root, parse it for default settings. Supported fields: `auto` (bool), `isolation` (bool). See `docs/adapter-config.md` → Project Defaults.
 3. **Handle `/forgeflow:ff-config`** (or `/ff-config` in Cursor): interactive project defaults manager (`--mode=full` for architecture draft generation via `templates/project-draft.md`).
-   1. Read `.forgeflow/defaults.md` if it exists. Show current settings. When missing, use hardcoded defaults: `auto: false`, `isolation: true`.
+   1. Read `<storage-root>/defaults.md` if it exists. Show current settings. When missing, use hardcoded defaults: `auto: false`, `isolation: true`.
    2. Present available options with current values:
       ```
       ForgeFlow 설정
 
       1. auto (자동 체이닝)       — 현재: 꺼짐   (기본값: 꺼짐)
       2. isolation (worktree 격리) — 현재: 켜짐   (기본값: 켜짐)
-      3. init (기본 scaffolding) — .forgeflow/defaults.md 생성
-      4. full init (프로젝트 컨텍스트 draft) — .forgeflow/project-draft.md 생성/갱신
+      3. init (기본 scaffolding) — <storage-root>/defaults.md 생성
+      4. full init (프로젝트 컨텍스트 draft) — <storage-root>/project-draft.md 생성/갱신
       5. prune (고아 워크트리 정리) — 현재: N개
       6. 종료
 
       번호를 선택하세요:
       ```
-   3. On selection 1 or 2, toggle the value (off→on, on→off). Create or update `.forgeflow/defaults.md`. Confirm the change.
+   3. On selection 1 or 2, toggle the value (off→on, on→off). Create or update `<storage-root>/defaults.md`. Confirm the change.
    4. On selection 3, run the basic init flow from `skills/ff-config/SKILL.md` Mode C.
-   5. On selection 4, run the full project context init flow from `skills/ff-config/SKILL.md` Mode B to detect project context and generate `.forgeflow/project-draft.md` from `templates/project-draft.md`.
+   5. On selection 4, run the full project context init flow from `skills/ff-config/SKILL.md` Mode B to detect project context and generate `<storage-root>/project-draft.md` from `templates/project-draft.md`.
    6. On selection 5, run the prune flow from `skills/ff-config/SKILL.md` Mode D.
    7. Supported fields: `auto` (`true`/`false`), `isolation` (`true`/`false`). Additional fields may be added in future versions.
-   8. Do **not** commit `.forgeflow/defaults.md` or `.forgeflow/project-draft.md` to git automatically — let the user decide.
+   8. Do **not** commit `<storage-root>/defaults.md` or `<storage-root>/project-draft.md` to git automatically — let the user decide.
 4. If the user provides a slash command (other than ff-config), route to the matching stage skill.
 5. If the user provides a free-form request, run `/forgeflow:clarify` to produce a brief with route selection.
 6. After clarify, follow the route's stage sequence (see Route model above).
 7. Each stage skill handles its own procedure, artifacts, and gates.
-8. Auto-chain priority: `--auto` CLI flag > `brief.md` `auto: true` > `.forgeflow/defaults.md` `auto: true` > default (`false`). When auto-chain is active, stage skills proceed without `(y/n)` prompts. See `_shared/automation.md` for chain sequence, **Strict auto-chain mode** checklist, and auto-break conditions.
+8. Auto-chain priority: `--auto` CLI flag > `brief.md` `auto: true` > `<storage-root>/defaults.md` `auto: true` > default (`false`). When auto-chain is active, stage skills proceed without `(y/n)` prompts. See `_shared/automation.md` for chain sequence, **Strict auto-chain mode** checklist, and auto-break conditions.
 
 ## Exit Condition
 

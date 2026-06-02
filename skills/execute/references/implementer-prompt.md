@@ -15,7 +15,7 @@ Task tool:
 
     ## Context
 
-    - Task directory: .forgeflow/tasks/<task-id>/
+    - Task directory: <task-dir>/
     - Route: [small | medium | high | epic]
     - Working directory: [repo path]
     - Files you MAY change: [exact paths]

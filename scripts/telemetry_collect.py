@@ -1,20 +1,24 @@
 #!/usr/bin/env python3
-"""Collect telemetry events from .forgeflow/tasks/ artifacts.
+"""Collect telemetry events from ForgeFlow task artifacts.
 
 Scans task directories for brief.md, plan.md, implementation-notes.md,
 review-report.md, and ship-summary.md. Extracts stage metadata and appends
-structured events to .forgeflow/telemetry/<task-id>.md.
+structured events to <storage-root>/telemetry/<task-id>.md.
 
 Usage:
     python3 scripts/telemetry_collect.py [--project-dir DIR]
 
-Creates .forgeflow/telemetry/ if missing. Appends only new events
-(not already recorded for the same task+stage+event combination).
+Default storage is global/project-scoped:
+    ~/.forgeflow/projects/<project-slug>/tasks/<task-id>/
+
+Set FORGEFLOW_STORAGE_MODE=local for legacy <project>/.forgeflow/tasks.
 """
 import pathlib
 import re
 import sys
 import datetime
+
+from forgeflow_storage import storage_root, tasks_dir, telemetry_dir
 
 ROOT = pathlib.Path(".")
 
@@ -233,18 +237,19 @@ def main():
         ROOT = pathlib.Path(sys.argv[2])
         project_dir = ROOT
 
-    tasks_dir = project_dir / ".forgeflow" / "tasks"
-    tel_dir = project_dir / ".forgeflow" / "telemetry"
+    task_root = tasks_dir(project_dir)
+    tel_dir = telemetry_dir(project_dir)
+    root = storage_root(project_dir)
 
-    if not tasks_dir.exists():
-        print("OK: no .forgeflow/tasks/ directory found, nothing to collect")
+    if not task_root.exists():
+        print(f"OK: no task directory found at {task_root}, nothing to collect")
         return
 
     tel_dir.mkdir(parents=True, exist_ok=True)
 
     total_events = 0
     total_tasks = 0
-    for task_dir in sorted(tasks_dir.iterdir()):
+    for task_dir in sorted(task_root.iterdir()):
         if not task_dir.is_dir():
             continue
         n = collect_task(task_dir, tel_dir)
@@ -253,7 +258,7 @@ def main():
             total_events += n
 
     if total_events > 0:
-        print(f"OK: collected {total_events} events from {total_tasks} tasks -> .forgeflow/telemetry/")
+        print(f"OK: collected {total_events} events from {total_tasks} tasks -> {tel_dir}")
     else:
         print("OK: telemetry up-to-date, no new events")
 

@@ -130,7 +130,7 @@ Covers role separation and blocker gate, but misses:
 ```yaml
 validate_prompt: |
   Must produce brief.md with route selection, scope boundary, and acceptance criteria.
-  Must bootstrap task workspace (.forgeflow/tasks/<task-id>/) if missing.
+  Must bootstrap task workspace (<task-dir>/) if missing.
   Must include WHERE grounding for non-trivial work.
   Must detect tech stack and auto-detect verification gates.
   Must not skip scope boundary definition or route rationale.
@@ -140,7 +140,7 @@ validate_prompt: |
 ```yaml
 validate_prompt: |
   Must route to correct stage skill based on user input.
-  Must read .forgeflow/defaults.md when present for auto/isolation settings.
+  Must read <storage-root>/defaults.md when present for auto/isolation settings.
   Must resolve template root before reading any template.
   Must not invent artifact structure when templates are missing.
 ```

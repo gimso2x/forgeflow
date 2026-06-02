@@ -199,7 +199,7 @@ specialist:
 
 #### 생성 산출물
 ```markdown
-# .forgeflow/project-draft.md
+# <storage-root>/project-draft.md
 ---
 schema: project-draft/v1
 generated: <date>
@@ -271,8 +271,8 @@ generated: <date>
 | ship | 마무리 시간 | cleanup + commit | merge 충돌, worktree 오류 |
 
 #### 산출물
-- `.forgeflow/telemetry/<task-id>.jsonl` — 태스크별 이벤트 로그
-- `.forgeflow/telemetry/summary.md` — 집계 리포트 (cron 또는 long-run에서 생성)
+- `~/.forgeflow/projects/<project-slug>/telemetry/<task-id>.jsonl` — 태스크별 이벤트 로그
+- `~/.forgeflow/projects/<project-slug>/telemetry/summary.md` — 집계 리포트 (cron 또는 long-run에서 생성)
 
 #### Metrics Dashboard (markdown)
 ```markdown

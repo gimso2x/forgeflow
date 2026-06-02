@@ -58,7 +58,7 @@ Evolution rule artifacts (optional, when reusable patterns are found):
 
 Post-review harness improvement tickets (optional, when human review surfaced process gaps):
 
-- `.forgeflow/tasks/<task-id>/harness-improvement-tickets.md` — ticket candidates extracted from human review discussion and artifacts; these are harness/docs/prompt improvements, not direct product-code edits.
+- `<task-dir>/harness-improvement-tickets.md` — ticket candidates extracted from human review discussion and artifacts; these are harness/docs/prompt improvements, not direct product-code edits.
 
 ## Exit Condition
 
@@ -238,7 +238,7 @@ Detect worktree isolation from `brief.md` Task Isolation section (`isolation: wo
 
 1. **Check for active git worktree**: `git worktree list` to find the worktree location, branch, and dirty state.
 2. **Do not remove or discard yet**: Before the user selects a finish option, record the worktree as preserved. `git worktree remove`, branch deletion, reset, and discard remain destructive actions that require the option-specific confirmation below.
-3. **If completed worker worktrees need merging**: Treat this as part of the eventual "Merge locally" path, not as an automatic preflight side effect. First verify worker artifacts under `.forgeflow/tasks/<id>/workers/`, then present the merge plan with the exact branch/path.
+3. **If completed worker worktrees need merging**: Treat this as part of the eventual "Merge locally" path, not as an automatic preflight side effect. First verify worker artifacts under `resolved task directory (`~/.forgeflow/projects/<project-slug>/tasks/<id>/` by default)workers/`, then present the merge plan with the exact branch/path.
 4. **If the user later chooses "Keep the branch as-is"**: Leave the worktree in place and note it as preserved in the finish report.
 
 ### Verify before branch disposition
@@ -509,7 +509,7 @@ Return exactly two ship checks. Do not add command equivalents, git actions, art
 
 ## Telemetry
 
-On completion of this stage, record a telemetry event to `.forgeflow/telemetry/<task-id>.md`:
+On completion of this stage, record a telemetry event to `<telemetry-dir>/<task-id>.md`:
 - **event**: `stage_complete` on success, `stage_fail` on error/failure
 - **stage**: ship
 - **outcome**: `success` | `partial` | `failed`
@@ -519,6 +519,6 @@ After successful ship completion, run telemetry aggregation:
 ```
 python3 scripts/telemetry_aggregate.py
 ```
-This refreshes `.forgeflow/telemetry/summary.md` with updated metrics.
+This refreshes `~/.forgeflow/projects/<project-slug>/telemetry/summary.md` (default resolved telemetry summary) with updated metrics.
 
 Follow `skills/_shared/discipline.md` Telemetry Event Recording for format details.

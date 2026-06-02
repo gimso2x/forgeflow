@@ -9,7 +9,7 @@ adapter_preset: <!-- recommended adapter -->
 
 ## Purpose
 
-This artifact is generated at the target project root as `.forgeflow/project-draft.md` by `/forgeflow:ff-config init --mode=full`. It is reusable project context for ForgeFlow tasks: a stable summary and repo-relative pointer index that lets future `clarify`, `plan`, and `execute` stages avoid repeated discovery without copying long source documents.
+This artifact is generated at the target project root as `<storage-root>/project-draft.md` by `/forgeflow:ff-config init --mode=full`. It is reusable project context for ForgeFlow tasks: a stable summary and repo-relative pointer index that lets future `clarify`, `plan`, and `execute` stages avoid repeated discovery without copying long source documents.
 
 ## Detected Context
 - **Language/Framework**: <!-- from package.json/pyproject.toml/Cargo.toml/go.mod -->
@@ -56,7 +56,7 @@ This artifact is generated at the target project root as `.forgeflow/project-dra
 - **Changelog**: <!-- repo-relative path for release/version context, if present -->
 
 ## Init Checklist
-- [ ] Defaults configured (.forgeflow/defaults.md)
+- [ ] Defaults configured (<storage-root>/defaults.md)
 - [ ] Adapter selected and configured
 - [ ] Product/planning document pointers reviewed
 - [ ] Architecture and contract pointers reviewed

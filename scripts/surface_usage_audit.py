@@ -9,7 +9,7 @@ Usage:
     python3 scripts/surface_usage_audit.py [--project-dir DIR] [--days 28]
 
 Output:
-    .forgeflow/telemetry/surface-usage-audit.md
+    ~/.forgeflow/projects/<project-slug>/telemetry/surface-usage-audit.md by default
 """
 import argparse
 import pathlib
@@ -17,6 +17,8 @@ import re
 import subprocess
 from collections import Counter
 from datetime import datetime, timezone
+
+import forgeflow_storage
 
 ENTRYPOINTS = [
     "clarify",
@@ -73,11 +75,11 @@ def _count_entrypoints(text):
 
 def _count_artifacts(project_dir):
     counts = Counter()
-    tasks_dir = project_dir / ".forgeflow" / "tasks"
+    tasks_dir = forgeflow_storage.tasks_dir(project_dir)
     if tasks_dir.exists():
         for artifact in ARTIFACTS:
             counts[artifact] = sum(1 for _ in tasks_dir.glob(f"**/{artifact}"))
-    tel_dir = project_dir / ".forgeflow" / "telemetry"
+    tel_dir = forgeflow_storage.telemetry_dir(project_dir)
     if tel_dir.exists():
         counts["telemetry-event.md"] += sum(1 for p in tel_dir.glob("*.md") if p.name != "summary.md")
         counts["metrics-dashboard.md"] += int((tel_dir / "summary.md").exists())
@@ -127,7 +129,7 @@ def audit(project_dir, days):
         "# ForgeFlow Surface Usage Audit",
         "",
         "## Summary",
-        f"- **Window**: last {days} days from git history plus current `.forgeflow/` artifacts",
+        f"- **Window**: last {days} days from git history plus current resolved task/telemetry artifacts",
         f"- **Most mentioned entrypoint**: `{top_entry[0]}` ({top_entry[1]})",
         f"- **Core entrypoints with recent slash mentions**: {active_core}/5",
         "- **Interpretation rule**: treat zero counts as a maintenance-review signal, not automatic removal approval.",
@@ -155,11 +157,11 @@ def audit(project_dir, days):
         "- [ ] If a surface remains low-use for two consecutive audits, either document why it stays or propose removal/merge.",
     ])
 
-    out_dir = project_dir / ".forgeflow" / "telemetry"
+    out_dir = forgeflow_storage.telemetry_dir(project_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     out = out_dir / "surface-usage-audit.md"
     out.write_text("\n".join(lines) + "\n", encoding="utf-8")
-    print(f"OK: wrote {out.relative_to(project_dir)}")
+    print(f"OK: wrote {out}")
 
 
 def main():

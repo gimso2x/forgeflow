@@ -227,7 +227,7 @@ Behavioral guardrail finding categories may include `assumption-risk`, `overengi
 
 ## 독립 모드 메타데이터 (Standalone Mode Metadata)
 <!-- Standalone mode only. Pipeline mode: delete this section. -->
-- **Synthetic Task Dir**: <!-- .forgeflow/tasks/standalone-<timestamp>/ -->
+- **Synthetic Task Dir**: <!-- <task-dir> (defaults to ~/.forgeflow/projects/<project-slug>/tasks/standalone-<timestamp>/) -->
 - **Input Source Artifact**: <!-- input-source.md path -->
 - **Normalized Input Artifact**: <!-- normalized-input.md path -->
 - **Review Triggered By**: <!-- direct user request | --type flag | auto-detected -->

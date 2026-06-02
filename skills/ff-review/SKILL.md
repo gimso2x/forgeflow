@@ -31,7 +31,7 @@ Review supports two entry modes. The detected mode determines which artifacts an
 
 ### Post-execute mode (pipeline)
 
-Review after execute stage. Requires pipeline artifacts from `.forgeflow/tasks/<id>/`:
+Review after execute stage. Requires pipeline artifacts from `resolved task directory (`~/.forgeflow/projects/<project-slug>/tasks/<id>/` by default)`:
 - `brief.md` from clarify stage
 - `plan.md` from plan stage
 - `implementation-notes.md` from execute stage
@@ -63,7 +63,7 @@ When in standalone mode, set `evidence_source` in `normalized-input.md` to recor
 
 ## Standalone Mode
 
-When review is invoked without prior clarify/plan/execute stages — no `.forgeflow/tasks/<id>/` with pipeline artifacts — it operates in **standalone mode**. The review becomes an independent inspection gate, not a pipeline post-step.
+When review is invoked without prior clarify/plan/execute stages — no `resolved task directory (`~/.forgeflow/projects/<project-slug>/tasks/<id>/` by default)` with pipeline artifacts — it operates in **standalone mode**. The review becomes an independent inspection gate, not a pipeline post-step.
 
 ### Input type detection
 
@@ -93,7 +93,7 @@ Detect input type by pattern, in this priority order:
    - Build evidence from file contents. Scope = the listed files.
    - **Failure handling**: If any file doesn't exist, record as `blocked: missing input file — <path>`. Do not skip silently.
 
-5. **Existing artifact** — Path to a `.forgeflow/tasks/` directory or specific artifact file (e.g., `review-report.md`, `implementation-notes.md`).
+5. **Existing artifact** — Path to a resolved `tasks/` directory directory or specific artifact file (e.g., `review-report.md`, `implementation-notes.md`).
    - Read the artifact. Use its content as evidence.
    - If it's a task directory, read all artifacts found inside for context.
    - **Failure handling**: If path doesn't exist, fall through to other detection. Do not assume artifact format.
@@ -105,7 +105,7 @@ Detect input type by pattern, in this priority order:
 When standalone mode is detected, create a synthetic task directory:
 
 ```
-.forgeflow/tasks/standalone-<YYYYMMDD-HHMMSS>/
+<task-dir>
 ├── input-source.md      # Raw input provenance (URL, path, diff metadata)
 ├── normalized-input.md   # Brief + evidence + scope + constraints (auto-generated)
 └── review-report.md      # Output (written during review)
@@ -557,7 +557,7 @@ All routes write a **single** `review-report.md` using `templates/review-report.
 
 Follow the user language rules there: write user-facing replies and artifact prose in the user's primary language, while preserving canonical English labels, commands, paths, artifact filenames, and enum values.
 
-Write `review-report.md` under `.forgeflow/tasks/<task-id>/`. If the task directory is missing, bootstrap or recover it first. A review that leaves no artifact is just vibes with punctuation.
+Write `review-report.md` under `<task-dir>`. If the task directory is missing, bootstrap or recover it first. A review that leaves no artifact is just vibes with punctuation.
 
 ## Strict response constraints
 
@@ -676,7 +676,7 @@ Review is read-only. It can run in either environment. If running in a worktree,
 
 ### Step 0 — Mode detection and routing
 
-**Pipeline mode detection**: If `brief.md`, `plan.md`, or `implementation-notes.md` exist in the active task directory (`.forgeflow/tasks/<id>/`), proceed in **pipeline mode** (steps 1-18 below).
+**Pipeline mode detection**: If `brief.md`, `plan.md`, or `implementation-notes.md` exist in the active task directory (`resolved task directory (`~/.forgeflow/projects/<project-slug>/tasks/<id>/` by default)`), proceed in **pipeline mode** (steps 1-18 below).
 
 **Standalone mode detection**: If only external input is provided (URL, diff, files, repo path), or if the user explicitly requests standalone review, enter **standalone mode** and follow the standalone procedure (steps S1-S10 below).
 
@@ -736,7 +736,7 @@ Do not merge spec and quality review passes into a single turn for high/epic wor
 
 S1. **Detect input type** — Apply input type detection rules (see Standalone Mode → Input type detection). If detection fails, ask the user to clarify. Do not proceed with a guess.
 
-S2. **Bootstrap synthetic task directory** — Create `.forgeflow/tasks/standalone-<YYYYMMDD-HHMMSS>/`. This directory is the task root. If `.forgeflow/` doesn't exist, create it (task directory only, no full workspace init).
+S2. **Bootstrap synthetic task directory** — Create `<task-dir>`. This directory is the task root. If `.forgeflow/` doesn't exist, create it (task directory only, no full workspace init).
 
 S3. **Fetch/extract input and record provenance** — For the detected type, execute the fetch command per Input type detection → per-type instructions. Write `input-source.md` to the synthetic task dir (type, original input, fetch command, result status, timestamp). On fetch failure: write `blocked` status to `input-source.md` and stop.
 
@@ -829,7 +829,7 @@ Return exactly two review checks. Do not add a verdict, extra commentary, or fil
 
 ## Telemetry
 
-On completion of this stage, record a telemetry event to `.forgeflow/telemetry/<task-id>.md`:
+On completion of this stage, record a telemetry event to `<telemetry-dir>/<task-id>.md`:
 - **event**: `stage_complete` on success, `stage_fail` on error/failure
 - **stage**: review
 - **outcome**: `success` | `partial` | `failed`

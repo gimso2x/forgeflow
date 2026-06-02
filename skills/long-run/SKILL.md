@@ -64,7 +64,7 @@ Do not capture:
 || `telemetry-event.md` | `templates/telemetry-event.md` | Per-task event log (stage transitions, token usage, boundary alerts) |
 || `metrics-dashboard.md` | `templates/metrics-dashboard.md` | Aggregated period report (stage duration, failure distribution, token cost, route distribution) |
 
-Write `.forgeflow/tasks/<task-id>/eval-record.md` following the format in `templates/eval-record.md`:
+Write `<task-dir>/eval-record.md` following the format in `templates/eval-record.md`:
 
 - **Outcome**: success | partial | failed
 - **What Worked**: specific patterns with evidence references
@@ -84,7 +84,7 @@ Long-run is responsible for writing per-task telemetry events and generating per
 
 ### Per-task event log
 
-Write `.forgeflow/telemetry/<task-id>.md` following `templates/telemetry-event.md`:
+Write `<telemetry-dir>/<task-id>.md` following `templates/telemetry-event.md`:
 
 - Record one event block per stage transition (stage_start, stage_complete, stage_fail).
 - Record token_usage events when token counts are available from the adapter.
@@ -93,7 +93,7 @@ Write `.forgeflow/telemetry/<task-id>.md` following `templates/telemetry-event.m
 
 ### Periodic summary report
 
-Generate `.forgeflow/telemetry/summary.md` following `templates/metrics-dashboard.md`:
+Generate `~/.forgeflow/projects/<project-slug>/telemetry/summary.md` (default resolved telemetry summary) following `templates/metrics-dashboard.md`:
 
 - Aggregate telemetry events across tasks within a reporting period (weekly or monthly).
 - Compute stage duration percentiles (p50, p90), failure distribution, token cost by adapter, worktree stability, and route distribution.
@@ -107,7 +107,7 @@ Every 2-4 weeks, run a usage audit before adding or preserving low-use public su
 make usage-audit
 ```
 
-This writes `.forgeflow/telemetry/surface-usage-audit.md` from recent git history plus current `.forgeflow/tasks/` and `.forgeflow/telemetry/` artifacts. Use it to answer:
+This writes `<telemetry-dir>/surface-usage-audit.md` from recent git history plus current resolved `tasks/` directory and resolved telemetry directory (`~/.forgeflow/projects/<project-slug>/telemetry/` by default) artifacts. Use it to answer:
 
 - Which `/forgeflow:*` entrypoints were actually mentioned recently?
 - Which task artifacts are actually being produced?
