@@ -35,6 +35,8 @@ evidence:     # concrete observed or reported material available to review
       type: diff | file | artifact | url | command_output | reported_summary | missing
       source: string
       fetch_status: success | partial | failed | not_applicable
+      fetched_at: string
+      freshness_status: current | stale | unknown
       content: string | null
       evidence_level: observed | reported | missing
       truncated: boolean
@@ -134,14 +136,14 @@ Standalone review creates a synthetic task directory:
 `normalized-input.md` should be created from `templates/normalized-input.md` and must include:
 
 - `brief`: explicit or inferred review target
-- `evidence`: each evidence item with a stable, unique evidence ID, source, fetch status, evidence level, and truncation/missing-evidence limitation note; its type/status/level must match the corresponding `input-source.md` Evidence Source Map row, and IDs must not be reused for different content
+- `evidence`: each evidence item with a stable, unique evidence ID, source, fetch status, fetched_at timestamp/run label, freshness status (`current`, `stale`, or `unknown`), evidence level, and truncation/missing-evidence limitation note; its type/status/freshness/level must match the corresponding `input-source.md` Evidence Source Map row, and IDs must not be reused for different content
 - `Evidence Gap Register`: every expected evidence class that is missing, partial, sampled, truncated out of trigger visibility, or blocked by fetch/auth/tool failure, with expected source, affected normalized field, affected reviewer roles, disposition (`blocked`, `limited`, or `not_applicable`), and reason; write `none` only when no known gap exists
 - `scope`: files/ranges/content boundaries reviewed, plus a `scope_source_map` tying every in-scope file, range, or content bound back to normalized evidence IDs or an explicit blocked/missing scope-evidence note
 - `constraints`: role, focus, exclusions, user rules, inferred rules, and any ignored adapter/user flags such as `--focus` losing to `--type`
 - `role trigger matrix`: every supported reviewer role marked `run`, `skipped`, or `blocked`, with the normalized evidence ID(s), route rule, explicit flag, or explicit non-trigger signal that made the routing decision
 - `role evidence map`: every active reviewer role mapped to the evidence IDs it may use, or `none — <reason>` when blocked/not triggered
 - Role routing consistency: every role listed in `constraints.roles` must be `run` or `blocked` in the role trigger matrix and must have either allowed evidence IDs or an explicit blocked rationale in the role evidence map; a role marked `run` must not be absent from `constraints.roles`.
-- `evidence integrity check`: every evidence ID cited by `constraints.roles`, the role trigger matrix, role evidence map, `scope_source_map`, or role input packets must resolve to exactly one normalized evidence item and to a matching `input-source.md` Evidence Source Map row for source, type, fetch status, and evidence level; missing, duplicated, mismatched, or stale references block reviewer judgment until corrected or explicitly limited
+- `evidence integrity check`: every evidence ID cited by `constraints.roles`, the role trigger matrix, role evidence map, `scope_source_map`, or role input packets must resolve to exactly one normalized evidence item and to a matching `input-source.md` Evidence Source Map row for source, type, fetch status, fetched_at/run label, freshness status, and evidence level; missing, duplicated, mismatched, stale-evidence, or stale packet references block reviewer judgment until corrected or explicitly limited
 - `role input packet readiness`: every active, blocked, or skipped reviewer role marked `READY`, `BLOCKED`, or `SKIPPED` based on whether trigger decision, evidence IDs, scope, constraints, limitations, and packet freshness are normalized before judgment; readiness must be refreshed after any Evidence Escalation Log entry, new evidence item, scope change, constraint change, or role-routing change
 - `role input packets`: for every `READY` or `BLOCKED` role, the exact trigger, evidence IDs, scope, constraints, limitations, and packet freshness handed to the role, copied from normalized fields rather than chat memory or hidden adapter state
 - `role capability hints`: optional advisory model/profile/tooling hints per reviewer role, recorded only for auditability; they must use capability language rather than provider-specific requirements and must not affect routing, evidence IDs, evidence levels, verdict enums, approval rules, or the human review gate

@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Standalone review normalized evidence에 `fetched_at`/`freshness_status`와 integrity `freshness_match`를 추가해 오래되거나 출처 시간이 불명확한 evidence가 승인 근거로 조용히 쓰이지 않도록 했습니다.
 - `make validate-stage-tool-boundaries`를 추가해 stage별 artifact ownership, adapter-neutral handoff 원칙, standalone review provenance artifact, review read-only posture가 `docs/stage-tool-boundaries.md`와 README에 유지되는지 검증합니다.
 - Standalone review `normalized-input.md` adapter handoff checklist에 `fetch_posture_constrained`를 추가하고 검증해, evidence fetch가 read-only/verification-only posture와 mutation check를 잃지 않도록 했습니다.
 - `make validate-advisory-contract`가 standalone review의 전체 reviewer role coverage(`architecture-reviewer` 포함)를 `Role trigger matrix`, `role evidence map`, `role input packet readiness`, `role input packets`, `role capability hints` 전 구간에서 검증하도록 강화했습니다.

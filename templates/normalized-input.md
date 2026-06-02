@@ -18,6 +18,8 @@
 - **type**: <!-- diff | file | artifact | url | command_output | reported_summary | missing -->
 - **source**: <!-- gh pr diff <n> | git diff <range> | file-read:path | web_extract:url | ledger.md | etc. -->
 - **fetch_status**: <!-- success | partial | failed | not_applicable; must match input-source.md Evidence Source Map -->
+- **fetched_at**: <!-- ISO8601 timestamp or run label from input-source.md; use not_applicable only for missing/unavailable evidence -->
+- **freshness_status**: <!-- current | stale | unknown; stale/unknown evidence must be visible in limitations and Evidence Gap Register when it can affect judgment -->
 - **evidence_level**: <!-- observed | reported | missing -->
 - **truncated**: <!-- true | false -->
 - **limitations**: <!-- none | auth/fetch failure | sampled | truncated:<N/M lines> | missing file | other visible limitation -->
@@ -64,9 +66,10 @@
 - **perf-reviewer**: <!-- E5 | none — not triggered -->
 
 ## evidence integrity check
-<!-- Complete after the role evidence map and before packet readiness. Every evidence ID cited by constraints.roles, the Role trigger matrix, role evidence map, scope_source_map, or role input packets must resolve to exactly one evidence item above and to one matching input-source.md Evidence Source Map row. Mismatched type/fetch_status/evidence_level, missing IDs, duplicated IDs, or stale packet references block reviewer judgment until normalized. -->
+<!-- Complete after the role evidence map and before packet readiness. Every evidence ID cited by constraints.roles, the Role trigger matrix, role evidence map, scope_source_map, or role input packets must resolve to exactly one evidence item above and to one matching input-source.md Evidence Source Map row. Mismatched type/fetch_status/fetched_at/freshness_status/evidence_level, missing IDs, duplicated IDs, stale evidence, or stale packet references block reviewer judgment until normalized or explicitly limited. -->
 - **id_resolution**: <!-- PASS | FAIL; every cited evidence ID exists exactly once in normalized-input.md -->
 - **source_map_match**: <!-- PASS | FAIL; type/fetch_status/evidence_level/source match input-source.md Evidence Source Map -->
+- **freshness_match**: <!-- PASS | FAIL; fetched_at/freshness_status match input-source.md timestamp/run label and no cited evidence is stale without a limitation/gap entry -->
 - **scope_map_coverage**: <!-- PASS | FAIL; every scope_source_map evidence ID resolves or records blocked/missing scope evidence -->
 - **role_map_coverage**: <!-- PASS | FAIL; every active role evidence ID resolves and matches the role trigger matrix -->
 - **packet_reference_freshness**: <!-- PASS | FAIL; role input packets do not cite removed, renamed, or superseded evidence IDs -->

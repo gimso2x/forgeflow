@@ -84,6 +84,7 @@ Behavioral guardrail finding categories may include `assumption-risk`, `overengi
 - Evidence requirements source: `skills/ff-review/references/role-checklists.md#evidence-requirements-by-role`
 - Role routing rationale: <!-- why each role ran or was skipped: route rule, --type/--focus flag, file-type heuristic, specialist trigger, or explicit non-trigger -->
 - Role evidence map: <!-- cite normalized-input.md role evidence map; active roles must use only listed evidence IDs or record newly normalized evidence first -->
+- Evidence freshness: <!-- cite normalized-input.md fetched_at/freshness_status and evidence integrity freshness_match; stale/unknown evidence must be limited or blocked before approval -->
 - Role input packet readiness: <!-- cite normalized-input.md role input packet readiness; active roles must be READY and current after the latest evidence/scope/constraint/routing change, or record blocked judgment -->
 - Role criteria basis summary: <!-- cite each active role's criteria_basis from normalized-input.md role input packets; role approvals cannot borrow another role's criteria basis -->
 - Role capability hints: <!-- cite normalized-input.md role capability hints when present; advisory only and must not affect routing, evidence IDs, evidence levels, verdict enums, approval rules, or Human Review Gate -->
@@ -114,6 +115,7 @@ Behavioral guardrail finding categories may include `assumption-risk`, `overengi
 - **Checklist Version**: <!-- exact `Checklist version: YYYY-MM-DD` value observed in the checklist file -->
 - **Criteria Basis Used**: <!-- role-specific basis from normalized-input.md criteria_basis; spec=requirement/spec source, quality=code/verification criteria, specialist=trigger/risk checklist -->
 - **Scope/Evidence IDs Inspected**: <!-- normalized-input evidence IDs, artifact names, paths, or diff ranges -->
+- **Evidence Freshness**: <!-- current | stale | unknown; cite fetched_at/run label from normalized-input.md and any stale-evidence limitation -->
 - **Observed Verification**: <!-- command(s) rerun in this review turn, or `none — <no-command rationale>` -->
 - **Limitations/Truncation Seen**: <!-- none | missing evidence | truncated evidence | auth/fetch failure | skipped scope -->
 - **Independence Check**: <!-- PASS | FAIL; role used normalized/observed evidence rather than implementer self-report or chat-only claims -->
