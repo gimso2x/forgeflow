@@ -36,13 +36,15 @@ Review has the strictest posture because it is an inspection gate. Keep `docs/re
 
 ## Escalation rule
 
-When a role or stage needs a forbidden action, record:
+When a role or stage needs a forbidden action, record the same boundary fields that `checkpoint.md` preserves across context refresh:
 
-- requested action
-- evidence or artifact that shows why it is needed
-- owning next stage (`execute`, `ff-review`, `ship`, or human decision)
+- current owner (stage/role that hit the boundary)
+- next owner / owning next stage (`execute`, `ff-review`, `ship`, or human decision)
+- handoff reason
+- requested/forbidden action
+- evidence or artifact trigger that shows why it is needed
 - blocker/limitation impact
 - explicit stop condition: whether the current stage must pause, continue with reduced scope, or invoke the owning next stage
-- artifact update location: the exact current artifact section that records the handoff (`checkpoint.md` Handoff Boundary, `review-report.md` Evidence Escalation Log, or the stage-owned notes/ledger section)
+- exact artifact update location: the current artifact section that records the handoff (`checkpoint.md` Handoff Boundary, `review-report.md` Evidence Escalation Log, or the stage-owned notes/ledger section)
 
 Then stop that action in the current stage. Do not silently continue with hidden state or side effects.
