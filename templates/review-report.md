@@ -28,6 +28,8 @@ scope_boundary:
 - **Input Type**: <!-- URL | repo | diff | file-bundle | artifact -->
 - **Original Input**: <!-- URL, path, or diff summary -->
 - **Fetch Status**: <!-- success | partial | failed -->
+- **Fetched At**: <!-- ISO8601 timestamp or run label from input-source.md -->
+- **Freshness Status**: <!-- current | stale | unknown; must match normalized-input.md evidence freshness -->
 - **Normalized Brief**: <!-- Auto-generated brief -->
 - **Scope**: <!-- Files/directories/commit range -->
 - **Constraints**: <!-- Review focus, excluded paths, additional rules -->

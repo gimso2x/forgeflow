@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Standalone review reports now surface `Fetched At` and `Freshness Status` in the reader-facing input-source summary, preserving stale/unknown evidence posture without requiring readers to reopen normalization artifacts.
 - README standalone review artifact contract now names `fetched_at`/`freshness_status` provenance and the cross-artifact evidence integrity match so user-facing setup docs cannot lag behind the runtime contract.
 - Standalone review `input-source.md` Evidence Source Map now mirrors per-evidence `fetched_at` and `freshness_status`, matching the normalized evidence integrity gate so stale or timestamp-mismatched evidence cannot pass handoff unnoticed.
 - Review skill guidance now names `fetch_posture_constrained` in the adapter handoff checklist and Adapter compliance summary, and advisory validation guards that the skill cannot drift behind the normalized-input template or runtime contract.
