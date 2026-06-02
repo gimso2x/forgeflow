@@ -62,6 +62,22 @@ Use in addition to the Quality Review rubric.
 - ☐ Functions are short and focused (≤30 lines recommended); longer functions are justified or split
 - ☐ Magic values (numbers, strings) are extracted to named constants or config
 
+### Deep Code Analysis (diff-level)
+
+→ 상세 가이드: `skills/ff-review/references/deep-code-analysis.md`
+
+diff가 있을 때 7-angle 분석을 수행한다:
+
+- ☐ **Line-by-line scan**: 각 hunk의 모든 줄 — inverted condition, off-by-one, null deref, missing await, falsy-zero, wrong-variable copy-paste, swallowed error
+- ☐ **Removed-behavior**: 삭제된 줄이 강제하던 불변식이 새 코드에서 재확립되는지 확인
+- ☐ **Cross-file**: 변경된 함수의 호출자/호출 대상이 깨지는지 확인
+- ☐ **Reuse**: 이미 존재하는 유틸리티/헬퍼를 재구현했는지
+- ☐ **Simplification**: 불필요한 복잡성, 중복 상태, 죽은 코드
+- ☐ **Efficiency**: 중복 계산, 불필요한 I/O, 핫 경로 블로킹
+- ☐ **Altitude**: 특수 케이스 겹침 vs 근본 메커니즘 일반화
+
+각 finding은 CONFIRMED/PLAUSIBLE 검증을 거친다.
+
 ### Behavioral Guardrail Review
 
 - ☐ Assumptions are explicit or harmless.

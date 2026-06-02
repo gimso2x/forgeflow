@@ -1,7 +1,7 @@
 ---
 name: ff-review
 description: Perform independent ForgeFlow review. Use as /ff-review or /forgeflow:ff-review — either after execute (pipeline mode) or directly with external input (standalone mode). Also use when the user says 'review this', 'audit changes', 'check implementation', 'code review', or 'review PR' in a ForgeFlow context.
-version: 0.5.0
+version: 0.6.0
 author: gimso2x
 validate_prompt: |
   Must preserve exact-output and dry-run constraints when requested.
@@ -11,6 +11,8 @@ validate_prompt: |
   Must handle standalone mode input detection (URL, repo, diff, files) and synthetic task directory bootstrapping.
   Must enforce evidence discipline — every finding must cite observed evidence, not inference.
   Must run artifact completeness gate before starting review.
+  Must apply 7-angle deep code analysis for quality-reviewer when diff/code input is available.
+  Must verify each finding as CONFIRMED or PLAUSIBLE before including in review report.
 dependencies:
   - skills/_shared/discipline.md
   - skills/_shared/isolation.md
@@ -204,6 +206,8 @@ In standalone mode, also fill `normalized-input.md` → `Role trigger matrix` be
 **Trigger**: Always runs in both pipeline and standalone mode.
 
 **Checklist source**: `skills/ff-review/references/role-checklists.md#quality-reviewer` (in addition to the Quality Review rubric).
+
+**Deep code analysis**: When diff/code input is available, apply the 7-angle analysis from `skills/ff-review/references/deep-code-analysis.md`. Each finding must pass CONFIRMED/PLAUSIBLE verification. Metrics-based checks and diff-level analysis run in parallel — neither replaces the other.
 
 **Standalone-specific**: Without implementation-notes, the quality-reviewer works from the code/diff directly. Apply heuristics without referencing executor claims.
 
@@ -454,6 +458,7 @@ Questions to answer for every quality review:
 - Are residual risks documented?
 - Is maintainability acceptable for the task size?
 - Was this the smallest safe change without alternate ownership paths?
+- **Are there line-level bugs?** Apply deep code analysis (see `references/deep-code-analysis.md`) when diff/code input is available. Metrics alone miss inverted conditions, off-by-one, and cross-file breakage.
 
 Automatic fail conditions:
 - Avoidable complexity
@@ -461,6 +466,7 @@ Automatic fail conditions:
 - Hidden residual risk
 - Shadow-path ownership drift
 - Approved verdict with open blockers or safe_for_next_stage=false
+- CONFIRMED correctness finding from deep code analysis
 
 ### Code Quality Metrics (quantitative)
 
@@ -702,6 +708,7 @@ Do not enter standalone mode if pipeline artifacts exist, even if the user provi
    - Did the implementation follow existing codebase patterns instead of inventing a new local religion?
    - Were assumptions about types, APIs, behavior, and test coverage verified against actual files?
    - If performance was touched, was the bottleneck measured before and after the change?
+12b. **Deep code analysis** (quality-reviewer, diff/code input available): Apply 7-angle diff analysis from `skills/ff-review/references/deep-code-analysis.md` — line-by-line scan, removed-behavior auditor, cross-file tracer, reuse, simplification, efficiency, altitude. Each finding passes CONFIRMED/PLAUSIBLE verification. This runs in parallel with metrics-based checks; neither replaces the other.
 13. Classify findings by severity: blocker, major, minor, nit.
 14. **Write or update `review-report.md`** to the active task directory. For high/epic, spec and quality passes update the same file. The verdict in the file is the only valid verdict.
 15. **Verify execute completion checklist**: Before approving, confirm the execute stage produced all required deliverables:
@@ -739,9 +746,10 @@ S5. **Determine reviewer roles** — Apply role routing (see Reviewer Roles → 
 
 S6. **Run each active reviewer role** — For each active role, in pipeline-mode order (spec → quality → security → ux → perf):
    a. Apply the role's checklist (see Reviewer Roles → Role definitions) AND the applicable review rubric (see Review Rubrics → Spec Review or Quality Review).
-   b. Classify each finding: severity, category, confidence level (see Human Final Judgment Gate → Advisory label system).
-   c. Record evidence source for each finding (observed/reported/inferred per Evidence discipline rules).
-   d. Check for cross-role conflicts with previously run roles. If conflict found, mark both findings with `⚠ requires human decision`.
+   b. **quality-reviewer with diff/code input**: Apply 7-angle deep code analysis from `skills/ff-review/references/deep-code-analysis.md` in parallel with the checklist. Each finding passes CONFIRMED/PLAUSIBLE verification.
+   c. Classify each finding: severity, category, confidence level (see Human Final Judgment Gate → Advisory label system).
+   d. Record evidence source for each finding (observed/reported/inferred per Evidence discipline rules).
+   e. Check for cross-role conflicts with previously run roles. If conflict found, mark both findings with `⚠ requires human decision`.
 
 S7. **Aggregate findings** — Combine all role findings into a single list. Sort by priority (see Human Final Judgment Gate → Priority classification). Compute overall verdict:
    - Any blocker → `blocked`
