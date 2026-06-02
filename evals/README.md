@@ -42,6 +42,7 @@ These validators ensure that:
 - docs-review fixtures block broken Markdown inline/reference/collapsed-reference links/anchors, duplicate reference definitions, HTML href/src targets, and removed slim-surface paths with deterministic `make validate-markdown-links` / `make validate-slim-surface` evidence, not provider/plugin E2E claims
 - release-maintenance fixtures preserve the `VERSION` single-source policy, manual `CHANGELOG.md` update, CI-owned manifest sync, and the separation between skill frontmatter schema versions and release versions
 - standalone review fixtures keep test-only and docs-only patches distinct from production fixes: added tests or documentation edits are useful observed evidence, but they do not prove implementation behavior without source/runtime verification
+- standalone review role-packet fixtures require adapters to complete `constraints.roles`, `Role trigger matrix`, `role evidence map`, `role input packet readiness`, `role input packets`, and `adapter handoff checklist` before canonical review judgment, without relying on hidden provider state or chat transcript evidence
 
 ## When adding a fixture
 

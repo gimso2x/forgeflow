@@ -7881,6 +7881,91 @@
           ]
         }
       ]
+    },
+    {
+      "id": 119,
+      "name": "standalone-review-role-packet-handoff",
+      "prompt": "A standalone /forgeflow:ff-review adapter receives a GitHub PR URL plus --type security --focus auth. It fetched the diff and brief summary, then must hand off to the canonical review skill. Produce only the normalized-input.md role routing, role evidence map, role input packet readiness, role input packets, and adapter handoff checklist fragments. Do not write review-report.md yet and do not judge the PR from chat transcript or hidden provider state.",
+      "expected_output": "A normalized-input fragment that makes the standalone review role packet handoff explicit before canonical review judgment: constraints.roles and role trigger matrix are aligned, stable evidence IDs are mapped per role, role input packets are READY/current where active, skipped roles have explicit non-trigger rationale, and the adapter handoff checklist passes canonical_review_ownership without hidden-state evidence.",
+      "files": [
+        "templates/normalized-input.md",
+        "docs/adapter-config.md",
+        "docs/review-runtime-contract.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output includes the role trigger matrix before judgment.",
+          "type": "contains",
+          "value": "Role trigger matrix"
+        },
+        {
+          "text": "Output records constraints.roles for the standalone focus.",
+          "type": "contains",
+          "value": "constraints.roles"
+        },
+        {
+          "text": "Output includes the per-role evidence map with stable evidence IDs.",
+          "type": "contains_all",
+          "values": [
+            "role evidence map",
+            "stable evidence IDs"
+          ]
+        },
+        {
+          "text": "Output includes role input packet readiness with READY/BLOCKED/SKIPPED semantics.",
+          "type": "contains_all",
+          "values": [
+            "role input packet readiness",
+            "READY",
+            "SKIPPED"
+          ]
+        },
+        {
+          "text": "Output includes concrete role input packets rather than relying on chat transcript.",
+          "type": "contains_all",
+          "values": [
+            "role input packets",
+            "evidence_ids=",
+            "criteria_basis",
+            "packet_freshness"
+          ]
+        },
+        {
+          "text": "Output includes explicit non-trigger rationale for skipped roles.",
+          "type": "contains_any",
+          "values": [
+            "explicit non-trigger",
+            "skipped: non-trigger",
+            "non-trigger rationale"
+          ]
+        },
+        {
+          "text": "Output includes adapter handoff checklist proving canonical review owns the report.",
+          "type": "contains_all",
+          "values": [
+            "adapter handoff checklist",
+            "canonical_review_ownership"
+          ]
+        },
+        {
+          "text": "Output refuses hidden provider state or chat-only transcript as evidence.",
+          "type": "not_contains_any",
+          "values": [
+            "hidden provider state as evidence",
+            "chat transcript is evidence",
+            "judge from chat transcript"
+          ]
+        },
+        {
+          "text": "Output does not create or approve review-report.md before normalization handoff.",
+          "type": "not_contains_any",
+          "values": [
+            "review-report.md approved",
+            "Verdict: approved",
+            "automatic approval"
+          ]
+        }
+      ]
     }
   ]
 }
