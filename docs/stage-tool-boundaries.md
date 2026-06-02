@@ -42,5 +42,7 @@ When a role or stage needs a forbidden action, record:
 - evidence or artifact that shows why it is needed
 - owning next stage (`execute`, `ff-review`, `ship`, or human decision)
 - blocker/limitation impact
+- explicit stop condition: whether the current stage must pause, continue with reduced scope, or invoke the owning next stage
+- artifact update location: the exact current artifact section that records the handoff (`checkpoint.md` Handoff Boundary, `review-report.md` Evidence Escalation Log, or the stage-owned notes/ledger section)
 
 Then stop that action in the current stage. Do not silently continue with hidden state or side effects.

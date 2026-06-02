@@ -291,6 +291,9 @@ validate-stage-tool-boundaries:
 	@grep -Fq "Stage artifacts are the handoff boundary" docs/stage-tool-boundaries.md || { echo "ERROR: stage boundary docs must keep artifact handoff as the boundary"; exit 1; }
 	@grep -Fq "Use the smallest tool surface" docs/stage-tool-boundaries.md || { echo "ERROR: stage boundary docs must require minimal tool surface"; exit 1; }
 	@grep -Fq "record the need in the current artifact and hand off to the stage that owns it" docs/stage-tool-boundaries.md || { echo "ERROR: stage boundary docs must require forbidden-action handoff"; exit 1; }
+	@grep -Fq "explicit stop condition" docs/stage-tool-boundaries.md || { echo "ERROR: stage boundary docs must require explicit stop condition for escalations"; exit 1; }
+	@grep -Fq "artifact update location" docs/stage-tool-boundaries.md || { echo "ERROR: stage boundary docs must require exact artifact update location for escalations"; exit 1; }
+	@grep -Fq "The handoff record must name the requested action" skills/_shared/automation.md || { echo "ERROR: automation stage catalog must mirror escalation handoff fields"; exit 1; }
 	@grep -Fq "must not change artifact names, route semantics, review verdicts, or human-gate rules" docs/stage-tool-boundaries.md || { echo "ERROR: stage boundary docs must keep adapter exceptions from changing canonical semantics"; exit 1; }
 	@grep -Fq "review-report.md" docs/stage-tool-boundaries.md || { echo "ERROR: stage boundary docs must require review-report.md for ff-review"; exit 1; }
 	@grep -Fq "input-source.md" docs/stage-tool-boundaries.md || { echo "ERROR: stage boundary docs must include standalone review provenance artifacts"; exit 1; }
