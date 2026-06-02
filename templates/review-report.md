@@ -79,9 +79,9 @@ Behavioral guardrail finding categories may include `assumption-risk`, `overengi
 <!-- Standalone mode and high/epic: summarize per-role verdicts and findings. -->
 <!-- Small/medium pipeline: may be omitted or list quality-reviewer only. -->
 <!-- For every active role, include a role-pass record even when there are zero findings: role, Checklist Version, scope/evidence IDs inspected, observed verification command(s) or no-command rationale, limitations/truncation, finding counts, and verdict. Chat-only completion claims are not evidence. -->
-- Checklist source: `skills/review/references/role-checklists.md` <!-- include checklist version used -->
+- Checklist source: `skills/ff-review/references/role-checklists.md` <!-- include checklist version used -->
 - Checklist Version: <!-- exact `Checklist version: YYYY-MM-DD` value observed in the checklist file -->
-- Evidence requirements source: `skills/review/references/role-checklists.md#evidence-requirements-by-role`
+- Evidence requirements source: `skills/ff-review/references/role-checklists.md#evidence-requirements-by-role`
 - Role routing rationale: <!-- why each role ran or was skipped: route rule, --type/--focus flag, file-type heuristic, specialist trigger, or explicit non-trigger -->
 - Role evidence map: <!-- cite normalized-input.md role evidence map; active roles must use only listed evidence IDs or record newly normalized evidence first -->
 - Role input packet readiness: <!-- cite normalized-input.md role input packet readiness; active roles must be READY and current after the latest evidence/scope/constraint/routing change, or record blocked judgment -->

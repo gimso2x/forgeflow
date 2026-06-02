@@ -6,7 +6,7 @@ CHECKS = {
     "skills/_shared/discipline.md": ["docs/advisory-guidelines.md", "Behavioral Guardrails"],
     "templates/brief.md": ["Assumptions and Interpretation", "Selected interpretation", "Open ambiguity"],
     "templates/plan.md": ["Simplicity Check", "Rejected abstraction/flexibility"],
-    "skills/review/references/role-checklists.md": ["Behavioral Guardrail Review", "overengineering", "speculative"],
+    "skills/ff-review/references/role-checklists.md": ["Behavioral Guardrail Review", "overengineering", "speculative"],
     "templates/review-report.md": ["assumption-risk", "drive-by-refactor"],
     "README.md": ["coding agent behavior guardrails", "make validate-behavior-guardrails"],
 }

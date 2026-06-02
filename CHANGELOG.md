@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Review 계약의 renamed skill 경로(`skills/ff-review/...`)를 템플릿, standalone review 설계 문서, behavior guardrail 검증 스크립트에 반영하고 `make validate`에 focused behavior guardrail 검증을 포함했습니다.
+
 ## [1.11.6] - 2026-06-02
 
 ### Changed

@@ -96,7 +96,7 @@ AI 리뷰 결과는 자동 승인 기준이 아니다.
 ## 예상 수정 범위
 
 구체 파일명은 레포 구조에 맞게 조정하되, 보통 아래 영역을 본다.
-- `skills/review/`
+- `skills/ff-review/`
 - `templates/`
 - `docs/`
 - 어댑터별 review 연결부
