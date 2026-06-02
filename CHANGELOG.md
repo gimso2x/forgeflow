@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Standalone review `input-source.md` Evidence Source Map now mirrors per-evidence `fetched_at` and `freshness_status`, matching the normalized evidence integrity gate so stale or timestamp-mismatched evidence cannot pass handoff unnoticed.
 - Review skill guidance now names `fetch_posture_constrained` in the adapter handoff checklist and Adapter compliance summary, and advisory validation guards that the skill cannot drift behind the normalized-input template or runtime contract.
 - Eval fixture validation now rejects unresolved smoke review template residue (`TODO`/`FIXME`, HTML template comments, and common angle-bracket placeholders) so persisted audit samples cannot silently regress to stub artifacts.
 - Standalone review role-packet handoff eval fixture를 추가해, adapter가 `normalized-input.md`의 `constraints.roles`, `Role trigger matrix`, role evidence/readiness/packet, adapter handoff checklist를 채운 뒤 canonical review로 넘기는지 검증합니다.

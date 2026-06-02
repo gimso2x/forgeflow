@@ -119,7 +119,7 @@ Create `input-source.md` from `templates/input-source.md`. It records:
 - Access posture and mutation check for the fetch method, proving evidence collection stayed read-only/verification-only and did not comment, approve, label, dispatch CI, deploy, write product files, change branches, or perform destructive cleanup
 - Fetch result status (success/partial/failed)
 - Missing/truncated evidence notes
-- Evidence Source Map linking each normalized evidence ID to the fetch command/API/source label, normalized evidence type, fetch status, evidence level, and integrity
+- Evidence Source Map linking each normalized evidence ID to the fetch command/API/source label, normalized evidence type, fetch status, fetched_at timestamp/run label, freshness status, evidence level, and integrity
 - Timestamp
 
 Create `normalized-input.md` from `templates/normalized-input.md`. It records the 4-field structure (see Input Normalization below).

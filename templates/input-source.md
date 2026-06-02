@@ -29,8 +29,8 @@
 - **Integrity**: <!-- complete | partial | failed | truncated:<N/M lines> -->
 
 ## Evidence Source Map
-<!-- One row per normalized evidence item. IDs must match normalized-input.md. This keeps fetch provenance auditable before reviewer roles cite evidence. Include the normalized evidence type/level here so handoff reviewers can detect mismatches without re-reading chat logs. -->
-- **E1**: <!-- source label or command/API used; type=diff|file|artifact|url|command_output|reported_summary|missing; status=success|partial|failed|not_applicable; evidence_level=observed|reported|missing; integrity=complete|partial|failed|truncated:<N/M lines> -->
+<!-- One row per normalized evidence item. IDs must match normalized-input.md. This keeps fetch provenance auditable before reviewer roles cite evidence. Include the normalized evidence type/status/freshness/level here so handoff reviewers can detect mismatches without re-reading chat logs. -->
+- **E1**: <!-- source label or command/API used; type=diff|file|artifact|url|command_output|reported_summary|missing; status=success|partial|failed|not_applicable; fetched_at=<ISO8601 timestamp|run label|not_applicable>; freshness_status=current|stale|unknown; evidence_level=observed|reported|missing; integrity=complete|partial|failed|truncated:<N/M lines> -->
 
 ## Timestamp
 <!-- ISO timestamp or run label -->

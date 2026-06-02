@@ -130,7 +130,7 @@ Standalone review creates a synthetic task directory:
 - access posture for each fetch (`read_only`, `verification_only`, or `not_applicable`) plus a mutation check proving the fetch did not comment, approve, label, dispatch CI, deploy, write product files, change branches, or perform destructive cleanup
 - fetch status: `success`, `partial`, `failed`, or `not_applicable`
 - missing or truncated evidence notes
-- an Evidence Source Map that ties each normalized evidence ID to its fetch command/API/source label, normalized evidence type, fetch status, evidence level, and integrity
+- an Evidence Source Map that ties each normalized evidence ID to its fetch command/API/source label, normalized evidence type, fetch status, fetched_at timestamp/run label, freshness status, evidence level, and integrity
 - timestamp or run label
 
 `normalized-input.md` should be created from `templates/normalized-input.md` and must include:
