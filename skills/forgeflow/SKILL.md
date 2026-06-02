@@ -1,7 +1,7 @@
 ---
 name: forgeflow
 description: Artifact-first delivery workflow for AI coding agents. Routes work through clarify → plan → execute → review → ship stages with Markdown artifacts, verification gates, and independent review. Use when the user types /forgeflow, /forgeflow:<stage>, or asks to implement, refactor, debug, review, or ship code through a structured workflow. Also use when the user mentions "ForgeFlow", "staged workflow", "artifact-backed", or wants structured multi-stage code delivery.
-version: 0.3.0
+version: 1.11.6
 author: gimso2x
 intent: Route user requests to the correct ForgeFlow stage skill and manage stage sequencing.
 inputs: User request text, <storage-root>/defaults.md (optional), existing task artifacts.
@@ -94,6 +94,15 @@ Scripts included in ForgeFlow:
 - `forgeflow_evolution_promote.py` — SOFT→HARD rule promotion (L5)
 - `forgeflow_hook_check.sh` — Hard rule verification for hooks (L5)
 - `telemetry_collect.py` / `telemetry_aggregate.py` — Telemetry collection
+
+## Init intelligence
+
+When `/forgeflow:clarify` or full init creates drafts, it should ground the brief in the current repository rather than a generic task template:
+
+- Infer project type from durable markers such as `package.json`, framework config files, `pyproject.toml`, `requirements.txt`, `go.mod`, `Cargo.toml`, app/router directories, and test/build scripts.
+- Record the inferred shape as user-facing categories: user-facing app, API/service, dev tool/library, or infrastructure.
+- Detect task domains and change type from the objective (frontend, backend, data, auth, infra, testing, security; feature, bugfix, refactor, migration, security, testing).
+- Reflect domain/project hints in `brief.md` WHERE, constraints, acceptance criteria, and verification gates without inventing files or framework facts not seen in the repo.
 
 ## Input
 

@@ -79,6 +79,7 @@ Scheduled or autonomous maintainer runs must protect unknown work before reposit
 ## Key Patterns
 
 - **Route selection**: clarify 스킬이 small/medium/high/epic 라우트 선택; medium은 medium-light/full sub-band 기록
+- **Test surface**: 현재 repo가 runtime-heavy 브랜치라면 `tests/`는 1,200+ 규모일 수 있다. domain/project detection을 건드릴 때는 `test_domain_analysis.py`, `test_project_type_detection.py` 계열을 우선 확인하고, slim markdown 배포 브랜치라면 `make validate`와 `scripts/validate_*.py` 계약 테스트를 기준으로 삼는다.
 - **Canonical contract**: `skills/forgeflow/SKILL.md` — 루트 `SKILL.md`는 marketplace 요약만
 - **Adapter config**: `docs/adapter-config.md` — forgeflow SKILL은 중복 표 대신 참조
 - **Milestone planning**: Epic 태스크는 roadmap.md로 마일스톤 분해 후 상세 계획
