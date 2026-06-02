@@ -5,7 +5,7 @@ Shared rules for adapter-specific context refresh timing, checkpoint-first resum
 ## Principles
 
 1. **Artifact-first stays** — context refresh does not replace artifacts; it makes resume discipline mandatory.
-2. **Checkpoint-first** — on resume after any adapter refresh, read `checkpoint.md` before any other task artifact when it exists.
+2. **Checkpoint-first** — on resume after any adapter refresh, read `checkpoint.md` before any other task artifact when it exists, including `Handoff Boundary` before continuing work.
 3. **No default full re-read** — expand to full artifacts only when verification, findings, or blockers require it.
 4. **Ledger = truth, notes = narrative** — task status from `ledger.md`; decisions from `implementation-notes.md`.
 5. **Step-complete = checkpoint-first** — once a plan step finishes and checkpoint/ledger/evidence are updated on disk, the next step must be resumable from artifacts. Context refresh is adapter-selected and used only when context pressure is high or role bleed appears; resume from artifacts is mandatory.
@@ -49,11 +49,12 @@ Before reading any file, ask: **full content, Reader Summary, or specific sectio
 
 ## Section-targeted read procedure
 
-1. Read `checkpoint.md` → `Minimum Read Set` and `Next Action`.
-2. If artifact has **Reader Summary** (high/epic), read it first (~30 lines max).
-3. Jump to named sections (e.g. `## 검증 계획 (Verification Plan)`, `### Task 3:`) instead of reading from line 1.
-4. Use Evidence Index compact strings before expanding full Evidence blocks.
-5. Record in checkpoint when you expand beyond minimum read set (brief note in Refresh-Safe Context Notes).
+1. Read `checkpoint.md` → `Handoff Boundary`, `Minimum Read Set`, and `Next Action`.
+2. If `Handoff Boundary` names a different next owner, a requested/forbidden action, an evidence/artifact trigger, blocker/limitation impact, or an explicit stop condition, honor that boundary before resuming stage work. Do not let context refresh erase ownership, delegation, or stop conditions.
+3. If artifact has **Reader Summary** (high/epic), read it first (~30 lines max).
+4. Jump to named sections (e.g. `## 검증 계획 (Verification Plan)`, `### Task 3:`) instead of reading from line 1.
+5. Use Evidence Index compact strings before expanding full Evidence blocks.
+6. Record in checkpoint when you expand beyond minimum read set (brief note in Refresh-Safe Context Notes).
 
 ## Context budget heuristics
 

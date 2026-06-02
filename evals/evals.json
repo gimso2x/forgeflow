@@ -1575,7 +1575,7 @@
       "id": 25,
       "name": "compact-resume-boundary",
       "prompt": "A ForgeFlow run is about to compact context immediately after checkpoint.md was updated during execute. Produce the compact-resume handoff note the next agent should use. It must preserve artifact-first resume order and avoid rereading the whole repo or trusting chat memory. Reference the shared context-resume rules and name the minimum artifacts to inspect before continuing.",
-      "expected_output": "A compact resume note that resumes from checkpoint.md, then ledger.md, then implementation-notes.md, limits repo rereads to necessary sections, and avoids chat-memory-only state.",
+      "expected_output": "A compact resume note that resumes from checkpoint.md, reads the checkpoint Handoff Boundary before continuing, then reads ledger.md and implementation-notes.md, limits repo rereads to necessary sections, and avoids chat-memory-only state or erased ownership/delegation state.",
       "files": [
         "README.md",
         "skills/_shared/context-resume.md"
@@ -1614,6 +1614,15 @@
             "compaction",
             "stage boundary",
             "checkpoint boundary"
+          ]
+        },
+        {
+          "text": "Output preserves checkpoint Handoff Boundary ownership/delegation before resuming work.",
+          "type": "contains_all",
+          "values": [
+            "Handoff Boundary",
+            "ownership",
+            "delegation"
           ]
         },
         {
