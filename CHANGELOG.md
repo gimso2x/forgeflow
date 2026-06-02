@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `make validate-stage-tool-boundaries`를 추가해 stage별 artifact ownership, adapter-neutral handoff 원칙, standalone review provenance artifact, review read-only posture가 `docs/stage-tool-boundaries.md`와 README에 유지되는지 검증합니다.
 - `make validate-advisory-contract`가 standalone review의 전체 reviewer role coverage(`architecture-reviewer` 포함)를 `Role trigger matrix`, `role evidence map`, `role input packet readiness`, `role input packets`, `role capability hints` 전 구간에서 검증하도록 강화했습니다.
 - `make validate-advisory-contract`가 standalone review의 `Evidence Gap Register`와 `scope_source_map` 계약이 runtime contract/template에 유지되는지 검증하도록 강화했습니다.
 - `docs/stage-tool-boundaries.md`를 추가해 clarify/plan/execute/review/ship 단계별 허용 tool posture, 필수 산출물, 금지 side effect를 adapter-neutral 계약으로 정리했습니다.

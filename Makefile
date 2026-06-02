@@ -1,4 +1,4 @@
-.PHONY: validate demo validate-demo validate-behavior-guardrails validate-json validate-no-python validate-slim-surface validate-ci-workflows validate-skills validate-skill-frontmatter validate-agent-docs validate-templates validate-template-refs validate-versions validate-changelog-links validate-route-scoring-parity validate-route-policy validate-gemini-imports validate-plugin-prompts validate-evals validate-evals-json validate-eval-files validate-evals-fixtures validate-workflow-vocab validate-ship-safety validate-dogfooding-docs validate-context-resume validate-adapter-config validate-advisory-contract validate-behavior-guardrails validate-markdown-links telemetry telemetry-collect telemetry-aggregate usage-audit
+.PHONY: validate demo validate-demo validate-behavior-guardrails validate-json validate-no-python validate-slim-surface validate-ci-workflows validate-skills validate-skill-frontmatter validate-agent-docs validate-templates validate-template-refs validate-versions validate-changelog-links validate-route-scoring-parity validate-route-policy validate-gemini-imports validate-plugin-prompts validate-evals validate-evals-json validate-eval-files validate-evals-fixtures validate-workflow-vocab validate-ship-safety validate-dogfooding-docs validate-context-resume validate-stage-tool-boundaries validate-adapter-config validate-advisory-contract validate-behavior-guardrails validate-markdown-links telemetry telemetry-collect telemetry-aggregate usage-audit
 
 PYTHON ?= python3
 
@@ -24,7 +24,7 @@ TEMPLATES := \
 	evolution-rule.md \
 	ship-summary.md
 
-validate: validate-no-python validate-slim-surface validate-ci-workflows validate-json validate-versions validate-changelog-links validate-route-scoring-parity validate-route-policy validate-skills validate-agent-docs validate-templates validate-template-refs validate-demo validate-gemini-imports validate-plugin-prompts validate-evals validate-workflow-vocab validate-ship-safety validate-dogfooding-docs validate-context-resume validate-adapter-config validate-advisory-contract validate-behavior-guardrails validate-markdown-links
+validate: validate-no-python validate-slim-surface validate-ci-workflows validate-json validate-versions validate-changelog-links validate-route-scoring-parity validate-route-policy validate-skills validate-agent-docs validate-templates validate-template-refs validate-demo validate-gemini-imports validate-plugin-prompts validate-evals validate-workflow-vocab validate-ship-safety validate-dogfooding-docs validate-context-resume validate-stage-tool-boundaries validate-adapter-config validate-advisory-contract validate-behavior-guardrails validate-markdown-links
 	@echo "OK: local validation passed"
 
 validate-evals: validate-evals-json validate-eval-files validate-evals-fixtures
@@ -283,6 +283,22 @@ validate-context-resume:
 	@grep -Fq "If a stage needs an action listed as forbidden" skills/_shared/automation.md || { echo "ERROR: automation stage catalog must define forbidden-action handoff behavior"; exit 1; }
 	@grep -Fq "forbidden-action delegation" README.md || { echo "ERROR: README context refresh docs must mention checkpoint handoff boundary ownership"; exit 1; }
 	@echo "OK: Context refresh/resume guidance is wired into core skills, checkpoint template, and stage boundary catalog"
+
+validate-stage-tool-boundaries:
+	@for stage in clarify plan execute ff-review ship; do \
+		grep -Fq "| $$stage |" docs/stage-tool-boundaries.md || { echo "ERROR: stage tool boundaries must catalog $$stage"; exit 1; }; \
+	done
+	@grep -Fq "Stage artifacts are the handoff boundary" docs/stage-tool-boundaries.md || { echo "ERROR: stage boundary docs must keep artifact handoff as the boundary"; exit 1; }
+	@grep -Fq "Use the smallest tool surface" docs/stage-tool-boundaries.md || { echo "ERROR: stage boundary docs must require minimal tool surface"; exit 1; }
+	@grep -Fq "record the need in the current artifact and hand off to the stage that owns it" docs/stage-tool-boundaries.md || { echo "ERROR: stage boundary docs must require forbidden-action handoff"; exit 1; }
+	@grep -Fq "must not change artifact names, route semantics, review verdicts, or human-gate rules" docs/stage-tool-boundaries.md || { echo "ERROR: stage boundary docs must keep adapter exceptions from changing canonical semantics"; exit 1; }
+	@grep -Fq "review-report.md" docs/stage-tool-boundaries.md || { echo "ERROR: stage boundary docs must require review-report.md for ff-review"; exit 1; }
+	@grep -Fq "input-source.md" docs/stage-tool-boundaries.md || { echo "ERROR: stage boundary docs must include standalone review provenance artifacts"; exit 1; }
+	@grep -Fq "normalized-input.md" docs/stage-tool-boundaries.md || { echo "ERROR: stage boundary docs must include standalone review normalized input artifacts"; exit 1; }
+	@grep -Fq "mutate PR/issues/CI/deploys" docs/stage-tool-boundaries.md || { echo "ERROR: stage boundary docs must forbid review-side external mutations"; exit 1; }
+	@grep -Fq "approve from implementer self-report only" docs/stage-tool-boundaries.md || { echo "ERROR: stage boundary docs must forbid self-report-only review approval"; exit 1; }
+	@grep -Fq "make validate-stage-tool-boundaries" README.md || { echo "ERROR: README local validation docs must include focused stage boundary validation"; exit 1; }
+	@echo "OK: Stage tool boundary catalog preserves adapter-neutral artifact ownership and review read-only posture"
 
 validate-adapter-config:
 	@$(PYTHON) scripts/validate_adapter_config.py

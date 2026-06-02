@@ -419,7 +419,7 @@ Global rule(`~/.forgeflow/evolution/active/*`)은 advisory only이며 hard block
 make validate
 ```
 
-`make validate`는 Python runtime 파일 재유입, tracked legacy runtime/schema/test directories are absent, 활성 문서의 제거된 runtime/schema/test tree 참조 재유입, GitHub Actions workflow가 문서화된 로컬 검증 bundle을 호출하는지와 read-only `contents: read` permissions를 쓰는지, 플러그인/extension JSON 파싱, release version/CHANGELOG 링크, public skill `SKILL.md` 존재 및 frontmatter `name`/`description`/`validate_prompt` 정합성, 필수 템플릿 존재 여부, 첫 성공 데모 산출물 생성, skill→template cross-reference, Gemini skill imports, plugin defaultPrompt 매핑, adapter config 계약, workflow vocabulary(활성 문서의 제거된 slash command 재유입 포함), ship branch-disposition safety, advisory contract, eval fixture 계약, `evals/evals.json` 계약(정수형 순차 `id`, 고유 `name`, assertion shape, repo-relative·git-tracked `files` 참조 포함), Markdown inline/reference/collapsed-reference 상대 링크, 중복 reference definition, HTML href/src, 이미지, anchor를 code span 밖에서 확인합니다. `make validate`는 live provider/plugin E2E를 실행하지 않습니다. 개별 명령으로 확인할 때는 아래와 같습니다.
+`make validate`는 Python runtime 파일 재유입, tracked legacy runtime/schema/test directories are absent, 활성 문서의 제거된 runtime/schema/test tree 참조 재유입, GitHub Actions workflow가 문서화된 로컬 검증 bundle을 호출하는지와 read-only `contents: read` permissions를 쓰는지, 플러그인/extension JSON 파싱, release version/CHANGELOG 링크, public skill `SKILL.md` 존재 및 frontmatter `name`/`description`/`validate_prompt` 정합성, 필수 템플릿 존재 여부, 첫 성공 데모 산출물 생성, skill→template cross-reference, Gemini skill imports, plugin defaultPrompt 매핑, adapter config 계약, stage tool boundary artifact ownership/read-only review posture, workflow vocabulary(활성 문서의 제거된 slash command 재유입 포함), ship branch-disposition safety, advisory contract, eval fixture 계약, `evals/evals.json` 계약(정수형 순차 `id`, 고유 `name`, assertion shape, repo-relative·git-tracked `files` 참조 포함), Markdown inline/reference/collapsed-reference 상대 링크, 중복 reference definition, HTML href/src, 이미지, anchor를 code span 밖에서 확인합니다. `make validate`는 live provider/plugin E2E를 실행하지 않습니다. 개별 명령으로 확인할 때는 아래와 같습니다.
 
 ```bash
 # Python runtime 파일이 다시 들어오지 않았는지 확인
@@ -445,6 +445,9 @@ make validate-templates validate-template-refs
 
 # adapter CLI/config 문서와 README quickstart 계약만 빠르게 확인
 make validate-adapter-config
+
+# stage별 artifact ownership과 review read-only tool posture 확인
+make validate-stage-tool-boundaries
 
 # 문서/스킬 링크가 repo-relative로 깨지지 않고 reference definition이 중복되지 않는지 확인
 make validate-markdown-links
