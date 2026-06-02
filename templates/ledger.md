@@ -25,7 +25,7 @@ total_items: <!-- N -->
 - **Plan Step**: <!-- which plan step or brief objective -->
 - **Status**: <!-- pending | running | done | blocked | skipped -->
 - **Assignee**: <!-- worker | specialist | spec-reviewer | quality-reviewer -->
-- **Claim Marker**: <!-- role=<assignee> scope=<files/section> at=<ISO8601>; none for direct sequential worker -->
+- **Claim Marker**: <!-- role=<worker|specialist|spec-reviewer|quality-reviewer> scope=<repo paths or artifact section> at=<ISO8601>; none for direct sequential worker -->
 - **Evidence Refs**: <!-- compact strings: verification:PASS gate=... | contract_check:PASS | evidence_index:task=... -->
 - **Blocker**: <!-- description or "none" -->
 - **Retry Count**: <!-- 0 -->

@@ -3,6 +3,9 @@ name: forgeflow
 description: Artifact-first delivery workflow for AI coding agents. Routes work through clarify → plan → execute → review → ship stages with Markdown artifacts, verification gates, and independent review. Use when the user types /forgeflow, /forgeflow:<stage>, or asks to implement, refactor, debug, review, or ship code through a structured workflow. Also use when the user mentions "ForgeFlow", "staged workflow", "artifact-backed", or wants structured multi-stage code delivery.
 version: 0.3.0
 author: gimso2x
+intent: Route user requests to the correct ForgeFlow stage skill and manage stage sequencing.
+inputs: User request text, .forgeflow/defaults.md (optional), existing task artifacts.
+outputs: Stage skill invocation with correct route, auto/isolation settings, and template root resolution.
 validate_prompt: |
   Must route to correct stage skill based on user input.
   Must read .forgeflow/defaults.md when present for auto/isolation settings.

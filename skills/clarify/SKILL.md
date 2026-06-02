@@ -3,6 +3,9 @@ name: clarify
 description: Turn a vague request into a scoped ForgeFlow brief and route decision. Bootstraps task workspace if missing. Use when the user types /clarify or /forgeflow:clarify, or first for new implementation/refactor/debug requests unless the user already provided a complete brief.
 version: 0.6.0
 author: gimso2x
+intent: Convert a raw user request into a scoped brief with route selection and acceptance criteria.
+inputs: Raw user request, target repository/path, constraints, existing codebase context.
+outputs: brief.md with objective, scope boundary, route, acceptance criteria, and verification gates.
 validate_prompt: |
   Must produce brief.md with route selection, scope boundary, and acceptance criteria.
   Must bootstrap task workspace (.forgeflow/tasks/<task-id>/) if missing.
