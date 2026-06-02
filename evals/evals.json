@@ -19,9 +19,9 @@
           "value": "artifact-first-no-chat-only"
         },
         {
-          "text": "Output identifies a concrete task artifact path under .forgeflow/tasks/.",
+          "text": "Output identifies a concrete project-scoped task artifact path under ~/.forgeflow/projects/<project-slug>/tasks/.",
           "type": "contains",
-          "value": ".forgeflow/tasks/"
+          "value": "~/.forgeflow/projects/"
         },
         {
           "text": "Output includes brief template required sections Objective and Route.",
@@ -311,7 +311,7 @@
       "id": 5,
       "name": "init-plugin-cache-safety",
       "prompt": "A user runs /forgeflow:clarify from inside a Codex plugin cache directory but says the real target project is /workspace/shop-app and task id is eval-cache-safe. Produce only the first-run operator guidance and task workspace path that ForgeFlow should use before clarify. Do not create artifacts in the plugin cache.",
-      "expected_output": "Guidance that detects plugin-cache risk, uses an explicit /forgeflow:clarify --task-dir /workspace/shop-app/.forgeflow/tasks/eval-cache-safe command, and names /workspace/shop-app/.forgeflow/tasks/eval-cache-safe as the task workspace instead of the cache directory.",
+      "expected_output": "Guidance that detects plugin-cache risk, uses an explicit /forgeflow:clarify --task-dir ~/.forgeflow/projects/shop-app/tasks/eval-cache-safe command, and names ~/.forgeflow/projects/shop-app/tasks/eval-cache-safe as the task workspace instead of the cache directory.",
       "files": [
         "README.md",
         "skills/clarify/SKILL.md",
@@ -336,12 +336,12 @@
         {
           "text": "Output gives the exact safe clarify command with the target task directory.",
           "type": "contains",
-          "value": "/forgeflow:clarify --task-dir /workspace/shop-app/.forgeflow/tasks/eval-cache-safe"
+          "value": "/forgeflow:clarify --task-dir ~/.forgeflow/projects/shop-app/tasks/eval-cache-safe"
         },
         {
           "text": "Output names the target project task workspace path.",
           "type": "contains",
-          "value": "/workspace/shop-app/.forgeflow/tasks/eval-cache-safe"
+          "value": "~/.forgeflow/projects/shop-app/tasks/eval-cache-safe"
         },
         {
           "text": "Output tells the agent not to put task artifacts in the plugin cache.",
@@ -504,7 +504,7 @@
         {
           "text": "Output names the target project task workspace path.",
           "type": "contains",
-          "value": "/workspace/notes-app/.forgeflow/tasks/eval-gemini-cache-safe"
+          "value": "~/.forgeflow/projects/notes-app/tasks/eval-gemini-cache-safe"
         },
         {
           "text": "Output uses an explicit task-dir or equivalent explicit artifact path escape hatch.",
@@ -513,7 +513,7 @@
             "--task-dir",
             "explicit task path",
             "explicit artifact path",
-            ".forgeflow/tasks/eval-gemini-cache-safe"
+            "~/.forgeflow/projects/notes-app/tasks/eval-gemini-cache-safe"
           ]
         },
         {
@@ -1945,8 +1945,8 @@
     {
       "id": 31,
       "name": "adapter-install-workspace-separation",
-      "prompt": "A maintainer asks you to update ForgeFlow adapter setup guidance for Claude/Codex/Gemini/Cursor. Produce the concise operator note only. It must prevent users from running workflow tasks inside plugin/extension cache directories and must explain where installation/cache state lives versus where .forgeflow/tasks/<task-id>/ artifacts should be written.",
-      "expected_output": "Operator guidance that separates adapter installation/cache location from target project workspace, names Codex and Gemini cache/install surfaces, and tells users to run ForgeFlow workflow stages from the target project root so artifacts land under that project's .forgeflow/tasks/<task-id>/ directory.",
+      "prompt": "A maintainer asks you to update ForgeFlow adapter setup guidance for Claude/Codex/Gemini/Cursor. Produce the concise operator note only. It must prevent users from running workflow tasks inside plugin/extension cache directories and must explain where installation/cache state lives versus where project-scoped task artifacts should be written.",
+      "expected_output": "Operator guidance that separates adapter installation/cache location from target project workspace, names Codex and Gemini cache/install surfaces, and tells users to run ForgeFlow workflow stages from the target project root so artifacts land under that project's ~/.forgeflow/projects/<project-slug>/tasks/<task-id>/ directory.",
       "files": [
         "README.md",
         "docs/adapter-config.md"
@@ -1962,9 +1962,9 @@
           ]
         },
         {
-          "text": "Output says task artifacts belong under the target project's .forgeflow/tasks/<task-id>/ path.",
+          "text": "Output says task artifacts belong under the project-scoped global storage path by default.",
           "type": "contains",
-          "value": ".forgeflow/tasks/<task-id>/"
+          "value": "~/.forgeflow/projects/<project-slug>/tasks/<task-id>/"
         },
         {
           "text": "Output names Codex project-local plugin cache or plugin manifest surface.",
@@ -2482,8 +2482,8 @@
     {
       "id": 39,
       "name": "standalone-review-diff-input",
-      "prompt": "You are running /forgeflow:ff-review in standalone mode. No .forgeflow/tasks/ directory exists and no pipeline artifacts (brief.md, plan.md, implementation-notes.md, ledger.md) are present. The user provides the following unified diff as input:\n\n--- a/src/api/auth.ts\n+++ b/src/api/auth.ts\n@@ -12,6 +12,8 @@\n import { validateEmail } from './validators';\n+import { logEvent } from './logger';\n+// TODO: remove debug\n+console.log('login attempt', email);\n   const token = generateToken(user);\n+  logEvent('auth.success', { userId: user.id });\n   return { token, user };\n--- a/src/api/validators.ts\n+++ b/src/api/validators.ts\n@@ -5,3 +5,8 @@\n export function validateEmail(email: string): boolean {\n-  return /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email);\n+  if (!email || typeof email !== 'string') {\n+    return false;\n+  }\n+  const trimmed = email.trim();\n+  return /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(trimmed);\n }\n\nProduce only the review-report.md for this standalone review. Detect input type as diff, bootstrap a synthetic task directory, normalize input, and run the quality-reviewer. Do not include Execute Micro-Gates, Route Compliance, or Evolution Rule Review sections — they are not applicable in standalone mode. Do not auto-proceed to ship. The review report is the final artifact.",
-      "expected_output": "A standalone review-report.md that detects diff input, bootstraps a synthetic task directory under .forgeflow/tasks/standalone-*, includes Standalone Input Source with Input Type diff, runs quality-reviewer, identifies debug artifacts (console.log, TODO) as findings, notes the improved validation in validators.ts, skips inapplicable pipeline-mode sections, and does not auto-ship.",
+      "prompt": "You are running /forgeflow:ff-review in standalone mode. No resolved ForgeFlow task directory exists and no pipeline artifacts (brief.md, plan.md, implementation-notes.md, ledger.md) are present. The user provides the following unified diff as input:\n\n--- a/src/api/auth.ts\n+++ b/src/api/auth.ts\n@@ -12,6 +12,8 @@\n import { validateEmail } from './validators';\n+import { logEvent } from './logger';\n+// TODO: remove debug\n+console.log('login attempt', email);\n   const token = generateToken(user);\n+  logEvent('auth.success', { userId: user.id });\n   return { token, user };\n--- a/src/api/validators.ts\n+++ b/src/api/validators.ts\n@@ -5,3 +5,8 @@\n export function validateEmail(email: string): boolean {\n-  return /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email);\n+  if (!email || typeof email !== 'string') {\n+    return false;\n+  }\n+  const trimmed = email.trim();\n+  return /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(trimmed);\n }\n\nProduce only the review-report.md for this standalone review. Detect input type as diff, bootstrap a synthetic task directory, normalize input, and run the quality-reviewer. Do not include Execute Micro-Gates, Route Compliance, or Evolution Rule Review sections — they are not applicable in standalone mode. Do not auto-proceed to ship. The review report is the final artifact.",
+      "expected_output": "A standalone review-report.md that detects diff input, bootstraps a synthetic task directory under ~/.forgeflow/projects/<project-slug>/tasks/standalone-*, includes Standalone Input Source with Input Type diff, runs quality-reviewer, identifies debug artifacts (console.log, TODO) as findings, notes the improved validation in validators.ts, skips inapplicable pipeline-mode sections, and does not auto-ship.",
       "files": [
         "skills/ff-review/SKILL.md",
         "templates/review-report.md"
@@ -2506,7 +2506,7 @@
         {
           "text": "Output bootstraps a synthetic task directory matching the standalone-<timestamp> pattern.",
           "type": "contains",
-          "value": ".forgeflow/tasks/standalone-"
+          "value": "~/.forgeflow/projects/"
         },
         {
           "text": "Output includes Standalone Mode Metadata section with Synthetic Task Dir and Active Reviewer Roles.",
@@ -2575,8 +2575,8 @@
     {
       "id": 40,
       "name": "standalone-review-file-bundle",
-      "prompt": "You are running /forgeflow:ff-review in standalone mode. No .forgeflow/tasks/ directory exists and no pipeline artifacts (brief.md, plan.md, implementation-notes.md, ledger.md) are present. The user provides two local file paths as input:\n\n1. src/utils/string-helpers.ts — a utility module with string manipulation functions\n2. src/utils/string-helpers.test.ts — a unit test file for the utility module\n\nBoth files exist on disk. The user says: \"Review these two files for code quality and test coverage.\"\n\nProduce only the review-report.md for this standalone review. Detect input type as file-bundle, bootstrap a synthetic task directory, normalize input (auto-generate brief from file names and user description), and run the quality-reviewer. Since the input is a file bundle of code and tests, also trigger spec-reviewer checks against the auto-generated brief. Do not include Execute Micro-Gates, Route Compliance, or Evolution Rule Review sections — they are not applicable in standalone mode. Do not auto-proceed to ship. The review report is the final artifact.",
-      "expected_output": "A standalone review-report.md that detects file-bundle input type, bootstraps a synthetic task directory under .forgeflow/tasks/standalone-*, includes Standalone Input Source with Input Type file-bundle, auto-generates a brief from file names and user description, runs quality-reviewer and spec-reviewer, lists files in scope, skips inapplicable pipeline-mode sections, and does not auto-ship.",
+      "prompt": "You are running /forgeflow:ff-review in standalone mode. No resolved ForgeFlow task directory exists and no pipeline artifacts (brief.md, plan.md, implementation-notes.md, ledger.md) are present. The user provides two local file paths as input:\n\n1. src/utils/string-helpers.ts — a utility module with string manipulation functions\n2. src/utils/string-helpers.test.ts — a unit test file for the utility module\n\nBoth files exist on disk. The user says: \"Review these two files for code quality and test coverage.\"\n\nProduce only the review-report.md for this standalone review. Detect input type as file-bundle, bootstrap a synthetic task directory, normalize input (auto-generate brief from file names and user description), and run the quality-reviewer. Since the input is a file bundle of code and tests, also trigger spec-reviewer checks against the auto-generated brief. Do not include Execute Micro-Gates, Route Compliance, or Evolution Rule Review sections — they are not applicable in standalone mode. Do not auto-proceed to ship. The review report is the final artifact.",
+      "expected_output": "A standalone review-report.md that detects file-bundle input type, bootstraps a synthetic task directory under ~/.forgeflow/projects/<project-slug>/tasks/standalone-*, includes Standalone Input Source with Input Type file-bundle, auto-generates a brief from file names and user description, runs quality-reviewer and spec-reviewer, lists files in scope, skips inapplicable pipeline-mode sections, and does not auto-ship.",
       "files": [
         "skills/ff-review/SKILL.md",
         "templates/review-report.md"
@@ -2601,7 +2601,7 @@
         {
           "text": "Output bootstraps a synthetic task directory matching the standalone-<timestamp> pattern.",
           "type": "contains",
-          "value": ".forgeflow/tasks/standalone-"
+          "value": "~/.forgeflow/projects/"
         },
         {
           "text": "Output lists both input files in scope.",
@@ -2668,8 +2668,8 @@
     {
       "id": 41,
       "name": "standalone-review-github-pr-url",
-      "prompt": "You are running /forgeflow:ff-review in standalone mode. No .forgeflow/tasks/ directory exists and no pipeline artifacts (brief.md, plan.md, implementation-notes.md, ledger.md) are present. The user provides the following input:\n\nhttps://github.com/acme/webapp/pull/42\n\nThe PR title is \"Add password reset flow\" and the body says \"Implements /auth/reset-password endpoint with email verification and rate limiting. Closes #15.\" The PR changes 3 files: src/auth/reset.ts (new, 120 lines), src/auth/email.ts (modified, +30 lines), tests/auth/reset.test.ts (new, 80 lines). The diff adds a POST /auth/reset-password route, an email sending helper, and unit tests. No security-reviewer or perf-reviewer is explicitly requested.\n\nProduce only the review-report.md for this standalone review. Detect input type as URL (GitHub PR), bootstrap a synthetic task directory, normalize input (auto-generate brief from PR title and body, extract evidence as the full diff, scope as the 3 changed files), and run quality-reviewer and spec-reviewer. Since the changes touch authentication code, also trigger security-reviewer. Do not include Execute Micro-Gates, Route Compliance, or Evolution Rule Review sections — they are not applicable in standalone mode. Do not auto-proceed to ship. The review report is the final artifact.",
-      "expected_output": "A standalone review-report.md that detects URL input type (GitHub PR), bootstraps a synthetic task directory under .forgeflow/tasks/standalone-*, includes Standalone Input Source with Input Type url, Original Input the PR URL, auto-generates brief from PR title+body, runs quality-reviewer, spec-reviewer, and security-reviewer (triggered by auth code), lists all 3 changed files in scope, records source metadata (gh pr diff / gh pr view), skips inapplicable pipeline-mode sections, and does not auto-ship.",
+      "prompt": "You are running /forgeflow:ff-review in standalone mode. No resolved ForgeFlow task directory exists and no pipeline artifacts (brief.md, plan.md, implementation-notes.md, ledger.md) are present. The user provides the following input:\n\nhttps://github.com/acme/webapp/pull/42\n\nThe PR title is \"Add password reset flow\" and the body says \"Implements /auth/reset-password endpoint with email verification and rate limiting. Closes #15.\" The PR changes 3 files: src/auth/reset.ts (new, 120 lines), src/auth/email.ts (modified, +30 lines), tests/auth/reset.test.ts (new, 80 lines). The diff adds a POST /auth/reset-password route, an email sending helper, and unit tests. No security-reviewer or perf-reviewer is explicitly requested.\n\nProduce only the review-report.md for this standalone review. Detect input type as URL (GitHub PR), bootstrap a synthetic task directory, normalize input (auto-generate brief from PR title and body, extract evidence as the full diff, scope as the 3 changed files), and run quality-reviewer and spec-reviewer. Since the changes touch authentication code, also trigger security-reviewer. Do not include Execute Micro-Gates, Route Compliance, or Evolution Rule Review sections — they are not applicable in standalone mode. Do not auto-proceed to ship. The review report is the final artifact.",
+      "expected_output": "A standalone review-report.md that detects URL input type (GitHub PR), bootstraps a synthetic task directory under ~/.forgeflow/projects/<project-slug>/tasks/standalone-*, includes Standalone Input Source with Input Type url, Original Input the PR URL, auto-generates brief from PR title+body, runs quality-reviewer, spec-reviewer, and security-reviewer (triggered by auth code), lists all 3 changed files in scope, records source metadata (gh pr diff / gh pr view), skips inapplicable pipeline-mode sections, and does not auto-ship.",
       "files": [
         "skills/ff-review/SKILL.md",
         "templates/review-report.md"
@@ -2703,7 +2703,7 @@
         {
           "text": "Output bootstraps a synthetic task directory matching the standalone-<timestamp> pattern.",
           "type": "contains",
-          "value": ".forgeflow/tasks/standalone-"
+          "value": "~/.forgeflow/projects/"
         },
         {
           "text": "Output auto-generates brief from PR title or body (Add password reset flow).",
@@ -2797,8 +2797,8 @@
     {
       "id": 42,
       "name": "standalone-review-repo-path",
-      "prompt": "You are running /forgeflow:ff-review in standalone mode. No .forgeflow/tasks/ directory exists and no pipeline artifacts (brief.md, plan.md, implementation-notes.md, ledger.md) are present. The user provides the following input:\n\n/home/projects/webapp\n\nThis is a local git repository. The current branch is feature/search. The working tree has uncommitted changes in 2 files: src/search/index.ts (+45 lines, new file) and src/search/utils.ts (+12 lines, modified). The diff adds a search indexing function and a text normalization utility. No branch range or commit SHA is specified. The repository has a package.json with a \"test\" script. No --type or --focus flags are provided.\n\nProduce only the review-report.md for this standalone review. Detect input type as repo path (current worktree), bootstrap a synthetic task directory, normalize input (auto-generate brief from working tree summary, extract evidence from git diff HEAD, scope as the 2 changed files), and run quality-reviewer and spec-reviewer (default standalone behavior). Do not include Execute Micro-Gates, Route Compliance, or Evolution Rule Review sections — they are not applicable in standalone mode. Do not auto-proceed to ship. The review report is the final artifact.",
-      "expected_output": "A standalone review-report.md that detects input type as repo path, bootstraps a synthetic task directory under .forgeflow/tasks/standalone-*, includes Standalone Input Source with Input Type repo, Original Input the local path, auto-generates brief from working tree summary (Review of working tree in <repo>), runs quality-reviewer and spec-reviewer, lists both changed files in scope, records source metadata (git diff HEAD / file read), skips inapplicable pipeline-mode sections, and does not auto-ship.",
+      "prompt": "You are running /forgeflow:ff-review in standalone mode. No resolved ForgeFlow task directory exists and no pipeline artifacts (brief.md, plan.md, implementation-notes.md, ledger.md) are present. The user provides the following input:\n\n/home/projects/webapp\n\nThis is a local git repository. The current branch is feature/search. The working tree has uncommitted changes in 2 files: src/search/index.ts (+45 lines, new file) and src/search/utils.ts (+12 lines, modified). The diff adds a search indexing function and a text normalization utility. No branch range or commit SHA is specified. The repository has a package.json with a \"test\" script. No --type or --focus flags are provided.\n\nProduce only the review-report.md for this standalone review. Detect input type as repo path (current worktree), bootstrap a synthetic task directory, normalize input (auto-generate brief from working tree summary, extract evidence from git diff HEAD, scope as the 2 changed files), and run quality-reviewer and spec-reviewer (default standalone behavior). Do not include Execute Micro-Gates, Route Compliance, or Evolution Rule Review sections — they are not applicable in standalone mode. Do not auto-proceed to ship. The review report is the final artifact.",
+      "expected_output": "A standalone review-report.md that detects input type as repo path, bootstraps a synthetic task directory under ~/.forgeflow/projects/<project-slug>/tasks/standalone-*, includes Standalone Input Source with Input Type repo, Original Input the local path, auto-generates brief from working tree summary (Review of working tree in <repo>), runs quality-reviewer and spec-reviewer, lists both changed files in scope, records source metadata (git diff HEAD / file read), skips inapplicable pipeline-mode sections, and does not auto-ship.",
       "files": [
         "skills/ff-review/SKILL.md",
         "templates/review-report.md"
@@ -2832,7 +2832,7 @@
         {
           "text": "Output bootstraps a synthetic task directory matching the standalone-<timestamp> pattern.",
           "type": "contains",
-          "value": ".forgeflow/tasks/standalone-"
+          "value": "~/.forgeflow/projects/"
         },
         {
           "text": "Output auto-generates brief referencing working tree review.",
@@ -2951,7 +2951,7 @@
         {
           "text": "Output bootstraps a synthetic task directory matching the standalone-<timestamp> pattern.",
           "type": "contains",
-          "value": ".forgeflow/tasks/standalone-"
+          "value": "~/.forgeflow/projects/"
         },
         {
           "text": "Output auto-generates brief referencing the artifact review.",
@@ -3037,7 +3037,7 @@
     {
       "id": 44,
       "name": "standalone-review-type-all-roles",
-      "prompt": "You are running /forgeflow:ff-review in standalone mode with --type all.\nNo .forgeflow/tasks/ directory exists and no pipeline artifacts are present.\nThe user provides the following file bundle:\n\nFile: src/api/auth.ts\nimport { validateEmail } from './validators';\nimport { logEvent } from './logger';\n\nexport async function login(email: string, password: string) {\n  console.log('login attempt', email);\n  const user = await db.query('SELECT * FROM users WHERE email = \\'' + email + '\\' AND password_hash = \\'' + password + '\\'');\n  const token = generateToken(user);\n  logEvent('auth.success', { userId: user.id });\n  return { token, user };\n}\n\nFile: src/api/validators.ts\nexport function validateEmail(email: string): boolean {\n  if (!email || typeof email !== 'string') return false;\n  const trimmed = email.trim();\n  return /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(trimmed);\n}\n\nFile: src/pages/Login.tsx\nexport function LoginPage() {\n  return <form><input type=\"text\" /><button>Submit</button></form>;\n}\n\nProduce only the review-report.md for this standalone review.\nThe --type all flag forces all 6 reviewer roles (spec-reviewer, quality-reviewer, architecture-reviewer,\nsecurity-reviewer, ux-reviewer, perf-reviewer) to run regardless of file-type heuristics.\nDetect input type as file bundle, bootstrap a synthetic task directory, normalize input,\nand run all 6 roles. Do not include Execute Micro-Gates, Route Compliance, or Evolution\nRule Review sections. Do not auto-proceed to ship.",
+      "prompt": "You are running /forgeflow:ff-review in standalone mode with --type all.\nNo resolved ForgeFlow task directory exists and no pipeline artifacts are present.\nThe user provides the following file bundle:\n\nFile: src/api/auth.ts\nimport { validateEmail } from './validators';\nimport { logEvent } from './logger';\n\nexport async function login(email: string, password: string) {\n  console.log('login attempt', email);\n  const user = await db.query('SELECT * FROM users WHERE email = \\'' + email + '\\' AND password_hash = \\'' + password + '\\'');\n  const token = generateToken(user);\n  logEvent('auth.success', { userId: user.id });\n  return { token, user };\n}\n\nFile: src/api/validators.ts\nexport function validateEmail(email: string): boolean {\n  if (!email || typeof email !== 'string') return false;\n  const trimmed = email.trim();\n  return /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(trimmed);\n}\n\nFile: src/pages/Login.tsx\nexport function LoginPage() {\n  return <form><input type=\"text\" /><button>Submit</button></form>;\n}\n\nProduce only the review-report.md for this standalone review.\nThe --type all flag forces all 6 reviewer roles (spec-reviewer, quality-reviewer, architecture-reviewer,\nsecurity-reviewer, ux-reviewer, perf-reviewer) to run regardless of file-type heuristics.\nDetect input type as file bundle, bootstrap a synthetic task directory, normalize input,\nand run all 6 roles. Do not include Execute Micro-Gates, Route Compliance, or Evolution\nRule Review sections. Do not auto-proceed to ship.",
       "expected_output": "A standalone review-report.md that runs all 6 reviewer roles because --type all was specified, detects file bundle input, identifies SQL injection in auth.ts as a security finding, flags console.log debug artifact as quality finding, notes missing ARIA labels in Login.tsx as UX finding, records perf-reviewer ran but found no issues, and includes a Reviewer Role Summary with all 6 roles listed.",
       "files": [
         "skills/ff-review/SKILL.md",
@@ -3052,7 +3052,7 @@
         {
           "text": "Output bootstraps a synthetic task directory matching the standalone-<timestamp> pattern.",
           "type": "contains",
-          "value": ".forgeflow/tasks/standalone-"
+          "value": "~/.forgeflow/projects/"
         },
         {
           "text": "Output runs all 6 reviewer roles because --type all forces them.",
@@ -3154,7 +3154,7 @@
     {
       "id": 45,
       "name": "standalone-review-ambiguous-input",
-      "prompt": "You are running /forgeflow:ff-review in standalone mode. No .forgeflow/tasks/ directory exists and no pipeline artifacts (brief.md, plan.md, implementation-notes.md, ledger.md) are present. The user provides the following input:\n\n\"Check if the thing looks good\"\n\nThis input is a vague natural-language string. It is not a URL (no https:// or http:// prefix), not a repo path (no .git/ directory or git worktree context), not a diff/patch (no --- a/, +++ b/, @@ markers), not a file bundle (no file paths), and not an existing artifact path (no .forgeflow/tasks/ reference). According to the review skill input type detection, this is ambiguous input (type 6).\n\nProduce only the review-report.md for this standalone review attempt.\nThe review must detect that the input is ambiguous and cannot be classified into any of the 5 known input types (URL, repo path, diff/patch, file bundle, existing artifact). Per the review skill contract, when no input type matches, the review should record a blocked status, explain that the input cannot be classified, and request clarification from the user. Do not guess the input type or proceed with wrong assumptions. Do not fabricate evidence.",
+      "prompt": "You are running /forgeflow:ff-review in standalone mode. No resolved ForgeFlow task directory exists and no pipeline artifacts (brief.md, plan.md, implementation-notes.md, ledger.md) are present. The user provides the following input:\n\n\"Check if the thing looks good\"\n\nThis input is a vague natural-language string. It is not a URL (no https:// or http:// prefix), not a repo path (no .git/ directory or git worktree context), not a diff/patch (no --- a/, +++ b/, @@ markers), not a file bundle (no file paths), and not an existing artifact path (no .forgeflow/tasks/ reference). According to the review skill input type detection, this is ambiguous input (type 6).\n\nProduce only the review-report.md for this standalone review attempt.\nThe review must detect that the input is ambiguous and cannot be classified into any of the 5 known input types (URL, repo path, diff/patch, file bundle, existing artifact). Per the review skill contract, when no input type matches, the review should record a blocked status, explain that the input cannot be classified, and request clarification from the user. Do not guess the input type or proceed with wrong assumptions. Do not fabricate evidence.",
       "expected_output": "A standalone review-report.md that records the input as ambiguous/unclassifiable, sets the verdict to blocked, explains that none of the 5 input types match, and requests the user to clarify the input type. The report must not fabricate evidence or guess an input type.",
       "files": [
         "skills/ff-review/SKILL.md",

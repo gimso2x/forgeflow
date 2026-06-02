@@ -55,7 +55,7 @@ Route scoring, medium-light/full sub-band, artifacts 목록: [`skills/forgeflow/
 - Review는 읽기 전용 — findings 기록 후 worker에게 handoff
 - Review finding은 Design Intent/Review Criteria 기준과 disposition을 기록
 - Verification은 실제 명령만 (hallucinated command 금지)
-- 산출물 경로: `.forgeflow/tasks/<task-id>/`
+- 산출물 경로: 기본 `~/.forgeflow/projects/<project-slug>/tasks/<task-id>/`; local storage를 명시한 경우만 `<repo>/.forgeflow/tasks/<task-id>/`
 - Project active evolution rules는 required; global rules는 advisory only
 
 릴리즈 버전은 루트 `VERSION` 파일이 기준입니다. Per-skill frontmatter `version`은 skill schema 버전이며 릴리즈 `VERSION`과 별개입니다.

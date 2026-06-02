@@ -45,7 +45,7 @@ Write `plan.md` to the active task directory using `templates/plan.md` as the st
 Also create empty scaffolds for the execute stage to fill:
 - `implementation-notes.md` (from `templates/implementation-notes.md`) — decisions, deviations, evidence
 - `ledger.md` (from `templates/ledger.md`, schema: ledger/v1) — unified plan items + execution tracking
-- `run-state.json` (from `templates/run-state.json`, if missing) — `repo_root`, `project_name`, `project_slug`, `storage_root`, `task_id`
+- `run-state.json` (create with `python3 <forgeflow-checkout>/scripts/forgeflow_storage.py --project-dir <repo-root> --task-id <task-id> --write-run-state` if missing) — `repo_root`, `project_name`, `project_slug`, `storage_root`, `task_id`
 
 Additionally, produce:
 - `ledger.md` (from `templates/ledger.md`, schema: ledger/v1) — standardized task ledger with plan items, execution tracking, and decisions.

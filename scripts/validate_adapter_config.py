@@ -7,7 +7,7 @@ required = {
     'Claude Code': ['claude -p', '--dangerously-skip-permissions', 'CLAUDE_CODE_SESSION=1', '대상 프로젝트 루트', 'plugin cache'],
     'Codex CLI': ['codex exec', 'danger-full-access', 'CODEX_SESSION=1', '대상 프로젝트 루트', 'plugin cache'],
     'Gemini CLI': ['gemini -p', '--yolo', '--skip-trust', 'GEMINI_CLI=1', 'gemini extensions install', 'Extension 업데이트', 'gemini extensions update forgeflow', 'gemini extensions list', 'gemini extensions validate .', 'gemini extensions link .'],
-    'Cursor': ['~/.cursor/plugins/local/forgeflow', '/clarify', '/plan', '/execute', '/review', '/ship', '콜론 없음', '대상 프로젝트 루트', '<workspace>/.forgeflow/tasks/<task-id>/', 'cache 내부에 task artifact를 만들지 않습니다'],
+    'Cursor': ['~/.cursor/plugins/local/forgeflow', '/clarify', '/plan', '/execute', '/review', '/ship', '콜론 없음', '대상 프로젝트 루트', '~/.forgeflow/projects/<project-slug>/tasks/<task-id>/', 'cache 내부에 task artifact를 만들지 않습니다'],
 }
 failures = []
 for adapter, needles in required.items():

@@ -70,7 +70,7 @@ Scheduled or autonomous maintainer runs must protect unknown work before reposit
 - 모든 산출물은 Markdown. `templates/` 디렉토리에 템플릿이 있습니다.
 - public 스킬은 YAML frontmatter (`name`, `description`, `version`, `validate_prompt`)로 시작합니다. `version`은 스킬 스키마/계약 버전이며 릴리즈 `VERSION`과 별개입니다.
 - **버전 관리**: `VERSION` 파일이 단일 소스. 다만 릴리즈 검증을 위해 `SKILL.md`, `.claude-plugin/*.json`, `.codex-plugin/plugin.json`, `.cursor-plugin/plugin.json`, `gemini-extension.json`의 버전 필드는 릴리즈 커밋에서 `VERSION`과 일치시킨다. 기능/계약 변경 없이 버전 필드만 동기화한다.
-- 산출물은 `.forgeflow/tasks/<task-id>/` 아래에 작성.
+- 산출물은 기본 `~/.forgeflow/projects/<project-slug>/tasks/<task-id>/` 아래에 작성. local storage를 명시한 경우만 `<repo>/.forgeflow/tasks/<task-id>/`를 쓴다.
 - Review는 읽기 전용. 코드 수정 금지.
 - Verification은 실제 명령 기반. hallucinated command 금지.
 - 외부 의존성 추가 금지.
