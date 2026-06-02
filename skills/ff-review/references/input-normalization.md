@@ -71,7 +71,8 @@ Review focus areas or restrictions:
   - Diff with only test files (all changed filenames match test patterns: `*.test.*`, `*.spec.*`, `*_test.*`, `test_*`, or live under a test directory) -> quality-reviewer with test-quality focus: check coverage adequacy, assertion quality, test isolation, fixture management.
   - URL to a design doc -> spec/ux review only.
   - File bundle of config files -> quality/security review.
-- **Default** (no constraints specified): run both spec and quality reviews. Spec review uses auto-generated brief as the "spec" to check against.
+- **Default** (no constraints specified): `quality-reviewer` always runs. `spec-reviewer` runs only when an explicit spec/requirement exists or the normalized brief is strong enough to act as a de facto spec. `architecture-reviewer`, `security-reviewer`, `ux-reviewer`, and `perf-reviewer` run only when normalized evidence or an explicit flag triggers them. Do not activate a role from chat-only context.
+- **No usable brief/spec**: keep `quality-reviewer` active, mark `spec-reviewer` as `skipped — no explicit or inferable spec evidence`, and record the limitation in the Evidence Gap Register if it weakens approval confidence.
 
 Write constraints to `normalized-input.md` as a structured list:
 

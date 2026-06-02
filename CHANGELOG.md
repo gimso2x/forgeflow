@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `docs/stage-tool-boundaries.md`를 추가해 clarify/plan/execute/review/ship 단계별 허용 tool posture, 필수 산출물, 금지 side effect를 adapter-neutral 계약으로 정리했습니다.
 - stage-owned role boundary 원칙을 문서화해 planner/worker/reviewer/lead/member 분리가 별도 팀 런타임이나 hidden approval path로 확장되지 않도록 했습니다.
 
+### Changed
+
+- Standalone review 입력 정규화 reference의 기본 role routing을 canonical `ff-review` 계약과 맞춰, `quality-reviewer`는 항상 실행하되 `spec-reviewer`와 specialist roles는 명시 spec 또는 normalized evidence trigger가 있을 때만 실행하도록 명확히 했습니다.
+
 ### Fixed
 
 - Review 계약의 renamed skill 경로(`skills/ff-review/...`)를 템플릿, standalone review 설계 문서, behavior guardrail 검증 스크립트에 반영하고 `make validate`에 focused behavior guardrail 검증을 포함했습니다.
