@@ -30,6 +30,10 @@ for smoke in ('audit-smoke-high', 'audit-smoke-epic'):
     for heading in ('## Execute Micro-Gates', '## Verdict', '## Evidence Classification', '## Next Action'):
         if heading not in text:
             failures.append(f'{report}: missing required heading {heading!r}')
+    residue_terms = ('<!--', '-->', 'TODO', 'FIXME', '<task-', '<project-', '<artifact-', '<!-- none')
+    for residue in residue_terms:
+        if residue in text:
+            failures.append(f'{report}: unresolved template residue {residue!r}')
 if failures:
     print('ERROR: eval fixture contract failed')
     [print(f'- {failure}') for failure in failures]

@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Eval fixture validation now rejects unresolved smoke review template residue (`TODO`/`FIXME`, HTML template comments, and common angle-bracket placeholders) so persisted audit samples cannot silently regress to stub artifacts.
 - Standalone review role-packet handoff eval fixture를 추가해, adapter가 `normalized-input.md`의 `constraints.roles`, `Role trigger matrix`, role evidence/readiness/packet, adapter handoff checklist를 채운 뒤 canonical review로 넘기는지 검증합니다.
 - README and shared automation guidance now keep the complete checkpoint Handoff Boundary escalation fields aligned with the template, and advisory validation guards that user-facing resume guidance from falling behind.
 - Checkpoint handoff template now records the full forbidden-action escalation fields, and advisory validation guards the checkpoint boundary contract from drifting behind the stage-boundary docs.
