@@ -353,6 +353,11 @@ validate-advisory-contract:
 	@grep -Fq "hand it back to execute" skills/ff-review/SKILL.md || { echo "ERROR: review skill must hand code/product fixes back to execute"; exit 1; }
 	@grep -Fq "role별 evidence requirement" README.md || { echo "ERROR: README standalone review docs must mention role-specific evidence requirements"; exit 1; }
 	@grep -Fq "external-system access to read-only evidence fetching" README.md || { echo "ERROR: README standalone review docs must expose read-only external-system posture"; exit 1; }
+	@grep -Fq "Evidence Gap Register" docs/review-runtime-contract.md || { echo "ERROR: review runtime contract must require standalone evidence gap registration"; exit 1; }
+	@grep -Fq "scope_source_map" docs/review-runtime-contract.md || { echo "ERROR: review runtime contract must require scope-to-evidence mapping"; exit 1; }
+	@grep -Fq "Evidence Gap Register" templates/normalized-input.md || { echo "ERROR: normalized input template must expose evidence gap registration"; exit 1; }
+	@grep -Fq "scope_source_map" templates/normalized-input.md || { echo "ERROR: normalized input template must expose scope-to-evidence mapping"; exit 1; }
+	@grep -Fq "Evidence Gap Register" templates/review-report.md || { echo "ERROR: review report template must cite standalone evidence gap registration"; exit 1; }
 
 validate-behavior-guardrails:
 	@$(PYTHON) scripts/validate_behavior_guardrails.py
