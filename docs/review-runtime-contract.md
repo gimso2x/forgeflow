@@ -146,7 +146,7 @@ Standalone review creates a synthetic task directory:
 - `role input packets`: for every `READY` or `BLOCKED` role, the exact trigger, evidence IDs, scope, constraints, limitations, and packet freshness handed to the role, copied from normalized fields rather than chat memory or hidden adapter state
 - `role capability hints`: optional advisory model/profile/tooling hints per reviewer role, recorded only for auditability; they must use capability language rather than provider-specific requirements and must not affect routing, evidence IDs, evidence levels, verdict enums, approval rules, or the human review gate
 - `review ownership plan`: the lead reviewer, any member assignments, aggregation owner, claim marker integrity, child-work policy, conflict policy, and product-mutation policy recorded before delegated or parallel reviewer passes start
-- `adapter handoff checklist`: source classified, fetch reproduced, normalization complete, limitations visible, and canonical review ownership recorded as `PASS`/`FAIL` before reviewer judgment begins
+- `adapter handoff checklist`: source classified, fetch reproduced, fetch posture constrained, normalization complete, limitations visible, and canonical review ownership recorded as `PASS`/`FAIL` before reviewer judgment begins
 
 `review-report.md` remains the single review result artifact. Adapter-specific reports are not allowed.
 
