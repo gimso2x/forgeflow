@@ -98,6 +98,7 @@ if missing_handoff_fields:
 role_trigger_roles = [
     'spec-reviewer',
     'quality-reviewer',
+    'architecture-reviewer',
     'security-reviewer',
     'ux-reviewer',
     'perf-reviewer',
