@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Changelog validation now rejects duplicate Keep a Changelog subsection headings within a release section, and the current Unreleased notes use a single `Changed` section.
 - Local validation docs now list the focused behavior-guardrail check, and the Makefile phony inventory no longer declares that target twice.
 - Skill frontmatter validation now rejects duplicate top-level YAML keys, and the canonical `forgeflow` skill uses a single merged `validate_prompt` so adapter loaders do not silently discard routing requirements.
 - English README validation now guards the concise global quickstart against drifting from supported adapters, Codex/Gemini install paths, default artifact storage, validation bundles, and read-only CI permissions.
@@ -48,9 +49,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Stage forbidden-action escalation에 explicit stop condition과 artifact update location을 추가하고 `make validate-stage-tool-boundaries`가 공유 automation 문서와 함께 이를 검증하도록 강화했습니다.
 - `docs/stage-tool-boundaries.md`의 escalation rule을 checkpoint `Handoff Boundary` 필드셋(current/next owner, handoff reason, requested/forbidden action, evidence/artifact trigger, stop condition, exact artifact location)과 정렬하고 focused validator가 drift를 잡도록 보강했습니다.
 - `templates/checkpoint.md`와 shared automation guidance가 forbidden-action handoff의 `next owner / owning next stage` 및 `handoff reason` 필드를 동일하게 요구하도록 정렬하고 advisory validator를 강화했습니다.
-
-### Changed
-
 - Standalone review procedure step S3 now names the full `input-source.md` provenance field set, including freshness, access posture, mutation check, source classification, and Evidence Source Map, instead of the older timestamp-only shorthand.
 - README standalone review artifact summary now documents access posture/mutation check echoing alongside fetch freshness, matching the runtime/template contract.
 - Standalone review eval fixtures now assert the same `Fetched At`, `Freshness Status`, `Access Posture`, and `Mutation Check` summary fields required by the review skill/template/runtime contract.
