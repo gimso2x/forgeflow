@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Standalone review reports now echo Fetch Method Ledger and Evidence Source Map references in the reader-facing Standalone Input Source summary, so multi-fetch provenance remains visible without reopening normalization artifacts.
 - Standalone review adapter handoff now includes `fetch_ledger_complete`, making multi-fetch Evidence Source Map rows explicitly resolve to `input-source.md` Fetch Method Ledger entries before reviewer judgment.
 
 - Standalone review `input-source.md` now includes a per-fetch Fetch Method Ledger for multi-source evidence, preventing mixed PR metadata/diff/file/command fetches from hiding access posture or mutation checks behind a single overall field.

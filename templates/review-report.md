@@ -32,6 +32,8 @@ scope_boundary:
 - **Freshness Status**: <!-- current | stale | unknown; must match normalized-input.md evidence freshness -->
 - **Access Posture**: <!-- read_only | verification_only | not_applicable; must match input-source.md Access Posture -->
 - **Mutation Check**: <!-- PASS | FAIL; confirm fetch did not comment/approve/label/dispatch CI/deploy/write product files/change branches/clean destructively -->
+- **Fetch Method Ledger**: <!-- none | cite input-source.md F<N> rows used for this report; required when multiple command/API/source labels produced evidence -->
+- **Evidence Source Map**: <!-- cite input-source.md evidence IDs/fetch_id rows that back the normalized evidence used in findings and role summaries -->
 - **Normalized Brief**: <!-- Auto-generated brief -->
 - **Scope**: <!-- Files/directories/commit range -->
 - **Constraints**: <!-- Review focus, excluded paths, additional rules -->
