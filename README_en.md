@@ -4,6 +4,7 @@
 
 ForgeFlow is an artifact-first delivery workflow for AI coding agents.
 It guides Claude Code, Codex, Gemini CLI, and Cursor through clarify → plan → execute → review → ship using explicit markdown artifacts instead of chat memory.
+It also includes coding-agent behavior guardrails for assumption surfacing, simplicity-first implementation, surgical diffs, and goal-driven verification. Clarify/plan/execute treat these as advisory habits, while review can report `assumption-risk`, `overengineering`, `scope-creep`, `unverified-success`, and `drive-by-refactor` findings.
 
 ## Why use it
 
@@ -81,6 +82,7 @@ Each task workspace contains files such as `brief.md`, `plan.md`, `ledger.md`, `
 ```bash
 make validate
 make validate-evals
+make validate-behavior-guardrails
 ```
 
 GitHub Actions runs the same validation bundles through `.github/workflows/validate.yml` and `.github/workflows/evals.yml` with read-only `contents: read` permissions.

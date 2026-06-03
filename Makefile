@@ -140,6 +140,8 @@ validate-english-readme:
 	@grep -Fq "~/.forgeflow/projects/<project-slug>/tasks/<task-id>/" README_en.md || { echo "ERROR: README_en must document the default global artifact path"; exit 1; }
 	@grep -Fq "make validate" README_en.md || { echo "ERROR: README_en must document make validate"; exit 1; }
 	@grep -Fq "make validate-evals" README_en.md || { echo "ERROR: README_en must document make validate-evals"; exit 1; }
+	@grep -Fq "make validate-behavior-guardrails" README_en.md || { echo "ERROR: README_en must document focused behavior guardrail validation"; exit 1; }
+	@grep -Fq "assumption-risk" README_en.md || { echo "ERROR: README_en must document behavior guardrail review findings"; exit 1; }
 	@grep -Fq "read-only \`contents: read\` permissions" README_en.md || { echo "ERROR: README_en must document read-only CI permissions"; exit 1; }
 	@grep -Fq "make validate-english-readme" README.md || { echo "ERROR: README local validation docs must include focused English README validation"; exit 1; }
 	@echo "OK: English README mirrors core install, artifact, and validation surfaces"

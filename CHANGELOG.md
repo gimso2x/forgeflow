@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- English README now exposes the behavior guardrail contract and focused `make validate-behavior-guardrails` command, with `validate-english-readme` guarding that global quickstart surface.
 - Changelog validation now rejects duplicate Keep a Changelog subsection headings within a release section, and the current Unreleased notes use a single `Changed` section.
 - Local validation docs now list the focused behavior-guardrail check, and the Makefile phony inventory no longer declares that target twice.
 - Skill frontmatter validation now rejects duplicate top-level YAML keys, and the canonical `forgeflow` skill uses a single merged `validate_prompt` so adapter loaders do not silently discard routing requirements.
