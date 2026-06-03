@@ -225,6 +225,7 @@ raw_score = file_count*1.0 + estimated_lines*0.1 + requirement_count*2.0 + depen
 | 산출물                    | 설명                         | 라우트  |
 | ------------------------- | ---------------------------- | ------- |
 | `brief.md`                | 요구사항, 라우트, 제약사항   | 전체    |
+| `project-draft.md`        | 프로젝트 컨텍스트 draft (planning/WBS, architecture/contract, verification hints) | ff-config |
 | `plan.md`                 | 작업 계획, 태스크 분해, 검증 | medium+ |
 | `ledger.md`               | 실행 상태 truth (pending/done) | execute |
 | `checkpoint.md`           | 재개용 전술 포인터           | execute |
@@ -237,8 +238,11 @@ raw_score = file_count*1.0 + estimated_lines*0.1 + requirement_count*2.0 + depen
 | `roadmap.md`              | 마일스톤 분해                | epic    |
 | `eval-record.md`          | 학습 기록                    | high+   |
 | `evolution-rule.md`       | evolution rule 템플릿 (ship에서 `active/`에 작성) | ship    |
+| `fact-extraction.md`      | Memory Bank fact 추출 기준/명령 가이드 | ship/long-run |
 | `telemetry-event.md`     | per-task 이벤트 로그 (stage 전환, token 사용, boundary alert) | long-run |
 | `metrics-dashboard.md`   | 기간별 집계 리포트 (stage 소요, 실패 분포, token 비용) | long-run |
+| `evidence-manifest.md`    | deprecated compatibility stub; 새 태스크에서는 `ship-summary.md` Evidence Manifest 사용 | legacy read-only |
+| `re-execution-conditions.md` | deprecated compatibility stub; 새 태스크에서는 `checkpoint.md` Re-Execution Conditions 사용 | legacy read-only |
 
 telemetry 산출물은 같은 프로젝트 저장소의 `telemetry/` 아래에 기록됩니다: `<task-id>.md` (이벤트 로그), `summary.md` (집계 리포트). 기본 경로는 `~/.forgeflow/projects/<project-slug>/telemetry/`입니다.
 

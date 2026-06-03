@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Template inventory validation now covers every file under `templates/`, and the README artifact table names project draft, fact extraction, telemetry, and deprecated compatibility stubs so user-facing artifact docs cannot lag behind the distributed template surface.
 - README standalone review artifact contract now names `fetch_ledger_complete` in the full adapter handoff checklist field list, and advisory validation guards that reader-facing overview from drifting behind the normalized-input/runtime contract.
 - Standalone review eval expectations now require the report-level Standalone Input Source summary to echo Adapter Handoff Checklist statuses, including `fetch_ledger_complete`, keeping the live eval inventory aligned with the template/runtime contract.
 - Review skill standalone section guidance now requires the Standalone Input Source output list to include Adapter Handoff Checklist statuses, matching the report template/runtime contract reader-facing handoff echo.

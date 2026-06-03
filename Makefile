@@ -12,6 +12,7 @@ PLUGIN_JSON := \
 
 TEMPLATES := \
 	brief.md \
+	project-draft.md \
 	plan.md \
 	review-report.md \
 	implementation-notes.md \
@@ -23,7 +24,12 @@ TEMPLATES := \
 	run-state.json \
 	ledger.md \
 	evolution-rule.md \
-	ship-summary.md
+	ship-summary.md \
+	fact-extraction.md \
+	telemetry-event.md \
+	metrics-dashboard.md \
+	evidence-manifest.md \
+	re-execution-conditions.md
 
 validate: validate-no-python validate-slim-surface validate-ci-workflows validate-json validate-versions validate-changelog-links validate-route-scoring-parity validate-route-policy validate-skills validate-agent-docs validate-templates validate-template-refs validate-demo validate-gemini-imports validate-plugin-prompts validate-evals validate-workflow-vocab validate-ship-safety validate-dogfooding-docs validate-context-resume validate-stage-tool-boundaries validate-adapter-config validate-advisory-contract validate-behavior-guardrails validate-markdown-links
 	@echo "OK: local validation passed"
