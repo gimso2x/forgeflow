@@ -152,7 +152,7 @@ validate-versions:
 	done; \
 	check ".claude-plugin/marketplace.json metadata.version" "$$($(PYTHON) -c 'import json; print(json.load(open(".claude-plugin/marketplace.json", encoding="utf-8")).get("metadata", {}).get("version", ""))')"; \
 	grep -F "## [$$expected]" CHANGELOG.md >/dev/null || failures="$${failures}- CHANGELOG.md: missing ## [$$expected] section\n"; \
-	if grep -F "현재 릴리즈:" README.md >/dev/null; then failures="$${failures}- README.md: remove hardcoded current release line\n"; fi; \
+	if grep -E "^(현재 릴리즈|Current release):" README.md >/dev/null; then failures="$${failures}- README.md: remove hardcoded current release line\n"; fi; \
 	grep -F "VERSION" README.md >/dev/null || failures="$${failures}- README.md: release policy must reference VERSION\n"; \
 	if [ -n "$$failures" ]; then \
 		printf 'ERROR: Version consistency check failed\n%b' "$$failures"; \
