@@ -3,7 +3,7 @@
 import json, pathlib, sys
 root = pathlib.Path('.')
 active = {p.name for p in (root / 'skills').iterdir() if p.is_dir() and not p.name.startswith('_')}
-files = [root / '.codex-plugin/plugin.json', root / '.cursor-plugin/plugin.json']
+files = [root / '.claude-plugin/plugin.json', root / '.codex-plugin/plugin.json', root / '.cursor-plugin/plugin.json']
 legacy_tokens = ('/forgeflow:plan', '/forgeflow:review', 'forgeflow:plan', 'forgeflow:review')
 scan_files = [root / 'README.md', root / 'SKILL.md'] + sorted((root / 'skills').glob('**/*.md'))
 failures = []

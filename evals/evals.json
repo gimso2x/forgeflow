@@ -8085,6 +8085,88 @@
           ]
         }
       ]
+    },
+    {
+      "id": 120,
+      "name": "changelog-impact-axis-classification",
+      "prompt": "A maintainer just completed a ForgeFlow task that added a new validate_changelog_links.py script and updated CI to check impact-axis headings. Classify each change into the correct CHANGELOG impact axis and produce the Unreleased section. Changes: (1) validate_changelog_links.py added to scripts/, (2) Makefile validate-changelog-links target added, (3) README updated with the new validation command, (4) validate_advisory_contract.py fixed a false-positive on duplicate subsection headings. Return only the Unreleased CHANGELOG section using impact-axis format.",
+      "expected_output": "A CHANGELOG Unreleased section using the four impact axes (🔒 자동화·정합성, 🔍 검증·정책, ⚡ 속도·안정성, 👤 사용자·경험) with changes (1) and (2) under 🔒, (4) under 🔍, and (3) under 👤.",
+      "files": [],
+      "assertions": [
+        {
+          "text": "Output uses impact-axis format with 🔒 section.",
+          "type": "contains",
+          "value": "🔒"
+        },
+        {
+          "text": "Output uses impact-axis format with 🔍 section.",
+          "type": "contains",
+          "value": "🔍"
+        },
+        {
+          "text": "Output uses impact-axis format with ⚡ section.",
+          "type": "contains",
+          "value": "⚡"
+        },
+        {
+          "text": "Output uses impact-axis format with 👤 section.",
+          "type": "contains",
+          "value": "👤"
+        },
+        {
+          "text": "Validation script addition is under 🔒 자동화·정합성.",
+          "type": "contains",
+          "value": "자동화·정합성"
+        },
+        {
+          "text": "README user-facing doc change is under 👤 사용자·경험.",
+          "type": "contains",
+          "value": "사용자·경험"
+        }
+      ]
+    },
+    {
+      "id": 121,
+      "name": "router-stage-routing-basic",
+      "prompt": "A user invokes /forgeflow without subcommand with the request 'Fix the login button color on mobile'. The forgeflow SKILL.md router must select a route and next stage. Analyze the request, determine the route (small/medium/high/epic), and name the next skill to invoke. Return only the route label and next skill.",
+      "expected_output": "Route: small (localized UI fix, 1-2 files, low risk). Next skill: /forgeflow:clarify or /forgeflow:execute depending on whether a brief already exists.",
+      "files": [],
+      "assertions": [
+        {
+          "text": "Output selects small route.",
+          "type": "contains",
+          "value": "small"
+        },
+        {
+          "text": "Output names clarify or execute as next skill.",
+          "type": "contains_any",
+          "values": [
+            "/forgeflow:clarify",
+            "/forgeflow:execute",
+            "clarify",
+            "execute"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 122,
+      "name": "auto-chain-small-route-skips-review",
+      "prompt": "A ForgeFlow task is in execute stage with route=small and auto=true. The execute stage completed with all self-verify checks passing. According to the auto-chain sequence, what is the next stage? Return only the next skill name.",
+      "expected_output": "/forgeflow:ship — small route auto-chain is clarify→execute→ship with self-verify replacing formal review.",
+      "files": [],
+      "assertions": [
+        {
+          "text": "Output names ship as next stage, not review.",
+          "type": "contains",
+          "value": "ship"
+        },
+        {
+          "text": "Output does not name review as next stage.",
+          "type": "not_contains",
+          "value": "review"
+        }
+      ]
     }
   ]
 }

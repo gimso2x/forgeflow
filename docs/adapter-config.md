@@ -80,6 +80,8 @@ Gemini extension 설치·업데이트는 extension manager/cache에서 처리될
 
 `gemini extensions update forgeflow`는 확인 프롬프트가 뜰 수 있으므로 자동화에서는 명시 승인 입력을 파이프합니다. 업데이트 후 `gemini extensions list`로 설치된 `forgeflow` extension을 확인합니다.
 
+**Gemini-specific extensions**: `.gemini/agents/`에 5개 전문 agent 정의(architect, backend-dev, frontend-dev, devops-engineer, qa-engineer)와 `.gemini/skills/`에 3개 Gemini 전용 스킬(api-security-checklist, component-patterns, fullstack-webapp)이 있습니다. 이들은 ForgeFlow core 스킬이 아니며 adapter-specific extension으로 분류됩니다. Core validation 대상이 아닙니다.
+
 ### Cursor (로컬 플러그인)
 
 Cursor plugin symlink/install은 Cursor의 local plugin 위치에서 관리하지만, `/clarify`, `/execute` 같은 workflow 명령은 **대상 프로젝트 루트**에서 실행합니다. Plugin cache나 ForgeFlow checkout에서 열린 세션이면 `~/.forgeflow/projects/<project-slug>/tasks/<task-id>/` 산출물 경로를 명시하고, cache 내부에 task artifact를 만들지 않습니다.

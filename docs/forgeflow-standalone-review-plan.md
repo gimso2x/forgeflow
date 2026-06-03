@@ -1,10 +1,10 @@
 # ForgeFlow standalone review 확장 실행계획
 
-> **Status**: ✅ 완료 (v1.2.0 기준). 모든 완료 기준이 충족되었습니다.
+> **Status**: ✅ 완료 (v1.2.0 기준). **Historical design document — canonical contract은 `skills/ff-review/SKILL.md`, `docs/review-runtime-contract.md`, `templates/input-source.md`, `templates/normalized-input.md`, `templates/review-report.md`를 기준으로 합니다.**
 > - `skills/ff-review/SKILL.md`에 standalone mode, input type detection, input normalization, reviewer role 분리, Human Final Judgment Gate가 구현되어 있습니다.
 > - `templates/review-report.md`에 Standalone Input Source, Reviewer Role Summary, Override Log, Standalone Mode Metadata 섹션이 있습니다.
 > - `evals/evals.json`에 canonical standalone review eval inventory가 있습니다. 초기 6개 baseline(id 39-44)에 더해 ambiguous input, URL/file evidence, patch scope, advisory boundary, provenance, role-packet handoff cases가 추가되어 현재 계약을 검증합니다.
-> - 이 문서는 참조용으로 보존합니다.
+> - **이 문서는 설계 기록 보존용입니다. 현재 동작은 위 canonical 파일을 참조하세요.**
 
 대상: ForgeFlow 개발봇
 

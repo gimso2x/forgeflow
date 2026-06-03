@@ -383,3 +383,35 @@ generated: <date>
 | **Phase 6** | Priority 7 (릴리즈 노트) | 없음 | ✅ 완료 (Unreleased) |
 
 Phase 1~6 모두 완료. Phase 6은 [Unreleased] 섹션을 영향 축(🔒 자동화·정합성 / 🔍 검증·정책 / ⚡ 속도·안정성 / 👤 사용자·경험)으로 재분류하고, `validate_changelog_links.py`와 release 스킬에 분류 가이드라인을 추가했다.
+
+---
+
+## v1.11.7 이후 개선점 (Phase 7)
+
+> **기준 버전**: v1.11.7 | **작성일**: 2026-06-03
+> v1.11.7 기준 전체 코드베이스 분석에서 도출. P1~P7 완료 후 남은 gap 18개.
+
+### ✅ 완료 (Phase 7)
+
+| # | 카테고리 | 개선점 | 상태 |
+|---|---------|--------|------|
+| F6 | skill-quality | Small-route auto-chain 모순 수정 (`automation.md` clarify→execute→ship) | ✅ |
+| F7 | skill-quality | clarify Output Artifacts에 Goal Contract 명시 추가 | ✅ |
+| F9+F1 | adapter+validation | `.claude-plugin/plugin.json`에 `interface.defaultPrompt` 추가 + validator 포함 | ✅ |
+| F2 | validation | `validate_template_refs.py`가 `_shared/*.md` template 참조도 검증 | ✅ |
+| F4+F5+F17 | validation | `validate_workflow_vocab.py`가 `.claude/skills/` + `.gemini/` 포함 | ✅ |
+| F8 | template | `plan.md` Architecture Notes 섹션 — 이미 존재 확인 (가짜 긍정) | ✅ |
+| F10 | adapter | Gemini agents/skills를 `adapter-config.md`에 문서화 | ✅ |
+| F11 | eval | ForgeFlow 라우터 스테이지 분기 eval 추가 (id 121) | ✅ |
+| F12 | eval | Changelog impact-axis 분류 eval 추가 (id 120) | ✅ |
+| F13 | eval | Small-route auto-chain skip-review eval 추가 (id 122) | ✅ |
+| F14 | docs | Standalone review 설계문서에 historical 명시 추가 | ✅ |
+| F15 | docs | `adapter-layout.md` migration deferred 표시 추가 | ✅ |
+
+### 📋 예정 (medium effort)
+
+| # | 카테고리 | 개선점 | 노력 |
+|---|---------|--------|------|
+| F3 | validation | Template 필드명 ↔ Skill 기대값 교차검증 (template schema drift detector) | medium |
+| F18 | shared | Verification gate 정의 중복 — 의도적 stage-specific 분리로 확인, 필요시 공유 gate catalog 추출 | medium |
+| F13-ext | eval | End-to-end `--auto` 전체 체인 eval (clarify→plan→execute→review→ship) — multi-stage eval 설계 필요 | high |

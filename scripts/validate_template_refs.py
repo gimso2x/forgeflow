@@ -3,7 +3,7 @@
 import pathlib, re, sys
 root = pathlib.Path('.')
 refs = set()
-for skill_md in (root / 'skills').glob('*/SKILL.md'):
+for skill_md in list((root / 'skills').glob('*/SKILL.md')) + list((root / 'skills' / '_shared').glob('*.md')):
     text = skill_md.read_text(encoding='utf-8')
     for match in re.finditer(r'templates/([a-zA-Z0-9_-]+\.md)', text):
         refs.add(match.group(1))

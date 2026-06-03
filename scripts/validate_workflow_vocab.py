@@ -65,7 +65,7 @@ deprecated_artifact_generation_terms = (
     ('implementation-notes.md` + `run-ledger.md', 'use `implementation-notes.md` + `ledger.md` Execution Tracking section for post-execute review prerequisites'),
     ('| `run-ledger.md` | plan.md scope |', 'use `ledger.md` Execution Tracking section in post-execute review evidence tables'),
 )
-scan_roots = [pathlib.Path('README.md'), pathlib.Path('GEMINI.md'), pathlib.Path('SKILL.md'), pathlib.Path('AGENTS.md'), pathlib.Path('docs'), pathlib.Path('skills'), pathlib.Path('templates')]
+scan_roots = [pathlib.Path('README.md'), pathlib.Path('GEMINI.md'), pathlib.Path('SKILL.md'), pathlib.Path('AGENTS.md'), pathlib.Path('docs'), pathlib.Path('skills'), pathlib.Path('templates'), pathlib.Path('.claude/skills'), pathlib.Path('.gemini')]
 for root in scan_roots:
     paths = [root] if root.is_file() else sorted(root.rglob('*.md'))
     for path in paths:

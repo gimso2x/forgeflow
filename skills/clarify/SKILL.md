@@ -97,6 +97,7 @@ Write `brief.md` to the active task directory using the `brief.md` template as t
 - Environment Notes (git status, dependency check, tech stack detected)
 - Route selection and rationale
 - Route Sub-band (`medium-light` | `medium-full` | `n/a`) when route is medium
+- **Goal Contract** (required — review PASS/FAIL contract): 성공 기준 (Success Criteria), 필수 증거 (Evidence Required), 인정된 리스크 (Accepted Risks), 명시적 제외 (Explicit Exclusions)
 
 ## Exit Condition
 

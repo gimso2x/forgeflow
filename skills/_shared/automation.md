@@ -49,7 +49,7 @@ If you find yourself about to print a y/n prompt or just mention the next skill 
 
 | Route | Auto-chain sequence |
 |-------|-------------------|
-| small | clarify → execute → review → ship |
+| small | clarify → execute → ship (self-verify replaces formal review) |
 | medium | clarify → plan → execute → review → ship |
 | high | clarify → plan → execute → review(spec) → review(quality) → ship |
 | epic | clarify → plan → execute → review(spec) → review(quality) → ship |

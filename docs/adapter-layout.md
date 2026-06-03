@@ -8,7 +8,9 @@ ForgeFlow currently keeps adapter-facing files at the repository root because ex
 - `.gemini/`, `GEMINI.md`, `gemini-extension.json` — Gemini CLI extension surface
 - `.agents/`, `plugins/` — Codex marketplace compatibility surface
 
-## Target direction
+## Target direction (deferred — no current plan to execute)
+
+> **Note**: This migration is deferred. Current root-level layout is validated and stable. No `adapters/` migration is planned unless marketplace/tooling requirements change.
 
 Prefer a single managed adapter source tree such as `adapters/` for future cleanup:
 
