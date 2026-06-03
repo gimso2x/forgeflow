@@ -71,6 +71,7 @@ missing_role_pass_fields = [field for field in role_pass_fields if field not in 
 if missing_role_pass_fields:
     failures.append(f'templates/review-report.md: missing explicit role-pass fields {missing_role_pass_fields}')
 input_source_template = (root / 'templates/input-source.md').read_text(encoding='utf-8')
+review_runtime_contract = (root / 'docs/review-runtime-contract.md').read_text(encoding='utf-8')
 classification_fields = ['Source Classification Rationale', 'Why this type', 'Ambiguities considered', 'Ambiguity outcome', 'Fetch Method Ledger', 'evidence_ids=E1,E2', 'access_posture=read_only|verification_only|not_applicable', 'mutation_check=PASS|FAIL', 'Evidence Source Map', 'fetch_id=F1|not_applicable', 'type=diff|file|artifact|url|command_output|reported_summary|missing', 'status=success|partial|failed|not_applicable', 'fetched_at=<ISO8601 timestamp|run label|not_applicable>', 'freshness_status=current|stale|unknown', 'evidence_level=observed|reported|missing', 'Access Posture', 'read_only | verification_only | not_applicable', 'Mutation Check']
 missing_classification_fields = [field for field in classification_fields if field not in input_source_template]
 if missing_classification_fields:
@@ -81,6 +82,8 @@ for input_type in standalone_input_types:
         failures.append(f'templates/input-source.md: missing standalone input type {input_type!r}')
     if input_type not in review_template:
         failures.append(f'templates/review-report.md: standalone input type summary must include {input_type!r}')
+    if input_type not in review_runtime_contract:
+        failures.append(f'docs/review-runtime-contract.md: standalone input detection docs must include {input_type!r}')
 normalized_input_template = (root / 'templates/normalized-input.md').read_text(encoding='utf-8')
 normalization_gate_fields = [
     'brief_present',

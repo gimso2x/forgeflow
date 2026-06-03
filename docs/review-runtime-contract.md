@@ -61,16 +61,18 @@ Markdown artifacts may use prose sections instead of this exact YAML block, but 
 
 ## Input source detection
 
-Standalone review accepts several source classes. Detection must be explicit and recorded in `input-source.md`.
+Standalone review accepts the same source classes recorded by `templates/input-source.md`: `URL`, `GitHub PR`, `GitHub commit`, `GitHub compare`, `repo path`, `git range`, `diff/patch`, `file bundle`, `existing artifact`, and `ambiguous`. Detection must be explicit and recorded in `input-source.md` using one of those labels.
 
+- URL: fetch page content and record fetch method/status.
 - GitHub PR: original input is PR URL or number; fetch PR metadata, changed files, and diff.
 - GitHub commit: original input is commit SHA; fetch commit message, stat, and diff.
-- GitHub compare/range: original input is a range; fetch changed files and range diff.
-- Other URL: fetch page content and record fetch method/status.
-- Repo path/current tree: inspect git status, staged diff, unstaged diff, and recent log if clean.
-- Diff/patch text or `.diff` / `.patch` file path: preserve raw diff text and parsed file headers; when the input is a patch file path, record provenance as `file-read:<path>` while scope comes from the diff headers.
+- GitHub compare: original input is a GitHub compare URL; fetch changed files and compare diff.
+- Repo path: inspect git status, staged diff, unstaged diff, and recent log if clean.
+- Git range: original input is a local git revision/range expression; fetch changed files and range diff.
+- Diff/patch: preserve raw diff text and parsed file headers; when the input is a `.diff` / `.patch` file path, record provenance as `file-read:<path>` while scope comes from the diff headers.
 - File bundle: read only listed files; missing files are missing evidence, not silently skipped.
-- Existing ForgeFlow artifact/task directory: read declared artifacts and referenced files that exist.
+- Existing artifact: read declared ForgeFlow artifacts/task directories and referenced files that exist.
+- Ambiguous: block or ask for clarification; do not coerce unclear input into a convenient source type.
 
 Ambiguous input must not be forced into a convenient source type. If the input cannot be classified, standalone review is blocked or asks for clarification.
 
