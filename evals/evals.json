@@ -2496,7 +2496,7 @@
       "id": 39,
       "name": "standalone-review-diff-input",
       "prompt": "You are running /forgeflow:ff-review in standalone mode. No resolved ForgeFlow task directory exists and no pipeline artifacts (brief.md, plan.md, implementation-notes.md, ledger.md) are present. The user provides the following unified diff as input:\n\n--- a/src/api/auth.ts\n+++ b/src/api/auth.ts\n@@ -12,6 +12,8 @@\n import { validateEmail } from './validators';\n+import { logEvent } from './logger';\n+// TODO: remove debug\n+console.log('login attempt', email);\n   const token = generateToken(user);\n+  logEvent('auth.success', { userId: user.id });\n   return { token, user };\n--- a/src/api/validators.ts\n+++ b/src/api/validators.ts\n@@ -5,3 +5,8 @@\n export function validateEmail(email: string): boolean {\n-  return /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email);\n+  if (!email || typeof email !== 'string') {\n+    return false;\n+  }\n+  const trimmed = email.trim();\n+  return /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(trimmed);\n }\n\nProduce only the review-report.md for this standalone review. Detect input type as diff, bootstrap a synthetic task directory, normalize input, and run the quality-reviewer. Do not include Execute Micro-Gates, Route Compliance, or Evolution Rule Review sections — they are not applicable in standalone mode. Do not auto-proceed to ship. The review report is the final artifact.",
-      "expected_output": "A standalone review-report.md that detects diff input, bootstraps a synthetic task directory under ~/.forgeflow/projects/<project-slug>/tasks/standalone-*, includes Standalone Input Source with Input Type diff, runs quality-reviewer, identifies debug artifacts (console.log, TODO) as findings, notes the improved validation in validators.ts, skips inapplicable pipeline-mode sections, and does not auto-ship.",
+      "expected_output": "A standalone review-report.md that detects diff input, bootstraps a synthetic task directory under ~/.forgeflow/projects/<project-slug>/tasks/standalone-*, includes Standalone Input Source fields for Input Type diff plus Fetched At, Freshness Status, Access Posture, and Mutation Check, runs quality-reviewer, identifies debug artifacts (console.log, TODO) as findings, notes the improved validation in validators.ts, skips inapplicable pipeline-mode sections, and does not auto-ship.",
       "files": [
         "skills/ff-review/SKILL.md",
         "templates/review-report.md"
@@ -2508,12 +2508,16 @@
           "value": "diff"
         },
         {
-          "text": "Output includes a Standalone Input Source section with Input Type, Original Input, and Fetch Status fields.",
+          "text": "Output includes a Standalone Input Source section with Input Type, Original Input, Fetch Status, Fetched At, Freshness Status, Access Posture, and Mutation Check fields.",
           "type": "contains_all",
           "values": [
             "Standalone Input Source",
             "Input Type",
-            "Fetch Status"
+            "Fetch Status",
+            "Fetched At",
+            "Freshness Status",
+            "Access Posture",
+            "Mutation Check"
           ]
         },
         {
@@ -2589,7 +2593,7 @@
       "id": 40,
       "name": "standalone-review-file-bundle",
       "prompt": "You are running /forgeflow:ff-review in standalone mode. No resolved ForgeFlow task directory exists and no pipeline artifacts (brief.md, plan.md, implementation-notes.md, ledger.md) are present. The user provides two local file paths as input:\n\n1. src/utils/string-helpers.ts — a utility module with string manipulation functions\n2. src/utils/string-helpers.test.ts — a unit test file for the utility module\n\nBoth files exist on disk. The user says: \"Review these two files for code quality and test coverage.\"\n\nProduce only the review-report.md for this standalone review. Detect input type as file-bundle, bootstrap a synthetic task directory, normalize input (auto-generate brief from file names and user description), and run the quality-reviewer. Since the input is a file bundle of code and tests, also trigger spec-reviewer checks against the auto-generated brief. Do not include Execute Micro-Gates, Route Compliance, or Evolution Rule Review sections — they are not applicable in standalone mode. Do not auto-proceed to ship. The review report is the final artifact.",
-      "expected_output": "A standalone review-report.md that detects file-bundle input type, bootstraps a synthetic task directory under ~/.forgeflow/projects/<project-slug>/tasks/standalone-*, includes Standalone Input Source with Input Type file-bundle, auto-generates a brief from file names and user description, runs quality-reviewer and spec-reviewer, lists files in scope, skips inapplicable pipeline-mode sections, and does not auto-ship.",
+      "expected_output": "A standalone review-report.md that detects file-bundle input type, bootstraps a synthetic task directory under ~/.forgeflow/projects/<project-slug>/tasks/standalone-*, includes Standalone Input Source fields for Input Type file-bundle plus Fetched At, Freshness Status, Access Posture, and Mutation Check, auto-generates a brief from file names and user description, runs quality-reviewer and spec-reviewer, lists files in scope, skips inapplicable pipeline-mode sections, and does not auto-ship.",
       "files": [
         "skills/ff-review/SKILL.md",
         "templates/review-report.md"
@@ -2601,12 +2605,16 @@
           "value": "file-bundle"
         },
         {
-          "text": "Output includes a Standalone Input Source section with Input Type, Original Input, Fetch Status, Normalized Brief, Scope, and Constraints fields.",
+          "text": "Output includes a Standalone Input Source section with Input Type, Original Input, Fetch Status, Fetched At, Freshness Status, Access Posture, Mutation Check, Normalized Brief, Scope, and Constraints fields.",
           "type": "contains_all",
           "values": [
             "Standalone Input Source",
             "Input Type",
             "Fetch Status",
+            "Fetched At",
+            "Freshness Status",
+            "Access Posture",
+            "Mutation Check",
             "Normalized Brief",
             "Scope"
           ]
@@ -2682,7 +2690,7 @@
       "id": 41,
       "name": "standalone-review-github-pr-url",
       "prompt": "You are running /forgeflow:ff-review in standalone mode. No resolved ForgeFlow task directory exists and no pipeline artifacts (brief.md, plan.md, implementation-notes.md, ledger.md) are present. The user provides the following input:\n\nhttps://github.com/acme/webapp/pull/42\n\nThe PR title is \"Add password reset flow\" and the body says \"Implements /auth/reset-password endpoint with email verification and rate limiting. Closes #15.\" The PR changes 3 files: src/auth/reset.ts (new, 120 lines), src/auth/email.ts (modified, +30 lines), tests/auth/reset.test.ts (new, 80 lines). The diff adds a POST /auth/reset-password route, an email sending helper, and unit tests. No security-reviewer or perf-reviewer is explicitly requested.\n\nProduce only the review-report.md for this standalone review. Detect input type as URL (GitHub PR), bootstrap a synthetic task directory, normalize input (auto-generate brief from PR title and body, extract evidence as the full diff, scope as the 3 changed files), and run quality-reviewer and spec-reviewer. Since the changes touch authentication code, also trigger security-reviewer. Do not include Execute Micro-Gates, Route Compliance, or Evolution Rule Review sections — they are not applicable in standalone mode. Do not auto-proceed to ship. The review report is the final artifact.",
-      "expected_output": "A standalone review-report.md that detects URL input type (GitHub PR), bootstraps a synthetic task directory under ~/.forgeflow/projects/<project-slug>/tasks/standalone-*, includes Standalone Input Source with Input Type url, Original Input the PR URL, auto-generates brief from PR title+body, runs quality-reviewer, spec-reviewer, and security-reviewer (triggered by auth code), lists all 3 changed files in scope, records source metadata (gh pr diff / gh pr view), skips inapplicable pipeline-mode sections, and does not auto-ship.",
+      "expected_output": "A standalone review-report.md that detects URL input type (GitHub PR), bootstraps a synthetic task directory under ~/.forgeflow/projects/<project-slug>/tasks/standalone-*, includes Standalone Input Source fields for Input Type url plus Fetched At, Freshness Status, Access Posture, and Mutation Check, Original Input the PR URL, auto-generates brief from PR title+body, runs quality-reviewer, spec-reviewer, and security-reviewer (triggered by auth code), lists all 3 changed files in scope, records source metadata (gh pr diff / gh pr view), skips inapplicable pipeline-mode sections, and does not auto-ship.",
       "files": [
         "skills/ff-review/SKILL.md",
         "templates/review-report.md"
@@ -2699,13 +2707,17 @@
           ]
         },
         {
-          "text": "Output includes Standalone Input Source section with Input Type, Original Input, and Fetch Status fields.",
+          "text": "Output includes Standalone Input Source section with Input Type, Original Input, Fetch Status, Fetched At, Freshness Status, Access Posture, and Mutation Check fields.",
           "type": "contains_all",
           "values": [
             "Standalone Input Source",
             "Input Type",
             "Original Input",
-            "Fetch Status"
+            "Fetch Status",
+            "Fetched At",
+            "Freshness Status",
+            "Access Posture",
+            "Mutation Check"
           ]
         },
         {
@@ -2811,7 +2823,7 @@
       "id": 42,
       "name": "standalone-review-repo-path",
       "prompt": "You are running /forgeflow:ff-review in standalone mode. No resolved ForgeFlow task directory exists and no pipeline artifacts (brief.md, plan.md, implementation-notes.md, ledger.md) are present. The user provides the following input:\n\n/home/projects/webapp\n\nThis is a local git repository. The current branch is feature/search. The working tree has uncommitted changes in 2 files: src/search/index.ts (+45 lines, new file) and src/search/utils.ts (+12 lines, modified). The diff adds a search indexing function and a text normalization utility. No branch range or commit SHA is specified. The repository has a package.json with a \"test\" script. No --type or --focus flags are provided.\n\nProduce only the review-report.md for this standalone review. Detect input type as repo path (current worktree), bootstrap a synthetic task directory, normalize input (auto-generate brief from working tree summary, extract evidence from git diff HEAD, scope as the 2 changed files), and run quality-reviewer and spec-reviewer (default standalone behavior). Do not include Execute Micro-Gates, Route Compliance, or Evolution Rule Review sections — they are not applicable in standalone mode. Do not auto-proceed to ship. The review report is the final artifact.",
-      "expected_output": "A standalone review-report.md that detects input type as repo path, bootstraps a synthetic task directory under ~/.forgeflow/projects/<project-slug>/tasks/standalone-*, includes Standalone Input Source with Input Type repo, Original Input the local path, auto-generates brief from working tree summary (Review of working tree in <repo>), runs quality-reviewer and spec-reviewer, lists both changed files in scope, records source metadata (git diff HEAD / file read), skips inapplicable pipeline-mode sections, and does not auto-ship.",
+      "expected_output": "A standalone review-report.md that detects input type as repo path, bootstraps a synthetic task directory under ~/.forgeflow/projects/<project-slug>/tasks/standalone-*, includes Standalone Input Source fields for Input Type repo plus Fetched At, Freshness Status, Access Posture, and Mutation Check, Original Input the local path, auto-generates brief from working tree summary (Review of working tree in <repo>), runs quality-reviewer and spec-reviewer, lists both changed files in scope, records source metadata (git diff HEAD / file read), skips inapplicable pipeline-mode sections, and does not auto-ship.",
       "files": [
         "skills/ff-review/SKILL.md",
         "templates/review-report.md"
@@ -2828,13 +2840,17 @@
           ]
         },
         {
-          "text": "Output includes Standalone Input Source section with Input Type, Original Input, and Fetch Status fields.",
+          "text": "Output includes Standalone Input Source section with Input Type, Original Input, Fetch Status, Fetched At, Freshness Status, Access Posture, and Mutation Check fields.",
           "type": "contains_all",
           "values": [
             "Standalone Input Source",
             "Input Type",
             "Original Input",
-            "Fetch Status"
+            "Fetch Status",
+            "Fetched At",
+            "Freshness Status",
+            "Access Posture",
+            "Mutation Check"
           ]
         },
         {
@@ -2931,7 +2947,7 @@
       "id": 43,
       "name": "standalone-review-existing-artifact",
       "prompt": "You are running /forgeflow:ff-review in standalone mode. The user provides the following input:\n\n.forgeflow/tasks/ship-updates-20260514/\n\nThis is a path to an existing ForgeFlow task directory containing pipeline artifacts (brief.json, checkpoint.json, implementation-notes.md, ledger.md, etc.). No prior pipeline context is assumed — the review is invoked independently. The task was a documentation update for a project. The --type flag is not provided. Produce only the review-report.md for this standalone review. Detect input type as existing artifact (type 5: path to a .forgeflow/tasks/ directory), bootstrap a synthetic task directory, normalize input (auto-generate brief from the artifact content, read all artifacts found inside for context, extract evidence from artifact files), and run quality-reviewer and spec-reviewer with default standalone behavior. Do not include Execute Micro-Gates, Route Compliance, or Evolution Rule Review sections — they are not applicable in standalone mode. Do not auto-proceed to ship.",
-      "expected_output": "A standalone review-report.md that detects input type as existing artifact, bootstraps a synthetic task directory, reads artifacts from the referenced task directory for evidence, includes Standalone Input Source with Input Type artifact (or existing artifact), runs quality-reviewer and spec-reviewer, scopes review to the artifact content and any referenced files that exist, skips inapplicable pipeline-mode sections, and does not auto-ship.",
+      "expected_output": "A standalone review-report.md that detects input type as existing artifact, bootstraps a synthetic task directory, reads artifacts from the referenced task directory for evidence, includes Standalone Input Source fields for Input Type artifact plus Fetched At, Freshness Status, Access Posture, and Mutation Check (or existing artifact), runs quality-reviewer and spec-reviewer, scopes review to the artifact content and any referenced files that exist, skips inapplicable pipeline-mode sections, and does not auto-ship.",
       "files": [
         "skills/ff-review/SKILL.md",
         "templates/review-report.md"
@@ -2947,13 +2963,17 @@
           ]
         },
         {
-          "text": "Output includes Standalone Input Source section with Input Type, Original Input, and Fetch Status fields.",
+          "text": "Output includes Standalone Input Source section with Input Type, Original Input, Fetch Status, Fetched At, Freshness Status, Access Posture, and Mutation Check fields.",
           "type": "contains_all",
           "values": [
             "Standalone Input Source",
             "Input Type",
             "Original Input",
-            "Fetch Status"
+            "Fetch Status",
+            "Fetched At",
+            "Freshness Status",
+            "Access Posture",
+            "Mutation Check"
           ]
         },
         {
@@ -3080,11 +3100,15 @@
           ]
         },
         {
-          "text": "Output includes Standalone Input Source section with Input Type field.",
+          "text": "Output includes Standalone Input Source section with Input Type plus fetch freshness/access posture fields.",
           "type": "contains_all",
           "values": [
             "Standalone Input Source",
-            "Input Type"
+            "Input Type",
+            "Fetched At",
+            "Freshness Status",
+            "Access Posture",
+            "Mutation Check"
           ]
         },
         {
@@ -3175,9 +3199,15 @@
       ],
       "assertions": [
         {
-          "text": "Output includes a Standalone Input Source section.",
-          "type": "contains",
-          "value": "Standalone Input Source"
+          "text": "Output includes a Standalone Input Source section with fetch freshness/access posture fields.",
+          "type": "contains_all",
+          "values": [
+            "Standalone Input Source",
+            "Fetched At",
+            "Freshness Status",
+            "Access Posture",
+            "Mutation Check"
+          ]
         },
         {
           "text": "Output sets the verdict to blocked because input cannot be classified.",

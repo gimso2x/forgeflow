@@ -35,6 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Standalone review eval fixtures now assert the same `Fetched At`, `Freshness Status`, `Access Posture`, and `Mutation Check` summary fields required by the review skill/template/runtime contract.
 - Historical standalone review planning docs now point readers to the implemented Markdown-first contract and no longer imply a pending JSON report shape or execute-only review baseline.
 - Shared automation guidance now describes forbidden-action handoffs with the same full checkpoint boundary field set at the initial stop rule, so stage owners do not miss `current owner` or `handoff reason` before the dedicated `Handoff Boundary` reminder; the focused stage-boundary validator now guards the updated wording.
 - Context-resume guidance and the compact-resume eval now require reading checkpoint `Handoff Boundary` ownership/delegation before continuing after context refresh, preventing refresh from erasing forbidden-action handoffs or stop conditions.
