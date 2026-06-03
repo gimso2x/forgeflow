@@ -12,6 +12,9 @@ validate_prompt: |
   Must resolve template root before reading any template.
   Must not invent artifact structure when templates are missing.
   Must follow route model (small/medium/high/epic) for stage sequencing.
+  Must route work through explicit ForgeFlow stages and artifact-backed gates.
+  Must preserve stage boundaries, verification evidence, and independent review semantics.
+  Must not treat ForgeFlow as a chat-only ritual when task artifacts are required.
 dependencies:
   - skills/_shared/discipline.md
   - skills/_shared/automation.md
@@ -20,10 +23,6 @@ dependencies:
   - docs/advisory-guidelines.md
   - templates/brief.md
   - templates/plan.md
-validate_prompt: |
-  Must route work through explicit ForgeFlow stages and artifact-backed gates.
-  Must preserve stage boundaries, verification evidence, and independent review semantics.
-  Must not treat ForgeFlow as a chat-only ritual when task artifacts are required.
 ---
 
 # ForgeFlow

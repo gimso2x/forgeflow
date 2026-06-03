@@ -24,6 +24,13 @@ check_frontmatter_fields() {
 		return
 	fi
 
+	duplicate_keys=$(sed -n "$((fm_start + 1)),$((fm_end - 1))p" "$file" | grep -E '^[^[:space:]#][^:]*:' | cut -d: -f1 | sort | uniq -d || true)
+	if [ -n "$duplicate_keys" ]; then
+		echo "ERROR: $file — duplicate top-level frontmatter keys:" >&2
+		echo "$duplicate_keys" | sed 's/^/  - /' >&2
+		errors=$((errors + 1))
+	fi
+
 	# Check each required field within frontmatter range
 	for field in $fields; do
 		line=$(sed -n "$((fm_start + 1)),$((fm_end - 1))p" "$file" | grep "^${field}:" || true)
