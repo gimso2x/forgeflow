@@ -13,6 +13,7 @@ validate_prompt: |
   Must run artifact completeness gate before starting review.
   Must apply 7-angle deep code analysis for quality-reviewer when diff/code input is available.
   Must verify each finding as CONFIRMED or PLAUSIBLE before including in review report.
+  Must run plan conformance gate in pipeline mode — every plan task traced to execution evidence before approval.
 dependencies:
   - skills/_shared/discipline.md
   - skills/_shared/isolation.md
@@ -689,6 +690,16 @@ Do not enter standalone mode if pipeline artifacts exist, even if the user provi
 2. Review from artifacts and code, not worker vibes.
 3. Check scope coverage and acceptance criteria, including every fulfills, journey, and verification plan target from the plan.
 3b. **Scope Boundary Verification** (see Scope Boundary Verification above): Read scope_boundary from brief.md, identify actually modified files, compare planned vs actual, and check route threshold. Record violations in review-report.md frontmatter scope_boundary field. Issue advisory if scope creep detected.
+3c. **Plan Conformance Gate**: Systematically verify that every task in `plan.md` was implemented. This is the plan-vs-reality check — not just "were acceptance criteria met" but "did the implementation actually do what the plan said."
+    - Read plan.md Tasks section. For each task with a status other than `skip` or `deferred`:
+      1. **Task traceability**: Does `implementation-notes.md` or `ledger.md` show evidence this task was worked on? If a plan task has zero mentions in execution artifacts, flag as **major** finding (category: `plan-conformance / task-missing`).
+      2. **File coverage**: Does the task list specific files? Were those files actually created or modified? Use `git diff` or file inspection. Missing files = **major** finding (category: `plan-conformance / file-missing`).
+      3. **Verification completion**: Did the task's verification step produce observable evidence? Plan tasks with verification that was never run = **major** finding (category: `plan-conformance / verification-skipped`).
+      4. **Fulfills coverage**: If the task has `fulfills` linking to acceptance criteria, is there evidence the criterion was addressed? Unfulfilled links = **major** finding (category: `plan-conformance / criterion-unfulfilled`).
+    - Write the results to `review-report.md` → **Plan Task Conformance** section.
+    - Any **blocker**-severity conformance gap (entire plan task missing, critical file not created) prevents approval.
+    - **Small route**: Trace only the primary task and its listed files. Skip fulfills depth unless escalated.
+    - **Medium+ routes**: Full traceability — every plan task, every listed file, every fulfills link.
 4. Start with blocker elimination: missing artifacts, missing observed evidence, failed verification, or unresolved open blockers force `blocked` or `changes_requested` before minor findings are considered.
 5. **Run independent verification** (see Test verification gate and Standard verification checklist above). For small routes, run the fastest relevant observed gate; if tests exist for the changed behavior and are cheap, run those tests. If any selected gate fails, verdict MUST be `changes_requested`.
 6. Run or inspect other verification (lint, type check, build) if the user allowed command execution.
