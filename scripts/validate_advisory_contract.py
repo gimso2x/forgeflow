@@ -75,6 +75,12 @@ classification_fields = ['Source Classification Rationale', 'Why this type', 'Am
 missing_classification_fields = [field for field in classification_fields if field not in input_source_template]
 if missing_classification_fields:
     failures.append(f'templates/input-source.md: missing source classification fields {missing_classification_fields}')
+standalone_input_types = ['URL', 'GitHub PR', 'GitHub commit', 'GitHub compare', 'repo path', 'git range', 'diff/patch', 'file bundle', 'existing artifact', 'ambiguous']
+for input_type in standalone_input_types:
+    if input_type not in input_source_template:
+        failures.append(f'templates/input-source.md: missing standalone input type {input_type!r}')
+    if input_type not in review_template:
+        failures.append(f'templates/review-report.md: standalone input type summary must include {input_type!r}')
 normalized_input_template = (root / 'templates/normalized-input.md').read_text(encoding='utf-8')
 normalization_gate_fields = [
     'brief_present',

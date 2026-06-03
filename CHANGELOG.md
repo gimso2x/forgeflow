@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Standalone review report input type guidance now mirrors the canonical `input-source.md` taxonomy (GitHub PR/commit/compare, repo path, git range, diff/patch, file bundle, existing artifact, ambiguous), and advisory validation guards against drift between those templates.
 - Historical standalone review roadmap notes now point post-execute evidence prerequisites at `ledger.md` Execution Tracking instead of deprecated `run-ledger.md`, and workflow vocabulary validation guards that roadmap drift.
 - Roadmap and implementation-note guidance now point deprecated ledger/decision artifacts to their current canonical sections, and workflow vocabulary validation guards against presenting those deprecated filenames as newly generated artifacts.
 - English README now exposes the behavior guardrail contract and focused `make validate-behavior-guardrails` command, with `validate-english-readme` guarding that global quickstart surface.

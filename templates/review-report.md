@@ -25,7 +25,7 @@ scope_boundary:
 
 ## Standalone 입력 소스 (Standalone Input Source)
 <!-- Standalone mode only. Pipeline mode: delete this section. -->
-- **Input Type**: <!-- URL | repo | diff | file-bundle | artifact -->
+- **Input Type**: <!-- URL | GitHub PR | GitHub commit | GitHub compare | repo path | git range | diff/patch | file bundle | existing artifact | ambiguous -->
 - **Original Input**: <!-- URL, path, or diff summary -->
 - **Fetch Status**: <!-- success | partial | failed -->
 - **Fetched At**: <!-- ISO8601 timestamp or run label from input-source.md -->
