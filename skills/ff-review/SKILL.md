@@ -432,7 +432,7 @@ Automatic fail conditions:
 - Unapproved scope drift
 - Silent fallback or dual-write drift
 - Evidence-free completion claim
-- Approved verdict with open blockers or safe_for_next_stage=false → **Blocker Enforcement Rule (L344) 위반**
+- Approved verdict with open blockers or safe_for_next_stage=false → **Blocker Enforcement Rule 위반** (see Verdict field rule above)
 
 ### Finding discipline
 
@@ -467,7 +467,7 @@ Automatic fail conditions:
 - Weak verification
 - Hidden residual risk
 - Shadow-path ownership drift
-- Approved verdict with open blockers or safe_for_next_stage=false → **Blocker Enforcement Rule (L344) 위반**
+- Approved verdict with open blockers or safe_for_next_stage=false → **Blocker Enforcement Rule 위반** (see Verdict field rule above)
 - CONFIRMED correctness finding from deep code analysis
 
 ### Code Quality Metrics (quantitative)
