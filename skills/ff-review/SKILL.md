@@ -116,10 +116,11 @@ Create `input-source.md` from `templates/input-source.md`. It records:
 - Source classification rationale: why the type was selected, plausible ambiguities considered, and whether ambiguity was resolved or blocked
 - Original input value (URL, path, diff snippet)
 - Fetch command used (if applicable)
-- Access posture and mutation check for the fetch method, proving evidence collection stayed read-only/verification-only and did not comment, approve, label, dispatch CI, deploy, write product files, change branches, or perform destructive cleanup
+- Access posture and mutation check for each fetch method, proving evidence collection stayed read-only/verification-only and did not comment, approve, label, dispatch CI, deploy, write product files, change branches, or perform destructive cleanup
+- Fetch Method Ledger rows when multiple commands/API/source labels produce evidence, tying each fetch posture and mutation check to the evidence IDs it produced
 - Fetch result status (success/partial/failed)
 - Missing/truncated evidence notes
-- Evidence Source Map linking each normalized evidence ID to the fetch command/API/source label, normalized evidence type, fetch status, fetched_at timestamp/run label, freshness status, evidence level, and integrity
+- Evidence Source Map linking each normalized evidence ID to the fetch command/API/source label or Fetch Method Ledger row, normalized evidence type, fetch status, fetched_at timestamp/run label, freshness status, evidence level, and integrity
 - Timestamp
 
 Create `normalized-input.md` from `templates/normalized-input.md`. It records the 4-field structure (see Input Normalization below).

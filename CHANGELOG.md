@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Standalone review `input-source.md` now includes a per-fetch Fetch Method Ledger for multi-source evidence, preventing mixed PR metadata/diff/file/command fetches from hiding access posture or mutation checks behind a single overall field.
 - Review skill standalone output guidance now requires the reader-facing Standalone Input Source summary to include fetched_at/run label, freshness status, access posture, and mutation check, matching the report template/runtime contract.
 - Standalone review reports now surface fetch access posture and mutation checks in the reader-facing input-source summary, preserving read-only/verification-only fetch posture without requiring readers to reopen normalization artifacts.
 - Standalone review reports now surface `Fetched At` and `Freshness Status` in the reader-facing input-source summary, preserving stale/unknown evidence posture without requiring readers to reopen normalization artifacts.

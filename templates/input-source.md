@@ -20,6 +20,10 @@
 - **Access Posture**: <!-- read_only | verification_only | not_applicable; state-changing remote/API actions are forbidden for review evidence fetch -->
 - **Mutation Check**: <!-- PASS | FAIL; PASS means the fetch method did not comment, approve, label, dispatch CI, deploy, write product files, change branches, or perform destructive cleanup -->
 
+## Fetch Method Ledger
+<!-- Required when more than one command/API/source label was used. Keep one row per evidence-producing fetch so access posture and mutation checks are auditable per evidence source, not only for the overall adapter. -->
+- **F1**: <!-- evidence_ids=E1,E2; adapter/tool=<tool>; command/API/source=<exact label>; access_posture=read_only|verification_only|not_applicable; mutation_check=PASS|FAIL; result=success|partial|failed|not_applicable -->
+
 ## Fetch Status
 <!-- success | partial | failed | not_applicable -->
 
@@ -29,8 +33,8 @@
 - **Integrity**: <!-- complete | partial | failed | truncated:<N/M lines> -->
 
 ## Evidence Source Map
-<!-- One row per normalized evidence item. IDs must match normalized-input.md. This keeps fetch provenance auditable before reviewer roles cite evidence. Include the normalized evidence type/status/freshness/level here so handoff reviewers can detect mismatches without re-reading chat logs. -->
-- **E1**: <!-- source label or command/API used; type=diff|file|artifact|url|command_output|reported_summary|missing; status=success|partial|failed|not_applicable; fetched_at=<ISO8601 timestamp|run label|not_applicable>; freshness_status=current|stale|unknown; evidence_level=observed|reported|missing; integrity=complete|partial|failed|truncated:<N/M lines> -->
+<!-- One row per normalized evidence item. IDs must match normalized-input.md. This keeps fetch provenance auditable before reviewer roles cite evidence. Include the normalized evidence type/status/freshness/level and fetch posture pointer here so handoff reviewers can detect mismatches without re-reading chat logs. -->
+- **E1**: <!-- source label or command/API used; fetch_id=F1|not_applicable; type=diff|file|artifact|url|command_output|reported_summary|missing; status=success|partial|failed|not_applicable; fetched_at=<ISO8601 timestamp|run label|not_applicable>; freshness_status=current|stale|unknown; evidence_level=observed|reported|missing; integrity=complete|partial|failed|truncated:<N/M lines> -->
 
 ## Timestamp
 <!-- ISO timestamp or run label -->
