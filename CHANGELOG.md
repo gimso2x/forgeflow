@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Historical standalone review roadmap notes now point post-execute evidence prerequisites at `ledger.md` Execution Tracking instead of deprecated `run-ledger.md`, and workflow vocabulary validation guards that roadmap drift.
 - Roadmap and implementation-note guidance now point deprecated ledger/decision artifacts to their current canonical sections, and workflow vocabulary validation guards against presenting those deprecated filenames as newly generated artifacts.
 - English README now exposes the behavior guardrail contract and focused `make validate-behavior-guardrails` command, with `validate-english-readme` guarding that global quickstart surface.
 - Changelog validation now rejects duplicate Keep a Changelog subsection headings within a release section, and the current Unreleased notes use a single `Changed` section.

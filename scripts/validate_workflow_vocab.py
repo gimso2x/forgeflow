@@ -62,6 +62,8 @@ deprecated_artifact_generation_terms = (
     ('`plan-ledger.md` (신규)', 'use `ledger.md` Plan Items instead of presenting deprecated plan-ledger.md as a new artifact'),
     ('`decision-log.md` (신규)', 'use `implementation-notes.md` Decisions instead of presenting deprecated decision-log.md as a new artifact'),
     ('run-ledger.md = per-task status truth', 'use ledger.md as the per-task status truth'),
+    ('implementation-notes.md` + `run-ledger.md', 'use `implementation-notes.md` + `ledger.md` Execution Tracking section for post-execute review prerequisites'),
+    ('| `run-ledger.md` | plan.md scope |', 'use `ledger.md` Execution Tracking section in post-execute review evidence tables'),
 )
 scan_roots = [pathlib.Path('README.md'), pathlib.Path('GEMINI.md'), pathlib.Path('SKILL.md'), pathlib.Path('AGENTS.md'), pathlib.Path('docs'), pathlib.Path('skills'), pathlib.Path('templates')]
 for root in scan_roots:

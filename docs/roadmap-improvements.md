@@ -11,7 +11,7 @@
 
 ### Historical baseline
 - review는 execute 후속 검증으로만 설계됨
-- 반드시 `implementation-notes.md` + `run-ledger.md`가 선행되어야 실행 가능
+- 반드시 `implementation-notes.md` + `ledger.md` Execution Tracking section이 선행되어야 실행 가능
 
 ### 목표
 - URL / repo / diff / 파일 묶음만으로 review가 즉시 실행 가능
@@ -22,7 +22,7 @@
 #### 입력 유형 매트릭스
 | Input Source | Artifact | Evidence | Scope |
 |---|---|---|---|
-| Post-execute | `implementation-notes.md` | `run-ledger.md` | plan.md scope |
+| Post-execute | `implementation-notes.md` | `ledger.md` Execution Tracking section | plan.md scope |
 | URL (PR diff) | diff URL | diff hunks | changed files |
 | Repo snapshot | 디렉토리 구조 | file listing | 지정 경로 |
 | File bundle | 파일 목록 | 파일 내용 | 지정 파일 |
