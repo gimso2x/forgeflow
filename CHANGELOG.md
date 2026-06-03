@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Standalone review reports now echo the normalized Adapter Handoff Checklist, including `fetch_ledger_complete`, in the reader-facing Standalone Input Source summary so report-only readers can see handoff PASS/FAIL status alongside provenance references.
 - Review runtime contract now names `fetch_ledger_complete` in the normalized adapter handoff checklist, and advisory validation guards that exact checklist field so docs cannot drift from `templates/normalized-input.md`.
 - Historical standalone review plan status now points to the live eval inventory instead of the original six-case baseline, avoiding stale implementation guidance for reviewers and maintainers.
 - Standalone review evals now assert report-level Fetch Method Ledger and Evidence Source Map references for standalone review outputs, keeping fixtures aligned with the reader-facing provenance contract.

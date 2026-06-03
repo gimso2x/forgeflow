@@ -34,6 +34,7 @@ scope_boundary:
 - **Mutation Check**: <!-- PASS | FAIL; confirm fetch did not comment/approve/label/dispatch CI/deploy/write product files/change branches/clean destructively -->
 - **Fetch Method Ledger**: <!-- none | cite input-source.md F<N> rows used for this report; required when multiple command/API/source labels produced evidence -->
 - **Evidence Source Map**: <!-- cite input-source.md evidence IDs/fetch_id rows that back the normalized evidence used in findings and role summaries -->
+- **Adapter Handoff Checklist**: <!-- cite normalized-input.md adapter handoff checklist statuses, including source_classified/fetch_reproduced/fetch_ledger_complete/fetch_posture_constrained/normalization_complete/limitations_visible/canonical_review_ownership; any FAIL blocks reviewer judgment -->
 - **Normalized Brief**: <!-- Auto-generated brief -->
 - **Scope**: <!-- Files/directories/commit range -->
 - **Constraints**: <!-- Review focus, excluded paths, additional rules -->
