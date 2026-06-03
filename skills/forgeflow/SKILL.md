@@ -113,8 +113,10 @@ When `/forgeflow:clarify` or full init creates drafts, it should ground the brie
 ## Route model
 
 - `small`
-  - Stages: clarify -> execute -> review -> ship
+  - Stages: clarify -> execute -> ship (3-stage, review skipped)
   - When: 1-2 files, low risk, easy rollback
+  - **Review skip condition**: execute stage must end with a self-verify pass against brief.md Goal Contract evidence criteria. If self-verify fails or Goal Contract evidence is ambiguous, fall back to full 4-stage (clarify -> execute -> review -> ship) and warn the user.
+  - **User advisory**: after ship, recommend manual review for any concern.
 - `medium`
   - Stages: clarify -> plan -> execute -> review -> ship
   - When: several coordinated files, shared state, moderate test surface
@@ -194,10 +196,23 @@ ForgeFlow separates responsibilities across stages. The implementing session mus
 1. **Implementation does not self-approve.** The implementer's summary is input for review, not a substitute.
 2. **Review is read-only.** Review records findings in `review-report.md` and hands back to the worker. It never edits code.
 3. **If only one session is available**, keep the role boundary by using separate turns with artifact handoffs. Do not blur implementation and review in the same turn.
-4. **Model binding**: When the shell supports role-specific model selection, use capability-appropriate models (heuristic, not enforced):
-   - **Planning / review / spec micro-review** — strongest reasoning available
-   - **Integration or multi-file execute** — standard coding model
-   - **Mechanical plan steps** (1–2 files, complete spec) — fast/cheap model acceptable
+4. **Model binding**: When the shell supports role-specific model selection, use capability-appropriate models. ForgeFlow declares model **tiers** by stage — adapters translate tiers to concrete models based on available providers.
+
+   **Stage Model Tiers (declarative):**
+
+   | Stage | Tier | Rationale |
+   |---|---|---|
+   | clarify | reasoning | Ambiguity resolution needs strong inference |
+   | ff-plan | reasoning | Plan quality directly affects all downstream stages |
+   | execute | coding | Implementation benefits from coding-optimized models |
+   | ff-review | reasoning | Independent verification needs strong reasoning, not coding speed |
+   | ship | fast | Mechanical commit/tag/changelog — no reasoning needed |
+
+   - `reasoning` = strongest reasoning model available (e.g. Claude Opus, o3)
+   - `coding` = coding-optimized model (e.g. Claude Sonnet, GPT-4.1)
+   - `fast` = cheapest/fastest acceptable model (e.g. Haiku, Mini)
+
+   Adapters should respect tier hints when model selection is available, but **must not** block or fail if a tier cannot be satisfied — fall back to the default model silently.
    The artifact contract records the role boundary; it does not require a central model database.
 
 ## Execution Patterns
@@ -232,6 +247,16 @@ worker A ──┐
 worker B ──┤ → reviewer → verdict
 worker C ──┘
 ```
+
+**Worktree isolation requirement (high/epic):**
+When fan-out activates, each parallel worker **must** operate in an isolated git worktree to prevent file conflicts. This is a safety prerequisite, not optional.
+
+- **Bootstrap**: `git worktree add .forgeflow/worktrees/<task-id>-<worker-id> -b <branch>`
+- **Mapping**: Each worker's task_dir maps to its own worktree. Workers never share a working directory.
+- **Merge**: After all workers complete, fan-in merges worktrees back to the main branch. Resolve conflicts before review.
+- **Cleanup**: After ship, remove worktrees with `git worktree remove .forgeflow/worktrees/<task-id>-<worker-id>`.
+
+If the adapter/shell does not support worktree creation, fall back to sequential execution with a warning — do not run parallel workers in the same working tree.
 
 ### When to use which pattern
 

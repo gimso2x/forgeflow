@@ -341,6 +341,7 @@ Write `review-report.md` (schema: review-report/v2, from `templates/review-repor
 
 - Review Type (spec | quality | architecture | security | ux | perf — or list multiple for standalone)
 - Verdict (approved | changes_requested | blocked) — never use "passed"
+- **Blocker Enforcement Rule:** `approved` verdict is allowed **only** when Open Blockers is empty. If any blocker finding exists, verdict must be `changes_requested` or `blocked`. There is no "minor blocker" category — a finding classified as blocker is a blocker regardless of perceived severity. Reviewer may reclassify a finding from blocker to major before verdict, but may not leave a blocker open and still give `approved`.
 - Reviewer (role or identifier)
 - Findings with severity (blocker | major | minor | nit), priority (p1 | p2 | p3 | p4), category (spec-compliance | quality | maintainability | risk | security), Criteria Basis, Evidence Source, Evidence Level (`observed | reported | missing`), Side Effect, Why This Remediation, Disposition, and Disposition Rationale when needed
 - Reviewer Role Summary with checklist source, exact `Checklist Version`, evidence requirements source, per-role verdict counts, and cross-role conflict count when role-based review runs

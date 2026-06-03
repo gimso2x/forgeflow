@@ -123,18 +123,13 @@ Keep generated rules evidence-backed by review-approved task artifacts. Skip sma
 
 ## SOFT→HARD auto-promotion check
 
-After extracting evolution rules, check if any advisory (soft) rules have reached the promotion threshold:
+After extracting evolution rules, check if any advisory (soft) rules have reached the promotion threshold. ForgeFlow is a markdown-only distribution — no runtime scripts. Use this manual process:
 
-1. Run `python3 scripts/forgeflow_evolution_promote.py list-failures` to see current failure counts.
-2. For each advisory rule extracted in this session, run `python3 scripts/forgeflow_evolution_promote.py check-promote --rule <rule-id>`.
-3. If a rule is auto-promoted (exit 2), inform the user:
-   - Which rule was promoted
-   - The advisory path → hard rule path
-   - That Claude Code hooks can now enforce it via `scripts/forgeflow_hook_check.sh`
-4. If promotion is premature, the user can manually promote later with `python3 scripts/forgeflow_evolution_promote.py promote --rule <rule-id>`.
+1. Check each advisory rule in `.forgeflow/evolution/active/` (project) or `~/.forgeflow/evolution/active/` (global) for repeated violations visible in recent `eval-record.md` entries.
+2. If an advisory rule has been violated ≥ 3 times across different tasks (evidence in eval-records), promote it: rewrite the rule file with `enforcement: hard` in its frontmatter and inform the user.
+3. If promotion is premature, the user can manually edit the rule file later.
 
-When a review or execution failure occurs (verification retry ≥ 2, scope boundary violation, workaround applied), record it:
-- `python3 scripts/forgeflow_evolution_promote.py record-fail --rule <rule-id>`
+When a review or execution failure occurs (verification retry ≥ 2, scope boundary violation, workaround applied), note it in the task's `eval-record.md` under a `## Evolution Failures` section with the rule name and failure description.
 
 This enables the closed-loop principle: failure → rule extraction → hard enforcement → compound learning.
 

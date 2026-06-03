@@ -1,72 +1,70 @@
-# Changelog
-
-All notable changes to this project will be documented in this file.
-
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-
 ## [Unreleased]
 
-### Changed
+### 🔒 자동화·정합성
 
 - Standalone review runtime docs now use the same input type labels as `input-source.md`, and advisory validation guards against drift across docs and templates.
 - Standalone review report input type guidance now mirrors the canonical `input-source.md` taxonomy (GitHub PR/commit/compare, repo path, git range, diff/patch, file bundle, existing artifact, ambiguous), and advisory validation guards against drift between those templates.
-- Historical standalone review roadmap notes now point post-execute evidence prerequisites at `ledger.md` Execution Tracking instead of deprecated `run-ledger.md`, and workflow vocabulary validation guards that roadmap drift.
-- Roadmap and implementation-note guidance now point deprecated ledger/decision artifacts to their current canonical sections, and workflow vocabulary validation guards against presenting those deprecated filenames as newly generated artifacts.
-- English README now exposes the behavior guardrail contract and focused `make validate-behavior-guardrails` command, with `validate-english-readme` guarding that global quickstart surface.
-- Changelog validation now rejects duplicate Keep a Changelog subsection headings within a release section, and the current Unreleased notes use a single `Changed` section.
-- Local validation docs now list the focused behavior-guardrail check, and the Makefile phony inventory no longer declares that target twice.
-- Skill frontmatter validation now rejects duplicate top-level YAML keys, and the canonical `forgeflow` skill uses a single merged `validate_prompt` so adapter loaders do not silently discard routing requirements.
-- English README validation now guards the concise global quickstart against drifting from supported adapters, Codex/Gemini install paths, default artifact storage, validation bundles, and read-only CI permissions.
-- Release version validation now rejects both Korean and English hardcoded current-release lines in `README.md`, and the README now points readers to `VERSION` without embedding the release number.
-- Template inventory validation now covers every file under `templates/`, and the README artifact table names project draft, fact extraction, telemetry, and deprecated compatibility stubs so user-facing artifact docs cannot lag behind the distributed template surface.
-- README standalone review artifact contract now names `fetch_ledger_complete` in the full adapter handoff checklist field list, and advisory validation guards that reader-facing overview from drifting behind the normalized-input/runtime contract.
-- Standalone review eval expectations now require the report-level Standalone Input Source summary to echo Adapter Handoff Checklist statuses, including `fetch_ledger_complete`, keeping the live eval inventory aligned with the template/runtime contract.
-- Review skill standalone section guidance now requires the Standalone Input Source output list to include Adapter Handoff Checklist statuses, matching the report template/runtime contract reader-facing handoff echo.
-- Standalone review reports now echo the normalized Adapter Handoff Checklist, including `fetch_ledger_complete`, in the reader-facing Standalone Input Source summary so report-only readers can see handoff PASS/FAIL status alongside provenance references.
 - Review runtime contract now names `fetch_ledger_complete` in the normalized adapter handoff checklist, and advisory validation guards that exact checklist field so docs cannot drift from `templates/normalized-input.md`.
-- Historical standalone review plan status now points to the live eval inventory instead of the original six-case baseline, avoiding stale implementation guidance for reviewers and maintainers.
-- Standalone review evals now assert report-level Fetch Method Ledger and Evidence Source Map references for standalone review outputs, keeping fixtures aligned with the reader-facing provenance contract.
-- Standalone review reports now echo Fetch Method Ledger and Evidence Source Map references in the reader-facing Standalone Input Source summary, so multi-fetch provenance remains visible without reopening normalization artifacts.
-- Standalone review adapter handoff now includes `fetch_ledger_complete`, making multi-fetch Evidence Source Map rows explicitly resolve to `input-source.md` Fetch Method Ledger entries before reviewer judgment.
-
-- Standalone review `input-source.md` now includes a per-fetch Fetch Method Ledger for multi-source evidence, preventing mixed PR metadata/diff/file/command fetches from hiding access posture or mutation checks behind a single overall field.
-- Review skill standalone output guidance now requires the reader-facing Standalone Input Source summary to include fetched_at/run label, freshness status, access posture, and mutation check, matching the report template/runtime contract.
-- Standalone review reports now surface fetch access posture and mutation checks in the reader-facing input-source summary, preserving read-only/verification-only fetch posture without requiring readers to reopen normalization artifacts.
-- Standalone review reports now surface `Fetched At` and `Freshness Status` in the reader-facing input-source summary, preserving stale/unknown evidence posture without requiring readers to reopen normalization artifacts.
-- README standalone review artifact contract now names `fetched_at`/`freshness_status` provenance and the cross-artifact evidence integrity match so user-facing setup docs cannot lag behind the runtime contract.
-- Standalone review `input-source.md` Evidence Source Map now mirrors per-evidence `fetched_at` and `freshness_status`, matching the normalized evidence integrity gate so stale or timestamp-mismatched evidence cannot pass handoff unnoticed.
 - Review skill guidance now names `fetch_posture_constrained` in the adapter handoff checklist and Adapter compliance summary, and advisory validation guards that the skill cannot drift behind the normalized-input template or runtime contract.
-- Eval fixture validation now rejects unresolved smoke review template residue (`TODO`/`FIXME`, HTML template comments, and common angle-bracket placeholders) so persisted audit samples cannot silently regress to stub artifacts.
 - Standalone review role-packet handoff eval fixture를 추가해, adapter가 `normalized-input.md`의 `constraints.roles`, `Role trigger matrix`, role evidence/readiness/packet, adapter handoff checklist를 채운 뒤 canonical review로 넘기는지 검증합니다.
-- README and shared automation guidance now keep the complete checkpoint Handoff Boundary escalation fields aligned with the template, and advisory validation guards that user-facing resume guidance from falling behind.
 - Checkpoint handoff template now records the full forbidden-action escalation fields, and advisory validation guards the checkpoint boundary contract from drifting behind the stage-boundary docs.
-- Compact-resume guidance and eval expectations now preserve the full checkpoint Handoff Boundary escalation field set, including handoff reason, forbidden action, stop condition, and artifact update location.
 - Adapter config의 multi-harness invariant에 standalone review role packet handoff를 추가하고 검증해, 어댑터가 `constraints.roles`/role trigger/evidence/readiness/packet 없이 reviewer judgment로 건너뛰지 못하도록 했습니다.
-- Standalone review normalized evidence에 `fetched_at`/`freshness_status`와 integrity `freshness_match`를 추가해 오래되었거나 출처 시간이 불명확한 evidence가 승인 근거로 조용히 쓰이지 않도록 했습니다.
-- `make validate-stage-tool-boundaries`를 추가해 stage별 artifact ownership, adapter-neutral handoff 원칙, standalone review provenance artifact, review read-only posture가 `docs/stage-tool-boundaries.md`와 README에 유지되는지 검증합니다.
 - Standalone review `normalized-input.md` adapter handoff checklist에 `fetch_posture_constrained`를 추가하고 검증해, evidence fetch가 read-only/verification-only posture와 mutation check를 잃지 않도록 했습니다.
 - `make validate-advisory-contract`가 standalone review의 전체 reviewer role coverage(`architecture-reviewer` 포함)를 `Role trigger matrix`, `role evidence map`, `role input packet readiness`, `role input packets`, `role capability hints` 전 구간에서 검증하도록 강화했습니다.
 - `make validate-advisory-contract`가 standalone review의 `Evidence Gap Register`와 `scope_source_map` 계약이 runtime contract/template에 유지되는지 검증하도록 강화했습니다.
-- `docs/stage-tool-boundaries.md`를 추가해 clarify/plan/execute/review/ship 단계별 허용 tool posture, 필수 산출물, 금지 side effect를 adapter-neutral 계약으로 정리했습니다.
-- stage-owned role boundary 원칙을 문서화해 planner/worker/reviewer/lead/member 분리가 별도 팀 런타임이나 hidden approval path로 확장되지 않도록 했습니다.
 - stage role boundary 검증을 강화해 member가 unmanaged child work 생성, role 재할당, scope 확장, claimed section 외 작성을 하지 못하고 lead-owned artifact update를 거치도록 명시했습니다.
 - Stage forbidden-action escalation에 explicit stop condition과 artifact update location을 추가하고 `make validate-stage-tool-boundaries`가 공유 automation 문서와 함께 이를 검증하도록 강화했습니다.
+
+### 🔍 검증·정책
+
+- Historical standalone review roadmap notes now point post-execute evidence prerequisites at `ledger.md` Execution Tracking instead of deprecated `run-ledger.md`, and workflow vocabulary validation guards that roadmap drift.
+- Roadmap and implementation-note guidance now point deprecated ledger/decision artifacts to their current canonical sections, and workflow vocabulary validation guards against presenting those deprecated filenames as newly generated artifacts.
+- Skill frontmatter validation now rejects duplicate top-level YAML keys, and the canonical `forgeflow` skill uses a single merged `validate_prompt` so adapter loaders do not silently discard routing requirements.
+- Release version validation now rejects both Korean and English hardcoded current-release lines in `README.md`, and the README now points readers to `VERSION` without embedding the release number.
+- Standalone review eval expectations now require the report-level Standalone Input Source summary to echo Adapter Handoff Checklist statuses, including `fetch_ledger_complete`, keeping the live eval inventory aligned with the template/runtime contract.
+- Historical standalone review plan status now points to the live eval inventory instead of the original six-case baseline, avoiding stale implementation guidance for reviewers and maintainers.
+- Standalone review adapter handoff now includes `fetch_ledger_complete`, making multi-fetch Evidence Source Map rows explicitly resolve to `input-source.md` Fetch Method Ledger entries before reviewer judgment.
+- Standalone review `input-source.md` now includes a per-fetch Fetch Method Ledger for multi-source evidence, preventing mixed PR metadata/diff/file/command fetches from hiding access posture or mutation checks behind a single overall field.
+- Standalone review `input-source.md` Evidence Source Map now mirrors per-evidence `fetched_at` and `freshness_status`, matching the normalized evidence integrity gate so stale or timestamp-mismatched evidence cannot pass handoff unnoticed.
+- Compact-resume guidance and eval expectations now preserve the full checkpoint Handoff Boundary escalation field set, including handoff reason, forbidden action, stop condition, and artifact update location.
+- Standalone review normalized evidence에 `fetched_at`/`freshness_status`와 integrity `freshness_match`를 추가해 오래되었거나 출처 시간이 불명확한 evidence가 승인 근거로 조용히 쓰이지 않도록 했습니다.
+- `docs/stage-tool-boundaries.md`를 추가해 clarify/plan/execute/review/ship 단계별 허용 tool posture, 필수 산출물, 금지 side effect를 adapter-neutral 계약으로 정리했습니다.
+- stage-owned role boundary 원칙을 문서화해 planner/worker/reviewer/lead/member 분리가 별도 팀 런타임이나 hidden approval path로 확장되지 않도록 했습니다.
 - `docs/stage-tool-boundaries.md`의 escalation rule을 checkpoint `Handoff Boundary` 필드셋(current/next owner, handoff reason, requested/forbidden action, evidence/artifact trigger, stop condition, exact artifact location)과 정렬하고 focused validator가 drift를 잡도록 보강했습니다.
 - `templates/checkpoint.md`와 shared automation guidance가 forbidden-action handoff의 `next owner / owning next stage` 및 `handoff reason` 필드를 동일하게 요구하도록 정렬하고 advisory validator를 강화했습니다.
 - Standalone review procedure step S3 now names the full `input-source.md` provenance field set, including freshness, access posture, mutation check, source classification, and Evidence Source Map, instead of the older timestamp-only shorthand.
-- README standalone review artifact summary now documents access posture/mutation check echoing alongside fetch freshness, matching the runtime/template contract.
 - Standalone review eval fixtures now assert the same `Fetched At`, `Freshness Status`, `Access Posture`, and `Mutation Check` summary fields required by the review skill/template/runtime contract.
 - Historical standalone review planning docs now point readers to the implemented Markdown-first contract and no longer imply a pending JSON report shape or execute-only review baseline.
 - Shared automation guidance now describes forbidden-action handoffs with the same full checkpoint boundary field set at the initial stop rule, so stage owners do not miss `current owner` or `handoff reason` before the dedicated `Handoff Boundary` reminder; the focused stage-boundary validator now guards the updated wording.
 - Context-resume guidance and the compact-resume eval now require reading checkpoint `Handoff Boundary` ownership/delegation before continuing after context refresh, preventing refresh from erasing forbidden-action handoffs or stop conditions.
-- README와 canonical `skills/forgeflow/SKILL.md`에 현재 release/version 기준과 init intelligence(project type/domain/change detection) 설명을 보강했습니다.
 - Standalone review 입력 정규화 reference의 기본 role routing을 canonical `ff-review` 계약과 맞춰, `quality-reviewer`는 항상 실행하되 `spec-reviewer`와 specialist roles는 명시 spec 또는 normalized evidence trigger가 있을 때만 실행하도록 명확히 했습니다.
-
-### Fixed
-
-- README의 installed plugin smoke 확인 기준이 `plan.md` 산출물을 빠뜨리지 않도록 보완하고, adapter config 검증이 해당 첫 실행 artifact 목록 drift를 잡도록 했습니다.
 - Review 계약의 renamed skill 경로(`skills/ff-review/...`)를 템플릿, standalone review 설계 문서, behavior guardrail 검증 스크립트에 반영하고 `make validate`에 focused behavior guardrail 검증을 포함했습니다.
+
+### ⚡ 속도·안정성
+
+- Changelog validation now rejects duplicate Keep a Changelog subsection headings within a release section, and the current Unreleased notes use a single `Changed` section.
+- Local validation docs now list the focused behavior-guardrail check, and the Makefile phony inventory no longer declares that target twice.
+- Eval fixture validation now rejects unresolved smoke review template residue (`TODO`/`FIXME`, HTML template comments, and common angle-bracket placeholders) so persisted audit samples cannot silently regress to stub artifacts.
+
+### 👤 사용자·경험
+
+- English README now exposes the behavior guardrail contract and focused `make validate-behavior-guardrails` command, with `validate-english-readme` guarding that global quickstart surface.
+- English README validation now guards the concise global quickstart against drifting from supported adapters, Codex/Gemini install paths, default artifact storage, validation bundles, and read-only CI permissions.
+- Template inventory validation now covers every file under `templates/`, and the README artifact table names project draft, fact extraction, telemetry, and deprecated compatibility stubs so user-facing artifact docs cannot lag behind the distributed template surface.
+- README standalone review artifact contract now names `fetch_ledger_complete` in the full adapter handoff checklist field list, and advisory validation guards that reader-facing overview from drifting behind the normalized-input/runtime contract.
+- Review skill standalone section guidance now requires the Standalone Input Source output list to include Adapter Handoff Checklist statuses, matching the report template/runtime contract reader-facing handoff echo.
+- Standalone review reports now echo the normalized Adapter Handoff Checklist, including `fetch_ledger_complete`, in the reader-facing Standalone Input Source summary so report-only readers can see handoff PASS/FAIL status alongside provenance references.
+- Standalone review evals now assert report-level Fetch Method Ledger and Evidence Source Map references for standalone review outputs, keeping fixtures aligned with the reader-facing provenance contract.
+- Standalone review reports now echo Fetch Method Ledger and Evidence Source Map references in the reader-facing Standalone Input Source summary, so multi-fetch provenance remains visible without reopening normalization artifacts.
+- Review skill standalone output guidance now requires the reader-facing Standalone Input Source summary to include fetched_at/run label, freshness status, access posture, and mutation check, matching the report template/runtime contract.
+- Standalone review reports now surface fetch access posture and mutation checks in the reader-facing input-source summary, preserving read-only/verification-only fetch posture without requiring readers to reopen normalization artifacts.
+- Standalone review reports now surface `Fetched At` and `Freshness Status` in the reader-facing input-source summary, preserving stale/unknown evidence posture without requiring readers to reopen normalization artifacts.
+- README standalone review artifact contract now names `fetched_at`/`freshness_status` provenance and the cross-artifact evidence integrity match so user-facing setup docs cannot lag behind the runtime contract.
+- README and shared automation guidance now keep the complete checkpoint Handoff Boundary escalation fields aligned with the template, and advisory validation guards that user-facing resume guidance from falling behind.
+- `make validate-stage-tool-boundaries`를 추가해 stage별 artifact ownership, adapter-neutral handoff 원칙, standalone review provenance artifact, review read-only posture가 `docs/stage-tool-boundaries.md`와 README에 유지되는지 검증합니다.
+- README standalone review artifact summary now documents access posture/mutation check echoing alongside fetch freshness, matching the runtime/template contract.
+- README와 canonical `skills/forgeflow/SKILL.md`에 현재 release/version 기준과 init intelligence(project type/domain/change detection) 설명을 보강했습니다.
+- README의 installed plugin smoke 확인 기준이 `plan.md` 산출물을 빠뜨리지 않도록 보완하고, adapter config 검증이 해당 첫 실행 artifact 목록 drift를 잡도록 했습니다.
 
 ## [1.11.6] - 2026-06-02
 

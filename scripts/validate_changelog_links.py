@@ -12,7 +12,7 @@ if not re.search(pattern, text, re.M):
     failures.append(f'CHANGELOG.md: missing compare link for {version}')
 
 release_heading = re.compile(r'^## \[(Unreleased|[^\]]+)\].*$', re.M)
-section_heading = re.compile(r'^### (Added|Changed|Deprecated|Removed|Fixed|Security)$')
+section_heading = re.compile(r'^### (Added|Changed|Deprecated|Removed|Fixed|Security|🔒 자동화·정합성|🔍 검증·정책|⚡ 속도·안정성|👤 사용자·경험)$')
 matches = list(release_heading.finditer(text))
 for index, match in enumerate(matches):
     section_name = match.group(1)

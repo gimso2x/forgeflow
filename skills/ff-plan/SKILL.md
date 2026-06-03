@@ -377,7 +377,7 @@ Apply these synthesis heuristics to convert five-angle analysis into milestone b
    - regression and recovery risks
    - verification strategy
 
-### Phase 3: Self-review and validate
+### Phase 3: Self-review and Self-Critique
 
 8. **Self-review** before presenting to the user:
    - Every requirement from the brief maps to at least one step
@@ -388,7 +388,22 @@ Apply these synthesis heuristics to convert five-angle analysis into milestone b
 
 9. Identify risky tasks and required review evidence.
 
-10. Propose `/forgeflow:execute` as the next stage and stop for explicit user approval.
+10. **Self-Critique Loop** (inspired by gajae-code's ralplan pattern):
+
+    After plan.md draft is complete, run an internal **Critic** pass. Append a `## Self-Critique` section to plan.md answering:
+
+    1. **Coverage**: Does this plan satisfy every acceptance criterion and Goal Contract success criteria from brief.md?
+    2. **Dependency correctness**: Are there missing dependencies, ordering errors, or file-conflict risks not flagged?
+    3. **Verifiability**: Does every verification step produce observable evidence (command output, test results, diff)?
+    4. **Risk gaps**: Are there accepted risks from brief.md that the plan does not mitigate or acknowledge?
+
+    **Rules:**
+    - If any answer is "no" or "uncertain", revise the plan and re-run Critic (max 3 iterations).
+    - Critic PASS condition: all four answers are affirmative with no hedging.
+    - Record the final Critic verdict (PASS/revision count) in the `## Self-Critique` section so review stage can see it.
+    - If Critic does not pass after 3 iterations, flag the remaining concern in `## Open Concerns` and proceed — do not block planning indefinitely.
+
+11. Propose `/forgeflow:execute` as the next stage and stop for explicit user approval.
 
 Do not code during planning unless the user explicitly asks for a tiny small-route direct execution.
 

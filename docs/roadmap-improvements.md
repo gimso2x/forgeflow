@@ -380,7 +380,6 @@ generated: <date>
 | **Phase 3** | Priority 4 (init 초안 생성) | 없음 | ✅ 완료 (v1.6.0) |
 | **Phase 4** | Priority 5 (telemetry) | Priority 2 (이벤트 스키마) | ✅ 완료 (v1.6.0) |
 | **Phase 5** | Priority 6 (scope boundary) | Priority 2 (boundary 필드) | ✅ 완료 (v1.6.0) |
-| **Phase 6** | Priority 7 (릴리즈 노트) | 없음 | |
+| **Phase 6** | Priority 7 (릴리즈 노트) | 없음 | ✅ 완료 (Unreleased) |
 
-Phase 1~5 완료. Phase 6(P7 릴리즈 노트 재정렬)만 남음. Phase 1, 3, 6은 병렬 가능.
-Phase 2, 4, 5는 Phase 1 완료 후 순차. Phase 2, 4, 5는 ef12b1e에서 v1.5.2로 병합 완료.
+Phase 1~6 모두 완료. Phase 6은 [Unreleased] 섹션을 영향 축(🔒 자동화·정합성 / 🔍 검증·정책 / ⚡ 속도·안정성 / 👤 사용자·경험)으로 재분류하고, `validate_changelog_links.py`와 release 스킬에 분류 가이드라인을 추가했다.

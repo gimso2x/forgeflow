@@ -56,6 +56,14 @@ scope_boundary:
 ## 인수 기준 (Acceptance Criteria)
 - [ ]
 
+## Goal Contract
+<!-- Goal Contract: objective pass/fail conditions (inspired by roach-pi verifier pattern). -->
+<!-- This section makes "done" unambiguous — review uses these to judge PASS/FAIL. -->
+- **성공 기준 (Success Criteria):** <!-- 작업 완료의 객관적 조건 (measurable, observable) -->
+- **필수 증거 (Evidence Required):** <!-- PASS 판정에 필요한 관찰 가능 결과 (command output, test results, diff) -->
+- **인정된 리스크 (Accepted Risks):** <!-- 알고 감수하는 리스크 — review에서 재평가하지 않음 -->
+- **명시적 제외 (Explicit Exclusions):** <!-- 하지 않는 것 명시 — 범위 확장 방지 -->
+
 ## 위험 수준 (Risk Level)
 <!-- low | medium | high | critical -->
 
