@@ -114,6 +114,8 @@ Small documentation-only tasks may omit these sections. If present, they must be
 
 ## Auto-detectable verification gates
 
+→ Shared gate definitions: `_shared/verification-gates.md`.
+
 When constructing the Verification Plan, prefer automated gates over manual review wherever the verification can be expressed as a machine-checkable assertion. Use manual review only for qualitative judgments that cannot be automated.
 
 ### Available automated gates

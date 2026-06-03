@@ -389,6 +389,8 @@ Small documentation-only tasks may omit these.
 
 ## Auto-detectable verification gates
 
+→ Shared gate definitions: `_shared/verification-gates.md`.
+
 When constructing verification gates, prefer automated gates over manual review wherever possible.
 
 | Gate | Description | Applicable when |

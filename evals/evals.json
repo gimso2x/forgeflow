@@ -8167,6 +8167,53 @@
           "value": "review"
         }
       ]
+    },
+    {
+      "id": 123,
+      "name": "auto-chain-full-sequence",
+      "prompt": "A ForgeFlow project has defaults.md with auto: true and a medium-route task that just completed the review stage with verdict 'approved' and no open blockers. According to the auto-chain rules, what happens next? List the complete chain sequence for medium route from start to finish, state whether --auto should continue or break at each transition, and name the exact next action after review approval.",
+      "expected_output": "Medium route auto-chain: clarify → plan → execute → review → ship. After review approval with no blockers, --auto continues to ship (invoke Skill tool with /forgeflow:ship). Auto-break conditions are NOT triggered because: verdict is approved (not changes_requested), no failed verification, no blockers, no destructive action. The chain sequence table shows: small = clarify→execute→ship (self-verify), medium = clarify→plan→execute→review→ship, high = clarify→plan→execute→review(spec)→review(quality)→ship.",
+      "files": [],
+      "assertions": [
+        {
+          "text": "Output names ship as the next stage after review approval.",
+          "type": "contains",
+          "value": "ship"
+        },
+        {
+          "text": "Output states auto continues (does NOT auto-break) after approved review.",
+          "type": "not_contains_any",
+          "values": [
+            "auto-break",
+            "stop",
+            "wait for user"
+          ]
+        },
+        {
+          "text": "Output includes the complete medium chain sequence.",
+          "type": "contains",
+          "value": "clarify"
+        },
+        {
+          "text": "Output includes the small route chain (skipping formal review).",
+          "type": "contains",
+          "value": "self-verify"
+        },
+        {
+          "text": "Output mentions invoke Skill tool (not just printing text).",
+          "type": "contains_any",
+          "values": [
+            "Skill tool",
+            "Skill(",
+            "/forgeflow:ship"
+          ]
+        },
+        {
+          "text": "Output distinguishes small route (no formal review) from medium route.",
+          "type": "contains",
+          "value": "small"
+        }
+      ]
     }
   ]
 }
