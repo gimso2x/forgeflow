@@ -238,7 +238,7 @@ Detect worktree isolation from `brief.md` Task Isolation section (`isolation: wo
 
 1. **Check for active git worktree**: `git worktree list` to find the worktree location, branch, and dirty state.
 2. **Do not remove or discard yet**: Before the user selects a finish option, record the worktree as preserved. `git worktree remove`, branch deletion, reset, and discard remain destructive actions that require the option-specific confirmation below.
-3. **If completed worker worktrees need merging**: Treat this as part of the eventual "Merge locally" path, not as an automatic preflight side effect. First verify worker artifacts under `resolved task directory (`~/.forgeflow/projects/<project-slug>/tasks/<id>/` by default)workers/`, then present the merge plan with the exact branch/path.
+3. **If completed worker worktrees need merging**: Treat this as part of the eventual "Merge locally" path, not as an automatic preflight side effect. First verify worker artifacts under the resolved task directory (`~/.forgeflow/projects/<project-slug>/tasks/<id>/` by default, `workers/` subdirectory), then present the merge plan with the exact branch/path.
 4. **If the user later chooses "Keep the branch as-is"**: Leave the worktree in place and note it as preserved in the finish report.
 
 ### Verify before branch disposition
