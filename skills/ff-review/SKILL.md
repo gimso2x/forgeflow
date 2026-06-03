@@ -370,7 +370,7 @@ Write `review-report.md` (schema: review-report/v2, from `templates/review-repor
 - Route Compliance
 
 **Standalone mode only**:
-- Standalone Input Source (type, original input, fetch status)
+- Standalone Input Source (type, original input, fetch status, fetched_at/run label, freshness status, access posture, mutation check)
 - Reviewer Role Summary (per-role verdict and finding count)
 - Override Log (human overrides)
 - Standalone Mode Metadata
