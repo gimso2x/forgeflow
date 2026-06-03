@@ -316,14 +316,14 @@ Review runtime contract는 [docs/review-runtime-contract.md](docs/review-runtime
 
 독립 리뷰의 산출물 계약:
 
-- `input-source.md`: 입력 타입, 원본 입력, fetch command/source, fetch status, `fetched_at` timestamp/run label, `freshness_status`, 누락/잘림 evidence, evidence ID별 source map 기록
+- `input-source.md`: 입력 타입, 원본 입력, fetch command/source, fetch status, `fetched_at` timestamp/run label, `freshness_status`, access posture, mutation check, 누락/잘림 evidence, evidence ID별 source map 기록
 - `input-source.md`는 source classification rationale도 기록해 어떤 신호로 입력 타입을 골랐고, 가능한 ambiguity를 어떻게 처리했는지 남깁니다.
 - `normalized-input.md`: `brief / evidence / scope / constraints` 4-field 구조로 정규화하고, constraints에는 `--type` 때문에 무시된 `--focus` 같은 ignored flags를 남기며, stable evidence IDs, per-item fetch status/limitations/freshness, role trigger matrix, role evidence map, role input packet readiness, review ownership plan으로 각 리뷰어 역할의 실행/스킵 근거, 인용 가능한 증거, 판단 전 READY/BLOCKED/SKIPPED 상태, lead/member 소유권을 고정
 - `normalized-input.md`: evidence integrity check는 모든 인용 evidence ID가 `input-source.md` Evidence Source Map과 type/fetch status/`fetched_at`/`freshness_status`/evidence level이 일치하는지 확인하며, stale/unknown evidence는 limitation 또는 Evidence Gap Register에 드러나기 전까지 reviewer judgment를 막습니다.
 - `normalized-input.md`: role capability hints는 역할별 model/profile 선택을 capability 수준으로 기록하는 선택적 audit metadata이며, review semantics를 바꾸지 않습니다.
 - `normalized-input.md`: `constraints.roles`, role trigger matrix, role evidence map이 서로 일치해야 합니다. constraints에 있는 role은 matrix에서 `run` 또는 `blocked`이고 evidence map에 evidence IDs 또는 blocked rationale이 있어야 하며, matrix에서 `run`인 role은 constraints에도 있어야 합니다.
 - `normalized-input.md`: adapter handoff checklist도 포함해 source classified, fetch reproduced, fetch posture constrained, normalization complete, limitations visible, canonical review ownership을 reviewer judgment 전에 PASS/FAIL로 고정
-- `review-report.md`: 단일 최종 리뷰 산출물. adapter별 별도 report나 자동 승인 경로 없음
+- `review-report.md`: 단일 최종 리뷰 산출물. Standalone Input Source 요약은 fetch status/`fetched_at`/`freshness_status`/access posture/mutation check를 echo해 독자가 정규화 산출물을 다시 열지 않아도 evidence freshness와 read-only/verification-only posture를 확인할 수 있어야 합니다. adapter별 별도 report나 자동 승인 경로 없음
 
 리뷰 단계는 코드 수정/브랜치 정리/ship을 하지 않습니다. 문제가 발견되면 `review-report.md`에 finding으로 남기고 execute 단계로 돌려보냅니다.
 
