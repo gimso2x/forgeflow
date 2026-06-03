@@ -738,7 +738,7 @@ S1. **Detect input type** — Apply input type detection rules (see Standalone M
 
 S2. **Bootstrap synthetic task directory** — Create `<task-dir>`. This directory is the task root. If `.forgeflow/` doesn't exist, create it (task directory only, no full workspace init).
 
-S3. **Fetch/extract input and record provenance** — For the detected type, execute the fetch command per Input type detection → per-type instructions. Write `input-source.md` to the synthetic task dir (type, original input, fetch command, result status, timestamp). On fetch failure: write `blocked` status to `input-source.md` and stop.
+S3. **Fetch/extract input and record provenance** — For the detected type, execute the fetch command per Input type detection → per-type instructions. Write `input-source.md` to the synthetic task dir from `templates/input-source.md` before reviewer judgment. Record at minimum: type, original input, fetch command/source, fetch status, `fetched_at` timestamp/run label, `freshness_status`, access posture, mutation check, missing/truncated evidence notes, source classification rationale, and the Evidence Source Map. On fetch failure or a failed mutation check: keep the provenance artifact, mark the review `blocked`, and stop before roles judge.
 
 S4. **Normalize input** — Build the 4-field structure (brief, evidence, scope, constraints) per Input Normalization tables. Write to `normalized-input.md` in the synthetic task dir. If evidence is empty after normalization, write `blocked: input normalization failed` and stop.
 

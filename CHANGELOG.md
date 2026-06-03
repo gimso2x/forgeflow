@@ -35,6 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Standalone review procedure step S3 now names the full `input-source.md` provenance field set, including freshness, access posture, mutation check, source classification, and Evidence Source Map, instead of the older timestamp-only shorthand.
 - README standalone review artifact summary now documents access posture/mutation check echoing alongside fetch freshness, matching the runtime/template contract.
 - Standalone review eval fixtures now assert the same `Fetched At`, `Freshness Status`, `Access Posture`, and `Mutation Check` summary fields required by the review skill/template/runtime contract.
 - Historical standalone review planning docs now point readers to the implemented Markdown-first contract and no longer imply a pending JSON report shape or execute-only review baseline.
