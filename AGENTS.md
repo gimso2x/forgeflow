@@ -1,87 +1,93 @@
 # ForgeFlow — AGENTS.md
 
-> **대상:** 이 파일은 ForgeFlow 레포 자체를 개발하거나 수정하는 AI coding agent를 위한 instructions입니다.
+> AI coding agent instructions for developing or modifying this repo.
 
-Repository-level instructions for AI coding agents working on this repo.
+## Project
 
-## Project Overview
+ForgeFlow: artifact-first delivery workflow for AI coding agents.
+Markdown-only distribution — no runtime, no external deps. **slim, markdown-only distribution.** Do not assume the older `forgeflow_runtime/`, `schemas/`, or `tests/` trees exist — use `make validate` as the contract surface. Skills are pure Markdown (SKILL.md + YAML frontmatter), templates are Markdown artifacts.
+Supports Claude Code, Codex, Gemini CLI, Cursor as adapters.
 
-ForgeFlow는 AI coding agent를 위한 artifact-first delivery workflow입니다.
-clarify, plan, execute, review, ship 파이프라인을 markdown 산출물과 프롬프트 기반 강제로 제공합니다.
-plan은 epic 라우트에서 마일스톤 분해를 포함하고, execute는 opt-in subagent per-task 모드를 지원하며, ship은 브랜치 정리까지 담당합니다.
-Claude Code, Codex, Gemini CLI, Cursor(로컬 플러그인)를 지원합니다.
+- **Version**: `VERSION` 파일이 단일 소스 (currently `1.11.6`)
+- **Entry point**: `skills/forgeflow/SKILL.md` (canonical contract); root `SKILL.md` is marketplace summary only
+- **Adapter config**: `docs/adapter-config.md`
 
-## Current Repo Surface
+## Commands
 
-ForgeFlow v1.x is a slim, markdown-only distribution. Do not assume the older `forgeflow_runtime/`, `schemas/`, or `tests/` trees exist when working on this branch. Use the current Makefile validators (`make validate` and focused `validate-*` targets) as the local contract surface.
+```bash
+make validate              # Full contract validation (34 checks)
+make validate-<target>     # Focused: -skills, -templates, -evals, -versions, -changelog-links, etc.
+make demo                  # First-run workspace demo
+```
 
-## Tech Stack
+No build, no test suite. Validation is the test surface — `scripts/validate_*.py` enforces markdown contract integrity.
 
-- **Skills**: 순수 Markdown (SKILL.md + YAML frontmatter)
-- **Templates**: Markdown artifact templates (`templates/`)
-- **Docs**: 어댑터 참조 (`docs/adapter-config.md`)
-- **No runtime dependencies** — Python, Node.js 등 외부 의존성 없음
-- **Adapters**: Claude Code (`.claude-plugin/`), Codex (`.codex-plugin/`), Gemini CLI (`GEMINI.md`), Cursor (`.cursor-plugin/`)
-
-## Repo Structure
+## Architecture
 
 ```
-skills/                   # 각 스킬 디렉토리 (SKILL.md 포함)
-  forgeflow/              # 메인 라우터 (canonical contract, 영문)
-  clarify/                # 작업 공간 초기화 + 요구사항 정리 → brief.md
-  ff-plan/                # 계획 수립 → plan.md; epic 라우트 시 마일스톤 분해
-  execute/                # 구현 실행 → implementation-notes.md (+ references/ subagent prompts; opt-in subagent per-task loop)
-  ff-review/              # 독립 검증 → review-report.md
-  ship/                   # 배포/마무리 + 브랜치 정리 (merge/PR/keep/discard)
-  long-run/               # 학습 기록 → eval-record.md
-  benchmark/              # cross-adapter 벤치마크
-  ff-config/              # 프로젝트 기본값 관리 (auto, isolation 토글)
-templates/                # Markdown 산출물 템플릿
-docs/                     # adapter-config 등 참조 문서
-.claude-plugin/           # Claude Code 플러그인 설정
-.codex-plugin/            # Codex 플러그인 설정
-.cursor-plugin/           # Cursor 로컬 플러그인 설정
-GEMINI.md                 # Gemini CLI 어댑터 (skill imports)
-SKILL.md                  # Claude marketplace entry (한국어 요약 → skills/forgeflow 위임)
+skills/
+  forgeflow/               # Main router — routes, model tiers, worktree spec, stage boundaries
+  clarify/                  # Requirements → brief.md + route selection + Goal Contract
+  ff-plan/                  # Plan → plan.md + Self-Critique loop (max 3 iterations)
+  execute/                  # Implementation → implementation-notes.md + small-route self-verify
+    references/             # Subagent prompts (implementer, quality/spec reviewer, testing)
+  ff-review/                # Independent review → review-report.md + Blocker Enforcement Rule
+  ship/                     # Ship + branch cleanup + model tier verification floor
+  long-run/                 # Learning → eval-record.md
+  ff-config/                # Project defaults (auto/isolation toggles)
+  benchmark/                # Cross-adapter benchmarks
+  _shared/                  # discipline.md, preflight.md, isolation.md, automation.md, context-resume.md
+templates/                  # 27 artifact templates (brief, plan, review-report, ship-summary, etc.)
+evals/                      # 120 eval cases (evals.json + fixture files)
+scripts/                    # validate_*.py validators + telemetry/evolution helpers
+docs/                       # adapter-config.md, stage-tool-boundaries.md, roadmap-improvements.md
+.claude-plugin/             # Claude Code plugin config
+.codex-plugin/              # Codex plugin config
+.cursor-plugin/             # Cursor plugin config
+.claude/skills/release.md   # Release skill (Claude Code only, not in public inventory)
+GEMINI.md                   # Gemini CLI adapter
+gemini-extension.json       # Gemini extension manifest
 ```
+
+## Key Design Patterns (v1.11+)
+
+- **Route model**: small (3-stage: clarify→execute→ship with self-verify), medium (5-stage), high/epic (6-stage with long-run)
+- **Goal Contract** (`templates/brief.md`): 4 fields (Success Criteria, Evidence Required, Accepted Risks, Explicit Exclusions) — review uses these as PASS/FAIL contract
+- **Self-Critique Loop** (`skills/ff-plan/`): plan.md gets 4-question critic pass, max 3 iterations, recorded in plan.md Self-Critique section
+- **Blocker Enforcement Rule**: `approved` verdict only when Open Blockers is empty; no "minor blocker" category
+- **Model Tiers**: reasoning/coding/fast per stage — adapters map tiers to concrete models
+- **Worktree isolation**: fan-out workers each get isolated git worktree; pre-merge verification gate (5 items); `--no-ff` merge required for fan-in
+- **Small route self-verify** (`skills/execute/`): 5-item checklist before exit (Goal Contract check, scope boundary, self-review proxy, verification gate, evidence completeness)
 
 ## Development Workflow
 
-1. **스킬 수정** — `skills/<name>/SKILL.md` 편집 (canonical contract 변경 시 `skills/forgeflow/SKILL.md` 우선)
-2. **템플릿 수정** — `templates/<name>.md` 편집
-3. **어댑터 문서** — `docs/adapter-config.md` (감지·CLI·타임아웃 canonical)
-4. **플러그인 설정** — `.claude-plugin/`, `.codex-plugin/`, `.cursor-plugin/`, `GEMINI.md` 동기화
-5. **수동 테스트** — 해당 스킬 실행하여 산출물 확인
-6. **릴리즈** — `VERSION`이 단일 소스지만, 현재 로컬 `make validate`의 `validate-versions`는 매니페스트 버전 정합성도 확인한다. 릴리즈 커밋에는 `VERSION`, `CHANGELOG.md`, 그리고 검증 대상 매니페스트 버전 필드를 함께 맞춘다. CI(`sync-version.yml`)는 push 후 동일 버전을 재확인/동기화하는 no-op 안전망으로 취급한다.
-   - **Release 스킬**: `.claude/skills/release.md` — Claude Code 전용. 공개 `skills/` inventory에 포함되지 않음.
-
-## Maintainer / Autonomous Preflight
-
-Scheduled or autonomous maintainer runs must protect unknown work before repository mutation:
-
-1. Run `git branch --show-current` and `git status --short --branch` before pull/edit/commit/push; stop if the branch is not the configured target branch.
-2. Stop on any modified, staged, deleted, or untracked path that the current run did not create; report the dirty paths instead of cleaning, stashing, or discarding them.
-3. After a clean preflight, run `git pull --ff-only`, re-read `AGENTS.md` in case the pull changed maintainer instructions, then rerun `git status --short` before editing.
-4. Before commit, rerun `git status --short` and stage only intentional current-run files with explicit paths, not `git add -A` or `git add .`.
-5. Do not schedule jobs, modify cron/crontab, or change external automation from inside a scheduled improvement run.
+1. Edit `skills/<name>/SKILL.md` (canonical contract changes → `skills/forgeflow/SKILL.md` first)
+2. Edit `templates/<name>.md` for artifact format changes
+3. Update `docs/adapter-config.md` for adapter-specific behavior
+4. Sync plugin configs: `.claude-plugin/`, `.codex-plugin/`, `.cursor-plugin/`, `GEMINI.md`
+5. Run `make validate` — all 34 checks must pass
+6. Release: bump `VERSION`, update `CHANGELOG.md` (impact-axis format: 🔒🔍⚡👤), sync manifest version fields, commit via `.claude/skills/release.md`
 
 ## Code Conventions
 
-- 모든 산출물은 Markdown. `templates/` 디렉토리에 템플릿이 있습니다.
-- public 스킬은 YAML frontmatter (`name`, `description`, `version`, `validate_prompt`)로 시작합니다. `version`은 스킬 스키마/계약 버전이며 릴리즈 `VERSION`과 별개입니다.
-- **버전 관리**: `VERSION` 파일이 단일 소스. 다만 릴리즈 검증을 위해 `SKILL.md`, `.claude-plugin/*.json`, `.codex-plugin/plugin.json`, `.cursor-plugin/plugin.json`, `gemini-extension.json`의 버전 필드는 릴리즈 커밋에서 `VERSION`과 일치시킨다. 기능/계약 변경 없이 버전 필드만 동기화한다.
-- 산출물은 기본 `~/.forgeflow/projects/<project-slug>/tasks/<task-id>/` 아래에 작성. local storage를 명시한 경우만 `<repo>/.forgeflow/tasks/<task-id>/`를 쓴다.
-- Review는 읽기 전용. 코드 수정 금지.
-- Verification은 실제 명령 기반. hallucinated command 금지.
-- 외부 의존성 추가 금지.
-- Evolution rules: `templates/evolution-rule.md` + `.forgeflow/evolution/{proposed,active,retired}/`
+- All artifacts are Markdown; templates live in `templates/`
+- Public skills start with YAML frontmatter: `name`, `description`, `version`, `validate_prompt`. Skill `version`은 릴리즈 `VERSION`과 별개
+- Version sync: release commit must align `VERSION` with `SKILL.md`, `.claude-plugin/*.json`, `.codex-plugin/plugin.json`, `.cursor-plugin/plugin.json`, `gemini-extension.json` version fields
+- Artifact storage: default `~/.forgeflow/projects/<project-slug>/tasks/<task-id>/`; local-only if explicitly configured
+- Review is read-only — never edits code
+- Verification uses real commands only — no hallucinated commands
+- 외부 의존성 추가 금지
+- Review는 읽기 전용 — 코드 수정 금지
+- CHANGELOG Unreleased sections use impact axes (🔒 자동화·정합성 / 🔍 검증·정책 / ⚡ 속도·안정성 / 👤 사용자·경험)
+- Prompt-driven enforcement: gates and rules enforced via prompts, not scripts
 
-## Key Patterns
+## Maintainer / Autonomous Preflight
 
-- **Route selection**: clarify 스킬이 small/medium/high/epic 라우트 선택; medium은 medium-light/full sub-band 기록
-- **Test surface**: 현재 repo가 runtime-heavy 브랜치라면 `tests/`는 1,200+ 규모일 수 있다. domain/project detection을 건드릴 때는 `test_domain_analysis.py`, `test_project_type_detection.py` 계열을 우선 확인하고, slim markdown 배포 브랜치라면 `make validate`와 `scripts/validate_*.py` 계약 테스트를 기준으로 삼는다.
-- **Canonical contract**: `skills/forgeflow/SKILL.md` — 루트 `SKILL.md`는 marketplace 요약만
-- **Adapter config**: `docs/adapter-config.md` — forgeflow SKILL은 중복 표 대신 참조
-- **Milestone planning**: Epic 태스크는 roadmap.md로 마일스톤 분해 후 상세 계획
-- **Evidence discipline**: review는 파일 경로와 구체적 증거로 판단
-- **Prompt-driven enforcement**: 게이트와 규칙은 프롬프트로 강제, 스크립트 없음
+1. `git branch --show-current` + `git status --short --branch` — stop if not target branch or if dirty paths exist from prior work
+2. `git pull --ff-only`, re-read `AGENTS.md`, recheck status
+3. Stage only intentional files with explicit paths — never `git add -A`
+4. Do not schedule jobs, modify cron, or change external automation
+
+## Notes
+
+<!-- Quick-add area -->
