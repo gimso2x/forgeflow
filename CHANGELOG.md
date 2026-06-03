@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- English README validation now guards the concise global quickstart against drifting from supported adapters, Codex/Gemini install paths, default artifact storage, validation bundles, and read-only CI permissions.
 - Release version validation now rejects both Korean and English hardcoded current-release lines in `README.md`, and the README now points readers to `VERSION` without embedding the release number.
 - Template inventory validation now covers every file under `templates/`, and the README artifact table names project draft, fact extraction, telemetry, and deprecated compatibility stubs so user-facing artifact docs cannot lag behind the distributed template surface.
 - README standalone review artifact contract now names `fetch_ledger_complete` in the full adapter handoff checklist field list, and advisory validation guards that reader-facing overview from drifting behind the normalized-input/runtime contract.

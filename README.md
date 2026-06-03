@@ -490,6 +490,9 @@ make validate-demo
 # GitHub Actions workflow가 로컬 검증 bundle과 드리프트되지 않는지 확인
 make validate-ci-workflows
 
+# English README가 핵심 설치/산출물/검증 표면과 드리프트되지 않는지 확인
+make validate-english-readme
+
 # AGENTS.md, maintainer preflight, shared discipline/automation linkage 계약만 빠르게 확인
 make validate-agent-docs
 

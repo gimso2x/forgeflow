@@ -1,4 +1,4 @@
-.PHONY: validate demo validate-demo install-codex-local validate-behavior-guardrails validate-json validate-no-python validate-slim-surface validate-ci-workflows validate-skills validate-skill-frontmatter validate-agent-docs validate-templates validate-template-refs validate-versions validate-changelog-links validate-route-scoring-parity validate-route-policy validate-gemini-imports validate-plugin-prompts validate-evals validate-evals-json validate-eval-files validate-evals-fixtures validate-workflow-vocab validate-ship-safety validate-dogfooding-docs validate-context-resume validate-stage-tool-boundaries validate-adapter-config validate-advisory-contract validate-behavior-guardrails validate-markdown-links telemetry telemetry-collect telemetry-aggregate usage-audit
+.PHONY: validate demo validate-demo install-codex-local validate-behavior-guardrails validate-json validate-no-python validate-slim-surface validate-ci-workflows validate-english-readme validate-skills validate-skill-frontmatter validate-agent-docs validate-templates validate-template-refs validate-versions validate-changelog-links validate-route-scoring-parity validate-route-policy validate-gemini-imports validate-plugin-prompts validate-evals validate-evals-json validate-eval-files validate-evals-fixtures validate-workflow-vocab validate-ship-safety validate-dogfooding-docs validate-context-resume validate-stage-tool-boundaries validate-adapter-config validate-advisory-contract validate-behavior-guardrails validate-markdown-links telemetry telemetry-collect telemetry-aggregate usage-audit
 
 PYTHON ?= python3
 
@@ -31,7 +31,7 @@ TEMPLATES := \
 	evidence-manifest.md \
 	re-execution-conditions.md
 
-validate: validate-no-python validate-slim-surface validate-ci-workflows validate-json validate-versions validate-changelog-links validate-route-scoring-parity validate-route-policy validate-skills validate-agent-docs validate-templates validate-template-refs validate-demo validate-gemini-imports validate-plugin-prompts validate-evals validate-workflow-vocab validate-ship-safety validate-dogfooding-docs validate-context-resume validate-stage-tool-boundaries validate-adapter-config validate-advisory-contract validate-behavior-guardrails validate-markdown-links
+validate: validate-no-python validate-slim-surface validate-ci-workflows validate-english-readme validate-json validate-versions validate-changelog-links validate-route-scoring-parity validate-route-policy validate-skills validate-agent-docs validate-templates validate-template-refs validate-demo validate-gemini-imports validate-plugin-prompts validate-evals validate-workflow-vocab validate-ship-safety validate-dogfooding-docs validate-context-resume validate-stage-tool-boundaries validate-adapter-config validate-advisory-contract validate-behavior-guardrails validate-markdown-links
 	@echo "OK: local validation passed"
 
 validate-evals: validate-evals-json validate-eval-files validate-evals-fixtures
@@ -130,6 +130,19 @@ validate-ci-workflows:
 	@grep -Fq "make validate-evals" README.md || { echo "ERROR: README must document the eval validation bundle target"; exit 1; }
 	@grep -Fq "make validate-evals" evals/README.md || { echo "ERROR: eval README must document the eval validation bundle target"; exit 1; }
 	@echo "OK: CI workflows invoke documented local validation bundles"
+
+validate-english-readme:
+	@grep -Fq "The canonical detailed README is [README.md](README.md)" README_en.md || { echo "ERROR: README_en must point to the canonical detailed README"; exit 1; }
+	@grep -Fq "Claude Code, Codex, Gemini CLI, and Cursor" README_en.md || { echo "ERROR: README_en must name the supported adapters"; exit 1; }
+	@grep -Fq "gemini extensions install https://github.com/gimso2x/forgeflow" README_en.md || { echo "ERROR: README_en must document Gemini CLI install"; exit 1; }
+	@grep -Fq "codex plugin add forgeflow@forgeflow" README_en.md || { echo "ERROR: README_en must document Codex marketplace install"; exit 1; }
+	@grep -Fq "make -C /path/to/forgeflow install-codex-local" README_en.md || { echo "ERROR: README_en must document Codex local install target"; exit 1; }
+	@grep -Fq "~/.forgeflow/projects/<project-slug>/tasks/<task-id>/" README_en.md || { echo "ERROR: README_en must document the default global artifact path"; exit 1; }
+	@grep -Fq "make validate" README_en.md || { echo "ERROR: README_en must document make validate"; exit 1; }
+	@grep -Fq "make validate-evals" README_en.md || { echo "ERROR: README_en must document make validate-evals"; exit 1; }
+	@grep -Fq "read-only \`contents: read\` permissions" README_en.md || { echo "ERROR: README_en must document read-only CI permissions"; exit 1; }
+	@grep -Fq "make validate-english-readme" README.md || { echo "ERROR: README local validation docs must include focused English README validation"; exit 1; }
+	@echo "OK: English README mirrors core install, artifact, and validation surfaces"
 
 validate-json:
 	@for f in $(PLUGIN_JSON); do \
