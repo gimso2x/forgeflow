@@ -35,6 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Historical standalone review planning docs now point readers to the implemented Markdown-first contract and no longer imply a pending JSON report shape or execute-only review baseline.
 - Shared automation guidance now describes forbidden-action handoffs with the same full checkpoint boundary field set at the initial stop rule, so stage owners do not miss `current owner` or `handoff reason` before the dedicated `Handoff Boundary` reminder; the focused stage-boundary validator now guards the updated wording.
 - Context-resume guidance and the compact-resume eval now require reading checkpoint `Handoff Boundary` ownership/delegation before continuing after context refresh, preventing refresh from erasing forbidden-action handoffs or stop conditions.
 - README와 canonical `skills/forgeflow/SKILL.md`에 현재 release/version 기준과 init intelligence(project type/domain/change detection) 설명을 보강했습니다.

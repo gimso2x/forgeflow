@@ -7,7 +7,9 @@
 
 ## Priority 1: Review Standalone 진입점
 
-### 현재 상태
+> **Status**: ✅ 완료. 현재 계약은 `docs/review-runtime-contract.md`, `skills/ff-review/SKILL.md`, `templates/input-source.md`, `templates/normalized-input.md`, `templates/review-report.md`, `evals/evals.json`를 기준으로 유지합니다. 이 섹션은 구현 전 설계 기록이며, 아래 baseline은 historical context입니다.
+
+### Historical baseline
 - review는 execute 후속 검증으로만 설계됨
 - 반드시 `implementation-notes.md` + `run-ledger.md`가 선행되어야 실행 가능
 
@@ -42,8 +44,9 @@ dependencies:
 - scope는 항상 명시적 (기본값: changed files only)
 
 #### Templates 변경
-- `templates/review-report.md`에 `input_mode` 필드 추가
-- standalone review 시 출처 메타데이터 기록
+- `templates/input-source.md`에 standalone 입력 출처/fetch 상태/provenance 기록
+- `templates/normalized-input.md`에 artifact/evidence/scope/constraints 정규화와 evidence integrity gate 기록
+- `templates/review-report.md`의 Standalone Input Source 요약에 source/freshness/access posture를 echo
 
 ### 검증
 - `evals/evals.json`에 standalone review eval 추가
