@@ -5,6 +5,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.11.8] - 2026-06-03
+
+### 🔒 자동화·정합성
+
+- Small-route auto-chain 모순 수정: `automation.md` chain sequence가 clarify→execute→review→ship에서 clarify→execute→ship (self-verify replaces formal review)로 정정.
+- `.claude-plugin/plugin.json`에 `interface.defaultPrompt` 8개 스킬 추가, Codex/Cursor와 동일한 skill surface 검증 적용.
+- `validate_plugin_prompts.py`가 `.claude-plugin/plugin.json`을 검증 대상에 포함.
+- `validate_template_refs.py`가 `skills/_shared/*.md`의 template 참조도 검증.
+- `validate_workflow_vocab.py`가 `.claude/skills/` 및 `.gemini/` 디렉토리의 stale vocabulary도 검증.
+- `validate_template_fields.py` 추가: skill 기대값과 template 실제 필드(section headers, YAML frontmatter) 교차검증. `make validate`에 `validate-template-fields`로 연결.
+- Verification gate 공유 catalog `skills/_shared/verification-gates.md` 생성. clarify와 ff-plan이 공유 catalog를 참조하도록 변경.
+
+### 🔍 검증·정책
+
+- clarify SKILL.md Output Artifacts에 Goal Contract 필수 항목 명시 추가. Agent가 step 11을 건너뛰어도 Goal Contract 누락 방지.
+
+### ⚡ 속도·안정성
+
+- (이번 릴리즈 해당 항목 없음)
+
+### 👤 사용자·경험
+
+- Gemini-specific agents/skills (`.gemini/agents/`, `.gemini/skills/`)를 `docs/adapter-config.md`에 문서화.
+- `docs/forgeflow-standalone-review-plan.md`에 historical design document 명시 추가. 현재 동작은 canonical skill/template을 참조하도록 안내.
+- `docs/adapter-layout.md` adapters/ 마이그레이션을 deferred로 표시.
+
+### 📊 Eval
+
+- Changelog impact-axis classification eval 추가 (id 120).
+- ForgeFlow router stage-routing eval 추가 (id 121).
+- Auto-chain small-route skip-review eval 추가 (id 122).
+- Auto-chain full-sequence eval 추가 (id 123).
+- 총 124 eval cases.
+
 ## [1.11.7] - 2026-06-03
 
 ### 🔒 자동화·정합성
@@ -1036,7 +1070,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI gate with GitHub Actions workflow generation
 - Agent preset installer (Claude + Codex)
 
-[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v1.11.7...HEAD
+[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v1.11.8...HEAD
+[1.11.8]: https://github.com/gimso2x/forgeflow/compare/v1.11.7...v1.11.8
 [1.11.7]: https://github.com/gimso2x/forgeflow/compare/v1.11.6...v1.11.7
 [1.11.6]: https://github.com/gimso2x/forgeflow/compare/v1.11.5...v1.11.6
 [1.11.5]: https://github.com/gimso2x/forgeflow/compare/v1.11.4...v1.11.5
