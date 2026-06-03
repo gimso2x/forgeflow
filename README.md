@@ -324,7 +324,7 @@ Review runtime contract는 [docs/review-runtime-contract.md](docs/review-runtime
 - `review-report.md`: standalone input source summary는 Fetch Method Ledger row, Evidence Source Map references, Adapter Handoff Checklist(`fetch_ledger_complete` 포함)를 echo해, 독자가 report만 보고도 finding/role summary evidence가 어떤 multi-fetch provenance에 묶였고 handoff가 PASS/FAIL인지 확인할 수 있어야 합니다.
 - `normalized-input.md`: role capability hints는 역할별 model/profile 선택을 capability 수준으로 기록하는 선택적 audit metadata이며, review semantics를 바꾸지 않습니다.
 - `normalized-input.md`: `constraints.roles`, role trigger matrix, role evidence map이 서로 일치해야 합니다. constraints에 있는 role은 matrix에서 `run` 또는 `blocked`이고 evidence map에 evidence IDs 또는 blocked rationale이 있어야 하며, matrix에서 `run`인 role은 constraints에도 있어야 합니다.
-- `normalized-input.md`: adapter handoff checklist도 포함해 source classified, fetch reproduced, fetch posture constrained, normalization complete, limitations visible, canonical review ownership을 reviewer judgment 전에 PASS/FAIL로 고정
+- `normalized-input.md`: adapter handoff checklist도 포함해 source classified, fetch reproduced, fetch ledger complete(`fetch_ledger_complete`), fetch posture constrained, normalization complete, limitations visible, canonical review ownership을 reviewer judgment 전에 PASS/FAIL로 고정
 - `review-report.md`: 단일 최종 리뷰 산출물. Standalone Input Source 요약은 fetch status/`fetched_at`/`freshness_status`/access posture/mutation check를 echo해 독자가 정규화 산출물을 다시 열지 않아도 evidence freshness와 read-only/verification-only posture를 확인할 수 있어야 합니다. adapter별 별도 report나 자동 승인 경로 없음
 
 리뷰 단계는 코드 수정/브랜치 정리/ship을 하지 않습니다. 문제가 발견되면 `review-report.md`에 finding으로 남기고 execute 단계로 돌려보냅니다.
