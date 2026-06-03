@@ -258,6 +258,28 @@ When fan-out activates, each parallel worker **must** operate in an isolated git
 
 If the adapter/shell does not support worktree creation, fall back to sequential execution with a warning — do not run parallel workers in the same working tree.
 
+**Worktree pre-merge verification gate (fan-in):**
+
+Before merging any worktree back, verify ALL items:
+
+1. **Clean state**: `git -C <worktree-path> status --porcelain` must be empty. Uncommitted changes → commit or discard first.
+2. **Branch divergence**: `git log --oneline <main-branch>..<worker-branch>` — list commits for review. If unexpected commits exist → investigate before merge.
+3. **No cross-worktree conflicts**: For each worktree pair (A, B), check `git diff --name-only <A-branch> <B-branch>` for overlapping files. Overlaps → resolve before merge.
+4. **Verification pass**: Each worktree must have at least 1 verification gate PASS in its implementation-notes.md Evidence. No evidence → do not merge.
+5. **Merge**: `git merge --no-ff <worker-branch>` — always create merge commit for traceability. `--ff` is forbidden for fan-in merges.
+
+Record in implementation-notes.md: `worktree_gate:PASS worker=<id> commits=<N> conflicts=<N>`.
+
+**Worktree cleanup checklist (ship):**
+
+After ship completes:
+1. List all worktrees: `git worktree list`
+2. For each worktree in `.forgeflow/worktrees/`:
+   - Verify branch is merged: `git branch --merged <main-branch>` includes the worker branch.
+   - Remove worktree: `git worktree remove <path>`
+   - Delete worker branch (optional): `git branch -d <worker-branch>`
+3. Record: `worktree_cleanup:done removed=<N> remaining=<N>`
+
 ### When to use which pattern
 
 | Route | Default pattern | When to upgrade |

@@ -112,3 +112,15 @@ graph TD
 
 ## 병렬성 (Parallelism)
 <!-- Which tasks can run concurrently and any conflicts -->
+
+## Self-Critique
+<!-- Self-Critique Loop: ff-plan Phase 3 fills this section. -->
+<!-- Do not leave this section empty after plan stage — critic must run. -->
+
+- **Coverage PASS?**: <!-- yes/no — does plan satisfy every acceptance criterion and Goal Contract success criteria? -->
+- **Dependency PASS?**: <!-- yes/no — no missing deps, no ordering errors, no file-conflict risks? -->
+- **Verifiability PASS?**: <!-- yes/no — does every verification step produce observable evidence? -->
+- **Risk gaps PASS?**: <!-- yes/no — all accepted risks acknowledged or mitigated? -->
+- **Critic verdict**: <!-- PASS (all yes) | REVISED (N iterations) | OPEN_CONCERNS -->
+- **Revision count**: <!-- 0–3 -->
+- **Open Concerns**: <!-- remaining issues after 3 iterations, or "none" -->

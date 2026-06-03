@@ -390,18 +390,25 @@ Apply these synthesis heuristics to convert five-angle analysis into milestone b
 
 10. **Self-Critique Loop** (inspired by gajae-code's ralplan pattern):
 
-    After plan.md draft is complete, run an internal **Critic** pass. Append a `## Self-Critique` section to plan.md answering:
+    After plan.md draft is complete, run an internal **Critic** pass. Fill the `## Self-Critique` section in `plan.md` (see `templates/plan.md` for the exact field structure) answering:
 
     1. **Coverage**: Does this plan satisfy every acceptance criterion and Goal Contract success criteria from brief.md?
     2. **Dependency correctness**: Are there missing dependencies, ordering errors, or file-conflict risks not flagged?
     3. **Verifiability**: Does every verification step produce observable evidence (command output, test results, diff)?
     4. **Risk gaps**: Are there accepted risks from brief.md that the plan does not mitigate or acknowledge?
 
+    **Field mapping to `templates/plan.md` Self-Critique section:**
+    - Question 1 → `Coverage PASS?`
+    - Question 2 → `Dependency PASS?`
+    - Question 3 → `Verifiability PASS?`
+    - Question 4 → `Risk gaps PASS?`
+
     **Rules:**
     - If any answer is "no" or "uncertain", revise the plan and re-run Critic (max 3 iterations).
     - Critic PASS condition: all four answers are affirmative with no hedging.
-    - Record the final Critic verdict (PASS/revision count) in the `## Self-Critique` section so review stage can see it.
-    - If Critic does not pass after 3 iterations, flag the remaining concern in `## Open Concerns` and proceed — do not block planning indefinitely.
+    - Record the final Critic verdict (PASS/revision count) in `Critic verdict` and `Revision count` fields of the `## Self-Critique` section so review stage can see it.
+    - If Critic does not pass after 3 iterations, flag the remaining concern in `Open Concerns` field and proceed — do not block planning indefinitely.
+    - **Review consumption**: ff-review reads the Self-Critique section. If `Critic verdict` is not `PASS` and no `Open Concerns` are listed, review must flag it as a planning defect.
 
 11. Propose `/forgeflow:execute` as the next stage and stop for explicit user approval.
 

@@ -548,6 +548,37 @@ For steps with no mutual dependencies (check plan.md dependencies):
 - Bad: `승인된 계획대로 실행하겠습니다.`만 말하고 대기.
 - Good: 바로 수정/검증을 시작하고 evidence를 남긴다.
 
+## Small route self-verify
+
+Small route는 review 없이 바로 ship으로 갈 수 있으므로, execute 단계에서 스스로 품질을 검증해야 한다. small route일 경우 exit prompt 전에 이 체크리스트를 반드시 실행한다.
+
+### Pre-exit self-verify checklist (small route only)
+
+Before delivering the small route exit prompt, verify ALL items:
+
+1. **Goal Contract check**: Read brief.md Goal Contract section. For each success criterion:
+   - Is there matching evidence in implementation-notes.md Evidence?
+   - If any criterion has no evidence → do NOT exit. Run additional verification or record why it cannot be verified.
+   - Record `goal_contract_check:PASS` or `goal_contract_check:FAIL criteria="<unmet>"` in Evidence.
+
+2. **Scope boundary**: `git diff --name-only` — must be ≤ 3 files. If exceeds, either split or escalate to medium route.
+   - Record `scope_boundary_check:PASS` or `scope_boundary_check:WARN files=<count>`.
+
+3. **Self-review proxy** (since small skips formal review):
+   - Read the diff. Check for: debug artifacts (`console.log`, `TODO`, `FIXME`), obvious logic errors, missing error handling.
+   - If found → fix before exit. Record `self_review:PASS` or `self_review:FIXED items=<count>`.
+   - This does NOT replace `/forgeflow:ff-review` if the user requests it — it is a minimum bar for the small fast path.
+
+4. **Verification gate**: At least 1 gate (build/lint/type_check/test) must PASS.
+   - Record `verification:PASS gate=<name> command="<cmd>"`.
+
+5. **Evidence completeness**: `implementation-notes.md` has: Status completed, Files Changed, Evidence section, Decisions section.
+   - If any section is empty → fill it before exit.
+
+**Pass condition**: all 5 items must PASS or be explicitly marked as N/A with justification. If any item FAILs, fix it or block — do not deliver the exit prompt with a known failure.
+
+**Integration with forgeflow SKILL.md small route**: The main router declares small = clarify→execute→ship with self-verify pass condition. This checklist IS that pass condition. Execute fills it, ship reads `goal_contract_check:PASS` as a prerequisite for fast-path merge.
+
 ## Bounded verification fix loop
 
 When a lint/build/test/typecheck command fails after an implementation change, do not stop at the first failure. Record each failed command, exit code, and concise failure summary in implementation-notes.md under Evidence using a compact string such as `verification:FAIL attempt=1 command="npm run lint" exit=1 reason="react-hooks/set-state-in-effect"`, apply the smallest scoped fix, then rerun the focused verification. Repeat for at most 3 attempts. Mark work complete only after the latest required verification passes and add a final `verification:PASS ...` evidence ref; if failures remain, set status to `blocked` and keep the latest failure evidence.

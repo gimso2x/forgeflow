@@ -133,6 +133,24 @@ When a review or execution failure occurs (verification retry ≥ 2, scope bound
 
 This enables the closed-loop principle: failure → rule extraction → hard enforcement → compound learning.
 
+## Model Tier consumption guide
+
+ForgeFlow declares 3 model tiers (see `skills/forgeflow/SKILL.md` Model Tiers table). Ship must consume these when deciding verification depth:
+
+| Tier | Ship verification floor | Evidence bar |
+|------|------------------------|-------------|
+| `reasoning` | Full gate suite (build + lint + test + type_check). No shortcuts. | Every gate PASS required in ship-summary Evidence Manifest. |
+| `coding` | Build + test minimum. Lint/type_check if project configures them. | At least 2 independent verification commands. |
+| `fast` | At least 1 verification gate (any). Self-verify checklist (small route) acceptable. | 1 gate PASS + goal_contract_check:PASS. |
+
+**How ship uses this:**
+1. Read brief.md route field → map to model tier (small→fast, medium→coding, high/epic→reasoning).
+2. Check ship-summary Evidence Manifest against the tier's verification floor.
+3. If evidence does not meet the floor → do NOT deliver ship-summary. Return to execute with explicit gap: "verification floor for <tier> requires <X>, found <Y>".
+4. Record the tier check in ship-summary as `model_tier_check:PASS tier=<tier> gates=<N>`.
+
+**Adapter note:** The adapter (Claude Code, Codex, etc.) resolves tier names to concrete models. Ship does not need to know model names — only the verification floor per tier.
+
 ## Fact Extraction (Memory Bank L4)
 
 After evolution rule extraction and SOFT→HARD promotion, extract structured facts from task artifacts into the ForgeFlow Memory Bank.
