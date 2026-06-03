@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Local validation docs now list the focused behavior-guardrail check, and the Makefile phony inventory no longer declares that target twice.
 - Skill frontmatter validation now rejects duplicate top-level YAML keys, and the canonical `forgeflow` skill uses a single merged `validate_prompt` so adapter loaders do not silently discard routing requirements.
 - English README validation now guards the concise global quickstart against drifting from supported adapters, Codex/Gemini install paths, default artifact storage, validation bundles, and read-only CI permissions.
 - Release version validation now rejects both Korean and English hardcoded current-release lines in `README.md`, and the README now points readers to `VERSION` without embedding the release number.

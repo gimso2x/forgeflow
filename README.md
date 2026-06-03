@@ -502,6 +502,9 @@ make validate-gemini-imports validate-plugin-prompts
 # workflow vocabulary, ship safety, dogfooding/context-resume/advisory 계약만 빠르게 확인
 make validate-workflow-vocab validate-ship-safety validate-dogfooding-docs validate-context-resume validate-advisory-contract
 
+# behavior guardrails가 docs/templates/review checks에 연결되어 있는지 확인
+make validate-behavior-guardrails
+
 # eval fixture 계약만 빠르게 확인
 make validate-evals
 # 또는 특정 lane 디버깅 시:
