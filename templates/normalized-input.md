@@ -126,6 +126,7 @@
 <!-- Complete before reviewer judgment. If any item is FAIL, the lead reviewer blocks approval unless the limitation is explicitly narrowed by a human. -->
 - **source_classified**: <!-- PASS | FAIL; input-source.md explains detected type and ambiguity outcome -->
 - **fetch_reproduced**: <!-- PASS | FAIL; every evidence ID maps to a command/API/source label -->
+- **fetch_ledger_complete**: <!-- PASS | FAIL; when multiple command/API/source labels produced evidence, input-source.md Fetch Method Ledger has one row per fetch and every Evidence Source Map fetch_id resolves to that row -->
 - **fetch_posture_constrained**: <!-- PASS | FAIL; input-source.md records read_only | verification_only | not_applicable access posture and no mutation occurred during fetch -->
 - **normalization_complete**: <!-- PASS | FAIL; brief/evidence/scope/constraints are filled above -->
 - **limitations_visible**: <!-- PASS | FAIL; failed/partial/truncated/missing evidence remains visible -->

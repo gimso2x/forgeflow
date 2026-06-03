@@ -102,6 +102,7 @@ Before invoking the canonical review skill, every adapter must leave an auditabl
 
 - **Source classified**: which input source class was detected, and why other plausible classes were not used when ambiguous.
 - **Fetch reproduced**: the exact command, API label, or tool/source label used to obtain each evidence item.
+- **Fetch ledger complete**: when more than one command/API/source label produced evidence, `input-source.md` has a Fetch Method Ledger row for each evidence-producing fetch and every Evidence Source Map `fetch_id` resolves to that row.
 - **Fetch posture constrained**: every evidence fetch is recorded as read-only, verification-only, or not-applicable; any state-changing remote/API action or product mutation during evidence fetch fails the handoff.
 - **Normalization complete**: `brief`, `evidence`, `scope`, and `constraints` are all present in `normalized-input.md`.
 - **Limitations visible**: every failed, partial, missing, or truncated fetch is recorded as an evidence item with `evidence_level: missing` or an explicit truncation note.
