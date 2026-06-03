@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.12.0] - 2026-06-04
+
+### 🔍 검증·정책
+
+- **Plan Conformance Gate** 추가: review 단계에서 plan.md의 각 task가 실제 구현되었는지 체계적으로 검증. Step 3c로 scope boundary check 직후 배치. Per-task traceability (task → files → verification → criterion fulfillment). Route-aware: `small`은 primary task만, `medium`+은 전체 trace. Finding category `plan-conformance` (하위: `task-missing`, `file-missing`, `verification-skipped`, `criterion-unfulfilled`). Verdict: PASS | PARTIAL | FAIL. (#86 확장)
+- `templates/review-report.md`에 "Plan Task 준수" 섹션 및 per-task trace 구조 추가.
+
+### 🔒 자동화·정합성
+
+- (이번 릴리즈 해당 항목 없음)
+
+### ⚡ 속도·안정성
+
+- (이번 릴리즈 해당 항목 없음)
+
+### 👤 사용자·경험
+
+- (이번 릴리즈 해당 항목 없음)
+
 ## [1.11.8] - 2026-06-03
 
 ### 🔒 자동화·정합성
@@ -1070,7 +1089,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI gate with GitHub Actions workflow generation
 - Agent preset installer (Claude + Codex)
 
-[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v1.11.8...HEAD
+[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v1.12.0...HEAD
+[1.12.0]: https://github.com/gimso2x/forgeflow/compare/v1.11.8...v1.12.0
 [1.11.8]: https://github.com/gimso2x/forgeflow/compare/v1.11.7...v1.11.8
 [1.11.7]: https://github.com/gimso2x/forgeflow/compare/v1.11.6...v1.11.7
 [1.11.6]: https://github.com/gimso2x/forgeflow/compare/v1.11.5...v1.11.6
