@@ -56,7 +56,7 @@
 ## Evidence Index
 <!-- Compact refs updated during execute. Parse before expanding full Evidence above. -->
 <!-- Example: evidence_index: task=T2 gates=make validate:PASS,contract_check:PASS -->
-<!-- run-ledger.md = per-task status truth; this file = decisions + evidence narrative -->
+<!-- ledger.md = per-task status truth; this file = decisions + evidence narrative -->
 
 ## 컴포넌트/함수 역할 (Role Descriptions)
 <!-- One-line role for each changed component/function. Required for all routes. -->

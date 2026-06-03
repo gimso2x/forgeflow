@@ -58,6 +58,11 @@ stale_schema_terms = {
     'success_criteria': 'brief artifacts use acceptance_criteria',
     'progress.percentage': 'run-state progress uses progress.percent',
 }
+deprecated_artifact_generation_terms = (
+    ('`plan-ledger.md` (신규)', 'use `ledger.md` Plan Items instead of presenting deprecated plan-ledger.md as a new artifact'),
+    ('`decision-log.md` (신규)', 'use `implementation-notes.md` Decisions instead of presenting deprecated decision-log.md as a new artifact'),
+    ('run-ledger.md = per-task status truth', 'use ledger.md as the per-task status truth'),
+)
 scan_roots = [pathlib.Path('README.md'), pathlib.Path('GEMINI.md'), pathlib.Path('SKILL.md'), pathlib.Path('AGENTS.md'), pathlib.Path('docs'), pathlib.Path('skills'), pathlib.Path('templates')]
 for root in scan_roots:
     paths = [root] if root.is_file() else sorted(root.rglob('*.md'))
@@ -69,6 +74,9 @@ for root in scan_roots:
         for stale, guidance in stale_schema_terms.items():
             if stale in text:
                 failures.append(f'{path}: stale schema vocabulary {stale!r}; {guidance}')
+        for stale, guidance in deprecated_artifact_generation_terms:
+            if stale in text:
+                failures.append(f'{path}: deprecated artifact generation wording {stale!r}; {guidance}')
 lifecycle_expectations = {'README.md': 'ship → long-run', 'SKILL.md': 'ship → long-run', 'skills/forgeflow/SKILL.md': 'ship -> long-run'}
 for rel_path, snippet in lifecycle_expectations.items():
     if snippet not in pathlib.Path(rel_path).read_text(encoding='utf-8'):

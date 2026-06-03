@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Roadmap and implementation-note guidance now point deprecated ledger/decision artifacts to their current canonical sections, and workflow vocabulary validation guards against presenting those deprecated filenames as newly generated artifacts.
 - English README now exposes the behavior guardrail contract and focused `make validate-behavior-guardrails` command, with `validate-english-readme` guarding that global quickstart surface.
 - Changelog validation now rejects duplicate Keep a Changelog subsection headings within a release section, and the current Unreleased notes use a single `Changed` section.
 - Local validation docs now list the focused behavior-guardrail check, and the Makefile phony inventory no longer declares that target twice.

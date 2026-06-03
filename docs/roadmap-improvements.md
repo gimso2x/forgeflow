@@ -90,10 +90,10 @@ severity_breakdown:
 - **Category**: security|perf|ux|correctness|maintainability
 ```
 
-#### `plan-ledger.md` (신규)
+#### `ledger.md` Plan Items section (current replacement for deprecated `plan-ledger.md`)
 ```markdown
 ---
-schema: plan-ledger/v1
+schema: ledger/v1
 task_id: <id>
 route: small|medium|high|epic
 total_items: N
@@ -110,10 +110,10 @@ total_items: N
 - <decision>: <rationale>
 ```
 
-#### `decision-log.md` (신규)
+#### `implementation-notes.md` Decisions section (current replacement for deprecated `decision-log.md`)
 ```markdown
 ---
-schema: decision-log/v1
+schema: implementation-notes/v1
 task_id: <id>
 ---
 
