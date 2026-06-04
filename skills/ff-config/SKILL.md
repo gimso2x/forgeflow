@@ -13,7 +13,7 @@ dependencies:
 
 # Skill: config
 
-Interactive project defaults manager for ForgeFlow. Reads and toggles settings in the resolved ForgeFlow storage root (`~/.forgeflow/projects/<project-slug>/defaults.md` by default; `<repo>/.forgeflow/defaults.md` only for local storage).
+Interactive project defaults manager for ForgeFlow. Reads and toggles settings in the resolved ForgeFlow storage root (`~/.forgeflow/projects/<project-slug>/defaults.md`).
 The default `/forgeflow:ff-config` flow must offer init as a numbered menu action, including reusable project context generation with auto-detected project structure, documentation pointers, and stable task guidance. Do not require the user to remember a separate manual init command.
 Includes prune mode to detect and clean up orphan worktrees (see Mode D).
 
@@ -36,7 +36,7 @@ Includes prune mode to detect and clean up orphan worktrees (see Mode D).
 
 ### Mode A: Interactive config (default)
 
-1. Read `<storage-root>/defaults.md` if it exists. Parse supported fields: `auto`, `isolation`, `storage.mode`, `storage.root`. When the file is missing, use hardcoded defaults: `auto: false`, `isolation: true`, `storage.mode: global`, `storage.root: ~/.forgeflow`.
+1. Read `<storage-root>/defaults.md` if it exists. Parse supported fields: `auto`, `isolation`, `storage.root`. When the file is missing, use hardcoded defaults: `auto: false`, `isolation: true`, `storage.root: ~/.forgeflow`.
 2. Count orphan worktrees: list directories under `<storage-root>/worktrees/` and apply detection logic from `_shared/isolation.md` → Orphan worktree detection.
 3. Present current settings as a numbered menu:
 
@@ -66,7 +66,6 @@ Where `N` is the count of orphaned worktrees from step 2. If `<storage-root>/wor
 
 auto: true
 isolation: true
-storage.mode: global
 storage.root: ~/.forgeflow
 ```
 
@@ -179,6 +178,6 @@ Based on detected patterns in the project:
 - Only modify `<storage-root>/defaults.md` and `<storage-root>/project-draft.md` — no other files (except worktree cleanup in Mode D which removes worktree directories and branches).
 - Never auto-commit any generated files.
 - Never remove unmerged branches in prune mode — warn only.
-- Supported config fields only: `auto`, `isolation`, `storage.mode`, `storage.root`. Ignore unknown fields.
+- Supported config fields only: `auto`, `isolation`, `storage.root`. Ignore unknown fields.
 - Shared file-write rules: `_shared/discipline.md`.
 - Detection logic is prompt-based. Do not invent or assume project properties — read actual files.

@@ -24,7 +24,7 @@ dependencies:
 
 Use this skill to convert a raw request into a ForgeFlow context brief (`brief.md`) and route decision.
 
-> **Terminology**: `<task-dir>` = resolved task directory: `~/.forgeflow/projects/<project-slug>/tasks/<task-id>/` by default, or `<repo>/.forgeflow/tasks/<task-id>/` when local storage is configured. `<storage-root>` = `~/.forgeflow/projects/<project-slug>/` by default.
+> **Terminology**: `<task-dir>` = resolved task directory: `~/.forgeflow/projects/<project-slug>/tasks/<task-id>/`. `<storage-root>` = `~/.forgeflow/projects/<project-slug>/`.
 
 ## Input
 

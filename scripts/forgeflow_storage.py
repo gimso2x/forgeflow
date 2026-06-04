@@ -1,13 +1,10 @@
 #!/usr/bin/env python3
 """Resolve ForgeFlow artifact storage locations.
 
-Default storage is global and project-scoped:
+Storage is always global and project-scoped:
     ~/.forgeflow/projects/<project-slug>/...
 
-Set FORGEFLOW_STORAGE_MODE=local to use <repo>/.forgeflow for compatibility.
-Set FORGEFLOW_HOME to override the global root. A repo-local
-.forgeflow/defaults.md may also contain storage.mode/storage.root bootstrap
-settings; environment variables take precedence.
+Set FORGEFLOW_HOME to override the global root.
 """
 from __future__ import annotations
 
@@ -43,59 +40,23 @@ def project_slug(project_dir: pathlib.Path) -> str:
     return base
 
 
-def _read_storage_config(project_dir: pathlib.Path) -> dict[str, str]:
-    """Read minimal storage bootstrap settings from <repo>/.forgeflow/defaults.md.
-
-    This intentionally avoids a YAML dependency. Supported forms:
-
-        storage.mode: local
-        storage.root: ~/.forgeflow
-
-    and:
-
-        storage:
-          mode: local
-          root: ~/.forgeflow
-    """
+def _read_storage_root_override(project_dir: pathlib.Path) -> str | None:
+    """Read storage.root override from <repo>/.forgeflow/defaults.md if present."""
     path = project_dir / ".forgeflow" / "defaults.md"
     if not path.exists():
-        return {}
-    config: dict[str, str] = {}
-    in_storage = False
+        return None
     for raw_line in path.read_text(encoding="utf-8").splitlines():
         line = raw_line.split("#", 1)[0].strip()
-        if not line:
-            continue
-        if line == "storage:":
-            in_storage = True
-            continue
-        if ":" not in line:
-            in_storage = False
-            continue
-        key, value = [part.strip().strip("'\"") for part in line.split(":", 1)]
-        if not value:
-            in_storage = key == "storage"
-            continue
-        if key.startswith("storage."):
-            config[key.removeprefix("storage.")] = value
-            in_storage = False
-        elif in_storage and key in {"mode", "root"}:
-            config[key] = value
-        else:
-            in_storage = False
-    return config
+        if line.startswith("storage.root:"):
+            return line.split(":", 1)[1].strip().strip("'\"")
+    return None
 
 
 def storage_root(project_dir: pathlib.Path | str = ".") -> pathlib.Path:
     """Return the root that owns tasks/templates/telemetry for a project."""
     project_dir = pathlib.Path(project_dir).resolve()
-    config = _read_storage_config(project_dir)
-    mode = os.environ.get("FORGEFLOW_STORAGE_MODE", config.get("mode", "global")).lower()
-    if mode == "local":
-        return project_dir / ".forgeflow"
-    if mode != "global":
-        raise ValueError("FORGEFLOW_STORAGE_MODE/storage.mode must be 'global' or 'local'")
-    home = pathlib.Path(os.environ.get("FORGEFLOW_HOME", config.get("root", "~/.forgeflow"))).expanduser()
+    config_root = _read_storage_root_override(project_dir)
+    home = pathlib.Path(os.environ.get("FORGEFLOW_HOME", config_root or "~/.forgeflow")).expanduser()
     return home / "projects" / project_slug(project_dir)
 
 

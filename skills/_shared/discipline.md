@@ -16,9 +16,9 @@ Each skill links here and adds skill-specific rules inline.
 
 ## File write and output discipline (core)
 
-- Default to **artifact-first mode**. Write task artifacts under the resolved ForgeFlow storage root, not chat-only fallback. Default root: `~/.forgeflow/projects/<project-slug>/tasks/<task-id>/`.
+- Default to **artifact-first mode**. Write task artifacts under the resolved ForgeFlow storage root, not chat-only fallback. Storage root: `~/.forgeflow/projects/<project-slug>/tasks/<task-id>/`.
 - Project slug rule: use `basename(repo_root)`; if multiple same-named checkouts share a ForgeFlow home, append a short hash of the absolute repo path (for example `forgeflow-a13f9c`). Never use a flat `~/.forgeflow/tasks/` layout because tasks from different projects would mix.
-- Local storage is opt-in only. Use `<repo>/.forgeflow/tasks/<task-id>/` only when the user or config explicitly sets `storage.mode: local` / `FORGEFLOW_STORAGE_MODE=local` / an explicit `--task-dir` under the repo.
+- Storage is always global (`~/.forgeflow/projects/<project-slug>/`). Do not create task directories under `<repo>/.forgeflow/tasks/`.
 - If the task directory is missing, bootstrap or recover it first. Do not proceed to source edits while the workflow state lives nowhere.
 - Write only under the current project workspace or the active task directory. Never write inside the plugin installation directory, marketplace cache, extension cache (including `.claude/plugins/cache`, `.codex/plugins`, `.cursor/plugins`, `~/.cursor/plugins/local`, `.gemini/extensions`, or `~/.gemini/extensions`), or `skills/<skill>/`.
 - Every task directory must carry project metadata in `run-state.json`: `repo_root`, `project_name`, `project_slug`, `storage_root`, and `task_id`. Create it at task bootstrap; checkpoint/frontmatter may repeat a subset but must not be the only source.

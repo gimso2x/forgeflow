@@ -73,7 +73,7 @@ Skills reference paths like `templates/brief.md`. Resolve the template root befo
    - Any path under `.codex/plugins` that ends with `forgeflow/templates/`
 3. When a template root is found, read `templates/<file>.md` relative to that root using the resolved absolute path.
 4. If no template root is found, stop and tell the user to install ForgeFlow locally or add `templates/` to the workspace. Do not invent artifact structure.
-5. Always write task artifacts under the resolved `<task-dir>` (`~/.forgeflow/projects/<project-slug>/tasks/<task-id>/` by default), never under a plugin install or cache directory.
+5. Always write task artifacts under the resolved `<task-dir>` (`~/.forgeflow/projects/<project-slug>/tasks/<task-id>/`), never under a plugin install or cache directory.
 
 ## Script resolution (all adapters)
 
