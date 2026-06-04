@@ -1,6 +1,6 @@
 ---
 name: execute
-description: Execute a ForgeFlow plan with verification and runtime evidence. Includes opt-in subagent per-task loop for high/epic routes. Use when the user types /execute or /forgeflow:execute, or asks to implement after clarify/plan.
+description: Execute a ForgeFlow plan (from plan.md) with verification and runtime evidence. Includes opt-in subagent per-task loop for high/epic routes. Use when the user types /execute or /forgeflow:execute, or asks to implement after clarify/plan stage, or says 구현 시작, 실행해줘 with reference to a plan. Not for running arbitrary scripts, commands, or one-off executions.
 version: 0.7.0
 author: gimso2x
 validate_prompt: |
@@ -483,6 +483,8 @@ for f in $(find src/ -name "*.tsx" -o -name "*.ts"); do echo "$(wc -l < "$f") $f
 Record results in `implementation-notes.md` → Metrics section and in the Completion Response item 7.
 
 ## Agent delegation for specialist work
+
+> This is **controller-led delegation**: the execute controller decides which steps to delegate and handles result verification. This is distinct from `--subagent-per-task` mode (see above), where every plan step runs through implementer → micro-review subagents automatically.
 
 When `brief.md` includes required specialists and the task scope justifies delegation, use the Agent tool to spawn specialist sub-agents for independent plan steps. This prevents context exhaustion and enables parallel execution.
 

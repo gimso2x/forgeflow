@@ -1,16 +1,20 @@
 ---
 name: long-run
-description: Record reusable learnings after high or epic route completion. Produces eval-record.md with evidence-backed reusable patterns, failure rules, and improvement suggestions. High/epic route only unless manually invoked. Use when the user types /long-run or /forgeflow:long-run. Also use when the user says 'extract patterns', 'what did we learn', 'evolution rules', 'capture learnings', or 'retrospective' after complex implementation work.
+description: Record reusable learnings after high or epic route completion. Produces eval-record.md with evidence-backed reusable patterns, failure rules, and improvement suggestions. High/epic route only unless manually invoked. Use when the user types /long-run or /forgeflow:long-run. Also use when the user says 'extract patterns', 'what did we learn', 'evolution rules', 'capture learnings', 'retrospective', 배운 점 정리, 패턴 추출, 회고, or what worked after complex implementation work. Not for general summaries, meeting notes, or non-implementation retrospectives.
 version: 0.5.0
 author: gimso2x
 dependencies:
   - skills/_shared/discipline.md
   - skills/_shared/isolation.md
+  - skills/_shared/context-resume.md
 validate_prompt: |
   Must preserve only learning that can improve future tasks.
   Must not store session chatter, one-off progress, or user-private context.
   Must produce eval-record.md following templates/eval-record.md format only when reusable patterns or failure rules are identified.
   Must point every pattern or rule back to evidence -- no evidence, no memory.
+  Must record SOFT→HARD promotion decisions and the evidence that triggered them.
+  Must not generate evolution rules that contradict existing project conventions without explicit override.
+  Must enforce the global vs per-task scope distinction for evolution rules.
 ---
 
 # Long-run

@@ -1,15 +1,18 @@
 ---
 name: benchmark
-description: Run cross-adapter benchmark tests to compare AI agent ForgeFlow workflow compatibility. Use when the user types /benchmark or /forgeflow:benchmark. Also use when the user says 'compare adapters', 'test Claude vs Codex', 'benchmark workflow', or wants to evaluate ForgeFlow compliance across different AI agents.
+description: Run cross-adapter benchmark tests to compare AI agent ForgeFlow workflow compatibility and compliance. Use when the user types /benchmark or /forgeflow:benchmark. Also use when the user says 'compare adapters', 'test Claude vs Codex', 'benchmark workflow', adapter 벤치마크, or wants to evaluate ForgeFlow compliance across different AI agents. Not for general performance benchmarks, algorithm benchmarks, or load testing.
 version: 0.3.0
 author: gimso2x
 dependencies:
   - skills/_shared/discipline.md
   - skills/_shared/isolation.md
 validate_prompt: |
-  Must run the same prompt against multiple adapters.
-  Must produce a structured comparison report.
-  Must not modify the main project workspace.
+  Must run the same prompt against multiple adapters using the same test project.
+  Must resolve each adapter CLI before execution (claude, codex, gemini).
+  Must produce a structured comparison report with execution time, code volume, code quality, and ForgeFlow compliance scoring.
+  Must not modify the repository where /benchmark was invoked. Test projects are created in isolated directories.
+  Must record adapter DNF, rate limit hits, and CLI resolution failures in the report.
+  Must apply ForgeFlow compliance rubric (plan stated, file list, role descriptions, edge cases, verification) per route tier.
 ---
 
 # Benchmark

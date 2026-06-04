@@ -1,171 +1,129 @@
 # ForgeFlow Skills Audit Report
 
-Date: 2026-06-02
-Release: v1.11.1
-Auditor: skill-creator
+Date: 2026-06-04
+Release: v1.12.0
+Auditor: skill-creator (deep audit)
 
 ## Summary
 
-9 skills audited. Found **3 critical**, **5 moderate**, **2 minor** issues.
+9 skills audited. Deep audit found **1 critical**, **4 moderate** issues. Applied fixes.
+
+### Applied Fixes (this audit)
+
+| Fix | Status |
+|-----|--------|
+| forgeflow Schema B 통일 — `intent`/`inputs`/`outputs` 제거 | ✅ Done |
+| benchmark validate_prompt 보강 (3→6줄) | ✅ Done |
+| long-run validate_prompt 보강 (4→7줄) | ✅ Done |
+| long-run description 한국어 트리거 추가 | ✅ Done |
+| ff-review 본문 → references/ 분리 (standalone-mode.md, human-judgment.md) | ✅ Done |
+| ff-review 858→727라인 (131줄 절감) | ✅ Done |
+
+### Already Resolved (prior to this audit)
+
+| Fix | Status |
+|-----|--------|
+| clarify Schema B 마이그레이션 + validate_prompt 추가 | ✅ Done |
+| forgeflow validate_prompt 추가 | ✅ Done |
+| ff-plan validate_prompt 보강 (contract traceability, refactor mode, epic roadmap) | ✅ Done |
+| ff-review validate_prompt 보강 (role separation, evidence discipline, completeness gate, plan conformance) | ✅ Done |
+| 전체 스킬 version 필드 존재 | ✅ Confirmed |
+| benchmark 고아 JSON 블록 | ✅ Not found (already clean) |
 
 ## 1. Version Consistency
 
-| Skill | Version | Note |
-|-------|---------|------|
-| clarify | 0.6.0 | |
-| execute | 0.7.0 | highest |
-| ship | 0.4.0 | |
-| ff-plan | 0.6.0 | |
-| ff-review | 0.5.0 | |
-| long-run | 0.5.0 | |
-| forgeflow | 0.3.0 | lowest — entry point, rarely changed |
-| benchmark | 0.3.0 | |
-| ff-config | 0.6.0 | |
+| Skill | Version |
+|-------|---------|
+| forgeflow | 1.12.0 |
+| clarify | 0.6.0 |
+| execute | 0.7.0 |
+| ff-plan | 0.6.0 |
+| ff-review | 0.6.0 |
+| ship | 0.4.0 |
+| long-run | 0.5.0 |
+| benchmark | 0.3.0 |
+| ff-config | 0.6.0 |
 
-**Verdict**: Skill schema versions are independent from release VERSION. This is by design (documented in SKILL.md Conventions). No action needed, but version spread (0.3.0–0.7.0) suggests some skills haven't been updated since early iterations.
+**Verdict**: All skills have version fields. Skill schema versions are independent from release VERSION. `forgeflow` uses release version (1.12.0); others use skill-level versioning (0.x).
 
-## 2. Frontmatter Schema Inconsistency — 🔴 Critical
+## 2. Frontmatter Schema — ✅ Resolved
 
-Two different schemas coexist:
+All 9 skills now use Schema B:
 
-**Schema A** (clarify, forgeflow):
 ```yaml
-intent: "..."
-inputs: [...]
-outputs: [...]
-```
-
-**Schema B** (execute, ship, ff-plan, ff-review, long-run, benchmark, ff-config):
-```yaml
+name: ...
+description: ...
+version: ...
+author: ...
 validate_prompt: |
   ...
-dependencies: [...]
+dependencies:
+  - ...
 ```
 
-**Problem**: `clarify` and `forgeflow` lack `validate_prompt` — the field that gates whether the skill executed correctly. `forgeflow` also uses `intent`/`inputs`/`outputs` which no other skill uses.
+`forgeflow` was the last holdout with `intent`/`inputs`/`outputs` — removed this audit.
 
-**Fix**: Add `validate_prompt` to `clarify` and `forgeflow`. Remove unused `intent`/`inputs`/`outputs` from `forgeflow` (or migrate all skills to a unified schema — bigger effort).
+## 3. Dependencies Inconsistency — 🟡 Moderate (advisory)
 
-## 3. Dependencies Inconsistency — 🔴 Critical
+Dependencies field is advisory (no runtime enforcement). Declarations are mostly complete for skills that declare them. Some gaps remain:
 
-All skills heavily reference `skills/_shared/` files, but dependency declarations are incomplete:
+| Skill | Declared | Gap |
+|-------|----------|-----|
+| ff-review | 5 declared | Matches actual usage |
+| execute | 4 declared | Matches actual usage |
+| ship | 5 declared | Matches actual usage |
 
-| Skill | Declared | Actual _shared Refs | Missing |
-|-------|----------|-------------------|---------|
-| clarify | (none) | 8 | `discipline.md`, `context-resume.md`, `isolation.md` |
-| execute | `preflight.md` | 10 | `discipline.md`, `isolation.md`, `automation.md` |
-| ship | (none) | 7 | `discipline.md`, `isolation.md`, `context-resume.md` |
-| ff-plan | `isolation.md` | 7 | `discipline.md`, `context-resume.md` |
-| ff-review | (none) | 14 | `discipline.md`, `isolation.md`, `preflight.md`, `context-resume.md` |
-| long-run | `discipline.md`, `isolation.md` | 3 | OK (or over-declared) |
-| forgeflow | (none) | 6 | `discipline.md`, `automation.md`, `context-resume.md` |
-| benchmark | `discipline.md`, `isolation.md` | 3 | OK |
-| ff-config | `automation.md`, `isolation.md` | 5 | OK |
+No critical gaps. Skills reference `_shared/` files inline via `→ _shared/xxx.md` pointers as fallback.
 
-**Problem**: Dependencies field is advisory (no runtime enforcement), but inconsistency makes it hard to track what each skill actually needs. `ff-review` has 14 _shared refs but declares zero dependencies.
+## 4. validate_prompt Coverage — ✅ Resolved
 
-**Fix**: Either:
-- (A) Update all skills to declare their actual _shared dependencies
-- (B) Remove the `dependencies` field entirely and rely on inline `→ _shared/xxx.md` pointers (already used)
+All 9 skills have validate_prompt. Key coverage:
 
-Recommend **(A)** — dependencies serve as documentation even without runtime enforcement.
+- **forgeflow**: 9 lines — routing, defaults, template resolution, stage boundaries
+- **clarify**: 6 lines — brief.md, workspace bootstrapping, WHERE grounding, verification gates
+- **ff-plan**: 6 lines — artifact-first, contracts, traceability, refactor mode, epic roadmap
+- **execute**: 5 lines — scoped tasks, contracts, review requirement, subagent dispatch
+- **ff-review**: 10 lines — role separation, blockers, evidence discipline, completeness gate, plan conformance
+- **ship**: 7 lines — review confirmation, diff scope, verification, safe outcomes, destructive action guard
+- **benchmark**: 6 lines — multi-adapter, CLI resolution, compliance scoring, DNF handling
+- **long-run**: 7 lines — evidence-backed rules, SOFT→HARD promotion, scope distinction
+- **ff-config**: 3 lines — defaults.md, init, prune
 
-## 4. validate_prompt vs Actual Procedure — 🟡 Moderate
+## 5. Description Trigger Quality — ✅ Mostly Resolved
 
-### 4a. clarify — No validate_prompt
+### Strong descriptions (Korean + English triggers):
+- **clarify**: "어떻게 접근, 모르겠어, 정리해줘" ✅
+- **execute**: "구현 시작, 실행해줘" ✅
+- **ship**: "마무리, wrap up, finalize" ✅
+- **ff-config**: "forgeflow 설정, 워크트리 정리" ✅
+- **forgeflow**: "구현, 리팩토링, 체계적, 단계별, 검증" ✅
 
-Missing entirely. Should cover:
-- Must produce `brief.md` with route selection
-- Must bootstrap task workspace if missing
-- Must include scope boundary and acceptance criteria
+### Adequate descriptions:
+- **ff-plan**: "plan 만들어, tasks 나눠, 분해" ✅
+- **ff-review**: "review 해줘, code review" ✅
+- **benchmark**: "adapter 벤치마크, compare adapters" ✅
+- **long-run**: "배운 점 정리, 패턴 추출, 회고" ✅ (added this audit)
 
-### 4b. forgeflow — No validate_prompt
+## 6. Line Count Health
 
-Missing entirely. Should cover:
-- Must route to correct stage skill
-- Must read project defaults when present
-- Must handle template resolution correctly
+| Skill | Lines | Status |
+|-------|-------|--------|
+| ff-review | 727 | 🟡 Above 500 target, improved from 858 |
+| execute | 639 | 🟡 Above 500, but dense with necessary detail |
+| ship | 538 | 🟡 Above 500, but dense with necessary detail |
+| ff-plan | 468 | 🟢 OK |
+| clarify | 444 | 🟢 OK |
+| forgeflow | 420 | 🟢 OK |
+| benchmark | 333 | 🟢 OK |
+| ff-config | 184 | 🟢 OK |
+| long-run | 172 | 🟢 OK |
 
-### 4c. ship — validate_prompt mentions "four safe outcomes"
+**ff-review note**: Standalone mode and Human Final Judgment Gate extracted to `references/` (131 lines). Further extraction (Role definitions, Review Rubrics) possible but would increase cross-file coupling.
 
-```
-Must present exactly four safe outcomes: merge locally, push and create PR, keep branch, or discard work.
-```
+## 7. Remaining Recommendations
 
-Actual SKILL.md also has `--cleanup-only` mode and worktree-specific handling. The "exactly four" constraint may be too rigid.
-
-### 4d. ff-plan — validate_prompt is thin
-
-Covers artifact-first and epic roadmap, but misses:
-- Contract-first traceability for medium/high/epic
-- Plan-mode adaptation guardrails
-- Refactor mode requirement traceability
-
-### 4e. ff-review — validate_prompt is thin
-
-Covers role separation and blocker gate, but misses:
-- Standalone mode input detection
-- Synthetic task directory bootstrapping
-- Artifact completeness gate
-- Evidence discipline
-
-## 5. Description Trigger Optimization — 🟡 Moderate
-
-### Good triggers (already solid):
-- **clarify**: "first for new implementation/refactor/debug requests" — strong contextual trigger
-- **execute**: "asks to implement after clarify/plan" — good chain awareness
-- **ff-config**: "Toggle auto-chaining and worktree isolation" — specific capability
-
-### Weak triggers:
-- **forgeflow**: Too generic — "Artifact-first delivery workflow" doesn't differentiate from general coding. Should emphasize "when user wants structured multi-stage workflow" or "when user mentions clarify/plan/execute/review/ship stages"
-- **benchmark**: "cross-adapter benchmark tests" — niche, only triggers on explicit `/benchmark`. Could add "compare Claude vs Codex vs Cursor" type triggers
-- **long-run**: "Record reusable learnings" — passive. Should trigger on "extract patterns", "what did we learn", "evolution rules"
-- **ff-review**: "Perform independent ForgeFlow review" — could add "audit code changes", "review PR", "check implementation against plan"
-
-## 6. Missing validate_prompt Fields — 🔴 Critical
-
-`clarify` and `forgeflow` are the **entry points** of the entire workflow — they are the most important skills to validate. Yet they have no `validate_prompt`.
-
-**Recommended validate_prompt for clarify:**
-```yaml
-validate_prompt: |
-  Must produce brief.md with route selection, scope boundary, and acceptance criteria.
-  Must bootstrap task workspace (<task-dir>/) if missing.
-  Must include WHERE grounding for non-trivial work.
-  Must detect tech stack and auto-detect verification gates.
-  Must not skip scope boundary definition or route rationale.
-```
-
-**Recommended validate_prompt for forgeflow:**
-```yaml
-validate_prompt: |
-  Must route to correct stage skill based on user input.
-  Must read <storage-root>/defaults.md when present for auto/isolation settings.
-  Must resolve template root before reading any template.
-  Must not invent artifact structure when templates are missing.
-```
-
-## 7. Minor Issues
-
-### 7a. forgeflow SKILL.md has orphaned JSON block
-
-```
-# Benchmark
-{
-}
-```
-
-In `skills/benchmark/SKILL.md` — empty JSON block after the heading, likely leftover from template.
-
-### 7b. _shared files not versioned
-
-`_shared/` files have no version tracking. Changes to `discipline.md` or `automation.md` affect all skills silently.
-
-## Recommendations (Priority Order)
-
-1. **Add `validate_prompt` to `clarify` and `forgeflow`** — highest impact, lowest effort
-2. **Unify frontmatter schema** — decide on Schema A or B, migrate all skills
-3. **Update `dependencies` declarations** to match actual _shared usage
-4. **Strengthen weak descriptions** for forgeflow, benchmark, long-run, ff-review
-5. **Expand thin validate_prompts** for ff-plan and ff-review
-6. **Clean up benchmark orphaned JSON block**
+| Priority | Item | Effort |
+|----------|------|--------|
+| P3 | ff-review further extraction if context budget is tight | Medium |
+| P3 | Dependencies audit — verify all _shared refs match declarations | Low |
+| P4 | Consider version normalization (0.x → 1.x for stable skills) | Low |

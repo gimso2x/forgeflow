@@ -1,6 +1,6 @@
 ---
 name: ff-plan
-description: Create an executable ForgeFlow plan with exact tasks, files, acceptance criteria, and verification steps. Includes epic decomposition for epic route. Use when the user types /ff-plan or /forgeflow:ff-plan. Also use when the user says 'make a plan', 'break this down', 'decompose tasks', or 'plan this out' for implementation work.
+description: Create an executable ForgeFlow plan with exact tasks, files, acceptance criteria, and verification steps. Includes epic decomposition for epic route. Use when the user types /ff-plan or /forgeflow:ff-plan. Also use when the user says 'make a plan', 'break this down', 'decompose tasks', 'plan this out', plan 만들어, tasks 나눠, or 분해 for implementation work. Not for general scheduling, meeting agendas, or non-implementation planning.
 version: 0.6.0
 author: gimso2x
 validate_prompt: |

@@ -1,6 +1,6 @@
 ---
 name: ship
-description: "Finalize ForgeFlow work after review: summarize, verify, prepare PR/commit handoff, preserve evidence, extract evolution rules, and handle branch disposition. Use when the user types /ship or /forgeflow:ship. Also use when the user says 'wrap up', 'finalize', 'merge', 'create PR', 'ship it', or 'finish up' after implementation work."
+description: "Finalize ForgeFlow work after review: summarize, verify, prepare PR/commit handoff, preserve evidence, extract evolution rules, and handle branch disposition. Use when the user types /ship or /forgeflow:ship. Also use when the user says 'wrap up', 'finalize', 'merge', 'create PR', 'ship it', 마무리, or 'finish up' after implementation work. Not for package publishing, npm deploy, or external deployment."
 version: 0.4.0
 author: gimso2x
 validate_prompt: |
@@ -223,7 +223,7 @@ If `--auto` is active (see `_shared/automation.md`), proceed to branch dispositi
 8. **Extract evolution rules**: Review task artifacts for reusable patterns. For each valid candidate:
    1. Check existing active rules (`~/.forgeflow/evolution/active/` and `.forgeflow/evolution/active/`) for duplicates.
    2. Determine scope: global-advisory (default) or project (project-specific architecture only).
-   3. Write the rule in **compact format** (6 lines, no `.md` extension) directly to the matching `active/` directory:
+   3. Write the rule in **compact format** (7 lines, no `.md` extension) directly to the matching `active/` directory:
       ```
       # <rule-id>
       <one-line summary>
@@ -238,6 +238,7 @@ If `--auto` is active (see `_shared/automation.md`), proceed to branch dispositi
 
 9. Write `ship-summary.md` to the active task directory. Include the Quantitative Summary section with metrics from `implementation-notes.md` → Metrics.
 10. Preserve artifacts/evidence instead of burying them in chat.
+11. **Long-run invocation (high/epic only)**: If the route is `high` or `epic`, invoke `/forgeflow:long-run` to extract reusable learnings. Under `--auto`, proceed automatically. Without `--auto`, ask the user: "고객/에픽 라우트 완료. 학습 패턴을 추출하시겠습니까? (y/n)".
 
 ## Branch Disposition (final phase)
 

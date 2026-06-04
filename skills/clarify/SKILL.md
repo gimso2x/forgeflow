@@ -1,11 +1,8 @@
 ---
 name: clarify
-description: Turn a vague request into a scoped ForgeFlow brief and route decision. Bootstraps task workspace if missing. Use when the user types /clarify or /forgeflow:clarify, or first for new implementation/refactor/debug requests unless the user already provided a complete brief.
+description: Turn a vague or underspecified request into a scoped ForgeFlow brief and route decision. Bootstraps task workspace if missing. Use when the user types /clarify or /forgeflow:clarify, or first for new implementation/refactor requests when the user says 어떻게 접근, 모르겠어, 정리해줘, or shows uncertainty about how to approach a feature. Not for questions about existing brief.md content, documentation lookups, or when the user already provided a complete brief.
 version: 0.6.0
 author: gimso2x
-intent: Convert a raw user request into a scoped brief with route selection and acceptance criteria.
-inputs: Raw user request, target repository/path, constraints, existing codebase context.
-outputs: brief.md with objective, scope boundary, route, acceptance criteria, and verification gates.
 validate_prompt: |
   Must produce brief.md with route selection, scope boundary, and acceptance criteria.
   Must bootstrap task workspace (<task-dir>/) and run-state.json if missing.
@@ -18,15 +15,13 @@ dependencies:
   - skills/_shared/discipline.md
   - skills/_shared/isolation.md
   - skills/_shared/context-resume.md
-  Must default to artifact-first behavior and write `brief.md` to the active task directory unless the user explicitly requests dry-run or no-write output.
-  Must include WHERE/risk grounding for non-trivial work when artifact writing is allowed.
-  Must create `<task-dir>` if it does not already exist.
-  Must not overwrite existing task artifacts.
 ---
 
 # Clarify
 
 Use this skill to convert a raw request into a ForgeFlow context brief (`brief.md`) and route decision.
+
+> **Terminology**: `<task-dir>` = resolved task directory: `~/.forgeflow/projects/<project-slug>/tasks/<task-id>/` by default, or `<repo>/.forgeflow/tasks/<task-id>/` when local storage is configured. `<storage-root>` = `~/.forgeflow/projects/<project-slug>/` by default.
 
 ## Input
 
