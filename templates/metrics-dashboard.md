@@ -19,7 +19,7 @@ generated: <!-- ISO date -->
 ## Failure Distribution
 | Failure Type | Count | Rate |
 |---|---|---|
-| <!-- type --> | <!-- N --> | <!-- %> |
+| <!-- type --> | <!-- N --> | <!-- % --> |
 
 ## Token Cost by Adapter
 | Adapter | Avg tokens/task | Total |
@@ -27,7 +27,7 @@ generated: <!-- ISO date -->
 | <!-- adapter --> | <!-- N --> | <!-- N --> |
 
 ## Worktree Stability
-- **Success rate**: <!-- %>%
+- **Success rate**: <!-- % -->
 - **Avg cleanup time**: <!-- Ns -->
 
 ## Route Distribution

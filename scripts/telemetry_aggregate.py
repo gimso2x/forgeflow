@@ -10,12 +10,13 @@ Usage:
 Default storage is global/project-scoped:
     ~/.forgeflow/projects/<project-slug>/telemetry/
 
-Set FORGEFLOW_STORAGE_MODE=local for legacy <project>/.forgeflow/telemetry.
+Set FORGEFLOW_HOME to override the global root.
 """
 import pathlib
 import re
 import sys
 from collections import defaultdict
+from datetime import datetime, timezone
 
 from forgeflow_storage import telemetry_dir
 
@@ -150,7 +151,7 @@ def aggregate(project_dir):
         "schema: metrics-dashboard/v1",
         f"period: auto",
         f"total_tasks: {total_tasks}",
-        f"generated: <!-- ISO date -->",
+        f"generated: {datetime.now(timezone.utc).isoformat()}",
         "---",
         "",
         "# ForgeFlow Metrics",
@@ -199,8 +200,8 @@ def aggregate(project_dir):
     lines.extend([
         "",
         "## Worktree Stability",
-        "- **Success rate**: <!-- %>%",
-        "- **Avg cleanup time**: <!-- Ns -->",
+        "- **Success rate**: N/A (not collected)",
+        "- **Avg cleanup time**: N/A (not collected)",
         "",
         "## Route Distribution",
         "| Route | Count | Avg Duration |",

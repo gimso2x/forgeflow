@@ -15,6 +15,9 @@ if stale:
 for required in ('외부 의존성 추가 금지', 'Review는 읽기 전용', 'slim, markdown-only distribution', 'Do not assume the older', 'trees exist'):
     if required not in agents:
         failures.append(f'AGENTS.md: missing maintainer guardrail {required!r}')
+version = (root / 'VERSION').read_text(encoding='utf-8').strip()
+if f'currently `{version}`' not in agents:
+    failures.append(f'AGENTS.md: VERSION note must match VERSION={version}')
 if 'VERSION' not in agents or '단일 소스' not in agents:
     failures.append('AGENTS.md: missing maintainer guardrail for VERSION single source')
 frontmatter_contract = 'name' + chr(96) + ', ' + chr(96) + 'description' + chr(96) + ', ' + chr(96) + 'version' + chr(96) + ', ' + chr(96) + 'validate_prompt' + chr(96)

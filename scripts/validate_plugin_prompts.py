@@ -18,6 +18,8 @@ for path in files:
         if not isinstance(prompt, str) or not prompt.startswith('/'):
             failures.append(f'{path}: defaultPrompt entry must be a slash command: {prompt!r}')
             continue
+        if path.name == 'plugin.json' and path.parent.name == '.cursor-plugin' and ':' in prompt.split()[0]:
+            failures.append(f'{path}: Cursor defaultPrompt must use colonless slash commands, not {prompt!r}')
         command = prompt.split()[0].split(':')[-1].lstrip('/')
         if command == 'init':
             failures.append(f'{path}: use /forgeflow:clarify, not /init')
@@ -35,5 +37,5 @@ if failures:
     print('ERROR: Plugin defaultPrompt contract failed')
     [print(f'- {failure}') for failure in failures]
     sys.exit(1)
-print('OK: Plugin defaultPrompt entries map to active skills')
+print('OK: Plugin defaultPrompt entries map to active skills and adapter slash forms')
 

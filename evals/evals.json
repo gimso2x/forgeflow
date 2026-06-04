@@ -1646,7 +1646,7 @@
       "id": 26,
       "name": "cursor-short-command-guidance",
       "prompt": "A user installed the ForgeFlow Cursor local plugin and asks how to start the standard workflow in Cursor agent chat. Produce only the concise Cursor-specific command guidance. It must use Cursor's colon-free short slash commands, map them to the same ForgeFlow skills, and avoid telling the user to run Claude/Codex-style /forgeflow: commands in Cursor.",
-      "expected_output": "Cursor guidance that uses /clarify, /plan, /execute, /review, /ship, says they map to the same ForgeFlow skills, and explicitly avoids /forgeflow: command forms for Cursor.",
+      "expected_output": "Cursor guidance that uses /clarify, /ff-plan, /execute, /ff-review, /ship, says they map to the same ForgeFlow skills, and explicitly avoids /forgeflow: command forms for Cursor.",
       "files": [
         "README.md",
         "docs/adapter-config.md",
@@ -1658,9 +1658,9 @@
           "type": "contains_all",
           "values": [
             "/clarify",
-            "/plan",
+            "/ff-plan",
             "/execute",
-            "/review",
+            "/ff-review",
             "/ship"
           ]
         },

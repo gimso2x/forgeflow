@@ -30,14 +30,14 @@
   "rules": "./rules/",
   "interface": {
     "defaultPrompt": [
-      "/forgeflow:clarify <describe the coding task>",
-      "/forgeflow:ff-plan",
-      "/forgeflow:execute",
-      "/forgeflow:ff-review",
-      "/forgeflow:ship",
-      "/forgeflow:long-run",
-      "/forgeflow:benchmark",
-      "/forgeflow:ff-config"
+      "/clarify <describe the coding task>",
+      "/ff-plan",
+      "/execute",
+      "/ff-review",
+      "/ship",
+      "/long-run",
+      "/benchmark",
+      "/ff-config"
     ]
   }
 }

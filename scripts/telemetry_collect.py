@@ -11,7 +11,7 @@ Usage:
 Default storage is global/project-scoped:
     ~/.forgeflow/projects/<project-slug>/tasks/<task-id>/
 
-Set FORGEFLOW_STORAGE_MODE=local for legacy <project>/.forgeflow/tasks.
+Storage is always global/project-scoped. Set FORGEFLOW_HOME to override the global root.
 """
 import pathlib
 import re

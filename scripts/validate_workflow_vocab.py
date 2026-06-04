@@ -8,8 +8,8 @@ for path, stale_terms in checks.items():
     for stale in stale_terms:
         if stale in text:
             failures.append(f'{path}: use forgeflow-init for user-facing workflow bootstrap, not init')
-active_docs = [path for path in pathlib.Path('.').rglob('*.md') if '.git' not in path.parts and '.venv' not in path.parts and path.parts[0] not in {'CHANGELOG.md', 'evals'}]
-removed_commands = ('/forgeflow:finish', '/forgeflow:milestone', '/forgeflow-init', '/forgeflow:subagent-execute')
+active_docs = [path for path in pathlib.Path('.').rglob('*.md') if '.git' not in path.parts and '.venv' not in path.parts and '.forgeflow' not in path.parts and path.parts[0] not in {'CHANGELOG.md', 'evals'}]
+removed_commands = ('/forgeflow:finish', '/forgeflow:milestone', '/forgeflow-init', '/forgeflow:subagent-execute', '/forgeflow:config')
 removed_stage_phrases = ('ship → finish', 'Current Stage: ship' + chr(96) + ' → ' + chr(96) + 'finish')
 for path in active_docs:
     text = path.read_text(encoding='utf-8')
@@ -90,6 +90,20 @@ for rel_path in ('README.md', 'SKILL.md', 'skills/forgeflow/SKILL.md', 'skills/S
     text = pathlib.Path(rel_path).read_text(encoding='utf-8')
     if '/forgeflow:finish' in text or 'ship → long-run → finish' in text or 'ship -> long-run -> finish' in text:
         failures.append(f'{rel_path}: finish is not a separate stage; branch disposition lives in ship')
+storage_drift_terms = {
+    'FORGEFLOW_STORAGE_MODE': 'storage is always global/project-scoped; use FORGEFLOW_HOME for root overrides',
+    'storage.mode': 'storage.mode local has been removed; storage is always global/project-scoped',
+    'local storage': 'storage is always global/project-scoped; do not document repo-local task storage',
+}
+for root in [pathlib.Path('README.md'), pathlib.Path('SKILL.md'), pathlib.Path('AGENTS.md'), pathlib.Path('docs'), pathlib.Path('skills'), pathlib.Path('scripts')]:
+    paths = [root] if root.is_file() else sorted(root.rglob('*.md')) + sorted(root.rglob('*.py'))
+    for path in paths:
+        if path == pathlib.Path('scripts/validate_workflow_vocab.py'):
+            continue
+        text = path.read_text(encoding='utf-8')
+        for stale, guidance in storage_drift_terms.items():
+            if stale in text:
+                failures.append(f'{path}: stale storage vocabulary {stale!r}; {guidance}')
 if failures:
     print('ERROR: Workflow/schema vocabulary drift found')
     [print(f'- {failure}') for failure in failures]
