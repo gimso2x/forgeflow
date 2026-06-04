@@ -1,6 +1,6 @@
 {
   "name": "forgeflow",
-  "version": "1.12.0",
+  "version": "1.12.1",
   "description": "Artifact-first delivery workflow for Gemini CLI",
   "contextFileName": "GEMINI.md"
 }

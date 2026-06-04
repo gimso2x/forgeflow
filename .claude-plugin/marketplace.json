@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Artifact-first delivery workflow for AI coding agents with prompt-driven clarify, plan, execute, review, and ship pipeline",
-    "version": "1.12.0"
+    "version": "1.12.1"
   },
   "plugins": [
     {

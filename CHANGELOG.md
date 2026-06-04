@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.12.1] - 2026-06-04
+
+### 🔒 자동화·정합성
+
+- advisory contract 검증 수정: forgeflow/clarify SKILL.md frontmatter에 `intent/inputs/outputs` 필드 추가
+- `validate_advisory_contract.py` ff-review references 디렉토리도 검색하도록 업데이트
+- Makefile ff-review 관련 grep 검색 범위에 references 포함
+
+### ♻️ 구조 개선
+
+- 스킬 references 분리 — 메인 SKILL.md 경량화 (총 529줄 이동):
+  - execute: subagent-loop, agent-delegation references 분리 (107줄)
+  - ship: branch-disposition references 분리 (225줄)
+  - ff-plan: epic-decomposition references 분리 (57줄)
+  - clarify: scope-grounding references 분리 (37줄)
+  - forgeflow: execution-patterns references 분리 (103줄)
+
+### 🧹 정리
+
+- 루트 image.png 미사용 잔여파일 삭제
+- 최소 템플릿(evidence-manifest, re-execution-conditions) 사용 감사 완료 — DEPRECATED 리다이렉트로 유지
+
 ## [1.12.0] - 2026-06-04
 
 ### 🔍 검증·정책
@@ -1089,7 +1111,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI gate with GitHub Actions workflow generation
 - Agent preset installer (Claude + Codex)
 
-[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v1.12.0...HEAD
+[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v1.12.1...HEAD
+[1.12.1]: https://github.com/gimso2x/forgeflow/compare/v1.12.0...v1.12.1
 [1.12.0]: https://github.com/gimso2x/forgeflow/compare/v1.11.8...v1.12.0
 [1.11.8]: https://github.com/gimso2x/forgeflow/compare/v1.11.7...v1.11.8
 [1.11.7]: https://github.com/gimso2x/forgeflow/compare/v1.11.6...v1.11.7
