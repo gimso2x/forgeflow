@@ -27,6 +27,12 @@ for raw_path, needles in checks.items():
         failures.append(f'{raw_path}: missing required file')
         continue
     text = path.read_text(encoding='utf-8')
+    # ff-review: contract terms may live in references/ after refactoring
+    if 'ff-review' in raw_path and path.parent.is_dir():
+        ref_dir = path.parent / 'references'
+        if ref_dir.is_dir():
+            for ref_file in sorted(ref_dir.glob('*.md')):
+                text += '\n' + ref_file.read_text(encoding='utf-8')
     for needle in needles:
         if needle not in text:
             failures.append(f'{raw_path}: missing {needle!r}')
