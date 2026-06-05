@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.14.0] - 2026-06-05
+
+### 🔒 자동화·정합성
+
+- 릴리즈 버전과 개별 스킬의 schema-version을 검증하는 `scripts/validate_release_contract.py` 신규 추가 및 Makefile 연동
+- Windows 환경에서 `validate-skill-frontmatter.sh`가 CRLF 줄바꿈으로 인해 오동작하는 문제를 `tr -d '\r'` 처리로 수정
+
+### ⚡ 속도·안정성
+
+- small route에서 formal review 단계를 생략하고 execute의 self-verify를 거쳐 ship으로 바로 가도록 간소화
+- Codex App/CLI 환경에서 `--auto` 모드 시 Skill 도구 미노출 시에도 다음 stage 계약(SKILL.md)을 바로 이어서 수행하도록 개선
+
+### 👤 사용자·경험
+
+- README, docs/adapter-config.md 등에 Codex App 백엔드(WSL vs Windows native) 설정 기준 및 multi-harness 원칙 문서 보완
+
 ## [1.13.0] - 2026-06-04
 
 ### ♻️ 구조 개선
@@ -1117,7 +1133,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI gate with GitHub Actions workflow generation
 - Agent preset installer (Claude + Codex)
 
-[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v1.13.0...HEAD
+[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v1.14.0...HEAD
+[1.14.0]: https://github.com/gimso2x/forgeflow/compare/v1.13.0...v1.14.0
 [1.13.0]: https://github.com/gimso2x/forgeflow/compare/v1.12.1...v1.13.0
 [1.12.1]: https://github.com/gimso2x/forgeflow/compare/v1.12.0...v1.12.1
 [1.12.0]: https://github.com/gimso2x/forgeflow/compare/v1.11.8...v1.12.0
