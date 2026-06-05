@@ -93,6 +93,7 @@ Each task workspace contains files such as `brief.md`, `plan.md`, `ledger.md`, `
 make validate
 make validate-evals
 make validate-behavior-guardrails
+make validate-guard-checks
 ```
 
 GitHub Actions runs the same validation bundles through `.github/workflows/validate.yml` and `.github/workflows/evals.yml` with read-only `contents: read` permissions.

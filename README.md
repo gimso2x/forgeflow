@@ -511,6 +511,9 @@ make validate-workflow-vocab validate-ship-safety validate-dogfooding-docs valid
 # behavior guardrails가 docs/templates/review checks에 연결되어 있는지 확인
 make validate-behavior-guardrails
 
+# Thin Guard 아티팩트 불변성 체커가 올바르게 동작하는지 확인 (opt-in, 외부 의존성 없음)
+make validate-guard-checks
+
 # eval fixture 계약만 빠르게 확인
 make validate-evals
 # 또는 특정 lane 디버깅 시:

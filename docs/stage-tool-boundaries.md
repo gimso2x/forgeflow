@@ -30,6 +30,15 @@ Role names describe the lens for a stage-owned pass; they are not a license to c
 | ship | Read review/ship artifacts, inspect git status/diff/log, run final verification, stage explicit intentional paths, commit/merge/PR/cleanup according to recorded decision. | `ship-summary.md`, final `checkpoint.md`/telemetry when applicable. | Clean unknown dirty work, force destructive branch deletion without recorded decision, or bypass unresolved review/human-gate blockers. |
 | long-run / benchmark / ff-config | Use read-only or task-local writes needed for their own documented outputs and deterministic validation. | Their documented markdown outputs/config artifacts. | Mutate unrelated pipeline artifacts, product code, or external automation unless that skill explicitly owns the action. |
 
+## Thin Guard (Artifact Invariant Checker)
+
+`scripts/forgeflow_guard_check.py` is an opt-in artifact invariant checker. It may be wired as an adapter hook preflight/post-action check to observe contract violations.
+
+- Tools may collect evidence and report blocking violations via exit code `2`.
+- Tools must not assume stage ownership, repair artifacts, or execute stages.
+- Guard checks are deliberately shallow: artifact presence, required sections, status/stage consistency. They do not judge code quality, infer routes from prose, or run tests.
+- Guard integration is adapter-neutral and opt-in. No adapter is required to wire guard checks, and no guard check may bypass artifact ownership boundaries.
+
 ## Review-specific source of truth
 
 Review has the strictest posture because it is an inspection gate. Keep `docs/review-runtime-contract.md#stage-tool-catalog` as the canonical review tool contract; this page summarizes the cross-stage boundary and must not loosen review restrictions.

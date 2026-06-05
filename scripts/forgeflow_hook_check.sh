@@ -1,23 +1,30 @@
 #!/usr/bin/env bash
-# forgeflow_hook_check.sh — Verify active hard rules from Claude Code hooks
+# forgeflow_hook_check.sh — Verify active hard rules and/or artifact guards
 #
 # Usage:
 #   forgeflow_hook_check.sh --rule <rule-id> [--project <path>]
 #   forgeflow_hook_check.sh --all [--project <path>]
+#   forgeflow_hook_check.sh --guard-artifacts --task-dir <path> [--stage <stage>]
 #
 # Exit codes:
-#   0 = PASS (all rules satisfied)
-#   2 = BLOCK (hard rule violated)
+#   0 = PASS (all rules/guards satisfied)
+#   2 = BLOCK (hard rule violated or artifact guard failed)
 #
 # Reads hard rules from:
 #   ~/.forgeflow/evolution/rules/*.json (global)
 #   <project>/.forgeflow/evolution/rules/*.json (project-local, if --project given)
+#
+# Artifact guard uses:
+#   scripts/forgeflow_guard_check.py (stdlib-only, opt-in, no mutation)
 
 set -euo pipefail
 
 RULE_ID=""
 CHECK_ALL=false
 PROJECT_PATH=""
+GUARD_ARTIFACTS=false
+TASK_DIR=""
+STAGE=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -33,6 +40,18 @@ while [[ $# -gt 0 ]]; do
       PROJECT_PATH="$2"
       shift 2
       ;;
+    --guard-artifacts)
+      GUARD_ARTIFACTS=true
+      shift
+      ;;
+    --task-dir)
+      TASK_DIR="$2"
+      shift 2
+      ;;
+    --stage)
+      STAGE="$2"
+      shift 2
+      ;;
     *)
       echo "Unknown argument: $1" >&2
       exit 2
@@ -40,8 +59,31 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+# --- Artifact guard mode ---
+if [[ "$GUARD_ARTIFACTS" == "true" ]]; then
+  if [[ -z "$TASK_DIR" ]]; then
+    echo "Usage: --guard-artifacts requires --task-dir <path>" >&2
+    exit 2
+  fi
+
+  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  GUARD_CMD=(python3 "$SCRIPT_DIR/forgeflow_guard_check.py" check-task --task-dir "$TASK_DIR")
+  if [[ -n "$STAGE" ]]; then
+    GUARD_CMD+=(--stage "$STAGE")
+  fi
+
+  if ! "${GUARD_CMD[@]}"; then
+    exit 2
+  fi
+fi
+
+# If only artifact guard was requested (no --rule or --all), exit here
+if [[ "$GUARD_ARTIFACTS" == "true" ]] && [[ -z "$RULE_ID" ]] && [[ "$CHECK_ALL" == "false" ]]; then
+  exit 0
+fi
+
 if [[ -z "$RULE_ID" ]] && [[ "$CHECK_ALL" == "false" ]]; then
-  echo "Usage: forgeflow_hook_check.sh --rule <rule-id> | --all [--project <path>]" >&2
+  echo "Usage: forgeflow_hook_check.sh --rule <rule-id> | --all [--project <path>] | --guard-artifacts --task-dir <path> [--stage <stage>]" >&2
   exit 2
 fi
 
