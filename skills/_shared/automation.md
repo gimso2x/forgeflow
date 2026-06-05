@@ -14,10 +14,12 @@ The following flags enable automated stage transitions:
 ### How --auto is activated
 
 `--auto` is active when ANY of these is true:
-1. `--auto` or `--auto-approve` flag passed to the skill invocation
+1. `--auto` flag passed to the skill invocation
 2. `<storage-root>/defaults.md` contains `auto: true` (read at clarify stage, propagated to `brief.md`)
 3. `brief.md` has `auto: true` in its metadata
 4. User explicitly says to auto-chain (e.g., "자동으로 진행", "auto chain", "계속 진행")
+
+`--auto-approve` and `--yes` approve only the current stage boundary. They do not opt into full-route chaining unless the user also says to auto-chain or another `--auto` activation source is present.
 
 When clarify reads `<storage-root>/defaults.md` and finds `auto: true`, it MUST set `brief.md`'s auto field to `true` so all subsequent stages see it.
 
@@ -27,23 +29,26 @@ When `--auto` is active (set via flag, `brief.md` auto field, or user instructio
 
 1. Writes the required artifact for the current stage
 2. Updates `checkpoint.md` at stage exit (see Strict auto-chain)
-3. **Calls the `Skill` tool** with the next stage skill name (e.g. `Skill(skill: "forgeflow:ff-plan")`, `Skill(skill: "forgeflow:execute")`, `Skill(skill: "forgeflow:ff-review")`, `Skill(skill: "forgeflow:ship")`) in the same turn — **never** just print the skill name as text without actually calling the Skill tool
+3. Invokes the next stage through the adapter's native skill mechanism in the same turn — **never** just print the skill name as text without actually invoking or continuing the next stage
 4. If context limits prevent the next Skill call in the same turn, write checkpoint with `Next Action: invoke /forgeflow:<next>` and continue in the **next assistant turn** without asking the user
 5. Continues chaining until the workflow completes or hits an auto-break condition
 
 ### How to invoke the next stage (CRITICAL)
 
-Under `--auto`, "invoke the next stage" means **calling the Skill tool**, not printing text. Correct pattern:
+Under `--auto`, "invoke the next stage" means **calling the Skill tool when the adapter exposes one, or immediately continuing with the next stage skill instructions when it does not**. Printing text is not enough.
 
 ```
 ✅ Correct: Call Skill(skill: "forgeflow:ff-plan", args: "--task-id <id>")
 ✅ Correct: Call Skill(skill: "forgeflow:execute", args: "--task-id <id>")
+✅ Correct in Codex App/CLI when no Skill tool is exposed: write checkpoint Next Action, load/follow the next stage SKILL.md contract, and continue without a y/n prompt
 ❌ Wrong: Printing "/forgeflow:ff-plan" as text without calling Skill tool
 ❌ Wrong: Printing "defaults에 auto: true가 설정되어 있어 자동 진행합니다" then stopping
 ❌ Wrong: Asking "(y/n)" under --auto
 ```
 
-If you find yourself about to print a y/n prompt or just mention the next skill name, STOP and call the Skill tool instead.
+If you find yourself about to print a y/n prompt or just mention the next skill name, STOP and invoke the next stage through the available adapter-native mechanism instead.
+
+**Codex App compatibility rule:** Codex skills can run in app, CLI, or IDE surfaces, and some Codex contexts expose skills as instructions rather than a callable `Skill` tool. In that case the strict contract is still: artifact written, checkpoint updated, next stage contract loaded, and execution continues from that contract. The only invalid behavior is stopping after a textual slash-command suggestion when no auto-break condition applies.
 
 ### Chain sequence by route
 
@@ -112,7 +117,7 @@ Complete **all** items before invoking the next stage or editing code outside th
 |------|---------------------------|
 | Artifact | `brief.md` with route, scope, AC, blockers resolved + `run-state.json` with project/storage identity |
 | Checkpoint | `Current Stage: clarify` → exit update; `Next Action: invoke /forgeflow:ff-plan` (medium+) or `/forgeflow:execute` (small) |
-| Chain | Call `Skill(skill: "forgeflow:ff-plan")` or `Skill(skill: "forgeflow:execute")` **immediately** — no `(y/n)` prompt. Do not print the skill name as text without calling the Skill tool. |
+| Chain | Invoke `forgeflow:ff-plan` or `forgeflow:execute` **immediately** — call the Skill tool when available, or continue with the next stage SKILL.md in Codex App/CLI contexts without that tool. No `(y/n)` prompt; do not print the skill name as text and stop. |
 | Forbidden | Starting code edits in the clarify turn; skipping plan on medium/high/epic |
 
 #### plan → execute
@@ -122,20 +127,20 @@ Complete **all** items before invoking the next stage or editing code outside th
 | Artifact | `plan.md` + scaffolds: `implementation-notes.md`, `ledger.md`, `run-state.json` if missing |
 | **Pre-execution specificity gate** | Verify `brief.md`/`plan.md` contain enough concrete detail. ✅ Pass signals: file paths, issue numbers, camelCase/snake_case symbols, test runner, numbered steps, acceptance criteria, error references, code blocks. ❌ Block: ≤15 effective words + none of the above signals. If blocked, ask user to concretize in-place (do NOT return to clarify). `force:` prefix bypasses this gate. |
 | Checkpoint | `Current Stage: plan`; `Active Task: Task 1` (or first pending); `Next Action: begin Task 1` |
-| Chain | Call `Skill(skill: "forgeflow:execute")` immediately — no `(y/n)` prompt. Do not just print the skill name. |
+| Chain | Invoke `forgeflow:execute` immediately through the adapter-native skill mechanism — no `(y/n)` prompt. Do not just print the skill name. |
 | Forbidden | Implementing plan tasks in the plan turn; asking "execute 진행?" under `--auto` |
 
-#### execute → review
+#### execute → review/ship
 
-| Step | Required before review |
+| Step | Required before next stage |
 |------|------------------------|
 | Ledger | Each task row updated incrementally (`pending` → `in_progress` → `done`/`blocked`) — **not** batch-marked at the end |
 | Notes | `implementation-notes.md` updated per task (Decisions, Evidence, Deviations) |
 | Checkpoint | Updated after **each** task completes; `Active Task` must not stay stale on Task 1 while later tasks finish |
 | Evidence | Verification commands run; results in Evidence / Gate Results |
 | **Context refresh** | Adapter-neutral by default. After checkpoint, ledger, evidence are written to disk: set `checkpoint.md` `Active Task` to the real next task id and `Next Action` to the next execute step. Under `--auto`, continue unless context pressure is high. If refresh is needed, output adapter-specific hints from `_shared/context-resume.md` and STOP. Do not require a Claude-only fresh-context command in the shared workflow. |
-| Chain | Call `Skill(skill: "forgeflow:ff-review")` immediately when all tasks done — no `(y/n)` prompt. Do not just print the skill name. |
-| Forbidden | Deferring ledger/notes until the user asks "어디까지?"; coding after execute exit without review; treating context refresh as a Claude-only mandatory fresh-context step |
+| Chain | `small`: run the small-route self-verify checklist, then invoke `forgeflow:ship` immediately when all checks pass. `medium/high/epic`: invoke `forgeflow:ff-review` immediately when all tasks are done. No `(y/n)` prompt; do not just print the skill name. |
+| Forbidden | Deferring ledger/notes until the user asks "어디까지?"; coding after execute exit without the route's required next stage; treating context refresh as a Claude-only mandatory fresh-context step |
 
 #### review → ship
 
@@ -143,7 +148,7 @@ Complete **all** items before invoking the next stage or editing code outside th
 |------|---------------------|
 | Artifact | `review-report.md` with written verdict |
 | Checkpoint | `Current Stage: review`; verdict reflected in `Next Action` |
-| Chain | If `approved`: call `Skill(skill: "forgeflow:ship")` immediately — no `(y/n)` prompt. Do not just print the skill name. If `changes_requested` with artifact-only findings: auto-fix artifacts then call `Skill(skill: "forgeflow:ff-review")`. **검증**: ship 호출 전 `review-report.md`의 verdict가 `approved`이고 `safe_for_next_stage`가 `yes`인지 확인. |
+| Chain | If `approved`: invoke `forgeflow:ship` immediately — call the Skill tool when available, or continue with `skills/ship/SKILL.md` in Codex App/CLI contexts without that tool. No `(y/n)` prompt; do not just print the skill name. If `changes_requested` with artifact-only findings: auto-fix artifacts then re-invoke `forgeflow:ff-review`. **검증**: ship 호출 전 `review-report.md`의 verdict가 `approved`이고 `safe_for_next_stage`가 `yes`인지 확인. |
 | Forbidden | "리뷰 통과. ship 진행?" under `--auto`; proceeding to ship when verdict ≠ `approved`; auto-fixing code findings (must stop for code changes) |
 
 #### ship completion
@@ -165,7 +170,7 @@ Do **not** emit these (or equivalent) while `--auto` is active:
 - `리뷰 통과. /forgeflow:ship을 실행해주세요.` (without immediately invoking ship)
 - `execute하고 리뷰해야겠지?` / `ship까지?` — rhetorical checks that wait for user confirmation
 
-Replace with: write artifact → update checkpoint → **call Skill tool** with next stage name (or auto-break with blocker record).
+Replace with: write artifact → update checkpoint → **invoke the next stage** with the Skill tool or adapter-native Codex App/CLI continuation (or auto-break with blocker record).
 
 ### Scope change under --auto
 
@@ -201,11 +206,11 @@ These patterns indicate `--auto` was **not** honored — correct on the next tas
 | `plan.md` exists but no plan-stage checkpoint / scaffolds | Write scaffolds + checkpoint before any implementation |
 | `checkpoint.md` stuck at `execute` / Task 1 while Task 2–3 complete | Update checkpoint after **each** task |
 | `ledger.md` / `implementation-notes.md` / `run-state.json` created only when user asks progress | Create scaffolds at clarify/plan exit; update incrementally during execute |
-| Review passed but agent waits for "ship까지?" | Call `Skill(skill: "forgeflow:ship")` immediately |
+| Review passed but agent waits for "ship까지?" | Invoke `forgeflow:ship` immediately |
 | Out-of-scope work (e.g. area tab slider when brief says informational only) without brief update | Auto-break + scope amendment |
 | API 429 → unapproved fallback → continue as if AC met | Auto-break or record approved fallback + partial gate; never silent continuation |
-| Printing "auto 진행합니다" text but NOT calling Skill tool | Call the Skill tool with exact skill name — text output alone is not invocation |
-| Asking "(y/n)" when `--auto` is active | Skip prompt and call Skill tool directly |
+| Printing "auto 진행합니다" text but NOT invoking the next stage | Call the Skill tool with exact skill name when available, or continue with the next stage SKILL.md — text output alone is not invocation |
+| Asking "(y/n)" when `--auto` is active | Skip prompt and invoke the next stage directly |
 | Context pressure while chaining tasks | Save checkpoint/ledger/evidence, output adapter-specific context refresh hint, STOP; otherwise continue under `--auto` |
 
 ### Resume after auto-break

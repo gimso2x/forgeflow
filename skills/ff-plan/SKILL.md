@@ -382,7 +382,7 @@ Do not code during planning unless the user explicitly asks for a tiny small-rou
 - Planning owns plan creation; do not ask the user to make the plan.
 - Do not ask for re-approval when the plan is executable; the agent owns decomposition.
 - Do stop before crossing the `plan -> execute` stage boundary, because execution is a separate stage.
-- **If `--auto` is active** (see `_shared/automation.md`): skip the prompt and **call `Skill(skill: "forgeflow:execute", args: "--task-id <task-id>")` directly**. Do NOT just print the skill name or ask "(y/n)".
+- **If `--auto` is active** (see `_shared/automation.md`): skip the prompt and invoke `forgeflow:execute` through the adapter-native skill mechanism. Call `Skill(skill: "forgeflow:execute", args: "--task-id <task-id>")` when a Skill tool exists; in Codex App/CLI contexts without that tool, write the checkpoint and continue by following `skills/execute/SKILL.md`. Do NOT just print the skill name or ask "(y/n)".
 - **Otherwise**, end with: `계획은 여기까지 확정됐습니다. 다음 스텝으로 /forgeflow:execute을 진행하시겠습니까? (y/n)`
 - Do not invoke `/forgeflow:execute` in the same assistant turn after asking the closed next-stage question (unless `--auto` is active). The next assistant turn may proceed only after an explicit user approval such as `y`, `yes`, `진행`, or `실행`.
 

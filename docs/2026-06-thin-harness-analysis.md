@@ -171,8 +171,7 @@ Critic 섹션은 plan.md에 기록하여 review 단계에서 투명하게 노출
 
 **변경 대상:** `skills/forgeflow/SKILL.md` Route model
 
-**현재:** small = clarify → execute → review → ship
-**제안:** small = clarify → execute → ship (review 생략, execute 마지막에 self-check만)
+**적용됨:** small = clarify → execute → ship (review 생략, execute 마지막에 self-check만)
 
 **조건:** brief.md의 Goal Contract 증거 기준을 execute 마지막에 self-verify하고, 문제가 있으면 사용자에게 수동 review를 권장.
 

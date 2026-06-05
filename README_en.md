@@ -67,6 +67,16 @@ make -C /path/to/forgeflow install-codex-local CODEX_LOCAL_PLUGIN_DIR="$PWD/.cod
 
 Codex App on WSL reads the same Codex CLI plugin configuration inside WSL. Restart the app after changing enabled plugins.
 
+For a Codex App smoke test, run from the target project root, not from the ForgeFlow checkout or plugin cache:
+
+```text
+/forgeflow:clarify --auto <tiny low-risk task>
+```
+
+Confirm the task artifacts land under `~/.forgeflow/projects/<project-slug>/tasks/<task-id>/`.
+
+Auto mode is route-aware: small tasks chain `clarify → execute → ship` after execute self-verification; medium and larger tasks keep the independent review stage before ship.
+
 ## Artifacts
 
 By default, task artifacts are stored outside the repository:

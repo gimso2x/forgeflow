@@ -15,6 +15,7 @@ Thumbs.db
 # Generated local noise
 *.log
 .hermes-learnings.jsonl
+.omo/
 .forgeflow/
 !.forgeflow/tasks/
 !.forgeflow/telemetry/

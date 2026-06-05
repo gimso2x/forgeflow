@@ -13,8 +13,8 @@ check_frontmatter_fields() {
 	shift
 	fields="$*"
 
-	# Extract frontmatter line numbers
-	fm_lines=$(grep -n '^---$' "$file" | head -2)
+	# Extract frontmatter line numbers (handling Windows CRLF)
+	fm_lines=$(tr -d '\r' < "$file" | grep -n '^---$' | head -2)
 	fm_start=$(echo "$fm_lines" | head -1 | cut -d: -f1)
 	fm_end=$(echo "$fm_lines" | tail -1 | cut -d: -f1)
 
@@ -24,7 +24,7 @@ check_frontmatter_fields() {
 		return
 	fi
 
-	duplicate_keys=$(sed -n "$((fm_start + 1)),$((fm_end - 1))p" "$file" | grep -E '^[^[:space:]#][^:]*:' | cut -d: -f1 | sort | uniq -d || true)
+	duplicate_keys=$(tr -d '\r' < "$file" | sed -n "$((fm_start + 1)),$((fm_end - 1))p" | grep -E '^[^[:space:]#][^:]*:' | cut -d: -f1 | sort | uniq -d || true)
 	if [ -n "$duplicate_keys" ]; then
 		echo "ERROR: $file — duplicate top-level frontmatter keys:" >&2
 		echo "$duplicate_keys" | sed 's/^/  - /' >&2
@@ -33,7 +33,7 @@ check_frontmatter_fields() {
 
 	# Check each required field within frontmatter range
 	for field in $fields; do
-		line=$(sed -n "$((fm_start + 1)),$((fm_end - 1))p" "$file" | grep "^${field}:" || true)
+		line=$(tr -d '\r' < "$file" | sed -n "$((fm_start + 1)),$((fm_end - 1))p" | grep "^${field}:" || true)
 		if [ -z "$line" ]; then
 			echo "ERROR: $file — missing required field '$field'" >&2
 			errors=$((errors + 1))

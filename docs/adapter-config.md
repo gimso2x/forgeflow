@@ -39,9 +39,16 @@ Release 또는 dogfood smoke에서는 설치된 user-scope plugin 버전과 repo
 
 ### Codex CLI
 
-Codex plugin marketplace 등록, plugin 설치, slash command 실행은 **대상 프로젝트 루트** 또는 Codex App이 사용하는 WSL 환경에서 수행합니다. ForgeFlow checkout이나 Codex plugin cache 안에서 workflow command를 실행하면 task 산출물이 잘못된 프로젝트 저장소에 생길 수 있습니다.
+Codex plugin marketplace 등록, plugin 설치, slash command 실행은 **대상 프로젝트 루트** 또는 Codex App이 사용하는 backend 환경에서 수행합니다. ForgeFlow checkout이나 Codex plugin cache 안에서 workflow command를 실행하면 task 산출물이 잘못된 프로젝트 저장소에 생길 수 있습니다.
 
-Codex App은 WSL backend를 사용할 때 같은 Codex plugin 설정을 읽습니다. Local checkout을 최신 plugin으로 쓰려면 repo root를 marketplace로 등록하고 설치합니다:
+Codex App은 skills/plugins를 app, CLI, IDE extension 표면에서 공유할 수 있습니다. Backend별 기준은 다음과 같습니다:
+
+- WSL backend: WSL 안의 Codex CLI plugin 설정과 repo path가 기준입니다.
+- Native Windows backend: Windows shell의 Codex CLI plugin 설정과 repo path가 기준입니다.
+- 설치 또는 enabled plugin 변경 후: Codex App을 재시작하고 새 대화에서 `/forgeflow:clarify`를 호출합니다.
+- 첫 검증: 저위험 tiny task로 `/forgeflow:clarify --auto <작업>`를 실행해 artifacts가 `~/.forgeflow/projects/<project-slug>/tasks/<task-id>/`에 생기는지 확인합니다.
+
+Local checkout을 최신 plugin으로 쓰려면 repo root를 marketplace로 등록하고 설치합니다:
 
 ```bash
 codex plugin marketplace add /path/to/forgeflow
@@ -57,9 +64,11 @@ codex plugin list
 | 권한 우회 | `-s danger-full-access` |
 | 샌드박스 모드 | `-s read-only \| workspace-write \| danger-full-access` |
 | 디렉토리 trust | git repo 필수 (없으면 `--skip-git-repo-check` 필요) |
-| Codex App | WSL backend의 Codex plugin 설정을 읽음; plugin 설치/업데이트 후 앱 재시작 |
+| Codex App | 선택한 backend(WSL 또는 native Windows)의 Codex plugin 설정을 읽음; plugin 설치/업데이트 후 앱 재시작 |
 | 출력 특성 | 상세 diff 포함 (평균 ~200KB, diff 84%) |
 | 추가 검증 | `build` + `lint` 자동 실행 |
+
+Codex App/CLI에서 `--auto`를 사용할 때 다음 stage를 텍스트로만 출력하고 멈추면 실패입니다. Skill tool이 노출되는 환경은 `Skill(skill: "...")`로 호출하고, Skill tool이 없는 Codex App/CLI skill context는 checkpoint를 쓴 뒤 다음 stage SKILL.md 계약을 바로 이어서 수행합니다. Auto-break 조건이 없으면 사용자에게 `(y/n)`를 묻지 않습니다.
 
 ### Gemini CLI
 

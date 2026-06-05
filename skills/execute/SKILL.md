@@ -67,13 +67,17 @@ Guidelines:
 
 The exit prompt and next-step guidance depend on the active route.
 
-**If `--auto` is active** (set via `--auto` flag, `<storage-root>/defaults.md` `auto: true`, `brief.md` `auto: true`, or user instruction — see `_shared/automation.md`): skip the route-specific prompt below and **call `Skill(skill: "forgeflow:ff-review", args: "--task-id <task-id>")` directly**. Do NOT just print the skill name or ask "(y/n)".
+**If `--auto` is active** (set via `--auto` flag, `<storage-root>/defaults.md` `auto: true`, `brief.md` `auto: true`, or user instruction — see `_shared/automation.md`): skip the route-specific prompt below and invoke the route's next stage through the adapter-native skill mechanism. Do NOT just print the skill name or ask "(y/n)".
+
+- **small** route: run the **Small route self-verify** checklist below. If every item passes or is justified N/A, update `checkpoint.md` with `Next Action: invoke /forgeflow:ship`, then invoke `forgeflow:ship` (`Skill(skill: "forgeflow:ship", args: "--task-id <task-id>")` when a Skill tool exists).
+- **medium** route: update `checkpoint.md` with `Next Action: invoke /forgeflow:ff-review`, then invoke `forgeflow:ff-review`.
+- **high/epic** route: update `checkpoint.md` with `Next Action: invoke /forgeflow:ff-review --type spec`, then invoke `forgeflow:ff-review --type spec`; the review skill owns the later quality pass per the route contract.
 
 **Otherwise**, prompt the user:
 
-- **small** route: After implementation, run at least one smoke check (build, lint, or type check — whichever is fastest). Update `implementation-notes.md` with `Status: completed`, then prompt the user:
+- **small** route: After implementation, run the Small route self-verify checklist, including at least one smoke check (build, lint, type check, or test — whichever is fastest and relevant). Update `implementation-notes.md` with `Status: completed`, then prompt the user:
   ```
-  구현 완료. 검증 통과. /forgeflow:ff-review로 리뷰를 진행하시겠습니까? (y/n)
+  small route 구현 및 self-verify 완료. /forgeflow:ship으로 마무리하시겠습니까? (선택: /forgeflow:ff-review로 수동 리뷰 가능) (y/n)
   ```
 - **medium** route: Update progress after each step completes. After final step, prompt:
   ```
@@ -274,17 +278,17 @@ Minimum warning contract:
     2. 검증 결과: lint/build/test 각각 pass/fail + 숫자
     3. 변경 파일 목록
     4. 주의사항 (있는 경우): contract_check 실패, environment warning, 미해결 decisions
-    **`--auto`가 활성 상태면**: 완료 보고를 출력한 뒤 checkpoint를 업데이트하고 **`Skill(skill: "forgeflow:ff-review", args: "--task-id <task-id>")`를 호출**한다. 텍스트로만 "/forgeflow:ff-review"를 출력하지 않는다. 사용자에게 다음 단계를 묻지 않는다(automation.md strict auto-chain).
+    **`--auto`가 활성 상태면**: 완료 보고를 출력한 뒤 route별 checkpoint를 업데이트하고 다음 stage를 adapter-native 방식으로 호출한다. `small`은 self-verify 통과 후 `/forgeflow:ship`, `medium`은 `/forgeflow:ff-review`, `high/epic`은 `/forgeflow:ff-review --type spec`이다. 텍스트로만 slash command를 출력하지 않는다. 사용자에게 다음 단계를 묻지 않는다(automation.md strict auto-chain).
     **`--auto`가 아니면**: 반드시 사용자가 다음 단계를 실행하도록 대기.
 
 Contract-aware execution rules:
 
 - Do not change an interface or invariant named in contracts unless the plan explicitly authorizes it.
 - For each step with fulfills, record evidence against those requirement/sub-requirement IDs.
-- For each journey in the plan, preserve end-to-end verification until `/forgeflow:ff-review`; a passed unit test alone is not enough for a journey gate.
+- For each journey in the plan, preserve end-to-end verification until the route's verification boundary (`/forgeflow:ff-review` for medium/high/epic, small-route self-verify for small); a passed unit test alone is not enough for a journey gate.
 - If verify_plan exists and a target cannot be verified, mark the task blocked instead of pretending it is done.
 
-Worker self-report is not approval. `/forgeflow:ff-review` still has to happen.
+Worker self-report is not approval. Medium/high/epic routes still require `/forgeflow:ff-review`; small routes require the self-verify checklist before ship.
 
 ## Subagent Per-Task Loop (opt-in, `--subagent-per-task`)
 
