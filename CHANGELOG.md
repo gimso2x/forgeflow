@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.15.0] - 2026-06-05
+
+### 🛡️ Thin Guard (아티팩트 불변성 체커)
+
+- `scripts/forgeflow_guard_check.py` 신규 — stdlib-only CLI로 태스크/리뷰/십 아티팩트 계약 위반 검사 (check-task, check-review, check-ship)
+- `scripts/validate_guard_checks.py` 신규 — TDD 검증 (11 테스트, 임시 fixture 기반)
+- `scripts/forgeflow_hook_check.sh`에 `--guard-artifacts` / `--task-dir` / `--stage` 옵션 추가 (기존 진화 규칙 호환성 유지)
+- `make validate-guard-checks` 타겟 추가 및 `make validate` 체인 연동
+- `docs/hook-setup.md`에 Thin Guard opt-in, adapter-neutral, CLI 예제 문서화
+- `docs/stage-tool-boundaries.md`에 Thin Guard 단락 추가
+- `docs/adapter-config.md`에 Hook Guard Invariant 섹션 추가
+
+### 🧹 스킬 문서 정리
+
+- execute/ff-review 스킬에서 어댑터 출력 정규화, 후처리 단순화, 리뷰 파이프라인/역할 라우팅을 별도 references/로 분리
+
 ## [1.14.0] - 2026-06-05
 
 ### 🔒 자동화·정합성
