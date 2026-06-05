@@ -415,7 +415,6 @@ def main():
     print(f"\n{passed}/{len(results)} tests passed, {failed} failed")
 
     if failed > 0:
-        print("\nOK: guard checks validate artifact invariants" if False else "")
         sys.exit(1)
     else:
         print("\nOK: guard checks validate artifact invariants")

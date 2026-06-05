@@ -86,8 +86,6 @@ def exit_for_blocks():
 
 VALID_STATUSES = {"in_progress", "completed", "blocked"}
 
-VALID_STAGES = {"clarify", "plan", "execute", "review", "ship", "long-run"}
-
 
 def check_task(task_dir, expected_stage=None):
     """Validate task directory artifact invariants."""
@@ -120,7 +118,7 @@ def check_task(task_dir, expected_stage=None):
         emit_block("checkpoint.md missing 'Current Stage' section")
     if not status:
         emit_block("checkpoint.md missing 'Status' section")
-    if not next_action and next_action != "":
+    if not next_action:
         emit_block("checkpoint.md missing 'Next Action' section")
     if blockers is None or blockers == "":
         # Blockers section must exist (even if "none")
