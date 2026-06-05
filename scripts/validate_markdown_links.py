@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Validate local Markdown links, anchors, references, autolinks, and HTML links."""
+from bisect import bisect_right
 import pathlib
 import re
 import sys
@@ -8,6 +9,12 @@ import urllib.parse
 root = pathlib.Path('.')
 failures = []
 anchor_cache = {}
+
+
+def line_location(path: pathlib.Path, line_starts: list[int], offset: int) -> str:
+    line_no = bisect_right(line_starts, offset)
+    column = offset - line_starts[line_no - 1] + 1
+    return f'{path}:{line_no}:{column}'
 
 
 def normalize_anchor(raw: str) -> str:
@@ -22,6 +29,16 @@ if normalize_anchor('Local checks') != 'local-checks':
     failures.append('markdown anchor normalizer must preserve Latin heading text')
 if normalize_anchor('첫 성공 데모') != '첫-성공-데모':
     failures.append('markdown anchor normalizer must preserve Korean heading text')
+
+
+_self_test_path = pathlib.Path('self-test.md')
+_self_test_line_starts = [0, 6, 11]
+if line_location(_self_test_path, _self_test_line_starts, 0) != 'self-test.md:1:1':
+    failures.append('line location helper must resolve the first line offset')
+if line_location(_self_test_path, _self_test_line_starts, 6) != 'self-test.md:2:1':
+    failures.append('line location helper must resolve offsets after a newline')
+if line_location(_self_test_path, _self_test_line_starts, 15) != 'self-test.md:3:5':
+    failures.append('line location helper must resolve offsets at end of multi-line text')
 
 
 def markdown_anchors(path: pathlib.Path) -> set[str]:
@@ -108,13 +125,7 @@ for path in sorted(root.rglob('*.md')):
         return in_fenced_code(offset) or in_inline_code(offset)
 
     def location(offset: int) -> str:
-        line_no = 1
-        for index, start in enumerate(line_starts):
-            if start > offset:
-                break
-            line_no = index + 1
-        column = offset - line_starts[line_no - 1] + 1
-        return f'{path}:{line_no}:{column}'
+        return line_location(path, line_starts, offset)
 
     def link_destination(raw: str) -> str:
         raw = raw.strip()

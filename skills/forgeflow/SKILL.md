@@ -1,6 +1,6 @@
 ---
 name: forgeflow
-description: Artifact-first delivery workflow for AI coding agents. Routes work through clarify → plan → execute → review → ship stages with Markdown artifacts, verification gates, and independent review. Use when the user types /forgeflow, /forgeflow:<stage>, or wants to implement or refactor through a structured, stage-by-stage workflow with verification. Also use when the user mentions "ForgeFlow", "staged workflow", "artifact-backed", or says 구현, 리팩토링, 체계적, 단계별, 검증 with intent for multi-stage delivery. Not for quick fixes, single-file edits, or simple lookups.
+description: Artifact-first delivery workflow for multi-stage implementation or refactor work. Use for /forgeflow, /forgeflow:<stage>, "ForgeFlow", staged workflow, artifact-backed delivery, or 구현/리팩토링/체계적/단계별/검증 when the user wants clarify → plan → execute → review → ship with Markdown artifacts and gates. Not for quick fixes, single-file edits, or simple lookups.
 version: 1.12.1
 intent: Route user requests through staged ForgeFlow workflow (clarify → plan → execute → review → ship)
 inputs: User request text, /forgeflow command, stage invocation, .forgeflow/defaults.md

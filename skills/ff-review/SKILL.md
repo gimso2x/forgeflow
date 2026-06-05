@@ -103,148 +103,17 @@ Forbidden actions include product fixes, branch changes, destructive cleanup, re
 
 Standalone mode and high/epic pipeline mode use role-based review. Each role has its own checklist and produces findings independently. The review report aggregates all role findings.
 
-### Role definitions
+### Role routing and output
 
-Role-specific triggers stay inline so operators can decide which passes to run quickly. The detailed checklist items and role-specific evidence requirements live in `skills/ff-review/references/role-checklists.md`; load that reference before executing any role pass and cite the exact `Checklist version: YYYY-MM-DD` value in `review-report.md` as `Checklist Version`. Before each role begins, the lead reviewer must provide the role input packet required by that reference from `normalized-input.md` only and cite its **role input packet readiness** row; missing, `BLOCKED`, or chat-only packets block that role instead of allowing inferred evidence.
+Read `skills/ff-review/references/role-routing.md` before selecting roles, assigning role/model hints, applying specialist profiles, handling cross-role conflicts, or writing role-pass records. Read `skills/ff-review/references/role-checklists.md` before executing any role pass and cite the exact `Checklist version: YYYY-MM-DD` value in `review-report.md` as `Checklist Version`.
 
-Before running roles, write a compact role routing rationale in `review-report.md`: list `Active roles` and `Skipped roles` explicitly. For every role that runs or is intentionally skipped, cite the route rule, `--type`/`--focus` flag, file-type heuristic, specialist profile, or explicit non-trigger that decided it. A missing skipped-role reason is a routing gap, not a harmless omission. This prevents standalone adapters and parallel reviewers from silently broadening or narrowing review scope after normalization.
+Before running roles, write a compact role routing rationale in `review-report.md`: list `Active roles` and `Skipped roles` explicitly. In standalone mode, also fill `normalized-input.md` → `Role trigger matrix` before any role begins. Missing role input packets, `BLOCKED` readiness rows, chat-only role completion claims, or chat-only trigger evidence block the role instead of allowing inferred evidence. If trigger evidence is absent, record `skipped — missing trigger evidence` or `blocked`; this prevents silently broadening or narrowing review scope.
 
-In standalone mode, also fill `normalized-input.md` → `Role trigger matrix` before any role begins. Each supported role must have one row marked `run`, `skipped`, or `blocked`, with the normalized evidence ID(s) or explicit non-trigger signal that drove the decision. Do not activate architecture/security/ux/perf from chat-only intuition; first normalize the path, diff hunk, artifact, or command output that shows the trigger. If the trigger signal is missing because fetching failed or evidence was truncated away, mark that role `blocked` or `skipped — missing trigger evidence` instead of silently running a weak pass.
-
-#### spec-reviewer
-
-**Trigger**: Always runs in pipeline mode. In standalone mode, runs when a brief/requirement/spec document exists (auto-generated or user-provided).
-
-**Checklist source**: `skills/ff-review/references/role-checklists.md#spec-reviewer` (in addition to the Spec Review rubric).
-
-**Standalone-specific**: When no explicit spec exists, the auto-generated brief becomes the de facto spec. The spec-reviewer checks whether the code/diff does what the brief describes — no more, no less. Flag scope that doesn't trace back to the brief as `major: unexplained scope`.
-
-#### quality-reviewer
-
-**Trigger**: Always runs in both pipeline and standalone mode.
-
-**Checklist source**: `skills/ff-review/references/role-checklists.md#quality-reviewer` (in addition to the Quality Review rubric).
-
-**Deep code analysis**: When diff/code input is available, apply the 7-angle analysis from `skills/ff-review/references/deep-code-analysis.md`. Each finding must pass CONFIRMED/PLAUSIBLE verification. Metrics-based checks and diff-level analysis run in parallel — neither replaces the other.
-
-**Standalone-specific**: Without implementation-notes, the quality-reviewer works from the code/diff directly. Apply heuristics without referencing executor claims.
-
-#### architecture-reviewer
-
-**Trigger**: Runs when `--focus architecture` is specified, or when in-scope changes touch module boundaries, public interfaces, shared abstractions, framework/layering patterns, dependency direction, state ownership, or broad refactors.
-
-**Trigger evidence**: cite the role trigger matrix row and normalized evidence IDs for the architecture/module-boundary/shared-pattern signal before opening findings.
-
-**Checklist source**: `skills/ff-review/references/role-checklists.md#architecture-reviewer`.
-
-**Review priority**: Prioritize existing patterns, shared module reuse, avoiding unnecessary new implementations, architectural consistency, then local code quality. For projects that explicitly prefer functional style, flag new classes, singletons, or service-class abstractions unless the normalized evidence shows an existing project convention requiring them.
-
-#### security-reviewer
-
-**Trigger**: Runs when `--focus security` is specified, or when in-scope changes touch authentication/authorization, input validation/sanitization, secret/key handling, API/network boundaries, file system operations, or dependency additions.
-
-**Trigger evidence**: cite the role trigger matrix row and normalized evidence IDs for the auth/input/secrets/network/filesystem/dependency signal before opening findings.
-
-**Checklist source**: `skills/ff-review/references/role-checklists.md#security-reviewer`.
-
-#### ux-reviewer
-
-**Trigger**: Runs when `--focus ux` is specified, or when in-scope changes touch UI component files, CSS/styling, user-facing text/labels/messages, route/page definitions, or form handling code.
-
-**Trigger evidence**: cite the role trigger matrix row and normalized evidence IDs for the UI/text/route/form/accessibility signal before opening findings.
-
-**Checklist source**: `skills/ff-review/references/role-checklists.md#ux-reviewer`.
-
-#### perf-reviewer
-
-**Trigger**: Runs when `--focus perf` is specified, or when in-scope changes touch database queries/ORM calls, loops over large collections, caching layers, network call batching, or memory-intensive operations.
-
-**Trigger evidence**: cite the role trigger matrix row and normalized evidence IDs for the query/loop/cache/batching/memory signal before opening findings.
-
-**Checklist source**: `skills/ff-review/references/role-checklists.md#perf-reviewer`.
+Supported roles: `spec-reviewer`, `quality-reviewer`, `architecture-reviewer`, `security-reviewer`, `ux-reviewer`, and `perf-reviewer`. `quality-reviewer` always runs in standalone mode; `spec-reviewer` runs when requirement/spec evidence exists; architecture/security/ux/perf run only from explicit `--type`/`--focus` or normalized trigger evidence.
 
 ### Role routing
 
-**Pipeline mode** (route-aware):
-- small: quality-reviewer only, using **fast-review** depth (see Route-aware review behavior)
-- medium: quality-reviewer only (medium-full may add spec-reviewer)
-- high/epic: spec-reviewer (pass 1) → quality-reviewer (pass 2), sequential gates
-- Any route: architecture/security/ux/perf-reviewer triggered by file-type heuristics above
-- Human review is a separate decision-partner gate, not an automated reviewer role. Apply the Human Review Gate below after automated review has produced `review-report.md`.
-
-**Standalone mode**:
-- No `--type` flag: quality-reviewer always runs. spec-reviewer runs if brief exists. Other roles triggered by file-type heuristics.
-- `--type spec`: spec-reviewer only
-- `--type quality`: quality-reviewer only
-- `--type architecture`: architecture-reviewer only
-- `--type security`: security-reviewer only
-- `--type ux`: ux-reviewer only
-- `--type perf`: perf-reviewer only
-- `--type all`: run all 6 roles regardless of file-type heuristics (architecture, security, ux, perf included even if no matching files detected)
-- `--focus <role>`: alias for `--type <role>`
-- **`--type` and `--focus` combined**: `--type` wins. `--focus` is ignored with a warning. Do not run two conflicting role sets.
-
-### Role model hints
-
-When a harness supports role-specific model selection, bind by capability rather than provider name and keep the decision advisory:
-
-- spec-reviewer, architecture-reviewer, security-reviewer, and unresolved cross-role conflict aggregation → strongest reasoning available.
-- quality-reviewer → standard reasoning/coding model; upgrade to strongest reasoning for broad refactors, weak verification, or many interacting files.
-- ux-reviewer and perf-reviewer → standard reasoning model unless the normalized evidence shows accessibility, query-planning, caching, or large-data risk that needs specialist depth.
-
-Record any non-default role/model assignment in the role-pass record, adapter notes, or `review-report.md` Reviewer Role Summary as a hint only. Model choice must never change role routing, evidence requirements, evidence IDs, evidence levels, verdict enums, approval rules, or the human review gate.
-
-In standalone mode, if role/model or specialist profile selection is known before reviewer judgment, record it in `normalized-input.md` → `role capability hints`. Use provider-neutral capability language (`strongest reasoning available`, `standard reasoning/coding model`, or `not_applicable`) and treat the section as audit metadata only. Do not block review because an adapter lacks per-role model selection; block only if a capability hint is used to alter role routing, evidence IDs, evidence levels, verdict enums, approval rules, or human-gate semantics.
-
-### Specialist Profiles
-
-Specialist profiles define focused review lenses tied to the `specialist` field in `brief.md` YAML frontmatter. When review reads `brief.md`, it extracts the specialist primary and secondary values and automatically applies the corresponding assertion sets below. These assertions supplement (not replace) the standard reviewer role checklists.
-
-| Specialist | Focus | Key Assertions |
-|---|---|---|
-| security | 인증/권한/입력검증 | no hardcoded secrets, input sanitization, auth boundary checks, no eval/exec of untrusted input |
-| ux | UI/문구/접근성 | consistent terminology, a11y compliance, clear error messages, loading states for async operations |
-| perf | 성능/메모리/지연 | no N+1 queries, lazy load where appropriate, cache strategy documented, pagination/streaming for large datasets |
-| correctness | 로직/에러처리/엣지케이스 | edge cases covered, error propagation complete, idempotency where required, no unchecked error paths |
-| maintainability | 구조/네이밍/중복/가독성 | DRY adherence, single responsibility, naming convention consistency, no unnecessary abstractions, code intent is clear without comments, consistent abstraction level within a module, short focused functions (≤30 lines recommended), magic values extracted to named constants |
-
-**Specialist assertion application logic**:
-
-1. Read `brief.md` YAML frontmatter `specialist.primary` and `specialist.secondary`.
-2. For each non-`none` specialist value, activate the corresponding assertion set from the table above.
-3. Assertions from specialist profiles are **mandatory** — every activated assertion must be checked and explicitly recorded in findings.
-4. Primary specialist assertions are checked first and carry higher weight in severity classification.
-5. Secondary specialist assertions supplement the primary lens; they use the same severity scale but are advisory if they conflict with primary findings.
-6. Record activated specialist profile(s) in `review-report.md` → `specialist_profile` frontmatter field, including the count of assertions applied.
-7. If `brief.md` has no specialist field or both values are `none`, skip specialist assertions and rely on standard reviewer role checklists only.
-
-### Cross-role conflict handling
-
-When two roles produce conflicting findings:
-1. Record both findings in the report with their role label.
-2. Add a `⚠ requires human decision` marker in Findings.
-3. Do not resolve the conflict by choosing one side. The human final judgment gate handles this.
-4. Example: spec-reviewer says "missing error handling for edge case X" (blocker) but quality-reviewer says "error handling would add unnecessary complexity" (minor). Both stay. Report shows conflict with `requires human decision`.
-
-### Role output structure in review-report.md
-
-Each finding includes the reviewer role and evidence classification:
-```
-- **Role**: spec-reviewer | quality-reviewer | architecture-reviewer | security-reviewer | ux-reviewer | perf-reviewer
-- **Evidence Source**: <artifact/diff/command/source label>
-- **Evidence Level**: observed | reported | missing
-```
-
-The report includes a **Role Summary** section:
-```
-## Reviewer Role Summary
-- spec-reviewer: <verdict>, <N> findings (<blockers> blockers, <majors> major)
-- quality-reviewer: <verdict>, <M> findings (<blockers> blockers, <majors> major)
-- [other roles if triggered]
-- Cross-role conflicts: <count> (marked with ⚠)
-```
-
-Each active role must also leave a role-pass record, even when it finds nothing: markdown claim marker (`role=<reviewer> scope=<artifact section/evidence IDs> at=<ISO8601>`), trigger rationale, checklist version used, criteria basis used for that role, scope/evidence IDs inspected, evidence freshness (`current | stale | unknown`) with fetched_at/run label, observed verification command(s) or explicit no-command rationale, limitations/truncation seen, an Independence Check (`PASS` only when the role used normalized/observed evidence rather than implementer self-report or chat-only claims), finding counts, and role verdict. Do not use chat-only role completion claims as aggregation evidence. Criteria basis is role-specific: spec-reviewer cites requirement/spec sources, quality-reviewer cites code-quality or verification criteria, architecture-reviewer cites existing architecture/pattern/shared-module evidence, and specialist roles cite their own checklist trigger and risk criteria. One role's criteria basis cannot substitute for another role's pass.
+Pipeline and standalone role routing details live in `references/role-routing.md`. Human review is a separate decision-partner gate, not an automated reviewer role. Apply the Human Review Gate below after automated review has produced `review-report.md`.
 
 ## Human Review Gate
 
@@ -403,28 +272,7 @@ Record in `review-report.md` → Code Quality Metrics section. Metrics exceeding
 
 ## Closed Loop — Re-Execution Condition Generation (L6)
 
-When review verdict is `changes_requested` or `blocked`, write re-execution conditions into `checkpoint.md` under the `## Re-Execution Conditions` section (see `templates/checkpoint.md`). This closes the loop — review FAIL doesn't just flag problems, it produces the **corrected conditions** for the next execute cycle.
-
-### Procedure on FAIL verdict
-
-1. Write `review-report.md` with findings and verdict as normal.
-2. Update `checkpoint.md` Re-Execution Conditions section:
-   - **Failure Analysis**: Each major/blocker finding with root cause and required fix.
-   - **Corrected Execution Conditions**: What constraints, scope, or verification gates must change.
-   - **Rollback Instructions**: Which files to revert (`git restore <paths>` or `git stash`).
-   - **Loop Counter**: Current iteration number (increment from ledger or start at 1).
-3. Record the failure in Memory Bank:
-   ```bash
-   python3 scripts/forgeflow_fact_store.py add --content "<root cause pattern>" --type bug_fix --domain <domain> --source-task <task-id>
-   ```
-4. In auto mode, directly invoke `/forgeflow:execute` with the re-execution conditions.
-5. In manual mode, present the conditions and ask: "re-execution conditions 생성됨. 다시 /forgeflow:execute을 진행하시겠습니까? (y/n)"
-
-### Loop safety
-
-- Maximum 3 re-execution cycles per task.
-- If loop counter reaches 3, set verdict to `blocked` and stop — escalate to user.
-- Each cycle must reduce the finding count. If findings don't decrease, the approach is wrong — recommend re-planning instead of re-executing.
+When review verdict is `changes_requested` or `blocked`, write re-execution conditions into `checkpoint.md` under the `## Re-Execution Conditions` section (see `templates/checkpoint.md`). Use `skills/ff-review/references/re-execution-conditions.md` for failure analysis, corrected execution conditions, rollback instructions, Memory Bank recording, auto/manual handling, and the 3-cycle safety limit.
 
 ## Exit Condition
 
@@ -601,117 +449,22 @@ Review is read-only. It can run in either environment. If running in a worktree,
 
 Do not enter standalone mode if pipeline artifacts exist, even if the user provides a URL. Pipeline artifacts take precedence.
 
-### Pipeline mode procedure (steps 1-18)
-1. Read `checkpoint.md` when present, then `_shared/preflight.md` minimum read set. Read `brief.md` Acceptance Criteria and route — not necessarily the full brief unless scope is disputed.
-2. Review from artifacts and code, not worker vibes.
-3. Check scope coverage and acceptance criteria, including every fulfills, journey, and verification plan target from the plan.
-3b. **Scope Boundary Verification** (see Scope Boundary Verification above): Read scope_boundary from brief.md, identify actually modified files, compare planned vs actual, and check route threshold. Record violations in review-report.md frontmatter scope_boundary field. Issue advisory if scope creep detected.
-3c. **Plan Conformance Gate**: Systematically verify that every task in `plan.md` was implemented. This is the plan-vs-reality check — not just "were acceptance criteria met" but "did the implementation actually do what the plan said."
-    - Read plan.md Tasks section. For each task with a status other than `skip` or `deferred`:
-      1. **Task traceability**: Does `implementation-notes.md` or `ledger.md` show evidence this task was worked on? If a plan task has zero mentions in execution artifacts, flag as **major** finding (category: `plan-conformance / task-missing`).
-      2. **File coverage**: Does the task list specific files? Were those files actually created or modified? Use `git diff` or file inspection. Missing files = **major** finding (category: `plan-conformance / file-missing`).
-      3. **Verification completion**: Did the task's verification step produce observable evidence? Plan tasks with verification that was never run = **major** finding (category: `plan-conformance / verification-skipped`).
-      4. **Fulfills coverage**: If the task has `fulfills` linking to acceptance criteria, is there evidence the criterion was addressed? Unfulfilled links = **major** finding (category: `plan-conformance / criterion-unfulfilled`).
-    - Write the results to `review-report.md` → **Plan Task Conformance** section.
-    - Any **blocker**-severity conformance gap (entire plan task missing, critical file not created) prevents approval.
-    - **Small route**: Trace only the primary task and its listed files. Skip fulfills depth unless escalated.
-    - **Medium+ routes**: Full traceability — every plan task, every listed file, every fulfills link.
-4. Start with blocker elimination: missing artifacts, missing observed evidence, failed verification, or unresolved open blockers force `blocked` or `changes_requested` before minor findings are considered.
-5. **Run independent verification** (see Test verification gate and Standard verification checklist above). For small routes, run the fastest relevant observed gate; if tests exist for the changed behavior and are cheap, run those tests. If any selected gate fails, verdict MUST be `changes_requested`.
-6. Run or inspect other verification (lint, type check, build) if the user allowed command execution.
-7. Separate observed evidence from reported or missing evidence before choosing a verdict.
-8. **Review implementation-notes.md**: Check every recorded deviation and open question:
-    - Each deviation must be justified. Unjustified deviations are scope drift.
-    - Open questions with status `open` are blockers until resolved.
-    - Tradeoffs should be evaluated: was the chosen alternative the smallest safe option?
-    - If `implementation-notes.md` is missing entirely, note it as a minor finding (the execute stage should have created it).
-9. **Cross-check ledger.md**: Verify that claimed task completions in implementation-notes match the ledger status. If a task is marked `done` in implementation-notes but `running` or `pending` in ledger, flag it as an inconsistency. The ledger is the execution truth. For high/epic, if a step is `done` but lacks `micro_spec:PASS` (when execute should have run micro-gates), record a **major** spec-compliance finding.
-10. **Execute Micro-Gates table** (high/epic): Fill `review-report.md` → Execute Micro-Gates from implementation-notes and ledger. Re-run spec/quality checks independently; do not approve because micro-gates passed during execute.
-11. **Check active evolution rules**: If `.forgeflow/evolution/active/*.md` exists, verify the work is consistent with active project rules. Do not generate or validate new evolution rules — that is ship's responsibility.
-11b. **3-Lane Review Routing** (high/epic routes; medium: architecture+code only; small: single-pass, skip):
+### Pipeline mode procedure
 
-    For high/epic routes, split the review into 3 mandatory lanes. All lanes must APPROVE for final PASS. Any lane returning BLOCK/REQUEST_CHANGES forces overall ITERATE.
+Follow the full pipeline checklist in `skills/ff-review/references/pipeline-procedure.md` for task traceability, Plan Conformance Gate, independent verification, 3-Lane Review Routing, execute checklist verification, and next-step output. The non-negotiable gates are:
 
-    - **Architecture lane**: structural fitness, boundary integrity, coupling/cohesion, cross-cutting concern coverage. Uses `architecture-reviewer` role checklist. Verdict: APPROVE | BLOCK | REQUEST_CHANGES.
-    - **Product lane**: brief.md Goal Contract functional completeness, acceptance criteria coverage, user-facing behavior correctness. Uses `spec-reviewer` role checklist. Verdict: APPROVE | BLOCK | REQUEST_CHANGES.
-    - **Code lane**: code quality, security, performance, maintainability. Uses `quality-reviewer` role checklist. Verdict: APPROVE | BLOCK | REQUEST_CHANGES.
-
-    Lane routing rules:
-    - high/epic → all 3 lanes (mandatory).
-    - medium → architecture lane + code lane (product lane merged into architecture).
-    - small → single-pass quality review (existing behavior, no lane split).
-
-    Record lane results in `review-report.md` → **3-Lane Review Summary** section (see template). Each lane finding gets an additional `lane:` field (architecture | product | code). When all lanes APPROVE, set overall verdict. When any lane blocks, carry its blockers into the top-level Open Blockers.
-
-11c. Do not merge lane passes into a single turn for high/epic work. Run lanes sequentially in separate turns, updating the same `review-report.md`.
-
-12. Apply the appropriate review rubric (Spec or Quality — see Review Rubrics section above). For quality review, also apply these discipline heuristics:
-   - Every changed line should trace directly to the user's request; anything else needs explicit scope approval.
-   - Flag drive-by refactors, speculative abstractions, or unrelated cleanup as scope drift unless the plan explicitly authorized them.
-   - Was the change the smallest safe change that satisfies the request?
-   - **Architectural Depth**: Did the implementation introduce shallow modules (pass-throughs) or miss deepening opportunities? Does the new structure improve locality and leverage?
-   - Did the change avoid silent fallback, dual write, and shadow-path ownership drift?
-   - Did the implementation follow existing codebase patterns instead of inventing a new local religion?
-   - Were assumptions about types, APIs, behavior, and test coverage verified against actual files?
-   - If performance was touched, was the bottleneck measured before and after the change?
-12b. **Deep code analysis** (quality-reviewer, diff/code input available): Apply 7-angle diff analysis from `skills/ff-review/references/deep-code-analysis.md` — line-by-line scan, removed-behavior auditor, cross-file tracer, reuse, simplification, efficiency, altitude. Each finding passes CONFIRMED/PLAUSIBLE verification. This runs in parallel with metrics-based checks; neither replaces the other.
-13. Classify findings by severity: blocker, major, minor, nit.
-14. **Write or update `review-report.md`** to the active task directory. For high/epic, spec and quality passes update the same file. The verdict in the file is the only valid verdict.
-15. **Verify execute completion checklist**: Before approving, confirm the execute stage produced all required deliverables:
-    - ☐ Implementation plan was stated before code changes
-    - ☐ All changed files are listed with descriptions
-    - ☐ Each component/function role is explained
-    - ☐ Edge cases enumerated (medium/high/epic)
-    - ☐ Verification commands run and results recorded
-    Missing items are `minor` findings for small routes, `major` for medium+, unless the omission is severe enough to block.
-16. Return a clear verdict in chat that matches the file. If verdict is `changes_requested` or `blocked`, update `implementation-notes.md` so status reflects the review gate.
-17. **다음 단계 안내** — 반드시 사용자에게 출력:
-    - If `approved` and `--auto` is active: invoke `/forgeflow:ship` directly (see `_shared/automation.md`).
-    - If `approved` (no `--auto`):
-      - "리뷰 통과. 출하 준비 완료. `/forgeflow:ship`을 실행해주세요."
-      - **Worktree isolation 경고**: If `brief.md` has `isolation: worktree`, append: "주의: 워크트리가 활성 상태입니다. `/forgeflow:ship` 없이 세션을 종료하면 워크트리가 정리되지 않습니다."
-      - Update `checkpoint.md`: `Next Action: /forgeflow:ship (worktree cleanup pending)` when worktree isolation is active.
-    - If `changes_requested` and ALL findings are artifact-only (scope_files, brief, plan, implementation-notes 등 `.forgeflow/` 메타데이터 수정만 필요): auto-fix scope/brief/plan/notes artifacts, update `checkpoint.md`, then re-invoke `/forgeflow:ff-review` without stopping. 코드 변경이 필요한 finding이 있으면 아래로 fallthrough.
-    - If `changes_requested` (code findings exist): **always stop and present findings** (auto-break). "수정이 필요합니다:" + 각 P0/P1 이슈를 `file:line — description` 형태로 나열 + "`/forgeflow:execute`로 수정 후 다시 `/forgeflow:ff-review`를 요청해주세요."
-    - Do NOT auto-proceed to ship unless `--auto` is active. 반드시 사용자가 다음 단계를 실행하도록 대기.
-18. Do not call `/forgeflow:ship` unless verdict=approved, safe_for_next_stage=yes, and open_blockers=none are all true in the **written** `review-report.md`.
+1. Review from artifacts and code, not worker self-report.
+2. Verify scope, acceptance criteria, plan tasks, verification evidence, ledger consistency, and unresolved blockers before approval.
+3. Run independent verification when allowed; any selected gate failure prevents approval.
+4. Apply the appropriate review rubric plus role checklist; quality-reviewer with diff/code input also applies `skills/ff-review/references/deep-code-analysis.md`.
+5. Write or update `review-report.md`; the verdict in the file is the only valid verdict.
+6. Do not call `/forgeflow:ship` unless verdict=approved, safe_for_next_stage=yes, and open_blockers=none are all true in the written `review-report.md`.
 
 Do not merge spec and quality review passes into a single turn for high/epic work. Use one `review-report.md` with sequential passes.
 
-### Standalone mode procedure (steps S1-S10)
+### Standalone mode procedure
 
-S1. **Detect input type** — Apply input type detection rules (see Standalone Mode → Input type detection). If detection fails, ask the user to clarify. Do not proceed with a guess.
-
-S2. **Bootstrap synthetic task directory** — Create `<task-dir>`. This directory is the task root. If `.forgeflow/` doesn't exist, create it (task directory only, no full workspace init).
-
-S3. **Fetch/extract input and record provenance** — For the detected type, execute the fetch command per Input type detection → per-type instructions. Write `input-source.md` to the synthetic task dir from `templates/input-source.md` before reviewer judgment. Record at minimum: type, original input, fetch command/source, fetch status, `fetched_at` timestamp/run label, `freshness_status`, access posture, mutation check, missing/truncated evidence notes, source classification rationale, and the Evidence Source Map. On fetch failure or a failed mutation check: keep the provenance artifact, mark the review `blocked`, and stop before roles judge.
-
-S4. **Normalize input** — Build the 4-field structure (brief, evidence, scope, constraints) per Input Normalization tables. Write to `normalized-input.md` in the synthetic task dir. If evidence is empty after normalization, write `blocked: input normalization failed` and stop.
-
-S5. **Determine reviewer roles** — Apply role routing (see Reviewer Roles → Role routing). Check `--type`/`--focus` flags. If no flags: quality-reviewer always runs, spec-reviewer runs if brief exists, other roles triggered by file-type heuristics. Record active roles in `normalized-input.md` constraints.
-
-S6. **Run each active reviewer role** — For each active role, in pipeline-mode order (spec → quality → security → ux → perf):
-   a. Apply the role's checklist (see Reviewer Roles → Role definitions) AND the applicable review rubric (see Review Rubrics → Spec Review or Quality Review).
-   b. **quality-reviewer with diff/code input**: Apply 7-angle deep code analysis from `skills/ff-review/references/deep-code-analysis.md` in parallel with the checklist. Each finding passes CONFIRMED/PLAUSIBLE verification.
-   c. Classify each finding: severity, category, confidence level (see Human Final Judgment Gate → Advisory label system).
-   d. Record evidence source for each finding (observed/reported/inferred per Evidence discipline rules).
-   e. Check for cross-role conflicts with previously run roles. If conflict found, mark both findings with `⚠ requires human decision`.
-
-S7. **Aggregate findings** — Combine all role findings into a single list. Sort by priority (see Human Final Judgment Gate → Priority classification). Compute overall verdict:
-   - Any blocker → `blocked`
-   - Any unresolved conflict → `changes_requested`
-   - Any major → `changes_requested` (unless human accepts risk via override)
-   - Only minor/nit → `approved` with findings noted
-   - No findings → `approved`
-
-S8. **Write `review-report.md`** — Use `templates/review-report.md` structure. Fill all applicable sections:
-   - Fill Standalone Input Source, Reviewer Role Summary, Override Log, Standalone Mode Metadata sections.
-   - Set Review Type to the roles that ran. Set Safe for Next Stage based on verdict.
-   - Skip inapplicable sections: Execute Micro-Gates, Route Compliance, Evolution Rule Review (see template comments).
-
-S9. **Present verdict to human** — Output a clear summary: verdict, finding count by severity, active roles, conflicts if any. In standalone mode, never auto-proceed to ship. The review report is the end of the standalone flow.
-
-S10. **Handle human response** — Wait for human action: dismiss, escalate, accept risk (see Human Final Judgment Gate → Override process), re-review with updated input, or start a pipeline from the review output. Record any overrides in `review-report.md` → Override Log.
+Follow `skills/ff-review/references/standalone-mode.md` and `skills/ff-review/references/input-normalization.md` for input type detection, synthetic task directory bootstrap, read-only provenance capture, normalization, role selection, finding aggregation, `review-report.md` writing, and human response handling. Standalone review ends at the review report and never auto-proceeds to ship.
 
 ## Human Final Judgment Gate
 

@@ -385,47 +385,15 @@ Provide checklist responses under a **`### Completion Response`** heading (not u
 
 ## Output normalization
 
-When ForgeFlow artifacts are parsed by downstream stages (review, ship), normalize agent output to avoid noise:
-
-- **Codex**: Strip raw git diff blocks before extracting summaries. Codex may output 100KB+ diffs; only the final summary section is relevant for artifacts.
-- **All adapters**: Remove ANSI escape sequences, cache/memory logs, and progress spinners from captured command output before recording in `implementation-notes.md`.
-- Extract only: file list, verification results, component descriptions, edge cases, and the completion report.
-
-This normalization is advisory for skill prompts but mandatory when ForgeFlow orchestrates multi-adapter pipelines.
+When ForgeFlow artifacts are parsed by downstream stages, normalize adapter output before recording summaries or command evidence. Read `skills/execute/references/adapter-output-and-metrics.md` for adapter adjustments, output cleanup, and metric commands.
 
 ## Adapter-aware execution
 
-Detect the current adapter (see `skills/forgeflow/SKILL.md` → Adapter detection) and apply adapter-specific adjustments:
-
-| Adapter | Verification | Output Discipline | Rate Limit |
-|---------|-------------|-------------------|------------|
-| Claude | `build` preferred. Table-format reports. | Concise by default (~5KB/medium task). No special handling needed. | No known issues. |
-| Codex | `lint` mandatory (Codex naturally does this). | Normalize diff-heavy output. Strip raw git diffs; keep only summaries. Output can exceed 100KB without normalization. | No known issues. |
-| Gemini | `import type` enforced for TS with `verbatimModuleSyntax`. Structured markdown. | Compact output (~7KB/medium task). May introduce UI abstractions not requested. | **Rate limit (HTTP 429) under concurrent load.** Run sequentially or add 30s cooldown between tasks when executing multiple plan steps. |
-| Cursor | Skill names without colons. Same adjustments as the underlying adapter (Claude by default). | Same as underlying adapter. | Same as underlying adapter. |
+Detect the current adapter (see `skills/forgeflow/SKILL.md` → Adapter detection) and apply `references/adapter-output-and-metrics.md`. Keep adapter differences advisory except where validation or evidence capture depends on them.
 
 ### Code quality metrics (all adapters)
 
-Collect quantitative metrics after implementation for the Completion Response and review stage:
-
-```bash
-# LOC generated
-find src/ \( -name "*.ts" -o -name "*.tsx" -o -name "*.css" \) -exec cat {} + | wc -l
-
-# TypeScript type safety
-npx tsc --noEmit 2>&1 | grep -c "error TS"
-
-# Type assertions (lower is better)
-grep -r "as " src/ --include="*.ts" --include="*.tsx" | wc -l
-
-# Debug artifacts (must be 0)
-grep -rE "console\.log|TODO|FIXME|debugger" src/ --include="*.ts" --include="*.tsx" | wc -l
-
-# Component complexity (flag any component > 100L)
-for f in $(find src/ -name "*.tsx" -o -name "*.ts"); do echo "$(wc -l < "$f") $f"; done
-```
-
-Record results in `implementation-notes.md` → Metrics section and in the Completion Response item 7.
+Collect quantitative metrics after implementation for the Completion Response and review stage. Use `references/adapter-output-and-metrics.md` for command examples, then record results in `implementation-notes.md` → Metrics section and in Completion Response item 7.
 
 ## Agent delegation for specialist work
 
@@ -485,30 +453,7 @@ Classify the failure layer before applying the fix. Use one of Instructions, Too
 
 ## Post-task simplification loop
 
-After each plan step passes verification, run an iterative refinement loop on the **changed code** (`git diff` against the step's starting point) until the delta converges to zero.
-
-### Principles
-
-- **Phase 1 — Identification**: Focus exclusively on the diff. Ignore unrelated files.
-- **Phase 2 — Triple-Lens Analysis**:
-    - **Lens 1 (Code Reuse)**: Replace new logic with existing utils, constants, or types.
-    - **Lens 2 (Code Quality)**: Eliminate stringly-typed code, redundant wrappers, and abstraction boundary violations.
-    - **Lens 3 (Efficiency)**: Optimize hot paths, remove redundant resource reads, improve concurrency.
-- **Phase 3 — Iterative Refinement**:
-    - **Converge to Zero**: Repeat the refinement cycle until no further meaningful improvements are identified.
-    - **Comment Preservation**: **절대 주석을 삭제하지 마라.** 주석은 "왜"를 설명하는 핵심 신호다.
-    - **False Positive Filtering**: Only apply changes with clear present value. Avoid over-engineering.
-
-### Verification
-
-- Run focused tests after each refinement cycle.
-- If a simplification breaks a test, immediately revert (`git restore`) and skip that change.
-- Record each applied simplification in `implementation-notes.md` Evidence as `simplify:PASS lens=<1|2|3> desc="<change>"`.
-
-### Scope
-
-- **small / medium**: Run once after the final step only.
-- **high / epic**: Run after every step.
+After each plan step passes verification, run the diff-focused refinement loop in `skills/execute/references/post-task-simplification.md`. Record each applied simplification in `implementation-notes.md` Evidence as `simplify:PASS lens=<1|2|3> desc="<change>"`.
 
 ## Evidence Contract
 
