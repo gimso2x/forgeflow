@@ -628,6 +628,23 @@ Do not enter standalone mode if pipeline artifacts exist, even if the user provi
 9. **Cross-check ledger.md**: Verify that claimed task completions in implementation-notes match the ledger status. If a task is marked `done` in implementation-notes but `running` or `pending` in ledger, flag it as an inconsistency. The ledger is the execution truth. For high/epic, if a step is `done` but lacks `micro_spec:PASS` (when execute should have run micro-gates), record a **major** spec-compliance finding.
 10. **Execute Micro-Gates table** (high/epic): Fill `review-report.md` → Execute Micro-Gates from implementation-notes and ledger. Re-run spec/quality checks independently; do not approve because micro-gates passed during execute.
 11. **Check active evolution rules**: If `.forgeflow/evolution/active/*.md` exists, verify the work is consistent with active project rules. Do not generate or validate new evolution rules — that is ship's responsibility.
+11b. **3-Lane Review Routing** (high/epic routes; medium: architecture+code only; small: single-pass, skip):
+
+    For high/epic routes, split the review into 3 mandatory lanes. All lanes must APPROVE for final PASS. Any lane returning BLOCK/REQUEST_CHANGES forces overall ITERATE.
+
+    - **Architecture lane**: structural fitness, boundary integrity, coupling/cohesion, cross-cutting concern coverage. Uses `architecture-reviewer` role checklist. Verdict: APPROVE | BLOCK | REQUEST_CHANGES.
+    - **Product lane**: brief.md Goal Contract functional completeness, acceptance criteria coverage, user-facing behavior correctness. Uses `spec-reviewer` role checklist. Verdict: APPROVE | BLOCK | REQUEST_CHANGES.
+    - **Code lane**: code quality, security, performance, maintainability. Uses `quality-reviewer` role checklist. Verdict: APPROVE | BLOCK | REQUEST_CHANGES.
+
+    Lane routing rules:
+    - high/epic → all 3 lanes (mandatory).
+    - medium → architecture lane + code lane (product lane merged into architecture).
+    - small → single-pass quality review (existing behavior, no lane split).
+
+    Record lane results in `review-report.md` → **3-Lane Review Summary** section (see template). Each lane finding gets an additional `lane:` field (architecture | product | code). When all lanes APPROVE, set overall verdict. When any lane blocks, carry its blockers into the top-level Open Blockers.
+
+11c. Do not merge lane passes into a single turn for high/epic work. Run lanes sequentially in separate turns, updating the same `review-report.md`.
+
 12. Apply the appropriate review rubric (Spec or Quality — see Review Rubrics section above). For quality review, also apply these discipline heuristics:
    - Every changed line should trace directly to the user's request; anything else needs explicit scope approval.
    - Flag drive-by refactors, speculative abstractions, or unrelated cleanup as scope drift unless the plan explicitly authorized them.

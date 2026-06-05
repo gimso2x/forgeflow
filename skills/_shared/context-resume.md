@@ -50,11 +50,12 @@ Before reading any file, ask: **full content, Reader Summary, or specific sectio
 ## Section-targeted read procedure
 
 1. Read `checkpoint.md` → `Handoff Boundary`, `Minimum Read Set`, and `Next Action`.
-2. If `Handoff Boundary` names a current owner, next owner / owning next stage, handoff reason, requested/forbidden action, evidence/artifact trigger, blocker/limitation impact, explicit stop condition, or exact artifact update location, honor that boundary before resuming stage work. Do not let context refresh erase ownership, delegation, handoff rationale, artifact update location, or stop conditions.
-3. If artifact has **Reader Summary** (high/epic), read it first (~30 lines max).
-4. Jump to named sections (e.g. `## 검증 계획 (Verification Plan)`, `### Task 3:`) instead of reading from line 1.
-5. Use Evidence Index compact strings before expanding full Evidence blocks.
-6. Record in checkpoint when you expand beyond minimum read set (brief note in Refresh-Safe Context Notes).
+2. Read `run-state.json` → `handoff` field. If `caller_demoted` is true and `callee_promoted` is true, the transition is atomic and safe to proceed. If either is false or `from_stage`/`to_stage` are null, treat as an incomplete handoff — read `checkpoint.md` `Handoff Boundary` for the canonical state and do not assume stage ownership.
+3. If `Handoff Boundary` names a current owner, next owner / owning next stage, handoff reason, requested/forbidden action, evidence/artifact trigger, blocker/limitation impact, explicit stop condition, or exact artifact update location, honor that boundary before resuming stage work. Do not let context refresh erase ownership, delegation, handoff rationale, artifact update location, or stop conditions.
+4. If artifact has **Reader Summary** (high/epic), read it first (~30 lines max).
+5. Jump to named sections (e.g. `## 검증 계획 (Verification Plan)`, `### Task 3:`) instead of reading from line 1.
+6. Use Evidence Index compact strings before expanding full Evidence blocks.
+7. Record in checkpoint when you expand beyond minimum read set (brief note in Refresh-Safe Context Notes).
 
 ## Context budget heuristics
 

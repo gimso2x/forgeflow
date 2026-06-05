@@ -10,6 +10,14 @@ scope_boundary:
   files_planned: <!-- N -->
   files_limit: <!-- route에 따른 임계값 (small=3, medium=8, high=20, epic=unlimited) -->
   boundary_status: <!-- within | at_limit | exceeds -->
+ambiguity:
+  objective: <!-- 1-10 -->
+  scope: <!-- 1-10 -->
+  constraints: <!-- 1-10 -->
+  acceptance: <!-- 1-10 -->
+  score: <!-- computed 0.0-1.0 -->
+  rounds: <!-- N -->
+  status: <!-- pass | bounded_assumption -->
 ---
 
 # 컨텍스트 브리프 (Context Brief)
@@ -50,6 +58,14 @@ scope_boundary:
 ## 범위 제외 (Out of Scope)
 -
 
+## 범위 위상 (Scope Topology)
+<!-- Top-level components (1-6) confirmed during Round 0. Updated if new components discovered. -->
+-
+
+## 도메인 온톨로지 (Domain Ontology)
+<!-- Key domain terms and their definitions as used in this task. Simplified from gajae-code ontology tracking. -->
+<!-- Optional — fill when domain-specific terminology needs shared understanding. -->
+
 ## 제약 조건 (Constraints)
 -
 
@@ -75,7 +91,12 @@ scope_boundary:
 - [ ] High scale
 
 ## 모호성 점수 (Ambiguity Score)
-<!-- 0.0 to 1.0. Above 0.2 requires blocker resolution or bounded assumptions. -->
+<!-- Computed from 4-dimension scoring gate (objective, scope, constraints, acceptance). -->
+<!-- score ≤ 0.3: proceed. 0.3–0.5: targeted questions. > 0.5: focused blocker questions. max 3 rounds. -->
+<!-- See YAML frontmatter `ambiguity` field for dimension scores. -->
+- **ambiguity_score**: <!-- 0.0–1.0, computed average of max(10-dim)/10 -->
+- **rounds_used**: <!-- N -->
+- **status**: <!-- pass | bounded_assumption -->
 
 ## 가정 (Assumptions)
 

@@ -217,17 +217,53 @@ Generate `scope_files` list and compare against route thresholds. Record `bounda
    - Good questions resolve product behavior, user/audience, success criteria, data/source of truth, rollout/risk constraints, or explicit out-of-scope boundaries.
    - Bad questions ask for implementation chores the agent should infer from repo inspection, preferences that do not change the plan, or confirmations that can be recorded as bounded assumptions.
 
-4. Apply Socratic clarification (the "grilling loop") before route selection:
+4. **Scope Topology Lock (Round 0)** — before deep requirement questions, enumerate the change scope as 1–6 top-level components:
+   1. List every module, subsystem, or file group the request will likely touch as top-level components.
+   2. Present the topology to the user for one-shot confirmation: "변경 범위 위상: [C1, C2, …]. 이 범위가 맞습니까?"
+   3. Only after user confirmation (or user correction), proceed to deep Socratic questions.
+   4. If during later questioning a new component is discovered, pause and re-confirm the topology before continuing.
+   5. Record the confirmed topology in `brief.md` → Scope Topology section.
+
+5. Apply Socratic clarification (the "grilling loop") before route selection:
    - Walk down each branch of the design tree, resolving dependencies between decisions one-by-one.
    - For each question asked, provide your recommended answer to reduce user cognitive load.
    - If a question can be answered by exploring the codebase, explore the codebase instead of asking.
    - Name the hidden assumptions the request appears to rely on.
    - Separate true blocker questions from non-blocking unknowns.
    - State explicit non-goals and scope boundaries before planning.
-   - Assign an ambiguity score from `0.0` to `1.0`; above `0.2`, either ask blocker questions or record why execution can proceed safely with bounded assumptions.
    - Do not let ambiguity disappear into prose. It must be visible in the brief artifact or response artifact.
 
-5. Score complexity using the documented weighted model:
+6. **Ambiguity scoring gate** — after Socratic clarification, quantitatively score clarity across 4 dimensions before proceeding:
+
+   Score each dimension 1–10 (10 = fully clear):
+
+   | Dimension | What to evaluate |
+   |-----------|-----------------|
+   | **Objective clarity** | Is the goal unambiguous and testable? |
+   | **Scope clarity** | Are boundaries (in/out) explicit with no grey zones? |
+   | **Constraint clarity** | Are technical, platform, and dependency constraints known? |
+   | **Acceptance clarity** | Can a third party verify completion without domain context? |
+
+   Compute: `ambiguity_score = average(max(10 - dim_score) / 10)` across all 4 dimensions.
+
+   - `ambiguity_score ≤ 0.3` → proceed. Brief is clear enough for execution.
+   - `0.3 < ambiguity_score ≤ 0.5` → ask 1–2 targeted blocker questions, then re-score (max 3 rounds).
+   - `ambiguity_score > 0.5` → identify the weakest 2 dimensions and ask focused blocker questions. Re-score (max 3 rounds).
+   - After 3 rounds without reaching ≤ 0.3: record the weakest dimensions as bounded assumptions in brief.md, note the residual ambiguity, and proceed. Do not block indefinitely.
+
+   Record in `brief.md` YAML frontmatter:
+   ```yaml
+   ambiguity:
+     objective: <!-- 1-10 -->
+     scope: <!-- 1-10 -->
+     constraints: <!-- 1-10 -->
+     acceptance: <!-- 1-10 -->
+     score: <!-- computed 0.0-1.0 -->
+     rounds: <!-- N -->
+     status: pass | bounded_assumption
+   ```
+
+7. Score complexity using the documented weighted model:
    ```text
    raw_score = file_count*1.0 + estimated_lines*0.1 + requirement_count*2.0 + dependency_count*1.5 + risk_keywords*3.0
    ```
@@ -253,7 +289,7 @@ Generate `scope_files` list and compare against route thresholds. Record `bounda
 
    Return route label `medium` for both `medium-light` and `medium-full`; record the sub-band in route rationale. The `17.0` mid threshold exists to decide how deep the plan/review detail should be inside the medium route, not to create a separate slash route.
 
-6. Apply alias hints only within the scoring context. The table below maps user wording to `suggested_next_skill` — Keyword hints are advisory and must not auto-invoke any skill. Route selection (`small`/`medium`/`high`/`epic`) remains explicit and independent of alias hints. Do not auto-invoke skills from keyword detection alone.
+8. Apply alias hints only within the scoring context. The table below maps user wording to `suggested_next_skill` — Keyword hints are advisory and must not auto-invoke any skill. Route selection (`small`/`medium`/`high`/`epic`) remains explicit and independent of alias hints. Do not auto-invoke skills from keyword detection alone.
 
    | User wording | Hint |
    |--------------|------|
@@ -263,7 +299,7 @@ Generate `scope_files` list and compare against route thresholds. Record `bounda
    | "릴리즈", "ship", "배포" | Prefer `/forgeflow:ship` only after review evidence exists. |
    | "대규모", "milestone", "epic" | Consider `epic` and `/forgeflow:ff-plan` with epic decomposition; do not force it without scope evidence. |
 
-7. Select specialist based on task nature (separate from route):
+9. Select specialist based on task nature (separate from route):
    Route determines scope size (small/medium/high/epic). Specialist determines the review verification perspective.
 
    **Specialist selection criteria** (pick primary and optionally secondary):
@@ -287,34 +323,34 @@ Generate `scope_files` list and compare against route thresholds. Record `bounda
    - `none` means no specialized review lens; standard quality review applies.
    - Record rationale as a one-line explanation of why the specialist was chosen.
 
-8. Set verification gates in the brief:
+10. Set verification gates in the brief:
    - `small`: at least one of `build`, `lint`, or `type_check` — whichever is available and fastest.
    - `medium`: at least `lint` and `type_check`, plus `test` if tests exist for changed files.
    - `high`: full verification suite — `build`, `lint`, `type_check`, and `test`.
    - `epic`: full verification suite, plus milestone-level integration tests.
 
-9. State the route and why, unless an exact-output/label-only instruction applies.
+11. State the route and why, unless an exact-output/label-only instruction applies.
 
-10. **Read project defaults** before producing the brief. Read `<storage-root>/defaults.md` if it exists. Propagate settings to `brief.md` frontmatter:
+12. **Read project defaults** before producing the brief. Read `<storage-root>/defaults.md` if it exists. Propagate settings to `brief.md` frontmatter:
     - `auto: true` → set `brief.md` frontmatter `auto` to `true`. This ensures `--auto` chaining activates for all subsequent stages.
     - `auto: false` or missing → set `brief.md` frontmatter `auto` to `false`.
-    - `isolation: true` → used for worktree isolation decision (step 13). Already handled.
+    - `isolation: true` → used for worktree isolation decision (step 16). Already handled.
     - If `<storage-root>/defaults.md` does not exist, set `auto: false`, `isolation: false`.
     - **Do not skip this step.** If `defaults.md` says `auto: true` but the brief has `auto: false`, the chain will break at the y/n prompt.
 
-11. **Goal Contract collection** — before writing brief.md, fill the 4 Goal Contract fields in the brief template:
+13. **Goal Contract collection** — before writing brief.md, fill the 4 Goal Contract fields in the brief template:
     - **성공 기준 (Success Criteria)**: Extract from the user's stated goal + your scope analysis. Must be objectively measurable (e.g. "all tests pass", "command X exits 0", "file Y contains Z"). NOT aspirational — every criterion must be checkable by a third party without domain context.
     - **필수 증거 (Evidence Required)**: For each success criterion, name the observable artifact or command output that proves it. Map 1:1 with success criteria. If you cannot name evidence for a criterion, the criterion is too vague — refine it.
     - **인정된 리스크 (Accepted Risks)**: Risks you and the user acknowledge and explicitly accept. Review must NOT re-litigate these. If the user has not named any, record "none stated" — do not fabricate risks.
     - **명시적 제외 (Explicit Exclusions)**: Things this task will NOT do. Draw from Out of Scope + any user-stated boundaries. This is the hard scope fence review checks against.
-    - **Collection trigger**: Fill during Socratic clarification (step 4) and scope boundary definition. If the user provided a complete brief with acceptance criteria, derive Goal Contract directly from those. If the request is too vague for concrete success criteria, the Goal Contract gaps become blocker questions — do NOT ship a brief with empty success criteria.
+    - **Collection trigger**: Fill during Socratic clarification (step 5) and scope boundary definition. If the user provided a complete brief with acceptance criteria, derive Goal Contract directly from those. If the request is too vague for concrete success criteria, the Goal Contract gaps become blocker questions — do NOT ship a brief with empty success criteria.
     - **Review consumption**: ff-review reads these 4 fields as the PASS/FAIL contract for the task. If Goal Contract is empty or aspirational, review must flag it as a planning defect, not an implementation defect.
 
-12. Produce `brief.md` using the `brief.md` template as the structure (resolve path: `.forgeflow/templates/brief.md` first, then plugin cache), unless an exact-output/label-only instruction applies.
+14. Produce `brief.md` using the `brief.md` template as the structure (resolve path: `.forgeflow/templates/brief.md` first, then plugin cache), unless an exact-output/label-only instruction applies.
 
-13. If the request is actionable, record remaining non-blocking unknowns as bounded assumptions and make the next stage obvious without asking the user to do your planning work, unless an exact-output/label-only instruction applies.
+15. If the request is actionable, record remaining non-blocking unknowns as bounded assumptions and make the next stage obvious without asking the user to do your planning work, unless an exact-output/label-only instruction applies.
 
-14. **Worktree isolation** (medium/high/epic only, unless `--no-isolation` or `defaults.md` `isolation: false`):
+16. **Worktree isolation** (medium/high/epic only, unless `--no-isolation` or `defaults.md` `isolation: false`):
     Follow the protocol in `_shared/isolation.md`. Summary:
     a. Generate branch name (see Branch name generation above).
     b. Check if `.forgeflow/worktrees/<task-id>/` already exists — skip if so (idempotent).

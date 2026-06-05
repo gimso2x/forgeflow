@@ -4,5 +4,12 @@
   "project_slug": "<!-- PROJECT_SLUG -->",
   "repo_root": "<!-- ABSOLUTE_REPO_ROOT -->",
   "storage_root": "<!-- RESOLVED_STORAGE_ROOT -->",
-  "task_id": "<!-- TASK_ID -->"
+  "task_id": "<!-- TASK_ID -->",
+  "handoff": {
+    "from_stage": "<!-- clarify | plan | execute | review | ship | null -->",
+    "to_stage": "<!-- clarify | plan | execute | review | ship | null -->",
+    "handed_off_at": "<!-- ISO8601 timestamp -->",
+    "caller_demoted": "<!-- true | false — prior stage released ownership -->",
+    "callee_promoted": "<!-- true | false — next stage assumed ownership -->"
+  }
 }

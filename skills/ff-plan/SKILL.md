@@ -334,12 +334,20 @@ For `epic` route without existing `roadmap.md`: run problem framing, five-angle 
 
 10. **Self-Critique Loop** (inspired by gajae-code's ralplan pattern):
 
-    After plan.md draft is complete, run an internal **Critic** pass. Fill the `## Self-Critique` section in `plan.md` (see `templates/plan.md` for the exact field structure) answering:
+    After plan.md draft is complete, run an internal **Critic** pass. Fill the `## Self-Critique` section in `plan.md` (see `templates/plan.md` for the exact field structure) with a **receipt-only verdict**:
 
     1. **Coverage**: Does this plan satisfy every acceptance criterion and Goal Contract success criteria from brief.md?
     2. **Dependency correctness**: Are there missing dependencies, ordering errors, or file-conflict risks not flagged?
     3. **Verifiability**: Does every verification step produce observable evidence (command output, test results, diff)?
     4. **Risk gaps**: Are there accepted risks from brief.md that the plan does not mitigate or acknowledge?
+
+    **Receipt-only Verdict structure** (fill in `### Self-Critique Verdict`):
+    - **Status**: `APPROVE` (all clear) | `ITERATE` (fixable issues) | `REJECT` (fundamental problems)
+    - **Findings**: one line per finding, tagged `[HIGH]` or `[LOW]`
+    - **Required Changes**: numbered list (only when ITERATE/REJECT)
+
+    When Status is `APPROVE`, skip `### Detailed Findings` entirely — no prose needed.
+    When Status is `ITERATE` or `REJECT`, expand findings with evidence in `### Detailed Findings`.
 
     **Field mapping to `templates/plan.md` Self-Critique section:**
     - Question 1 → `Coverage PASS?`
@@ -349,8 +357,8 @@ For `epic` route without existing `roadmap.md`: run problem framing, five-angle 
 
     **Rules:**
     - If any answer is "no" or "uncertain", revise the plan and re-run Critic (max 3 iterations).
-    - Critic PASS condition: all four answers are affirmative with no hedging.
-    - Record the final Critic verdict (PASS/revision count) in `Critic verdict` and `Revision count` fields of the `## Self-Critique` section so review stage can see it.
+    - Critic PASS condition: all four answers are affirmative with no hedging → Status = APPROVE.
+    - Record the final Critic verdict (PASS/revision count) in `Critic verdict` and `Revision count` fields so review stage can see it.
     - If Critic does not pass after 3 iterations, flag the remaining concern in `Open Concerns` field and proceed — do not block planning indefinitely.
     - **Review consumption**: ff-review reads the Self-Critique section. If `Critic verdict` is not `PASS` and no `Open Concerns` are listed, review must flag it as a planning defect.
 

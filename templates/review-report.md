@@ -58,6 +58,16 @@ scope_boundary:
 <!-- Pipeline mode only. Standalone mode: delete this section. -->
 <!-- Did execution follow the selected route stages? -->
 
+## 3-Lane 리뷰 요약 (3-Lane Review Summary)
+<!-- high/epic: mandatory 3-lane review. medium: architecture+code only. small: delete this section. -->
+<!-- All lanes must APPROVE for final PASS. Any BLOCK/REQUEST_CHANGES → overall ITERATE. -->
+- **Lane routing**: <!-- high/epic: architecture + product + code | medium: architecture + code | small: single-pass -->
+- **Architecture lane**: <!-- APPROVE | BLOCK | REQUEST_CHANGES — structural fitness, boundary integrity, coupling/cohesion -->
+- **Product lane**: <!-- APPROVE | BLOCK | REQUEST_CHANGES — Goal Contract completeness, AC coverage, user-facing behavior -->
+- **Code lane**: <!-- APPROVE | BLOCK | REQUEST_CHANGES — quality, security, performance, maintainability -->
+- **Lane conflicts**: <!-- count — cross-lane conflicting findings marked with ⚠ -->
+- **Overall lane verdict**: <!-- PASS (all APPROVE) | ITERATE (any BLOCK/REQUEST_CHANGES) -->
+
 ## 발견 사항 (Findings)
 
 Behavioral guardrail finding categories may include `assumption-risk`, `overengineering`, `scope-creep`, `unverified-success`, or `drive-by-refactor` when clarify/plan/execute drift from the advisory guardrails.
@@ -65,6 +75,7 @@ Behavioral guardrail finding categories may include `assumption-risk`, `overengi
 ### Finding 1: <!-- title -->
 - **Severity**: <!-- blocker | major | minor | nit -->
 - **Category**: <!-- spec-compliance | plan-conformance | quality | maintainability | risk | security -->
+- **Lane**: <!-- architecture | product | code — only when 3-lane review is active; delete for small/medium single-pass -->
 - **Role**: <!-- spec-reviewer | quality-reviewer | architecture-reviewer | security-reviewer | ux-reviewer | perf-reviewer -->
 - **Confidence**: <!-- HIGH | MEDIUM | LOW | CONFLICT -->
 - **Priority**: <!-- p1 | p2 | p3 | p4; p1=must fix, p2=strongly recommended, p3=recommended, p4=minor -->

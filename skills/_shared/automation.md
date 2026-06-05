@@ -117,9 +117,10 @@ Complete **all** items before invoking the next stage or editing code outside th
 
 #### plan → execute
 
-| Step | Required before execute |
+|| Step | Required before execute |
 |------|------------------------|
 | Artifact | `plan.md` + scaffolds: `implementation-notes.md`, `ledger.md`, `run-state.json` if missing |
+| **Pre-execution specificity gate** | Verify `brief.md`/`plan.md` contain enough concrete detail. ✅ Pass signals: file paths, issue numbers, camelCase/snake_case symbols, test runner, numbered steps, acceptance criteria, error references, code blocks. ❌ Block: ≤15 effective words + none of the above signals. If blocked, ask user to concretize in-place (do NOT return to clarify). `force:` prefix bypasses this gate. |
 | Checkpoint | `Current Stage: plan`; `Active Task: Task 1` (or first pending); `Next Action: begin Task 1` |
 | Chain | Call `Skill(skill: "forgeflow:execute")` immediately — no `(y/n)` prompt. Do not just print the skill name. |
 | Forbidden | Implementing plan tasks in the plan turn; asking "execute 진행?" under `--auto` |

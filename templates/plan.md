@@ -116,7 +116,19 @@ graph TD
 ## Self-Critique
 <!-- Self-Critique Loop: ff-plan Phase 3 fills this section. -->
 <!-- Do not leave this section empty after plan stage — critic must run. -->
+<!-- Receipt-only verdict: record structured verdict, not full re-evaluation prose. -->
 
+### Self-Critique Verdict
+<!-- Receipt-only: structured verdict (inspired by gajae-code ralplan pattern). -->
+<!-- ITERATE/REJECT 시에만 상세 내용을 아래에 추가. -->
+- **Status**: <!-- APPROVE | ITERATE | REJECT -->
+- **Findings**: <!-- [HIGH|LOW] 1-line-per-finding, e.g. "HIGH: step 3 missing rollback for migration" -->
+- **Required Changes**: <!-- numbered list (if ITERATE/REJECT). Empty if APPROVE. -->
+
+### Detailed Findings (only if Status is ITERATE or REJECT)
+<!-- Expand each finding with evidence and specific remediation. Omit entirely when APPROVE. -->
+
+### Critic Summary
 - **Coverage PASS?**: <!-- yes/no — does plan satisfy every acceptance criterion and Goal Contract success criteria? -->
 - **Dependency PASS?**: <!-- yes/no — no missing deps, no ordering errors, no file-conflict risks? -->
 - **Verifiability PASS?**: <!-- yes/no — does every verification step produce observable evidence? -->
