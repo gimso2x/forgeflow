@@ -96,6 +96,9 @@ def main() -> int:
         task_dir.mkdir(parents=True)
         (task_dir / "ledger.md").write_text(LEDGER, encoding="utf-8")
         (task_dir / "checkpoint.md").write_text(CHECKPOINT, encoding="utf-8")
+        (task_dir / "brief.md").write_text("# Brief\nAdd the smoke marker.\n", encoding="utf-8")
+        (task_dir / "plan.md").write_text("# Plan\nOne small task.\n", encoding="utf-8")
+        (task_dir / "implementation-notes.md").write_text("# Implementation Notes\n", encoding="utf-8")
 
         out = assert_ok(run("next", "--task-dir", str(task_dir), cwd=ROOT))
         assert_contains(out, "Task 2: Add smoke")
@@ -125,6 +128,51 @@ def main() -> int:
         assert_contains(ledger, "evidence_index:task=T2")
         assert_contains(checkpoint, "Task 2: Add smoke status=done")
         assert_contains(checkpoint, "recorded_at=")
+
+        adapter_task_dir = tmp / ".forgeflow" / "tasks" / "adapter"
+        shutil.copytree(task_dir, adapter_task_dir)
+        (adapter_task_dir / "ledger.md").write_text(LEDGER, encoding="utf-8")
+        (adapter_task_dir / "checkpoint.md").write_text(CHECKPOINT, encoding="utf-8")
+        out = assert_ok(
+            run(
+                "run-adapter",
+                "--task-dir",
+                str(adapter_task_dir),
+                "--adapter",
+                "stub",
+                "--command",
+                "python3 -c 'import sys; print(\"adapter saw\", len(sys.stdin.read()))'",
+                "--verify-command",
+                "python3 -c 'from pathlib import Path; print(Path(\"agent-prompt.md\").exists())'",
+                cwd=ROOT,
+            )
+        )
+        assert_contains(out, "recorded: Task 2: Add smoke")
+        assert_contains((adapter_task_dir / "implementation-notes.md").read_text(encoding="utf-8"), "Adapter stdout")
+        assert_contains((adapter_task_dir / "implementation-notes.md").read_text(encoding="utf-8"), "verification: exit=0")
+        assert_contains((adapter_task_dir / "ledger.md").read_text(encoding="utf-8"), "## Agent Runs")
+        assert_contains((adapter_task_dir / "ledger.md").read_text(encoding="utf-8"), "verification_exit=0")
+
+        failed_verify_dir = tmp / ".forgeflow" / "tasks" / "failed-verify"
+        shutil.copytree(task_dir, failed_verify_dir)
+        (failed_verify_dir / "ledger.md").write_text(LEDGER, encoding="utf-8")
+        (failed_verify_dir / "checkpoint.md").write_text(CHECKPOINT, encoding="utf-8")
+        out = assert_ok(
+            run(
+                "run-adapter",
+                "--task-dir",
+                str(failed_verify_dir),
+                "--adapter",
+                "stub",
+                "--command",
+                "python3 -c 'print(\"adapter ok\")'",
+                "--verify-command",
+                "python3 -c 'import sys; print(\"verify failed\"); sys.exit(3)'",
+                cwd=ROOT,
+            )
+        )
+        assert_contains(out, "status=blocked")
+        assert_contains((failed_verify_dir / "ledger.md").read_text(encoding="utf-8"), "verification command failed")
 
         blocked_task_dir = tmp / ".forgeflow" / "tasks" / "blocked"
         shutil.copytree(task_dir, blocked_task_dir)

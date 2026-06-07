@@ -9,6 +9,8 @@ from __future__ import annotations
 import argparse
 import datetime as _dt
 import re
+import shlex
+import subprocess
 import sys
 from pathlib import Path
 
@@ -30,6 +32,16 @@ def read_text(path: Path) -> str:
 
 def task_paths(task_dir: Path) -> tuple[Path, Path]:
     return task_dir / "ledger.md", task_dir / "checkpoint.md"
+
+
+def artifact_paths(task_dir: Path) -> dict[str, Path]:
+    return {
+        "brief": task_dir / "brief.md",
+        "plan": task_dir / "plan.md",
+        "ledger": task_dir / "ledger.md",
+        "checkpoint": task_dir / "checkpoint.md",
+        "implementation_notes": task_dir / "implementation-notes.md",
+    }
 
 
 def parse_tasks(ledger_text: str) -> list[dict[str, str]]:
@@ -202,6 +214,97 @@ def record(task_dir: Path, status: str, evidence: str, task_name: str | None, bl
     return 0
 
 
+def build_adapter_prompt(task_dir: Path, task: dict[str, str]) -> str:
+    paths = artifact_paths(task_dir)
+    sections = [
+        "You are an agent adapter running one ForgeFlow task.",
+        "Do the task, but do not claim success without verifiable evidence.",
+        f"Active task: {format_task(task)}",
+    ]
+    for name in ("brief", "plan", "ledger", "checkpoint"):
+        path = paths[name]
+        if path.exists():
+            sections.append(f"\n--- {path.name} ---\n{read_text(path)}")
+    return "\n".join(sections).strip() + "\n"
+
+
+def render_command(command_template: str, task_dir: Path, prompt_path: Path) -> list[str]:
+    rendered = command_template.format(task_dir=str(task_dir), prompt=str(prompt_path))
+    return shlex.split(rendered)
+
+
+def append_agent_run(
+    task_dir: Path,
+    task: dict[str, str],
+    adapter: str,
+    prompt_path: Path,
+    proc: subprocess.CompletedProcess[str],
+    verify: subprocess.CompletedProcess[str] | None,
+) -> None:
+    now = _dt.datetime.now(_dt.timezone.utc).replace(microsecond=0).isoformat()
+    notes_path = artifact_paths(task_dir)["implementation_notes"]
+    notes_path.touch(exist_ok=True)
+    verification = "not_run" if verify is None else f"exit={verify.returncode}\nstdout:\n{verify.stdout.strip()}\nstderr:\n{verify.stderr.strip()}"
+    block = (
+        f"\n\n## Agent Adapter Run - {now}\n"
+        f"- task: {task['heading']}\n"
+        f"- adapter: {adapter}\n"
+        f"- prompt: {prompt_path.name}\n"
+        f"- adapter_exit: {proc.returncode}\n"
+        f"- verification: {verification}\n\n"
+        f"### Adapter stdout\n```text\n{proc.stdout.strip()}\n```\n\n"
+        f"### Adapter stderr\n```text\n{proc.stderr.strip()}\n```\n"
+    )
+    notes_path.write_text(notes_path.read_text(encoding="utf-8") + block, encoding="utf-8")
+
+    ledger_path = artifact_paths(task_dir)["ledger"]
+    verify_label = "not_run" if verify is None else str(verify.returncode)
+    ledger_path.write_text(
+        read_text(ledger_path)
+        + f"\n## Agent Runs\n- {now} task={task['heading']} adapter={adapter} adapter_exit={proc.returncode} verification={verify_label} notes=implementation-notes.md\n",
+        encoding="utf-8",
+    )
+
+
+def run_adapter(task_dir: Path, adapter: str, command_template: str, verify_command: str | None) -> int:
+    _ledger_path, _checkpoint_path, tasks, checkpoint = load_state(task_dir)
+    task = first_actionable(tasks, checkpoint)
+    if task is None:
+        raise LoopError("no actionable task for adapter run")
+    prompt_path = task_dir / "agent-prompt.md"
+    prompt_path.write_text(build_adapter_prompt(task_dir, task), encoding="utf-8")
+
+    proc = subprocess.run(
+        render_command(command_template, task_dir, prompt_path),
+        cwd=task_dir,
+        text=True,
+        input=prompt_path.read_text(encoding="utf-8"),
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    verify = None
+    if verify_command:
+        verify = subprocess.run(
+            render_command(verify_command, task_dir, prompt_path),
+            cwd=task_dir,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=False,
+        )
+    append_agent_run(task_dir, task, adapter, prompt_path, proc, verify)
+
+    if proc.returncode != 0:
+        return record(task_dir, "blocked", f"adapter={adapter} exit={proc.returncode} notes=implementation-notes.md", task["heading"], "adapter command failed")
+    if verify is not None and verify.returncode != 0:
+        return record(task_dir, "blocked", f"adapter={adapter} verification_exit={verify.returncode} notes=implementation-notes.md", task["heading"], "verification command failed")
+    evidence = f"adapter={adapter} notes=implementation-notes.md"
+    if verify is not None:
+        evidence += f" verification_exit={verify.returncode}"
+    return record(task_dir, "done", evidence, task["heading"], None)
+
+
 def replace_section(text: str, heading: str, body: str) -> str:
     lines = text.splitlines()
     out: list[str] = []
@@ -239,6 +342,11 @@ def main(argv: list[str] | None = None) -> int:
     rec.add_argument("--evidence", default="")
     rec.add_argument("--task", default=None, help="substring of task heading to update")
     rec.add_argument("--blocker", default=None)
+    run = sub.add_parser("run-adapter")
+    run.add_argument("--task-dir", required=True, type=Path)
+    run.add_argument("--adapter", required=True, help="adapter label, for example claude/codex/gemini/stub")
+    run.add_argument("--command", dest="adapter_command", required=True, help="adapter command template; receives prompt on stdin; supports {task_dir} and {prompt}")
+    run.add_argument("--verify-command", default=None, help="verification command template; supports {task_dir} and {prompt}")
     args = parser.parse_args(argv)
     try:
         task_dir = args.task_dir.expanduser().resolve()
@@ -248,6 +356,8 @@ def main(argv: list[str] | None = None) -> int:
             return print_next(task_dir)
         if args.command == "record":
             return record(task_dir, args.status, args.evidence, args.task, args.blocker)
+        if args.command == "run-adapter":
+            return run_adapter(task_dir, args.adapter, args.adapter_command, args.verify_command)
     except LoopError as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 2

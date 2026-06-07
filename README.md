@@ -194,6 +194,17 @@ make validate
 
 `make validate`는 문서/JSON/skill/template/link/route/release/adapter/eval 계약을 검사합니다. live provider/plugin E2E를 실행하지 않습니다. Markdown link 검증은 HTML href/src 링크도 포함합니다. 큰 workflow skill은 `docs/skill-modularization.md` 정책에 따라 shared/reference로 쪼개졌는지도 검사합니다.
 
+Local loop CLI는 `scripts/forgeflow_loop.py`입니다. 현재 지원 명령은 `status`, `next`, `record`, `run-adapter`입니다. `run-adapter`는 task artifact를 `agent-prompt.md`로 묶어 adapter command의 stdin에 넣고, adapter stdout/stderr와 verification command 결과를 `implementation-notes.md` 및 `ledger.md`에 남깁니다. 검증 실패는 성공으로 포장하지 않고 item을 `blocked`로 기록합니다.
+
+```bash
+python3 scripts/forgeflow_loop.py status --task-dir <task-dir>
+python3 scripts/forgeflow_loop.py next --task-dir <task-dir>
+python3 scripts/forgeflow_loop.py record --task-dir <task-dir> --status done --evidence "command=make-validate exit=0"
+python3 scripts/forgeflow_loop.py run-adapter --task-dir <task-dir> --adapter stub --command "python3 -c 'import sys; print(sys.stdin.read())'" --verify-command "python3 -c 'print(\"verified\")'"
+```
+
+실제 Claude/Codex/Gemini CLI에 붙일 때도 원칙은 같습니다. command template은 `{task_dir}`와 `{prompt}`를 쓸 수 있고, prompt는 stdin으로도 들어갑니다. 예: `--command "claude -p @{prompt}"`, `--command "codex exec --full-auto -"`, `--command "gemini -p @{prompt}"`. 단, 검증 증거는 adapter 자기보고가 아니라 `--verify-command`의 실제 출력이어야 합니다.
+
 자주 쓰는 focused target:
 
 ```bash
