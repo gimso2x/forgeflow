@@ -194,6 +194,7 @@ forgeflow-loop record --task-dir <task-dir> --status done --evidence <file>
 **중요 원칙**:
 - runtime이 agent의 말을 믿으면 안 된다.
 - diff, command output, file existence 같은 검증 가능한 증거만 통과시킨다.
+- adapter smoke는 disposable repo/worktree에서만 돌리고, real repo를 직접 건드리지 않는 단일 파일 변경 + verification diff/stat만 evidence로 남긴다.
 
 **완료 기준**:
 - disposable repo에서 `small` task 하나를 runner가 agent에 넘기고, 검증 커맨드 결과까지 기록한다.
@@ -223,7 +224,7 @@ forgeflow-loop record --task-dir <task-dir> --status done --evidence <file>
 - 자연어 요청을 task queue item으로 저장한다.
 - route classifier가 `small`/`medium`/`high`/`epic`을 추천한다.
 - 사용자는 route override만 할 수 있으면 된다.
-- 완료 보고는 Telegram에서 읽기 좋은 요약으로 낸다.
+- 완료 보고는 Telegram에서 5줄 이내 evidence packet으로 낸다. 고정 순서는 changed files → verification → diff summary → rollback note → next action이다.
 
 **완료 기준**:
 - 사용자가 "이거 고쳐" 수준으로 말해도 runner가 brief 초안을 만들고 route를 제안한다.
