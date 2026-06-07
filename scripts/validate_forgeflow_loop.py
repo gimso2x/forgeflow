@@ -304,7 +304,59 @@ def main() -> int:
         assert_contains(out, "selected_route: medium")
         assert_contains((queue_root / "phone-override" / "ledger.md").read_text(encoding="utf-8"), "override=yes")
 
-        print("OK: forgeflow-loop CLI reads, selects, queues, and records markdown loop state")
+        learning_root = tmp / "learning"
+        learning_task_dir = tmp / ".forgeflow" / "tasks" / "learning"
+        shutil.copytree(task_dir, learning_task_dir)
+        blocked_learning_ledger = LEDGER.replace("- **Status**: pending", "- **Status**: blocked")
+        blocked_learning_ledger = blocked_learning_ledger.replace(
+            "### Task 2: Add smoke\n- **Plan Step**: smoke\n- **Status**: blocked\n- **Assignee**: worker\n- **Claim Marker**: none\n- **Evidence Refs**:\n- **Blocker**: none\n- **Retry Count**: 0",
+            "### Task 2: Add smoke\n- **Plan Step**: smoke\n- **Status**: blocked\n- **Assignee**: worker\n- **Claim Marker**: none\n- **Evidence Refs**:\n- **Blocker**: missing API token\n- **Retry Count**: 0",
+        )
+        (learning_task_dir / "ledger.md").write_text(blocked_learning_ledger, encoding="utf-8")
+        out = assert_ok(
+            run(
+                "learn",
+                "--task-dir",
+                str(learning_task_dir),
+                "--learning-root",
+                str(learning_root),
+                cwd=ROOT,
+            )
+        )
+        assert_contains(out, "captured: 2")
+        assert_contains(out, "canonical_promotion: human_approval_required")
+        learning_state = (learning_root / "learning-candidates.json").read_text(encoding="utf-8")
+        assert_contains(learning_state, "missing api token")
+        assert_contains(learning_state, "human_approval_required")
+        assert_contains((learning_task_dir / "implementation-notes.md").read_text(encoding="utf-8"), "Learning Capture")
+        assert_contains((learning_task_dir / "ledger.md").read_text(encoding="utf-8"), "canonical_promotion=human_approval_required")
+
+        out = assert_ok(
+            run(
+                "learn",
+                "--task-dir",
+                str(learning_task_dir),
+                "--learning-root",
+                str(learning_root),
+                cwd=ROOT,
+            )
+        )
+        assert_contains(out, "captured: 2")
+        warned = run(
+            "preflight",
+            "--learning-root",
+            str(learning_root),
+            "--request",
+            "fix missing API token before verification",
+            cwd=ROOT,
+        )
+        if warned.returncode != 1:
+            raise AssertionError(f"expected preflight warning, got {warned.returncode}\nSTDOUT:\n{warned.stdout}\nSTDERR:\n{warned.stderr}")
+        assert_contains(warned.stdout, "preflight_warnings:")
+        assert_contains(warned.stdout, "blockers:missing api token")
+        assert_contains(warned.stdout, "canonical_promotion: human_approval_required")
+
+        print("OK: forgeflow-loop CLI reads, selects, queues, records, and learns candidate-only loop state")
         return 0
     finally:
         shutil.rmtree(tmp)

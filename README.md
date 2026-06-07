@@ -166,6 +166,8 @@ Review runtime contract는 [docs/review-runtime-contract.md](docs/review-runtime
 
 Local loop runtime contract는 [docs/local-loop-runtime-contract.md](docs/local-loop-runtime-contract.md)에 고정됩니다. 핵심은 route별 상태 전이, failure type, retry budget, route promotion/demotion, evidence requirement, human gate입니다. 로드맵은 [docs/local-loop-runtime-roadmap.md](docs/local-loop-runtime-roadmap.md)에 둡니다.
 
+Phase 6 learning loop는 `scripts/forgeflow_loop.py learn`과 `preflight`로만 동작합니다. `learn --task-dir <task> --learning-root <dir>`는 blocked task의 blocker와 done task의 evidence pattern을 `<dir>/learning-candidates.json`에 누적하고, `preflight --learning-root <dir> --request <text>`는 반복된 후보를 경고합니다. 이 기록은 항상 `candidate_only=true`, `human_approval_required=true`이며 canonical rule/template promotion은 자동으로 하지 않습니다. 규칙이나 템플릿 변경은 별도 human approval 뒤 `make validate`를 통과해야 합니다.
+
 Maintainer backlog는 [docs/maintainer-backlog.md](docs/maintainer-backlog.md)에 둡니다. [docs/roadmap-improvements.md](docs/roadmap-improvements.md)는 historical/archive design notes이며 live queue가 아닙니다.
 
 Multi-harness 원칙: route, artifact schema, review verdict, human gate는 adapter-neutral core contract입니다. hidden provider state나 chat transcript가 아니라 `<task-dir>` 산출물로 handoff합니다. adapter별 별도 report나 자동 승인 경로 없음.
