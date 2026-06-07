@@ -5,6 +5,42 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2026-06-08
+
+### 🔒 자동화·정합성
+
+- **Local Loop Runtime**: `scripts/forgeflow_loop.py` 완전 구현 — route-aware local loop supervisor CLI
+  - `status` / `next` / `record` — artifact에서 상태 읽고 다음 실행 포인터 계산
+  - `run-adapter` / `step` — adapter(Claude/Codex/Gemini/stub) 호출, 검증 커맨드 실행, 증거 기록
+  - `queue` — 자연어 요청을 task queue item으로 저장, route classifier 연동 (한국어 입력 지원)
+  - `learn` / `preflight` — 반복 blocker를 learning candidate로 축적, 다음 작업에 preflight warning 반영
+  - `fanout` / `fanin` — git worktree 병렬 실행, path ownership 충돌 검사, merge gate
+  - `ship-candidate` — ship boundary ledger 기록, 인간 승인 전 external side effect 차단
+- **Route promotion/demotion**: small → medium → high 자동 승격, retry budget 초과 시 route escalation
+- **Local Loop Contract**: `docs/local-loop-runtime-contract.md` — 상태 머신, 실패 유형, 재시도 예산, 증거 요구사항 명세
+- **Phase 로드맵**: `docs/local-loop-runtime-roadmap.md` — Phase 0~6 로드맵 문서화 (전 phase 완료)
+- `.gitattributes` 추가 — LF line ending 강제 (WSL/Windows 환경 CRLF 변동 방지)
+
+### 🔍 검증·정책
+
+- `scripts/validate_forgeflow_loop.py` — loop CLI smoke (status/next/record/run-adapter/step/fanout/fanin/ship-candidate/queue/learn/preflight, 18개 시나리오)
+- `scripts/validate_full_loop_e2e.py` — disposable repo에서 full loop E2E smoke (queue → step → verify → record → checkpoint → learn → preflight)
+- `make validate` 체인에 forgeflow-loop, full-loop-e2e, guard-checks 타겟 연동 (34 checks + 11 guard tests)
+- `scripts/forgeflow_guard_check.py` — artifact 불변성 체커 (check-task, check-review, check-ship, 11 tests)
+- `scripts/surface_usage_audit.py` #154 — unscanned artifact를 Low-use 섹션에서 분리, 명시적 no-data note 추가
+
+### ⚡ 속도·안정성
+
+- Standalone review first-class surface — `skills/ff-review/` references에 standalone-mode, input-normalization, role-routing, role-checklists, deep-code-analysis, human-judgment 분리
+- `scripts/smoke_local_plugins.py` — opt-in provider/plugin manifest smoke (로컬만, live CLI 호출 없음)
+- 스킬 문서 모듈화 — execute/ff-review/ship/ff-plan/clarify 공통 policy를 `_shared/` 및 `references/`로 분리 (총 529줄 이동)
+
+### 👤 사용자·경험
+
+- Phone-friendly queue — "이거 고쳐" 수준 자연어 입력 → brief 초안 + route 추천
+- Ship boundary에 Korean telegram summary 포함
+- `language = "ko"` 설정 지원
+
 ## [1.15.0] - 2026-06-05
 
 ### 🛡️ Thin Guard (아티팩트 불변성 체커)
@@ -1149,7 +1185,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI gate with GitHub Actions workflow generation
 - Agent preset installer (Claude + Codex)
 
-[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v1.15.0...HEAD
+[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v2.0.0...HEAD
+[2.0.0]: https://github.com/gimso2x/forgeflow/compare/v1.15.0...v2.0.0
 [1.15.0]: https://github.com/gimso2x/forgeflow/compare/v1.14.0...v1.15.0
 [1.14.0]: https://github.com/gimso2x/forgeflow/compare/v1.13.0...v1.14.0
 [1.13.0]: https://github.com/gimso2x/forgeflow/compare/v1.12.1...v1.13.0
