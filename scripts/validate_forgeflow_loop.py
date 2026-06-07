@@ -229,6 +229,69 @@ def main() -> int:
         assert_contains((fanout_task_dir / "ledger.md").read_text(encoding="utf-8"), "## Worktree Fanout")
         assert_contains((fanout_task_dir / "ledger.md").read_text(encoding="utf-8"), "## Worktree Fanin")
 
+        ship_task_dir = tmp / ".forgeflow" / "tasks" / "ship"
+        shutil.copytree(task_dir, ship_task_dir)
+        (ship_task_dir / "ledger.md").write_text(LEDGER, encoding="utf-8")
+        (ship_task_dir / "checkpoint.md").write_text(CHECKPOINT, encoding="utf-8")
+        (fanout_repo / "README.md").write_text("# Demo\n\nship candidate change\n", encoding="utf-8")
+        out = assert_ok(
+            run(
+                "ship-candidate",
+                "--task-dir",
+                str(ship_task_dir),
+                "--project-root",
+                str(fanout_repo),
+                "--verification-command",
+                "make validate",
+                "--task",
+                "Update docs",
+                cwd=ROOT,
+            )
+        )
+        assert_contains(out, "evidence: evidence_index:task=T1")
+        assert_contains(out, "approval_status: ship_candidate")
+        assert_contains(out, "external_side_effects: blocked_until_human_approval")
+        ship_ledger = (ship_task_dir / "ledger.md").read_text(encoding="utf-8")
+        assert_contains(ship_ledger, "## Ship Ledger")
+        assert_contains(ship_ledger, "status=ship_candidate")
+        assert_contains(ship_ledger, "boundary=human_approval_required")
+        assert_contains(ship_ledger, "verification_command='make validate'")
+        assert_contains(ship_ledger, "README.md")
+        assert_contains((ship_task_dir / "checkpoint.md").read_text(encoding="utf-8"), "## Ship Boundary")
+
+        blocked_ship_dir = tmp / ".forgeflow" / "tasks" / "blocked-ship"
+        shutil.copytree(task_dir, blocked_ship_dir)
+        blocked_for_ship = LEDGER.replace("- **Status**: pending", "- **Status**: blocked")
+        (blocked_ship_dir / "ledger.md").write_text(blocked_for_ship, encoding="utf-8")
+        bad_ship = run(
+            "ship-candidate",
+            "--task-dir",
+            str(blocked_ship_dir),
+            "--verification-command",
+            "make validate",
+            "--task",
+            "Add smoke",
+            cwd=ROOT,
+        )
+        if bad_ship.returncode == 0:
+            raise AssertionError("expected blocked task to fail ship-candidate")
+        assert_contains(bad_ship.stderr, "only done tasks with evidence")
+
+        unapproved = run(
+            "ship-candidate",
+            "--task-dir",
+            str(ship_task_dir),
+            "--verification-command",
+            "make validate",
+            "--task",
+            "Update docs",
+            "--approved",
+            cwd=ROOT,
+        )
+        if unapproved.returncode == 0:
+            raise AssertionError("expected approved without human ref to fail")
+        assert_contains(unapproved.stderr, "--human-approval-ref is required")
+
         failed_worker_repo = tmp / "failed-worker-repo"
         shutil.copytree(fanout_repo, failed_worker_repo, ignore=shutil.ignore_patterns(".git"))
         subprocess.run(["git", "init"], cwd=failed_worker_repo, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)

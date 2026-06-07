@@ -80,6 +80,13 @@ def retry_budget_for(ledger_text: str) -> tuple[str, int]:
     return route, RETRY_BUDGETS[route]
 
 
+def parse_task_id(ledger_text: str) -> str:
+    for line in ledger_text.splitlines():
+        if line.startswith("task_id:"):
+            return line.split(":", 1)[1].strip() or "unknown"
+    return "unknown"
+
+
 def parse_checkpoint(checkpoint_text: str) -> dict[str, str]:
     result: dict[str, str] = {}
     current_heading: str | None = None
@@ -299,6 +306,18 @@ def git(project_root: Path, *args: str, input_text: str | None = None) -> subpro
         stderr=subprocess.PIPE,
         check=False,
     )
+
+
+def git_summary(project_root: Path | None) -> tuple[str, str]:
+    if project_root is None:
+        return "not_captured", "not_captured"
+    diff_proc = git(project_root, "diff", "--stat", "HEAD")
+    status_proc = git(project_root, "status", "--short")
+    if diff_proc.returncode != 0 or status_proc.returncode != 0:
+        raise LoopError((diff_proc.stderr + status_proc.stderr).strip() or "git summary failed")
+    diff_stat = diff_proc.stdout.strip().replace("\n", " | ") or "clean"
+    changed = ",".join(line[3:].strip() for line in status_proc.stdout.splitlines() if line.strip()) or "none"
+    return diff_stat, changed
 
 
 def append_agent_run(
@@ -749,6 +768,68 @@ def worktree_fanin(task_dir: Path, project_root: Path, verify_command: str) -> i
     return 0 if failed == 0 else 1
 
 
+def ship_candidate(
+    task_dir: Path,
+    project_root: Path | None,
+    verification_command: str,
+    task_name: str | None,
+    approved: bool,
+    human_approval_ref: str | None,
+) -> int:
+    ledger_path, checkpoint_path, tasks, checkpoint = load_state(task_dir)
+    ledger_text = read_text(ledger_path)
+    task = None
+    if task_name:
+        for candidate in tasks:
+            if task_name in candidate["heading"]:
+                task = candidate
+                break
+        if task is None:
+            raise LoopError(f"task not found: {task_name}")
+    else:
+        done_tasks = [candidate for candidate in tasks if candidate.get("status") == "done"]
+        task = done_tasks[-1] if done_tasks else first_actionable(tasks, checkpoint)
+    if task is None:
+        raise LoopError("no task available for ship ledger")
+
+    status = task.get("status", "pending") or "pending"
+    evidence = task.get("evidence_refs", "").strip()
+    if status != "done" or not evidence or evidence.lower() == "none":
+        raise LoopError("only done tasks with evidence can become ship candidates")
+    if approved and not human_approval_ref:
+        raise LoopError("--human-approval-ref is required when marking approved")
+    approval_status = "approved" if approved else "ship_candidate"
+    boundary = "human_approved" if approved else "human_approval_required"
+    route = parse_route(ledger_text)
+    task_id = parse_task_id(ledger_text)
+    diff_stat, changed_paths_text = git_summary(project_root)
+    now = _dt.datetime.now(_dt.timezone.utc).replace(microsecond=0).isoformat()
+    approval_ref = human_approval_ref or "none"
+    line = (
+        f"- {now} task_id={task_id} task={slugify(task['heading'])} route={route} "
+        f"status={approval_status} boundary={boundary} evidence={evidence!r} "
+        f"verification_command={verification_command!r} diff_stat={diff_stat!r} "
+        f"changed_paths={changed_paths_text!r} approval_ref={approval_ref!r} "
+        "external_side_effects=blocked_until_human_approval"
+    )
+    ledger_path.write_text(read_text(ledger_path) + "\n## Ship Ledger\n" + line + "\n", encoding="utf-8")
+    checkpoint_text = read_text(checkpoint_path)
+    checkpoint_text = replace_section(
+        checkpoint_text,
+        "Ship Boundary",
+        f"{approval_status}; {boundary}; external_side_effects=blocked_until_human_approval; evidence={evidence}; verification={verification_command}",
+    )
+    checkpoint_path.write_text(checkpoint_text, encoding="utf-8")
+    print(f"evidence: {evidence}")
+    print(f"verification_command: {verification_command}")
+    print(f"diff_stat: {diff_stat}")
+    print(f"approval_status: {approval_status}")
+    print(f"human_boundary: {boundary}")
+    print("external_side_effects: blocked_until_human_approval")
+    print("telegram_summary: 증거 확인 후 ship-candidate로 표시했습니다. PR/릴리즈/외부 반영은 인간 승인 전까지 차단됩니다.")
+    return 0
+
+
 def replace_section(text: str, heading: str, body: str) -> str:
     lines = text.splitlines()
     out: list[str] = []
@@ -818,6 +899,13 @@ def main(argv: list[str] | None = None) -> int:
     fanin.add_argument("--project-root", required=True, type=Path)
     fanin.add_argument("--worker-root", required=True, type=Path, help="kept for command symmetry; fan-in reads exact worker paths from ledger")
     fanin.add_argument("--verify-command", required=True, help="verification command that must pass after applying worker diffs")
+    ship = sub.add_parser("ship-candidate")
+    ship.add_argument("--task-dir", required=True, type=Path)
+    ship.add_argument("--project-root", type=Path, default=None, help="optional git repo for diff evidence")
+    ship.add_argument("--verification-command", required=True, help="command that produced the verified evidence")
+    ship.add_argument("--task", default=None, help="substring of done task heading to mark")
+    ship.add_argument("--approved", action="store_true", help="requires --human-approval-ref; still records the approval boundary")
+    ship.add_argument("--human-approval-ref", default=None)
     args = parser.parse_args(argv)
     try:
         task_dir = getattr(args, "task_dir", None)
@@ -847,6 +935,11 @@ def main(argv: list[str] | None = None) -> int:
             return worktree_fanout(task_dir, args.project_root.expanduser().resolve(), args.worker_root.expanduser().resolve(), args.max_workers)
         if args.command == "fanin":
             return worktree_fanin(task_dir, args.project_root.expanduser().resolve(), args.verify_command)
+        if args.command == "ship-candidate":
+            if task_dir is None:
+                raise LoopError("--task-dir is required")
+            project_root = args.project_root.expanduser().resolve() if args.project_root else None
+            return ship_candidate(task_dir, project_root, args.verification_command, args.task, args.approved, args.human_approval_ref)
     except LoopError as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 2
