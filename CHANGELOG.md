@@ -386,7 +386,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Human review gate**: review와 ship 사이에 구조적 human judgment gate를 추가하고 spec/quality/security/ux/perf reviewer 역할, priority, disposition, remediation rationale을 review report 산출물에 반영
 - **Standalone review coverage**: URL, diff, path, lockfile, generated/binary/symlink/submodule/deleted-test 등 독립 리뷰 입력 케이스를 eval fixture로 확장
-- **Config menu full init**: `/forgeflow:config` 인터랙티브 메뉴에서 basic/full init을 선택해 `.forgeflow/defaults.md`와 `.forgeflow/project-draft.md`를 생성하는 흐름 추가
+- **Config menu full init**: `/forgeflow:ff-config` 인터랙티브 메뉴에서 basic/full init을 선택해 글로벌 프로젝트 storage root(`~/.forgeflow/projects/<project-slug>/`)에 `defaults.md`와 `project-draft.md`를 생성하는 흐름 추가
 
 ### Changed
 

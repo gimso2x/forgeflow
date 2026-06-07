@@ -4,7 +4,9 @@
 Storage is always global and project-scoped:
     ~/.forgeflow/projects/<project-slug>/...
 
-Set FORGEFLOW_HOME to override the global root.
+Set FORGEFLOW_HOME to override the global root. Project defaults live under
+the resolved global project storage root, not inside the project repository:
+    ~/.forgeflow/projects/<project-slug>/defaults.md
 """
 from __future__ import annotations
 
@@ -40,23 +42,10 @@ def project_slug(project_dir: pathlib.Path) -> str:
     return base
 
 
-def _read_storage_root_override(project_dir: pathlib.Path) -> str | None:
-    """Read storage.root override from <repo>/.forgeflow/defaults.md if present."""
-    path = project_dir / ".forgeflow" / "defaults.md"
-    if not path.exists():
-        return None
-    for raw_line in path.read_text(encoding="utf-8").splitlines():
-        line = raw_line.split("#", 1)[0].strip()
-        if line.startswith("storage.root:"):
-            return line.split(":", 1)[1].strip().strip("'\"")
-    return None
-
-
 def storage_root(project_dir: pathlib.Path | str = ".") -> pathlib.Path:
     """Return the root that owns tasks/templates/telemetry for a project."""
     project_dir = pathlib.Path(project_dir).resolve()
-    config_root = _read_storage_root_override(project_dir)
-    home = pathlib.Path(os.environ.get("FORGEFLOW_HOME", config_root or "~/.forgeflow")).expanduser()
+    home = pathlib.Path(os.environ.get("FORGEFLOW_HOME", "~/.forgeflow")).expanduser()
     return home / "projects" / project_slug(project_dir)
 
 

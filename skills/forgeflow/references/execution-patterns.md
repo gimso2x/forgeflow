@@ -38,10 +38,10 @@ worker C ──┘
 **Worktree isolation requirement (high/epic):**
 When fan-out activates, each parallel worker **must** operate in an isolated git worktree to prevent file conflicts. This is a safety prerequisite, not optional.
 
-- **Bootstrap**: `git worktree add .forgeflow/worktrees/<task-id>-<worker-id> -b <branch>`
+- **Bootstrap**: `git worktree add <storage-root>/worktrees/<task-id>-<worker-id> -b <branch>`
 - **Mapping**: Each worker's task_dir maps to its own worktree. Workers never share a working directory.
 - **Merge**: After all workers complete, fan-in merges worktrees back to the main branch. Resolve conflicts before review.
-- **Cleanup**: After ship, remove worktrees with `git worktree remove .forgeflow/worktrees/<task-id>-<worker-id>`.
+- **Cleanup**: After ship, remove worktrees with `git worktree remove <storage-root>/worktrees/<task-id>-<worker-id>`.
 
 If the adapter/shell does not support worktree creation, fall back to sequential execution with a warning — do not run parallel workers in the same working tree.
 
@@ -61,7 +61,7 @@ Record in implementation-notes.md: `worktree_gate:PASS worker=<id> commits=<N> c
 
 After ship completes:
 1. List all worktrees: `git worktree list`
-2. For each worktree in `.forgeflow/worktrees/`:
+2. For each worktree in `<storage-root>/worktrees/`:
    - Verify branch is merged: `git branch --merged <main-branch>` includes the worker branch.
    - Remove worktree: `git worktree remove <path>`
    - Delete worker branch (optional): `git branch -d <worker-branch>`

@@ -4,11 +4,11 @@ Shared protocol for creating, detecting, and cleaning up git worktrees so multip
 
 ## Overview
 
-Each ForgeFlow task (medium/high/epic route) gets its own git worktree on a dedicated branch. The worktree shares the `.git` object store with the main repository but has an independent working tree and branch. Task artifacts under `.forgeflow/` are shared via symlink so review/ship stages can access all task state from either location.
+Each ForgeFlow task (medium/high/epic route) gets its own git worktree on a dedicated branch. The worktree shares the `.git` object store with the main repository but has an independent working tree and branch. Worktree directories and task artifacts live under the resolved global project storage root, not under the project repository root.
 
 ```
 <project-root>                         ← main branch, clarify runs here
-<project-root>/.forgeflow/worktrees/
+~/.forgeflow/projects/<project-slug>/worktrees/
   ├── feature-auth-a3f/                ← feature-auth-a3f branch
   └── fix-api-bug-c7d/                 ← fix-api-bug-c7d branch
 ```
@@ -27,30 +27,29 @@ Run from the **main repository root** (`git rev-parse --show-toplevel`).
 ```bash
 TASK_ID="<task-id>"
 BRANCH="<branch-name>"  # Human-readable: <type>/<YYYYMM>-<korean-description>
-WT_PATH=".forgeflow/worktrees/${TASK_ID}"
 MAIN_ROOT="$(git rev-parse --show-toplevel)"
+STORAGE_ROOT="$(python3 /path/to/forgeflow/scripts/forgeflow_storage.py --project-dir "$MAIN_ROOT" --print storage-root)"
+WT_PATH="${STORAGE_ROOT}/worktrees/${TASK_ID}"
 
 # 1. Create branch from current HEAD (main)
 git branch "$BRANCH" HEAD
 
 # 2. Create worktree
-mkdir -p .forgeflow/worktrees
+mkdir -p "${STORAGE_ROOT}/worktrees"
 git worktree add "$WT_PATH" "$BRANCH"
 
-# 3. Link .forgeflow artifacts so they are shared across worktrees.
-#    DO NOT symlink the entire .forgeflow/ directory — it creates a circular
-#    reference through .forgeflow/worktrees/ that causes ELOOP crashes in
-#    file watchers (Vite, webpack, etc.). Instead, create a real directory
-#    and symlink only the non-circular subdirectories.
+# 3. Link resolved ForgeFlow storage artifacts into the worktree only when a
+#    tool requires .forgeflow-compatible paths. DO NOT create or inspect
+#    <project-root>/.forgeflow/*.
 mkdir -p "${WT_PATH}/.forgeflow"
 for item in tasks telemetry evolution tmp-assets; do
-  if [ -e "${MAIN_ROOT}/.forgeflow/${item}" ]; then
-    ln -sf "${MAIN_ROOT}/.forgeflow/${item}" "${WT_PATH}/.forgeflow/${item}"
+  if [ -e "${STORAGE_ROOT}/${item}" ]; then
+    ln -sf "${STORAGE_ROOT}/${item}" "${WT_PATH}/.forgeflow/${item}"
   fi
 done
 for file in defaults.md project-draft.md; do
-  if [ -f "${MAIN_ROOT}/.forgeflow/${file}" ]; then
-    ln -sf "${MAIN_ROOT}/.forgeflow/${file}" "${WT_PATH}/.forgeflow/${file}"
+  if [ -f "${STORAGE_ROOT}/${file}" ]; then
+    ln -sf "${STORAGE_ROOT}/${file}" "${WT_PATH}/.forgeflow/${file}"
   fi
 done
 
@@ -76,7 +75,7 @@ fi
 
 Record in `brief.md` Task Isolation section:
 - `isolation: worktree`
-- `worktree_path: .forgeflow/worktrees/<task-id>/`
+- `worktree_path: ~/.forgeflow/projects/<project-slug>/worktrees/<task-id>/` (or the `FORGEFLOW_HOME` equivalent)
 - `branch: <branch-name>`
 
 ## Detection
@@ -103,7 +102,7 @@ The `.git` file inside a worktree contains `gitdir: <path-to-main-repo>/.git/wor
 
 ## Review in a worktree
 
-Review is read-only and can run inside the worktree. The symlinked `.forgeflow/` gives access to all task artifacts. No special handling needed beyond detecting the worktree environment.
+Review is read-only and can run inside the worktree. The worktree-local `.forgeflow/` compatibility directory, when present, points to the global project storage root. No project-root `.forgeflow/` access is required.
 
 ## Cleanup (ship stage)
 
@@ -114,8 +113,9 @@ Run from the **main repository root** after the worktree branch is merged or dis
 ```bash
 TASK_ID="<task-id>"
 BRANCH="<branch-name>"  # From brief.md Task Isolation
-WT_PATH=".forgeflow/worktrees/${TASK_ID}"
 MAIN_ROOT="$(git rev-parse --show-toplevel)"
+STORAGE_ROOT="$(python3 /path/to/forgeflow/scripts/forgeflow_storage.py --project-dir "$MAIN_ROOT" --print storage-root)"
+WT_PATH="${STORAGE_ROOT}/worktrees/${TASK_ID}"
 
 # 0. Move to main repo (session may be inside worktree)
 cd "$MAIN_ROOT"
@@ -162,11 +162,12 @@ Standalone cleanup for worktrees whose task completed (review approved, ship ran
 
 ### Detection
 
-List worktrees under `.forgeflow/worktrees/` and cross-reference with task state:
+List worktrees under `<storage-root>/worktrees/` and cross-reference with task state:
 
 ```bash
 # List candidate worktrees
-ls -1d .forgeflow/worktrees/*/ 2>/dev/null
+STORAGE_ROOT="$(python3 /path/to/forgeflow/scripts/forgeflow_storage.py --project-dir "$(git rev-parse --show-toplevel)" --print storage-root)"
+ls -1d "${STORAGE_ROOT}"/worktrees/*/ 2>/dev/null
 ```
 
 For each `<task-id>` directory found:
@@ -190,7 +191,8 @@ For each orphaned worktree:
 
 ```bash
 TASK_ID="<task-id>"
-WT_PATH=".forgeflow/worktrees/${TASK_ID}"
+STORAGE_ROOT="$(python3 /path/to/forgeflow/scripts/forgeflow_storage.py --project-dir "$(git rev-parse --show-toplevel)" --print storage-root)"
+WT_PATH="${STORAGE_ROOT}/worktrees/${TASK_ID}"
 BRANCH=$(git -C "$WT_PATH" branch --show-current 2>/dev/null)
 BASE_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's|refs/remotes/origin/||' || echo "main")
 
@@ -217,12 +219,12 @@ The `/forgeflow:ff-config` prune option (Mode D) uses this detection logic to li
 
 ## Safety rules
 
-1. **`.forgeflow/` in worktrees is a real directory with individual symlinks**, not a single symlink to the entire `.forgeflow/`. This prevents circular references through `worktrees/`. When cleaning up, `rm -rf` is safe because the directory only contains symlinks, not actual data.
+1. **`.forgeflow/` in worktrees is only a compatibility directory with individual symlinks to global storage**, not a project-root storage directory and not a single symlink to an entire `.forgeflow/`. This prevents circular references through `worktrees/`. When cleaning up, `rm -rf` is safe because the directory only contains symlinks, not actual data.
 2. **Never force-remove a dirty worktree without user confirmation.** If `git status --short` shows changes, ask first.
-3. **Branch naming**: use `<task-id>` as the branch name directly (e.g., `fix-area-range-slider-6a3`). This follows the project's commit convention `[브랜치명] 변경 내용 요약` — the branch name becomes the commit prefix. ForgeFlow worktrees are identifiable via `git worktree list` or the `.forgeflow/worktrees/` directory.
+3. **Branch naming**: use `<task-id>` as the branch name directly (e.g., `fix-area-range-slider-6a3`). This follows the project's commit convention `[브랜치명] 변경 내용 요약` — the branch name becomes the commit prefix. ForgeFlow worktrees are identifiable via `git worktree list` or the `<storage-root>/worktrees/` directory.
 4. **One worktree per task**: never share a worktree between tasks.
 5. **Main branch protection**: when isolation is active, the execute stage must not edit files on the main branch. If the agent detects it is on main with `isolation: worktree` in brief, warn and stop.
-6. **Idempotent creation**: if `.forgeflow/worktrees/<task-id>/` already exists and the branch is correct, skip creation. Do not error or recreate.
+6. **Idempotent creation**: if `<storage-root>/worktrees/<task-id>/` already exists and the branch is correct, skip creation. Do not error or recreate.
 7. **Prune stale worktrees**: before creating a new worktree, `git worktree prune` to clean up any stale references.
 
 ## Known issues and workarounds
@@ -314,15 +316,9 @@ When a worktree accumulates changes outside the plan scope (e.g., config files, 
 
 When `isolation: false` or `--no-isolation` is set, all stages run in the main repository working directory with no worktree. The user is responsible for avoiding concurrent edits.
 
-## .gitignore
+## Gitignore
 
-Add to project `.gitignore`:
-
-```
-.forgeflow/worktrees/
-```
-
-Worktrees are local-only and should not be shared via git.
+No project `.gitignore` entry is required for ForgeFlow worktrees because they live outside the repository under the resolved global storage root. If a legacy repo-local `.forgeflow/worktrees/` directory exists, treat it as stale local state and do not recreate it.
 
 ## Worktree Metrics Logging
 

@@ -155,7 +155,7 @@ ambiguity:
 ## 작업 격리 (Task Isolation)
 <!-- worktree | none — worktree isolation for parallel task execution (medium/high/epic only) -->
 - **isolation**: <!-- worktree | none -->
-- **worktree_path**: <!-- .forgeflow/worktrees/<task-id>/ (relative to main repo) -->
+- **worktree_path**: <!-- <storage-root>/worktrees/<task-id>/ (global project storage root, or none) -->
 - **branch**: <!-- <type>/<YYYYMM>-<korean-description> -->
 
 ## 환경 사전 점검 (Environment Preflight)

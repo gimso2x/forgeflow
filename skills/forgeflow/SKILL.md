@@ -3,7 +3,7 @@ name: forgeflow
 description: Artifact-first delivery workflow for multi-stage implementation or refactor work. Use for /forgeflow, /forgeflow:<stage>, "ForgeFlow", staged workflow, artifact-backed delivery, or 구현/리팩토링/체계적/단계별/검증 when the user wants clarify → plan → execute → review → ship with Markdown artifacts and gates. Not for quick fixes, single-file edits, or simple lookups.
 version: 1.12.1
 intent: Route user requests through staged ForgeFlow workflow (clarify → plan → execute → review → ship)
-inputs: User request text, /forgeflow command, stage invocation, .forgeflow/defaults.md
+inputs: User request text, /forgeflow command, stage invocation, ~/.forgeflow/projects/<project-slug>/defaults.md
 outputs: Routed execution to appropriate stage skill, task workspace bootstrap
 author: gimso2x
 validate_prompt: |

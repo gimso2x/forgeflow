@@ -14,7 +14,7 @@ validate_prompt: |
   Must not skip scope boundary definition or route rationale.
   Must preserve exact-output and dry-run constraints when requested.
 dependencies:
-  - templates/brief.md (resolve: `.forgeflow/templates/brief.md` first, then plugin cache)
+  - templates/brief.md (resolve: `<storage-root>/templates/brief.md` first, then plugin cache)
   - skills/_shared/discipline.md
   - skills/_shared/isolation.md
   - skills/_shared/context-resume.md
@@ -71,13 +71,13 @@ Examples:
 
 The branch name is used as the git branch name and commit message prefix. It must be stored in `brief.md` Task Isolation section as `branch`.
 
-The task ID remains as the internal identifier for resolved `tasks/` directory and `.forgeflow/worktrees/` directories — it does NOT become the branch name.
+The task ID remains as the internal identifier for the resolved `tasks/` directory and `<storage-root>/worktrees/` directories — it does NOT become the branch name.
 
 Plugin-cache/extension-cache safety rule: never create task artifacts under a path containing `.claude/plugins/cache`, `.codex/plugins`, `.cursor/plugins`, `~/.cursor/plugins/local`, `.gemini/extensions`, `~/.gemini/extensions`, or any plugin marketplace/cache/extension directory. If the working directory resolves to a plugin install/cache/extension directory and the user did not provide `--task-dir`, stop and ask for an explicit `--task-dir` instead of writing there.
 
 ## Output Artifacts
 
-Write `brief.md` to the active task directory using the `brief.md` template as the structure. Resolve the template path: first check `.forgeflow/templates/brief.md` in the workspace, then fall back to the plugin cache `templates/brief.md` (see main `forgeflow` skill template resolution). If neither exists, generate the structure from the fields listed below. The brief must capture:
+Write `brief.md` to the active task directory using the `brief.md` template as the structure. Resolve the template path: first check `<storage-root>/templates/brief.md`, then fall back to the plugin cache `templates/brief.md` (see main `forgeflow` skill template resolution). If neither exists, generate the structure from the fields listed below. The brief must capture:
 
 - Objective (one-sentence goal)
 - WHERE/context grounding for non-trivial work
@@ -346,22 +346,22 @@ Generate `scope_files` list and compare against route thresholds. Record `bounda
     - **Collection trigger**: Fill during Socratic clarification (step 5) and scope boundary definition. If the user provided a complete brief with acceptance criteria, derive Goal Contract directly from those. If the request is too vague for concrete success criteria, the Goal Contract gaps become blocker questions — do NOT ship a brief with empty success criteria.
     - **Review consumption**: ff-review reads these 4 fields as the PASS/FAIL contract for the task. If Goal Contract is empty or aspirational, review must flag it as a planning defect, not an implementation defect.
 
-14. Produce `brief.md` using the `brief.md` template as the structure (resolve path: `.forgeflow/templates/brief.md` first, then plugin cache), unless an exact-output/label-only instruction applies.
+14. Produce `brief.md` using the `brief.md` template as the structure (resolve path: `<storage-root>/templates/brief.md` first, then plugin cache), unless an exact-output/label-only instruction applies.
 
 15. If the request is actionable, record remaining non-blocking unknowns as bounded assumptions and make the next stage obvious without asking the user to do your planning work, unless an exact-output/label-only instruction applies.
 
 16. **Worktree isolation** (medium/high/epic only, unless `--no-isolation` or `defaults.md` `isolation: false`):
     Follow the protocol in `_shared/isolation.md`. Summary:
     a. Generate branch name (see Branch name generation above).
-    b. Check if `.forgeflow/worktrees/<task-id>/` already exists — skip if so (idempotent).
+    b. Check if `<storage-root>/worktrees/<task-id>/` already exists — skip if so (idempotent).
     c. Create branch: `git branch <branch-name> HEAD`
-    d. Create worktree: `git worktree add .forgeflow/worktrees/<task-id> <branch-name>`
-    e. Symlink: `ln -s <main-repo>/.forgeflow .forgeflow/worktrees/<task-id>/.forgeflow`
+    d. Create worktree: `git worktree add <storage-root>/worktrees/<task-id> <branch-name>`
+    e. If compatibility paths are required, create `<storage-root>/worktrees/<task-id>/.forgeflow/` and symlink only individual global storage subdirectories (`tasks`, `telemetry`, `evolution`, `tmp-assets`). Do not symlink or create `<repo>/.forgeflow`.
     f. Record in brief.md Task Isolation section: `isolation: worktree`, `worktree_path`, `branch`.
     g. After brief + worktree are ready, inform the user:
        ```
-       worktree 생성됨: .forgeflow/worktrees/<task-id> (branch: <branch-name>)
-       병렬 실행: cd .forgeflow/worktrees/<task-id> 후 /forgeflow:execute
+       worktree 생성됨: <storage-root>/worktrees/<task-id> (branch: <branch-name>)
+       병렬 실행: cd <storage-root>/worktrees/<task-id> 후 /forgeflow:execute
        ```
     **Small route**: skip worktree creation. Set `isolation: none` in brief.
     **`--no-isolation`**: skip regardless of route. Set `isolation: none`.
