@@ -211,6 +211,7 @@ make validate-adapter-config
 make validate-stage-tool-boundaries
 make validate-markdown-links
 make validate-demo
+make validate-forgeflow-loop       # scripts/forgeflow_loop.py markdown loop CLI smoke
 make smoke-local-plugins            # opt-in, local-only plugin/provider boundary smoke
 make validate-evals
 ```
