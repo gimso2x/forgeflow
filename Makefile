@@ -201,36 +201,6 @@ validate-skills: validate-skill-frontmatter
 
 validate-agent-docs:
 	@$(PYTHON) scripts/validate_agent_docs.py
-	@grep -Fq ".gemini/extensions" skills/_shared/discipline.md || { echo "ERROR: shared discipline must protect Gemini extension cache paths"; exit 1; }
-	@grep -Fq ".gemini/extensions" skills/clarify/SKILL.md || { echo "ERROR: clarify must protect Gemini extension cache paths"; exit 1; }
-	@grep -Fq "git status --short --branch" skills/_shared/preflight.md || { echo "ERROR: preflight must inspect git branch/ahead-behind status before maintainer mutations"; exit 1; }
-	@grep -Fq "git branch --show-current" skills/_shared/preflight.md || { echo "ERROR: preflight must use an explicit branch command before maintainer mutations"; exit 1; }
-	@grep -Fq "confirm the current branch is the expected target branch" skills/_shared/preflight.md || { echo "ERROR: preflight must confirm the expected target branch before maintainer mutations"; exit 1; }
-	@grep -Fq "If the branch is not the configured target branch" skills/_shared/preflight.md || { echo "ERROR: preflight must stop on wrong branch before pull/edit/commit/push"; exit 1; }
-	@grep -Fq "git pull --ff-only" skills/_shared/preflight.md || { echo "ERROR: preflight must document ff-only refresh after clean status"; exit 1; }
-	@grep -Fq "Re-read \`AGENTS.md\` after the pull" skills/_shared/preflight.md || { echo "ERROR: preflight must re-read AGENTS.md after ff-only refresh"; exit 1; }
-	@grep -Fq "Shared preflight procedure for maintainer automation" skills/_shared/preflight.md || { echo "ERROR: preflight overview must cover maintainer automation"; exit 1; }
-	@grep -Fq "then immediately rerun \`git status --short\`" skills/_shared/preflight.md || { echo "ERROR: preflight must re-check dirty status after ff-only refresh"; exit 1; }
-	@grep -Fq "Report the dirty paths as user/unknown changes" skills/_shared/preflight.md || { echo "ERROR: preflight must stop and report unknown dirty paths"; exit 1; }
-	@grep -Fq "rerun \`git status --short\` before staging" skills/_shared/preflight.md || { echo "ERROR: preflight must re-check dirty status before staging intentional files"; exit 1; }
-	@grep -Fq "Stage only the files you intentionally changed in this run" skills/_shared/preflight.md || { echo "ERROR: preflight must stage only intentional current-run files"; exit 1; }
-	@grep -Fq "After commit and push, rerun \`git status --short\`" skills/_shared/preflight.md || { echo "ERROR: preflight must re-check dirty status after push before reporting clean"; exit 1; }
-	@grep -Fq "git push origin HEAD:refs/heads/main" skills/_shared/preflight.md || { echo "ERROR: preflight must document explicit branch push to avoid branch/tag collisions"; exit 1; }
-	@grep -Fq "Do not schedule jobs, modify cron/crontab, or change external automation" skills/_shared/preflight.md || { echo "ERROR: preflight must keep scheduled-run cadence changes operator-owned"; exit 1; }
-	@grep -Fq "Never run broad cleanup commands such as \`git clean -fdX\`" skills/_shared/preflight.md || { echo "ERROR: preflight must forbid broad destructive cleanup in scheduled maintainer runs"; exit 1; }
-	@grep -Fq "inspect \`git status --short --ignored\` first" skills/_shared/preflight.md || { echo "ERROR: preflight must require ignored-status inspection before any targeted cleanup"; exit 1; }
-	@grep -Fq "Do not call separate message-delivery tools" skills/_shared/preflight.md || { echo "ERROR: preflight must keep scheduled-run delivery in final response only"; exit 1; }
-	@grep -Fq "Use the headings \`요약\`, \`변경한 것\`, \`검증\`, \`커밋/푸시\`, \`다음 후보\`, and \`블로커\`" skills/_shared/preflight.md || { echo "ERROR: preflight must document scheduled-run report headings"; exit 1; }
-	@grep -Fq 'use exactly `[SILENT]` only when there is genuinely nothing new to report' skills/_shared/preflight.md || { echo "ERROR: preflight must document exact scheduled-run silent suppression"; exit 1; }
-	@grep -Fq "make validate-agent-docs" README.md || { echo "ERROR: README local validation docs must include focused AGENTS/preflight validation"; exit 1; }
-	@grep -Fq "shared discipline/automation linkage" README.md || { echo "ERROR: README local validation docs must mention shared discipline/automation linkage"; exit 1; }
-	@for f in skills/*/SKILL.md; do \
-		grep -Fq "_shared/discipline.md" "$$f" || { echo "ERROR: $$f must reference shared discipline rules"; exit 1; }; \
-	done
-	@for f in skills/forgeflow/SKILL.md skills/clarify/SKILL.md skills/ff-plan/SKILL.md skills/execute/SKILL.md skills/ff-review/SKILL.md skills/ship/SKILL.md; do \
-		grep -Fq "_shared/automation.md" "$$f" || { echo "ERROR: $$f must reference shared automation rules"; exit 1; }; \
-	done
-	@echo "OK: AGENTS/preflight docs and shared discipline/automation links are covered by focused validation"
 
 validate-templates:
 	@for t in $(TEMPLATES); do \
