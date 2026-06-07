@@ -72,6 +72,10 @@ scope_boundary:
 
 Behavioral guardrail finding categories may include `assumption-risk`, `overengineering`, `scope-creep`, `unverified-success`, or `drive-by-refactor` when clarify/plan/execute drift from the advisory guardrails.
 
+Finding rules:
+- **Evidence Quote** is required for every non-nit finding. Quote the exact line/snippet, diff hunk, command output, or artifact phrase that proves the issue; use `missing — <expected evidence>` only when the finding is about absent evidence.
+- **Severity escalation rule**: any confirmed blocker must appear in both `Finding Counts` as `blockers=N` and `Open Blockers`; a report with `blockers>0` cannot use verdict `approved` and cannot be treated as approved-with-blockers.
+
 ### Finding 1: <!-- title -->
 - **Severity**: <!-- blocker | major | minor | nit -->
 - **Category**: <!-- spec-compliance | plan-conformance | quality | maintainability | risk | security -->
@@ -82,6 +86,7 @@ Behavioral guardrail finding categories may include `assumption-risk`, `overengi
 - **Criteria Basis**: <!-- plan.md Review Criteria / coding convention / ADR / brief acceptance criterion / active rule -->
 - **Evidence Source**: <!-- observed file/diff/artifact/command/source label, e.g. git diff, file-read:path, ledger.md -->
 - **Evidence Level**: <!-- observed | reported | missing -->
+- **Evidence Quote**: <!-- exact quoted snippet/line/diff hunk/command output, or `missing — <expected evidence>` -->
 - **Description**:
 - **Evidence**:
   - Observed:

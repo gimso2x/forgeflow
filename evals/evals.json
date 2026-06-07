@@ -8214,6 +8214,66 @@
           "value": "small"
         }
       ]
+    },
+    {
+      "id": 124,
+      "name": "standalone-review-first-class-report-contract",
+      "prompt": "You are running /forgeflow:ff-review in standalone mode against ./changes.diff. The diff includes a confirmed security blocker and one minor style issue. Produce only the review-report.md content. Do not run clarify, plan, execute, or ship.",
+      "expected_output": "A standalone review-report.md that treats ff-review as a first-class entrypoint, includes Standalone Input Source, records Evidence Source/Evidence Level/Evidence Quote for every non-nit finding, counts blockers in Finding Counts as blockers=N, lists the blocker in Open Blockers, refuses approved-with-blockers by using changes_requested or blocked, and does not include pipeline-only route compliance or execute sections.",
+      "files": [],
+      "assertions": [
+        {
+          "text": "Output is a standalone review artifact with standalone input provenance.",
+          "type": "contains_all",
+          "values": [
+            "Standalone Input Source",
+            "Input Type",
+            "diff/patch",
+            "review-report.md"
+          ]
+        },
+        {
+          "text": "Output includes evidence quote fields for findings.",
+          "type": "contains",
+          "value": "Evidence Quote"
+        },
+        {
+          "text": "Output preserves evidence source and evidence level fields.",
+          "type": "contains_all",
+          "values": [
+            "Evidence Source",
+            "Evidence Level",
+            "observed"
+          ]
+        },
+        {
+          "text": "Output counts blocker findings explicitly.",
+          "type": "contains",
+          "value": "blockers="
+        },
+        {
+          "text": "Output lists open blockers.",
+          "type": "contains",
+          "value": "Open Blockers"
+        },
+        {
+          "text": "Output does not approve a report with blockers.",
+          "type": "not_contains_any",
+          "values": [
+            "approved-with-blockers",
+            "Verdict: approved",
+            "## 판정 (Verdict)\napproved"
+          ]
+        },
+        {
+          "text": "Output skips pipeline-only sections.",
+          "type": "not_contains_any",
+          "values": [
+            "Route Compliance",
+            "Execute Micro-Gates"
+          ]
+        }
+      ]
     }
   ]
 }

@@ -255,6 +255,7 @@ Evidence rules:
 
 - Never convert reported evidence into observed evidence.
 - Never invent paths, commands, test results, or changed files.
+- Every non-nit finding must carry an `Evidence Quote`: exact line/snippet, diff hunk, command output, artifact phrase, or `missing — <expected evidence>` for absent required evidence.
 - If evidence is truncated, mark what was omitted and why.
 - If a fetch fails, keep the failure visible and classify the affected review area as blocked or weakly evidenced.
 - If command execution is unavailable, use manual-inspection language and do not claim the command passed.
@@ -276,6 +277,8 @@ Approval requires:
 - at least one relevant observed verification gate or a documented reason no gate exists
 - human review gate recorded as `skipped` with rationale or `required` with the human decision recorded
 - `safe_for_next_stage: yes`
+
+Blocker handling is strict: any confirmed blocker must be counted in `Finding Counts` as `blockers=N`, listed in `Open Blockers`, and force verdict `changes_requested` or `blocked`. The contract has no approved-with-blockers state.
 
 `blocked` is required when:
 
