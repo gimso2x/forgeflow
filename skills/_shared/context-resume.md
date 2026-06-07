@@ -24,7 +24,7 @@ Do **not** refresh context when:
 
 - A file edit is in progress and not saved to artifact or codebase.
 - Verification ran but results are not yet in `implementation-notes.md` Evidence.
-- A subagent/worker is `running` in `ledger.md` without evidence refs.
+- A subagent/worker is `in_progress` in `ledger.md` without evidence refs.
 - You are mid-review before verdict is recorded.
 
 | Stage | Safe to refresh after | Unsafe during |

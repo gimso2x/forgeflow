@@ -1,5 +1,7 @@
 # Checkpoint
 
+<!-- Resume source of truth. On context compression or handoff, read this file first, then the ledger row named in Resume Pointer, then implementation-notes.md Reader Summary/Evidence Index. -->
+
 ## Current Stage
 <!-- clarify | plan | execute | review | ship | long-run -->
 
@@ -9,8 +11,17 @@
 ## Active Task
 <!-- Which task from plan.md / ledger.md is currently in progress, or "none" -->
 
+## Resume Pointer
+<!-- Required before every handoff/compression: ledger task heading/id, current status, retry count, owner, and exact artifact section to update next. Example: ledger.md#task-2-update-docs status=in_progress retry=1 owner=worker next_update=implementation-notes.md#Evidence -->
+
 ## Next Action
 <!-- The single action to take when resuming -->
+
+## Last Verified Evidence
+<!-- Most recent real command/artifact evidence. Use "none" if no command has run yet. Example: evidence_index:task=T2 command="make validate" exit=0 artifact=implementation-notes.md#Evidence -->
+
+## Resume Read Order
+<!-- Default: checkpoint.md Resume Pointer → ledger.md matching task row → implementation-notes.md Reader Summary → implementation-notes.md Evidence Index → plan.md referenced item only. Do not reload the whole chat transcript as state. -->
 
 ## Blockers
 <!-- List active blockers or "none" -->

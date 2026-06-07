@@ -53,10 +53,40 @@
 <!-- Use compact strings parseable by review/ship preflight: verification:PASS/FAIL, contract_check:PASS/FAIL, evidence_index:task=... -->
 -
 
+### Command Evidence Format
+
+<!-- Append one block per real command. Do not summarize invented or unrun commands. -->
+
+```text
+evidence_id: E-<!-- N -->
+task: <!-- ledger task id/title -->
+kind: command
+cwd: <!-- absolute or repo-relative cwd -->
+command: <!-- exact command -->
+exit_code: <!-- integer -->
+result: <!-- PASS | FAIL | SKIPPED -->
+output_summary: <!-- short factual summary; include counts/errors, not vibes -->
+artifact_ref: <!-- path, log file, PR/check URL, or "inline" -->
+timestamp: <!-- ISO8601 -->
+```
+
+### Artifact Evidence Format
+
+```text
+evidence_id: E-<!-- N -->
+task: <!-- ledger task id/title -->
+kind: artifact
+path: <!-- file path or URL -->
+claim_verified: <!-- what this artifact proves -->
+result: <!-- PASS | FAIL | SKIPPED -->
+timestamp: <!-- ISO8601 -->
+```
+
 ## Evidence Index
 <!-- Compact refs updated during execute. Parse before expanding full Evidence above. -->
 <!-- Example: evidence_index: task=T2 gates=make validate:PASS,contract_check:PASS -->
 <!-- ledger.md = per-task status truth; this file = decisions + evidence narrative -->
+- `evidence_index: task=<ledger-task> evidence=<E-N> command="<cmd>" exit=<code> result=<PASS|FAIL|SKIPPED> artifact=<path|inline>`
 
 ## 컴포넌트/함수 역할 (Role Descriptions)
 <!-- One-line role for each changed component/function. Required for all routes. -->

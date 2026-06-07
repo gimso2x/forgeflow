@@ -10,6 +10,19 @@ total_items: <!-- N -->
 <!-- ForgeFlow unified tracking. Plan stage writes Plan Items; Execute stage updates Execution Tracking. -->
 <!-- Replaces plan-ledger.md and run-ledger.md (both deprecated as of v1.11). -->
 <!-- Status truth lives here; implementation-notes.md holds decision narrative — read ledger first on resume. -->
+<!-- Loop item status enum: pending | in_progress | blocked | done | discarded. Do not invent alternate status words. -->
+<!-- Resume rule: checkpoint.md points to exactly one ledger task; ledger owns item status, retry count, blocker, and evidence refs. -->
+
+## Loop Status Contract
+
+- **Allowed Status Values**: `pending`, `in_progress`, `blocked`, `done`, `discarded`
+- **pending**: item is queued and has not been claimed.
+- **in_progress**: item is currently claimed by the assignee named in `Claim Marker`.
+- **blocked**: item cannot proceed without a recorded blocker or user decision.
+- **done**: item has verification evidence and needs no more execute work.
+- **discarded**: item was deliberately removed from the loop scope; record the decision in `## Decisions`.
+- **Resume Pointer Rule**: `checkpoint.md` `## Resume Pointer` must name the next ledger task before context compression or handoff.
+- **Evidence Rule**: every `done` item must cite at least one `Evidence Refs` entry from `implementation-notes.md` `## Evidence Index` or a concrete artifact path.
 
 ## Plan Items
 
@@ -23,7 +36,7 @@ total_items: <!-- N -->
 
 ### Task 1: <!-- name -->
 - **Plan Step**: <!-- which plan step or brief objective -->
-- **Status**: <!-- pending | running | done | blocked | skipped -->
+- **Status**: <!-- pending | in_progress | blocked | done | discarded -->
 - **Assignee**: <!-- worker | specialist | spec-reviewer | quality-reviewer -->
 - **Claim Marker**: <!-- role=<worker|specialist|spec-reviewer|quality-reviewer> scope=<repo paths or artifact section> at=<ISO8601>; none for direct sequential worker -->
 - **Evidence Refs**: <!-- compact strings: verification:PASS gate=... | contract_check:PASS | evidence_index:task=... -->
@@ -61,7 +74,7 @@ total_items: <!-- N -->
 - **Total Tasks**: 0
 - **Completed**: 0
 - **Blocked**: 0
-- **Skipped**: 0
+- **Discarded**: 0
 - **All Done**: <!-- yes | no -->
 
 ## Small Route Minimal Format
@@ -113,6 +126,6 @@ worker = direct implementation (small route는 specialist 사용 안 함)
 - **Total Tasks**: 1
 - **Completed**: 0
 - **Blocked**: 0
-- **Skipped**: 0
+- **Discarded**: 0
 - **All Done**: no
 ```
