@@ -217,7 +217,7 @@ Minimum warning contract:
      - After each task completes, append compact evidence index line to `implementation-notes.md` Evidence (e.g. `evidence_index: task=T3 gates=build:PASS,lint:PASS`).
    - **Implementation Notes**: When a decision is made that was not in the plan, when the implementation deviates from the spec, when a tradeoff is chosen, or when an open question arises — **append an entry to `implementation-notes.md` immediately**. Do not batch these until the end.
    - **TDD Refactor**: Clean up implementation.
-   - **Run Ledger**: When starting a task, set its status to `running` and **Assignee** to `worker` (or `specialist` if delegated). When completing, set to `done` with evidence refs. When blocked, set to `blocked` with blocker description. Update incrementally, not in batch. See **Run ledger assignee discipline** below.
+   - **Run Ledger**: When starting a task, set its status to `in_progress` and **Assignee** to `worker` (or `specialist` if delegated). When completing, set to `done` with evidence refs. When blocked, set to `blocked` with blocker description. Update incrementally, not in batch. See **Run ledger assignee discipline** below.
    - **Per-task micro-gates (high/epic only)**: Before marking a step `done`, run the micro-gate checklist in **Per-task micro-gates** below. Optional spec/quality micro-reviewer subagents use `references/spec-reviewer-prompt.md` and `references/quality-reviewer-prompt.md`.
    - **Checkpoint**: Update `checkpoint.md` after each task completes: set `Active Task` to the next task, update `Latest Artifacts` table. Ensures resume capability after adapter-selected context refresh.
      - **Step-boundary checkpoint (adapter-neutral)**: Once checkpoint, ledger, and evidence are all updated on disk for a completed step, set `checkpoint.md` `Active Task` to the real next task id and `Next Action` to `"Task N 시작; resume from checkpoint if context was refreshed"`. Then either continue immediately (normal `--auto` path) or, if context pressure is high, emit the adapter-specific refresh hint and STOP:
@@ -328,10 +328,10 @@ Micro-gates run **during execute** on **high** and **epic** routes. They do not 
 
 | Event | Status | Assignee |
 |-------|--------|----------|
-| Step started (controller) | `running` | `worker` |
-| Specialist subagent dispatched | `running` | `specialist` |
-| Spec micro-review pass | `running` | `spec-reviewer` |
-| Quality micro-review pass | `running` | `quality-reviewer` |
+| Step started (controller) | `in_progress` | `worker` |
+| Specialist subagent dispatched | `in_progress` | `specialist` |
+| Spec micro-review pass | `in_progress` | `spec-reviewer` |
+| Quality micro-review pass | `in_progress` | `quality-reviewer` |
 | Step verified complete | `done` | last active role (`worker` or `specialist`) |
 | Blocked | `blocked` | role that hit the blocker |
 

@@ -25,7 +25,7 @@ Do **not** use for small route (overhead exceeds benefit).
 For each plan step in dependency order:
 
 ```text
-1. Controller sets ledger: running, Assignee worker, Claim Marker with role/scope/timestamp
+1. Controller sets ledger: in_progress, Assignee worker, Claim Marker with role/scope/timestamp
    → Record dispatch: "implementer-prompt.md"
 2. Dispatch implementer subagent (references/implementer-prompt.md)
 3. If NEEDS_CONTEXT → provide context and re-dispatch

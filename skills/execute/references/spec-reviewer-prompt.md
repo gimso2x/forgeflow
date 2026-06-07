@@ -67,7 +67,7 @@ Task tool:
 
 Verdict → controller mapping:
 - **approved** → `micro_spec:PASS step=<name>`, proceed to quality micro-review
-- **changes_requested** → `micro_spec:FAIL step=<name>`, keep step `running`
+- **changes_requested** → `micro_spec:FAIL step=<name>`, keep step `in_progress`
 - **blocked** → `micro_spec:FAIL step=<name>`, move step to `blocked`
 
 Controller actions after micro-review:
