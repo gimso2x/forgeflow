@@ -316,11 +316,19 @@ def append_agent_run(
     )
 
 
-def run_adapter(task_dir: Path, adapter: str, command_template: str, verify_command: str | None) -> int:
+def selected_task(task_dir: Path) -> dict[str, str]:
     _ledger_path, _checkpoint_path, tasks, checkpoint = load_state(task_dir)
     task = first_actionable(tasks, checkpoint)
     if task is None:
-        raise LoopError("no actionable task for adapter run")
+        raise LoopError("no actionable task")
+    return task
+
+
+def run_adapter(task_dir: Path, adapter: str, command_template: str, verify_command: str | None) -> int:
+    try:
+        task = selected_task(task_dir)
+    except LoopError as exc:
+        raise LoopError("no actionable task for adapter run") from exc
     prompt_path = task_dir / "agent-prompt.md"
     prompt_path.write_text(build_adapter_prompt(task_dir, task), encoding="utf-8")
 
@@ -353,6 +361,21 @@ def run_adapter(task_dir: Path, adapter: str, command_template: str, verify_comm
     if verify is not None:
         evidence += f" verification_exit={verify.returncode}"
     return record(task_dir, "done", evidence, task["heading"], None)
+
+
+
+def step_supervisor(task_dir: Path, adapter: str, command_template: str | None, verify_command: str | None) -> int:
+    task = selected_task(task_dir)
+    adapter_command = command_template or "python3 -c 'import sys; data=sys.stdin.read(); print(\"stub adapter received prompt_chars=\" + str(len(data)))'"
+    print(f"step: selected={format_task(task)}")
+    print(f"step: adapter={adapter}")
+    if verify_command:
+        print(f"step: verify_command={verify_command}")
+    else:
+        print("step: verify_command=not_run")
+    result = run_adapter(task_dir, adapter, adapter_command, verify_command)
+    print(f"step: completed exit={result}")
+    return result
 
 
 
@@ -731,6 +754,11 @@ def main(argv: list[str] | None = None) -> int:
     run.add_argument("--adapter", required=True, help="adapter label, for example claude/codex/gemini/stub")
     run.add_argument("--command", dest="adapter_command", required=True, help="adapter command template; receives prompt on stdin; supports {task_dir} and {prompt}")
     run.add_argument("--verify-command", default=None, help="verification command template; supports {task_dir} and {prompt}")
+    step = sub.add_parser("step")
+    step.add_argument("--task-dir", required=True, type=Path)
+    step.add_argument("--adapter", default="stub", help="adapter label, default: stub")
+    step.add_argument("--command", dest="adapter_command", default=None, help="optional adapter command template; receives prompt on stdin; supports {task_dir} and {prompt}")
+    step.add_argument("--verify-command", default=None, help="optional verification command template; supports {task_dir} and {prompt}")
     queue = sub.add_parser("queue")
     queue.add_argument("--queue-root", required=True, type=Path, help="directory that receives task draft directories")
     queue.add_argument("--request", required=True, help="natural-language phone-originated request")
@@ -765,7 +793,13 @@ def main(argv: list[str] | None = None) -> int:
         if args.command == "record":
             return record(task_dir, args.status, args.evidence, args.task, args.blocker)
         if args.command == "run-adapter":
+            if task_dir is None:
+                raise LoopError("--task-dir is required")
             return run_adapter(task_dir, args.adapter, args.adapter_command, args.verify_command)
+        if args.command == "step":
+            if task_dir is None:
+                raise LoopError("--task-dir is required")
+            return step_supervisor(task_dir, args.adapter, args.adapter_command, args.verify_command)
         if args.command == "queue":
             return queue_request(args.queue_root, args.request, args.task_id, args.route)
         if args.command == "learn":

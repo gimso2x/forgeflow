@@ -153,6 +153,26 @@ def main() -> int:
         assert_contains((adapter_task_dir / "ledger.md").read_text(encoding="utf-8"), "## Agent Runs")
         assert_contains((adapter_task_dir / "ledger.md").read_text(encoding="utf-8"), "verification_exit=0")
 
+        step_task_dir = tmp / ".forgeflow" / "tasks" / "step"
+        shutil.copytree(task_dir, step_task_dir)
+        (step_task_dir / "ledger.md").write_text(LEDGER, encoding="utf-8")
+        (step_task_dir / "checkpoint.md").write_text(CHECKPOINT, encoding="utf-8")
+        out = assert_ok(
+            run(
+                "step",
+                "--task-dir",
+                str(step_task_dir),
+                "--verify-command",
+                "python3 -c 'from pathlib import Path; assert Path(\"agent-prompt.md\").exists(); print(\"step verified\")'",
+                cwd=ROOT,
+            )
+        )
+        assert_contains(out, "step: selected=Task 2: Add smoke")
+        assert_contains(out, "step: adapter=stub")
+        assert_contains(out, "recorded: Task 2: Add smoke")
+        assert_contains((step_task_dir / "ledger.md").read_text(encoding="utf-8"), "adapter=stub")
+        assert_contains((step_task_dir / "ledger.md").read_text(encoding="utf-8"), "verification_exit=0")
+
         fanout_repo = tmp / "fanout-repo"
         fanout_repo.mkdir()
         subprocess.run(["git", "init"], cwd=fanout_repo, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
