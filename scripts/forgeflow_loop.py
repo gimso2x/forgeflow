@@ -15,8 +15,10 @@ import sys
 from pathlib import Path
 
 ALLOWED_STATUSES = {"pending", "in_progress", "blocked", "done", "discarded"}
+PROTECTED_PATHS = (".git", ".forgeflow")
 TASK_HEADING_RE = re.compile(r"^###\s+(Task\s+\d+:\s+.+?)\s*$")
 FIELD_RE = re.compile(r"^- \*\*(Status|Assignee|Claim Marker|Evidence Refs|Blocker|Retry Count)\*\*:\s*(.*)$")
+FANOUT_RE = re.compile(r"^- (?P<stamp>\S+) task=(?P<task>.+?) worker=(?P<worker>\S+) branch=(?P<branch>\S+) owner=(?P<owner>\S+) status=(?P<status>\S+)")
 
 
 class LoopError(RuntimeError):
@@ -233,6 +235,53 @@ def render_command(command_template: str, task_dir: Path, prompt_path: Path) -> 
     return shlex.split(rendered)
 
 
+def slugify(value: str) -> str:
+    slug = re.sub(r"[^a-zA-Z0-9._-]+", "-", value.lower()).strip("-._")
+    return slug[:80] or "worker"
+
+
+def path_owner(task: dict[str, str]) -> str:
+    owner = (task.get("claim_marker") or "").strip()
+    if not owner or owner == "none":
+        owner = slugify(task["heading"])
+    owner = owner.strip("/")
+    if not owner or owner.startswith(PROTECTED_PATHS) or "/.git" in owner or "/.forgeflow" in owner:
+        raise LoopError(f"protected path ownership is not allowed: {owner or 'empty'}")
+    return owner
+
+
+def paths_conflict(left: str, right: str) -> bool:
+    left = left.rstrip("/")
+    right = right.rstrip("/")
+    return left == right or left.startswith(right + "/") or right.startswith(left + "/")
+
+
+def fanout_candidates(tasks: list[dict[str, str]], max_workers: int) -> list[tuple[dict[str, str], str]]:
+    selected: list[tuple[dict[str, str], str]] = []
+    for task in tasks:
+        if task.get("status", "pending") not in {"pending", "in_progress"}:
+            continue
+        owner = path_owner(task)
+        for other_task, other_owner in selected:
+            if paths_conflict(owner, other_owner):
+                raise LoopError(f"conflicting path ownership: {task['heading']}={owner} overlaps {other_task['heading']}={other_owner}")
+        selected.append((task, owner))
+        if len(selected) >= max_workers:
+            break
+    return selected
+
+
+def git(project_root: Path, *args: str, input_text: str | None = None) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        ["git", "-C", str(project_root), *args],
+        input=input_text,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+
+
 def append_agent_run(
     task_dir: Path,
     task: dict[str, str],
@@ -305,6 +354,102 @@ def run_adapter(task_dir: Path, adapter: str, command_template: str, verify_comm
     return record(task_dir, "done", evidence, task["heading"], None)
 
 
+def worktree_fanout(task_dir: Path, project_root: Path, worker_root: Path, max_workers: int) -> int:
+    ledger_path, _checkpoint_path, tasks, _checkpoint = load_state(task_dir)
+    candidates = fanout_candidates(tasks, max_workers)
+    if not candidates:
+        raise LoopError("no pending or in-progress tasks available for fanout")
+    worker_root.mkdir(parents=True, exist_ok=True)
+    now = _dt.datetime.now(_dt.timezone.utc).replace(microsecond=0).isoformat()
+    lines = ["\n## Worktree Fanout"]
+    created = 0
+    for task, owner in candidates:
+        slug = slugify(task["heading"])
+        worker_path = worker_root / slug
+        branch = f"forgeflow/{slug}"
+        if worker_path.exists():
+            raise LoopError(f"worker path already exists: {worker_path}")
+        proc = git(project_root, "worktree", "add", "-b", branch, str(worker_path), "HEAD")
+        if proc.returncode != 0:
+            raise LoopError(f"git worktree add failed for {task['heading']}: {proc.stderr.strip()}")
+        created += 1
+        lines.append(f"- {now} task={slug} worker={worker_path} branch={branch} owner={owner} status=created")
+    ledger_path.write_text(read_text(ledger_path) + "\n".join(lines) + "\n", encoding="utf-8")
+    print(f"fanout: created={created} worker_root={worker_root}")
+    return 0
+
+
+def parse_fanout_entries(ledger_text: str) -> list[dict[str, str]]:
+    entries: list[dict[str, str]] = []
+    for line in ledger_text.splitlines():
+        match = FANOUT_RE.match(line)
+        if match:
+            entries.append(match.groupdict())
+    return entries
+
+
+def changed_paths(worker: Path) -> list[str]:
+    add_intent = git(worker, "add", "-N", ".")
+    if add_intent.returncode != 0:
+        raise LoopError(f"git add -N failed in {worker}: {add_intent.stderr.strip()}")
+    proc = git(worker, "diff", "--name-only", "HEAD")
+    if proc.returncode != 0:
+        raise LoopError(f"git diff failed in {worker}: {proc.stderr.strip()}")
+    return [line.strip() for line in proc.stdout.splitlines() if line.strip()]
+
+
+def validate_worker_changes(entry: dict[str, str], paths: list[str]) -> None:
+    owner = entry["owner"]
+    for path in paths:
+        if path.startswith(PROTECTED_PATHS) or "/.git" in path or "/.forgeflow" in path:
+            raise LoopError(f"worker touched protected path: {path}")
+        if not paths_conflict(path, owner):
+            raise LoopError(f"worker changed unowned path: {path} outside {owner}")
+
+
+def worktree_fanin(task_dir: Path, project_root: Path, verify_command: str) -> int:
+    ledger_path = artifact_paths(task_dir)["ledger"]
+    entries = [entry for entry in parse_fanout_entries(read_text(ledger_path)) if entry["status"] == "created"]
+    if not entries:
+        raise LoopError("no created worktree fanout entries to fan in")
+    now = _dt.datetime.now(_dt.timezone.utc).replace(microsecond=0).isoformat()
+    merged = 0
+    failed = 0
+    lines = ["\n## Worktree Fanin"]
+    for entry in entries:
+        worker = Path(entry["worker"])
+        try:
+            paths = changed_paths(worker)
+            validate_worker_changes(entry, paths)
+            if paths:
+                patch_proc = git(worker, "diff", "--binary", "HEAD")
+                apply_proc = git(project_root, "apply", "--3way", input_text=patch_proc.stdout)
+                if patch_proc.returncode != 0 or apply_proc.returncode != 0:
+                    raise LoopError((patch_proc.stderr + apply_proc.stderr).strip() or "git apply failed")
+                merged += 1
+                status = "merged"
+            else:
+                status = "noop"
+            lines.append(f"- {now} task={entry['task']} worker={worker} status={status} paths={','.join(paths) or 'none'}")
+        except LoopError as exc:
+            failed += 1
+            lines.append(f"- {now} task={entry['task']} worker={worker} status=failed reason={str(exc).replace(' ', '_')}")
+    verify = subprocess.run(
+        shlex.split(verify_command),
+        cwd=project_root,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    lines.append(f"- {now} verification_exit={verify.returncode} stdout={verify.stdout.strip()!r} stderr={verify.stderr.strip()!r}")
+    ledger_path.write_text(read_text(ledger_path) + "\n".join(lines) + "\n", encoding="utf-8")
+    if verify.returncode != 0:
+        return record(task_dir, "blocked", f"worktree-fanin verification_exit={verify.returncode} ledger.md#Worktree-Fanin", None, "fan-in verification command failed")
+    print(f"fanin: merged={merged} failed={failed} verification={verify.returncode}")
+    return 0 if failed == 0 else 1
+
+
 def replace_section(text: str, heading: str, body: str) -> str:
     lines = text.splitlines()
     out: list[str] = []
@@ -347,6 +492,16 @@ def main(argv: list[str] | None = None) -> int:
     run.add_argument("--adapter", required=True, help="adapter label, for example claude/codex/gemini/stub")
     run.add_argument("--command", dest="adapter_command", required=True, help="adapter command template; receives prompt on stdin; supports {task_dir} and {prompt}")
     run.add_argument("--verify-command", default=None, help="verification command template; supports {task_dir} and {prompt}")
+    fanout = sub.add_parser("fanout")
+    fanout.add_argument("--task-dir", required=True, type=Path)
+    fanout.add_argument("--project-root", required=True, type=Path)
+    fanout.add_argument("--worker-root", required=True, type=Path)
+    fanout.add_argument("--max-workers", type=int, default=4)
+    fanin = sub.add_parser("fanin")
+    fanin.add_argument("--task-dir", required=True, type=Path)
+    fanin.add_argument("--project-root", required=True, type=Path)
+    fanin.add_argument("--worker-root", required=True, type=Path, help="kept for command symmetry; fan-in reads exact worker paths from ledger")
+    fanin.add_argument("--verify-command", required=True, help="verification command that must pass after applying worker diffs")
     args = parser.parse_args(argv)
     try:
         task_dir = args.task_dir.expanduser().resolve()
@@ -358,6 +513,10 @@ def main(argv: list[str] | None = None) -> int:
             return record(task_dir, args.status, args.evidence, args.task, args.blocker)
         if args.command == "run-adapter":
             return run_adapter(task_dir, args.adapter, args.adapter_command, args.verify_command)
+        if args.command == "fanout":
+            return worktree_fanout(task_dir, args.project_root.expanduser().resolve(), args.worker_root.expanduser().resolve(), args.max_workers)
+        if args.command == "fanin":
+            return worktree_fanin(task_dir, args.project_root.expanduser().resolve(), args.verify_command)
     except LoopError as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 2
