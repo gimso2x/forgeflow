@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Minimal ForgeFlow local loop CLI.
 
-Reads markdown task artifacts and computes/records the next actionable item.
-No provider/agent invocation. Stdlib only.
+Reads markdown task artifacts, queues phone-originated requests, and computes/records the next actionable item.
+Stdlib only.
 """
 from __future__ import annotations
 
@@ -354,6 +354,147 @@ def run_adapter(task_dir: Path, adapter: str, command_template: str, verify_comm
     return record(task_dir, "done", evidence, task["heading"], None)
 
 
+
+def recommend_route(request: str) -> tuple[str, str]:
+    text = request.lower()
+    high_markers = ("rewrite", "refactor", "migration", "security", "auth", "database", "schema", "deploy", "architecture", "전체", "대규모", "마이그레이션")
+    small_markers = ("typo", "문구", "오타", "버튼", "색", "copy", "readme", "docs", "이거", "고쳐", "fix")
+    if len(request) > 240 or any(marker in text for marker in high_markers):
+        return "high", "larger scope/risk marker detected; user may override after queue intake"
+    if len(request) <= 80 or any(marker in text for marker in small_markers):
+        return "small", "terse phone-originated request; safe default is smallest reviewable route"
+    return "medium", "moderate natural-language request; user may override after queue intake"
+
+
+def draft_brief(task_id: str, request: str, route: str, route_reason: str) -> str:
+    files_limit = {"small": "3", "medium": "8", "high": "20", "epic": "unlimited"}[route]
+    return f"""---
+schema: brief/v2
+task_id: {task_id}
+route: {route}
+specialist:
+  primary: none
+  secondary: none
+  rationale: phone queue draft; refine during clarify if needed
+scope_boundary:
+  files_planned: 1
+  files_limit: {files_limit}
+  boundary_status: within
+ambiguity:
+  objective: 4
+  scope: 5
+  constraints: 5
+  acceptance: 5
+  score: 0.5
+  rounds: 0
+  status: bounded_assumption
+---
+
+# 컨텍스트 브리프 (Context Brief)
+
+## 목표 (Objective)
+{request}
+
+## 라우트 (Route)
+{route}
+
+## 라우트 근거 (Route Rationale)
+{route_reason}
+
+## 범위 포함 (In Scope)
+- Phone queue intake로 들어온 요청을 clarify 가능한 작업 초안으로 보존합니다.
+- 다음 단계에서 objective/scope/acceptance를 보강합니다.
+
+## 범위 제외 (Out of Scope)
+- 이 초안만으로 구현 성공을 주장하지 않습니다.
+- 사용자 승인 없는 push/release/external side effect는 제외합니다.
+
+## 인수 기준 (Acceptance Criteria)
+- [ ] 원문 요청이 보존되어 있다.
+- [ ] route recommendation이 표시되고 override 가능하다.
+- [ ] 검증/완료 보고는 Telegram에서 읽기 쉬운 evidence-first 요약으로 남긴다.
+
+## Goal Contract
+- **성공 기준 (Success Criteria):** 요청이 실행 가능한 ForgeFlow task draft로 전환된다.
+- **필수 증거 (Evidence Required):** brief.md, ledger.md, checkpoint.md 파일 존재와 queue intake 로그.
+- **인정된 리스크 (Accepted Risks):** 짧은 입력은 모호할 수 있어 clarify에서 보정한다.
+- **명시적 제외 (Explicit Exclusions):** 이 단계는 실제 구현을 실행하지 않는다.
+
+## 가정과 해석 (Assumptions and Interpretation)
+- **Selected interpretation**: {request}
+- **Assumptions**: phone-originated terse request; route can be overridden.
+- **Open ambiguity**: exact files, final acceptance criteria, verification command.
+- **Why safe to proceed**: only task artifacts are written; no external side effects.
+"""
+
+
+def queue_request(queue_root: Path, request: str, task_id: str | None, route_override: str | None) -> int:
+    request = request.strip()
+    if not request:
+        raise LoopError("request text is required")
+    recommended, reason = recommend_route(request)
+    route = route_override or recommended
+    if route not in {"small", "medium", "high", "epic"}:
+        raise LoopError("route must be one of: small, medium, high, epic")
+    stamp = _dt.datetime.now(_dt.timezone.utc).strftime("%Y%m%d%H%M%S")
+    task_id = task_id or f"phone-{stamp}-{slugify(request)[:32]}"
+    task_dir = queue_root.expanduser().resolve() / task_id
+    if task_dir.exists():
+        raise LoopError(f"task already exists: {task_dir}")
+    task_dir.mkdir(parents=True)
+    now = _dt.datetime.now(_dt.timezone.utc).replace(microsecond=0).isoformat()
+    (task_dir / "brief.md").write_text(draft_brief(task_id, request, route, reason), encoding="utf-8")
+    (task_dir / "ledger.md").write_text(f"""---
+schema: ledger/v1
+task_id: {task_id}
+route: {route}
+total_items: 1
+---
+
+# Ledger
+
+## Queue Intake
+- {now} source=phone request={request!r} recommended_route={recommended} selected_route={route} override={'yes' if route_override else 'no'}
+
+## Execution Tracking
+
+### Task 1: Clarify phone request
+- **Plan Step**: clarify
+- **Status**: pending
+- **Assignee**: owner
+- **Claim Marker**: brief.md
+- **Evidence Refs**: queue_intake={now}
+- **Blocker**: none
+- **Retry Count**: 0
+""", encoding="utf-8")
+    (task_dir / "checkpoint.md").write_text(f"""# Checkpoint
+
+## Current Stage
+clarify
+
+## Status
+in_progress
+
+## Active Task
+Task 1
+
+## Resume Pointer
+ledger.md#task-1-clarify-phone-request status=pending retry=0 owner=owner next_update=brief.md
+
+## Next Action
+Review brief.md, accept or override route, then run /forgeflow:clarify.
+
+## Last Verified Evidence
+queue_intake={now} task_dir={task_dir}
+""", encoding="utf-8")
+    (task_dir / "implementation-notes.md").write_text(f"# Implementation Notes\n\n## Queue Intake - {now}\n- request: {request}\n- recommended_route: {recommended}\n- selected_route: {route}\n- overrideable: yes\n", encoding="utf-8")
+    print(f"queued: {task_id}")
+    print(f"task_dir: {task_dir}")
+    print(f"recommended_route: {recommended}")
+    print(f"selected_route: {route}")
+    print("telegram_summary: 요청 초안 생성 완료. route는 필요하면 override 가능합니다. 증거: brief.md, ledger.md, checkpoint.md")
+    return 0
+
 def worktree_fanout(task_dir: Path, project_root: Path, worker_root: Path, max_workers: int) -> int:
     ledger_path, _checkpoint_path, tasks, _checkpoint = load_state(task_dir)
     candidates = fanout_candidates(tasks, max_workers)
@@ -492,6 +633,11 @@ def main(argv: list[str] | None = None) -> int:
     run.add_argument("--adapter", required=True, help="adapter label, for example claude/codex/gemini/stub")
     run.add_argument("--command", dest="adapter_command", required=True, help="adapter command template; receives prompt on stdin; supports {task_dir} and {prompt}")
     run.add_argument("--verify-command", default=None, help="verification command template; supports {task_dir} and {prompt}")
+    queue = sub.add_parser("queue")
+    queue.add_argument("--queue-root", required=True, type=Path, help="directory that receives task draft directories")
+    queue.add_argument("--request", required=True, help="natural-language phone-originated request")
+    queue.add_argument("--task-id", default=None)
+    queue.add_argument("--route", default=None, choices=["small", "medium", "high", "epic"], help="override recommended route")
     fanout = sub.add_parser("fanout")
     fanout.add_argument("--task-dir", required=True, type=Path)
     fanout.add_argument("--project-root", required=True, type=Path)
@@ -504,7 +650,9 @@ def main(argv: list[str] | None = None) -> int:
     fanin.add_argument("--verify-command", required=True, help="verification command that must pass after applying worker diffs")
     args = parser.parse_args(argv)
     try:
-        task_dir = args.task_dir.expanduser().resolve()
+        task_dir = getattr(args, "task_dir", None)
+        if task_dir is not None:
+            task_dir = task_dir.expanduser().resolve()
         if args.command == "status":
             return print_status(task_dir)
         if args.command == "next":
@@ -513,6 +661,8 @@ def main(argv: list[str] | None = None) -> int:
             return record(task_dir, args.status, args.evidence, args.task, args.blocker)
         if args.command == "run-adapter":
             return run_adapter(task_dir, args.adapter, args.adapter_command, args.verify_command)
+        if args.command == "queue":
+            return queue_request(args.queue_root, args.request, args.task_id, args.route)
         if args.command == "fanout":
             return worktree_fanout(task_dir, args.project_root.expanduser().resolve(), args.worker_root.expanduser().resolve(), args.max_workers)
         if args.command == "fanin":
