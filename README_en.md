@@ -94,6 +94,7 @@ make validate
 make validate-evals
 make validate-behavior-guardrails
 make validate-guard-checks
+make smoke-local-plugins  # opt-in local plugin/provider-boundary smoke; no live provider CLIs
 ```
 
 GitHub Actions runs the same validation bundles through `.github/workflows/validate.yml` and `.github/workflows/evals.yml` with read-only `contents: read` permissions.

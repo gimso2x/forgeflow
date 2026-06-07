@@ -201,6 +201,7 @@ make validate-adapter-config
 make validate-stage-tool-boundaries
 make validate-markdown-links
 make validate-demo
+make smoke-local-plugins            # opt-in, local-only plugin/provider boundary smoke
 make validate-evals
 ```
 
@@ -213,6 +214,14 @@ make demo
 ```
 
 provider/plugin 없이 임시 workspace에 `.forgeflow/tasks/demo-small/` 산출물을 만들어 위치와 템플릿 구성을 보여주는 안전한 smoke입니다. 실제 provider/plugin E2E가 아니라 template copy 검증이며, 임시 디렉터리만 쓰고 추적 파일을 수정하지 않으므로 repo-local artifacts는 남지 않습니다. focused 검증은 `make validate-demo`입니다.
+
+### Opt-in plugin/provider boundary smoke
+
+```bash
+make smoke-local-plugins
+```
+
+이 target은 live Claude/Codex/Cursor/Gemini CLI를 호출하지 않습니다. 대신 plugin manifest, slash command namespace, Gemini context import, Codex local install copy surface를 임시 디렉터리에서 검증합니다. 기본 `make validate`에는 포함하지 않습니다. credential이나 provider CLI 유무에 따라 기본 검증이 흔들리면 그건 검증이 아니라 지뢰입니다.
 
 ## Release version policy
 

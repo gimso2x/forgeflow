@@ -1,4 +1,4 @@
-.PHONY: validate demo validate-demo install-codex-local validate-behavior-guardrails validate-json validate-no-python validate-slim-surface validate-ci-workflows validate-english-readme validate-skills validate-skill-frontmatter validate-agent-docs validate-templates validate-template-refs validate-template-fields validate-versions validate-changelog-links validate-route-scoring-parity validate-route-policy validate-gemini-imports validate-plugin-prompts validate-evals validate-evals-json validate-eval-files validate-evals-fixtures validate-workflow-vocab validate-ship-safety validate-dogfooding-docs validate-context-resume validate-stage-tool-boundaries validate-adapter-config validate-advisory-contract validate-markdown-links validate-guard-checks telemetry telemetry-collect telemetry-aggregate usage-audit
+.PHONY: validate demo validate-demo smoke-local-plugins install-codex-local validate-behavior-guardrails validate-json validate-no-python validate-slim-surface validate-ci-workflows validate-english-readme validate-skills validate-skill-frontmatter validate-agent-docs validate-templates validate-template-refs validate-template-fields validate-versions validate-changelog-links validate-route-scoring-parity validate-route-policy validate-gemini-imports validate-plugin-prompts validate-evals validate-evals-json validate-eval-files validate-evals-fixtures validate-workflow-vocab validate-ship-safety validate-dogfooding-docs validate-context-resume validate-stage-tool-boundaries validate-adapter-config validate-advisory-contract validate-markdown-links validate-guard-checks telemetry telemetry-collect telemetry-aggregate usage-audit
 
 PYTHON ?= python3
 
@@ -36,6 +36,9 @@ validate: validate-no-python validate-slim-surface validate-ci-workflows validat
 
 validate-evals: validate-evals-json validate-eval-files validate-evals-fixtures
 	@echo "OK: eval fixture validation bundle passed"
+
+smoke-local-plugins:
+	@$(PYTHON) scripts/smoke_local_plugins.py
 
 CODEX_LOCAL_PLUGIN_DIR ?= .codex/plugins/forgeflow
 
