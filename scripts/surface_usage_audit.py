@@ -110,15 +110,19 @@ def _count_artifacts(project_dir):
 
 
 def _inventory_only(entry_counts, artifact_counts, artifact_status):
+    # Separate truly zero-count (scanned but unused) from unscannable surfaces
     notes = []
     for name in ENTRYPOINTS:
         if entry_counts[name] == 0:
             tier = "core" if name in CORE else "support" if name in SUPPORT else "utility"
             notes.append(f"- `{name}` ({tier}): no slash mentions in the selected git window")
     for artifact in ARTIFACTS:
-        if artifact_counts[artifact] == 0:
-            notes.append(f"- `{artifact}`: {artifact_status[artifact]}")
-    return notes
+        st = artifact_status[artifact]
+        if artifact_counts[artifact] == 0 and st.startswith("actual zero"):
+            notes.append(f"- `{artifact}`: {st}")
+    # unscannable surfaces are reported separately, not as low-use signals
+    unscanned = [a for a in ARTIFACTS if artifact_status[a].startswith("not scanned")]
+    return notes, unscanned
 
 
 def _render_table(counter, keys):
@@ -150,11 +154,13 @@ def audit(project_dir, days):
 
     entry_counts = _count_entrypoints(combined)
     artifact_counts, artifact_status, scanned_surfaces = _count_artifacts(project_dir)
-    inventory_notes = _inventory_only(entry_counts, artifact_counts, artifact_status)
+    inventory_notes, unscanned_artifacts = _inventory_only(entry_counts, artifact_counts, artifact_status)
 
     top_entry = entry_counts.most_common(1)[0] if entry_counts else ("none", 0)
     active_core = sum(1 for name in CORE if entry_counts[name] > 0)
     generated = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
+
+    has_task_data = any(s[2] == "scanned" for s in scanned_surfaces)
 
     lines = [
         "---",
@@ -170,6 +176,10 @@ def audit(project_dir, days):
         f"- **Most mentioned entrypoint**: `{top_entry[0]}` ({top_entry[1]})",
         f"- **Core entrypoints with recent slash mentions**: {active_core}/5",
         "- **Interpretation rule**: treat zero counts as a maintenance-review signal, not automatic removal approval; `not scanned` means the storage surface was absent, not that usage was proven zero.",
+    ]
+    if not has_task_data:
+        lines.append("- **No task data available**: no task or telemetry artifact storage was found. Artifact counts are all zero because there is nothing to scan, not because the surfaces are unused.")
+    lines.extend([
         "",
         "## Scanned Artifact Surfaces",
         *_render_scanned_surfaces(scanned_surfaces),
@@ -181,11 +191,19 @@ def audit(project_dir, days):
         *_render_artifact_table(artifact_counts, artifact_status, ARTIFACTS),
         "",
         "## Low-use / Inventory-only Signals",
-    ]
+    ])
     if inventory_notes:
         lines.extend(inventory_notes)
     else:
         lines.append("- none")
+    if unscanned_artifacts:
+        lines.extend([
+            "",
+            "## Not Scanned (no data available)",
+            "These artifacts have no storage surface to scan. They are excluded from low-use signals above.",
+        ])
+        for a in unscanned_artifacts:
+            lines.append(f"- `{a}`: {artifact_status[a]}")
 
     lines.extend([
         "",
