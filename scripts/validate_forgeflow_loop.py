@@ -153,6 +153,79 @@ def main() -> int:
         assert_contains((adapter_task_dir / "ledger.md").read_text(encoding="utf-8"), "## Agent Runs")
         assert_contains((adapter_task_dir / "ledger.md").read_text(encoding="utf-8"), "verification_exit=0")
 
+        fanout_repo = tmp / "fanout-repo"
+        fanout_repo.mkdir()
+        subprocess.run(["git", "init"], cwd=fanout_repo, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        subprocess.run(["git", "config", "user.email", "forgeflow@example.invalid"], cwd=fanout_repo, check=True)
+        subprocess.run(["git", "config", "user.name", "ForgeFlow Test"], cwd=fanout_repo, check=True)
+        (fanout_repo / "README.md").write_text("# Demo\n", encoding="utf-8")
+        subprocess.run(["git", "add", "README.md"], cwd=fanout_repo, check=True)
+        subprocess.run(["git", "commit", "-m", "init"], cwd=fanout_repo, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        fanout_task_dir = fanout_repo / ".forgeflow" / "tasks" / "fanout"
+        fanout_task_dir.mkdir(parents=True)
+        fanout_ledger = LEDGER.replace("- **Status**: done", "- **Status**: pending", 1).replace(
+            "- **Claim Marker**: none", "- **Claim Marker**: docs/a.md", 1
+        ).replace("- **Claim Marker**: none", "- **Claim Marker**: docs/b.md", 1)
+        (fanout_task_dir / "ledger.md").write_text(fanout_ledger, encoding="utf-8")
+        (fanout_task_dir / "checkpoint.md").write_text(CHECKPOINT, encoding="utf-8")
+        worker_root = tmp / "workers"
+        out = assert_ok(
+            run(
+                "fanout",
+                "--task-dir",
+                str(fanout_task_dir),
+                "--project-root",
+                str(fanout_repo),
+                "--worker-root",
+                str(worker_root),
+                cwd=ROOT,
+            )
+        )
+        assert_contains(out, "fanout: created=2")
+        workers = sorted(worker_root.iterdir())
+        if len(workers) != 2:
+            raise AssertionError(f"expected two workers, got {workers}")
+        (workers[0] / "docs").mkdir(exist_ok=True)
+        (workers[0] / "docs" / "a.md").write_text("A\n", encoding="utf-8")
+        (workers[1] / "docs").mkdir(exist_ok=True)
+        (workers[1] / "docs" / "b.md").write_text("B\n", encoding="utf-8")
+        out = assert_ok(
+            run(
+                "fanin",
+                "--task-dir",
+                str(fanout_task_dir),
+                "--project-root",
+                str(fanout_repo),
+                "--worker-root",
+                str(worker_root),
+                "--verify-command",
+                "python3 -c 'from pathlib import Path; assert Path(\"docs/a.md\").exists(); assert Path(\"docs/b.md\").exists(); print(\"fan-in verified\")'",
+                cwd=ROOT,
+            )
+        )
+        assert_contains(out, "fanin: merged=2 failed=0 verification=0")
+        assert_contains((fanout_repo / "docs" / "a.md").read_text(encoding="utf-8"), "A")
+        assert_contains((fanout_repo / "docs" / "b.md").read_text(encoding="utf-8"), "B")
+        assert_contains((fanout_task_dir / "ledger.md").read_text(encoding="utf-8"), "## Worktree Fanout")
+        assert_contains((fanout_task_dir / "ledger.md").read_text(encoding="utf-8"), "## Worktree Fanin")
+
+        failed_worker_repo = tmp / "failed-worker-repo"
+        shutil.copytree(fanout_repo, failed_worker_repo, ignore=shutil.ignore_patterns(".git"))
+        subprocess.run(["git", "init"], cwd=failed_worker_repo, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        subprocess.run(["git", "config", "user.email", "forgeflow@example.invalid"], cwd=failed_worker_repo, check=True)
+        subprocess.run(["git", "config", "user.name", "ForgeFlow Test"], cwd=failed_worker_repo, check=True)
+        subprocess.run(["git", "add", "."], cwd=failed_worker_repo, check=True)
+        subprocess.run(["git", "commit", "-m", "init"], cwd=failed_worker_repo, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        failed_task_dir = failed_worker_repo / ".forgeflow" / "tasks" / "failed"
+        failed_task_dir.mkdir(parents=True, exist_ok=True)
+        conflict_ledger = fanout_ledger.replace("docs/b.md", "docs/a.md")
+        (failed_task_dir / "ledger.md").write_text(conflict_ledger, encoding="utf-8")
+        (failed_task_dir / "checkpoint.md").write_text(CHECKPOINT, encoding="utf-8")
+        bad = run("fanout", "--task-dir", str(failed_task_dir), "--project-root", str(failed_worker_repo), "--worker-root", str(tmp / "bad-workers"), cwd=ROOT)
+        if bad.returncode == 0:
+            raise AssertionError("expected fanout conflict to fail")
+        assert_contains(bad.stderr, "conflicting path ownership")
+
         failed_verify_dir = tmp / ".forgeflow" / "tasks" / "failed-verify"
         shutil.copytree(task_dir, failed_verify_dir)
         (failed_verify_dir / "ledger.md").write_text(LEDGER, encoding="utf-8")
