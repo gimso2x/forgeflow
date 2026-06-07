@@ -26,6 +26,13 @@ dependencies:
 
 Use this skill to review completed ForgeFlow work independently.
 
+## Reference inventory
+
+- [references/standalone-mode.md](references/standalone-mode.md) — standalone input detection, synthetic task bootstrap, and scope constraints.
+- [references/input-normalization.md](references/input-normalization.md) — normalization gate and evidence/source mapping.
+- [references/role-checklists.md](references/role-checklists.md) — reviewer role rubrics and checklist criteria.
+- [references/pipeline-procedure.md](references/pipeline-procedure.md) — post-execute review flow and artifact trace procedure.
+
 ## Input
 
 Review supports two entry modes. The detected mode determines which artifacts and evidence are available.

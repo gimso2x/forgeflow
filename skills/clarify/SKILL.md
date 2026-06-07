@@ -26,6 +26,10 @@ Use this skill to convert a raw request into a ForgeFlow context brief (`brief.m
 
 > **Terminology**: `<task-dir>` = resolved task directory: `~/.forgeflow/projects/<project-slug>/tasks/<task-id>/`. `<storage-root>` = `~/.forgeflow/projects/<project-slug>/`.
 
+## Reference inventory
+
+- [references/scope-grounding.md](references/scope-grounding.md) — WHERE grounding, discovery depth, and scope boundary rules for non-trivial requests.
+
 ## Input
 
 - Raw user request

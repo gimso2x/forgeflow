@@ -20,6 +20,12 @@ dependencies:
 
 Use this skill to execute the selected ForgeFlow route.
 
+## Reference inventory
+
+- [references/testing-discipline.md](references/testing-discipline.md) — route-aware testing, scoped lint, debugging, and timestamp discipline.
+- [references/agent-delegation.md](references/agent-delegation.md) — implementer/reviewer subagent dispatch boundaries and evidence requirements.
+- [references/adapter-output-and-metrics.md](references/adapter-output-and-metrics.md) — adapter-facing output and metrics contract.
+
 ## Input
 
 - `plan.md` or a clear small-route brief

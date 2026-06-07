@@ -21,6 +21,10 @@ dependencies:
 
 Use this skill to turn a ForgeFlow brief or requirements document into an executable task plan.
 
+## Reference inventory
+
+- [references/epic-decomposition.md](references/epic-decomposition.md) — epic roadmap decomposition, milestone DAG, and integration verification guidance.
+
 ## Input
 
 - `brief.md` from `/forgeflow:clarify`

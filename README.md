@@ -190,7 +190,7 @@ Stage 경계나 checkpoint 갱신 직후 context refresh가 안전합니다. 재
 make validate
 ```
 
-`make validate`는 문서/JSON/skill/template/link/route/release/adapter/eval 계약을 검사합니다. live provider/plugin E2E를 실행하지 않습니다. Markdown link 검증은 HTML href/src 링크도 포함합니다.
+`make validate`는 문서/JSON/skill/template/link/route/release/adapter/eval 계약을 검사합니다. live provider/plugin E2E를 실행하지 않습니다. Markdown link 검증은 HTML href/src 링크도 포함합니다. 큰 workflow skill은 `docs/skill-modularization.md` 정책에 따라 shared/reference로 쪼개졌는지도 검사합니다.
 
 자주 쓰는 focused target:
 
@@ -201,6 +201,7 @@ make validate-route-scoring-parity
 make validate-versions validate-changelog-links
 make validate-json
 make validate-skills                # root SKILL.md marketplace summary 포함
+make validate-skill-modularity      # docs/skill-modularization.md 기반 대형 skill reference 분리 검증
 make validate-agent-docs            # shared discipline/automation linkage 포함
 make validate-templates validate-template-refs
 make validate-template-fields

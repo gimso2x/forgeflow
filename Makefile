@@ -1,4 +1,4 @@
-.PHONY: validate demo validate-demo smoke-local-plugins install-codex-local validate-behavior-guardrails validate-json validate-no-python validate-slim-surface validate-ci-workflows validate-english-readme validate-skills validate-skill-frontmatter validate-agent-docs validate-templates validate-template-refs validate-template-fields validate-versions validate-changelog-links validate-route-scoring-parity validate-route-policy validate-gemini-imports validate-plugin-prompts validate-evals validate-evals-json validate-eval-files validate-evals-fixtures validate-workflow-vocab validate-ship-safety validate-dogfooding-docs validate-context-resume validate-stage-tool-boundaries validate-adapter-config validate-advisory-contract validate-markdown-links validate-guard-checks telemetry telemetry-collect telemetry-aggregate usage-audit
+.PHONY: validate demo validate-demo smoke-local-plugins install-codex-local validate-behavior-guardrails validate-json validate-no-python validate-slim-surface validate-ci-workflows validate-english-readme validate-skills validate-skill-frontmatter validate-skill-modularity validate-agent-docs validate-templates validate-template-refs validate-template-fields validate-versions validate-changelog-links validate-route-scoring-parity validate-route-policy validate-gemini-imports validate-plugin-prompts validate-evals validate-evals-json validate-eval-files validate-evals-fixtures validate-workflow-vocab validate-ship-safety validate-dogfooding-docs validate-context-resume validate-stage-tool-boundaries validate-adapter-config validate-advisory-contract validate-markdown-links validate-guard-checks telemetry telemetry-collect telemetry-aggregate usage-audit
 
 PYTHON ?= python3
 
@@ -31,7 +31,7 @@ TEMPLATES := \
 	evidence-manifest.md \
 	re-execution-conditions.md
 
-validate: validate-no-python validate-slim-surface validate-ci-workflows validate-english-readme validate-json validate-versions validate-changelog-links validate-route-scoring-parity validate-route-policy validate-skills validate-agent-docs validate-templates validate-template-refs validate-template-fields validate-demo validate-gemini-imports validate-plugin-prompts validate-evals validate-workflow-vocab validate-ship-safety validate-dogfooding-docs validate-context-resume validate-stage-tool-boundaries validate-adapter-config validate-advisory-contract validate-behavior-guardrails validate-markdown-links validate-guard-checks
+validate: validate-no-python validate-slim-surface validate-ci-workflows validate-english-readme validate-json validate-versions validate-changelog-links validate-route-scoring-parity validate-route-policy validate-skills validate-skill-modularity validate-agent-docs validate-templates validate-template-refs validate-template-fields validate-demo validate-gemini-imports validate-plugin-prompts validate-evals validate-workflow-vocab validate-ship-safety validate-dogfooding-docs validate-context-resume validate-stage-tool-boundaries validate-adapter-config validate-advisory-contract validate-behavior-guardrails validate-markdown-links validate-guard-checks
 	@echo "OK: local validation passed"
 
 validate-evals: validate-evals-json validate-eval-files validate-evals-fixtures
@@ -171,6 +171,11 @@ validate-route-policy:
 
 validate-skill-frontmatter:
 	@bash scripts/validate-skill-frontmatter.sh
+
+validate-skill-modularity:
+	@$(PYTHON) scripts/validate_skill_modularity.py
+	@grep -Fq "make validate-skill-modularity" README.md || { echo "ERROR: README local validation docs must include focused skill modularity validation"; exit 1; }
+	@grep -Fq "docs/skill-modularization.md" README.md || { echo "ERROR: README must document the skill modularization policy"; exit 1; }
 
 validate-skills: validate-skill-frontmatter
 	@for dir in skills/*/; do \
