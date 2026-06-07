@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import datetime as _dt
+import json
 import re
 import shlex
 import subprocess
@@ -495,6 +496,103 @@ queue_intake={now} task_dir={task_dir}
     print("telegram_summary: 요청 초안 생성 완료. route는 필요하면 override 가능합니다. 증거: brief.md, ledger.md, checkpoint.md")
     return 0
 
+
+def normalize_learning_key(text: str) -> str:
+    normalized = re.sub(r"[^a-zA-Z0-9가-힣_.:/-]+", " ", text.lower()).strip()
+    words = [word for word in normalized.split() if word not in {"none", "n/a", "the", "and", "or"}]
+    return " ".join(words[:12]) or "unknown"
+
+
+def read_learning_state(path: Path) -> dict[str, dict[str, object]]:
+    if not path.exists():
+        return {}
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise LoopError(f"invalid learning state JSON: {path}") from exc
+    if not isinstance(data, dict):
+        raise LoopError(f"learning state must be a JSON object: {path}")
+    return data
+
+
+def write_learning_state(path: Path, data: dict[str, dict[str, object]]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(data, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+
+def increment_learning(data: dict[str, dict[str, object]], category: str, key: str, evidence: str, task_id: str, now: str) -> None:
+    bucket = data.setdefault(category, {})
+    item = bucket.setdefault(key, {"count": 0, "examples": [], "candidate_only": True, "human_approval_required": True})
+    item["count"] = int(item.get("count", 0)) + 1
+    examples = list(item.get("examples", []))
+    examples.append({"task_id": task_id, "evidence": evidence, "captured_at": now})
+    item["examples"] = examples[-5:]
+    item["candidate_only"] = True
+    item["human_approval_required"] = True
+
+
+def capture_learning(task_dir: Path, learning_root: Path) -> int:
+    ledger_path, _checkpoint_path, tasks, _checkpoint = load_state(task_dir)
+    now = _dt.datetime.now(_dt.timezone.utc).replace(microsecond=0).isoformat()
+    state_path = learning_root.expanduser().resolve() / "learning-candidates.json"
+    state = read_learning_state(state_path)
+    captured = 0
+    task_id = task_dir.name
+    for task in tasks:
+        status = task.get("status", "pending")
+        blocker = task.get("blocker", "")
+        evidence = task.get("evidence_refs", "")
+        if status == "blocked" and blocker and blocker.lower() != "none":
+            increment_learning(state, "blockers", normalize_learning_key(blocker), blocker, task_id, now)
+            captured += 1
+        if status == "done" and evidence and evidence.lower() != "none":
+            increment_learning(state, "evidence_patterns", normalize_learning_key(evidence), evidence, task_id, now)
+            captured += 1
+    write_learning_state(state_path, state)
+    notes_path = artifact_paths(task_dir)["implementation_notes"]
+    notes_path.touch(exist_ok=True)
+    notes_path.write_text(
+        read_text(notes_path)
+        + f"\n## Learning Capture - {now}\n"
+        + f"- state: {state_path}\n"
+        + f"- captured: {captured}\n"
+        + "- canonical_promotion: human_approval_required\n",
+        encoding="utf-8",
+    )
+    ledger_path.write_text(
+        read_text(ledger_path)
+        + f"\n## Learning Capture\n- {now} state={state_path} captured={captured} canonical_promotion=human_approval_required\n",
+        encoding="utf-8",
+    )
+    print(f"learning_state: {state_path}")
+    print(f"captured: {captured}")
+    print("canonical_promotion: human_approval_required")
+    return 0
+
+
+def preflight_learning(learning_root: Path, request: str, min_count: int) -> int:
+    state_path = learning_root.expanduser().resolve() / "learning-candidates.json"
+    state = read_learning_state(state_path)
+    request_key = normalize_learning_key(request)
+    warnings: list[str] = []
+    for category in ("blockers", "evidence_patterns"):
+        bucket = state.get(category, {})
+        if not isinstance(bucket, dict):
+            continue
+        for key, item in bucket.items():
+            if not isinstance(item, dict) or int(item.get("count", 0)) < min_count:
+                continue
+            if key in request_key or any(part and part in request_key for part in key.split()[:3]):
+                warnings.append(f"{category}:{key} count={item.get('count')} candidate_only={item.get('candidate_only', True)}")
+    if warnings:
+        print("preflight_warnings:")
+        for warning in warnings:
+            print(f"- {warning}")
+        print("canonical_promotion: human_approval_required")
+        return 1
+    print("preflight_warnings: none")
+    return 0
+
 def worktree_fanout(task_dir: Path, project_root: Path, worker_root: Path, max_workers: int) -> int:
     ledger_path, _checkpoint_path, tasks, _checkpoint = load_state(task_dir)
     candidates = fanout_candidates(tasks, max_workers)
@@ -638,6 +736,13 @@ def main(argv: list[str] | None = None) -> int:
     queue.add_argument("--request", required=True, help="natural-language phone-originated request")
     queue.add_argument("--task-id", default=None)
     queue.add_argument("--route", default=None, choices=["small", "medium", "high", "epic"], help="override recommended route")
+    learn = sub.add_parser("learn")
+    learn.add_argument("--task-dir", required=True, type=Path)
+    learn.add_argument("--learning-root", required=True, type=Path, help="directory for candidate-only learning records")
+    preflight = sub.add_parser("preflight")
+    preflight.add_argument("--learning-root", required=True, type=Path)
+    preflight.add_argument("--request", required=True)
+    preflight.add_argument("--min-count", type=int, default=2)
     fanout = sub.add_parser("fanout")
     fanout.add_argument("--task-dir", required=True, type=Path)
     fanout.add_argument("--project-root", required=True, type=Path)
@@ -663,6 +768,10 @@ def main(argv: list[str] | None = None) -> int:
             return run_adapter(task_dir, args.adapter, args.adapter_command, args.verify_command)
         if args.command == "queue":
             return queue_request(args.queue_root, args.request, args.task_id, args.route)
+        if args.command == "learn":
+            return capture_learning(task_dir, args.learning_root)
+        if args.command == "preflight":
+            return preflight_learning(args.learning_root, args.request, args.min_count)
         if args.command == "fanout":
             return worktree_fanout(task_dir, args.project_root.expanduser().resolve(), args.worker_root.expanduser().resolve(), args.max_workers)
         if args.command == "fanin":
