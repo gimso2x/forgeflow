@@ -40,7 +40,7 @@ skills/
 templates/                  # 27 artifact templates (brief, plan, review-report, ship-summary, etc.)
 evals/                      # 120 eval cases (evals.json + fixture files)
 scripts/                    # validate_*.py validators + telemetry/evolution helpers
-docs/                       # adapter-config.md, stage-tool-boundaries.md, roadmap-improvements.md
+docs/                       # adapter-config.md, stage-tool-boundaries.md, maintainer-backlog.md, roadmap-improvements.md archive
 .claude-plugin/             # Claude Code plugin config
 .codex-plugin/              # Codex plugin config
 .cursor-plugin/             # Cursor plugin config

@@ -1,7 +1,9 @@
-# ForgeFlow Improvement Roadmap
+# ForgeFlow Improvement Roadmap Archive
 
 > **기준 버전**: v1.9.1 | **작성일**: 2026-05-29
-> **성격**: 아키텍처 개선 — 런타임 코드 없는 마크다운 배포판 원칙 유지
+> **성격**: historical/archive design notes — 런타임 코드 없는 마크다운 배포판 원칙 유지
+
+This document is not the live maintainer queue. Current actionable maintenance items live in [`docs/maintainer-backlog.md`](maintainer-backlog.md). Treat the sections below as historical context unless a current GitHub issue or maintainer backlog item explicitly revives them.
 
 ---
 
