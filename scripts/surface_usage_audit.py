@@ -31,7 +31,7 @@ ENTRYPOINTS = [
     "benchmark",
 ]
 
-ARTIFACTS = [
+TASK_ARTIFACTS = [
     "brief.md",
     "plan.md",
     "ledger.md",
@@ -42,9 +42,12 @@ ARTIFACTS = [
     "roadmap.md",
     "eval-record.md",
     "evolution-rule.md",
+]
+TELEMETRY_ARTIFACTS = [
     "telemetry-event.md",
     "metrics-dashboard.md",
 ]
+ARTIFACTS = [*TASK_ARTIFACTS, *TELEMETRY_ARTIFACTS]
 
 CORE = {"clarify", "plan", "execute", "review", "ship"}
 SUPPORT = {"config", "long-run"}
@@ -75,18 +78,38 @@ def _count_entrypoints(text):
 
 def _count_artifacts(project_dir):
     counts = Counter()
+    status = {}
+    scanned = []
+
     tasks_dir = forgeflow_storage.tasks_dir(project_dir)
     if tasks_dir.exists():
-        for artifact in ARTIFACTS:
+        scanned.append(("task artifacts", tasks_dir, "scanned"))
+        for artifact in TASK_ARTIFACTS:
             counts[artifact] = sum(1 for _ in tasks_dir.glob(f"**/{artifact}"))
+            status[artifact] = "observed" if counts[artifact] else "actual zero in scanned tasks dir"
+    else:
+        scanned.append(("task artifacts", tasks_dir, "not scanned: directory missing"))
+        for artifact in TASK_ARTIFACTS:
+            counts[artifact] = 0
+            status[artifact] = "not scanned: tasks dir missing"
+
     tel_dir = forgeflow_storage.telemetry_dir(project_dir)
     if tel_dir.exists():
-        counts["telemetry-event.md"] += sum(1 for p in tel_dir.glob("*.md") if p.name != "summary.md")
-        counts["metrics-dashboard.md"] += int((tel_dir / "summary.md").exists())
-    return counts
+        scanned.append(("telemetry artifacts", tel_dir, "scanned"))
+        counts["telemetry-event.md"] = sum(1 for p in tel_dir.glob("*.md") if p.name != "summary.md")
+        counts["metrics-dashboard.md"] = int((tel_dir / "summary.md").exists())
+        for artifact in TELEMETRY_ARTIFACTS:
+            status[artifact] = "observed" if counts[artifact] else "actual zero in scanned telemetry dir"
+    else:
+        scanned.append(("telemetry artifacts", tel_dir, "not scanned: directory missing"))
+        for artifact in TELEMETRY_ARTIFACTS:
+            counts[artifact] = 0
+            status[artifact] = "not scanned: telemetry dir missing"
+
+    return counts, status, scanned
 
 
-def _inventory_only(entry_counts, artifact_counts):
+def _inventory_only(entry_counts, artifact_counts, artifact_status):
     notes = []
     for name in ENTRYPOINTS:
         if entry_counts[name] == 0:
@@ -94,7 +117,7 @@ def _inventory_only(entry_counts, artifact_counts):
             notes.append(f"- `{name}` ({tier}): no slash mentions in the selected git window")
     for artifact in ARTIFACTS:
         if artifact_counts[artifact] == 0:
-            notes.append(f"- `{artifact}`: no tracked task/telemetry artifact instance found")
+            notes.append(f"- `{artifact}`: {artifact_status[artifact]}")
     return notes
 
 
@@ -105,6 +128,20 @@ def _render_table(counter, keys):
     return lines
 
 
+def _render_artifact_table(counter, status, keys):
+    lines = ["| Item | Count | Status |", "|---|---:|---|"]
+    for key in keys:
+        lines.append(f"| `{key}` | {counter[key]} | {status[key]} |")
+    return lines
+
+
+def _render_scanned_surfaces(scanned):
+    lines = ["| Surface | Path | Status |", "|---|---|---|"]
+    for surface, path, status in scanned:
+        lines.append(f"| {surface} | `{path}` | {status} |")
+    return lines
+
+
 def audit(project_dir, days):
     since = f"{days} days ago"
     log_text = _run_git(project_dir, ["log", f"--since={since}", "--all", "--pretty=format:%s%n%b"])
@@ -112,8 +149,8 @@ def audit(project_dir, days):
     combined = f"{log_text}\n{diff_text}"
 
     entry_counts = _count_entrypoints(combined)
-    artifact_counts = _count_artifacts(project_dir)
-    inventory_notes = _inventory_only(entry_counts, artifact_counts)
+    artifact_counts, artifact_status, scanned_surfaces = _count_artifacts(project_dir)
+    inventory_notes = _inventory_only(entry_counts, artifact_counts, artifact_status)
 
     top_entry = entry_counts.most_common(1)[0] if entry_counts else ("none", 0)
     active_core = sum(1 for name in CORE if entry_counts[name] > 0)
@@ -129,16 +166,19 @@ def audit(project_dir, days):
         "# ForgeFlow Surface Usage Audit",
         "",
         "## Summary",
-        f"- **Window**: last {days} days from git history plus current resolved task/telemetry artifacts",
+        f"- **Window**: last {days} days from git history plus resolved global task/telemetry artifact surfaces",
         f"- **Most mentioned entrypoint**: `{top_entry[0]}` ({top_entry[1]})",
         f"- **Core entrypoints with recent slash mentions**: {active_core}/5",
-        "- **Interpretation rule**: treat zero counts as a maintenance-review signal, not automatic removal approval.",
+        "- **Interpretation rule**: treat zero counts as a maintenance-review signal, not automatic removal approval; `not scanned` means the storage surface was absent, not that usage was proven zero.",
+        "",
+        "## Scanned Artifact Surfaces",
+        *_render_scanned_surfaces(scanned_surfaces),
         "",
         "## Entrypoint Mentions",
         *_render_table(entry_counts, ENTRYPOINTS),
         "",
         "## Artifact Instances",
-        *_render_table(artifact_counts, ARTIFACTS),
+        *_render_artifact_table(artifact_counts, artifact_status, ARTIFACTS),
         "",
         "## Low-use / Inventory-only Signals",
     ]
