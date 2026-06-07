@@ -1,4 +1,4 @@
-.PHONY: validate demo validate-demo smoke-local-plugins install-codex-local validate-forgeflow-loop validate-behavior-guardrails validate-json validate-no-python validate-slim-surface validate-ci-workflows validate-english-readme validate-skills validate-skill-frontmatter validate-skill-modularity validate-agent-docs validate-templates validate-template-refs validate-template-fields validate-versions validate-changelog-links validate-route-scoring-parity validate-route-policy validate-gemini-imports validate-plugin-prompts validate-evals validate-evals-json validate-eval-files validate-evals-fixtures validate-workflow-vocab validate-ship-safety validate-dogfooding-docs validate-context-resume validate-stage-tool-boundaries validate-adapter-config validate-advisory-contract validate-markdown-links validate-guard-checks telemetry telemetry-collect telemetry-aggregate usage-audit
+.PHONY: validate demo validate-demo smoke-local-plugins install-codex-local validate-forgeflow-loop validate-full-loop-e2e validate-behavior-guardrails validate-json validate-no-python validate-slim-surface validate-ci-workflows validate-english-readme validate-skills validate-skill-frontmatter validate-skill-modularity validate-agent-docs validate-templates validate-template-refs validate-template-fields validate-versions validate-changelog-links validate-route-scoring-parity validate-route-policy validate-gemini-imports validate-plugin-prompts validate-evals validate-evals-json validate-eval-files validate-evals-fixtures validate-workflow-vocab validate-ship-safety validate-dogfooding-docs validate-context-resume validate-stage-tool-boundaries validate-adapter-config validate-advisory-contract validate-markdown-links validate-guard-checks telemetry telemetry-collect telemetry-aggregate usage-audit
 
 PYTHON ?= python3
 
@@ -31,7 +31,7 @@ TEMPLATES := \
 	evidence-manifest.md \
 	re-execution-conditions.md
 
-validate: validate-no-python validate-slim-surface validate-ci-workflows validate-english-readme validate-json validate-versions validate-changelog-links validate-route-scoring-parity validate-route-policy validate-skills validate-skill-modularity validate-agent-docs validate-templates validate-template-refs validate-template-fields validate-demo validate-forgeflow-loop validate-gemini-imports validate-plugin-prompts validate-evals validate-workflow-vocab validate-ship-safety validate-dogfooding-docs validate-context-resume validate-stage-tool-boundaries validate-adapter-config validate-advisory-contract validate-behavior-guardrails validate-markdown-links validate-guard-checks
+validate: validate-no-python validate-slim-surface validate-ci-workflows validate-english-readme validate-json validate-versions validate-changelog-links validate-route-scoring-parity validate-route-policy validate-skills validate-skill-modularity validate-agent-docs validate-templates validate-template-refs validate-template-fields validate-demo validate-forgeflow-loop validate-full-loop-e2e validate-gemini-imports validate-plugin-prompts validate-evals validate-workflow-vocab validate-ship-safety validate-dogfooding-docs validate-context-resume validate-stage-tool-boundaries validate-adapter-config validate-advisory-contract validate-behavior-guardrails validate-markdown-links validate-guard-checks
 	@echo "OK: local validation passed"
 
 validate-evals: validate-evals-json validate-eval-files validate-evals-fixtures
@@ -97,6 +97,11 @@ validate-forgeflow-loop:
 	@$(PYTHON) scripts/validate_forgeflow_loop.py
 	@grep -Fq "scripts/forgeflow_loop.py" README.md || { echo "ERROR: README must document the minimal forgeflow-loop CLI script"; exit 1; }
 	@grep -Fq "make validate-forgeflow-loop" README.md || { echo "ERROR: README local validation docs must include focused forgeflow-loop validation"; exit 1; }
+
+validate-full-loop-e2e:
+	@$(PYTHON) scripts/validate_full_loop_e2e.py
+	@grep -Fq "make validate-full-loop-e2e" README.md || { echo "ERROR: README local validation docs must include disposable full-loop E2E validation"; exit 1; }
+	@grep -Fq "credential-free disposable full-loop E2E" README.md || { echo "ERROR: README must document credential-free disposable full-loop E2E scope"; exit 1; }
 
 validate-no-python:
 	@count=$$(find . -name '*.py' -not -path './.git/*' -not -path './.venv/*' -not -path './scripts/*' | wc -l); \
