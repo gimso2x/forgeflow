@@ -264,8 +264,36 @@ def main() -> int:
                 cwd=ROOT,
             )
         )
+        assert_contains(out, "retry_policy: route=medium retry=1/2 exhausted=no")
+        assert_contains(out, "status=in_progress")
+        failed_verify_ledger = (failed_verify_dir / "ledger.md").read_text(encoding="utf-8")
+        assert_contains(failed_verify_ledger, "verification command failed; retry=1/2; route=medium")
+        assert_contains(failed_verify_ledger, "- **Retry Count**: 1")
+
+        exhausted_verify_dir = tmp / ".forgeflow" / "tasks" / "exhausted-verify"
+        shutil.copytree(task_dir, exhausted_verify_dir)
+        exhausted_ledger = LEDGER.replace("- **Retry Count**: 0", "- **Retry Count**: 1")
+        (exhausted_verify_dir / "ledger.md").write_text(exhausted_ledger, encoding="utf-8")
+        (exhausted_verify_dir / "checkpoint.md").write_text(CHECKPOINT, encoding="utf-8")
+        out = assert_ok(
+            run(
+                "run-adapter",
+                "--task-dir",
+                str(exhausted_verify_dir),
+                "--adapter",
+                "stub",
+                "--command",
+                "python3 -c 'print(\"adapter ok\")'",
+                "--verify-command",
+                "python3 -c 'import sys; print(\"verify failed\"); sys.exit(3)'",
+                cwd=ROOT,
+            )
+        )
+        assert_contains(out, "retry_policy: route=medium retry=2/2 exhausted=yes")
         assert_contains(out, "status=blocked")
-        assert_contains((failed_verify_dir / "ledger.md").read_text(encoding="utf-8"), "verification command failed")
+        exhausted_ledger_text = (exhausted_verify_dir / "ledger.md").read_text(encoding="utf-8")
+        assert_contains(exhausted_ledger_text, "retry_budget_exhausted; promotion_hint=high")
+        assert_contains(exhausted_ledger_text, "- **Retry Count**: 2")
 
         blocked_task_dir = tmp / ".forgeflow" / "tasks" / "blocked"
         shutil.copytree(task_dir, blocked_task_dir)

@@ -20,6 +20,8 @@ PROTECTED_PATHS = (".git", ".forgeflow")
 TASK_HEADING_RE = re.compile(r"^###\s+(Task\s+\d+:\s+.+?)\s*$")
 FIELD_RE = re.compile(r"^- \*\*(Status|Assignee|Claim Marker|Evidence Refs|Blocker|Retry Count)\*\*:\s*(.*)$")
 FANOUT_RE = re.compile(r"^- (?P<stamp>\S+) task=(?P<task>.+?) worker=(?P<worker>\S+) branch=(?P<branch>\S+) owner=(?P<owner>\S+) status=(?P<status>\S+)")
+ROUTE_RE = re.compile(r"^route:\s*(\S+)\s*$", re.MULTILINE)
+RETRY_BUDGETS = {"small": 1, "medium": 2, "high": 3, "epic": 3}
 
 
 class LoopError(RuntimeError):
@@ -63,6 +65,19 @@ def parse_tasks(ledger_text: str) -> list[dict[str, str]]:
             key = field.group(1).lower().replace(" ", "_")
             current[key] = field.group(2).strip()
     return tasks
+
+
+def parse_route(ledger_text: str) -> str:
+    match = ROUTE_RE.search(ledger_text)
+    route = match.group(1).strip() if match else "medium"
+    if route not in RETRY_BUDGETS:
+        raise LoopError(f"unknown route '{route}', expected one of: {', '.join(sorted(RETRY_BUDGETS))}")
+    return route
+
+
+def retry_budget_for(ledger_text: str) -> tuple[str, int]:
+    route = parse_route(ledger_text)
+    return route, RETRY_BUDGETS[route]
 
 
 def parse_checkpoint(checkpoint_text: str) -> dict[str, str]:
@@ -175,7 +190,7 @@ def update_task_block(ledger_text: str, task_heading: str, updates: dict[str, st
     return "\n".join(out) + "\n"
 
 
-def record(task_dir: Path, status: str, evidence: str, task_name: str | None, blocker: str | None) -> int:
+def record(task_dir: Path, status: str, evidence: str, task_name: str | None, blocker: str | None, retry_count: int | None = None) -> int:
     if status not in ALLOWED_STATUSES:
         raise LoopError(f"invalid status '{status}', expected one of: {', '.join(sorted(ALLOWED_STATUSES))}")
     ledger_path, checkpoint_path, tasks, checkpoint = load_state(task_dir)
@@ -204,11 +219,14 @@ def record(task_dir: Path, status: str, evidence: str, task_name: str | None, bl
         "evidence_refs": evidence_ref,
         "blocker": blocker_text,
     }
+    if retry_count is not None:
+        updates["retry_count"] = str(retry_count)
     ledger_text = read_text(ledger_path)
     ledger_path.write_text(update_task_block(ledger_text, task["heading"], updates), encoding="utf-8")
 
     checkpoint_text = read_text(checkpoint_path)
-    next_line = f"{task['heading']} status={status} retry={task.get('retry_count', '0') or '0'} owner={task.get('assignee', 'worker') or 'worker'} next_update=implementation-notes.md#Evidence"
+    rendered_retry = str(retry_count) if retry_count is not None else (task.get('retry_count', '0') or '0')
+    next_line = f"{task['heading']} status={status} retry={rendered_retry} owner={task.get('assignee', 'worker') or 'worker'} next_update=implementation-notes.md#Evidence"
     checkpoint_text = replace_section(checkpoint_text, "Resume Pointer", next_line)
     checkpoint_text = replace_section(checkpoint_text, "Last Verified Evidence", f"{evidence_ref} recorded_at={now}")
     checkpoint_text = replace_section(checkpoint_text, "Status", "blocked" if status == "blocked" else "in_progress")
@@ -324,6 +342,25 @@ def selected_task(task_dir: Path) -> dict[str, str]:
     return task
 
 
+def handle_retryable_failure(task_dir: Path, task: dict[str, str], evidence: str, blocker: str) -> int:
+    ledger_text = read_text(artifact_paths(task_dir)["ledger"])
+    route, budget = retry_budget_for(ledger_text)
+    current_retry = int(task.get("retry_count", "0") or "0")
+    next_retry = current_retry + 1
+    exhausted = next_retry >= budget
+    status = "blocked" if exhausted else "in_progress"
+    blocker_text = f"{blocker}; retry={next_retry}/{budget}; route={route}"
+    if exhausted:
+        blocker_text += "; retry_budget_exhausted"
+        if route == "small":
+            blocker_text += "; promotion_hint=medium"
+        elif route == "medium":
+            blocker_text += "; promotion_hint=high"
+    evidence_text = f"{evidence} retry={next_retry}/{budget} route={route}"
+    print(f"retry_policy: route={route} retry={next_retry}/{budget} exhausted={'yes' if exhausted else 'no'}")
+    return record(task_dir, status, evidence_text, task["heading"], blocker_text, next_retry)
+
+
 def run_adapter(task_dir: Path, adapter: str, command_template: str, verify_command: str | None) -> int:
     try:
         task = selected_task(task_dir)
@@ -354,9 +391,9 @@ def run_adapter(task_dir: Path, adapter: str, command_template: str, verify_comm
     append_agent_run(task_dir, task, adapter, prompt_path, proc, verify)
 
     if proc.returncode != 0:
-        return record(task_dir, "blocked", f"adapter={adapter} exit={proc.returncode} notes=implementation-notes.md", task["heading"], "adapter command failed")
+        return handle_retryable_failure(task_dir, task, f"adapter={adapter} exit={proc.returncode} notes=implementation-notes.md", "adapter command failed")
     if verify is not None and verify.returncode != 0:
-        return record(task_dir, "blocked", f"adapter={adapter} verification_exit={verify.returncode} notes=implementation-notes.md", task["heading"], "verification command failed")
+        return handle_retryable_failure(task_dir, task, f"adapter={adapter} verification_exit={verify.returncode} notes=implementation-notes.md", "verification command failed")
     evidence = f"adapter={adapter} notes=implementation-notes.md"
     if verify is not None:
         evidence += f" verification_exit={verify.returncode}"
