@@ -266,7 +266,45 @@ def main() -> int:
         assert_contains(out, "status=blocked")
         assert_contains((blocked_task_dir / "ledger.md").read_text(encoding="utf-8"), "needs user decision")
 
-        print("OK: forgeflow-loop CLI reads, selects, and records markdown loop state")
+        queue_root = tmp / "phone-queue"
+        out = assert_ok(
+            run(
+                "queue",
+                "--queue-root",
+                str(queue_root),
+                "--request",
+                "이거 고쳐",
+                "--task-id",
+                "phone-demo",
+                cwd=ROOT,
+            )
+        )
+        assert_contains(out, "queued: phone-demo")
+        assert_contains(out, "recommended_route: small")
+        phone_task_dir = queue_root / "phone-demo"
+        assert_contains((phone_task_dir / "brief.md").read_text(encoding="utf-8"), "이거 고쳐")
+        assert_contains((phone_task_dir / "ledger.md").read_text(encoding="utf-8"), "recommended_route=small")
+        assert_contains((phone_task_dir / "checkpoint.md").read_text(encoding="utf-8"), "run /forgeflow:clarify")
+
+        out = assert_ok(
+            run(
+                "queue",
+                "--queue-root",
+                str(queue_root),
+                "--request",
+                "auth database migration refactor",
+                "--task-id",
+                "phone-override",
+                "--route",
+                "medium",
+                cwd=ROOT,
+            )
+        )
+        assert_contains(out, "recommended_route: high")
+        assert_contains(out, "selected_route: medium")
+        assert_contains((queue_root / "phone-override" / "ledger.md").read_text(encoding="utf-8"), "override=yes")
+
+        print("OK: forgeflow-loop CLI reads, selects, queues, and records markdown loop state")
         return 0
     finally:
         shutil.rmtree(tmp)

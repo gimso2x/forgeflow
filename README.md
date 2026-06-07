@@ -194,7 +194,7 @@ make validate
 
 `make validate`는 문서/JSON/skill/template/link/route/release/adapter/eval 계약을 검사합니다. live provider/plugin E2E를 실행하지 않습니다. Markdown link 검증은 HTML href/src 링크도 포함합니다. 큰 workflow skill은 `docs/skill-modularization.md` 정책에 따라 shared/reference로 쪼개졌는지도 검사합니다.
 
-Local loop CLI는 `scripts/forgeflow_loop.py`입니다. 현재 지원 명령은 `status`, `next`, `record`, `run-adapter`, `fanout`, `fanin`입니다. `run-adapter`는 task artifact를 `agent-prompt.md`로 묶어 adapter command의 stdin에 넣고, adapter stdout/stderr와 verification command 결과를 `implementation-notes.md` 및 `ledger.md`에 남깁니다. 검증 실패는 성공으로 포장하지 않고 item을 `blocked`로 기록합니다. `fanout`/`fanin`은 ledger의 `Claim Marker`를 path ownership으로 보고 겹치지 않는 작업만 git worktree로 나눈 뒤, worker diff가 자기 소유 path만 건드렸는지 확인하고 merge합니다. 즉 "폰에서 150 PR 합치기" 같은 루프를 흉내 내되, 충돌 격리와 검증 증거 없이는 합치지 않습니다.
+Local loop CLI는 `scripts/forgeflow_loop.py`입니다. 현재 지원 명령은 `status`, `next`, `record`, `queue`, `run-adapter`, `fanout`, `fanin`입니다. `queue`는 Telegram/phone-originated 짧은 자연어 요청을 task draft directory로 저장하고 `brief.md`, `ledger.md`, `checkpoint.md`, `implementation-notes.md`를 생성합니다. route recommendation은 출력과 ledger에 남기며 `--route`로 override할 수 있습니다. `run-adapter`는 task artifact를 `agent-prompt.md`로 묶어 adapter command의 stdin에 넣고, adapter stdout/stderr와 verification command 결과를 `implementation-notes.md` 및 `ledger.md`에 남깁니다. 검증 실패는 성공으로 포장하지 않고 item을 `blocked`로 기록합니다. `fanout`/`fanin`은 ledger의 `Claim Marker`를 path ownership으로 보고 겹치지 않는 작업만 git worktree로 나눈 뒤, worker diff가 자기 소유 path만 건드렸는지 확인하고 merge합니다. 즉 "폰에서 150 PR 합치기" 같은 루프를 흉내 내되, 충돌 격리와 검증 증거 없이는 합치지 않습니다.
 
 ```bash
 python3 scripts/forgeflow_loop.py status --task-dir <task-dir>
