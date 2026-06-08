@@ -39,6 +39,11 @@ Opt-in artifact invariant checker. Stdlib-only, no external dependencies. Does N
 # Check task directory invariants
 python3 scripts/forgeflow_guard_check.py check-task --task-dir /path/to/task --stage execute
 
+# Check clarify / plan / execute stage artifacts
+python3 scripts/forgeflow_guard_check.py check-clarify --task-dir /path/to/task
+python3 scripts/forgeflow_guard_check.py check-plan --task-dir /path/to/task
+python3 scripts/forgeflow_guard_check.py check-execute --task-dir /path/to/task
+
 # Check review artifacts
 python3 scripts/forgeflow_guard_check.py check-review --task-dir /path/to/task
 
@@ -126,6 +131,11 @@ Thin Guard works without any adapter hooks. Run directly:
 ```bash
 # Check task directory before execute
 python3 scripts/forgeflow_guard_check.py check-task --task-dir ~/.forgeflow/projects/my-project/tasks/feature-xyz-a1b --stage execute
+
+# Check stage completion gates
+python3 scripts/forgeflow_guard_check.py check-clarify --task-dir ~/.forgeflow/projects/my-project/tasks/feature-xyz-a1b
+python3 scripts/forgeflow_guard_check.py check-plan --task-dir ~/.forgeflow/projects/my-project/tasks/feature-xyz-a1b
+python3 scripts/forgeflow_guard_check.py check-execute --task-dir ~/.forgeflow/projects/my-project/tasks/feature-xyz-a1b
 
 # Check review before ship
 python3 scripts/forgeflow_guard_check.py check-review --task-dir ~/.forgeflow/projects/my-project/tasks/feature-xyz-a1b

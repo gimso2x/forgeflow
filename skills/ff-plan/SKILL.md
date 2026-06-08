@@ -6,6 +6,7 @@ author: gimso2x
 validate_prompt: |
   Must preserve exact-output and dry-run constraints when requested.
   Must default to artifact-first behavior and produce `plan.md` in the active task directory unless the user explicitly requests dry-run or no-write output.
+  Must run check-plan guard before exiting the stage.
   Must keep contracts, fulfills, journeys, and verify_plan consistent when present.
   Must include contract-first traceability for medium/high/epic or brownfield work.
   Must support refactor mode with requirement traceability when brief indicates refactoring.
@@ -222,6 +223,18 @@ For non-trivial work, carry the requirement map through the executable plan inst
 - If a verification target is not executable, record the limitation and a fallback manual/evidence gate before execution starts.
 
 Do not proceed to `/forgeflow:execute` if one of those is missing for non-trivial work.
+
+### Stage Completion Gate
+
+Before exiting plan, verify artifacts with the guard check script:
+
+```bash
+python3 <forgeflow-checkout>/scripts/forgeflow_guard_check.py check-plan --task-dir <task-dir>
+```
+
+- **PASS** -> stage complete, proceed to execute or present the plan to the user.
+- **BLOCK** -> update `plan.md`/route artifacts, then re-run. Do not exit plan with BLOCK results.
+- Label-only / dry-run mode is the only exception because no artifacts are written by design.
 
 ## Exit Condition
 

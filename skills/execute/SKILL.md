@@ -6,6 +6,7 @@ author: gimso2x
 validate_prompt: |
   Must preserve exact-output and dry-run constraints when requested.
   Must execute only scoped plan tasks and respect contracts or verify_plan obligations when present.
+  Must run check-execute guard before exiting the stage.
   Must not treat worker self-report as final approval; review remains required.
   Must use `skills/execute/references/` prompts for subagent dispatch and write the same execute artifacts.
   Must not dispatch parallel implementer subagents for steps that touch the same file.
@@ -284,6 +285,12 @@ Minimum warning contract:
     2. 검증 결과: lint/build/test 각각 pass/fail + 숫자
     3. 변경 파일 목록
     4. 주의사항 (있는 경우): contract_check 실패, environment warning, 미해결 decisions
+    Then run the stage guard:
+    ```bash
+    python3 <forgeflow-checkout>/scripts/forgeflow_guard_check.py check-execute --task-dir <task-dir>
+    ```
+    - **PASS** -> execute may hand off to review/ship according to route.
+    - **BLOCK** -> repair missing execute artifacts/evidence and re-run. Do not exit execute with BLOCK results.
     **`--auto`가 활성 상태면**: 완료 보고를 출력한 뒤 route별 checkpoint를 업데이트하고 다음 stage를 adapter-native 방식으로 호출한다. `small`은 self-verify 통과 후 `/forgeflow:ship`, `medium`은 `/forgeflow:ff-review`, `high/epic`은 `/forgeflow:ff-review --type spec`이다. 텍스트로만 slash command를 출력하지 않는다. 사용자에게 다음 단계를 묻지 않는다(automation.md strict auto-chain).
     **`--auto`가 아니면**: 반드시 사용자가 다음 단계를 실행하도록 대기.
 

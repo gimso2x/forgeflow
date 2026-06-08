@@ -6,6 +6,7 @@ author: gimso2x
 validate_prompt: |
   Must preserve exact-output and dry-run constraints when requested.
   Must separate findings by reviewer role (spec, quality, architecture, security, ux, perf).
+  Must run check-review guard before handoff.
   Must not approve work with unresolved blockers or missing verification evidence.
   Must apply applicable review rubric (Spec Review or Quality Review) per role.
   Must handle standalone mode input detection (URL, repo, diff, files) and synthetic task directory bootstrapping.
@@ -474,7 +475,8 @@ Follow the full pipeline checklist in `skills/ff-review/references/pipeline-proc
 3. Run independent verification when allowed; any selected gate failure prevents approval.
 4. Apply the appropriate review rubric plus role checklist; quality-reviewer with diff/code input also applies `skills/ff-review/references/deep-code-analysis.md`.
 5. Write or update `review-report.md`; the verdict in the file is the only valid verdict.
-6. Do not call `/forgeflow:ship` unless verdict=approved, safe_for_next_stage=yes, and open_blockers=none are all true in the written `review-report.md`.
+6. Run `python3 <forgeflow-checkout>/scripts/forgeflow_guard_check.py check-review --task-dir <task-dir>`; BLOCK means no handoff.
+7. Do not call `/forgeflow:ship` unless verdict=approved, safe_for_next_stage=yes, and open_blockers=none are all true in the written `review-report.md`.
 
 Do not merge spec and quality review passes into a single turn for high/epic work. Use one `review-report.md` with sequential passes.
 

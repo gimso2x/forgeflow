@@ -6,6 +6,7 @@ author: gimso2x
 validate_prompt: |
   Must preserve exact-output and dry-run constraints when requested.
   Must confirm review approval, intended diff scope, and final verification before shipping.
+  Must run check-ship guard before final handoff.
   Must not hide residual risks or unrelated dirty working tree changes.
   Must require fresh verification, git status, git diff, review evidence, and residual risk review before presenting finish options.
   Must present safe outcomes: merge locally, push and create PR, keep branch, or discard work. Worktree isolation may add cleanup-only mode.
@@ -195,6 +196,13 @@ python3 scripts/forgeflow_fact_store.py add \
    - If `Decision: skipped`, require a skip rationale tied to the review gate criteria.
    - If the section is missing on older artifacts, treat this as a review artifact gap and route back to `/forgeflow:ff-review` unless the task is explicitly legacy/no-risk and the reviewer records a skip rationale.
 5. Confirm there is no unresolved blocker, and that handoff evidence is preserved in the active task directory before preparing the final summary.
+
+5a. Run the stage guard before final handoff:
+   ```bash
+   python3 <forgeflow-checkout>/scripts/forgeflow_guard_check.py check-ship --task-dir <task-dir>
+   ```
+   - **PASS** -> ship may prepare the final handoff.
+   - **BLOCK** -> repair `ship-summary.md`, review evidence, or small-route self-verify evidence and re-run. Do not finish ship with BLOCK results.
 
 6. **Artifact completeness gate**: Before writing final handoff language, inspect `review-report.md`, `implementation-notes.md`, and the draft/final `ship-summary.md` for unresolved template residue. If `TODO`, `TBD`, `FIXME`, unresolved `<!-- ... -->`, or angle-bracket placeholders such as `<task-id>`, `<branch-name>`, or `<...>` remain as artifact-writing residue, stop and route back to `/forgeflow:execute` or `/forgeflow:ff-review`. Do not preserve unfinished placeholders as ship evidence. Intentional Markdown checkboxes, code snippets, command output, or literal examples are not blockers by themselves.
 

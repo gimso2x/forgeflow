@@ -398,6 +398,7 @@ validate-markdown-links:
 
 validate-guard-checks:
 	@$(PYTHON) scripts/validate_guard_checks.py
+	@$(PYTHON) scripts/validate_stage_guard_checks.py
 
 # ---------------------------------------------------------------------------
 # Telemetry
