@@ -198,6 +198,140 @@ none
     return task_dir
 
 
+def make_empty_dir(root: Path, name: str) -> Path:
+    task_dir = root / name
+    task_dir.mkdir()
+    return task_dir
+
+
+def make_execute_missing_artifact_dir(root: Path, *, missing: str) -> Path:
+    task_dir = root / f"execute-missing-{missing}"
+    task_dir.mkdir()
+    if missing != "notes":
+        write_file(
+            task_dir / "implementation-notes.md",
+            """## Status
+in_progress
+
+## Current Stage
+execute
+
+## Blocked By
+none
+""",
+        )
+    if missing != "ledger":
+        write_file(
+            task_dir / "ledger.md",
+            """### Task 1
+- **Status**: done
+- **Evidence Refs**: verification:PASS gate=test
+""",
+        )
+    if missing != "checkpoint":
+        write_file(
+            task_dir / "checkpoint.md",
+            """## Current Stage
+execute
+
+## Status
+in_progress
+
+## Next Action
+continue
+
+## Resume Pointer
+Task 1 in progress
+
+## Blockers
+none
+""",
+        )
+    return task_dir
+
+
+def make_execute_completed_no_evidence_index_dir(root: Path) -> Path:
+    task_dir = root / "execute-completed-no-eidx"
+    task_dir.mkdir()
+    write_file(
+        task_dir / "implementation-notes.md",
+        """## Status
+completed
+
+## Current Stage
+execute
+
+## Blocked By
+none
+
+## Evidence
+- verification:PASS gate=test
+""",
+    )
+    write_file(
+        task_dir / "ledger.md",
+        """### Task 1
+- **Status**: done
+- **Evidence Refs**: E-1
+
+## All Done
+- **All Done**: yes
+""",
+    )
+    write_file(
+        task_dir / "checkpoint.md",
+        """## Resume Pointer
+Task 1 done
+
+## Current Stage
+review
+
+## Status
+completed
+
+## Next Action
+review
+
+## Blockers
+none
+""",
+    )
+    return task_dir
+
+
+def make_ship_no_review_no_selfverify_dir(root: Path) -> Path:
+    task_dir = root / "ship-no-review-no-selfverify"
+    task_dir.mkdir()
+    write_file(
+        task_dir / "ship-summary.md",
+        """## Evidence Manifest
+- verification:PASS gate=lint command="pnpm lint"
+""",
+    )
+    return task_dir
+
+
+def make_ship_review_not_approved_dir(root: Path) -> Path:
+    task_dir = root / "ship-review-not-approved"
+    task_dir.mkdir()
+    write_file(
+        task_dir / "ship-summary.md",
+        """## Evidence Manifest
+- verification:PASS gate=lint command="pnpm lint"
+""",
+    )
+    write_file(
+        task_dir / "review-report.md",
+        """## Verdict
+changes_requested
+
+## Open Blockers
+- Critical bug found
+""",
+    )
+    return task_dir
+
+
 def make_ship_placeholder_manifest_dir(root: Path) -> Path:
     task_dir = root / "ship-placeholder-manifest"
     task_dir.mkdir()
@@ -228,6 +362,7 @@ def run_tests() -> list[TestResult]:
     with tempfile.TemporaryDirectory(prefix="forgeflow_stage_guard_") as tmp:
         root = Path(tmp)
         return [
+            # ── check-plan ──
             expect("test_check_plan_valid_passes", run_guard(["check-plan", "--task-dir", str(make_plan_dir(root, include_steps=True))]), 0),
             expect(
                 "test_check_plan_missing_implementation_steps_blocks",
@@ -235,6 +370,13 @@ def run_tests() -> list[TestResult]:
                 2,
                 "Implementation Steps",
             ),
+            expect(
+                "test_check_plan_missing_file_blocks",
+                run_guard(["check-plan", "--task-dir", str(make_empty_dir(root, "plan-no-file"))]),
+                2,
+                "plan.md missing",
+            ),
+            # ── check-execute ──
             expect("test_check_execute_valid_passes", run_guard(["check-execute", "--task-dir", str(make_execute_dir(root, done_has_evidence=True))]), 0),
             expect(
                 "test_check_execute_done_without_evidence_blocks",
@@ -243,16 +385,66 @@ def run_tests() -> list[TestResult]:
                 "Evidence Refs",
             ),
             expect(
+                "test_check_execute_missing_notes_blocks",
+                run_guard(["check-execute", "--task-dir", str(make_execute_missing_artifact_dir(root, missing="notes"))]),
+                2,
+                "implementation-notes.md missing",
+            ),
+            expect(
+                "test_check_execute_missing_ledger_blocks",
+                run_guard(["check-execute", "--task-dir", str(make_execute_missing_artifact_dir(root, missing="ledger"))]),
+                2,
+                "ledger.md missing",
+            ),
+            expect(
+                "test_check_execute_missing_checkpoint_blocks",
+                run_guard(["check-execute", "--task-dir", str(make_execute_missing_artifact_dir(root, missing="checkpoint"))]),
+                2,
+                "checkpoint.md missing",
+            ),
+            expect(
+                "test_check_execute_completed_no_evidence_index_blocks",
+                run_guard(["check-execute", "--task-dir", str(make_execute_completed_no_evidence_index_dir(root))]),
+                2,
+                "Evidence Index",
+            ),
+            # ── check-review ──
+            expect(
                 "test_check_review_missing_human_gate_blocks",
                 run_guard(["check-review", "--task-dir", str(make_review_missing_human_gate_dir(root))]),
                 2,
                 "Human Review Gate",
             ),
             expect(
+                "test_check_review_missing_file_blocks",
+                run_guard(["check-review", "--task-dir", str(make_empty_dir(root, "review-no-file"))]),
+                2,
+                "review-report.md missing",
+            ),
+            # ── check-ship ──
+            expect(
                 "test_check_ship_empty_evidence_manifest_blocks",
                 run_guard(["check-ship", "--task-dir", str(make_ship_placeholder_manifest_dir(root))]),
                 2,
                 "Evidence Manifest",
+            ),
+            expect(
+                "test_check_ship_missing_file_blocks",
+                run_guard(["check-ship", "--task-dir", str(make_empty_dir(root, "ship-no-file"))]),
+                2,
+                "ship-summary.md missing",
+            ),
+            expect(
+                "test_check_ship_no_review_no_selfverify_blocks",
+                run_guard(["check-ship", "--task-dir", str(make_ship_no_review_no_selfverify_dir(root))]),
+                2,
+                "no review-report.md and does not record small route",
+            ),
+            expect(
+                "test_check_ship_review_not_approved_blocks",
+                run_guard(["check-ship", "--task-dir", str(make_ship_review_not_approved_dir(root))]),
+                2,
+                "not approved",
             ),
         ]
 
