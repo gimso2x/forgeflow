@@ -35,6 +35,7 @@ skills/
   ship/                     # Ship + branch cleanup + model tier verification floor
   long-run/                 # Learning → eval-record.md
   ff-config/                # Project defaults (auto/isolation toggles)
+  ff-loop/                  # Full lifecycle loop — one command clarify→ship with auto-retry
   benchmark/                # Cross-adapter benchmarks
   _shared/                  # discipline.md, preflight.md, isolation.md, automation.md, context-resume.md
 templates/                  # 27 artifact templates (brief, plan, review-report, ship-summary, etc.)

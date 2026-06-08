@@ -37,7 +37,8 @@
       "/ship",
       "/long-run",
       "/benchmark",
-      "/ff-config"
+      "/ff-config",
+      "/ff-loop <describe the coding task>"
     ]
   }
 }

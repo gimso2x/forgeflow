@@ -25,7 +25,8 @@
       "/forgeflow:ship",
       "/forgeflow:long-run",
       "/forgeflow:benchmark",
-      "/forgeflow:ff-config"
+      "/forgeflow:ff-config",
+      "/forgeflow:ff-loop <describe the coding task>"
     ]
   }
 }

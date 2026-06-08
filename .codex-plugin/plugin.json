@@ -38,7 +38,8 @@
       "/forgeflow:ship",
       "/forgeflow:long-run",
       "/forgeflow:benchmark",
-      "/forgeflow:ff-config"
+      "/forgeflow:ff-config",
+      "/forgeflow:ff-loop <describe the coding task>"
     ],
     "websiteURL": "https://github.com/gimso2x/forgeflow",
     "brandColor": "#111827",

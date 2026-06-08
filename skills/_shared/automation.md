@@ -10,7 +10,6 @@ The following flags enable automated stage transitions:
 - `--auto-approve` — same as `--yes`
 - `--non-interactive` — suppress interactive prompts where possible
 - `--auto` — **auto-chain**: proceed through all remaining stages without stopping at stage boundaries
-- `--loop` — **full loop**: auto-chain + retry failed tasks, re-execute on review changes, auto-promote route, re-plan on scope drift. Runs the complete lifecycle in one invocation until ship or irrecoverable blocker.
 
 ### How --auto is activated
 
@@ -19,15 +18,6 @@ The following flags enable automated stage transitions:
 2. `<storage-root>/defaults.md` contains `auto: true` (read at clarify stage, propagated to `brief.md`)
 3. `brief.md` has `auto: true` in its metadata
 4. User explicitly says to auto-chain (e.g., "자동으로 진행", "auto chain", "계속 진행")
-
-### How --loop is activated
-
-`--loop` is active when ANY of these is true:
-1. `--loop` flag passed to the skill invocation
-2. User explicitly says to loop (e.g., "루프로 돌려", "loop로 해", "한 번에 끝까지")
-3. `<storage-root>/defaults.md` contains `loop: true`
-
-`--loop` implies `--auto`. When `--loop` is active, all `--auto` chaining rules apply **plus** the loop extensions below.
 
 `--auto-approve` and `--yes` approve only the current stage boundary. They do not opt into full-route chaining unless the user also says to auto-chain or another `--auto` activation source is present.
 
@@ -89,110 +79,9 @@ The agent must **stop and wait for user input** when any of these occur, even un
 - The 4-option choice in ship branch disposition — only when NOT `--auto`. Under `--auto`, default to "Merge locally" and proceed without prompting (see ship completion below).
 - Quality improvement loop-back in `ship` (if issues found, ask before returning to execute)
 
-## --loop mode
+## Full loop mode (ff-loop skill)
 
-`--loop` extends `--auto` with **retry, re-execution, promotion, and re-plan** capabilities. Under `--loop`, the agent keeps running the full lifecycle until ship succeeds or an irrecoverable blocker is hit.
-
-### Loop-specific behaviors
-
-| Situation | --auto (no loop) | --loop |
-|---|---|---|
-| Verification failed | Auto-break | Retry up to route budget, then auto-break |
-| Review `changes_requested` (code) | Auto-break | Re-execute affected items, re-run review |
-| Review `changes_requested` (artifact-only) | Auto-fix + re-review | Auto-fix + re-review (same) |
-| Scope drift detected | Auto-break | Re-plan in place, update brief if needed, continue |
-| Retry budget exhausted | Auto-break | **Promote route** (small→medium, medium→high) and retry |
-| Promotion not possible (already high/epic) | Auto-break | Auto-break (record as irrecoverable blocker) |
-| Route promoted | N/A | Record in `implementation-notes.md` as `D-<!-- N --> route_change`, update ledger route, continue |
-| Plan needs update after scope drift | Auto-break | Re-plan affected items, update `plan.md` and `ledger.md`, continue |
-| Context limit hit | Write checkpoint, continue next turn | Same — write checkpoint, continue next turn |
-| Irrecoverable blocker (credential, missing dep, user decision) | Auto-break | Auto-break (same) |
-
-### Retry budgets (--loop)
-
-| Route | Max retries per task | Max total loop iterations |
-|---|---|---|
-| small | 1 | 2 |
-| medium | 2 | 4 |
-| high | 2 | 5 |
-| epic | 3 (per milestone) | 6 |
-
-A retry requires a **changed condition**: modified code, modified plan, new evidence, resolved blocker, or revised scope. Blind reruns without changes are noise — do not count them toward the budget.
-
-### Route promotion (--loop)
-
-When retry budget is exhausted and the task still fails:
-
-1. Record in `implementation-notes.md`:
-   ```
-   D-<!-- N --> route_change from=<old> to=<new> reason=<evidence-based reason>
-   ```
-2. Update `ledger.md` frontmatter `route:` to the new route
-3. Update `checkpoint.md` with the new stage expectations
-4. Continue from the current stage with the higher route's verification floor
-
-Promotion path: `small → medium → high`. Epic is the ceiling.
-
-### Loop execution flow
-
-```text
-clarify
-  │
-  ▼
-plan (medium+)
-  │
-  ▼
-execute ─────────────────────┐
-  │                           │
-  ▼                           │ (retry if budget remains)
-verify ─── fail? ── retry ───┘
-  │
-  │ budget exhausted?
-  │   └── promote route, continue
-  │
-  ▼
-review ─── changes_requested?
-  │           │
-  │           └── re-execute affected items → back to verify
-  │
-  │ scope drift?
-  │   └── re-plan affected items → back to execute
-  │
-  ▼ (approved)
-ship
-  │
-  ▼
-done (or long-run for high/epic)
-```
-
-### Loop break conditions (--loop stops here)
-
-Even under `--loop`, stop and wait for user input when:
-
-- **Irrecoverable blocker**: credential, billing, destructive cleanup, external publish, missing human decision
-- **Route already at high/epic and retry budget exhausted**: no more promotion possible
-- **Context limit**: write checkpoint, continue next turn (not a hard break)
-- **Destructive action**: discard confirmation, force-push — always requires human
-- **Consecutive failures with no changed condition**: if the same failure repeats 3 times with identical conditions, stop — this is a signal that something fundamental is wrong
-
-### Loop and artifact state
-
-Under `--loop`, artifacts are the loop state machine. The agent MUST:
-
-1. Update `ledger.md` task status after every attempt (`pending → in_progress → done/blocked`)
-2. Update `checkpoint.md` after every attempt with current retry count and route
-3. Record retry attempts in `implementation-notes.md` Evidence section
-4. Record route changes as Decisions in `implementation-notes.md`
-5. Never silently retry — each retry must be recorded with what changed
-
-### Resume after loop break
-
-On resume when `--loop` is still active:
-
-1. Read `checkpoint.md` → `ledger.md` → `implementation-notes.md` Reader Summary
-2. If `Status: blocked`, check if the blocker is resolvable
-3. If resolvable, resolve it and continue from `Next Action`
-4. If not resolvable, report to user and wait
+For retry + re-execution + route promotion + re-plan in a single invocation, use the dedicated `/forgeflow:ff-loop` skill instead of `--auto`. See `skills/ff-loop/SKILL.md` for the complete loop contract.
 
 ## Strict auto-chain mode
 

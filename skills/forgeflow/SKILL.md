@@ -55,6 +55,7 @@ Adapter-specific CLI flags and timeout guides: `docs/adapter-config.md`.
 | Review | `/forgeflow:ff-review` (pipeline: after execute; standalone: with URL/repo/diff/files input) | `/ff-review` (same) |
 | Ship | `/forgeflow:ship` | `/ship` |
 | Config | `/forgeflow:ff-config` | `/ff-config` |
+| Loop | `/forgeflow:ff-loop <task>` | `/ff-loop <task>` |
 | Init (full) | Select `full init` inside `/forgeflow:ff-config` | Select `full init` inside `/ff-config` |
 | Long-run | `/forgeflow:long-run` | `/long-run` |
 | Benchmark | `/forgeflow:benchmark` | `/benchmark` |
@@ -280,7 +281,7 @@ If an adapter exceeds the safety ceiling, terminate the process and record the t
 6. After clarify, follow the route's stage sequence (see Route model above).
 7. Each stage skill handles its own procedure, artifacts, and gates.
 8. Auto-chain priority: `--auto` CLI flag > `brief.md` `auto: true` > `<storage-root>/defaults.md` `auto: true` > default (`false`). When auto-chain is active, stage skills proceed without `(y/n)` prompts. See `_shared/automation.md` for chain sequence, **Strict auto-chain mode** checklist, and auto-break conditions.
-9. **Loop mode**: `--loop` flag enables full lifecycle loop — auto-chain plus retry, re-execution on review changes, route promotion, and re-plan on scope drift. The agent keeps running clarify → plan → execute → review → ship until completion or irrecoverable blocker. See `_shared/automation.md` → `--loop mode` for retry budgets, promotion rules, and loop break conditions.
+9. **Full loop mode**: use `/forgeflow:ff-loop` for the complete lifecycle loop — auto-chain plus retry, re-execution on review changes, route promotion, and re-plan on scope drift in a single invocation. See `skills/ff-loop/SKILL.md`.
 
 ## Exit Condition
 
