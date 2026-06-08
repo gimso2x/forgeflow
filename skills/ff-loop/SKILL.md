@@ -192,6 +192,34 @@ evidence_completeness: <%>
 4. route 변경은 Decisions에 기록
 5. 조용히 재시도 금지 — 매 retry마다 무엇이 바뀌었는지 기록
 
+## State Machine
+
+ff-loop follows an explicit state machine for crash recovery and resume:
+
+```
+INIT → CLARIFYING → PLANNING → EXECUTING → REVIEWING → SHIPPING → DONE
+                                                                   ↘ BLOCKED
+```
+
+| State | Entry artifact | Exit condition | On resume |
+|-------|---------------|----------------|-----------|
+| `INIT` | — | task-dir created, run-state.json written | Start from scratch |
+| `CLARIFYING` | — | brief.md written, route selected | Re-read brief.md, verify route |
+| `PLANNING` | brief.md | plan.md written, Self-Critique complete | Re-read plan.md |
+| `EXECUTING` | plan.md | implementation complete, verification gates pass | Verify implemented files vs plan |
+| `REVIEWING` | implementation artifacts | review-report.md verdict: approved | Re-read review-report.md |
+| `SHIPPING` | approved review-report.md | ship-summary.md written, branch merged | Check git status |
+| `DONE` | ship-summary.md | — | Terminal |
+| `BLOCKED` | checkpoint.md Blockers | blocker resolved or user override | Re-attempt from last state |
+
+`checkpoint.md` records:
+- `current_state`: one of the states above
+- `retry_count`: number of retries from this state
+- `route`: current route (may change on promotion)
+- `last_stage_completed`: last stage that produced a valid artifact
+
+On resume: verify artifacts for completed stages exist and are valid, then continue from `current_state`.
+
 ## Procedure
 
 1. 사용자 요청을 읽습니다

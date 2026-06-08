@@ -9,6 +9,8 @@
 @./skills/benchmark/SKILL.md
 @./skills/ff-config/SKILL.md
 @./skills/ff-loop/SKILL.md
+@./skills/qa/SKILL.md
+@./skills/unstuck/SKILL.md
 @./skills/_shared/discipline.md
 @./skills/_shared/isolation.md
 @./skills/_shared/automation.md

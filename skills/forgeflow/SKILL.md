@@ -216,6 +216,21 @@ ForgeFlow separates responsibilities across stages. The implementing session mus
    Adapters should respect tier hints when model selection is available, but **must not** block or fail if a tier cannot be satisfied — fall back to the default model silently.
    The artifact contract records the role boundary; it does not require a central model database.
 
+   **Auto-escalation rules** (applied by ff-loop and stage skills):
+
+   | Condition | Action |
+   |-----------|--------|
+   | 2+ consecutive retry failures at same tier | Escalate one tier up (fast → coding → reasoning) |
+   | 2+ consecutive stage successes at escalated tier | Downgrade back to original tier |
+   | Tier ceiling reached (reasoning) | No further escalation; record in implementation-notes.md |
+
+   Record tier changes in `implementation-notes.md` → Decisions:
+   ```
+   [tier-escalation] stage=<name> tier=<from>→<to> reason=<2 consecutive failures> retry=<N>
+   ```
+
+   This prevents retry loops at an insufficient tier while avoiding unnecessary cost when a lower tier succeeds.
+
 ## Execution Patterns
 
 Different routes use different execution strategies: producer-reviewer (default), pipeline (sequential gates), fan-out/fan-in (parallel workers for high/epic). Review depth scales by route.

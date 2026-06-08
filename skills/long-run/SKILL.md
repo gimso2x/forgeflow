@@ -139,6 +139,27 @@ Long-run may record evolution rule candidates in `eval-record.md` when a high/ep
 
 Evolution rule materialization is handled by the **ship** stage. Ship runs in all routes (small, medium, high, epic), reads `eval-record.md` as one input, and decides whether to turn candidate notes into proposed rule artifacts.
 
+## Evolutionary Learning Feedback Loop
+
+Long-run implements a Wonder→Reflect feedback cycle where evaluation output feeds back as input for future tasks:
+
+1. **Extract learnings**: After ship, read `review-report.md` → Drift Analysis section, `implementation-notes.md` → Decisions and Deviations, and `ship-summary.md` → Evidence Manifest. Identify:
+   - What worked: patterns that produced clean review passes
+   - What failed: patterns that caused review rejections, scope creep, or blocker loops
+   - Effective strategies: approaches that reduced drift_score below 0.2
+
+2. **Record in eval-record.md**: Store as structured feedback with:
+   - `drift_score` from review (if available)
+   - `route_effectiveness`: did the route level match the actual complexity?
+   - `stagnation_events`: count and type of stagnation patterns detected by ff-loop
+   - `convergence_trend`: were retries converging or diverging?
+
+3. **Auto-load in next task**: When clarify runs for a new task, it calls `python3 scripts/forgeflow_fact_store.py search --query "<objective>"` to find relevant learnings. These appear in `brief.md` → Applied Memory Facts section.
+
+4. **Cross-task pattern detection**: If drift_score > 0.4 in 3+ consecutive tasks, or if the same failure pattern recurs, long-run proposes an evolution rule candidate in `eval-record.md` for ship to materialize.
+
+This creates a closed loop: task → learn → feed forward → better scoping on next task.
+
 ## Procedure
 
 1. Review the task's `brief.md`, review reports, and any decision artifacts.

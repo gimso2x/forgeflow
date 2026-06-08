@@ -32,6 +32,7 @@ Use this skill to review completed ForgeFlow work independently.
 - [references/input-normalization.md](references/input-normalization.md) — normalization gate and evidence/source mapping.
 - [references/role-checklists.md](references/role-checklists.md) — reviewer role rubrics and checklist criteria.
 - [references/pipeline-procedure.md](references/pipeline-procedure.md) — post-execute review flow and artifact trace procedure.
+- [references/consensus-and-drift.md](references/consensus-and-drift.md) — multi-model consensus review and quantitative drift detection.
 
 ## Input
 
@@ -280,6 +281,14 @@ Record in `review-report.md` → Code Quality Metrics section. Metrics exceeding
 ## Closed Loop — Re-Execution Condition Generation (L6)
 
 When review verdict is `changes_requested` or `blocked`, write re-execution conditions into `checkpoint.md` under the `## Re-Execution Conditions` section (see `templates/checkpoint.md`). Use `skills/ff-review/references/re-execution-conditions.md` for failure analysis, corrected execution conditions, rollback instructions, Memory Bank recording, auto/manual handling, and the 3-cycle safety limit.
+
+## Multi-model Consensus and Drift Detection
+
+→ Full rules: [`references/consensus-and-drift.md`](references/consensus-and-drift.md).
+
+Summary:
+- **Multi-model consensus**: Optional for high/epic via `defaults.md` `consensus_review: true`. Primary + secondary reviewer; disagreements surfaced in review-report.md.
+- **Drift detection**: Quantitative `drift_score = goal_drift*0.5 + constraint_drift*0.3 + scope_drift*0.2`. Thresholds: ≤0.2 minimal, 0.2-0.4 moderate, >0.4 significant. Recorded in review-report.md → Drift Analysis.
 
 ## Exit Condition
 

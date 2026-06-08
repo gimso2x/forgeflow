@@ -16,7 +16,7 @@ Surface tiers:
 
 - **Core workflow**: `clarify`, `ff-plan`, `execute`, `ff-review`, `ship`
 - **Support**: `forgeflow`, `long-run`, `ff-loop`
-- **Utility / optional**: `benchmark`
+- **Utility / optional**: `benchmark`, `qa`, `unstuck`
 
 `ff-config` is listed separately under Utility skills because it manages project defaults rather than advancing a task artifact chain.
 
@@ -31,6 +31,8 @@ Surface tiers:
 | 06 | [`long-run`](long-run/SKILL.md) | Record reusable learnings after high/epic route completion. |
 | 07 | [`benchmark`](benchmark/SKILL.md) | Cross-adapter benchmark: same prompt → multiple agents → comparison report. |
 | 08 | [`ff-loop`](ff-loop/SKILL.md) | Full lifecycle loop — one command from clarify through ship with auto-retry, route promotion, and re-plan. |
+| 09 | [`qa`](qa/SKILL.md) | Lightweight 3-point QA verdict (Completeness, Correctness, Actionability) on any ForgeFlow artifact. |
+| 10 | [`unstuck`](unstuck/SKILL.md) | Break through implementation blocks using lateral thinking personas (hacker, researcher, simplifier, architect, contrarian). |
 
 ## Skill lifecycle in a single task
 

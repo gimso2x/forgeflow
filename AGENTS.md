@@ -37,6 +37,8 @@ skills/
   ff-config/                # Project defaults (auto/isolation toggles)
   ff-loop/                  # Full lifecycle loop — one command clarify→ship with auto-retry
   benchmark/                # Cross-adapter benchmarks
+  qa/                       # Lightweight 3-point QA verdict on any artifact
+  unstuck/                  # Break through blocks using lateral thinking personas
   _shared/                  # discipline.md, preflight.md, isolation.md, automation.md, context-resume.md
 templates/                  # 27 artifact templates (brief, plan, review-report, ship-summary, etc.)
 evals/                      # 120 eval cases (evals.json + fixture files)
