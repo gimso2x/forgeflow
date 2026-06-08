@@ -48,6 +48,63 @@ Cursor uses short slash command names:
 /ship
 ```
 
+### Roach Code
+
+Roach Code loads skills directly rather than through a plugin marketplace.
+
+```bash
+# Clone the repo
+git clone https://github.com/gimso2x/forgeflow.git
+```
+
+Add the skill path to `roach-code.toml`:
+
+```toml
+[skills]
+paths = ["/path/to/forgeflow/skills"]
+```
+
+Or invoke skill files directly in a Roach Code session. Slash commands (`/forgeflow:clarify`, `/forgeflow:execute`, etc.) work the same as in Claude Code — run them from the target project root, artifacts go to `~/.forgeflow/projects/<project-slug>/tasks/<task-id>/`.
+
+### v2.0 Local Loop CLI (all adapters)
+
+v2.0 adds `scripts/forgeflow_loop.py`, a local loop supervisor that works across all adapters. Use it alongside or instead of the slash-command workflow.
+
+```bash
+# Check status
+python3 scripts/forgeflow_loop.py status --task-dir <task-dir>
+
+# Next actionable item
+python3 scripts/forgeflow_loop.py next --task-dir <task-dir>
+
+# Record completion
+python3 scripts/forgeflow_loop.py record --task-dir <task-dir> \
+  --status done --evidence "command=make-validate exit=0"
+
+# Run adapter (Claude Code example)
+python3 scripts/forgeflow_loop.py run-adapter --task-dir <task-dir> \
+  --adapter claude --command "claude -p --dangerously-skip-permissions" \
+  --verify-command "make validate"
+
+# Queue a phone-originated request
+python3 scripts/forgeflow_loop.py queue \
+  --queue-root ~/.forgeflow/projects/my-project/phone-queue \
+  --request "fix this"
+
+# Parallel worktree fan-out / fan-in
+python3 scripts/forgeflow_loop.py fanout --task-dir <task-dir> \
+  --project-root . --worker-root /tmp/forgeflow-workers
+python3 scripts/forgeflow_loop.py fanin --task-dir <task-dir> \
+  --project-root . --worker-root /tmp/forgeflow-workers \
+  --verify-command "make validate"
+
+# Learning and preflight
+python3 scripts/forgeflow_loop.py learn --task-dir <task-dir> --learning-root <dir>
+python3 scripts/forgeflow_loop.py preflight --learning-root <dir> --request "auth refactor"
+```
+
+The local loop CLI is adapter-neutral. Use it with any adapter, or mix CLI steps with slash-command stages.
+
 ### Codex CLI / Codex App
 
 Marketplace install:

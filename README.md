@@ -44,6 +44,95 @@ ln -s /path/to/forgeflow ~/.cursor/plugins/local/forgeflow
 
 Cursor 명령은 콜론 없음: `/clarify`, `/ff-plan`, `/execute`, `/ff-review`, `/ship`.
 
+**Roach Code:**
+
+Roach Code는 plugin marketplace 대신 skill/slash command를 직접 로드합니다.
+
+```bash
+# 1. 이 repo를 클론
+git clone https://github.com/gimso2x/forgeflow.git
+cd forgeflow
+
+# 2. roach-code.toml에 skill 경로 추가 (이미 글로벌 설정이 있다면)
+# [skills] 섹션에 paths를 추가하거나, skill 파일을 직접 참조
+```
+
+`roach-code.toml` 예시:
+
+```toml
+[skills]
+paths = ["/path/to/forgeflow/skills"]
+```
+
+또는 Roach Code 세션 안에서 직접 slash command로 호출:
+
+```text
+/skill:/path/to/forgeflow/skills/forgeflow/SKILL.md
+```
+
+Roach Code에서 ForgeFlow를 쓰는 방식은 Claude Code/Codex/Gemini와 동일합니다 — `/forgeflow:clarify`, `/forgeflow:execute` 같은 slash command를 대상 프로젝트 루트에서 실행하고, 산출물은 `~/.forgeflow/projects/<project-slug>/tasks/<task-id>/`에 기록됩니다.
+
+**v2.0 Local Loop CLI (모든 어댑터 공통):**
+
+v2.0부터 `scripts/forgeflow_loop.py`로 로컬 루프를 직접 실행할 수 있습니다. 어댑터 내부에서 slash command로 stage를 밟는 기존 방식과 **병행**해서 씁니다.
+
+```bash
+# 상태 확인
+python3 scripts/forgeflow_loop.py status --task-dir ~/.forgeflow/projects/my-project/tasks/task-1
+
+# 다음 실행 항목 확인
+python3 scripts/forgeflow_loop.py next --task-dir ~/.forgeflow/projects/my-project/tasks/task-1
+
+# 완료 기록
+python3 scripts/forgeflow_loop.py record --task-dir ~/.forgeflow/projects/my-project/tasks/task-1 \
+  --status done --evidence "command=make-validate exit=0"
+
+# adapter 실행 (Claude Code 예시)
+python3 scripts/forgeflow_loop.py run-adapter \
+  --task-dir ~/.forgeflow/projects/my-project/tasks/task-1 \
+  --adapter claude \
+  --command "claude -p --dangerously-skip-permissions" \
+  --verify-command "make validate"
+
+# adapter 실행 (Codex 예시)
+python3 scripts/forgeflow_loop.py run-adapter \
+  --task-dir ~/.forgeflow/projects/my-project/tasks/task-1 \
+  --adapter codex \
+  --command "codex exec --full-auto -" \
+  --verify-command "make validate"
+
+# 폰에서 온 요청 큐에 넣기
+python3 scripts/forgeflow_loop.py queue \
+  --queue-root ~/.forgeflow/projects/my-project/phone-queue \
+  --request "이거 고쳐"
+
+# 병렬 worktree 실행
+python3 scripts/forgeflow_loop.py fanout \
+  --task-dir ~/.forgeflow/projects/my-project/tasks/task-1 \
+  --project-root . \
+  --worker-root /tmp/forgeflow-workers \
+  --max-workers 4
+
+# 병합 + 검증
+python3 scripts/forgeflow_loop.py fanin \
+  --task-dir ~/.forgeflow/projects/my-project/tasks/task-1 \
+  --project-root . \
+  --worker-root /tmp/forgeflow-workers \
+  --verify-command "make validate"
+
+# 학습 기록
+python3 scripts/forgeflow_loop.py learn \
+  --task-dir ~/.forgeflow/projects/my-project/tasks/task-1 \
+  --learning-root ~/.forgeflow/projects/my-project/learning
+
+# 다음 작업 전 preflight 경고
+python3 scripts/forgeflow_loop.py preflight \
+  --learning-root ~/.forgeflow/projects/my-project/learning \
+  --request "auth 로직 수정"
+```
+
+**중요:** Plugin/extension 설치 방법은 어댑터별로 다르지만, **v2.0의 local loop CLI는 어댑터에 상관없이** `scripts/forgeflow_loop.py` 하나로 동일하게 동작합니다. Slash command 기반 워크플로우와 CLI 기반 루프를 같이 써도 되고, CLI만 써도 됩니다.
+
 **Codex (CLI + Codex App):**
 
 Marketplace 권장:
