@@ -50,18 +50,103 @@ clarify (brief.md 작성, route 자동 선택)
 plan (medium+, plan.md 작성)
   │
   ▼
-execute ─── 실패? ─── 재시도 (budget까지) ─── budget 소진? ─── route 승격
+execute ─── 실패? ─── classify failure ─── retry/replan/escalate/human/stop
+  │                                        │
+  │                                        └── stagnation? ──── 자동 전략 전환
   │
   ▼
-review ─── 반려? ─── 수정 후 재실행 ─── 다시 review
-  │
-  │ scope 초과? ─── re-plan 후 다시 execute
-  │
+review ─── 반려? ─── classify failure ─── 수정 후 재실행 ─── 다시 review
+  │                                        │
+  │ scope 초과? ─── re-plan 후 다시 execute │ converging? ─── 계속
+  │                                        │ diverging? ─── replan/escalate
   ▼ (approved)
 ship
   │
   ▼
 done (high/epic은 long-run까지)
+```
+
+## Failure Classification Taxonomy
+
+참조: Ouroboros `resilience/failure_taxonomy.py`의 6-way 분류를 ForgeFlow 루프에 맞게 5-way로 단순화.
+
+모든 실패/반려는 먼저 **분류**한 뒤 분류에 맞는 복구 전략을 실행합니다:
+
+| 분류 | 의미 | 복구 전략 | 예산 소모 |
+|---|---|---|---|
+| `retry` | 일시적 실패 (lint/test, env, 네트워크) | 동일 조건 재시도 | O |
+| `replan` | scope/설계 문제 (plan이 현실과 불일치) | plan 단계로 복귀, 재계획 | O |
+| `escalate` | route가 현재 작업에 부족함 | 상위 route 승격 후 계속 | O |
+| `human` | 인간 결정 필요 (ambiguous requirement, credential) | 멈추고 질문 | X |
+| `irrecoverable` | 복구 불가 (외부 서비스 장애, billing) | 루프 종료 | X |
+
+### 분류 규칙
+
+1. **lint/test/env 실패** → `retry` (최대 route budget)
+2. **review 반려 + blocker가 설계 관련** → `replan`
+3. **review 반려 + blocker가 scope 관련** → `escalate`
+4. **credential/billing/외부 장애** → `irrecoverable`
+5. **ambiguous requirement, 여러 해석 가능** → `human`
+6. **분류 불확실 시** → `human` (안전 우선)
+
+### 분류 기록
+
+매 실패 시 `implementation-notes.md`에:
+```
+FAIL classify=<type> reason=<1-line> action=<recovery strategy>
+```
+
+## Stagnation Pattern Detection
+
+참조: Ouroboros `resilience/stagnation.py`의 4-pattern 감지를 ff-loop에 적용.
+
+단순히 예산까지 재시도하는 대신, **정체 패턴**을 감지하면 조기에 전략을 바꿉니다:
+
+| 패턴 | 감지 조건 | 조치 |
+|---|---|---|
+| **Spinning** | 동일한 finding이 3회 연속 재시도에 unchanged | `replan` |
+| **Oscillation** | 두 실패 상태를 번갈아 반복 (A→B→A→B) | `escalate` |
+| **Diminishing returns** | new findings는 감소하지만 0에 도달 못함 (3회+) | `human` |
+| **No-progress** | retry count 증가하지만 blocker 해결 없음 (3회+) | `replan` 또는 `escalate` |
+
+### 감지 방법
+
+1. 매 retry 후 `review-report.md` Open Blockers를 이전 시도와 비교
+2. blocker 목록이 동일하면 spinning 카운터 증가
+3. blocker가 A→B→A→B 패턴이면 oscillation 플래그
+4. blocker가 감소 추세이면 converging, 증가 추세이면 diverging
+5. checkpoint.md에 `stagnation: <pattern or none>` 기록
+
+## Convergence Tracking
+
+참조: Ouroboros `evolution/convergence.py`의 수렴/발산 감지를 ff-loop에 적용.
+
+재시도가 수렴하고 있는지 발산하고 있는지 추적합니다:
+
+### 추적 지표 (매 retry 후)
+
+| 지표 | 측정 방법 | 수렴 신호 | 발산 신호 |
+|---|---|---|---|
+| `open_blockers` | review-report.md Open Blockers 수 | 감소 추세 | 증가 추세 |
+| `new_findings` | 이전 retry에 없던 새 finding 수 | 0에 수렴 | 증가 |
+| `evidence_completeness` | ship-summary Evidence 항목 완료율 | 100%에 수렴 | 정체 |
+
+### 판정 규칙
+
+- **Converging**: 2회 연속 open_blockers 감소 + new_findings 0
+- **Diverging**: 2회 연속 new_findings 증가 또는 open_blockers 동일/증가
+- **Converging 시**: 현재 전략 유지, 계속 재시도
+- **Diverging 시**: 자동으로 `replan` 또는 `escalate` 전환
+- **Stagnation 감지 시**: convergence tracking 정지, stagnation 규칙 우선
+
+### 기록
+
+checkpoint.md에 매 retry 후:
+```
+convergence: converging|diverging|stagnant
+open_blockers: <N> (trend: ↓|↑|→)
+new_findings: <N>
+evidence_completeness: <%>
 ```
 
 ## 재시도 예산
