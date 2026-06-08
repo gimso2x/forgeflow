@@ -19,6 +19,9 @@ from collections import Counter
 from datetime import datetime, timezone
 
 import forgeflow_storage
+from forgeflow_platform import configure_utf8_stdio, run_utf8
+
+configure_utf8_stdio()
 
 ENTRYPOINTS = [
     "clarify",
@@ -55,14 +58,7 @@ UTILITY = {"benchmark"}
 
 
 def _run_git(project_dir, args):
-    proc = subprocess.run(
-        ["git", *args],
-        cwd=str(project_dir),
-        text=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        check=False,
-    )
+    proc = run_utf8(["git", *args], cwd=project_dir)
     if proc.returncode != 0:
         return ""
     return proc.stdout

@@ -15,6 +15,10 @@ import subprocess
 import sys
 from pathlib import Path
 
+from forgeflow_platform import configure_utf8_stdio, run_utf8
+
+configure_utf8_stdio()
+
 ALLOWED_STATUSES = {"pending", "in_progress", "blocked", "done", "discarded"}
 PROTECTED_PATHS = (".git", ".forgeflow")
 TASK_HEADING_RE = re.compile(r"^###\s+(Task\s+\d+:\s+.+?)\s*$")
@@ -298,13 +302,10 @@ def fanout_candidates(tasks: list[dict[str, str]], max_workers: int) -> list[tup
 
 
 def git(project_root: Path, *args: str, input_text: str | None = None) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(
+    return run_utf8(
         ["git", "-C", str(project_root), *args],
+        cwd=project_root,
         input=input_text,
-        text=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        check=False,
     )
 
 
@@ -388,24 +389,16 @@ def run_adapter(task_dir: Path, adapter: str, command_template: str, verify_comm
     prompt_path = task_dir / "agent-prompt.md"
     prompt_path.write_text(build_adapter_prompt(task_dir, task), encoding="utf-8")
 
-    proc = subprocess.run(
+    proc = run_utf8(
         render_command(command_template, task_dir, prompt_path),
         cwd=task_dir,
-        text=True,
         input=prompt_path.read_text(encoding="utf-8"),
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        check=False,
     )
     verify = None
     if verify_command:
-        verify = subprocess.run(
+        verify = run_utf8(
             render_command(verify_command, task_dir, prompt_path),
             cwd=task_dir,
-            text=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            check=False,
         )
     append_agent_run(task_dir, task, adapter, prompt_path, proc, verify)
 
@@ -752,13 +745,9 @@ def worktree_fanin(task_dir: Path, project_root: Path, verify_command: str) -> i
         except LoopError as exc:
             failed += 1
             lines.append(f"- {now} task={entry['task']} worker={worker} status=failed reason={str(exc).replace(' ', '_')}")
-    verify = subprocess.run(
+    verify = run_utf8(
         shlex.split(verify_command),
         cwd=project_root,
-        text=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        check=False,
     )
     lines.append(f"- {now} verification_exit={verify.returncode} stdout={verify.stdout.strip()!r} stderr={verify.stderr.strip()!r}")
     ledger_path.write_text(read_text(ledger_path) + "\n".join(lines) + "\n", encoding="utf-8")

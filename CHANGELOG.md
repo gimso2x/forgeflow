@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.1] - 2026-06-08
+
+### 🔒 자동화·정합성
+
+- Windows native 환경에서 loop/runtime subprocess 캡처가 UTF-8 출력(한국어 adapter/verification stdout 포함)을 안전하게 기록하도록 공용 platform helper를 추가하고 `run-adapter`, `step`, `fanin`, validator 경로를 동기화했습니다.
+- Codex local plugin smoke가 `scripts/` cwd에서도 같은 repo root를 사용하도록 수정하고, Windows symlink checkout에서 `.codex-plugin` pointer 검증이 실패하지 않도록 보강했습니다.
+
+### 🔍 검증·정책
+
+- `validate_forgeflow_loop.py`에 UTF-8 adapter/verification stdout 회귀 케이스를 추가하고 Windows temp git cleanup을 안정화했습니다.
+- guard help 출력, surface usage audit, full-loop E2E validator의 Windows UTF-8/cleanup 동작을 정리했습니다.
+
+### 👤 사용자·경험
+
+- README, AGENTS, local loop roadmap의 2.0.0 이후 문서 상태와 command inventory를 실제 2.0.x 배포 표면에 맞게 갱신했습니다.
+
 ## [2.0.0] - 2026-06-08
 
 ### 🔒 자동화·정합성
@@ -1185,7 +1201,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI gate with GitHub Actions workflow generation
 - Agent preset installer (Claude + Codex)
 
-[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v2.0.0...HEAD
+[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v2.0.1...HEAD
+[2.0.1]: https://github.com/gimso2x/forgeflow/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/gimso2x/forgeflow/compare/v1.15.0...v2.0.0
 [1.15.0]: https://github.com/gimso2x/forgeflow/compare/v1.14.0...v1.15.0
 [1.14.0]: https://github.com/gimso2x/forgeflow/compare/v1.13.0...v1.14.0

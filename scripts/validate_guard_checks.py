@@ -395,6 +395,13 @@ def run_tests():
             f"exit={code} stdout={stdout!r} stderr={stderr!r}"
         ))
 
+        code, stdout, stderr = run_guard(["--help"])
+        results.append(TestResult(
+            "test_help_output_is_ascii_safe",
+            code == 0 and "Thin Guard - ForgeFlow artifact invariant checker" in stdout,
+            f"exit={code} stdout={stdout!r} stderr={stderr!r}"
+        ))
+
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
 

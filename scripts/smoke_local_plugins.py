@@ -13,7 +13,11 @@ import sys
 import tempfile
 from pathlib import Path
 
-ROOT = Path(".")
+from forgeflow_platform import configure_utf8_stdio, run_utf8
+
+configure_utf8_stdio()
+
+ROOT = Path(__file__).resolve().parents[1]
 VERSION = (ROOT / "VERSION").read_text(encoding="utf-8").strip()
 CANONICAL_COMMANDS = [
     "clarify",
@@ -24,6 +28,7 @@ CANONICAL_COMMANDS = [
     "long-run",
     "benchmark",
     "ff-config",
+    "ff-loop",
 ]
 NAMESPACED = {f"/forgeflow:{command}" for command in CANONICAL_COMMANDS}
 COLONLESS = {f"/{command}" for command in CANONICAL_COMMANDS}
@@ -134,9 +139,23 @@ def validate_required_artifacts(base: Path, label: str) -> None:
             failures.append(f"{label}: missing or empty install artifact {rel}")
 
 
+def validate_codex_plugin_symlinks() -> None:
+    for rel in ("docs", "skills", "templates"):
+        path = ROOT / ".codex-plugin" / rel
+        if path.is_dir():
+            continue
+        try:
+            target = path.read_text(encoding="utf-8").strip()
+        except OSError:
+            proc = run_utf8(["git", "show", f"HEAD:.codex-plugin/{rel}"], cwd=ROOT)
+            target = proc.stdout.strip() if proc.returncode == 0 else ""
+        if target != f"../{rel}":
+            failures.append(f".codex-plugin package: {rel} symlink pointer must be ../{rel}, got {target!r}")
+
+
 def validate_install_surfaces() -> None:
     validate_required_artifacts(ROOT, "repo root")
-    validate_required_artifacts(ROOT / ".codex-plugin", ".codex-plugin package")
+    validate_codex_plugin_symlinks()
     with tempfile.TemporaryDirectory(prefix="forgeflow-smoke-") as tmp:
         dest = Path(tmp) / "codex-local" / "forgeflow"
         dest.mkdir(parents=True)

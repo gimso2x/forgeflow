@@ -1,6 +1,6 @@
 # Local Loop Runtime Roadmap
 
-> **Status**: proposal roadmap  
+> **Status**: implemented in 2.0.0; retained as the completed roadmap and historical product rationale  
 > **Scope**: ForgeFlow markdown-only distribution에 "로컬 루프 실행" 개념을 얹는 단계별 제품 로드맵  
 > **Principle**: 기존 `small` / `medium` / `high` / `epic` route 모델은 유지한다. route는 작업 복잡도와 위험도를 분류하고, loop runtime은 각 route 안에서 반복 실행·검증·리뷰·병합을 자동화한다.
 

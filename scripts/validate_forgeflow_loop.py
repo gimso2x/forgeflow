@@ -12,6 +12,10 @@ import sys
 import tempfile
 from pathlib import Path
 
+from forgeflow_platform import configure_utf8_stdio, run_utf8, safe_rmtree
+
+configure_utf8_stdio()
+
 ROOT = Path(__file__).resolve().parents[1]
 CLI = ROOT / "scripts" / "forgeflow_loop.py"
 
@@ -68,14 +72,11 @@ none
 
 
 def run(*args: str, cwd: Path) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(
-        [sys.executable, str(CLI), *args],
-        cwd=cwd,
-        text=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        check=False,
-    )
+    return run_utf8([sys.executable, str(CLI), *args], cwd=cwd)
+
+
+def run_git(cwd: Path, *args: str) -> subprocess.CompletedProcess[str]:
+    return run_utf8(["git", *args], cwd=cwd)
 
 
 def assert_ok(proc: subprocess.CompletedProcess[str]) -> str:
@@ -141,15 +142,18 @@ def main() -> int:
                 "--adapter",
                 "stub",
                 "--command",
-                "python3 -c 'import sys; print(\"adapter saw\", len(sys.stdin.read()))'",
+                "python3 -c 'import sys; sys.stdin.read(); sys.stdout.buffer.write(bytes.fromhex(\"ed959ceab880\"))'",
                 "--verify-command",
-                "python3 -c 'from pathlib import Path; print(Path(\"agent-prompt.md\").exists())'",
+                "python3 -c 'from pathlib import Path; assert Path(\"agent-prompt.md\").exists(); import sys; sys.stdout.buffer.write(bytes.fromhex(\"eab280eca69d\"))'",
                 cwd=ROOT,
             )
         )
         assert_contains(out, "recorded: Task 2: Add smoke")
-        assert_contains((adapter_task_dir / "implementation-notes.md").read_text(encoding="utf-8"), "Adapter stdout")
-        assert_contains((adapter_task_dir / "implementation-notes.md").read_text(encoding="utf-8"), "verification: exit=0")
+        adapter_notes = (adapter_task_dir / "implementation-notes.md").read_text(encoding="utf-8")
+        assert_contains(adapter_notes, "Adapter stdout")
+        assert_contains(adapter_notes, "verification: exit=0")
+        assert_contains(adapter_notes, "\ud55c\uae00")
+        assert_contains(adapter_notes, "\uac80\uc99d")
         assert_contains((adapter_task_dir / "ledger.md").read_text(encoding="utf-8"), "## Agent Runs")
         assert_contains((adapter_task_dir / "ledger.md").read_text(encoding="utf-8"), "verification_exit=0")
 
@@ -162,25 +166,30 @@ def main() -> int:
                 "step",
                 "--task-dir",
                 str(step_task_dir),
+                "--command",
+                "python3 -c 'import sys; sys.stdin.read(); sys.stdout.buffer.write(bytes.fromhex(\"ed959ceab880\"))'",
                 "--verify-command",
-                "python3 -c 'from pathlib import Path; assert Path(\"agent-prompt.md\").exists(); print(\"step verified\")'",
+                "python3 -c 'from pathlib import Path; assert Path(\"agent-prompt.md\").exists(); import sys; sys.stdout.buffer.write(bytes.fromhex(\"eab280eca69d\"))'",
                 cwd=ROOT,
             )
         )
         assert_contains(out, "step: selected=Task 2: Add smoke")
         assert_contains(out, "step: adapter=stub")
         assert_contains(out, "recorded: Task 2: Add smoke")
+        step_notes = (step_task_dir / "implementation-notes.md").read_text(encoding="utf-8")
+        assert_contains(step_notes, "\ud55c\uae00")
+        assert_contains(step_notes, "\uac80\uc99d")
         assert_contains((step_task_dir / "ledger.md").read_text(encoding="utf-8"), "adapter=stub")
         assert_contains((step_task_dir / "ledger.md").read_text(encoding="utf-8"), "verification_exit=0")
 
         fanout_repo = tmp / "fanout-repo"
         fanout_repo.mkdir()
-        subprocess.run(["git", "init"], cwd=fanout_repo, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-        subprocess.run(["git", "config", "user.email", "forgeflow@example.invalid"], cwd=fanout_repo, check=True)
-        subprocess.run(["git", "config", "user.name", "ForgeFlow Test"], cwd=fanout_repo, check=True)
+        assert_ok(run_git(fanout_repo, "init"))
+        assert_ok(run_git(fanout_repo, "config", "user.email", "forgeflow@example.invalid"))
+        assert_ok(run_git(fanout_repo, "config", "user.name", "ForgeFlow Test"))
         (fanout_repo / "README.md").write_text("# Demo\n", encoding="utf-8")
-        subprocess.run(["git", "add", "README.md"], cwd=fanout_repo, check=True)
-        subprocess.run(["git", "commit", "-m", "init"], cwd=fanout_repo, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        assert_ok(run_git(fanout_repo, "add", "README.md"))
+        assert_ok(run_git(fanout_repo, "commit", "-m", "init"))
         fanout_task_dir = fanout_repo / ".forgeflow" / "tasks" / "fanout"
         fanout_task_dir.mkdir(parents=True)
         fanout_ledger = LEDGER.replace("- **Status**: done", "- **Status**: pending", 1).replace(
@@ -294,11 +303,11 @@ def main() -> int:
 
         failed_worker_repo = tmp / "failed-worker-repo"
         shutil.copytree(fanout_repo, failed_worker_repo, ignore=shutil.ignore_patterns(".git"))
-        subprocess.run(["git", "init"], cwd=failed_worker_repo, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-        subprocess.run(["git", "config", "user.email", "forgeflow@example.invalid"], cwd=failed_worker_repo, check=True)
-        subprocess.run(["git", "config", "user.name", "ForgeFlow Test"], cwd=failed_worker_repo, check=True)
-        subprocess.run(["git", "add", "."], cwd=failed_worker_repo, check=True)
-        subprocess.run(["git", "commit", "-m", "init"], cwd=failed_worker_repo, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        assert_ok(run_git(failed_worker_repo, "init"))
+        assert_ok(run_git(failed_worker_repo, "config", "user.email", "forgeflow@example.invalid"))
+        assert_ok(run_git(failed_worker_repo, "config", "user.name", "ForgeFlow Test"))
+        assert_ok(run_git(failed_worker_repo, "add", "."))
+        assert_ok(run_git(failed_worker_repo, "commit", "-m", "init"))
         failed_task_dir = failed_worker_repo / ".forgeflow" / "tasks" / "failed"
         failed_task_dir.mkdir(parents=True, exist_ok=True)
         conflict_ledger = fanout_ledger.replace("docs/b.md", "docs/a.md")
@@ -470,7 +479,7 @@ def main() -> int:
         print("OK: forgeflow-loop CLI reads, selects, queues, records, and learns candidate-only loop state")
         return 0
     finally:
-        shutil.rmtree(tmp)
+        safe_rmtree(tmp)
 
 
 if __name__ == "__main__":

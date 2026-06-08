@@ -23,6 +23,10 @@ import os
 import re
 import sys
 
+from forgeflow_platform import configure_utf8_stdio
+
+configure_utf8_stdio()
+
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -245,7 +249,7 @@ class GuardArgumentParser(argparse.ArgumentParser):
 
 def main():
     parser = GuardArgumentParser(
-        description="Thin Guard — ForgeFlow artifact invariant checker"
+        description="Thin Guard - ForgeFlow artifact invariant checker"
     )
     subparsers = parser.add_subparsers(dest="command")
 

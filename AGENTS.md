@@ -8,7 +8,7 @@ ForgeFlow: artifact-first delivery workflow for AI coding agents.
 Markdown-only distribution — no runtime, no external deps. **slim, markdown-only distribution.** Do not assume the older `forgeflow_runtime/`, `schemas/`, or `tests/` trees exist — use `make validate` as the contract surface. Skills are pure Markdown (SKILL.md + YAML frontmatter), templates are Markdown artifacts.
 Supports Claude Code, Codex, Gemini CLI, Cursor as adapters.
 
-- **Version**: `VERSION` 파일이 단일 소스 (currently `2.0.0`)
+- **Version**: `VERSION` 파일이 단일 소스 (currently `2.0.1`)
 - **Entry point**: `skills/forgeflow/SKILL.md` (canonical contract); root `SKILL.md` is marketplace summary only
 - **Adapter config**: `docs/adapter-config.md`
 
@@ -40,8 +40,8 @@ skills/
   qa/                       # Lightweight 3-point QA verdict on any artifact
   unstuck/                  # Break through blocks using lateral thinking personas
   _shared/                  # discipline.md, preflight.md, isolation.md, automation.md, context-resume.md
-templates/                  # 27 artifact templates (brief, plan, review-report, ship-summary, etc.)
-evals/                      # 120 eval cases (evals.json + fixture files)
+templates/                  # 19 template files: 18 Markdown templates + run-state.json
+evals/                      # 125 eval cases (evals.json + fixture files)
 scripts/                    # validate_*.py validators + telemetry/evolution helpers
 docs/                       # adapter-config.md, stage-tool-boundaries.md, maintainer-backlog.md, roadmap-improvements.md archive
 .claude-plugin/             # Claude Code plugin config

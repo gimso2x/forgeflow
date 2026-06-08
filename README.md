@@ -291,17 +291,21 @@ Stage 경계나 checkpoint 갱신 직후 context refresh가 안전합니다. 재
 make validate
 ```
 
-`make validate`는 문서/JSON/skill/template/link/route/release/adapter/eval 계약을 검사합니다. live provider/plugin E2E를 실행하지 않습니다. Markdown link 검증은 HTML href/src 링크도 포함합니다. 큰 workflow skill은 `docs/skill-modularization.md` 정책에 따라 shared/reference로 쪼개졌는지도 검사합니다. `make validate-full-loop-e2e`는 credential-free disposable full-loop E2E입니다: 임시 git repo에서 phone queue → stub supervisor step → artifact verification → ledger/checkpoint update → learning/preflight까지 검사하지만 Claude/Codex/Gemini credential이나 live provider는 부르지 않습니다.
+`make validate`는 문서/JSON/skill/template/link/route/release/adapter/eval 계약을 검사합니다. live provider/plugin E2E를 실행하지 않습니다. Windows native 환경에서는 GNU Make가 PATH에 있어야 하며, 없으면 Git Bash/MSYS2/WSL에 `make`를 설치한 뒤 실행합니다. Markdown link 검증은 HTML href/src 링크도 포함합니다. 큰 workflow skill은 `docs/skill-modularization.md` 정책에 따라 shared/reference로 쪼개졌는지도 검사합니다. `make validate-full-loop-e2e`는 credential-free disposable full-loop E2E입니다: 임시 git repo에서 phone queue → stub supervisor step → artifact verification → ledger/checkpoint update → learning/preflight까지 검사하지만 Claude/Codex/Gemini credential이나 live provider는 부르지 않습니다.
 
-Local loop CLI는 `scripts/forgeflow_loop.py`입니다. 현재 지원 명령은 `status`, `next`, `record`, `queue`, `run-adapter`, `fanout`, `fanin`입니다. `queue`는 Telegram/phone-originated 짧은 자연어 요청을 task draft directory로 저장하고 `brief.md`, `ledger.md`, `checkpoint.md`, `implementation-notes.md`를 생성합니다. route recommendation은 출력과 ledger에 남기며 `--route`로 override할 수 있습니다. `run-adapter`는 task artifact를 `agent-prompt.md`로 묶어 adapter command의 stdin에 넣고, adapter stdout/stderr와 verification command 결과를 `implementation-notes.md` 및 `ledger.md`에 남깁니다. 검증 실패는 성공으로 포장하지 않고 item을 `blocked`로 기록합니다. `fanout`/`fanin`은 ledger의 `Claim Marker`를 path ownership으로 보고 겹치지 않는 작업만 git worktree로 나눈 뒤, worker diff가 자기 소유 path만 건드렸는지 확인하고 merge합니다. 즉 "폰에서 150 PR 합치기" 같은 루프를 흉내 내되, 충돌 격리와 검증 증거 없이는 합치지 않습니다.
+Local loop CLI는 `scripts/forgeflow_loop.py`입니다. 현재 지원 명령은 `status`, `next`, `record`, `queue`, `run-adapter`, `step`, `learn`, `preflight`, `fanout`, `fanin`, `ship-candidate`입니다. `queue`는 Telegram/phone-originated 짧은 자연어 요청을 task draft directory로 저장하고 `brief.md`, `ledger.md`, `checkpoint.md`, `implementation-notes.md`를 생성합니다. route recommendation은 출력과 ledger에 남기며 `--route`로 override할 수 있습니다. `run-adapter`/`step`은 task artifact를 `agent-prompt.md`로 묶어 adapter command의 stdin에 넣고, adapter stdout/stderr와 verification command 결과를 `implementation-notes.md` 및 `ledger.md`에 남깁니다. 검증 실패는 성공으로 포장하지 않고 item을 `blocked` 또는 retry 상태로 기록합니다. `learn`/`preflight`는 반복 blocker와 evidence pattern을 candidate-only learning으로 축적하고 다음 요청 전에 경고합니다. `fanout`/`fanin`은 ledger의 `Claim Marker`를 path ownership으로 보고 겹치지 않는 작업만 git worktree로 나눈 뒤, worker diff가 자기 소유 path만 건드렸는지 확인하고 merge합니다. `ship-candidate`는 인간 승인 전 external side effect를 차단한 ship boundary evidence를 ledger에 남깁니다. 즉 "폰에서 150 PR 합치기" 같은 루프를 흉내 내되, 충돌 격리와 검증 증거 없이는 합치지 않습니다.
 
 ```bash
 python3 scripts/forgeflow_loop.py status --task-dir <task-dir>
 python3 scripts/forgeflow_loop.py next --task-dir <task-dir>
 python3 scripts/forgeflow_loop.py record --task-dir <task-dir> --status done --evidence "command=make-validate exit=0"
 python3 scripts/forgeflow_loop.py run-adapter --task-dir <task-dir> --adapter stub --command "python3 -c 'import sys; print(sys.stdin.read())'" --verify-command "python3 -c 'print(\"verified\")'"
+python3 scripts/forgeflow_loop.py step --task-dir <task-dir> --adapter stub --verify-command "python3 -c 'print(\"verified\")'"
+python3 scripts/forgeflow_loop.py learn --task-dir <task-dir> --learning-root ~/.forgeflow/projects/my-project/learning
+python3 scripts/forgeflow_loop.py preflight --learning-root ~/.forgeflow/projects/my-project/learning --request "auth 로직 수정"
 python3 scripts/forgeflow_loop.py fanout --task-dir <task-dir> --project-root . --worker-root /tmp/forgeflow-workers --max-workers 4
 python3 scripts/forgeflow_loop.py fanin --task-dir <task-dir> --project-root . --worker-root /tmp/forgeflow-workers --verify-command "make validate"
+python3 scripts/forgeflow_loop.py ship-candidate --task-dir <task-dir> --project-root . --verification-command "make validate"
 ```
 
 실제 Claude/Codex/Gemini CLI에 붙일 때도 원칙은 같습니다. command template은 `{task_dir}`와 `{prompt}`를 쓸 수 있고, prompt는 stdin으로도 들어갑니다. 예: `--command "claude -p @{prompt}"`, `--command "codex exec --full-auto -"`, `--command "gemini -p @{prompt}"`. 단, 검증 증거는 adapter 자기보고가 아니라 `--verify-command`의 실제 출력이어야 합니다.

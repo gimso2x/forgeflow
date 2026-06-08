@@ -13,23 +13,20 @@ import sys
 import tempfile
 from pathlib import Path
 
+from forgeflow_platform import configure_utf8_stdio, run_shell_utf8, run_utf8, safe_rmtree
+
+configure_utf8_stdio()
+
 ROOT = Path(__file__).resolve().parents[1]
 CLI = ROOT / "scripts" / "forgeflow_loop.py"
 
 
 def run(*args: str, cwd: Path) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(
-        [sys.executable, str(CLI), *args],
-        cwd=cwd,
-        text=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        check=False,
-    )
+    return run_utf8([sys.executable, str(CLI), *args], cwd=cwd)
 
 
 def shell(command: str, cwd: Path) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(command, cwd=cwd, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, check=False)
+    return run_shell_utf8(command, cwd=cwd)
 
 
 def assert_ok(proc: subprocess.CompletedProcess[str]) -> str:
@@ -124,7 +121,7 @@ def main() -> int:
         print("OK: disposable full-loop E2E queues, steps, verifies, records, checkpoints, learns, and preflights without credentials")
         return 0
     finally:
-        shutil.rmtree(tmp)
+        safe_rmtree(tmp)
 
 
 if __name__ == "__main__":
