@@ -33,14 +33,14 @@ When acting as a ForgeFlow maintainer on this repository (cron loop, scheduled i
    - `plan.md` → Requirements, Verification Plan, and task sections implicated by findings or open gates (not full plan unless route/high complexity demands)
    - `review-report.md` → Reader Summary, Verdict, Findings (ship stage)
    - `eval-record.md` → only when checkpoint Next Action or long-run route requires it
-   - `.forgeflow/evolution/proposed/*.md` → only when review scope includes evolution candidates
+   - `<storage-root>/evolution/proposed/*.md` → only when review scope includes evolution candidates
 
 ## Review-specific additions
 
 Reconstruct task state from artifacts instead of chat memory. Do **not** read every artifact in full at entry.
 
 - For **high/epic**, collect `micro_spec:*` and `micro_quality:*` from implementation-notes Evidence Index or Evidence section. Summarize in `review-report.md` → **Execute Micro-Gates**. Treat as **reported evidence** until re-verified.
-- Read `.forgeflow/evolution/active/*.md` (project) when consistency check is in scope.
+- Read `<storage-root>/evolution/active/*.md` (project, resolved via `forgeflow_storage.py`) when consistency check is in scope.
 - Expand `plan.md` beyond Requirements/Verification Plan only for tasks under review or with failed gates.
 - Expand `brief.md` beyond Acceptance Criteria only when scope disputes arise.
 

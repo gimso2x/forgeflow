@@ -17,10 +17,6 @@ Thumbs.db
 .hermes-learnings.jsonl
 .omo/
 .forgeflow/
-!.forgeflow/tasks/
-!.forgeflow/telemetry/
-!.forgeflow/benchmarks/
-!.forgeflow/evolution/
 .playwright-mcp/
 samples/
 forgeflow_runtime.egg-info/

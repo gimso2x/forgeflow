@@ -80,7 +80,7 @@ Before reviewer judgment, also complete the template's **adapter handoff checkli
 
 If any reviewer role needs evidence outside the role evidence map, pause that role and add an **Evidence Escalation Log** entry in `review-report.md` before judgment continues. The lead reviewer must either add a new evidence item to `normalized-input.md` and mirror its provenance in `input-source.md`, or record the request as unavailable with the affected role blocked/limited. After the escalation outcome, refresh the affected role evidence map, input packet readiness, and role input packet before that role can continue; stale packets block judgment. Do not use chat memory, hidden adapter state, or unrecorded file reads to satisfy the gap.
 
-If `.forgeflow/` doesn't exist, create it. Do not initialize a full ForgeFlow workspace — only the task directory and its files.
+If `.forgeflow/` doesn't exist at the global storage root, create the task directory under the resolved global storage root (`~/.forgeflow/projects/<project-slug>/tasks/<task-id>/`). **Never** create `<repo>/.forgeflow/` — all ForgeFlow artifacts must live in global storage. Do not initialize a full ForgeFlow workspace — only the task directory and its files.
 
 ## Standalone constraints
 

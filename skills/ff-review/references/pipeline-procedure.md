@@ -16,7 +16,7 @@ Use this reference from `skills/ff-review/SKILL.md` for post-execute review. Kee
 10. Review `implementation-notes.md`: deviations need justification; open questions with status `open` are blockers; evaluate whether tradeoffs are the smallest safe option.
 11. Cross-check `ledger.md`: claimed task completions in implementation-notes must match ledger status. For high/epic, a `done` step without expected `micro_spec:PASS` is a major spec-compliance finding.
 12. Fill `review-report.md` -> Execute Micro-Gates for high/epic from implementation-notes and ledger. Re-run spec/quality checks independently; do not approve because micro-gates passed during execute.
-13. If `.forgeflow/evolution/active/*.md` exists, verify consistency with active project rules. Do not generate or validate new evolution rules; that is ship's responsibility.
+13. If `<storage-root>/evolution/active/*.md` exists (resolved via `forgeflow_storage.py`), verify consistency with active project rules. Do not generate or validate new evolution rules; that is ship's responsibility.
 14. Run route-appropriate role lanes and apply the review rubric plus role checklist. For quality review with diff/code input, apply `skills/ff-review/references/deep-code-analysis.md`.
 15. Classify findings by severity: blocker, major, minor, nit.
 16. Write or update `review-report.md` to the active task directory. For high/epic, spec and quality passes update the same file. The verdict in the file is the only valid verdict.

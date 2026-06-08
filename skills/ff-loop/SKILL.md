@@ -197,6 +197,8 @@ evidence_completeness: <%>
 1. 사용자 요청을 읽습니다
 2. `checkpoint.md`가 있으면 → 재개 모드 (아래 참고)
 3. `checkpoint.md`가 없으면 → **clarify**부터 시작
+   - clarify 단계에서는 사용자에게 질문 가능 (위 Strict response constraints 예외 참고)
+   - brief.md + Goal Contract가 확정된 후에만 다음 단계로 진행
 4. 각 stage를 `--auto` 규칙에 따라 자동 진행 (`_shared/automation.md` 참고)
 5. 실패/반려 시 위의 재시도/승격 규칙 적용
 6. ship 완료 또는 irrecoverable blocker까지 계속
@@ -221,3 +223,16 @@ evidence_completeness: <%>
 → `_shared/discipline.md`.
 
 루프 중에는 stage 사이에 멈추거나 질문하지 않습니다. 오직 위 멈춤 조건에서만.
+
+### 예외 — clarify 단계 (사용자 의도 확정 전)
+
+clarify는 루프의 첫 단계이며 **사용자 의도를 확정하는 역할**입니다. brief.md가 확정되기 전에는:
+
+- **Scope Topology가 복수 해석 가능**하면 사용자에게 확인
+- **사용자 의도, UX, 데이터 흐름, 성공 기준**이 애매하면 blocker 질문 후 응답 대기
+- **ambiguity_score > 0.3**이면 추가 질문 후 재채점
+- **blocker Open Questions**가 있으면 해결될 때까지 대기
+
+이 예외는 clarify 단계에만 적용됩니다. brief.md + Goal Contract가 확정된 후에는 루프의 자동 진행 규칙을 따릅니다.
+
+**근거**: ff-loop는 "확정된 brief를 반복 실행"하는 장치이지, "애매한 의도를 추측해서 실행"하는 장치가 아닙니다. clarify에서 사용자에게 묻지 않으면 전체 루프가 잘못된 전제 위에서 돌게 됩니다.

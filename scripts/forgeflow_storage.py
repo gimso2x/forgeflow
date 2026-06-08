@@ -22,6 +22,25 @@ import sys
 RUN_STATE_SCHEMA = "run-state/v1"
 
 
+def assert_not_project_local(path: pathlib.Path, project_dir: pathlib.Path) -> None:
+    """Raise if *path* falls inside <project_dir>/.forgeflow/.
+
+    ForgeFlow storage must always live under the global root
+    (``~/.forgeflow/projects/<slug>/``).  Writing inside the repo is a bug
+    that silently pollutes the project tree.
+    """
+    try:
+        path.resolve().relative_to(project_dir.resolve() / ".forgeflow")
+    except ValueError:
+        return  # path is outside <repo>/.forgeflow — OK
+    raise RuntimeError(
+        f"Refusing to write inside project-local .forgeflow: {path}\n"
+        f"  project_dir : {project_dir.resolve()}\n"
+        f"  storage_root: {storage_root(project_dir)}\n"
+        f"Use forgeflow_storage.py to resolve paths, or pass --project-dir."
+    )
+
+
 def _slugify(name: str) -> str:
     slug = re.sub(r"[^A-Za-z0-9._-]+", "-", name.strip()).strip("-._")
     return slug.lower() or "project"
@@ -109,7 +128,9 @@ def write_run_state(
     overwrite: bool = False,
 ) -> pathlib.Path:
     """Create <storage-root>/tasks/<task-id>/run-state.json with real values."""
+    project_dir = pathlib.Path(project_dir)
     path = run_state_file(project_dir, task_id)
+    assert_not_project_local(path, project_dir)
     if path.exists() and not overwrite:
         return path
     path.parent.mkdir(parents=True, exist_ok=True)

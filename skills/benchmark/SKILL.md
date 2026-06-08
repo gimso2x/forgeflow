@@ -42,7 +42,7 @@ Benchmark output lives under a disposable benchmark root, not the ForgeFlow sour
 - `/tmp/forgeflow-bench/<timestamp>/.forgeflow/benchmarks/<timestamp>/<agent>-<size>.log` — raw output per adapter
 - `/tmp/forgeflow-bench/<timestamp>/.forgeflow/benchmarks/<timestamp>/<agent>-<size>.metrics.json` — per-run metrics
 
-If the user explicitly asks to persist a report in another project, write only to that target project's `.forgeflow/benchmarks/` path after confirming it is not this ForgeFlow source repository.
+If the user explicitly asks to persist a report in another project, write only to that target project's global storage root `<storage-root>/benchmarks/` path (resolved via `forgeflow_storage.py`) after confirming it is not this ForgeFlow source repository.
 
 ## Procedure
 

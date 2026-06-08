@@ -108,7 +108,7 @@ Do not end the execute stage without updating `implementation-notes.md`. An exec
 
 Before editing files, load active evolution rules when file inspection is allowed:
 
-- Project active rules: `.forgeflow/evolution/active/*.md`
+- Project active rules: `<storage-root>/evolution/active/*.md` (resolved via `forgeflow_storage.py`; read-only, do not create)
 - Global advisory rules: `~/.forgeflow/evolution/active/*.md`
 
 Apply them this way:
