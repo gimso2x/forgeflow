@@ -50,21 +50,26 @@ Cursor uses short slash command names:
 
 ### Roach Code
 
-Roach Code loads skills directly rather than through a plugin marketplace.
+One-line install:
 
 ```bash
-# Clone the repo
+bash <(curl -sL https://raw.githubusercontent.com/gimso2x/forgeflow/main/install-roach.sh)
+```
+
+Or from a clone:
+
+```bash
 git clone https://github.com/gimso2x/forgeflow.git
+cd forgeflow && bash install-roach.sh
 ```
 
-Add the skill path to `roach-code.toml`:
+Update:
 
-```toml
-[skills]
-paths = ["/path/to/forgeflow/skills"]
+```bash
+bash ~/.forgeflow/repo/install-roach.sh --update
 ```
 
-Or invoke skill files directly in a Roach Code session. Slash commands (`/forgeflow:clarify`, `/forgeflow:execute`, etc.) work the same as in Claude Code — run them from the target project root, artifacts go to `~/.forgeflow/projects/<project-slug>/tasks/<task-id>/`.
+Works from any project directory after install.
 
 ### v2.0 Local Loop CLI (all adapters)
 

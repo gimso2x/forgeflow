@@ -46,31 +46,39 @@ Cursor 명령은 콜론 없음: `/clarify`, `/ff-plan`, `/execute`, `/ff-review`
 
 **Roach Code:**
 
-Roach Code는 plugin marketplace 대신 skill/slash command를 직접 로드합니다.
+원클릭 설치:
 
 ```bash
-# 1. 이 repo를 클론
-git clone https://github.com/gimso2x/forgeflow.git
-cd forgeflow
-
-# 2. roach-code.toml에 skill 경로 추가 (이미 글로벌 설정이 있다면)
-# [skills] 섹션에 paths를 추가하거나, skill 파일을 직접 참조
+bash <(curl -sL https://raw.githubusercontent.com/gimso2x/forgeflow/main/install-roach.sh)
 ```
 
-`roach-code.toml` 예시:
+또는 forgeflow clone에서:
+
+```bash
+git clone https://github.com/gimso2x/forgeflow.git
+cd forgeflow
+bash install-roach.sh
+```
+
+업데이트:
+
+```bash
+bash ~/.forgeflow/repo/install-roach.sh --update
+```
+
+설치 후 어느 프로젝트에서든 바로 사용:
+
+```text
+/forgeflow:ff-loop "작업 설명"
+/forgeflow:clarify "작업 설명"
+```
+
+수동 설치가 필요하면 `roach-code.toml`에 skill 경로를 추가:
 
 ```toml
 [skills]
-paths = ["/path/to/forgeflow/skills"]
+paths = ["~/.roach-code/skills/forgeflow"]
 ```
-
-또는 Roach Code 세션 안에서 직접 slash command로 호출:
-
-```text
-/skill:/path/to/forgeflow/skills/forgeflow/SKILL.md
-```
-
-Roach Code에서 ForgeFlow를 쓰는 방식은 Claude Code/Codex/Gemini와 동일합니다 — `/forgeflow:clarify`, `/forgeflow:execute` 같은 slash command를 대상 프로젝트 루트에서 실행하고, 산출물은 `~/.forgeflow/projects/<project-slug>/tasks/<task-id>/`에 기록됩니다.
 
 **v2.0 Local Loop CLI (모든 어댑터 공통):**
 
