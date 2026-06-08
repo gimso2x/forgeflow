@@ -54,7 +54,7 @@ Write a `ship-summary.md` in the active task directory using `templates/ship-sum
 Evolution rule artifacts (optional, when reusable patterns are found):
 
 - `~/.forgeflow/evolution/active/<rule-name>.md` for global-advisory scope
-- `.forgeflow/evolution/active/<rule-name>.md` for project scope
+- `<storage-root>/evolution/active/<rule-name>.md` for project scope (resolved via `forgeflow_storage.py`)
 
 Post-review harness improvement tickets (optional, when human review surfaced process gaps):
 
@@ -125,7 +125,7 @@ Keep generated rules evidence-backed by review-approved task artifacts. Skip sma
 
 After extracting evolution rules, check if any advisory (soft) rules have reached the promotion threshold. ForgeFlow is a markdown-only distribution — no runtime scripts. Use this manual process:
 
-1. Check each advisory rule in `.forgeflow/evolution/active/` (project) or `~/.forgeflow/evolution/active/` (global) for repeated violations visible in recent `eval-record.md` entries.
+1. Check each advisory rule in `<storage-root>/evolution/active/` (project, resolved via `forgeflow_storage.py`) or `~/.forgeflow/evolution/active/` (global) for repeated violations visible in recent `eval-record.md` entries.
 2. If an advisory rule has been violated ≥ 3 times across different tasks (evidence in eval-records), promote it: rewrite the rule file with `enforcement: hard` in its frontmatter and inform the user.
 3. If promotion is premature, the user can manually edit the rule file later.
 
@@ -221,7 +221,7 @@ Proceed to the final summary step directly.
 If `--auto` is active (see `_shared/automation.md`), proceed to branch disposition automatically after writing `ship-summary.md`.
 
 8. **Extract evolution rules**: Review task artifacts for reusable patterns. For each valid candidate:
-   1. Check existing active rules (`~/.forgeflow/evolution/active/` and `.forgeflow/evolution/active/`) for duplicates.
+   1. Check existing active rules (`~/.forgeflow/evolution/active/` and `<storage-root>/evolution/active/`) for duplicates.
    2. Determine scope: global-advisory (default) or project (project-specific architecture only).
    3. Write the rule in **compact format** (7 lines, no `.md` extension) directly to the matching `active/` directory:
       ```
@@ -233,7 +233,7 @@ If `--auto` is active (see `_shared/automation.md`), proceed to branch dispositi
       Apply: <what to do when trigger matches>
       Skip: <when NOT to apply>
       ```
-   4. Global → `~/.forgeflow/evolution/active/<rule-name>`, Project → `.forgeflow/evolution/active/<rule-name>`. Create directories if they do not exist.
+   4. Global → `~/.forgeflow/evolution/active/<rule-name>`, Project → `<storage-root>/evolution/active/<rule-name>`. Create directories if they do not exist.
    5. Report what rules were created and why.
 
 9. Write `ship-summary.md` to the active task directory. Include the Quantitative Summary section with metrics from `implementation-notes.md` → Metrics.

@@ -421,7 +421,7 @@ Review-specific: reconstruct task state from artifacts, not chat memory. **Do no
 - Expand `implementation-notes.md` Decisions/Evidence only when findings or blockers require it.
 - Expand `plan.md` beyond Requirements/Verification Plan/implicated tasks only when scope or fulfills traceability demands it.
 - For **high/epic**, collect `micro_spec:*` and `micro_quality:*` from Evidence Index or Evidence. Summarize in `review-report.md` → **Execute Micro-Gates**. Treat as **reported evidence** until re-verified.
-- Read `.forgeflow/evolution/active/*.md` when project rule consistency is in scope.
+- Read `<storage-root>/evolution/active/*.md` (resolved via `forgeflow_storage.py`) when project rule consistency is in scope.
 - **Perf-review lens**: flag repeated full-artifact read patterns; prefer checkpoint Minimum Read Set.
 
 ## Artifact completeness gate

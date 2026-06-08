@@ -15,7 +15,7 @@ Ship consolidates the propose->validate->activate cycle because review has alrea
 ## Scope decision
 
 - **Global-advisory** (default): Rules applicable across projects. Written to `~/.forgeflow/evolution/active/<rule-name>.md`. Advisory only; cannot hard-block future tasks.
-- **Project**: Rules specific to this repository's architecture/conventions. Written to `.forgeflow/evolution/active/<rule-name>.md`. Required constraints for this project.
+- **Project**: Rules specific to this repository's architecture/conventions. Written to `<storage-root>/evolution/active/<rule-name>.md` (resolved via `forgeflow_storage.py`). Required constraints for this project.
 
 Use project scope only when the rule depends on project-specific architecture (e.g., auth store structure, routing conventions). Default to global.
 
@@ -31,7 +31,7 @@ Extract an evolution rule when:
 
 1. The pattern has concrete evidence from task artifacts (`implementation-notes.md`, `review-report.md`, `eval-record.md`, code diff).
 2. It describes a trigger condition and expected behavior, not a vague sentiment.
-3. It is not already covered by an existing active rule (check `~/.forgeflow/evolution/active/` and `.forgeflow/evolution/active/`).
+3. It is not already covered by an existing active rule (check `~/.forgeflow/evolution/active/` and `<storage-root>/evolution/active/`).
 4. It will actually save time or prevent mistakes in future tasks.
 
 Do not capture:

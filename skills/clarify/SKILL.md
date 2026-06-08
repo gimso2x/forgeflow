@@ -120,11 +120,13 @@ Write `brief.md` to the active task directory using the `brief.md` template as t
 
 Follow the user language rules there: write user-facing replies and artifact prose in the user's primary language, while preserving canonical English labels, commands, paths, artifact filenames, and enum values.
 
-Write `brief.md` under `<task-dir>`. If the task directory is missing, create it first. Also create `<task-dir>/run-state.json` with resolved project/storage identity if it is missing. Preferred deterministic bootstrap:
+Write `brief.md` under `<task-dir>`. If the task directory is missing, create it first. Also create `<task-dir>/run-state.json` with resolved project/storage identity if it is missing. **Required** deterministic bootstrap — always use this, never invent paths manually:
 
 ```bash
 python3 <forgeflow-checkout>/scripts/forgeflow_storage.py --project-dir <repo-root> --task-id <task-id> --write-run-state
 ```
+
+**Project-local .forgeflow creation is forbidden.** Never write artifacts under `<repo>/.forgeflow/`. All task artifacts, telemetry, evolution rules, and worktrees must live under the global storage root `~/.forgeflow/projects/<project-slug>/`. The only exception is worktree compatibility symlinks under `<storage-root>/worktrees/<task-id>/.forgeflow/` (see `_shared/isolation.md`). If you catch yourself constructing a path containing `<repo>/.forgeflow`, stop and use `forgeflow_storage.py` to resolve the correct global path instead.
 
 Do not return a pseudo-brief in chat only when the workflow expects artifacts.
 
@@ -151,7 +153,7 @@ When the user requests an exact output (label only, list only, dry run), return 
 
 Unless the prompt is exact-output, label-only, dry-run, or says not to inspect files, check evolution rules before route selection:
 
-1. Load project active rules from `.forgeflow/evolution/active/*.md` if the directory exists.
+1. Load project active rules from `<storage-root>/evolution/active/*.md` if the directory exists (resolved via `forgeflow_storage.py`). Do **not** create this directory if it does not exist. Read-only check.
 2. Load global advisory rules from `~/.forgeflow/evolution/active/*.md` if available.
 3. Match rules by their `Trigger` and `Application Stage` fields.
 4. Record matching rules in the brief's `Applied Evolution Rules` section.

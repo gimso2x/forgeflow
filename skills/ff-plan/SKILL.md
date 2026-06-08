@@ -93,7 +93,7 @@ Every plan must include reviewer-facing **Design Intent** and **Review Criteria*
 1. Populate **Design Intent** from the brief objective, plan architecture notes, selected approach, rejected alternatives, and explicit non-goals.
 2. Populate **Review Criteria** from `brief.md` acceptance criteria, `docs/coding-convention.md` when present, active evolution rules, relevant ADR/architecture docs, and task-specific risk checks.
 3. Populate **Simplicity Check** with the minimal solution, rejected abstraction/flexibility, and why this is enough now. Keep speculative extensibility as follow-up, not task scope.
-3. If repo policy files such as `docs/adr.yaml`, `docs/adr.md`, `docs/code-convention.yaml`, `docs/coding-convention.md`, or `.forgeflow/evolution/active/*` exist, use only the task-relevant entries and cite repo-relative paths. Do not paste long policy bodies into `plan.md`.
+3. If repo policy files such as `docs/adr.yaml`, `docs/adr.md`, `docs/code-convention.yaml`, `docs/coding-convention.md`, or `<storage-root>/evolution/active/*` exist, use only the task-relevant entries and cite repo-relative paths. Do not paste long policy bodies into `plan.md`.
 4. For small route, keep both sections compact: 1-3 bullets each is enough.
 5. For medium/high/epic, include enough criteria for reviewers to trace findings back to a named acceptance criterion, convention, ADR, active rule, or risk check.
 6. Record intentional exclusions explicitly so review findings can distinguish true defects from out-of-scope improvements.
@@ -144,7 +144,7 @@ When constructing the Verification Plan, prefer automated gates over manual revi
 
 Before decomposing tasks, read the brief's `Applied Evolution Rules` section and, if command/file inspection is allowed, re-check active rule directories:
 
-- Project active: `.forgeflow/evolution/active/*.md`
+- Project active: `<storage-root>/evolution/active/*.md` (resolved via `forgeflow_storage.py`)
 - Global advisory: `~/.forgeflow/evolution/active/*.md`
 
 Apply rules this way:

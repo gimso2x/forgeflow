@@ -161,7 +161,7 @@ All artifacts are Markdown files written to `<task-dir>`:
 - `roadmap.md` for epic route: milestone DAG and statuses (template: `templates/roadmap.md`)
 - `ship-summary.md` — final handoff summary (template: `templates/ship-summary.md`)
 - `eval-record.md` — reusable learnings for high/epic routes (template: `templates/eval-record.md`)
-- Evolution rule candidates and active rules live under `.forgeflow/evolution/` using `templates/evolution-rule.md` — not as a standalone task artifact unless copying a snapshot for reference
+- Evolution rule candidates and active rules live under the **global storage root** `<storage-root>/evolution/` using `templates/evolution-rule.md` — not as a standalone task artifact unless copying a snapshot for reference. Project-scope active rules live under `<storage-root>/evolution/active/` (resolved via `forgeflow_storage.py`), not under `<repo>/.forgeflow/evolution/`.
 
 ## Status analysis before routing
 
@@ -233,7 +233,7 @@ ForgeFlow turns repeated patterns and mistakes into Markdown rules during the **
   - Trigger: reusable pattern found with evidence, not covered by existing active rules
   - Artifact/location: evolution rule written directly to `active/`:
     - `Scope: global-advisory` → `~/.forgeflow/evolution/active/<rule-name>.md` (default)
-    - `Scope: project` → `.forgeflow/evolution/active/<rule-name>.md` (project-specific only)
+    - `Scope: project` → `<storage-root>/evolution/active/<rule-name>.md` (project-specific only, resolved via `forgeflow_storage.py`)
   - No separate propose→validate cycle needed — review already validated the work
 - `active`
   - Trigger: rule file exists in an `active/` directory
