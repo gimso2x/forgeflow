@@ -16,6 +16,12 @@ import subprocess
 import sys
 import tempfile
 
+# Ensure stdout/stderr can handle non-ASCII on Windows
+if sys.stdout and hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+if sys.stderr and hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 GUARD_SCRIPT = os.path.join(SCRIPT_DIR, "forgeflow_guard_check.py")
@@ -25,8 +31,11 @@ PYTHON = sys.executable
 def run_guard(args):
     """Run the guard checker with given args, return (exit_code, stdout, stderr)."""
     cmd = [PYTHON, GUARD_SCRIPT] + args
-    result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
-    return result.returncode, result.stdout.strip(), result.stderr.strip()
+    result = subprocess.run(cmd, capture_output=True, text=True, timeout=30,
+                            encoding="utf-8", errors="replace")
+    stdout = result.stdout.strip() if result.stdout else ""
+    stderr = result.stderr.strip() if result.stderr else ""
+    return result.returncode, stdout, stderr
 
 
 # ---------------------------------------------------------------------------
@@ -253,6 +262,61 @@ none
     return task_dir
 
 
+def make_clarify_valid_dir(tmp):
+    """Create a task dir with valid clarify artifacts (run-state + brief with frontmatter)."""
+    task_dir = os.path.join(tmp, "clarify_valid")
+    os.makedirs(task_dir, exist_ok=True)
+
+    with open(os.path.join(task_dir, "run-state.json"), "w") as f:
+        json.dump({"schema": "run-state/v1", "project_name": "test"}, f)
+
+    brief = (
+        "---\n"
+        "route: small\n"
+        "auto: false\n"
+        "---\n\n"
+        "# Brief\n\n"
+        "## Objective\n\nTest objective\n\n"
+        "## Goal Contract\n\n- Success criteria: lint passes\n"
+    )
+    with open(os.path.join(task_dir, "brief.md"), "w") as f:
+        f.write(brief)
+
+    return task_dir
+
+
+def make_clarify_missing_brief_dir(tmp):
+    """Create a task dir with run-state but no brief."""
+    task_dir = os.path.join(tmp, "clarify_no_brief")
+    os.makedirs(task_dir, exist_ok=True)
+
+    with open(os.path.join(task_dir, "run-state.json"), "w") as f:
+        json.dump({"schema": "run-state/v1"}, f)
+
+    return task_dir
+
+
+def make_clarify_missing_objective_dir(tmp):
+    """Create a task dir with brief but no Objective section."""
+    task_dir = os.path.join(tmp, "clarify_no_objective")
+    os.makedirs(task_dir, exist_ok=True)
+
+    with open(os.path.join(task_dir, "run-state.json"), "w") as f:
+        json.dump({"schema": "run-state/v1"}, f)
+
+    brief = (
+        "---\n"
+        "route: small\n"
+        "---\n\n"
+        "# Brief\n\n"
+        "## Goal Contract\n\n- Success criteria: lint passes\n"
+    )
+    with open(os.path.join(task_dir, "brief.md"), "w") as f:
+        f.write(brief)
+
+    return task_dir
+
+
 # ---------------------------------------------------------------------------
 # Test runner
 # ---------------------------------------------------------------------------
@@ -392,6 +456,39 @@ def run_tests():
         results.append(TestResult(
             "test_missing_task_dir_exits_1",
             code == 1,
+            f"exit={code} stdout={stdout!r} stderr={stderr!r}"
+        ))
+
+        # Test 12: check-clarify valid fixture passes
+        clarify_valid_dir = make_clarify_valid_dir(tmp)
+        code, stdout, stderr = run_guard(
+            ["check-clarify", "--task-dir", clarify_valid_dir]
+        )
+        results.append(TestResult(
+            "test_check_clarify_valid_passes",
+            code == 0 and "PASS" in stdout,
+            f"exit={code} stdout={stdout!r} stderr={stderr!r}"
+        ))
+
+        # Test 13: check-clarify missing brief blocks
+        clarify_no_brief_dir = make_clarify_missing_brief_dir(tmp)
+        code, stdout, stderr = run_guard(
+            ["check-clarify", "--task-dir", clarify_no_brief_dir]
+        )
+        results.append(TestResult(
+            "test_check_clarify_missing_brief_blocks",
+            code == 2 and "BLOCK" in stderr and "brief" in stderr.lower(),
+            f"exit={code} stdout={stdout!r} stderr={stderr!r}"
+        ))
+
+        # Test 14: check-clarify missing objective blocks
+        clarify_no_obj_dir = make_clarify_missing_objective_dir(tmp)
+        code, stdout, stderr = run_guard(
+            ["check-clarify", "--task-dir", clarify_no_obj_dir]
+        )
+        results.append(TestResult(
+            "test_check_clarify_missing_objective_blocks",
+            code == 2 and "BLOCK" in stderr and "objective" in stderr.lower(),
             f"exit={code} stdout={stdout!r} stderr={stderr!r}"
         ))
 

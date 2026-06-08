@@ -9,9 +9,11 @@ author: gimso2x
 validate_prompt: |
   Must produce brief.md with route selection, scope boundary, and acceptance criteria.
   Must bootstrap task workspace (<task-dir>/) and run-state.json if missing.
+  Must run check-clarify guard before exiting the stage (Procedure step 17).
   Must include WHERE grounding for non-trivial work.
   Must detect tech stack and auto-detect verification gates.
   Must not skip scope boundary definition or route rationale.
+  Must not skip workspace bootstrap for any route including small.
   Must preserve exact-output and dry-run constraints when requested.
 dependencies:
   - templates/brief.md (resolve: `<storage-root>/templates/brief.md` first, then plugin cache)
@@ -194,7 +196,11 @@ Generate `scope_files` list and compare against route thresholds. Record `bounda
 
 ## Procedure
 
-1. **Bootstrap task workspace if missing**: If no active task directory exists (no `<task-dir>` found), generate a task ID (see Task ID generation above) or use `--task-id` if provided, and create `<task-dir>`. Do not overwrite if `brief.md` already exists — report that it was kept as-is.
+1. **Bootstrap task workspace if missing** (all routes — never skip): If no active task directory exists (no `<task-dir>` found), generate a task ID (see Task ID generation above) or use `--task-id` if provided, and create `<task-dir>`. Do not overwrite if `brief.md` already exists — report that it was kept as-is.
+   ```bash
+   python3 <forgeflow-checkout>/scripts/forgeflow_storage.py --project-dir <repo-root> --task-id <task-id> --write-run-state
+   ```
+   If this fails, **do not proceed** to step 2. Resolve the error first.
 
 2. Inspect relevant repo context before inventing scope.
    - Run the Evolution preflight first when allowed, then map matched rules into brief.md.
@@ -385,6 +391,14 @@ For non-trivial work, identify cross-module contracts before route selection:
 5. Preserve non-goals and bounded assumptions when they affect execution boundaries.
 
 Small documentation-only tasks may omit these.
+
+17. **Stage Completion Gate** (all routes — never skip): Before exiting clarify, verify artifacts with the guard check script:
+    ```bash
+    python3 <forgeflow-checkout>/scripts/forgeflow_guard_check.py check-clarify --task-dir <task-dir>
+    ```
+    - **PASS** → stage complete, proceed to next stage or present route to user.
+    - **BLOCK** → create the missing artifacts, then re-run. Do not exit the stage with BLOCK results.
+    - Do not skip this verification even for `small` route or trivial requests. The only exception is label-only / dry-run mode where no artifacts are written by design.
 
 ## Auto-detectable verification gates
 

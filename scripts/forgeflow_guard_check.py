@@ -13,6 +13,7 @@ Exit codes:
 
 Usage:
     forgeflow_guard_check.py check-task --task-dir <path> [--stage <stage>]
+    forgeflow_guard_check.py check-clarify --task-dir <path>
     forgeflow_guard_check.py check-review --task-dir <path>
     forgeflow_guard_check.py check-ship --task-dir <path>
 """
@@ -152,6 +153,86 @@ def check_task(task_dir, expected_stage=None):
 
 
 # ---------------------------------------------------------------------------
+# check-clarify
+# ---------------------------------------------------------------------------
+
+VALID_ROUTES = {"small", "medium", "high", "epic"}
+
+
+def check_clarify(task_dir):
+    """Validate clarify stage artifacts exist and contain required sections.
+
+    This is the completion gate for the clarify stage. Every route (small,
+    medium, high, epic) must produce these artifacts before proceeding.
+    """
+    # 1. run-state.json must exist and be valid JSON
+    rs_path = os.path.join(task_dir, "run-state.json")
+    rs_text = read_text(rs_path)
+    if rs_text is None:
+        emit_block("run-state.json missing — clarify must bootstrap task workspace")
+        return
+    try:
+        json.loads(rs_text)
+    except json.JSONDecodeError:
+        emit_block("run-state.json is not valid JSON")
+
+    # 2. brief.md must exist and be non-empty
+    brief_path = os.path.join(task_dir, "brief.md")
+    brief_text = read_text(brief_path)
+    if brief_text is None:
+        emit_block("brief.md missing — clarify must produce a brief")
+        return
+    if not brief_text.strip():
+        emit_block("brief.md is empty")
+        return
+
+    # 3. brief.md must contain a route selection (in YAML frontmatter or body)
+    route_found = False
+    # Check YAML frontmatter for route: field
+    if brief_text.startswith("---"):
+        fm_end = brief_text.find("---", 3)
+        if fm_end >= 0:
+            frontmatter = brief_text[3:fm_end]
+            for line in frontmatter.splitlines():
+                stripped = line.strip()
+                if stripped.startswith("route:"):
+                    route_val = stripped.split(":", 1)[1].strip().strip("\"'")
+                    if route_val in VALID_ROUTES:
+                        route_found = True
+                    else:
+                        emit_block(
+                            f"brief.md has invalid route '{route_val}', "
+                            f"expected one of {VALID_ROUTES}"
+                        )
+                    break
+    # Fallback: check body for Route section
+    if not route_found:
+        route_section = section_text(brief_text, "Route")
+        if route_section:
+            for route in VALID_ROUTES:
+                if route in route_section.lower():
+                    route_found = True
+                    break
+            if not route_found:
+                emit_block(
+                    f"brief.md Route section has no valid route, "
+                    f"expected one of {VALID_ROUTES}"
+                )
+        elif not route_found:
+            emit_block("brief.md missing route selection (frontmatter or Route section)")
+
+    # 4. brief.md must contain Objective
+    objective = section_text(brief_text, "Objective")
+    if not objective:
+        emit_block("brief.md missing 'Objective' section")
+
+    # 5. brief.md must contain Goal Contract
+    goal_contract = section_text(brief_text, "Goal Contract")
+    if not goal_contract:
+        emit_block("brief.md missing 'Goal Contract' section")
+
+
+# ---------------------------------------------------------------------------
 # check-review
 # ---------------------------------------------------------------------------
 
@@ -258,6 +339,10 @@ def main():
     p_task.add_argument("--task-dir", required=True, help="Path to task directory")
     p_task.add_argument("--stage", default=None, help="Expected current stage")
 
+    # check-clarify
+    p_clarify = subparsers.add_parser("check-clarify", help="Check clarify stage artifacts")
+    p_clarify.add_argument("--task-dir", required=True, help="Path to task directory")
+
     # check-review
     p_review = subparsers.add_parser("check-review", help="Check review artifacts")
     p_review.add_argument("--task-dir", required=True, help="Path to task directory")
@@ -279,6 +364,8 @@ def main():
 
     if args.command == "check-task":
         check_task(args.task_dir, args.stage)
+    elif args.command == "check-clarify":
+        check_clarify(args.task_dir)
     elif args.command == "check-review":
         check_review(args.task_dir)
     elif args.command == "check-ship":
