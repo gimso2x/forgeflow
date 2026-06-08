@@ -280,6 +280,7 @@ If an adapter exceeds the safety ceiling, terminate the process and record the t
 6. After clarify, follow the route's stage sequence (see Route model above).
 7. Each stage skill handles its own procedure, artifacts, and gates.
 8. Auto-chain priority: `--auto` CLI flag > `brief.md` `auto: true` > `<storage-root>/defaults.md` `auto: true` > default (`false`). When auto-chain is active, stage skills proceed without `(y/n)` prompts. See `_shared/automation.md` for chain sequence, **Strict auto-chain mode** checklist, and auto-break conditions.
+9. **Loop mode**: `--loop` flag enables full lifecycle loop — auto-chain plus retry, re-execution on review changes, route promotion, and re-plan on scope drift. The agent keeps running clarify → plan → execute → review → ship until completion or irrecoverable blocker. See `_shared/automation.md` → `--loop mode` for retry budgets, promotion rules, and loop break conditions.
 
 ## Exit Condition
 
