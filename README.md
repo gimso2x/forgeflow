@@ -86,6 +86,8 @@ make validate-skills                # root SKILL.md marketplace summary 포함
 make validate-agent-docs            # shared discipline/automation linkage 포함
 make validate-skill-modularity
 make validate-templates validate-template-refs
+make validate-template-fields          # required_fields warning mode; --strict for error mode
+make validate-stage-handoff            # alias: cross-artifact handoff checks (same script as template-fields)
 make validate-adapter-config
 make validate-stage-tool-boundaries
 make validate-markdown-links

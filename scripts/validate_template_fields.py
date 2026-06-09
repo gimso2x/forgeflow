@@ -124,11 +124,55 @@ if brief_template.exists() and clarify_skill.exists():
         if field not in brief_fm:
             failures.append(f"templates/brief.md: missing frontmatter field '{field}' required by clarify skill")
 
-    # Fields that MUST be in brief frontmatter
-    required_fm_fields = ['schema', 'task_id', 'route', 'specialist', 'scope_boundary']
-    for field in required_fm_fields:
-        if field not in brief_fm:
-            failures.append(f"templates/brief.md: missing frontmatter field '{field}' required by clarify skill")
+# Section header / body aliases for required_fields.name (snake_case) → template prose labels
+FIELD_ALIASES: dict[str, list[str]] = {
+    'goal_contract': ['Goal Contract'],
+    'goal': ['Goal', 'Plan Readiness', 'Objective', 'Reader Summary'],
+    'requirements': ['Requirements', '요구사항'],
+    'implementation_steps': ['Tasks', 'Implementation Steps', '작업 목록'],
+    'verification': ['Verification Plan', 'Verification', '검증'],
+    'decisions': ['Decisions', '결정 사항'],
+    'progress': ['Progress', '진행 상황'],
+    'evidence': ['Evidence', '증거'],
+    'verdict': ['Verdict', '판정'],
+    'findings': ['Findings', '발견 사항'],
+    'open_blockers': ['Open Blockers', '열린 blocker'],
+    'next_action': ['Next Action', '다음 작업'],
+    'changed_files': ['Changed Files', '변경 파일'],
+    'residual_risks': ['Residual Risks', '잔여 위험'],
+    'resume_pointer': ['Resume Pointer'],
+    'plan_items': ['Plan Items'],
+    'execution_tracking': ['Execution Tracking'],
+    'stage': ['Stage', 'Current Stage', '현재 단계'],
+    'status': ['Status', '상태'],
+    'input_mode': ['input_mode'],
+    'review_verdict': ['Review Verdict', '리뷰 판정'],
+    'task_id': ['task_id'],
+    'route': ['Route', '라우트'],
+    'scope_boundary': ['scope_boundary'],
+    'ambiguity': ['Ambiguity Score', '모호성 점수'],
+    'total_items': ['total_items'],
+}
+
+FIELD_BODY_PATTERNS: dict[str, list[str]] = {
+    'goal': [r'\*\*Goal\*\*'],
+}
+
+
+def _field_present(field: str, fm: str, body: str) -> bool:
+    if re.search(rf'^{re.escape(field)}\s*:', fm, re.MULTILINE):
+        return True
+    title_case = ' '.join(part.capitalize() for part in field.split('_'))
+    candidates = list(dict.fromkeys(
+        FIELD_ALIASES.get(field, []) + [title_case, field.replace('_', ' ')]
+    ))
+    for candidate in candidates:
+        if re.search(rf'##[^\n]*\b{re.escape(candidate)}\b', body, re.IGNORECASE):
+            return True
+    for pattern in FIELD_BODY_PATTERNS.get(field, []):
+        if re.search(pattern, body, re.IGNORECASE):
+            return True
+    return False
 
 # Cross-check: all templates with YAML frontmatter must use consistent schema field name
 # review-report.md was using 'schema_version' instead of 'schema' — verify consistency
@@ -210,9 +254,7 @@ for _tmpl_name in _warn_templates:
                 _req_fields.append(_field)
     # Check each required field: present as frontmatter key OR section header in body
     for _field in _req_fields:
-        _in_fm = bool(re.search(rf'^{_field}\s*:', _fm, re.MULTILINE))
-        _in_body = bool(re.search(rf'##.*\b{_field}\b', _text, re.MULTILINE))
-        if not _in_fm and not _in_body:
+        if not _field_present(_field, _fm, _text):
             _warnings.append(
                 f"templates/{_tmpl_name}: missing recommended field '{_field}' "
                 f"(declared in required_fields)"

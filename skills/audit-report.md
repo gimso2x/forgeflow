@@ -1,7 +1,7 @@
 # ForgeFlow Skills Audit Report
 
 Date: 2026-06-09 (refreshed)
-Release: v2.0.1 (distribution) / forgeflow skill 1.12.1
+Release: v2.1.0 (distribution) / forgeflow skill 1.12.1
 Status: **reference only** — not a runtime skill (see `skills/SKILLS.md` U2)
 
 ## Summary

@@ -1235,7 +1235,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI gate with GitHub Actions workflow generation
 - Agent preset installer (Claude + Codex)
 
-[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v2.0.1...HEAD
+[Unreleased]: https://github.com/gimso2x/forgeflow/compare/v2.1.0...HEAD
+[2.1.0]: https://github.com/gimso2x/forgeflow/compare/v2.0.1...v2.1.0
 [2.0.1]: https://github.com/gimso2x/forgeflow/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/gimso2x/forgeflow/compare/v1.15.0...v2.0.0
 [1.15.0]: https://github.com/gimso2x/forgeflow/compare/v1.14.0...v1.15.0

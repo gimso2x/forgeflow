@@ -84,6 +84,13 @@ Post-review harness improvement tickets (optional, when human review surfaced pr
 
 ## Constraints
 
+→ `_shared/discipline.md`, `_shared/preflight.md`, `_shared/isolation.md`.
+
+- Proceed only when `review-report.md` verdict is `approved` and Open Blockers is empty (Blocker Enforcement Rule).
+- Ship is handoff and verification — do not edit product code except branch cleanup steps the user explicitly chose.
+- Preserve final evidence in the active task directory; do not discard artifacts or hide residual risks.
+- Do not finish ship with BLOCK verification results or unresolved template placeholders in handoff artifacts.
+
 ## File write and output discipline
 
 → Core rules: `_shared/discipline.md`.
