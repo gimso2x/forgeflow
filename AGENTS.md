@@ -6,7 +6,7 @@
 
 ForgeFlow: artifact-first delivery workflow for AI coding agents.
 Markdown-only distribution — no runtime, no external deps. **slim, markdown-only distribution.** Do not assume the older `forgeflow_runtime/`, `schemas/`, or `tests/` trees exist — use `make validate` as the contract surface. Skills are pure Markdown (SKILL.md + YAML frontmatter), templates are Markdown artifacts.
-Supports Claude Code, Codex, Antigravity CLI (agy), Cursor as adapters.
+Supports Claude Code, Codex, and Cursor as adapters.
 
 - **Version**: `VERSION` 파일이 단일 소스 (currently `2.0.1`)
 - **Entry point**: `skills/forgeflow/SKILL.md` (canonical contract); root `SKILL.md` is marketplace summary only

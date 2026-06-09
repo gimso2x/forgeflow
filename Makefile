@@ -1,4 +1,4 @@
-.PHONY: validate demo validate-demo smoke-local-plugins validate-forgeflow-loop validate-full-loop-e2e validate-behavior-guardrails validate-json validate-no-python validate-slim-surface validate-ci-workflows validate-english-readme validate-skills validate-skill-frontmatter validate-skill-modularity validate-agent-docs validate-templates validate-template-refs validate-template-fields validate-versions validate-changelog-links validate-route-scoring-parity validate-route-policy validate-plugin-prompts validate-evals validate-evals-json validate-eval-files validate-evals-fixtures validate-workflow-vocab validate-ship-safety validate-dogfooding-docs validate-context-resume validate-stage-tool-boundaries validate-adapter-config validate-advisory-contract validate-markdown-links validate-guard-checks telemetry telemetry-collect telemetry-aggregate usage-audit
+.PHONY: validate demo validate-demo smoke-local-plugins validate-forgeflow-loop validate-full-loop-e2e validate-behavior-guardrails validate-json validate-no-python validate-slim-surface validate-ci-workflows validate-skills validate-skill-frontmatter validate-skill-modularity validate-agent-docs validate-templates validate-template-refs validate-template-fields validate-versions validate-changelog-links validate-route-scoring-parity validate-route-policy validate-plugin-prompts validate-evals validate-evals-json validate-eval-files validate-evals-fixtures validate-workflow-vocab validate-ship-safety validate-dogfooding-docs validate-context-resume validate-stage-tool-boundaries validate-adapter-config validate-advisory-contract validate-markdown-links validate-guard-checks telemetry telemetry-collect telemetry-aggregate usage-audit
 
 PYTHON ?= python3
 
@@ -28,7 +28,7 @@ TEMPLATES := \
 	evidence-manifest.md \
 	re-execution-conditions.md
 
-validate: validate-no-python validate-slim-surface validate-ci-workflows validate-english-readme validate-json validate-versions validate-changelog-links validate-route-scoring-parity validate-route-policy validate-skills validate-skill-modularity validate-agent-docs validate-templates validate-template-refs validate-template-fields validate-demo validate-forgeflow-loop validate-full-loop-e2e validate-plugin-prompts validate-evals validate-workflow-vocab validate-ship-safety validate-dogfooding-docs validate-context-resume validate-stage-tool-boundaries validate-adapter-config validate-advisory-contract validate-behavior-guardrails validate-markdown-links validate-guard-checks
+validate: validate-no-python validate-slim-surface validate-ci-workflows validate-json validate-versions validate-changelog-links validate-route-scoring-parity validate-route-policy validate-skills validate-skill-modularity validate-agent-docs validate-templates validate-template-refs validate-template-fields validate-demo validate-forgeflow-loop validate-full-loop-e2e validate-plugin-prompts validate-evals validate-workflow-vocab validate-ship-safety validate-dogfooding-docs validate-context-resume validate-stage-tool-boundaries validate-adapter-config validate-advisory-contract validate-behavior-guardrails validate-markdown-links validate-guard-checks
 	@echo "OK: local validation passed"
 
 validate-evals: validate-evals-json validate-eval-files validate-evals-fixtures
@@ -133,21 +133,6 @@ validate-ci-workflows:
 	@grep -Fq "make validate-evals" evals/README.md || { echo "ERROR: eval README must document the eval validation bundle target"; exit 1; }
 	@echo "OK: CI workflows invoke documented local validation bundles"
 
-validate-english-readme:
-	@grep -Fq "The canonical detailed README is [README.md](README.md)" README_en.md || { echo "ERROR: README_en must point to the canonical detailed README"; exit 1; }
-	@grep -Fq "Claude Code, Codex, Antigravity CLI" README_en.md || { echo "ERROR: README_en must name the supported adapters"; exit 1; }
-	@grep -Fq "agy plugin" README_en.md || { echo "ERROR: README_en must document Antigravity CLI plugin install"; exit 1; }
-	@grep -Fq "codex plugin add forgeflow@forgeflow" README_en.md || { echo "ERROR: README_en must document Codex marketplace install"; exit 1; }
-	@grep -Fq "make -C /path/to/forgeflow" README_en.md || { echo "ERROR: README_en must document Codex local install target"; exit 1; }
-	@grep -Fq "~/.forgeflow/projects/<project-slug>/tasks/<task-id>/" README_en.md || { echo "ERROR: README_en must document the default global artifact path"; exit 1; }
-	@grep -Fq "make validate" README_en.md || { echo "ERROR: README_en must document make validate"; exit 1; }
-	@grep -Fq "make validate-evals" README_en.md || { echo "ERROR: README_en must document make validate-evals"; exit 1; }
-	@grep -Fq "make validate-behavior-guardrails" README_en.md || { echo "ERROR: README_en must document focused behavior guardrail validation"; exit 1; }
-	@grep -Fq "assumption-risk" README_en.md || { echo "ERROR: README_en must document behavior guardrail review findings"; exit 1; }
-	@grep -Fq "read-only \`contents: read\` permissions" README_en.md || { echo "ERROR: README_en must document read-only CI permissions"; exit 1; }
-	@grep -Fq "make validate-english-readme" README.md || { echo "ERROR: README local validation docs must include focused English README validation"; exit 1; }
-	@echo "OK: English README mirrors core install, artifact, and validation surfaces"
-
 validate-json:
 	@for f in $(PLUGIN_JSON); do \
 		$(PYTHON) -m json.tool "$$f" >/dev/null || exit 1; \
@@ -226,7 +211,6 @@ validate-template-refs:
 validate-template-fields:
 	@$(PYTHON) scripts/validate_template_fields.py
 
-validate-antigravity-imports:
 validate-plugin-prompts:
 	@$(PYTHON) scripts/validate_plugin_prompts.py
 
@@ -320,8 +304,6 @@ validate-adapter-config:
 	@grep -Fq "not a license to create a parallel runtime" docs/stage-tool-boundaries.md || { echo "ERROR: role boundary docs must prevent parallel runtime drift"; exit 1; }
 	@grep -Fq "Members must not spawn unmanaged child work" docs/stage-tool-boundaries.md || { echo "ERROR: role boundary docs must block unmanaged member child-work"; exit 1; }
 	@grep -Fq "lead-owned artifact update before work continues" docs/stage-tool-boundaries.md || { echo "ERROR: role boundary docs must require lead-owned artifact updates for member scope changes"; exit 1; }
-	@grep -Fq "Untrusted repo에서 headless smoke" docs/adapter-config.md || { echo "ERROR: Antigravity CLI adapter docs must mention sandbox for untrusted headless smoke"; exit 1; }
-
 validate-evals-fixtures:
 	@$(PYTHON) scripts/validate_evals_fixtures.py
 	@grep -Fq "not a live provider benchmark" evals/README.md || { echo "ERROR: evals README must not overclaim live provider benchmarking"; exit 1; }

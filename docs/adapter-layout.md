@@ -5,8 +5,6 @@ ForgeFlow currently keeps adapter-facing files at the repository root because ex
 - `.claude-plugin/` — Claude Code plugin manifest surface
 - `.codex-plugin/` — Codex plugin manifest surface
 - `.cursor-plugin/` — Cursor local plugin manifest surface
-- `.gemini/`, `GEMINI.md` — Antigravity CLI context file surface (GEMINI.md 호환)
-- `plugin.json` — Antigravity CLI (agy) plugin manifest
 - `.agents/`, `plugins/` — Codex marketplace compatibility surface
 
 ## Target direction (deferred — no current plan to execute)
@@ -20,8 +18,6 @@ adapters/
   claude/
   codex/
   cursor/
-  gemini/
-  antigravity/
 ```
 
 The root-level compatibility paths should then be generated or symlinked at build/install time instead of hand-maintained independently.
@@ -32,6 +28,6 @@ The root-level compatibility paths should then be generated or symlinked at buil
 2. Add or modify adapter files in one canonical source location first; generated compatibility files must stay byte-for-byte predictable.
 3. Install targets should copy or link complete adapter surfaces, not ask users to manually copy individual files.
 4. Validation must keep checking the root compatibility paths while they are published entrypoints.
-5. Do not move `.agents/plugins/marketplace.json`, `plugins/forgeflow`, `.codex-plugin/plugin.json`, `.claude-plugin/*`, `.cursor-plugin/plugin.json`, or `plugin.json` without an accompanying install/build target and README update.
+5. Do not move `.agents/plugins/marketplace.json`, `plugins/forgeflow`, `.codex-plugin/plugin.json`, `.claude-plugin/*`, or `.cursor-plugin/plugin.json` without an accompanying install/build target and README update.
 
 This keeps the repository understandable while avoiding a breaking marketplace/layout change before the adapter generation path exists.

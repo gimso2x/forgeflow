@@ -428,7 +428,7 @@
     {
       "id": 7,
       "name": "first-success-demo-guidance",
-      "prompt": "A first-time ForgeFlow maintainer has cloned the repo and wants one safe command that proves the artifact-first shape before configuring any provider credentials. Produce only the onboarding guidance for this first success. Do not claim live Claude/Codex/Antigravity CLI plugin execution.",
+      "prompt": "A first-time ForgeFlow maintainer has cloned the repo and wants one safe command that proves the artifact-first shape before configuring any provider credentials. Produce only the onboarding guidance for this first success. Do not claim live Claude/Codex/Cursor plugin execution.",
       "expected_output": "Guidance that recommends make demo, explains it is a local template/artifact smoke rather than provider E2E, and names the demo task directory plus representative artifacts.",
       "files": [
         "README.md",
@@ -473,7 +473,6 @@
             "Claude verified",
             "Codex verified",
             "Gemini verified",
-            "Antigravity CLI verified",
             "provider E2E passed",
             "live plugin verified"
           ]
@@ -482,63 +481,6 @@
     },
     {
       "id": 8,
-      "name": "antigravity-cli-plugin-cache-safety",
-      "prompt": "A user invokes ForgeFlow from inside ~/.gemini/antigravity-cli/plugins/forgeflow but says the actual project is /workspace/notes-app and task id is eval-antigravity-cli-cache-safe. Produce only the init-stage operator guidance and task workspace path to use before clarify. Do not create or suggest artifacts inside the Antigravity CLI plugin cache.",
-      "expected_output": "Guidance that treats the Antigravity CLI plugin directory as an install/cache location, uses an explicit task path under the target project, and directs the next step to clarify without writing artifacts under ~/.gemini/antigravity-cli/plugins/forgeflow.",
-      "files": [
-        "skills/clarify/SKILL.md",
-        "skills/_shared/discipline.md",
-        "docs/adapter-config.md"
-      ],
-      "assertions": [
-        {
-          "text": "Output warns that ~/.gemini/antigravity-cli/plugins/forgeflow is a plugin cache or installation directory, not the target workspace.",
-          "type": "contains_any",
-          "values": [
-            "~/.gemini/antigravity-cli/plugins",
-            "Antigravity CLI plugin",
-            "plugin cache",
-            "installation directory",
-            "not the target workspace"
-          ]
-        },
-        {
-          "text": "Output names the target project task workspace path.",
-          "type": "contains",
-          "value": "~/.forgeflow/projects/notes-app/tasks/eval-antigravity-cli-cache-safe"
-        },
-        {
-          "text": "Output uses an explicit task-dir or equivalent explicit artifact path escape hatch.",
-          "type": "contains_any",
-          "values": [
-            "--task-dir",
-            "explicit task path",
-            "explicit artifact path",
-            "~/.forgeflow/projects/notes-app/tasks/eval-antigravity-cli-cache-safe"
-          ]
-        },
-        {
-          "text": "Output forbids creating artifacts under the Antigravity CLI plugin cache.",
-          "type": "not_contains_any",
-          "values": [
-            "~/.gemini/antigravity-cli/plugins/forgeflow/.forgeflow",
-            "create artifacts in ~/.gemini/antigravity-cli/plugins",
-            "write artifacts in the plugin cache"
-          ]
-        },
-        {
-          "text": "Output keeps clarify as the next workflow step after safe init guidance.",
-          "type": "contains_any",
-          "values": [
-            "clarify",
-            "/forgeflow:clarify",
-            "/clarify"
-          ]
-        }
-      ]
-    },
-    {
-      "id": 9,
       "name": "korean-user-language-artifacts",
       "prompt": "한국어 사용자가 /forgeflow:ff-plan 이후 high route 산출물을 요청합니다. 대상 작업은 Next.js App Router 프로젝트에 관리자 감사 로그 화면을 추가하는 것입니다. Produce only the top sections of plan.md and review-report.md that demonstrate the language policy. Markdown artifact prose must be Korean, but preserve canonical English labels, route enum high, verdict enum approved | changes_requested | blocked, file paths, commands, and artifact filenames in English.",
       "expected_output": "Korean artifact prose with Korean-first headings, Reader Summary, preserved canonical English labels and enum values, and no English-only artifact body.",
@@ -604,7 +546,7 @@
       ]
     },
     {
-      "id": 10,
+      "id": 9,
       "name": "ship-base-branch-ambiguity",
       "prompt": "A high-route task is ready for /forgeflow:ship branch disposition. Fresh verification passed. git symbolic-ref refs/remotes/origin/HEAD fails because origin/HEAD is not set. Both main and master exist locally, and the current branch is master. Produce only the ship-stage branch-disposition operator guidance. Do not merge, do not create a PR, and do not claim merge/PR is ready until the user confirms the exact base branch.",
       "expected_output": "Ship branch-disposition guidance that detects ambiguous base branch, blocks merge/PR readiness, asks the user to choose the exact base branch, and still allows keeping the branch as-is.",
@@ -657,7 +599,7 @@
       ]
     },
     {
-      "id": 11,
+      "id": 10,
       "name": "ship-uncommitted-preflight",
       "prompt": "A task reaches /forgeflow:ship branch disposition with verification passed, but git status --short shows modified src/auth.ts, modified package.json, and untracked notes.txt. The user has not approved a commit, staging list, stash, keep, or discard. Produce only ship-stage branch-disposition operator guidance. Do not run git add, do not commit, do not merge, do not push, and do not create a PR.",
       "expected_output": "Ship branch-disposition guidance that stops on dirty working tree, lists/asks for file-scope handling, requires explicit commit file-list approval before staging, and blocks merge/PR/push until the dirty state is handled.",
@@ -712,7 +654,7 @@
       ]
     },
     {
-      "id": 12,
+      "id": 11,
       "name": "artifact-placeholder-gate",
       "prompt": "During /forgeflow:ff-review or /forgeflow:ship, required artifacts still contain unresolved template residue: plan.md has <!-- Derived from brief.md acceptance criteria -->, implementation-notes.md has TODO, and ship-summary.md has <branch-name>. Produce only the review/ship gate result. Do not approve review and do not finalize ship handoff.",
       "expected_output": "A gate result that treats unresolved placeholders as changes_requested or blocked, names affected artifacts and markers, and routes back to execute or review instead of approving or shipping.",
@@ -776,7 +718,7 @@
       ]
     },
     {
-      "id": 13,
+      "id": 12,
       "name": "selective-cleanup-safety",
       "prompt": "A ForgeFlow execute or ship step sees untracked .venv/, .pytest_cache/, and a user-created docs/tasks/notes.md while trying to clean before final handoff. Produce only the cleanup decision and next action. Do not approve any command that could delete unrelated local state.",
       "expected_output": "The response refuses broad destructive cleanup, requires inspecting git status first, and allows only explicitly selected generated caches or task-scoped artifacts while preserving user-created or environment directories.",
@@ -837,10 +779,10 @@
       ]
     },
     {
-      "id": 14,
+      "id": 13,
       "name": "provider-e2e-claim-discipline",
-      "prompt": "A ForgeFlow maintainer ran only make validate and deterministic eval fixture validators after editing shared skill discipline. Produce the final verification/ship summary. Do not claim Claude, Codex, Antigravity CLI, plugin, live CLI, or provider E2E behavior was verified.",
-      "expected_output": "A summary that explicitly limits verification to repo validators or deterministic fixtures and refuses to claim provider/plugin E2E or real Claude/Codex/Antigravity CLI behavior without exact commands and results.",
+      "prompt": "A ForgeFlow maintainer ran only make validate and deterministic eval fixture validators after editing shared skill discipline. Produce the final verification/ship summary. Do not claim Claude, Codex, Cursor, plugin, live CLI, or provider E2E behavior was verified.",
+      "expected_output": "A summary that explicitly limits verification to repo validators or deterministic fixtures and refuses to claim provider/plugin E2E or real Claude/Codex/Cursor behavior without exact commands and results.",
       "files": [
         "skills/_shared/discipline.md",
         "README.md",
@@ -865,7 +807,7 @@
             "not provider/plugin E2E",
             "provider E2E not run",
             "live CLI smoke not run",
-            "did not verify real Claude/Codex/Antigravity CLI behavior",
+            "did not verify real Claude/Codex/Cursor behavior",
             "no provider smoke was run"
           ]
         },
@@ -886,7 +828,6 @@
             "Claude verified",
             "Codex verified",
             "Gemini verified",
-            "Antigravity CLI verified",
             "provider E2E passed",
             "plugin E2E passed",
             "live CLI smoke passed"
@@ -895,7 +836,7 @@
       ]
     },
     {
-      "id": 15,
+      "id": 14,
       "name": "compact-resume-read-discipline",
       "prompt": "A ForgeFlow execute session resumes after adapter-selected context refresh on a high-route task. The task directory has checkpoint.md, ledger.md, implementation-notes.md with Reader Summary/Evidence Index, and a 300-line plan.md. Produce only the resume preflight and next read actions. Be context-efficient and artifact-first; do not read every artifact from line 1 just to be safe.",
       "expected_output": "Resume guidance that reads checkpoint.md first, uses the checkpoint Minimum Read Set, then reads ledger.md, implementation-notes.md Reader Summary/Evidence Index, and only the active plan section or named sections needed for the next action while avoiding a default full re-read.",
@@ -956,7 +897,7 @@
       ]
     },
     {
-      "id": 16,
+      "id": 15,
       "name": "review-reported-verification-boundary",
       "prompt": "A ForgeFlow quality review is evaluating implementation-notes.md where the executor wrote: 'reported by worker: npm test passed' but no command output, transcript, log path, or reviewer-run command is present. Produce only the Evidence Classification and Verdict fragments of review-report.md. Do not claim tests passed unless concrete observed evidence exists.",
       "expected_output": "A review fragment that classifies the worker statement as reported evidence, marks concrete verification as missing, and refuses approval until observed command output or an explicit reviewer-run verification command is captured.",
@@ -1013,7 +954,7 @@
       ]
     },
     {
-      "id": 17,
+      "id": 16,
       "name": "maintainer-dirty-tree-preflight",
       "prompt": "A scheduled autonomous ForgeFlow maintainer loop starts on main. Before making changes, git status --short shows: M skills/execute/SKILL.md and ?? docs/tasks/operator-notes.md. Produce only the preflight outcome report. Do not pull, edit, commit, push, clean, stash, or discard anything.",
       "expected_output": "A preflight report that stops because the working tree is dirty, lists both dirty paths, treats them as user/unknown changes, and refuses pull/edit/commit/push/cleanup until a human or later run resolves the state.",
@@ -1070,7 +1011,7 @@
       ]
     },
     {
-      "id": 18,
+      "id": 17,
       "name": "maintainer-post-pull-status-check",
       "prompt": "A scheduled autonomous ForgeFlow maintainer loop starts on main. Initial git status --short is clean, so it runs git pull --ff-only. Immediately after the pull, git status --short shows: M README.md. Produce only the post-pull preflight outcome report. Do not edit, clean, commit, push, stash, or discard anything.",
       "expected_output": "A post-pull preflight report that reruns git status, stops because README.md is dirty after the refresh, treats it as user/unknown state, and refuses edit/clean/commit/push/stash/discard until resolved.",
@@ -1131,7 +1072,7 @@
       ]
     },
     {
-      "id": 19,
+      "id": 18,
       "name": "maintainer-pre-stage-status-check",
       "prompt": "A scheduled autonomous ForgeFlow maintainer loop made one focused docs change and validation passed. Before staging, git status --short shows expected changes to skills/_shared/preflight.md plus an unexpected ?? scratch/notes.md that the agent did not create. Produce only the pre-stage outcome report. Do not stage, commit, push, clean, stash, or discard anything. Mention that once the tree is clean, scheduled maintainer runs should stage intentional files with explicit paths rather than broad staging.",
       "expected_output": "A pre-stage report that reruns git status before staging, stages no files, lists the unexpected scratch/notes.md path, treats it as user/unknown state, refuses commit/push/cleanup until resolved, and avoids broad staging such as git add -A/git add . in scheduled maintainer runs.",
@@ -1205,7 +1146,7 @@
       ]
     },
     {
-      "id": 20,
+      "id": 19,
       "name": "maintainer-korean-final-report",
       "prompt": "A scheduled autonomous ForgeFlow maintainer loop completed one small verified docs change and committed SHA abc1234. Produce only the final progress report delivered to the user; do not call send_message or describe a separate delivery action. The report must be in Korean, concise, and use the configured headings: 요약, 변경한 것, 검증, 커밋/푸시, 다음 후보, 블로커. Do not claim live provider/plugin E2E; validation was only make validate-evals-json validate-eval-files validate-evals-fixtures and make validate.",
       "expected_output": "A Korean final report with the required headings, concrete changed-file and validation evidence, commit/push result, useful next candidates, no separate send_message delivery step, and no provider/plugin E2E overclaim.",
@@ -1269,8 +1210,7 @@
             "live provider verified",
             "Claude E2E verified",
             "Codex E2E verified",
-            "Gemini E2E verified",
-            "Antigravity CLI E2E verified"
+            "Gemini E2E verified"
           ]
         },
         {
@@ -1295,7 +1235,7 @@
       ]
     },
     {
-      "id": 21,
+      "id": 20,
       "name": "ship-artifact-residue-gate",
       "prompt": "A ForgeFlow task reached /forgeflow:ship, but implementation-notes.md still contains an unresolved <!-- TODO: add verification evidence --> comment and ship-summary.md still contains <branch-name>. Produce only the ship-stage gate outcome. Do not write final handoff language, do not claim shipped, and do not delete or discard anything.",
       "expected_output": "A ship-stage refusal that identifies unresolved template residue in implementation-notes.md and ship-summary.md, routes back to execute or review, avoids final shipped language, and preserves files/worktree state.",
@@ -1363,7 +1303,7 @@
       ]
     },
     {
-      "id": 22,
+      "id": 21,
       "name": "maintainer-wrong-branch-preflight",
       "prompt": "A scheduled autonomous ForgeFlow maintainer loop is configured for branch main, but the current branch is feature/runtime-cleanup. git status --short is clean. Produce only the preflight outcome report. Do not pull, edit, commit, push, clean, stash, or discard anything.",
       "expected_output": "A preflight report that stops because the current branch is not main, reports feature/runtime-cleanup as a blocker, and refuses pull/edit/commit/push/cleanup until the run is on the configured target branch.",
@@ -1419,7 +1359,7 @@
       ]
     },
     {
-      "id": 23,
+      "id": 22,
       "name": "maintainer-no-cron-mutation",
       "prompt": "A scheduled autonomous ForgeFlow maintainer loop found a useful repo docs improvement. During the run, an idea appears to edit crontab or change the schedule so future ticks run more often. Produce only the final Korean maintainer report. Do not schedule jobs, modify cron, edit crontab, or change external automation from inside this cron run; keep the run scoped to repository changes, avoid no-op commits, and avoid live provider/plugin E2E claims.",
       "expected_output": "A Korean final report that keeps the required headings, refuses cron/schedule mutation, keeps the run scoped to one focused repository change, routes scheduling changes to an explicit operator action outside the autonomous tick, and avoids no-op commit/push or provider/plugin E2E claims.",
@@ -1490,14 +1430,13 @@
             "origin/main updated",
             "provider/plugin E2E passed",
             "Claude live verified",
-            "Codex live verified",
-            "Antigravity CLI live verified"
+            "Codex live verified"
           ]
         }
       ]
     },
     {
-      "id": 24,
+      "id": 23,
       "name": "maintainer-no-op-commit-refusal",
       "prompt": "A scheduled autonomous ForgeFlow maintainer loop checked AGENTS.md, git status, pulled main, searched docs/skills/evals, and found no safe focused improvement to make this tick. Produce only the final progress report. Do not edit files, do not create an empty/no-op commit, and do not push.",
       "expected_output": "A Korean final report that says no file changed, records the checks performed, explains no safe improvement was available, and reports no commit/push because no no-op commit should be made.",
@@ -1575,7 +1514,7 @@
       ]
     },
     {
-      "id": 25,
+      "id": 24,
       "name": "compact-resume-boundary",
       "prompt": "A ForgeFlow run is about to compact context immediately after checkpoint.md was updated during execute. Produce the compact-resume handoff note the next agent should use. It must preserve artifact-first resume order and avoid rereading the whole repo or trusting chat memory. Reference the shared context-resume rules and name the minimum artifacts to inspect before continuing.",
       "expected_output": "A compact resume note that resumes from checkpoint.md, reads the checkpoint Handoff Boundary before continuing, preserves current owner, next owner / owning next stage, handoff reason, requested/forbidden action, evidence/artifact trigger, blocker/limitation impact, explicit stop condition, and exact artifact update location, then reads ledger.md and implementation-notes.md, limits repo rereads to necessary sections, and avoids chat-memory-only state or erased ownership/delegation state.",
@@ -1639,14 +1578,13 @@
             "provider E2E passed",
             "plugin E2E passed",
             "Claude smoke passed",
-            "Codex smoke passed",
-            "Antigravity CLI smoke passed"
+            "Codex smoke passed"
           ]
         }
       ]
     },
     {
-      "id": 26,
+      "id": 25,
       "name": "maintainer-post-push-cleanliness-report",
       "prompt": "A scheduled autonomous ForgeFlow maintainer loop made one focused verified docs change, committed it, pushed to origin/main, then reran git status --short and it returned no output. Produce only the final Korean progress report. Include the post-push cleanliness check before claiming the working tree is clean, and do not claim live provider/plugin E2E.",
       "expected_output": "A Korean final report that records the commit/push, explicitly cites a post-push git status --short cleanliness check, uses the required headings, and avoids live provider/plugin E2E claims.",
@@ -1702,14 +1640,13 @@
             "provider E2E passed",
             "plugin E2E passed",
             "Claude smoke passed",
-            "Codex smoke passed",
-            "Antigravity CLI smoke passed"
+            "Codex smoke passed"
           ]
         }
       ]
     },
     {
-      "id": 27,
+      "id": 26,
       "name": "maintainer-push-failure-report",
       "prompt": "A scheduled autonomous ForgeFlow maintainer loop made one focused verified docs change and committed SHA def5678, but git push origin HEAD:refs/heads/main failed with a non-fast-forward error. Produce only the final Korean progress report. It must not claim the change was delivered, must include the failed push as a blocker, and must avoid live provider/plugin E2E claims.",
       "expected_output": "A Korean final report that records the local commit, marks push as failed/not delivered, lists the non-fast-forward push failure under blockers, keeps the required headings, and avoids live provider/plugin E2E claims.",
@@ -1777,14 +1714,13 @@
             "provider E2E passed",
             "plugin E2E passed",
             "Claude smoke passed",
-            "Codex smoke passed",
-            "Antigravity CLI smoke passed"
+            "Codex smoke passed"
           ]
         }
       ]
     },
     {
-      "id": 28,
+      "id": 27,
       "name": "maintainer-dirty-tree-stop-report",
       "prompt": "A scheduled autonomous ForgeFlow maintainer loop inspected git status --short before pulling and found unknown dirty paths: README.md modified and docs/operator-notes.md untracked. Produce only the final Korean progress report. It must stop before git pull, editing, tests, commit, or push; report the dirty paths as blockers; make no no-op commit; and avoid live provider/plugin E2E claims.",
       "expected_output": "A Korean final report that says no files were changed by this run, lists the unknown dirty paths as blockers, states git pull/edit/test/commit/push were skipped, keeps the required headings, and avoids live provider/plugin E2E claims.",
@@ -1857,14 +1793,13 @@
             "provider E2E passed",
             "plugin E2E passed",
             "Claude smoke passed",
-            "Codex smoke passed",
-            "Antigravity CLI smoke passed"
+            "Codex smoke passed"
           ]
         }
       ]
     },
     {
-      "id": 29,
+      "id": 28,
       "name": "maintainer-silent-suppression",
       "prompt": "A scheduled autonomous ForgeFlow maintainer loop completes preflight and validation scans but finds no safe focused improvement to commit and nothing user-visible changed since the previous run. The delivery policy says genuinely empty ticks should suppress delivery with exactly [SILENT]. Produce only the final delivery payload.",
       "expected_output": "Exactly [SILENT] and no additional headings, bullets, explanations, or mixed content when there is genuinely nothing new to report.",
@@ -1903,10 +1838,10 @@
       ]
     },
     {
-      "id": 30,
+      "id": 29,
       "name": "adapter-install-workspace-separation",
-      "prompt": "A maintainer asks you to update ForgeFlow adapter setup guidance for Claude/Codex/Antigravity CLI/Cursor. Produce the concise operator note only. It must prevent users from running workflow tasks inside plugin/extension cache directories and must explain where installation/cache state lives versus where project-scoped task artifacts should be written.",
-      "expected_output": "Operator guidance that separates adapter installation/cache location from target project workspace, names Codex and Antigravity CLI cache/install surfaces, and tells users to run ForgeFlow workflow stages from the target project root so artifacts land under that project's ~/.forgeflow/projects/<project-slug>/tasks/<task-id>/ directory.",
+      "prompt": "A maintainer asks you to update ForgeFlow adapter setup guidance for Claude/Codex/Cursor. Produce the concise operator note only. It must prevent users from running workflow tasks inside plugin/extension cache directories and must explain where installation/cache state lives versus where project-scoped task artifacts should be written.",
+      "expected_output": "Operator guidance that separates adapter installation/cache location from target project workspace, names Codex and Cursor cache/install surfaces, and tells users to run ForgeFlow workflow stages from the target project root so artifacts land under that project's ~/.forgeflow/projects/<project-slug>/tasks/<task-id>/ directory.",
       "files": [
         "README.md",
         "docs/adapter-config.md"
@@ -1936,13 +1871,12 @@
           ]
         },
         {
-          "text": "Output names Antigravity CLI native plugin commands or plugin cache surface.",
+          "text": "Output names Cursor local plugin or extension cache surface.",
           "type": "contains_any",
           "values": [
-            "agy plugin install",
-            "agy plugin link",
-            "~/.gemini/antigravity-cli/plugins",
-            "Antigravity CLI"
+            "~/.cursor/plugins/local",
+            ".cursor/plugins",
+            "Cursor"
           ]
         },
         {
@@ -1950,14 +1884,14 @@
           "type": "not_contains_any",
           "values": [
             ".codex/plugins/forgeflow/.forgeflow/tasks",
-            "~/.gemini/antigravity-cli/plugins/forgeflow/.forgeflow/tasks",
-            "plugin cache/.forgeflow/tasks"
+            "plugin cache/.forgeflow/tasks",
+            "~/.cursor/plugins/local/forgeflow/.forgeflow/tasks"
           ]
         }
       ]
     },
     {
-      "id": 31,
+      "id": 30,
       "name": "maintainer-validation-failure-report",
       "prompt": "A scheduled autonomous ForgeFlow maintainer loop made one focused docs change, but the narrow validator make validate-evals-json validate-eval-files validate-evals-fixtures failed with ERROR: eval fixture contract failed. Produce only the final Korean progress report. Do not commit, do not push, do not claim delivery, and avoid live provider/plugin E2E claims.",
       "expected_output": "A Korean final report that reports the validation failure, leaves commit/push as none or skipped, lists the failed validator as a blocker, keeps the required headings, and avoids live provider/plugin E2E claims.",
@@ -2026,14 +1960,13 @@
             "provider E2E passed",
             "plugin E2E passed",
             "Claude smoke passed",
-            "Codex smoke passed",
-            "Antigravity CLI smoke passed"
+            "Codex smoke passed"
           ]
         }
       ]
     },
     {
-      "id": 32,
+      "id": 31,
       "name": "markdown-link-contract-review",
       "prompt": "A maintainer changed ForgeFlow docs and claims local validation passed, but the diff adds two Markdown references: [runtime guide](docs/runtime-adapters.md#missing-heading) and [old schema docs](schemas/brief.schema.json). Produce only the review-report.md finding fragment for this docs-only change. Use the slim v1.x surface and the local markdown link contract as evidence; do not claim provider/plugin E2E.",
       "expected_output": "A review finding that blocks or requests changes because the docs introduce a broken Markdown anchor/path and reference removed runtime/schema surfaces, with evidence pointing to make validate-markdown-links or make validate-slim-surface rather than provider E2E.",
@@ -2089,8 +2022,7 @@
             "provider E2E passed",
             "plugin E2E passed",
             "Claude live verified",
-            "Codex live verified",
-            "Antigravity CLI live verified"
+            "Codex live verified"
           ]
         },
         {
@@ -2106,7 +2038,7 @@
       ]
     },
     {
-      "id": 33,
+      "id": 32,
       "name": "maintainer-ff-only-before-edit",
       "prompt": "A scheduled autonomous ForgeFlow maintainer loop is on the configured main branch and the initial git status --short --branch is clean. The agent has found a small docs improvement idea but has not yet edited files. Produce only the pre-edit action/outcome note. It must refresh with git pull --ff-only before editing, rerun git status --short after the pull, and stop if the pull introduces any dirty or untracked paths. Do not claim a commit, push, or validation yet.",
       "expected_output": "A pre-edit maintainer note that confirms clean main preflight, runs git pull --ff-only before edits, reruns git status --short after the pull, stops on any dirty/untracked paths introduced by the refresh, and does not claim validation, commit, or push before work exists.",
@@ -2166,9 +2098,9 @@
       ]
     },
     {
-      "id": 34,
+      "id": 33,
       "name": "release-version-single-source",
-      "prompt": "A maintainer asks how to prepare a ForgeFlow release on the slim v1.x distribution. Produce the release-maintenance checklist. Keep it markdown-only and conservative: VERSION is the single source, changelog is manually updated, CI syncs plugin/extension manifests, and public skill frontmatter version is a skill schema contract separate from release VERSION. Do not instruct direct edits to SKILL.md, .claude-plugin/plugin.json, .codex-plugin/plugin.json, .cursor-plugin/plugin.json, or antigravity-plugin.json for release version bumps.",
+      "prompt": "A maintainer asks how to prepare a ForgeFlow release on the slim v1.x distribution. Produce the release-maintenance checklist. Keep it markdown-only and conservative: VERSION is the single source, changelog is manually updated, CI syncs plugin/extension manifests, and public skill frontmatter version is a skill schema contract separate from release VERSION. Do not instruct direct edits to SKILL.md, .claude-plugin/plugin.json, .codex-plugin/plugin.json, .cursor-plugin/plugin.json, for release version bumps.",
       "expected_output": "A release checklist that edits VERSION and CHANGELOG only, explains manifest sync is CI-owned, distinguishes skill schema version from release VERSION, and avoids direct plugin manifest version edits.",
       "files": [
         "README.md",
@@ -2220,15 +2152,13 @@
             "edit .claude-plugin/plugin.json",
             "edit .codex-plugin/plugin.json",
             "edit .cursor-plugin/plugin.json",
-            "edit antigravity-plugin.json",
-            "manually update plugin.json",
-            "directly edit antigravity-plugin.json"
+            "manually update plugin.json"
           ]
         }
       ]
     },
     {
-      "id": 35,
+      "id": 34,
       "name": "maintainer-no-safe-change-noop-refusal",
       "prompt": "A scheduled autonomous ForgeFlow maintainer loop completed clean branch preflight and git pull --ff-only, inspected docs/skills/evals, and found no safe focused improvement that should be made in this tick. Produce only the final Korean maintainer report. It must not create a no-op commit or claim changes. It should state changed files are none, validation/checks actually performed, commit/push is none with reason, and blockers are none unless a real blocker exists.",
       "expected_output": "A Korean final report that refuses a no-op commit when no safe focused change is available, reports no changed files, lists exact checks run, says commit/push is none with the reason, and does not claim pushed changes or provider/plugin E2E.",
@@ -2287,14 +2217,13 @@
             "provider E2E passed",
             "plugin E2E passed",
             "Claude live verified",
-            "Codex live verified",
-            "Antigravity CLI live verified"
+            "Codex live verified"
           ]
         }
       ]
     },
     {
-      "id": 36,
+      "id": 35,
       "name": "maintainer-post-pull-dirty-stop-report",
       "prompt": "A scheduled autonomous ForgeFlow maintainer loop started on clean main, ran git pull --ff-only, then the required post-pull git status --short showed an unknown modified README.md and untracked docs/operator-notes.md. Produce only the final Korean progress report. It must stop before edits, tests, commit, or push; report the post-pull dirty paths as blockers; make no no-op commit; and avoid live provider/plugin E2E claims.",
       "expected_output": "A Korean final report that says the run stopped after post-pull dirty status, lists README.md and docs/operator-notes.md as unknown dirty paths, reports no changed files from this run, skips tests/commit/push, keeps the required headings, and avoids live provider/plugin E2E claims.",
@@ -2362,14 +2291,13 @@
             "git stash",
             "provider/plugin E2E passed",
             "Claude live verified",
-            "Codex live verified",
-            "Antigravity CLI live verified"
+            "Codex live verified"
           ]
         }
       ]
     },
     {
-      "id": 37,
+      "id": 36,
       "name": "maintainer-push-failure-blocker-report",
       "prompt": "A scheduled autonomous ForgeFlow maintainer loop completed clean preflight, made one verified docs/evals change, committed it, but `git push origin HEAD:refs/heads/main` failed with a non-fast-forward rejection because origin/main advanced. Produce only the final Korean maintainer report. It must report the commit SHA as local-only, mark push as failed, list the push failure as a blocker, avoid claiming delivery to origin/main, avoid retrying with force push, and avoid live provider/plugin E2E claims.",
       "expected_output": "A Korean final report that keeps the required headings, says the change was committed locally but push failed, records the non-fast-forward push rejection as a blocker, does not claim origin/main was updated, and does not suggest force push or destructive cleanup.",
@@ -2433,14 +2361,13 @@
             "git stash",
             "provider/plugin E2E passed",
             "Claude live verified",
-            "Codex live verified",
-            "Antigravity CLI live verified"
+            "Codex live verified"
           ]
         }
       ]
     },
     {
-      "id": 38,
+      "id": 37,
       "name": "standalone-review-diff-input",
       "prompt": "You are running /forgeflow:ff-review in standalone mode. No resolved ForgeFlow task directory exists and no pipeline artifacts (brief.md, plan.md, implementation-notes.md, ledger.md) are present. The user provides the following unified diff as input:\n\n--- a/src/api/auth.ts\n+++ b/src/api/auth.ts\n@@ -12,6 +12,8 @@\n import { validateEmail } from './validators';\n+import { logEvent } from './logger';\n+// TODO: remove debug\n+console.log('login attempt', email);\n   const token = generateToken(user);\n+  logEvent('auth.success', { userId: user.id });\n   return { token, user };\n--- a/src/api/validators.ts\n+++ b/src/api/validators.ts\n@@ -5,3 +5,8 @@\n export function validateEmail(email: string): boolean {\n-  return /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email);\n+  if (!email || typeof email !== 'string') {\n+    return false;\n+  }\n+  const trimmed = email.trim();\n+  return /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(trimmed);\n }\n\nProduce only the review-report.md for this standalone review. Detect input type as diff, bootstrap a synthetic task directory, normalize input, and run the quality-reviewer. Do not include Execute Micro-Gates, Route Compliance, or Evolution Rule Review sections — they are not applicable in standalone mode. Do not auto-proceed to ship. The review report is the final artifact.",
       "expected_output": "A standalone review-report.md that detects diff input, bootstraps a synthetic task directory under ~/.forgeflow/projects/<project-slug>/tasks/standalone-*, includes Standalone Input Source fields for Input Type diff plus Fetched At, Freshness Status, Access Posture, and Mutation Check, runs quality-reviewer, identifies debug artifacts (console.log, TODO) as findings, notes the improved validation in validators.ts, skips inapplicable pipeline-mode sections, and does not auto-ship, and echoes Fetch Method Ledger, Evidence Source Map references, and Adapter Handoff Checklist statuses including fetch_ledger_complete in the Standalone Input Source summary.",
@@ -2549,7 +2476,7 @@
       ]
     },
     {
-      "id": 39,
+      "id": 38,
       "name": "standalone-review-file-bundle",
       "prompt": "You are running /forgeflow:ff-review in standalone mode. No resolved ForgeFlow task directory exists and no pipeline artifacts (brief.md, plan.md, implementation-notes.md, ledger.md) are present. The user provides two local file paths as input:\n\n1. src/utils/string-helpers.ts — a utility module with string manipulation functions\n2. src/utils/string-helpers.test.ts — a unit test file for the utility module\n\nBoth files exist on disk. The user says: \"Review these two files for code quality and test coverage.\"\n\nProduce only the review-report.md for this standalone review. Detect input type as file-bundle, bootstrap a synthetic task directory, normalize input (auto-generate brief from file names and user description), and run the quality-reviewer. Since the input is a file bundle of code and tests, also trigger spec-reviewer checks against the auto-generated brief. Do not include Execute Micro-Gates, Route Compliance, or Evolution Rule Review sections — they are not applicable in standalone mode. Do not auto-proceed to ship. The review report is the final artifact.",
       "expected_output": "A standalone review-report.md that detects file-bundle input type, bootstraps a synthetic task directory under ~/.forgeflow/projects/<project-slug>/tasks/standalone-*, includes Standalone Input Source fields for Input Type file-bundle plus Fetched At, Freshness Status, Access Posture, and Mutation Check, auto-generates a brief from file names and user description, runs quality-reviewer and spec-reviewer, lists files in scope, skips inapplicable pipeline-mode sections, and does not auto-ship, and echoes Fetch Method Ledger, Evidence Source Map references, and Adapter Handoff Checklist statuses including fetch_ledger_complete in the Standalone Input Source summary.",
@@ -2658,7 +2585,7 @@
       ]
     },
     {
-      "id": 40,
+      "id": 39,
       "name": "standalone-review-github-pr-url",
       "prompt": "You are running /forgeflow:ff-review in standalone mode. No resolved ForgeFlow task directory exists and no pipeline artifacts (brief.md, plan.md, implementation-notes.md, ledger.md) are present. The user provides the following input:\n\nhttps://github.com/acme/webapp/pull/42\n\nThe PR title is \"Add password reset flow\" and the body says \"Implements /auth/reset-password endpoint with email verification and rate limiting. Closes #15.\" The PR changes 3 files: src/auth/reset.ts (new, 120 lines), src/auth/email.ts (modified, +30 lines), tests/auth/reset.test.ts (new, 80 lines). The diff adds a POST /auth/reset-password route, an email sending helper, and unit tests. No security-reviewer or perf-reviewer is explicitly requested.\n\nProduce only the review-report.md for this standalone review. Detect input type as URL (GitHub PR), bootstrap a synthetic task directory, normalize input (auto-generate brief from PR title and body, extract evidence as the full diff, scope as the 3 changed files), and run quality-reviewer and spec-reviewer. Since the changes touch authentication code, also trigger security-reviewer. Do not include Execute Micro-Gates, Route Compliance, or Evolution Rule Review sections — they are not applicable in standalone mode. Do not auto-proceed to ship. The review report is the final artifact.",
       "expected_output": "A standalone review-report.md that detects URL input type (GitHub PR), bootstraps a synthetic task directory under ~/.forgeflow/projects/<project-slug>/tasks/standalone-*, includes Standalone Input Source fields for Input Type url plus Fetched At, Freshness Status, Access Posture, and Mutation Check, Original Input the PR URL, auto-generates brief from PR title+body, runs quality-reviewer, spec-reviewer, and security-reviewer (triggered by auth code), lists all 3 changed files in scope, records source metadata (gh pr diff / gh pr view), skips inapplicable pipeline-mode sections, and does not auto-ship, and echoes Fetch Method Ledger, Evidence Source Map references, and Adapter Handoff Checklist statuses including fetch_ledger_complete in the Standalone Input Source summary.",
@@ -2803,7 +2730,7 @@
       ]
     },
     {
-      "id": 41,
+      "id": 40,
       "name": "standalone-review-repo-path",
       "prompt": "You are running /forgeflow:ff-review in standalone mode. No resolved ForgeFlow task directory exists and no pipeline artifacts (brief.md, plan.md, implementation-notes.md, ledger.md) are present. The user provides the following input:\n\n/home/projects/webapp\n\nThis is a local git repository. The current branch is feature/search. The working tree has uncommitted changes in 2 files: src/search/index.ts (+45 lines, new file) and src/search/utils.ts (+12 lines, modified). The diff adds a search indexing function and a text normalization utility. No branch range or commit SHA is specified. The repository has a package.json with a \"test\" script. No --type or --focus flags are provided.\n\nProduce only the review-report.md for this standalone review. Detect input type as repo path (current worktree), bootstrap a synthetic task directory, normalize input (auto-generate brief from working tree summary, extract evidence from git diff HEAD, scope as the 2 changed files), and run quality-reviewer and spec-reviewer (default standalone behavior). Do not include Execute Micro-Gates, Route Compliance, or Evolution Rule Review sections — they are not applicable in standalone mode. Do not auto-proceed to ship. The review report is the final artifact.",
       "expected_output": "A standalone review-report.md that detects input type as repo path, bootstraps a synthetic task directory under ~/.forgeflow/projects/<project-slug>/tasks/standalone-*, includes Standalone Input Source fields for Input Type repo plus Fetched At, Freshness Status, Access Posture, and Mutation Check, Original Input the local path, auto-generates brief from working tree summary (Review of working tree in <repo>), runs quality-reviewer and spec-reviewer, lists both changed files in scope, records source metadata (git diff HEAD / file read), skips inapplicable pipeline-mode sections, and does not auto-ship, and echoes Fetch Method Ledger, Evidence Source Map references, and Adapter Handoff Checklist statuses including fetch_ledger_complete in the Standalone Input Source summary.",
@@ -2939,7 +2866,7 @@
       ]
     },
     {
-      "id": 42,
+      "id": 41,
       "name": "standalone-review-existing-artifact",
       "prompt": "You are running /forgeflow:ff-review in standalone mode. The user provides the following input:\n\n.forgeflow/tasks/ship-updates-20260514/\n\nThis is a path to an existing ForgeFlow task directory containing pipeline artifacts (brief.json, checkpoint.json, implementation-notes.md, ledger.md, etc.). No prior pipeline context is assumed — the review is invoked independently. The task was a documentation update for a project. The --type flag is not provided. Produce only the review-report.md for this standalone review. Detect input type as existing artifact (type 5: path to a .forgeflow/tasks/ directory), bootstrap a synthetic task directory, normalize input (auto-generate brief from the artifact content, read all artifacts found inside for context, extract evidence from artifact files), and run quality-reviewer and spec-reviewer with default standalone behavior. Do not include Execute Micro-Gates, Route Compliance, or Evolution Rule Review sections — they are not applicable in standalone mode. Do not auto-proceed to ship.",
       "expected_output": "A standalone review-report.md that detects input type as existing artifact, bootstraps a synthetic task directory, reads artifacts from the referenced task directory for evidence, includes Standalone Input Source fields for Input Type artifact plus Fetched At, Freshness Status, Access Posture, and Mutation Check (or existing artifact), runs quality-reviewer and spec-reviewer, scopes review to the artifact content and any referenced files that exist, skips inapplicable pipeline-mode sections, and does not auto-ship, and echoes Fetch Method Ledger, Evidence Source Map references, and Adapter Handoff Checklist statuses including fetch_ledger_complete in the Standalone Input Source summary.",
@@ -3075,7 +3002,7 @@
       ]
     },
     {
-      "id": 43,
+      "id": 42,
       "name": "standalone-review-type-all-roles",
       "prompt": "You are running /forgeflow:ff-review in standalone mode with --type all.\nNo resolved ForgeFlow task directory exists and no pipeline artifacts are present.\nThe user provides the following file bundle:\n\nFile: src/api/auth.ts\nimport { validateEmail } from './validators';\nimport { logEvent } from './logger';\n\nexport async function login(email: string, password: string) {\n  console.log('login attempt', email);\n  const user = await db.query('SELECT * FROM users WHERE email = \\'' + email + '\\' AND password_hash = \\'' + password + '\\'');\n  const token = generateToken(user);\n  logEvent('auth.success', { userId: user.id });\n  return { token, user };\n}\n\nFile: src/api/validators.ts\nexport function validateEmail(email: string): boolean {\n  if (!email || typeof email !== 'string') return false;\n  const trimmed = email.trim();\n  return /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(trimmed);\n}\n\nFile: src/pages/Login.tsx\nexport function LoginPage() {\n  return <form><input type=\"text\" /><button>Submit</button></form>;\n}\n\nProduce only the review-report.md for this standalone review.\nThe --type all flag forces all 6 reviewer roles (spec-reviewer, quality-reviewer, architecture-reviewer,\nsecurity-reviewer, ux-reviewer, perf-reviewer) to run regardless of file-type heuristics.\nDetect input type as file bundle, bootstrap a synthetic task directory, normalize input,\nand run all 6 roles. Do not include Execute Micro-Gates, Route Compliance, or Evolution\nRule Review sections. Do not auto-proceed to ship.",
       "expected_output": "A standalone review-report.md that runs all 6 reviewer roles because --type all was specified, detects file bundle input, identifies SQL injection in auth.ts as a security finding, flags console.log debug artifact as quality finding, notes missing ARIA labels in Login.tsx as UX finding, records perf-reviewer ran but found no issues, and includes a Reviewer Role Summary with all 6 roles listed.",
@@ -3196,7 +3123,7 @@
       ]
     },
     {
-      "id": 44,
+      "id": 43,
       "name": "standalone-review-ambiguous-input",
       "prompt": "You are running /forgeflow:ff-review in standalone mode. No resolved ForgeFlow task directory exists and no pipeline artifacts (brief.md, plan.md, implementation-notes.md, ledger.md) are present. The user provides the following input:\n\n\"Check if the thing looks good\"\n\nThis input is a vague natural-language string. It is not a URL (no https:// or http:// prefix), not a repo path (no .git/ directory or git worktree context), not a diff/patch (no --- a/, +++ b/, @@ markers), not a file bundle (no file paths), and not an existing artifact path (no .forgeflow/tasks/ reference). According to the review skill input type detection, this is ambiguous input (type 6).\n\nProduce only the review-report.md for this standalone review attempt.\nThe review must detect that the input is ambiguous and cannot be classified into any of the 5 known input types (URL, repo path, diff/patch, file bundle, existing artifact). Per the review skill contract, when no input type matches, the review should record a blocked status, explain that the input cannot be classified, and request clarification from the user. Do not guess the input type or proceed with wrong assumptions. Do not fabricate evidence.",
       "expected_output": "A standalone review-report.md that records the input as ambiguous/unclassifiable, sets the verdict to blocked, explains that none of the 5 input types match, and requests the user to clarify the input type. The report must not fabricate evidence or guess an input type.",
@@ -3290,7 +3217,7 @@
       ]
     },
     {
-      "id": 45,
+      "id": 44,
       "name": "worktree-dependency-install",
       "prompt": "A medium-route ForgeFlow clarify completes and the isolation protocol creates a worktree at .forgeflow/worktrees/fix-slider-abc. The main repo uses pnpm (pnpm-lock.yaml exists). Produce only the worktree creation procedure including dependency installation. The worktree must have node_modules before execute starts.",
       "expected_output": "A creation procedure that includes git branch, git worktree add, .forgeflow symlink, verify, AND a dependency installation step that detects pnpm-lock.yaml and runs pnpm install in the worktree directory.",
@@ -3338,7 +3265,7 @@
       ]
     },
     {
-      "id": 46,
+      "id": 45,
       "name": "execute-auto-mode-auto-install",
       "prompt": "A ForgeFlow execute starts in --auto mode inside a worktree. The environment safety net detects node_modules is missing but pnpm-lock.yaml exists. Produce only the environment safety net action. The task must not fail due to missing dependencies.",
       "expected_output": "An environment safety net that automatically installs dependencies using the detected package manager without asking the user, records the install command in implementation-notes.md Evidence, and proceeds to execute.",
@@ -3379,7 +3306,7 @@
       ]
     },
     {
-      "id": 47,
+      "id": 46,
       "name": "execute-refresh-between-tasks",
       "prompt": "A ForgeFlow execute just completed Task 2 of a medium-route plan in an adapter-neutral run. checkpoint.md, ledger.md, and implementation-notes.md evidence are all updated on disk. Task 3 is next. Produce only the step-boundary checkpoint/resume note for Task 3. The core skill must work in both Claude Code and Codex, so it must not require a Claude-only slash command.",
       "expected_output": "An adapter-neutral step-boundary note that records Task 3 as the real next Active Task, gives the checkpoint → ledger → implementation-notes → plan active task resume order, and continues under --auto unless context pressure is high. If refresh is needed, it mentions adapter-specific options such as Claude Code or Codex /compact for ordinary pressure, Claude Code /clear + /forgeflow:execute --resume for a full reset, and Codex /clear, /new, or fresh exec/session resume from checkpoint. It must not require Claude-only /clear or pending_clear in core workflow.",
@@ -3454,7 +3381,7 @@
       ]
     },
     {
-      "id": 48,
+      "id": 47,
       "name": "config-auto-propagation-to-brief",
       "prompt": "A user runs the config skill and sets auto:true in defaults.md. Then they run /forgeflow:clarify for a medium-sized task (task id eval-auto-propagate). Produce the clarify-stage brief.md content. The brief must reflect the auto mode inherited from defaults.md.",
       "expected_output": "A brief.md artifact that includes auto mode configuration inherited from defaults.md, with auto:true propagated into the brief output.",
@@ -3499,7 +3426,7 @@
       ]
     },
     {
-      "id": 49,
+      "id": 48,
       "name": "config-auto-disabled-no-leak",
       "prompt": "A user runs /forgeflow:clarify for a small task (task id eval-auto-disabled). defaults.md has no auto field set at all. Produce the clarify-stage brief.md content. The brief must not contain auto:true since defaults.md never specified it.",
       "expected_output": "A brief.md artifact that does not include auto:true, since defaults.md has no auto configuration. Auto mode should not leak or default to true.",
@@ -3530,7 +3457,7 @@
       ]
     },
     {
-      "id": 50,
+      "id": 49,
       "name": "config-auto-flag-override",
       "prompt": "A user runs /forgeflow:clarify --auto for a small task (task id eval-auto-override). defaults.md has auto:false. The --auto CLI flag should override the defaults.md setting. Produce the clarify-stage brief.md content reflecting that auto mode is active despite defaults.md saying false.",
       "expected_output": "A brief.md artifact where the --auto CLI flag overrides defaults.md auto:false, resulting in auto mode active in the brief.",
@@ -3571,7 +3498,7 @@
       ]
     },
     {
-      "id": 51,
+      "id": 50,
       "name": "benchmark-fixture-path-validation",
       "prompt": "A ForgeFlow benchmark run is configured with fixture paths. The fixture config lists: fixtures/base-prompt.md, fixtures/rubric.json, and fixtures/expected-output.md. Two paths are valid relative paths under the repo root, but fixtures/expected-output.md does not exist on disk. Produce only the benchmark pre-run validation report. Do not start the benchmark run. Do not create or touch any fixture files.",
       "expected_output": "A validation report that checks each fixture path exists, reports fixtures/expected-output.md as missing, confirms the other two paths are valid relative paths, refuses to start the benchmark run until the missing fixture is resolved, and avoids creating or modifying any fixture files.",
@@ -3628,7 +3555,7 @@
       ]
     },
     {
-      "id": 52,
+      "id": 51,
       "name": "benchmark-timeout-result-format",
       "prompt": "A ForgeFlow benchmark run is configured with a per-prompt timeout of 30 seconds. Adapter A responds in 5 seconds with valid structured output. Adapter B times out after 30 seconds with no response. Produce only the benchmark result report in the standard benchmark output format.",
       "expected_output": "A structured benchmark result report that records Adapter A as completed with response time, records Adapter B as timed out, distinguishes completed vs timed-out results, includes elapsed time for both adapters, and avoids fabricating a response for the timed-out adapter.",
@@ -3688,7 +3615,7 @@
       ]
     },
     {
-      "id": 53,
+      "id": 52,
       "name": "long-run-no-evidence-no-rule",
       "prompt": "A ForgeFlow high-route task just shipped. The agent is now running /forgeflow:long-run. Review artifacts show: review-report.md says changes_requested on the first pass, approved on the second. implementation-notes.md mentions vague feelings: \"The approach felt good\" and \"Team morale improved\". There are no concrete command outputs, test results, or code diffs cited as evidence for any pattern. Produce only the eval-record.md content that long-run should write for this task.",
       "expected_output": "An eval-record.md that records outcome, explains that no durable reusable patterns could be extracted because no evidence-backed signal was found, and declines to fabricate patterns from vague sentiments. It must not create evolution rule candidates without evidence.",
@@ -3756,7 +3683,7 @@
       ]
     },
     {
-      "id": 54,
+      "id": 53,
       "name": "config-isolation-toggle",
       "prompt": "A ForgeFlow user runs /forgeflow:ff-config and selects the isolation toggle. The project currently has <storage-root>/defaults.md with isolation: false. The user wants to enable worktree isolation for execute stage. Produce only the updated <storage-root>/defaults.md content and the config response message.",
       "expected_output": "An updated defaults.md that sets isolation to true and a config response confirming the change, listing the current state of all settings, and noting that worktree isolation will take effect on the next execute run.",
@@ -3809,7 +3736,7 @@
       ]
     },
     {
-      "id": 55,
+      "id": 54,
       "name": "plan-medium-light-sub-band",
       "prompt": "A brief.md specifies Route: medium, Route Sub-band: medium-light (raw_score 12.3). The task involves updating 4 documentation files in a React project docs/ directory: changing API endpoint URLs and adding new endpoint descriptions. Produce only the plan.md content for this task. Include Tasks, Verification Plan, and note whether Contracts and Journeys sections are included or omitted with justification.",
       "expected_output": "A plan.md that includes Tasks and Verification Plan as required sections, omits or marks Contracts and Journeys as not applicable with medium-light justification, specifies exact file paths for the 4 docs files, and includes verification per task.",
@@ -3870,7 +3797,7 @@
       ]
     },
     {
-      "id": 56,
+      "id": 55,
       "name": "plan-epic-roadmap-decomposition",
       "prompt": "A brief.md specifies Route: epic for migrating a monolithic Express.js REST API to separate microservices (auth, billing, notifications). The brief includes 12 acceptance criteria spanning 3 services. Produce only the roadmap.md content for epic decomposition. Include milestone definitions, dependency DAG, measurable success criteria per milestone, and integration verification as the final milestone.",
       "expected_output": "A roadmap.md with at least 3 milestones (one per service), dependency DAG showing ordering, measurable success criteria per milestone, and a final integration verification milestone.",
@@ -3937,7 +3864,7 @@
       ]
     },
     {
-      "id": 57,
+      "id": 56,
       "name": "clarify-route-scoring-boundary",
       "prompt": "A user requests: Add a dark mode toggle to the settings page of a Next.js app. There are 3 files to change (layout.tsx, settings.tsx, theme.css), estimated 80 lines, 2 requirements (toggle UI, persist preference), 1 dependency (next-themes), and no risk keywords. Compute the raw_score using the ForgeFlow scoring formula, determine the route and sub-band, and produce only the Route and Route Sub-band fields of brief.md.",
       "expected_output": "A route selection showing raw_score = 3*1.0 + 80*0.1 + 2*2.0 + 1*1.5 + 0*3.0 = 3+8+4+1.5+0 = 16.5, which falls in medium-light (10-16.9), with the route label medium.",
@@ -3983,7 +3910,7 @@
       ]
     },
     {
-      "id": 58,
+      "id": 57,
       "name": "benchmark-compliance-scoring-method",
       "prompt": "You just ran /forgeflow:benchmark with two adapters (claude, codex) on a small-size prompt. Adapter claude output includes: an implementation plan, a changed file list with descriptions, component role descriptions, and ran pnpm build (success). Adapter codex output includes: an implementation plan and ran pnpm build (success), but no changed file list and no role descriptions. Produce only the ForgeFlow Compliance section of the benchmark report.md for the small size. Score each adapter using the response-only evaluation method: extract content AFTER the last code block, exclude echoed prompt text between the compliance requirement delimiters.",
       "expected_output": "A compliance table showing claude scores 4/4 (plan stated, file list, role descriptions, verification) and codex scores 2/4 (plan stated, verification only). The evaluation method must be response-only, not including echoed prompt compliance requirements.",
@@ -4049,7 +3976,7 @@
       ]
     },
     {
-      "id": 59,
+      "id": 58,
       "name": "long-run-capture-decision-filter",
       "prompt": "After shipping a high-route ForgeFlow task, the agent reviews artifacts for long-run capture. The task produced: brief.md with scope and route, implementation-notes.md with 3 successful refactoring steps, ledger.md with micro_spec PASS entries, and review-report.md with no issues found. The agent also remembers that the user mentioned preferring coffee over tea during a break, and the user said the code style looks nice. Produce only the eval-record.md content. Apply the long-run capture decision gate: only preserve learning that is reusable outside the current task.",
       "expected_output": "An eval-record.md that captures the successful refactoring pattern as a reusable workflow pattern with evidence references, records the high-route completion outcome, and explicitly excludes the coffee preference, style compliment, and any session chatter. No evidence-less entries.",
@@ -4119,7 +4046,7 @@
       ]
     },
     {
-      "id": 60,
+      "id": 59,
       "name": "plan-contract-first-medium-full",
       "prompt": "You are planning a medium-full (raw_score 20.5) ForgeFlow task for a brownfield feature: adding WebSocket notifications to an existing Express.js + React app. The task affects 3 files across frontend and backend (server/routes.ts, client/hooks/useNotifications.ts, client/components/NotificationPanel.tsx). The brief requires cross-module interface consistency. Produce only the Contract-first traceability section of plan.md showing contracts, fulfills links, and verification plan entries for the WebSocket interface between server and client.",
       "expected_output": "A contract-first traceability section with: a Contracts section defining the WebSocket message interface between server and client, fulfills links on tasks referencing requirement IDs, and Verification Plan entries for each contract. medium-full requires contracts and typed verification targets.",
@@ -4183,7 +4110,7 @@
       ]
     },
     {
-      "id": 61,
+      "id": 60,
       "name": "clarify-where-grounding-brownfield",
       "prompt": "A user asks ForgeFlow to clarify a task: Refactor the payment processing module to add retry logic for failed transactions. The repo is a brownfield Node.js Express app with existing payment routes in src/routes/payments.ts. There are 12 files that import from the payment module. The user has not provided risk or WHERE context yet. Produce only the WHERE grounding section and risk escalation assessment for the brief. Do not select a route or write the full brief.",
       "expected_output": "A WHERE grounding section that identifies project_type as API/service, situation as brownfield refactor, risk modifiers including sensitive data (payment) and irreversible ops (financial transactions), and risk escalation rules calling for deep security and compatibility requirements.",
@@ -4249,7 +4176,7 @@
       ]
     },
     {
-      "id": 62,
+      "id": 61,
       "name": "clarify-evolution-preflight-conflict",
       "prompt": "A user runs /forgeflow:clarify to add a new REST endpoint for user avatar uploads. The project has an active evolution rule file at .forgeflow/evolution/active/no-file-uploads.md with Trigger: any task that adds file upload or media handling, Stage: clarify, Mode: required_project_rule, Apply: reject file upload features and require pre-signed URL or object storage delegation instead, Skip: non-file tasks. The rule conflicts with the user request. Produce only the Evolution Preflight and Open Questions sections of the brief.",
       "expected_output": "An evolution preflight section that loads the active project rule, identifies the conflict between the rule and the user request to add file uploads, surfaces it as a blocker question, and recommends pre-signed URL or object storage delegation as the resolution.",
@@ -4317,7 +4244,7 @@
       ]
     },
     {
-      "id": 63,
+      "id": 62,
       "name": "execute-adaptive-verification-gate-selection",
       "prompt": "A ForgeFlow medium-route execute step is running. The plan step says: Update README.md documentation only (no code changes, no tests). The task is documentation-only. Produce only the adaptive verification gate selection section for implementation-notes.md, showing which gates apply and which are skipped with rationale.",
       "expected_output": "An adaptive verification section that selects minimal gates for a docs-only change (e.g., markdown lint check), skips compilation, unit tests, and type checks with explicit rationale, and notes that scope_boundary_check still applies to confirm no code files were modified.",
@@ -4388,7 +4315,7 @@
       ]
     },
     {
-      "id": 64,
+      "id": 63,
       "name": "standalone-review-url-scope-extraction",
       "prompt": "A user invokes /forgeflow:ff-review in standalone mode with a GitHub PR URL: https://github.com/acme/shop-app/pull/42. The PR changes 3 files: src/api/auth.ts, src/api/auth.test.ts, src/config/routes.ts. The PR title is \"Add OAuth2 login endpoint\" and the description mentions acceptance criteria: (1) POST /auth/login returns JWT, (2) invalid credentials return 401, (3) rate limiting applies after 5 failures. Produce only the normalized-input.md content showing the 4-field structure (brief, evidence, scope, constraints) and the Standalone Input Source section for review-report.md. Demonstrate that scope was auto-extracted from the PR diff file list.",
       "expected_output": "A normalized input with auto-generated brief from PR title/description, evidence source marked as gh pr diff 42, scope listing exactly the 3 changed files, constraints inferred from the PR content (quality + spec review), and clear evidence_source and scope extraction records, and echoes Fetch Method Ledger, Evidence Source Map references, and Adapter Handoff Checklist statuses including fetch_ledger_complete in the Standalone Input Source summary.",
@@ -4460,7 +4387,7 @@
       ]
     },
     {
-      "id": 65,
+      "id": 64,
       "name": "standalone-review-file-bundle-evidence",
       "prompt": "A user invokes /forgeflow:ff-review in standalone mode with a file bundle: src/utils/validator.ts, src/utils/validator.test.ts. The user provides description: \"Review the new input validation module for security and quality.\" Produce only the normalized-input.md content with the 4-field structure and the review-report.md Evidence Classification and Standalone Input Source sections. Demonstrate that evidence was collected by reading each file, evidence_source is recorded, and scope is limited to the specified files.",
       "expected_output": "A normalized input with brief from user description, evidence collected via file reads with source markers, scope limited to the 2 specified files, constraints including security and quality focus, and clear evidence_source and evidence integrity records, and echoes Fetch Method Ledger, Evidence Source Map references, and Adapter Handoff Checklist statuses including fetch_ledger_complete in the Standalone Input Source summary.",
@@ -4532,7 +4459,7 @@
       ]
     },
     {
-      "id": 66,
+      "id": 65,
       "name": "ledger-schema-validation",
       "prompt": "A ForgeFlow plan skill has been invoked for a medium route task with task id eval-ledger. The plan includes 3 items: add validator module (feature), update config (refactor), write docs (docs). Produce a ledger.md artifact following templates/ledger.md with schema ledger/v1. Include all required frontmatter fields and at least one decision entry.",
       "expected_output": "A ledger.md artifact with YAML frontmatter containing schema: ledger/v1, task_id, route, and total_items. The Items section lists 3 items with Type, Scope, Dependencies, and Estimate fields. The Decisions section has at least one entry.",
@@ -4615,7 +4542,7 @@
       ]
     },
     {
-      "id": 67,
+      "id": 66,
       "name": "implementation-notes-schema-validation",
       "prompt": "During ForgeFlow clarify stage, the agent selected route high for task id eval-implementation-notes after considering medium and high. The key decision was whether to use TDD or test-after. Produce a implementation-notes.md artifact following templates/implementation-notes.md with schema implementation-notes/v1. Include the route selection decision and the testing approach decision.",
       "expected_output": "A implementation-notes.md artifact with YAML frontmatter containing schema: implementation-notes/v1 and task_id. Contains at least two decision entries (D-001 and D-002), each with Context, Options (A and B), Chosen, Rationale, Stage, and Reversible fields.",
@@ -4690,7 +4617,7 @@
       ]
     },
     {
-      "id": 68,
+      "id": 67,
       "name": "project-draft-schema-validation",
       "prompt": "A user selects full init (프로젝트 컨텍스트 draft) from the /forgeflow:ff-config menu on a Node.js project with package.json at the root. The project uses Jest for testing and has a CONTRIBUTING.md file. Produce the project-draft.md artifact that the config skill should generate. Use the template from templates/project-draft.md. Fill in all detected values based on the described project context.",
       "expected_output": "A project-draft.md artifact with valid YAML frontmatter (schema: project-draft/v1, generated ISO date, repo_type: node, adapter_preset), Detected Context section with Language/Framework as Node.js, Structure, Test Framework as Jest or similar, Team Structure section, Agent Configuration section with recommended adapter, Documentation Pointers with README and Contributing paths, and Init Checklist with unchecked items.",
@@ -4752,7 +4679,7 @@
       ]
     },
     {
-      "id": 69,
+      "id": 68,
       "name": "init-full-mode-detection-logic",
       "prompt": "A user selects full init (프로젝트 컨텍스트 draft) from the /forgeflow:ff-config menu on a Python project. The project root contains pyproject.toml with pytest configuration, src/lib directory structure, and no CONTRIBUTING.md or CODEOWNERS. Produce the detection analysis and resulting project-draft.md that the config skill should generate. Focus on correct detection of repo_type as python, test framework as pytest, and structure as library.",
       "expected_output": "A detection analysis showing pyproject.toml triggers python repo_type, pytest detected from pyproject.toml, library structure from src/lib, no team structure files found, and a complete project-draft.md with these values filled in correctly.",
@@ -4819,7 +4746,7 @@
       ]
     },
     {
-      "id": 70,
+      "id": 69,
       "name": "specialist-security-assertions",
       "prompt": "A ForgeFlow brief.md has specialist primary set to security, secondary set to none. The task involves adding a JWT authentication middleware to an Express API. Produce only the review-report.md frontmatter specialist_profile section and the specialist-driven findings for the security specialist profile assertions. Do not fabricate code — describe the assertion checks that the specialist profile mandates.",
       "expected_output": "A specialist_profile frontmatter showing primary: security, secondary: none, assertions_applied count, and findings that verify no hardcoded secrets, input sanitization, auth boundary checks, and no eval/exec of untrusted input.",
@@ -4880,7 +4807,7 @@
       ]
     },
     {
-      "id": 71,
+      "id": 70,
       "name": "specialist-none-default-review",
       "prompt": "A ForgeFlow brief.md has specialist primary set to none and secondary set to none. The task is a simple documentation update to a README file. Produce only the review-report.md frontmatter specialist_profile section and explain which review checks apply. No specialist assertions should be activated.",
       "expected_output": "A specialist_profile showing primary: none, secondary: none, assertions_applied: 0, and an explanation that standard quality-reviewer checklist applies without specialist-driven assertions.",
@@ -4928,7 +4855,7 @@
       ]
     },
     {
-      "id": 72,
+      "id": 71,
       "name": "specialist-dual-profile",
       "prompt": "A ForgeFlow brief.md has specialist primary set to correctness and secondary set to ux. The task involves refactoring a form validation module with user-facing error messages. Produce only the review-report.md frontmatter specialist_profile section and the combined specialist-driven findings. Show assertions from both profiles.",
       "expected_output": "A specialist_profile with primary: correctness, secondary: ux, assertions_applied count reflecting both profiles, and findings covering edge cases, error propagation, idempotency, consistent terminology, a11y, and clear error messages.",
@@ -4990,7 +4917,7 @@
       ]
     },
     {
-      "id": 73,
+      "id": 72,
       "name": "telemetry-event-schema-validation",
       "prompt": "A ForgeFlow high-route task with id telemetry-eval-001 completed the clarify stage in 45 seconds using 1200 tokens on claude adapter with model claude-sonnet-4-20250514. It then completed the execute stage in 320 seconds using 8500 tokens with a specialist api-specialist. The review stage passed in 60 seconds using 2000 tokens. Produce a complete telemetry event log following templates/telemetry-event.md format with all three stage_complete events plus the initial stage_start event. Use realistic ISO 8601 timestamps. Fill in all fields from the template; do not leave any placeholder comments.",
       "expected_output": "A valid telemetry-event.md with YAML frontmatter (schema: telemetry-event/v1, task_id), Events section containing stage_start and stage_complete entries, and all required fields per event: event, stage, duration_seconds, tokens_used, model, adapter, route, specialist, outcome, failure_type.",
@@ -5061,12 +4988,11 @@
           "value": "tokens_used"
         },
         {
-          "text": "Output includes adapter field with valid value (claude, codex, antigravity-cli, cursor).",
+          "text": "Output includes adapter field with valid value (claude, codex, cursor).",
           "type": "contains_any",
           "values": [
             "claude",
             "codex",
-            "antigravity-cli",
             "cursor"
           ]
         },
@@ -5102,9 +5028,9 @@
       ]
     },
     {
-      "id": 74,
+      "id": 73,
       "name": "metrics-dashboard-schema-validation",
-      "prompt": "A ForgeFlow project ran 24 tasks over the past week: 10 small (avg 2min), 8 medium (avg 15min), 4 high (avg 45min), 2 epic (avg 120min). Failures: 3 timeout, 1 merge_conflict, 1 dependency_install_failed. Token usage: claude avg 5200/task, codex avg 3800/task, antigravity-cli avg 4100/task. Worktree success rate 91%, avg cleanup 12s. Produce a complete metrics-dashboard.md following templates/metrics-dashboard.md format with all sections filled in. Do not leave any placeholder comments. Use realistic computed values.",
+      "prompt": "A ForgeFlow project ran 24 tasks over the past week: 10 small (avg 2min), 8 medium (avg 15min), 4 high (avg 45min), 2 epic (avg 120min). Failures: 3 timeout, 1 merge_conflict, 1 dependency_install_failed. Token usage: claude avg 5200/task, codex avg 3800/task, cursor avg 4100/task. Worktree success rate 91%, avg cleanup 12s. Produce a complete metrics-dashboard.md following templates/metrics-dashboard.md format with all sections filled in. Do not leave any placeholder comments. Use realistic computed values.",
       "expected_output": "A valid metrics-dashboard.md with YAML frontmatter (schema: metrics-dashboard/v1, period, total_tasks, generated), Stage Duration table with p50/p90 columns, Failure Distribution table, Token Cost by Adapter table, Worktree Stability section, and Route Distribution table.",
       "files": [
         "templates/metrics-dashboard.md"
@@ -5217,7 +5143,7 @@
       ]
     },
     {
-      "id": 75,
+      "id": 74,
       "name": "scope-boundary-small-exceeds",
       "prompt": "A small-route ForgeFlow task was planned to modify 3 files (src/app.ts, src/utils.ts, src/app.test.ts). During execute, 5 files were actually modified: src/app.ts, src/utils.ts, src/app.test.ts, src/config.ts, src/helpers.ts. brief.md scope_boundary shows files_planned=3, files_limit=3, boundary_status=exceeds. Produce only the Scope Boundary Verification section of review-report.md with the scope_boundary frontmatter field and a scope creep advisory finding.",
       "expected_output": "A scope boundary section that identifies 2 out-of-scope files (src/config.ts, src/helpers.ts), records violations in the scope_boundary field, issues a major spec-compliance finding for scope creep, and recommends scope split.",
@@ -5278,7 +5204,7 @@
       ]
     },
     {
-      "id": 76,
+      "id": 75,
       "name": "scope-boundary-within-no-violations",
       "prompt": "A medium-route ForgeFlow task was planned to modify 5 files. During execute, exactly those 5 files were modified: src/api.ts, src/api.test.ts, src/routes.ts, src/routes.test.ts, docs/api.md. brief.md scope_boundary shows files_planned=5, files_limit=8, boundary_status=within. Produce only the Scope Boundary Verification section of review-report.md with the scope_boundary frontmatter field showing clean boundary.",
       "expected_output": "A scope boundary section that confirms all 5 files are in scope, files_out_of_scope is 0, violations list is empty, and no boundary advisory is needed.",
@@ -5336,7 +5262,7 @@
       ]
     },
     {
-      "id": 77,
+      "id": 76,
       "name": "scope-boundary-medium-exceeds-split",
       "prompt": "A medium-route ForgeFlow task was planned to modify 7 files. During execute, 10 files were actually modified: the 7 planned files plus src/db/migration.ts, src/db/seeds.ts, src/db/config.ts. brief.md scope_boundary shows files_planned=7, files_limit=8, boundary_status=exceeds. Produce only the Scope Boundary Verification section of review-report.md with the scope_boundary frontmatter field, scope creep advisory, and scope split recommendation.",
       "expected_output": "A scope boundary section that identifies 3 out-of-scope files (all db/* files), records violations, issues a scope creep advisory with spec-compliance finding, and recommends scope split because the medium route threshold (8) is exceeded.",
@@ -5398,7 +5324,7 @@
       ]
     },
     {
-      "id": 78,
+      "id": 77,
       "name": "telemetry-collect-script-exists",
       "prompt": "Verify that scripts/telemetry_collect.py exists and is a valid Python script.",
       "expected_output": "Script exists with correct shebang and telemetry collection logic.",
@@ -5424,7 +5350,7 @@
       ]
     },
     {
-      "id": 79,
+      "id": 78,
       "name": "telemetry-aggregate-script-exists",
       "prompt": "Verify that scripts/telemetry_aggregate.py exists and is a valid Python script.",
       "expected_output": "Script exists with correct shebang and aggregation logic.",
@@ -5450,7 +5376,7 @@
       ]
     },
     {
-      "id": 80,
+      "id": 79,
       "name": "discipline-telemetry-section",
       "prompt": "Verify skills/_shared/discipline.md contains Telemetry Event Recording section.",
       "expected_output": "Discipline file has telemetry recording rules for pipeline stages.",
@@ -5476,7 +5402,7 @@
       ]
     },
     {
-      "id": 81,
+      "id": 80,
       "name": "clarify-telemetry-section",
       "prompt": "Verify clarify skill has telemetry section with stage-specific failure types.",
       "expected_output": "Clarify SKILL.md has Telemetry section with routing_ambiguity failure type.",
@@ -5502,7 +5428,7 @@
       ]
     },
     {
-      "id": 82,
+      "id": 81,
       "name": "plan-telemetry-section",
       "prompt": "Verify plan skill has telemetry section with stage-specific failure types.",
       "expected_output": "Plan SKILL.md has Telemetry section with scope_mismatch failure type.",
@@ -5528,7 +5454,7 @@
       ]
     },
     {
-      "id": 83,
+      "id": 82,
       "name": "execute-telemetry-section",
       "prompt": "Verify execute skill has telemetry section with boundary_alert and failure types.",
       "expected_output": "Execute SKILL.md has Telemetry section with build_error, test_failure, boundary_alert.",
@@ -5559,7 +5485,7 @@
       ]
     },
     {
-      "id": 84,
+      "id": 83,
       "name": "review-telemetry-section",
       "prompt": "Verify review skill has telemetry section with assertion_mismatch and scope_creep.",
       "expected_output": "Review SKILL.md has Telemetry section with assertion_mismatch, scope_creep failure types.",
@@ -5590,7 +5516,7 @@
       ]
     },
     {
-      "id": 85,
+      "id": 84,
       "name": "ship-telemetry-section",
       "prompt": "Verify ship skill has telemetry section with merge_conflict, ci_failure and aggregate call.",
       "expected_output": "Ship SKILL.md has Telemetry section with failure types and telemetry_aggregate.py call.",
@@ -5626,7 +5552,7 @@
       ]
     },
     {
-      "id": 86,
+      "id": 85,
       "name": "makefile-telemetry-target",
       "prompt": "Verify Makefile has telemetry, telemetry-collect, and telemetry-aggregate targets.",
       "expected_output": "Makefile contains all three telemetry phony targets.",
@@ -5652,7 +5578,7 @@
       ]
     },
     {
-      "id": 87,
+      "id": 86,
       "name": "telemetry-event-template-exists",
       "prompt": "Verify templates/telemetry-event.md exists with correct schema.",
       "expected_output": "Template exists with telemetry-event/v1 schema.",
@@ -5673,7 +5599,7 @@
       ]
     },
     {
-      "id": 88,
+      "id": 87,
       "name": "metrics-dashboard-template-exists",
       "prompt": "Verify templates/metrics-dashboard.md exists with correct schema.",
       "expected_output": "Template exists with metrics-dashboard/v1 schema.",
@@ -5694,7 +5620,7 @@
       ]
     },
     {
-      "id": 89,
+      "id": 88,
       "name": "telemetry-collect-dedup",
       "prompt": "Verify telemetry_collect.py deduplicates events on re-run.",
       "expected_output": "Script checks existing events before appending.",
@@ -5715,7 +5641,7 @@
       ]
     },
     {
-      "id": 90,
+      "id": 89,
       "name": "telemetry-aggregate-parses-events",
       "prompt": "Verify telemetry_aggregate.py parses event blocks correctly.",
       "expected_output": "Script uses _parse_events to extract event blocks with correct field pattern.",
@@ -5741,7 +5667,7 @@
       ]
     },
     {
-      "id": 91,
+      "id": 90,
       "name": "standalone-review-patch-scope",
       "prompt": "A user runs /forgeflow:ff-review --type security with a raw unified diff that changes src/api/session.ts and docs/session.md. There is no .forgeflow/tasks/<id>/ pipeline directory and no implementation-notes.md. Produce only the standalone review normalization summary plus the review-report scope/evidence classification. Do not flag missing pipeline artifacts as findings, and do not claim provider/plugin E2E execution.",
       "expected_output": "Standalone review treats the raw diff as diff/patch input, creates a synthetic standalone task directory with input-source.md, normalized-input.md, and review-report.md, scopes findings to the diff headers for src/api/session.ts and docs/session.md, records evidence_source from the raw diff, applies the security review constraint, and skips pipeline-only artifact and micro-gate requirements.",
@@ -5824,7 +5750,7 @@
       ]
     },
     {
-      "id": 92,
+      "id": 91,
       "name": "standalone-review-test-diff-focus",
       "prompt": "A user runs /forgeflow:ff-review with a raw unified diff that only changes tests/session.test.ts and tests/auth.spec.ts. There is no prior ForgeFlow task directory. Produce only the standalone normalization summary and review-report scope/constraints classification. Do not require pipeline artifacts, and do not claim provider/plugin E2E execution.",
       "expected_output": "Standalone review treats the input as diff/patch evidence, bootstraps synthetic standalone artifacts, scopes review to the two test files from diff headers, infers quality-reviewer with test-quality focus for test-only changes, marks evolution rule review not_applicable, and skips pipeline micro-gates and missing pipeline artifact findings.",
@@ -5905,7 +5831,7 @@
       ]
     },
     {
-      "id": 93,
+      "id": 92,
       "name": "standalone-review-url-advisory-boundary",
       "prompt": "A user runs /forgeflow:ff-review --type all https://github.com/example/shop/pull/42 from outside any ForgeFlow task directory. Produce only the standalone normalization summary and review-report mode/evidence/verdict preamble. Treat the URL review as advisory unless the fetched PR diff and exact revision are captured. Do not require pipeline artifacts, do not claim tests or provider/plugin E2E ran, and do not approve solely from the URL.",
       "expected_output": "Standalone review records the PR URL as external input, creates synthetic standalone artifacts, requires captured URL content/diff plus revision or commit SHA as observed evidence before approval, marks the result advisory/human-judgment-gated, skips missing pipeline artifact findings, and avoids test/provider overclaims.",
@@ -5990,7 +5916,7 @@
       ]
     },
     {
-      "id": 94,
+      "id": 93,
       "name": "standalone-review-local-path-boundary",
       "prompt": "A user runs /forgeflow:ff-review --type all ./src/payments from outside any ForgeFlow task directory. There is no brief.md, plan.md, implementation-notes.md, or ledger.md. Produce only the standalone normalization summary and review-report scope/evidence preamble. Scope the review to the local path, require concrete file inspection evidence before findings or approval, and do not require pipeline artifacts or claim provider/plugin E2E execution.",
       "expected_output": "Standalone review creates synthetic standalone artifacts for a local path input, scopes review to ./src/payments, records path/file inspection as the needed observed evidence, skips missing pipeline artifacts and execute micro-gates, and avoids provider/plugin E2E overclaims.",
@@ -6063,7 +5989,7 @@
       ]
     },
     {
-      "id": 95,
+      "id": 94,
       "name": "standalone-review-binary-diff-boundary",
       "prompt": "A user runs /forgeflow:ff-review --type security with a raw git binary patch that changes public/logo.png and assets/payment-flow.png. There is no ForgeFlow task directory and the patch contains no readable source hunks. Produce only the standalone normalization summary and review-report evidence/verdict preamble. Do not invent image contents, do not require pipeline artifacts, and do not approve without inspectable evidence.",
       "expected_output": "Standalone review records the binary patch as diff/patch input, creates synthetic standalone artifacts, scopes review to the two binary image paths, marks content inspection as unavailable or requiring external image review, refuses approval until inspectable evidence exists, skips missing pipeline artifacts, and avoids provider/plugin E2E claims.",
@@ -6150,7 +6076,7 @@
       ]
     },
     {
-      "id": 96,
+      "id": 95,
       "name": "standalone-review-generated-lockfile-scope",
       "prompt": "A user runs /forgeflow:ff-review --type quality with a standalone diff that changes src/cart/checkout.ts, package.json, and package-lock.json. The diff says package-lock.json was regenerated by npm install and contains thousands of dependency hash/version changes. There is no ForgeFlow task directory. Produce only the standalone normalization summary and review-report scope/evidence preamble. Keep source and manifest changes in primary review scope, treat the generated lockfile as derived evidence to sample or summarize, and do not require pipeline artifacts or claim provider/plugin E2E execution.",
       "expected_output": "Standalone review creates synthetic standalone artifacts, scopes primary review to src/cart/checkout.ts and package.json, records package-lock.json as generated/derived lockfile evidence to sample or summarize for consistency, skips missing pipeline artifacts and execute micro-gates, and avoids provider/plugin E2E overclaims.",
@@ -6229,7 +6155,7 @@
       ]
     },
     {
-      "id": 97,
+      "id": 96,
       "name": "standalone-review-secret-redaction-boundary",
       "prompt": "A user runs /forgeflow:ff-review --type quality with a standalone pasted diff that includes src/config.ts and a newly added .env.example. The pasted diff visibly contains an AWS access key-like token and a database password value. There is no ForgeFlow task directory. Produce only the standalone normalization summary and review-report security finding preamble. Preserve enough evidence to identify the affected files and issue type, but redact secret values in artifacts and findings. Do not require pipeline artifacts or claim provider/plugin E2E execution.",
       "expected_output": "Standalone review records synthetic standalone artifacts, identifies secret exposure in src/config.ts and .env.example as a security finding, redacts credential values in normalized evidence and review findings, skips missing pipeline artifacts, and avoids provider/plugin E2E overclaims.",
@@ -6320,7 +6246,7 @@
       ]
     },
     {
-      "id": 98,
+      "id": 97,
       "name": "standalone-review-generated-file-boundary",
       "prompt": "A user runs /forgeflow:ff-review --standalone and pastes a diff containing generated files dist/bundle.js and coverage/lcov.info plus a hand-written change src/payment.ts that removes an authorization check. Produce only the standalone review Findings and Evidence Classification fragments. Do not require plan.md, implementation-notes.md, ledger.md, or other pipeline artifacts.",
       "expected_output": "A standalone review fragment that treats generated artifacts as low-signal or out of scope, focuses the finding on src/payment.ts authorization regression, classifies the pasted diff as observed input for standalone review, and does not block on missing pipeline artifacts.",
@@ -6396,7 +6322,7 @@
       ]
     },
     {
-      "id": 99,
+      "id": 98,
       "name": "standalone-review-truncated-diff-boundary",
       "prompt": "A user runs /forgeflow:ff-review --standalone and pastes a truncated diff. It includes full hunks for src/orders.ts showing a removed tenant ownership check, then the marker '[... truncated ...]' before files src/billing.ts and src/audit.ts. There is no ForgeFlow task directory. Produce only the standalone normalization summary, Evidence Classification, and Verdict fragments. Do not require pipeline artifacts, do not pretend the truncated files were inspected, and do not approve until the missing diff context is provided or scoped out explicitly.",
       "expected_output": "A standalone review fragment that records the pasted diff as observed standalone input, limits concrete findings to the inspectable src/orders.ts hunk, marks src/billing.ts and src/audit.ts as unreviewed due to truncation, refuses approval until missing context is provided or explicitly scoped out, skips missing pipeline artifacts, and avoids provider/plugin E2E claims.",
@@ -6481,7 +6407,7 @@
       ]
     },
     {
-      "id": 100,
+      "id": 99,
       "name": "standalone-review-renamed-file-boundary",
       "prompt": "A user runs /forgeflow:ff-review --standalone and pastes a git diff for a rename from src/legacyAuth.ts to src/auth/legacyAuth.ts with 92% similarity. The diff also shows a small hand edit inside the renamed file that changes requireMfa: true to requireMfa: false for admin users. There is no ForgeFlow task directory. Produce only the standalone normalization summary, Findings, and Evidence Classification fragments. Do not treat the rename itself as the only change, do not require pipeline artifacts, and do not claim provider/plugin E2E execution.",
       "expected_output": "A standalone review fragment that records the rename source and destination, recognizes the pasted diff as observed standalone input, focuses the finding on the admin MFA weakening inside the renamed file, skips missing pipeline artifacts, and avoids provider/plugin E2E claims.",
@@ -6563,7 +6489,7 @@
       ]
     },
     {
-      "id": 101,
+      "id": 100,
       "name": "standalone-review-deleted-test-boundary",
       "prompt": "A user runs /forgeflow:ff-review --standalone and pastes a diff that deletes tests/payment-currency.test.ts while changing src/payment.ts currency validation from strict ISO codes to accepting any non-empty string. There is no ForgeFlow task directory. Produce only the standalone normalization summary, Findings, Evidence Classification, and Verdict fragments. Do not require pipeline artifacts, do not treat the deleted test as harmless cleanup, and do not claim provider/plugin E2E execution.",
       "expected_output": "A standalone review fragment that treats the pasted diff as observed standalone input, flags the source validation weakening and deleted coverage together, skips missing ForgeFlow pipeline artifacts, refuses approval or requests changes, and avoids provider/plugin E2E claims.",
@@ -6655,7 +6581,7 @@
       ]
     },
     {
-      "id": 102,
+      "id": 101,
       "name": "standalone-review-generated-lockfile-boundary",
       "prompt": "A user runs /forgeflow:ff-review --standalone and pastes a diff where package-lock.json changes thousands of lines and package.json changes one dependency from safe-lib 2.4.1 to safe-lib 2.5.0. The lockfile diff includes a new transitive package postinstall-runner with a postinstall script, but the package.json diff alone looks benign. There is no ForgeFlow task directory. Produce only the standalone normalization summary, Findings, Evidence Classification, and Verdict fragments. Do not require pipeline artifacts, do not ignore generated lockfile evidence, and do not claim npm install/audit or provider/plugin E2E execution.",
       "expected_output": "A standalone review fragment that treats package.json and package-lock.json as observed pasted input, flags the lockfile-introduced postinstall transitive dependency as review-relevant evidence, requests changes or blocks approval pending investigation, skips missing pipeline artifacts, and avoids claiming npm audit/install or provider/plugin E2E execution.",
@@ -6745,7 +6671,7 @@
       ]
     },
     {
-      "id": 103,
+      "id": 102,
       "name": "standalone-review-submodule-pointer-boundary",
       "prompt": "A user runs /forgeflow:ff-review --standalone and pastes a diff where libs/payments-sdk is a Git submodule pointer change from commit aaa111 to bbb222, plus src/checkout.ts starts calling paymentsSdk.authorizeWithoutCvv(order). There is no ForgeFlow task directory and no nested submodule diff content. Produce only the standalone normalization summary, Findings, Evidence Classification, and Verdict fragments. Do not require pipeline artifacts, do not pretend the submodule contents were inspected, and do not approve until the submodule delta or exact reviewed commit evidence is provided.",
       "expected_output": "A standalone review fragment that records the submodule pointer change as observed but opaque, reviews the visible checkout call, marks the missing submodule delta as unreviewed evidence, and refuses approval until exact submodule commit/diff evidence is supplied or scoped out.",
@@ -6839,7 +6765,7 @@
       ]
     },
     {
-      "id": 104,
+      "id": 103,
       "name": "standalone-review-symlink-boundary",
       "prompt": "A user runs /forgeflow:ff-review --standalone and pastes a diff that adds public/uploads/latest-invoice.pdf as a symlink to ../../secrets/invoices/customer-42.pdf, plus src/download.ts starts serving files from public/uploads by path. There is no ForgeFlow task directory. Produce only the standalone normalization summary, Findings, Evidence Classification, and Verdict fragments. Do not require pipeline artifacts, do not treat the symlink as normal static content, and do not approve until the symlink traversal/exposure risk is fixed or explicitly scoped out with evidence.",
       "expected_output": "A standalone review fragment that records the symlink diff as observed input, flags the path traversal or secret exposure risk across public/uploads/latest-invoice.pdf and src/download.ts, refuses approval or requests changes, skips missing pipeline artifacts, and avoids provider/plugin E2E claims.",
@@ -6934,7 +6860,7 @@
       ]
     },
     {
-      "id": 105,
+      "id": 104,
       "name": "standalone-review-binary-asset-boundary",
       "prompt": "A user runs /forgeflow:ff-review --standalone and pastes a diff that replaces assets/logo.png with a binary patch and changes src/Header.tsx to render the new logo on every page. There is no ForgeFlow task directory and no image content, checksum, size, malware scan, or visual evidence is provided. Produce only the standalone normalization summary, Findings, Evidence Classification, and Verdict fragments. Do not require pipeline artifacts, do not pretend the binary image contents were inspected, and do not approve until review-relevant binary evidence is supplied or the asset is explicitly scoped out with rationale.",
       "expected_output": "A standalone review fragment that treats the binary asset diff as observed but opaque, reviews the visible Header.tsx usage, classifies missing binary evidence separately, refuses approval until checksum/size/visual/security evidence is provided or scoped out, and avoids provider/plugin E2E claims.",
@@ -7033,7 +6959,7 @@
       ]
     },
     {
-      "id": 106,
+      "id": 105,
       "name": "standalone-review-generated-bundle-provenance",
       "prompt": "A user runs /forgeflow:ff-review --standalone and provides a diff that adds dist/app.bundle.js with 9,000 minified lines and changes package.json scripts to serve that bundle. There is no source map, source diff, generated-by command, checksum, or build verification evidence. Produce only the standalone normalization summary, Findings, Evidence Classification, and Verdict fragments. Do not require ForgeFlow pipeline artifacts, do not pretend to fully audit minified generated output, and do not approve until source/build provenance is supplied or the generated bundle is explicitly scoped out with rationale.",
       "expected_output": "A standalone review fragment that treats the generated bundle as observed but not meaningfully auditable from minified output alone, reviews the visible package.json entry point change, classifies missing source/build provenance separately, refuses approval until source map/source diff/build command/checksum evidence is provided or scoped out, and avoids provider/plugin E2E claims.",
@@ -7134,7 +7060,7 @@
       ]
     },
     {
-      "id": 107,
+      "id": 106,
       "name": "standalone-review-test-only-patch-boundary",
       "prompt": "A user runs /forgeflow:ff-review --standalone and provides a diff that only changes tests: tests/auth.test.ts adds assertions for expired tokens, but src/auth.ts and implementation files are unchanged. The user asks whether the feature is fixed. Produce only the standalone normalization summary, Findings, Evidence Classification, and Verdict fragments. Do not require ForgeFlow pipeline artifacts. Do not approve the feature fix from tests alone; distinguish useful test coverage from missing implementation evidence and request source/runtime verification before approving the fix.",
       "expected_output": "A standalone review fragment that scopes the input as a test-only patch, treats the added tests as observed evidence of coverage intent, refuses to claim the production feature is fixed without implementation/source/runtime evidence, and avoids ForgeFlow artifact or provider/plugin E2E overclaims.",
@@ -7226,7 +7152,7 @@
       ]
     },
     {
-      "id": 108,
+      "id": 107,
       "name": "standalone-review-docs-only-patch-boundary",
       "prompt": "Run /forgeflow:ff-review in standalone mode on a patch that only changes docs/usage.md and README.md wording for an advertised security fix. The patch adds no source, config, test, or runtime verification evidence. Produce only the Findings and Evidence Classification sections of review-report.md. Do not require ForgeFlow pipeline artifacts because this is standalone review.",
       "expected_output": "A standalone review finding that treats docs-only changes as observed documentation evidence, refuses to approve the claimed security fix without source/test/runtime evidence, and does not require ForgeFlow pipeline artifacts.",
@@ -7318,7 +7244,7 @@
       ]
     },
     {
-      "id": 109,
+      "id": 108,
       "name": "standalone-review-config-only-patch-boundary",
       "prompt": "Run /forgeflow:ff-review in standalone mode on a patch that only changes config/security.yml to set password_min_length: 14 for an advertised password-policy enforcement fix. The patch adds no application source, tests, migration notes, or runtime verification evidence. Produce only the Findings and Evidence Classification sections of review-report.md. Do not require ForgeFlow pipeline artifacts because this is standalone review.",
       "expected_output": "A standalone review finding that treats the config-only change as observed configuration evidence, refuses to approve end-to-end password-policy enforcement without source/test/runtime evidence, and does not require ForgeFlow pipeline artifacts.",
@@ -7411,7 +7337,7 @@
       ]
     },
     {
-      "id": 110,
+      "id": 109,
       "name": "standalone-review-source-only-patch-verification-boundary",
       "prompt": "Run /forgeflow:ff-review in standalone mode on a patch that changes only src/billing/discounts.ts to fix an advertised checkout discount rounding bug. The patch includes no tests, no before/after command output, no reproduction transcript, and no runtime verification evidence. Produce only the Findings and Evidence Classification sections of review-report.md. Do not require ForgeFlow pipeline artifacts because this is standalone review.",
       "expected_output": "A standalone review finding that treats the source edit as observed implementation evidence, refuses to approve the bug fix without test/reproduction/runtime verification evidence, and does not require ForgeFlow pipeline artifacts.",
@@ -7504,7 +7430,7 @@
       ]
     },
     {
-      "id": 111,
+      "id": 110,
       "name": "standalone-review-test-only-patch-verification-boundary",
       "prompt": "Run /forgeflow:ff-review in standalone mode on a patch that only adds tests in tests/billing/discounts.test.ts for a claimed checkout discount rounding fix. The patch includes no production source changes, no failing-before/passing-after transcript, and no runtime command output. Produce only the Findings and Evidence Classification sections of review-report.md. Do not require ForgeFlow pipeline artifacts because this is standalone review.",
       "expected_output": "A standalone review finding that treats the added tests as useful observed test coverage evidence, refuses to approve the production bug fix without source/runtime or before-after verification evidence, and does not require ForgeFlow pipeline artifacts.",
@@ -7597,7 +7523,7 @@
       ]
     },
     {
-      "id": 112,
+      "id": 111,
       "name": "standalone-review-generated-only-patch-boundary",
       "prompt": "Run /forgeflow:ff-review in standalone mode on a patch that only updates generated clients in src/generated/api-client.ts and src/generated/types.ts for a claimed backend contract change. The patch includes no source generator configuration, no OpenAPI/schema diff, no regeneration command output, and no runtime or integration verification evidence. Produce only the Findings and Evidence Classification sections of review-report.md. Do not require ForgeFlow pipeline artifacts because this is standalone review.",
       "expected_output": "A standalone review finding that treats generated file edits as observed generated-output evidence, refuses to approve the backend contract change without generator/schema/regeneration or integration evidence, and does not require ForgeFlow pipeline artifacts.",
@@ -7691,7 +7617,7 @@
       ]
     },
     {
-      "id": 113,
+      "id": 112,
       "name": "standalone-review-dependency-only-patch-boundary",
       "prompt": "Run /forgeflow:ff-review in standalone mode on a patch that only updates package.json and pnpm-lock.yaml to bump @acme/payments-sdk for a claimed checkout timeout fix. The patch includes no application source changes, no changelog/release-note citation for the SDK fix, no lockfile provenance or install command output, and no runtime checkout verification. Produce only the Findings and Evidence Classification sections of review-report.md. Do not require ForgeFlow pipeline artifacts because this is standalone review.",
       "expected_output": "A standalone review finding that treats dependency manifest and lockfile changes as observed dependency-update evidence, refuses to approve the checkout timeout fix without source/vendor-release/install/runtime evidence, and does not require ForgeFlow pipeline artifacts.",
@@ -7785,7 +7711,7 @@
       ]
     },
     {
-      "id": 114,
+      "id": 113,
       "name": "review-harness-follow-up-classification",
       "prompt": "A ForgeFlow review finds the same missing verification pattern for the third time: executors claim 'npm test passed' without observed command output or a log path. Produce only the Harness Follow-up and Next Action sections of review-report.md. Classify whether this should become harness maintenance, and name the likely artifact to update.",
       "expected_output": "A review fragment that marks Harness Follow-up as needed, selects eval-needed and skill-rule-needed or template-needed, explains the repeated missing verification pattern, suggests an eval case or review/execute skill/template update, and sends the task back to execute or harness maintenance rather than silently shipping.",
@@ -7841,7 +7767,7 @@
       ]
     },
     {
-      "id": 115,
+      "id": 114,
       "name": "clarify-surfaces-material-assumptions",
       "prompt": "Run /forgeflow:clarify for: export user data. The requester gives no field list, destination, privacy constraints, or authorization model. Produce the relevant brief.md sections only.",
       "expected_output": "A brief fragment that records the selected interpretation if any, lists assumptions, keeps material ambiguity visible, and asks or blocks when ambiguity affects data, privacy, security, files, or user-visible behavior.",
@@ -7877,7 +7803,7 @@
       ]
     },
     {
-      "id": 116,
+      "id": 115,
       "name": "plan-rejects-speculative-abstraction",
       "prompt": "Run /forgeflow:ff-plan for a brief that asks for one simple discount function in one existing billing module. Produce Design Intent, Simplicity Check, and one task only.",
       "expected_output": "A plan fragment that chooses the minimal implementation, explicitly rejects unnecessary strategy/class hierarchy or future configurability, and keeps the task scope surgical with verification.",
@@ -7913,7 +7839,7 @@
       ]
     },
     {
-      "id": 117,
+      "id": 116,
       "name": "review-catches-drive-by-refactor",
       "prompt": "Run /forgeflow:ff-review on a task whose plan names one validation file, but the diff also reformats unrelated modules and extracts a helper not required by the acceptance criteria. Produce Findings and Next Action only.",
       "expected_output": "A review fragment that reports scope creep or drive-by refactor, flags overengineering if the helper is speculative, and sends remediation back to execute instead of approving silently.",
@@ -7949,7 +7875,7 @@
       ]
     },
     {
-      "id": 118,
+      "id": 117,
       "name": "standalone-review-role-packet-handoff",
       "prompt": "A standalone /forgeflow:ff-review adapter receives a GitHub PR URL plus --type security --focus auth. It fetched the diff and brief summary, then must hand off to the canonical review skill. Produce only the normalized-input.md role routing, role evidence map, role input packet readiness, role input packets, and adapter handoff checklist fragments. Do not write review-report.md yet and do not judge the PR from chat transcript or hidden provider state.",
       "expected_output": "A normalized-input fragment that makes the standalone review role packet handoff explicit before canonical review judgment: constraints.roles and role trigger matrix are aligned, stable evidence IDs are mapped per role, role input packets are READY/current where active, skipped roles have explicit non-trigger rationale, and the adapter handoff checklist passes canonical_review_ownership without hidden-state evidence.",
@@ -8034,7 +7960,7 @@
       ]
     },
     {
-      "id": 119,
+      "id": 118,
       "name": "changelog-impact-axis-classification",
       "prompt": "A maintainer just completed a ForgeFlow task that added a new validate_changelog_links.py script and updated CI to check impact-axis headings. Classify each change into the correct CHANGELOG impact axis and produce the Unreleased section. Changes: (1) validate_changelog_links.py added to scripts/, (2) Makefile validate-changelog-links target added, (3) README updated with the new validation command, (4) validate_advisory_contract.py fixed a false-positive on duplicate subsection headings. Return only the Unreleased CHANGELOG section using impact-axis format.",
       "expected_output": "A CHANGELOG Unreleased section using the four impact axes (🔒 자동화·정합성, 🔍 검증·정책, ⚡ 속도·안정성, 👤 사용자·경험) with changes (1) and (2) under 🔒, (4) under 🔍, and (3) under 👤.",
@@ -8073,7 +7999,7 @@
       ]
     },
     {
-      "id": 120,
+      "id": 119,
       "name": "router-stage-routing-basic",
       "prompt": "A user invokes /forgeflow without subcommand with the request 'Fix the login button color on mobile'. The forgeflow SKILL.md router must select a route and next stage. Analyze the request, determine the route (small/medium/high/epic), and name the next skill to invoke. Return only the route label and next skill.",
       "expected_output": "Route: small (localized UI fix, 1-2 files, low risk). Next skill: /forgeflow:clarify or /forgeflow:execute depending on whether a brief already exists.",
@@ -8097,7 +8023,7 @@
       ]
     },
     {
-      "id": 121,
+      "id": 120,
       "name": "auto-chain-small-route-skips-review",
       "prompt": "A ForgeFlow task is in execute stage with route=small and auto=true. The execute stage completed with all self-verify checks passing. According to the auto-chain sequence, what is the next stage? Return only the next skill name.",
       "expected_output": "/forgeflow:ship — small route auto-chain is clarify→execute→ship with self-verify replacing formal review.",
@@ -8116,7 +8042,7 @@
       ]
     },
     {
-      "id": 122,
+      "id": 121,
       "name": "auto-chain-full-sequence",
       "prompt": "A ForgeFlow project has defaults.md with auto: true and a medium-route task that just completed the review stage with verdict 'approved' and no open blockers. According to the auto-chain rules, what happens next? List the complete chain sequence for medium route from start to finish, state whether --auto should continue or break at each transition, and name the exact next action after review approval.",
       "expected_output": "Medium route auto-chain: clarify → plan → execute → review → ship. After review approval with no blockers, --auto continues to ship (invoke Skill tool with /forgeflow:ship). Auto-break conditions are NOT triggered because: verdict is approved (not changes_requested), no failed verification, no blockers, no destructive action. The chain sequence table shows: small = clarify→execute→ship (self-verify), medium = clarify→plan→execute→review→ship, high = clarify→plan→execute→review(spec)→review(quality)→ship.",
@@ -8163,7 +8089,7 @@
       ]
     },
     {
-      "id": 123,
+      "id": 122,
       "name": "standalone-review-first-class-report-contract",
       "prompt": "You are running /forgeflow:ff-review in standalone mode against ./changes.diff. The diff includes a confirmed security blocker and one minor style issue. Produce only the review-report.md content. Do not run clarify, plan, execute, or ship.",
       "expected_output": "A standalone review-report.md that treats ff-review as a first-class entrypoint, includes Standalone Input Source, records Evidence Source/Evidence Level/Evidence Quote for every non-nit finding, counts blockers in Finding Counts as blockers=N, lists the blocker in Open Blockers, refuses approved-with-blockers by using changes_requested or blocked, and does not include pipeline-only route compliance or execute sections.",
@@ -8223,7 +8149,7 @@
       ]
     },
     {
-      "id": 124,
+      "id": 123,
       "name": "e2e-small-full-chain",
       "prompt": "A user runs /forgeflow:ff-loop with --auto on a small task: 'Add a logging statement to the main function in app.py'. Trace the full lifecycle: clarify produces brief.md with route=small, execute runs implementation with self-verify checklist, ship produces ship-summary.md. Describe each stage's key output and the self-verify checklist items.",
       "expected_output": "A description of the complete small-route lifecycle from clarify through ship, including brief.md with route=small, implementation-notes.md with self-verify checklist (Goal Contract check, scope boundary, self-review proxy, verification gate, evidence completeness), and ship-summary.md with branch disposition.",
@@ -8273,7 +8199,7 @@
       ]
     },
     {
-      "id": 125,
+      "id": 124,
       "name": "e2e-medium-full-chain",
       "prompt": "A user runs /forgeflow:ff-loop with --auto on a medium task: 'Refactor the user authentication module to use JWT tokens'. Trace the full lifecycle through all 5 stages: clarify → plan → execute → review → ship. Describe each stage's key artifact output and the transitions between stages.",
       "expected_output": "A description of the complete medium-route lifecycle through all 5 stages, including brief.md with route=medium, plan.md with task decomposition, implementation-notes.md with evidence, review-report.md with verdict, and ship-summary.md with branch disposition.",
@@ -8338,7 +8264,7 @@
       ]
     },
     {
-      "id": 126,
+      "id": 125,
       "name": "e2e-fanout-partial-failure",
       "prompt": "During a high-route execute stage, ForgeFlow fans out to 3 parallel workers via git worktrees. Worker-1 succeeds (changes in src/auth/), Worker-2 times out (changes in src/api/), Worker-3 succeeds (changes in src/utils/). Describe how fanin should handle this partial failure: which diffs are merged, what happens to the timed-out worker, and what the ledger records.",
       "expected_output": "A description of partial fanout failure handling: successful workers' diffs are merged, timed-out worker's changes are discarded or recorded as blocked, ledger records mixed status, and the task is marked blocked rather than done.",
@@ -8383,7 +8309,7 @@
       ]
     },
     {
-      "id": 127,
+      "id": 126,
       "name": "e2e-context-resume-mid-execute",
       "prompt": "A medium-route task is in the middle of execute stage when the context window fills up. The agent needs to resume. Describe the exact resume read order and what the agent should do first upon resuming, based on the context-resume protocol.",
       "expected_output": "A description following the checkpoint.md Resume Read Order: read checkpoint.md first, then ledger.md matching task row, then implementation-notes.md Reader Summary, then plan.md referenced item only. The first action upon resume is the one listed in checkpoint.md Next Action.",
@@ -8425,7 +8351,7 @@
       ]
     },
     {
-      "id": 128,
+      "id": 127,
       "name": "e2e-route-promotion-on-failure",
       "prompt": "A task starts as medium route but during review, the reviewer finds architectural scope creep that was not visible during clarify. The review verdict is changes_requested with a blocker noting 'scope exceeds medium — multiple module boundaries affected'. Describe how ff-loop should handle this: route promotion criteria, what happens to existing artifacts, and the re-plan procedure.",
       "expected_output": "A description of route promotion from medium to high: existing artifacts are preserved, plan.md is regenerated for high route (adding verification targets), review switches to spec+quality dual pass, and long-run is queued after ship.",

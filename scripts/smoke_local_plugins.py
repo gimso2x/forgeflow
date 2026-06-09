@@ -3,7 +3,7 @@
 
 This smoke intentionally avoids live provider CLIs. It validates the local plugin
 manifests, command namespace mapping, and dry-run install surfaces that users hit
-before any real Claude/Codex/Cursor/Antigravity CLI execution.
+before any real Claude/Codex/Cursor execution.
 """
 from __future__ import annotations
 
@@ -114,22 +114,6 @@ def validate_marketplaces() -> None:
         source = (plugins or [{}])[0].get("source") if isinstance(plugins, list) else None
         if source != "./":
             failures.append(".claude-plugin/marketplace.json: plugin source must be ./")
-
-
-def validate_antigravity_plugin() -> None:
-    data = load_json("plugin.json")
-    if not data:
-        return
-    if data.get("version") != VERSION:
-        failures.append("plugin.json: version must match VERSION")
-    context = data.get("contextFileName")
-    if context not in ("AGENTS.md", "GEMINI.md") or not (ROOT / context).exists():
-        failures.append("plugin.json: contextFileName must point to tracked AGENTS.md or GEMINI.md")
-    context_text = (ROOT / (context or "GEMINI.md")).read_text(encoding="utf-8") if (ROOT / (context or "GEMINI.md")).exists() else ""
-    for command in CANONICAL_COMMANDS:
-        skill_ref = f"@./skills/{command}/SKILL.md"
-        if skill_ref not in context_text:
-            failures.append(f"{context}: missing Antigravity CLI context import {skill_ref}")
 
 
 def validate_required_artifacts(base: Path, label: str) -> None:

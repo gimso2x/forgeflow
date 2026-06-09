@@ -43,8 +43,8 @@ for required in ('Maintainer / Autonomous Preflight', 'git branch --show-current
         failures.append(f'AGENTS.md: missing autonomous preflight guardrail {required!r}')
 
 checks = [
-    ('skills/_shared/discipline.md', '~/.gemini/antigravity-cli/plugins', 'shared discipline must protect Antigravity CLI plugin cache paths'),
-    ('skills/clarify/SKILL.md', '~/.gemini/antigravity-cli/plugins', 'clarify must protect Antigravity CLI plugin cache paths'),
+    ('skills/_shared/discipline.md', '~/.cursor/plugins/local', 'shared discipline must protect Cursor plugin cache paths'),
+    ('skills/clarify/SKILL.md', '~/.cursor/plugins/local', 'clarify must protect Cursor plugin cache paths'),
     ('skills/_shared/preflight.md', 'git status --short --branch', 'preflight must inspect git branch/ahead-behind status before maintainer mutations'),
     ('skills/_shared/preflight.md', 'git branch --show-current', 'preflight must use an explicit branch command before maintainer mutations'),
     ('skills/_shared/preflight.md', 'confirm the current branch is the expected target branch', 'preflight must confirm the expected target branch before maintainer mutations'),

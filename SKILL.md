@@ -3,12 +3,12 @@ name: forgeflow
 description: Artifact-first delivery workflow for AI coding agents
 version: "2.0.1"
 category: engineering
-tags: [ai-agents, workflow, artifacts, claude-code, codex, antigravity, cursor]
+tags: [ai-agents, workflow, artifacts, claude-code, codex, cursor]
 ---
 
 # ForgeFlow
 
-ForgeFlow는 Claude Code, Codex, Antigravity CLI (agy), Cursor를 위한 **artifact-first delivery workflow**입니다.
+ForgeFlow는 Claude Code, Codex, Cursor를 위한 **artifact-first delivery workflow**입니다.
 채팅 기억 대신 markdown 산출물, 프롬프트 기반 gate, 독립 review로 작업을 진행합니다.
 
 ## Quick start

@@ -858,7 +858,7 @@ def main(argv: list[str] | None = None) -> int:
     rec.add_argument("--blocker", default=None)
     run = sub.add_parser("run-adapter")
     run.add_argument("--task-dir", required=True, type=Path)
-    run.add_argument("--adapter", required=True, help="adapter label, for example claude/codex/antigravity-cli/stub")
+    run.add_argument("--adapter", required=True, help="adapter label, for example claude/codex/cursor/stub")
     run.add_argument("--command", dest="adapter_command", required=True, help="adapter command template; receives prompt on stdin; supports {task_dir} and {prompt}")
     run.add_argument("--verify-command", default=None, help="verification command template; supports {task_dir} and {prompt}")
     step = sub.add_parser("step")

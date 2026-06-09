@@ -17,7 +17,7 @@ validate_prompt: |
 
 # Benchmark
 
-Run the same prompt against multiple AI adapters (Claude, Codex, Antigravity CLI) and produce a structured comparison report.
+Run the same prompt against multiple AI adapters (Claude, Codex, Cursor) and produce a structured comparison report.
 
 Shared file-write, cache-location, and provider-E2E claim rules: `_shared/discipline.md`.
 
@@ -139,7 +139,7 @@ Use the resolved paths from step 1a, not bare command names:
 |---------|---------|
 | Claude | `cd <dir> && <claude-path> -p --dangerously-skip-permissions "$(cat <prompt>)" > <log> 2>&1` |
 | Codex | `cd <dir> && <codex-path> exec -s danger-full-access "$(cat <prompt>)" > <log> 2>&1` |
-| Antigravity CLI | `cd <dir> && <agy-path> --print "$(cat <prompt>)" --dangerously-skip-permissions > <log> 2>&1` |
+| Cursor | IDE Agent session (no headless CLI); record manual run or scripted Cursor SDK session if available |
 
 Record start/end timestamps for each run.
 
@@ -271,7 +271,7 @@ Write to `$bench_root/.forgeflow/benchmarks/$(basename "$bench_root")/report.md`
 ## ForgeFlow Compliance
 
 ### Small (4 items)
-| Item | Claude | Codex | Antigravity CLI |
+| Item | Claude | Codex | Cursor |
 |------|--------|-------|--------|
 | Plan stated | ✅/❌ | ✅/❌ | ✅/❌ |
 | File list | ✅/❌ | ✅/❌ | ✅/❌ |
@@ -280,7 +280,7 @@ Write to `$bench_root/.forgeflow/benchmarks/$(basename "$bench_root")/report.md`
 | **Score** | **n/4** | **n/4** | **n/4** |
 
 ### Medium (5 items)
-| Item | Claude | Codex | Antigravity CLI |
+| Item | Claude | Codex | Cursor |
 |------|--------|-------|--------|
 | Plan stated | ✅/❌ | ✅/❌ | ✅/❌ |
 | File list | ✅/❌ | ✅/❌ | ✅/❌ |
