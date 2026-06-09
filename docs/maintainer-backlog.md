@@ -24,11 +24,8 @@
 
 #### #155 Extract long Makefile document validators into scripts
 
-- **Status**: in progress locally
-- **Affected surface**: `Makefile`, `scripts/validate_agent_docs.py`, any remaining long inline validator targets
-- **Validation target**: `make validate-agent-docs`, then `make validate`
-- **Risk**: low — refactor-only if output stays equivalent.
-- **Notes**: First extraction moved AGENTS/preflight checks into `scripts/validate_agent_docs.py`; continue only if more large inline validators remain worth extracting.
+- **Status**: ✅ completed
+- **Resolution**: 5개 인라인 validator를 Python 스크립트로 추출 (validate-skills, validate-templates, validate-context-resume, validate-ship-safety/dogfooding-docs, validate-ci-workflows)
 
 #### #159 Elevate standalone review workflow as a first-class surface
 
