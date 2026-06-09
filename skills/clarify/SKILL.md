@@ -105,6 +105,12 @@ Write `brief.md` to the active task directory using the `brief.md` template as t
 - Route Sub-band (`medium-light` | `medium-full` | `n/a`) when route is medium
 - **Goal Contract** (required — review PASS/FAIL contract): 성공 기준 (Success Criteria), 필수 증거 (Evidence Required), 인정된 리스크 (Accepted Risks), 명시적 제외 (Explicit Exclusions)
 
+### Artifact Field Contract
+
+**brief.md** (produced by clarify):
+- **Required**: task_id, route, scope_boundary, ambiguity, Goal Contract (success criteria, required evidence, accepted risks, explicit exclusions)
+- **Recommended**: specialist, route sub-band, evolution rules
+
 ## Exit Condition
 
 - The request has a clear goal and scope boundary
@@ -115,6 +121,7 @@ Write `brief.md` to the active task directory using the `brief.md` template as t
   - `medium` -> `/forgeflow:ff-plan`
   - `high` -> `/forgeflow:ff-plan` with spec/quality review kept separate
   - `epic` -> `/forgeflow:ff-plan` (plan includes epic decomposition)
+- **Next Steps recorded**: brief.md `Next Steps → ff-plan` section is filled with required/recommended input and known gaps
 
 ## Constraints
 
@@ -150,7 +157,7 @@ When the user requests an exact output (label only, list only, dry run), return 
 
 - **Minimum read set (new task)**: user request + repo context as needed for scope.
 - **Minimum read set (resume)**: `checkpoint.md` → `brief.md` in-progress sections only.
-- **Stage exit**: update `checkpoint.md` with Current Stage, Next Action, Minimum Read Set. Safe to refresh context after brief + checkpoint are written.
+- **Stage exit**: update `checkpoint.md` with Stage, Next Action, Minimum Read Set. Safe to refresh context after brief + checkpoint are written.
 - Do not refresh context mid-interview before `brief.md` is complete.
 
 ## Evolution preflight

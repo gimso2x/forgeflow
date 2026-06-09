@@ -66,6 +66,12 @@ Post-review harness improvement tickets (optional, when human review surfaced pr
 
 - `<task-dir>/harness-improvement-tickets.md` — ticket candidates extracted from human review discussion and artifacts; these are harness/docs/prompt improvements, not direct product-code edits.
 
+
+### Artifact Field Contract
+
+**ship-summary.md** (produced by ship):
+- **Required**: review_verdict, Changed Files, Verification, Residual Risks
+- **Recommended**: Evolution Rules, Simplification Candidates
 ## Exit Condition
 
 - Working tree state is understood
@@ -74,6 +80,7 @@ Post-review harness improvement tickets (optional, when human review surfaced pr
 - Final handoff is completed
 - User gets a concise final report
 - Branch disposition has been resolved (user selected one of: merge, PR, keep, discard) or user explicitly deferred
+- **Next Steps recorded**: ship-summary.md `Next Steps → long-run/complete` section is filled with verification results, residual risks, and known gaps
 
 ## Constraints
 
@@ -116,7 +123,7 @@ No heading. No preamble. No code fence. No third line.
 세션이 중단된 후 ship을 재개할 때, checkpoint.md를 먼저 읽어 자동 복구를 시도한다:
 
 1. `checkpoint.md`의 `Next Action`에 `/forgeflow:ship`이 포함되어 있고 `ship-summary.md`가 존재하지 않으면 → ship을 실행한다 (별도 확인 불필요).
-2. `checkpoint.md`의 `Current Stage`가 `review`이고 `review-report.md`의 verdict가 `approved`이면 → ship을 실행한다.
+2. `checkpoint.md`의 `Stage`가 `review`이고 `review-report.md`의 verdict가 `approved`이면 → ship을 실행한다.
 3. `checkpoint.md`의 `Status`가 `blocked`이면 → blockers를 먼저 확인하고 사용자에게 보고한다.
 
 이 복구 메커니즘은 auto-chain이 중간에 끊긴 경우(예: 컨텍스트 한도, 세션 종료)에 특히 중요하다.

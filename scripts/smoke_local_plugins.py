@@ -150,9 +150,25 @@ def validate_install_surfaces() -> None:
 
 
 def main() -> int:
+    _with_provider = '--with-provider' in sys.argv
+
     validate_manifest(".claude-plugin/plugin.json")
     validate_marketplaces()
     validate_install_surfaces()
+
+    if _with_provider:
+        print("NOTE: --with-provider enabled, checking provider CLI availability")
+        # Check if at least one provider plugin binary is accessible
+        _found = False
+        for _cmd in ['claude', 'codex']:
+            _result = run_utf8(['which', _cmd], capture_output=True, text=True, timeout=5)
+            if _result.returncode == 0:
+                print(f"  provider found: {_cmd}")
+                _found = True
+        if not _found:
+            print("WARNING: --with-provider but no provider CLI found (claude, codex)")
+    else:
+        print("OK: live provider CLIs were not invoked (use --with-provider to check)")
 
     if failures:
         print("ERROR: local plugin smoke failed")
@@ -160,9 +176,7 @@ def main() -> int:
             print(f"- {failure}")
         return 1
     print("OK: local plugin manifests, command namespaces, and dry-run install surfaces are coherent")
-    print("OK: live provider CLIs were not invoked")
     return 0
-
 
 if __name__ == "__main__":
     sys.exit(main())

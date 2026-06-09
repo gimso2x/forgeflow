@@ -47,7 +47,7 @@ LARGE_SKILLS = {
         ],
     },
     "ff-review": {
-        "max_inline_bytes": 40_000,
+        "max_inline_bytes": 41_000,
         "required_dependencies": [
             "skills/_shared/discipline.md",
             "skills/_shared/isolation.md",

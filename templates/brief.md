@@ -18,6 +18,24 @@ ambiguity:
   score: <!-- computed 0.0-1.0 -->
   rounds: <!-- N -->
   status: <!-- pass | bounded_assumption -->
+required_fields:
+  - name: task_id
+    description: "Unique task identifier"
+  - name: route
+    description: "small|medium|high|epic"
+  - name: scope_boundary
+    description: "files_planned, files_limit, boundary_status"
+  - name: ambiguity
+    description: "objective, scope, constraints, acceptance, score"
+  - name: goal_contract
+    description: "성공 기준, 필수 증거, 인정된 리스크, 명시적 제외 (in body)"
+optional_fields:
+  - name: specialist
+    description: "primary/secondary review profile"
+  - name: route_sub_band
+    description: "medium-light|medium-full (medium route only)"
+  - name: evolution_rules
+    description: "Active evolution rule references"
 ---
 
 # 컨텍스트 브리프 (Context Brief)
@@ -160,3 +178,9 @@ ambiguity:
 
 ## 환경 사전 점검 (Environment Preflight)
 <!-- git repo status, lockfile/dependency check, etc. -->
+## Next Steps → ff-plan
+<!-- Stage handoff contract: what the next stage needs from this artifact -->
+- **Next Stage**: ff-plan
+- **Required Input**: route, scope_boundary, acceptance criteria (Goal Contract)
+- **Recommended Input**: specialist hint, budget note, verification gates
+- **Known Gaps**: <!-- list unresolved ambiguities carried forward -->

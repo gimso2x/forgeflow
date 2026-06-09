@@ -92,7 +92,7 @@ For retry + re-execution + route promotion + re-plan in a single invocation, use
 **Artifacts before code.** At every stage boundary and during execute:
 
 1. Write or update the stage artifact on disk
-2. Update `checkpoint.md` (`Current Stage`, `Status`, `Active Task`, `Next Action`, `Latest Artifacts`, and `Handoff Boundary`)
+2. Update `checkpoint.md` (`Stage`, `Status`, `Active Task`, `Next Action`, `Latest Artifacts`, and `Handoff Boundary`)
 3. Only then edit application code or invoke the next stage
 
 Never start implementation while `plan.md` is missing, `ledger.md` scaffolds are absent, or `checkpoint.md` still points at a prior stage.
@@ -120,7 +120,7 @@ Complete **all** items before invoking the next stage or editing code outside th
 | Step | Required before next stage |
 |------|---------------------------|
 | Artifact | `brief.md` with route, scope, AC, blockers resolved + `run-state.json` with project/storage identity |
-| Checkpoint | `Current Stage: clarify` → exit update; `Next Action: invoke /forgeflow:ff-plan` (medium+) or `/forgeflow:execute` (small) |
+|| Checkpoint | `Stage: clarify` → exit update; `Next Action: invoke /forgeflow:ff-plan` (medium+) or `/forgeflow:execute` (small) |
 | Chain | Invoke `forgeflow:ff-plan` or `forgeflow:execute` **immediately** — call the Skill tool when available, or continue with the next stage SKILL.md in Codex App/CLI contexts without that tool. No `(y/n)` prompt; do not print the skill name as text and stop. |
 | Forbidden | Starting code edits in the clarify turn; skipping plan on medium/high/epic |
 
@@ -130,7 +130,7 @@ Complete **all** items before invoking the next stage or editing code outside th
 |------|------------------------|
 | Artifact | `plan.md` + scaffolds: `implementation-notes.md`, `ledger.md`, `run-state.json` if missing |
 | **Pre-execution specificity gate** | Verify `brief.md`/`plan.md` contain enough concrete detail. ✅ Pass signals: file paths, issue numbers, camelCase/snake_case symbols, test runner, numbered steps, acceptance criteria, error references, code blocks. ❌ Block: ≤15 effective words + none of the above signals. If blocked, ask user to concretize in-place (do NOT return to clarify). `force:` prefix bypasses this gate. |
-| Checkpoint | `Current Stage: plan`; `Active Task: Task 1` (or first pending); `Next Action: begin Task 1` |
+|| Checkpoint | `Stage: plan`; `Active Task: Task 1` (or first pending); `Next Action: begin Task 1` |
 | Chain | Invoke `forgeflow:execute` immediately through the adapter-native skill mechanism — no `(y/n)` prompt. Do not just print the skill name. |
 | Forbidden | Implementing plan tasks in the plan turn; asking "execute 진행?" under `--auto` |
 
@@ -151,7 +151,7 @@ Complete **all** items before invoking the next stage or editing code outside th
 | Step | Required before ship |
 |------|---------------------|
 | Artifact | `review-report.md` with written verdict |
-| Checkpoint | `Current Stage: review`; verdict reflected in `Next Action` |
+|| Checkpoint | `Stage: review`; verdict reflected in `Next Action` |
 | Chain | If `approved`: invoke `forgeflow:ship` immediately — call the Skill tool when available, or continue with `skills/ship/SKILL.md` in Codex App/CLI contexts without that tool. No `(y/n)` prompt; do not just print the skill name. If `changes_requested` with artifact-only findings: auto-fix artifacts then re-invoke `forgeflow:ff-review`. **검증**: ship 호출 전 `review-report.md`의 verdict가 `approved`이고 `safe_for_next_stage`가 `yes`인지 확인. |
 | Forbidden | "리뷰 통과. ship 진행?" under `--auto`; proceeding to ship when verdict ≠ `approved`; auto-fixing code findings (must stop for code changes) |
 
@@ -160,7 +160,7 @@ Complete **all** items before invoking the next stage or editing code outside th
 | Step | Required |
 |------|----------|
 | Artifact | `ship-summary.md` with verification table and handoff |
-| Checkpoint | `Current Stage: ship` remains the terminal workflow stage while disposition completes |
+|| Checkpoint | `Stage: ship` remains the terminal workflow stage while disposition completes |
 | Chain | After summary: **under `--auto`** → default to "Merge locally" and execute merge + worktree cleanup without prompting. **without `--auto`** → present 4-option choice. |
 | Allowed stop | merge/PR/keep/discard choice; discard exact confirmation; ship quality loop-back `(y/n)` |
 

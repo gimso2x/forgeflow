@@ -60,6 +60,12 @@ Additionally, produce:
 For **epic** route, also produce:
 - `roadmap.md` (from `templates/roadmap.md`) — milestone definitions, dependency DAG, statuses
 
+### Artifact Field Contract
+
+**plan.md** (produced by ff-plan):
+- **Required**: route, Goal, Requirements, Implementation Steps, Verification
+- **Recommended**: Architecture Notes, Contracts, Journeys
+
 ## Medium route sub-band depth
 
 Read **Route Sub-band** from `brief.md` (clarify records `medium-light` or `medium-full` from raw_score; route label stays `medium`).
@@ -250,6 +256,7 @@ python3 <forgeflow-checkout>/scripts/forgeflow_guard_check.py check-plan --task-
 - Fulfills, journeys, and Verification Plan links are consistent when present
 - No placeholder tasks remain
 - For epic route: `roadmap.md` is written following `templates/roadmap.md` format with valid dependency DAG and integration verification milestone
+- **Next Steps recorded**: plan.md `Next Steps → execute` section is filled with tasks, verification plan, and known gaps from Self-Critique
 
 ## Constraints
 

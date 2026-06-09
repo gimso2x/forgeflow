@@ -58,6 +58,7 @@ docs/                       # adapter-config.md, stage-tool-boundaries.md, maint
 - **Model Tiers**: reasoning/coding/fast per stage — adapters map tiers to concrete models
 - **Worktree isolation**: fan-out workers each get isolated git worktree; pre-merge verification gate (5 items); `--no-ff` merge required for fan-in
 - **Small route self-verify** (`skills/execute/`): 5-item checklist before exit (Goal Contract check, scope boundary, self-review proxy, verification gate, evidence completeness)
+- **Artifact Field Contract** (`templates/*.md`): Each template declares required_fields and optional_fields in YAML frontmatter. Skills mirror these in their Output Artifacts section. validate_template_fields.py checks in warning mode (--strict for error mode).
 
 ## Development Workflow
 

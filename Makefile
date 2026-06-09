@@ -1,4 +1,4 @@
-.PHONY: validate demo validate-demo smoke-local-plugins validate-forgeflow-loop validate-full-loop-e2e validate-behavior-guardrails validate-json validate-no-python validate-slim-surface validate-ci-workflows validate-skills validate-skill-frontmatter validate-skill-modularity validate-agent-docs validate-templates validate-template-refs validate-template-fields validate-versions validate-changelog-links validate-route-scoring-parity validate-route-policy validate-plugin-prompts validate-evals validate-evals-json validate-eval-files validate-evals-fixtures validate-workflow-vocab validate-ship-safety validate-dogfooding-docs validate-context-resume validate-stage-tool-boundaries validate-adapter-config validate-advisory-contract validate-markdown-links validate-guard-checks telemetry telemetry-collect telemetry-aggregate usage-audit
+.PHONY: validate demo validate-demo smoke-local-plugins validate-forgeflow-loop validate-full-loop-e2e validate-behavior-guardrails validate-json validate-no-python validate-slim-surface validate-ci-workflows validate-skills validate-skill-frontmatter validate-skill-modularity validate-agent-docs validate-templates validate-template-refs validate-template-fields validate-stage-handoff validate-versions validate-changelog-links validate-route-scoring-parity validate-route-policy validate-plugin-prompts validate-evals validate-evals-json validate-eval-files validate-evals-fixtures validate-workflow-vocab validate-ship-safety validate-dogfooding-docs validate-context-resume validate-stage-tool-boundaries validate-adapter-config validate-advisory-contract validate-markdown-links validate-guard-checks telemetry telemetry-collect telemetry-aggregate usage-audit
 
 PYTHON ?= python3
 
@@ -210,6 +210,10 @@ validate-template-refs:
 
 validate-template-fields:
 	@$(PYTHON) scripts/validate_template_fields.py
+
+validate-stage-handoff:
+	@$(PYTHON) scripts/validate_template_fields.py
+	@echo "OK: stage-to-stage handoff checks passed"
 
 validate-plugin-prompts:
 	@$(PYTHON) scripts/validate_plugin_prompts.py

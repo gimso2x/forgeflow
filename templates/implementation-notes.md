@@ -2,6 +2,22 @@
 schema: implementation-notes/v1
 stage: <!-- clarify|plan|execute|review|ship|long-run -->
 status: <!-- in_progress|completed|blocked -->
+required_fields:
+  - name: stage
+    description: "clarify|plan|execute|review|ship|long-run"
+  - name: status
+    description: "in_progress|completed|blocked"
+  - name: decisions
+    description: "D-NNN entries with context, options, chosen, rationale"
+  - name: progress
+    description: "Current work tracking"
+  - name: evidence
+    description: "Verification evidence collected"
+optional_fields:
+  - name: edge_cases
+    description: "Boundary conditions encountered"
+  - name: metrics
+    description: "Quantitative measures"
 ---
 
 # 구현 기록 (Implementation Notes)
@@ -118,3 +134,9 @@ timestamp: <!-- ISO8601 -->
 - **Max component LOC**: <!-- largest component, flag if > 100L -->
 - **Files created**: <!-- count -->
 - **Files deleted**: <!-- count -->
+## Next Steps → ff-review
+<!-- Stage handoff contract: what the next stage needs from this artifact -->
+- **Next Stage**: ff-review
+- **Required Input**: evidence, changed files list, decisions
+- **Recommended Input**: edge cases, metrics, progress status
+- **Known Gaps**: <!-- list unverified areas or incomplete evidence -->

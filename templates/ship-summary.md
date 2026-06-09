@@ -1,6 +1,20 @@
 ---
 schema: ship-summary/v1
 review_verdict: <!-- approved|changes_requested|blocked -->
+required_fields:
+  - name: review_verdict
+    description: "approved|changes_requested|blocked"
+  - name: changed_files
+    description: "List of files changed in task scope"
+  - name: verification
+    description: "Commands run and results"
+  - name: residual_risks
+    description: "Known remaining risks after ship"
+optional_fields:
+  - name: evolution_rules
+    description: "Proposed or activated evolution rules"
+  - name: simplification_candidates
+    description: "Code that could be simplified"
 ---
 
 # Ship 요약 (Ship Summary)
@@ -94,3 +108,9 @@ review_verdict: <!-- approved|changes_requested|blocked -->
 - **Creation**: (success/failed)
 - **Merge/Cleanup**: (success/failed, error category if any)
 - **Fallback**: (none / describe)
+## Next Steps → long-run/complete
+<!-- Stage handoff contract: what the next stage needs from this artifact -->
+- **Next Stage**: long-run (if evolution rules exist) / complete
+- **Required Input**: verification results, residual risks
+- **Recommended Input**: evolution rules, simplification candidates, metrics
+- **Known Gaps**: <!-- list deferred items or follow-up tasks -->

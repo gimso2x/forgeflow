@@ -12,6 +12,22 @@ scope_boundary:
   violations:
     - file: <!-- path -->
       reason: <!-- why out of scope -->
+required_fields:
+  - name: input_mode
+    description: "post-execute|standalone"
+  - name: verdict
+    description: "approved|changes_requested|blocked"
+  - name: findings
+    description: "Categorized findings with evidence and fix suggestions"
+  - name: open_blockers
+    description: "Unresolved blocking issues"
+  - name: next_action
+    description: "What happens after this review"
+optional_fields:
+  - name: three_lane_review
+    description: "Spec/Quality/Integration lane results"
+  - name: override_log
+    description: "Reviewer override decisions"
 ---
 
 # 리뷰 보고서 (Review Report)
@@ -284,3 +300,9 @@ Finding rules:
 - **Fetch Timestamp**: <!-- ISO timestamp of evidence retrieval -->
 - **Evidence Integrity**: <!-- complete | truncated:<N/M lines> | partial | failed -->
 - **Scope Extraction Method**: <!-- auto from diff headers | user-specified | from plan.md -->
+## Next Steps → ship
+<!-- Stage handoff contract: what the next stage needs from this artifact -->
+- **Next Stage**: ship
+- **Required Input**: verdict, findings, open blockers status
+- **Recommended Input**: override log, standalone mode metadata
+- **Known Gaps**: <!-- list unresolved findings carried forward -->

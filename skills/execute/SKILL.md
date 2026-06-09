@@ -49,7 +49,7 @@ Use this skill to execute the selected ForgeFlow route.
 
 Maintain this file **throughout execution**, not as a post-hoc summary. Append entries as decisions arise. Use the structure from `templates/implementation-notes.md`:
 
-- **Current Stage**: execute
+- **Stage**: execute
 - **Status**: in_progress | completed | blocked
 - **Decisions**: what was decided, why, when
 - **Deviations from Plan**: what differs from plan/spec, reason
@@ -63,6 +63,16 @@ Guidelines:
 - Record a deviation even if you consider it minor; review will judge severity.
 - This artifact is reviewed during `/forgeflow:ff-review` and ships with the task evidence.
 
+
+### Artifact Field Contract
+
+**implementation-notes.md** (produced by execute):
+- **Required**: stage, status, Decisions, Progress, Evidence
+- **Recommended**: Edge Cases, Metrics
+
+**ledger.md** (updated by execute):
+- **Required**: task_id, route, total_items, Plan Items, Execution Tracking
+- **Recommended**: Gate Results, Decisions
 ## Exit Condition
 
 - Planned tasks are implemented
@@ -70,6 +80,7 @@ Guidelines:
 - Failures are fixed or explicitly recorded
 - Runtime evidence exists for review
 - `implementation-notes.md` has been updated with final status **before** the exit summary
+- **Next Steps recorded**: implementation-notes.md `Next Steps → ff-review` section is filled with evidence, changed files, and known gaps
 
 ### Route-aware exit requirements
 
@@ -194,14 +205,14 @@ Minimum warning contract:
 
 1. Confirm route and current stage. Read `brief.md` to determine route.
 2. Run Evolution rule enforcement before editing files.
-3. Initialize `implementation-notes.md` in the active task directory if it does not exist (use `templates/implementation-notes.md`). Set `Current Stage: execute`, `Status: in_progress`.
+3. Initialize `implementation-notes.md` in the active task directory if it does not exist (use `templates/implementation-notes.md`). Set `Stage: execute`, `Status: in_progress`.
 4. Initialize `ledger.md` from `templates/ledger.md` if it does not exist. Set all task statuses from `plan.md` as `pending`. **small route (plan.md 없음)**: `brief.md`에서 objective를 읽어 단일 task ledger를 생성한다. `templates/ledger.md`의 Small Route Minimal Format을 사용한다:
    - Route: `small`
    - Plan Reference: `brief.md` (plan 없음)
    - Task 1: brief.md의 objective에서 추출, Status: `pending`
    - Gate Results: 빈 테이블 (execute 완료 시 갱신)
    - Completion Summary: Total Tasks: 1
-5. Write `checkpoint.md` from `templates/checkpoint.md` with `Current Stage: execute`, `Active Task: first pending task`, `Next Action: begin first plan step`.
+5. Write `checkpoint.md` from `templates/checkpoint.md` with `Stage: execute`, `Active Task: first pending task`, `Next Action: begin first plan step`.
 6. Read Contracts section from `plan.md` before editing when present.
    - If `plan.md` or `brief.md` references `<storage-root>/project-draft.md`, treat it as section-scoped shared context produced by `/forgeflow:ff-config init --mode=full`: read the relevant section names and repo-relative pointers only, then verify task-critical facts against the referenced source files or code before changing behavior. Do not copy the whole draft into execute artifacts, and keep `ledger.md` and `implementation-notes.md` as the task-specific source of truth.
    - **Environment safety net**: If `brief.md` lacks environment notes, run: `git rev-parse --is-inside-work-tree 2>/dev/null; ls node_modules .venv vendor 2>/dev/null | head -3`. If dependencies are missing and a package manager is detected:

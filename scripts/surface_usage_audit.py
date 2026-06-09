@@ -51,6 +51,22 @@ TELEMETRY_ARTIFACTS = [
     "metrics-dashboard.md",
 ]
 ARTIFACTS = [*TASK_ARTIFACTS, *TELEMETRY_ARTIFACTS]
+REQUIRED_FIELDS_ARTIFACTS: set[str] = set()
+
+def _detect_required_fields_templates():
+    """Templates declaring required_fields in YAML frontmatter are always considered 'used'."""
+    global REQUIRED_FIELDS_ARTIFACTS
+    templates_dir = pathlib.Path(__file__).resolve().parent.parent / "templates"
+    if not templates_dir.is_dir():
+        return
+    for tp in templates_dir.glob("*.md"):
+        text = tp.read_text(encoding="utf-8")
+        if text.startswith("---"):
+            end = text.find("---", 3)
+            if end != -1 and "required_fields:" in text[3:end]:
+                REQUIRED_FIELDS_ARTIFACTS.add(tp.name)
+
+_detect_required_fields_templates()
 
 CORE = {"clarify", "plan", "execute", "review", "ship"}
 SUPPORT = {"config", "long-run"}
@@ -113,6 +129,8 @@ def _inventory_only(entry_counts, artifact_counts, artifact_status):
             tier = "core" if name in CORE else "support" if name in SUPPORT else "utility"
             notes.append(f"- `{name}` ({tier}): no slash mentions in the selected git window")
     for artifact in ARTIFACTS:
+        if artifact in REQUIRED_FIELDS_ARTIFACTS:
+            continue
         st = artifact_status[artifact]
         if artifact_counts[artifact] == 0 and st.startswith("actual zero"):
             notes.append(f"- `{artifact}`: {st}")

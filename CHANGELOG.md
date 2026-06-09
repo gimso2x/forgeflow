@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## [2.1.0] - 2026-06-09
+
+### 🔒 자동화·정합성
+
+- 템플릿에 `required_fields`/`optional_fields` YAML frontmatter 선언 추가 (brief, plan, implementation-notes, review-report, ship-summary, checkpoint, ledger)
+- `validate_template_fields.py`에 warning mode 추가 (`--strict` 플래그로 error 모드 전환 가능)
+- 5개 핵심 스킬(clarify, ff-plan, execute, ff-review, ship)에 Artifact Field Contract 섹션 추가
+- 5개 pipeline 템플릿에 `Next Steps → <next-stage>` 섹션 추가 (brief→ff-plan, plan→execute, implementation-notes→ff-review, review-report→ship, ship-summary→long-run/complete)
+- 5개 스킬 Exit Condition에 Next Steps 기록 조건 추가
+- `validate_template_fields.py`에 Next Steps 섹션 존재 검증 추가
+- checkpoint.md 구조 개선: 즉답 블록(Stage, Status, Active Task, Next Action, Blockers)을 최상단으로 재배치
+- checkpoint.md frontmatter에 `input_mode` 필드 추가 (pipeline | standalone)
+- `Current Stage` → `Stage`로 일관성 있게 변경 (checkpoint, execute, ship, automation 업데이트)
+- `validate_template_fields.py`에 cross-artifact 스테이지 전달 검사 추가 (brief↔plan route, plan↔ledger tasks, review↔ship verdict, checkpoint 무결성)
+- `make validate-stage-handoff` Makefile 타겟 추가
+- `smoke_local_plugins.py`에 `--with-provider` 플래그 추가 (provider CLI 가용성 dry-run 확인)
+
+### 🔍 검증·정책
+
+- Template required_fields 선언 기반 warning 검증 신규 도입
+
+### 👤 사용자·경험
+
+- 스테이지 간 artifact 전달 계약 명확화 — 각 스킬이 출력 artifact의 필수/권장 필드를 명시적으로 선언
+- 템플릿 말단에 Next Steps 섹션 추가 — 각 스테이지가 다음 스테이지에 필요한 필수/권장 입력과 미해결 이슈를 명시적으로 전달
+
 ## [2.0.1] - 2026-06-08
 
 ### 🔒 자동화·정합성

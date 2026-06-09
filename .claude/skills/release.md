@@ -28,7 +28,7 @@ ForgeFlow plugin release workflow. Syncs version across all metadata files, comm
 | `.claude-plugin/marketplace.json` | `"metadata"."version": "X.Y.Z"` (CI 자동 동기화) |
 | `.codex-plugin/plugin.json` | `"version": "X.Y.Z"` (CI 자동 동기화) |
 | `.cursor-plugin/plugin.json` | `"version": "X.Y.Z"` (CI 자동 동기화) |
-| `gemini-extension.json` | `"version": "X.Y.Z"` (CI 자동 동기화) |
+| `plugin.json` | `"version": "X.Y.Z"` (CI 자동 동기화) |
 
 Also add a `## [X.Y.Z] - YYYY-MM-DD` section to `CHANGELOG.md` before release.
 

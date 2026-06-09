@@ -170,3 +170,136 @@ if failures:
     sys.exit(1)
 
 print('OK: Template fields consistent with skill expectations')
+
+# --- Warning mode: check required_fields from template YAML frontmatter ---
+# New in v2.1.0: templates declare required_fields/optional_fields in frontmatter.
+# This block checks that declared required fields exist as frontmatter keys or section headers.
+# Warnings do NOT affect exit code unless --strict is passed.
+
+_warnings = []
+_strict = '--strict' in sys.argv
+
+_warn_templates = [
+    'brief.md', 'plan.md', 'implementation-notes.md',
+    'review-report.md', 'ship-summary.md', 'checkpoint.md', 'ledger.md',
+]
+
+for _tmpl_name in _warn_templates:
+    _tmpl_path = root / 'templates' / _tmpl_name
+    if not _tmpl_path.exists():
+        continue
+    _text = _tmpl_path.read_text(encoding='utf-8')
+    # Parse YAML frontmatter
+    _fm_match = re.search(r'^---\n(.*?)\n---', _text, re.DOTALL)
+    if not _fm_match:
+        continue
+    _fm = _fm_match.group(1)
+    # Extract required_fields entries (lines matching "  - name: <field>")
+    _in_required = False
+    _req_fields = []
+    for _line in _fm.split('\n'):
+        if _line.strip() == 'required_fields:':
+            _in_required = True
+            continue
+        if _line.strip() == 'optional_fields:':
+            _in_required = False
+            continue
+        if _in_required and _line.strip().startswith('- name:'):
+            _field = _line.strip().replace('- name:', '').strip()
+            if _field:
+                _req_fields.append(_field)
+    # Check each required field: present as frontmatter key OR section header in body
+    for _field in _req_fields:
+        _in_fm = bool(re.search(rf'^{_field}\s*:', _fm, re.MULTILINE))
+        _in_body = bool(re.search(rf'##.*\b{_field}\b', _text, re.MULTILINE))
+        if not _in_fm and not _in_body:
+            _warnings.append(
+                f"templates/{_tmpl_name}: missing recommended field '{_field}' "
+                f"(declared in required_fields)"
+            )
+
+if _warnings:
+    import io
+    _prefix = 'ERROR' if _strict else 'WARNING'
+    _stream = sys.stdout if _strict else sys.stderr
+    print(f'{_prefix}: Recommended fields missing ({("strict" if _strict else "warning")} mode)', file=_stream)
+    for _w in _warnings:
+        print(f'  - {_w}', file=_stream)
+    if _strict:
+        sys.exit(1)
+
+# --- Next Steps section check (v2.1.0 M2) ---
+# Pipeline templates must have a "Next Steps →" section at the end for stage handoff.
+_next_steps_templates = {
+    'brief.md': 'ff-plan',
+    'plan.md': 'execute',
+    'implementation-notes.md': 'ff-review',
+    'review-report.md': 'ship',
+    'ship-summary.md': 'long-run/complete',
+}
+
+for _tmpl, _target in _next_steps_templates.items():
+    _path = root / 'templates' / _tmpl
+    if not _path.exists():
+        continue
+    _text = _path.read_text(encoding='utf-8')
+    _has_next = f'Next Steps → {_target}' in _text
+    if not _has_next:
+        if _strict:
+            print(f'ERROR: templates/{_tmpl}: missing "Next Steps → {_target}" section', file=sys.stdout)
+            sys.exit(1)
+        else:
+            print(f'WARNING: templates/{_tmpl}: missing "Next Steps → {_target}" section', file=sys.stderr)
+
+# --- Cross-artifact stage handoff checks (v2.1.0 M4) ---
+# Verify structural consistency between adjacent pipeline templates.
+# These checks validate that template *structure* supports stage handoff,
+# not that runtime artifacts are consistent (that's forgeflow_guard_check.py territory).
+_cross_handoff_checks = [
+    {
+        'name': 'brief.md ↔ plan.md: route field pair',
+        'templates': ('templates/brief.md', 'templates/plan.md'),
+        'check': lambda a, b: ('route:' in a or 'route |' in a) and ('route:' in b or 'route |' in b),
+        'detail': 'both templates must reference route field',
+    },
+    {
+        'name': 'plan.md ↔ ledger.md: tasks/plan items pair',
+        'templates': ('templates/plan.md', 'templates/ledger.md'),
+        'check': lambda a, b: ('Tasks' in a or '작업' in a) and ('Plan Items' in b or 'Execution Tracking' in b),
+        'detail': 'plan must have tasks, ledger must have Plan Items or Execution Tracking',
+    },
+    {
+        'name': 'review-report.md ↔ ship-summary.md: verdict pair',
+        'templates': ('templates/review-report.md', 'templates/ship-summary.md'),
+        'check': lambda a, b: 'verdict' in a.lower() and ('review_verdict' in b or 'verdict' in b.lower()),
+        'detail': 'review must have verdict, ship-summary must reference verdict',
+    },
+    {
+        'name': 'checkpoint.md: field integrity (Stage, Status, Next Action, Blockers)',
+        'templates': ('templates/checkpoint.md',),
+        'check': lambda a: all(s in a for s in ['## Stage', '## Status', '## Next Action', '## Blockers']),
+        'detail': 'checkpoint must have instant-answer block sections',
+    },
+]
+
+_cross_prefix = 'ERROR' if _strict else 'WARNING'
+_cross_stream = sys.stdout if _strict else sys.stderr
+
+for _check in _cross_handoff_checks:
+    _tmpls = _check['templates']
+    _texts = {}
+    _missing = False
+    for _t in _tmpls:
+        _p = root / _t
+        if not _p.exists():
+            _missing = True
+            break
+        _texts[_t] = _p.read_text(encoding='utf-8')
+    if _missing:
+        continue
+    _vals = list(_texts.values())
+    _passed = _check['check'](*_vals)
+    if not _passed:
+        print(f'{_cross_prefix}: Cross-artifact handoff: {_check["name"]} — {_check["detail"]}', file=_cross_stream)
+        if _strict:
+            sys.exit(1)

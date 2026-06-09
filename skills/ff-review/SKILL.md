@@ -172,6 +172,7 @@ Write `review-report.md` (schema: review-report/v2, from `templates/review-repor
 - Override Log (human overrides)
 - Standalone Mode Metadata
 
+### Artifact Field Contract — review-report.md: **Required**: input_mode, verdict, Findings, Open Blockers, Next Action | **Recommended**: 3-Lane Review, Override Log
 ## Review Rubrics
 
 These rubrics are applied directly during review. Separate spec and quality reviews use their respective rubrics.
@@ -301,6 +302,7 @@ Summary:
 - Approved review has no open blockers and is safe for next stage
 - Human Review Gate is recorded. If it is `required`, a human decision is recorded before `/forgeflow:ship`; otherwise the skip rationale is recorded.
 - Next step is `/forgeflow:ship` only if review passes and the human review gate is satisfied
+- **Next Steps recorded**: review-report.md `Next Steps → ship` section is filled with verdict, blockers status, and known gaps
 
 **Standalone mode**:
 - `review-report.md` has been written to the synthetic task directory **before** the exit summary

@@ -1,6 +1,24 @@
 ---
 schema: plan/v1
 route: <!-- small|medium|high|epic -->
+required_fields:
+  - name: route
+    description: "small|medium|high|epic"
+  - name: goal
+    description: "Explicit and testable goal statement"
+  - name: requirements
+    description: "Mapped to stable IDs and acceptance criteria"
+  - name: implementation_steps
+    description: "Every step has files, expected output, verification"
+  - name: verification
+    description: "Gates cover each requirement"
+optional_fields:
+  - name: architecture_notes
+    description: "Design decisions and rationale"
+  - name: contracts
+    description: "Task contracts with scope and dependencies"
+  - name: journeys
+    description: "User/developer journey maps"
 ---
 
 # 실행 계획 (Execution Plan)
@@ -141,3 +159,9 @@ graph TD
 - **Critic verdict**: <!-- PASS (all yes) | REVISED (N iterations) | OPEN_CONCERNS -->
 - **Revision count**: <!-- 0–3 -->
 - **Open Concerns**: <!-- remaining issues after 3 iterations, or "none" -->
+## Next Steps → execute
+<!-- Stage handoff contract: what the next stage needs from this artifact -->
+- **Next Stage**: execute
+- **Required Input**: tasks (implementation steps), files, verification plan
+- **Recommended Input**: architecture notes, contracts, Self-Critique verdict
+- **Known Gaps**: <!-- list open concerns from Self-Critique -->

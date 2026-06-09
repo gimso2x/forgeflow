@@ -3,6 +3,22 @@ schema: ledger/v1
 task_id: <!-- TASK_ID -->
 route: <!-- small|medium|high|epic -->
 total_items: <!-- N -->
+required_fields:
+  - name: task_id
+    description: "Unique task identifier"
+  - name: route
+    description: "small|medium|high|epic"
+  - name: total_items
+    description: "Total number of plan items"
+  - name: plan_items
+    description: "Item list with type, scope, dependencies, estimate"
+  - name: execution_tracking
+    description: "Per-item status, evidence, retry count"
+optional_fields:
+  - name: gate_results
+    description: "Verification gate outcomes"
+  - name: decisions
+    description: "Execution decisions"
 ---
 
 # Ledger
