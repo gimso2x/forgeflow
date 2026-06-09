@@ -120,18 +120,7 @@ validate-slim-surface:
 	@echo "OK: Slim surface has no legacy runtime/schema/test directories or active-doc references"
 
 validate-ci-workflows:
-	@grep -Fq "run: make validate" .github/workflows/validate.yml || { echo "ERROR: validate workflow must run make validate"; exit 1; }
-	@grep -Fq "run: make validate-evals" .github/workflows/evals.yml || { echo "ERROR: evals workflow must run the documented eval fixture bundle"; exit 1; }
-	@grep -Fq "permissions:" .github/workflows/validate.yml || { echo "ERROR: validate workflow must declare minimal permissions"; exit 1; }
-	@grep -Fq "permissions:" .github/workflows/evals.yml || { echo "ERROR: evals workflow must declare minimal permissions"; exit 1; }
-	@grep -Fq "contents: read" .github/workflows/validate.yml || { echo "ERROR: validate workflow must use read-only contents permission"; exit 1; }
-	@grep -Fq "contents: read" .github/workflows/evals.yml || { echo "ERROR: evals workflow must use read-only contents permission"; exit 1; }
-	@grep -Fq ".github/workflows/validate.yml" README.md || { echo "ERROR: README must document validate workflow location"; exit 1; }
-	@grep -Fq ".github/workflows/evals.yml" README.md || { echo "ERROR: README must document evals workflow location"; exit 1; }
-	@grep -Fq "read-only \`contents: read\` permissions" README.md || { echo "ERROR: README must document CI workflows use minimal read-only permissions"; exit 1; }
-	@grep -Fq "make validate-evals" README.md || { echo "ERROR: README must document the eval validation bundle target"; exit 1; }
-	@grep -Fq "make validate-evals" evals/README.md || { echo "ERROR: eval README must document the eval validation bundle target"; exit 1; }
-	@echo "OK: CI workflows invoke documented local validation bundles"
+	@$(PYTHON) scripts/validate_ci_workflows.py
 
 validate-json:
 	@for f in $(PLUGIN_JSON); do \
@@ -162,49 +151,13 @@ validate-skill-modularity:
 	@grep -Fq "docs/skill-modularization.md" README.md || { echo "ERROR: README must document the skill modularization policy"; exit 1; }
 
 validate-skills: validate-skill-frontmatter
-	@for dir in skills/*/; do \
-		name=$$(basename "$$dir"); \
-		case "$$name" in _*) continue ;; esac; \
-		skill_file="$${dir}SKILL.md"; \
-		if [ ! -f "$$skill_file" ]; then \
-			echo "ERROR: Missing SKILL.md in $$dir"; \
-			exit 1; \
-		fi; \
-		actual="$$( $(PYTHON) -c 'import pathlib, sys; lines=pathlib.Path(sys.argv[1]).read_text(encoding="utf-8").splitlines(); print(next((line.split(":", 1)[1].strip().strip("\"'"'"'") for line in lines if line.startswith("name:")), ""))' "$$skill_file" )"; \
-		if [ "$$actual" != "$$name" ]; then \
-			echo "ERROR: $$skill_file name must be $$name (got $${actual:-<missing>})"; \
-			exit 1; \
-		fi; \
-		if ! grep -Eq '^description: .+' "$$skill_file"; then \
-			echo "ERROR: $$skill_file must define a non-empty description in frontmatter"; \
-			exit 1; \
-		fi; \
-		if ! grep -Fxq 'validate_prompt: |' "$$skill_file"; then \
-			echo "ERROR: $$skill_file must define validate_prompt: | in frontmatter"; \
-			exit 1; \
-		fi; \
-	done
-	@$(PYTHON) scripts/validate_skills_inventory.py
-	@grep -Fq "skills/forgeflow/SKILL.md" SKILL.md || { echo "ERROR: root SKILL.md must point to the canonical forgeflow skill"; exit 1; }
-	@grep -Fq "Claude marketplace entry" SKILL.md || { echo "ERROR: root SKILL.md must stay a marketplace summary, not the canonical contract"; exit 1; }
-	@grep -Fq "make validate-skills" README.md || { echo "ERROR: README local validation docs must include focused skills validation"; exit 1; }
-	@grep -Fq "root SKILL.md marketplace summary" README.md || { echo "ERROR: README local validation docs must mention root SKILL marketplace summary coverage"; exit 1; }
-	@echo "OK: All public skills have SKILL.md with name, description, validate_prompt, inventory coverage, and root marketplace summary linkage"
+	@$(PYTHON) scripts/validate_skills_structure.py
 
 validate-agent-docs:
 	@$(PYTHON) scripts/validate_agent_docs.py
 
 validate-templates:
-	@for t in $(TEMPLATES); do \
-		if [ ! -f "templates/$$t" ]; then \
-			echo "ERROR: Missing template templates/$$t"; \
-			exit 1; \
-		fi; \
-		grep -Fq "$$t" README.md || { echo "ERROR: README must document template $$t"; exit 1; }; \
-	done
-	@echo "OK: All templates exist and are documented in README"
-	@grep -Fq "make validate-templates validate-template-refs" README.md || { echo "ERROR: README local validation docs must include focused template validation bundle"; exit 1; }
-
+	@$(PYTHON) scripts/validate_templates_structure.py
 validate-template-refs:
 	@$(PYTHON) scripts/validate_template_refs.py
 
@@ -232,37 +185,13 @@ validate-workflow-vocab:
 	@if grep -Fq 'proposed' README.md; then grep -Fq '별도 `proposed`' README.md || { echo "ERROR: README evolution lifecycle must not reference old proposed stage without explaining it was replaced"; exit 1; }; fi
 
 validate-ship-safety:
-	@grep -Fq "Do not remove or discard yet" skills/ship/SKILL.md || { echo "ERROR: ship skill must preserve worktrees before option-specific confirmation"; exit 1; }
-	@grep -Fq "Type 'discard' to confirm." skills/ship/SKILL.md || { echo "ERROR: ship skill must require exact discard confirmation"; exit 1; }
-	@grep -Fq "Never delete unrelated dirty working tree files" skills/ship/SKILL.md || { echo "ERROR: ship skill must protect unrelated dirty working tree files"; exit 1; }
-	@echo "OK: Ship skill protects worktrees and destructive cleanup"
+	@$(PYTHON) scripts/validate_safety_docs.py --ship-safety
 
 validate-dogfooding-docs:
-	@grep -Fq "[docs/dogfooding.md](docs/dogfooding.md)" README.md || { echo "ERROR: README must link tracked .forgeflow fixture guidance"; exit 1; }
-	@grep -Fq "intentionally tracked" docs/dogfooding.md || { echo "ERROR: dogfooding docs must say tracked task folders are intentional"; exit 1; }
-	@grep -Fq "Normal consumer projects should keep" docs/dogfooding.md || { echo "ERROR: dogfooding docs must distinguish consumer project behavior"; exit 1; }
-	@grep -Fq "Do not run broad cleanup commands such as \`git clean -fdX\`" docs/dogfooding.md || { echo "ERROR: dogfooding docs must forbid broad destructive cleanup"; exit 1; }
-	@grep -Fq "inspect \`git status --short --ignored\` first" docs/dogfooding.md || { echo "ERROR: dogfooding docs must require ignored-status inspection before cleanup"; exit 1; }
-	@echo "OK: Dogfooding fixture docs are linked and guarded"
+	@$(PYTHON) scripts/validate_safety_docs.py --dogfooding
 
 validate-context-resume:
-	@grep -Fq "skills/_shared/context-resume.md" README.md || { echo "ERROR: README must document context refresh/resume rules"; exit 1; }
-	@for f in skills/forgeflow/SKILL.md skills/clarify/SKILL.md skills/ff-plan/SKILL.md skills/execute/SKILL.md skills/ff-review/SKILL.md skills/ship/SKILL.md; do \
-		grep -Fq "_shared/context-resume.md" "$$f" || { echo "ERROR: $$f must reference shared context refresh/resume rules"; exit 1; }; \
-	done
-	@grep -Fq "Checkpoint-first" skills/_shared/context-resume.md || { echo "ERROR: context-resume rules must keep checkpoint-first guidance"; exit 1; }
-	@grep -Fq "No default full re-read" skills/_shared/context-resume.md || { echo "ERROR: context-resume rules must guard against full artifact rereads"; exit 1; }
-	@grep -Fq "Minimum Read Set" templates/checkpoint.md || { echo "ERROR: checkpoint template must expose a Minimum Read Set for context refresh resume"; exit 1; }
-	@grep -Fq "Handoff Boundary" templates/checkpoint.md || { echo "ERROR: checkpoint template must expose stage handoff boundary ownership"; exit 1; }
-	@grep -Fq "Handoff Boundary" skills/_shared/automation.md || { echo "ERROR: automation rules must require checkpoint handoff boundary ownership"; exit 1; }
-	@for stage in clarify plan execute review ship; do \
-		grep -Fq -- "- **$$stage** — owns" skills/_shared/automation.md || { echo "ERROR: automation stage catalog must define owned artifacts for $$stage"; exit 1; }; \
-	done
-	@grep -Fq "Allowed posture:" skills/_shared/automation.md || { echo "ERROR: automation stage catalog must define allowed tool posture"; exit 1; }
-	@grep -Fq "Forbidden:" skills/_shared/automation.md || { echo "ERROR: automation stage catalog must define forbidden tool posture"; exit 1; }
-	@grep -Fq "If a stage needs an action listed as forbidden" skills/_shared/automation.md || { echo "ERROR: automation stage catalog must define forbidden-action handoff behavior"; exit 1; }
-	@grep -Fq "forbidden-action delegation" README.md || { echo "ERROR: README context refresh docs must mention checkpoint handoff boundary ownership"; exit 1; }
-	@echo "OK: Context refresh/resume guidance is wired into core skills, checkpoint template, and stage boundary catalog"
+	@$(PYTHON) scripts/validate_context_resume.py
 
 validate-stage-tool-boundaries:
 	@for stage in clarify plan execute ff-review ship; do \
