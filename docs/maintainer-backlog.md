@@ -1,6 +1,6 @@
 # ForgeFlow Maintainer Backlog
 
-> **Last reviewed**: 2026-06-07 KST
+> **Last reviewed**: 2026-06-09 KST
 > **Scope**: live maintainer tasks only. Historical design notes stay in [`docs/roadmap-improvements.md`](roadmap-improvements.md).
 
 ## How to use this backlog
@@ -10,17 +10,17 @@
 - Keep each item narrow enough to validate with focused targets before `make validate`.
 - Do not copy old roadmap design text here unless it is still actionable in the current slim, markdown-only surface.
 
+## Completed in v2.1.0
+
+### #154 Improve usage audit artifact scanning and zero-signal semantics
+- **Resolution**: `surface_usage_audit.py` updated to treat required_fields artifacts as always used. Template field warning mode added.
+
+### #157 Add opt-in provider/plugin smoke validation
+- **Resolution**: `smoke_local_plugins.py` extended with `--with-provider` flag. Default mode unchanged.
+
 ## Live items
 
-### P0 — Immediate
-
-#### #154 Improve usage audit artifact scanning and zero-signal semantics
-
-- **Status**: open
-- **Affected surface**: `scripts/surface_usage_audit.py`, `Makefile` `usage-audit`, audit output semantics
-- **Validation target**: `make usage-audit`, then `make validate`
-- **Risk**: medium — audit false positives can train maintainers to ignore real drift; false zero-signal can hide dead surfaces.
-- **Notes**: Tighten artifact scanning around active docs/templates/skills and make no-op output explicit instead of ambiguous silence.
+### P1 — Next sprint
 
 #### #155 Extract long Makefile document validators into scripts
 
@@ -29,16 +29,6 @@
 - **Validation target**: `make validate-agent-docs`, then `make validate`
 - **Risk**: low — refactor-only if output stays equivalent.
 - **Notes**: First extraction moved AGENTS/preflight checks into `scripts/validate_agent_docs.py`; continue only if more large inline validators remain worth extracting.
-
-### P1 — Next sprint
-
-#### #157 Add opt-in provider/plugin smoke validation
-
-- **Status**: open
-- **Affected surface**: README validation docs, optional smoke guidance, adapter config docs; scripts only if opt-in and dependency-free
-- **Validation target**: focused smoke target if added, plus `make validate`
-- **Risk**: high — live provider/plugin checks can overclaim, mutate user state, or depend on unavailable credentials.
-- **Notes**: Must stay opt-in. Default `make validate` must not run live provider/plugin E2E.
 
 #### #159 Elevate standalone review workflow as a first-class surface
 
