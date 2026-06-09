@@ -1,3 +1,9 @@
+---
+schema: implementation-notes/v1
+stage: <!-- clarify|plan|execute|review|ship|long-run -->
+status: <!-- in_progress|completed|blocked -->
+---
+
 # 구현 기록 (Implementation Notes)
 
 <!-- ForgeFlow execution tracking. Updated throughout execute stage. -->

@@ -3,7 +3,7 @@
 import json, pathlib, sys
 root = pathlib.Path('.')
 active = {p.name for p in (root / 'skills').iterdir() if p.is_dir() and not p.name.startswith('_')}
-files = [root / '.claude-plugin/plugin.json', root / '.codex-plugin/plugin.json', root / '.cursor-plugin/plugin.json']
+files = [root / '.claude-plugin/plugin.json']
 legacy_tokens = ('/forgeflow:plan', '/forgeflow:review', 'forgeflow:plan', 'forgeflow:review')
 scan_files = [root / 'README.md', root / 'SKILL.md'] + sorted((root / 'skills').glob('**/*.md'))
 failures = []
@@ -18,8 +18,6 @@ for path in files:
         if not isinstance(prompt, str) or not prompt.startswith('/'):
             failures.append(f'{path}: defaultPrompt entry must be a slash command: {prompt!r}')
             continue
-        if path.name == 'plugin.json' and path.parent.name == '.cursor-plugin' and ':' in prompt.split()[0]:
-            failures.append(f'{path}: Cursor defaultPrompt must use colonless slash commands, not {prompt!r}')
         command = prompt.split()[0].split(':')[-1].lstrip('/')
         if command == 'init':
             failures.append(f'{path}: use /forgeflow:clarify, not /init')

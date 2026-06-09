@@ -14,7 +14,7 @@
     "artifacts",
     "claude-code",
     "codex",
-    "gemini"
+    "antigravity"
   ],
   "interface": {
     "defaultPrompt": [
@@ -26,7 +26,8 @@
       "/forgeflow:long-run",
       "/forgeflow:benchmark",
       "/forgeflow:ff-config",
-      "/forgeflow:ff-loop <describe the coding task>"
+      "/forgeflow:ff-loop <describe the coding task>",
+      "/forgeflow:status"
     ]
   }
 }

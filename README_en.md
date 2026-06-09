@@ -3,7 +3,7 @@
 [![validate](https://github.com/gimso2x/forgeflow/actions/workflows/validate.yml/badge.svg)](https://github.com/gimso2x/forgeflow/actions/workflows/validate.yml) [![evals](https://github.com/gimso2x/forgeflow/actions/workflows/evals.yml/badge.svg)](https://github.com/gimso2x/forgeflow/actions/workflows/evals.yml)
 
 ForgeFlow is an artifact-first delivery workflow for AI coding agents.
-It guides Claude Code, Codex, Gemini CLI, and Cursor through clarify → plan → execute → review → ship using explicit markdown artifacts instead of chat memory.
+It guides Claude Code, Codex, Antigravity CLI (agy), and Cursor through clarify → plan → execute → review → ship using explicit markdown artifacts instead of chat memory.
 It also includes coding-agent behavior guardrails for assumption surfacing, simplicity-first implementation, surgical diffs, and goal-driven verification. Clarify/plan/execute treat these as advisory habits, while review can report `assumption-risk`, `overengineering`, `scope-creep`, `unverified-success`, and `drive-by-refactor` findings.
 
 ## Why use it
@@ -22,12 +22,12 @@ It also includes coding-agent behavior guardrails for assumption surfacing, simp
 /plugin install forgeflow
 ```
 
-### Gemini CLI
+### Antigravity CLI (agy)
 
 ```bash
-gemini extensions install https://github.com/gimso2x/forgeflow
-printf 'Y\n' | gemini extensions update forgeflow
-gemini extensions list
+agy plugin link forgeflow /path/to/forgeflow
+agy plugin install forgeflow
+agy plugin list
 ```
 
 ### Cursor local plugin

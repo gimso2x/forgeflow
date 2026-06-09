@@ -23,6 +23,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.0.0] - 2026-06-08
 
+### ⚠️ Breaking Changes
+
+- **`storage.mode local` 제거**: v1.x의 `storage.mode: local` 설정이 더 이상 지원되지 않습니다. 모든 태스크 산출물은 글로벌 스토리지 루트(`~/.forgeflow/projects/<project-slug>/`)에 저장됩니다. 기존 로컬 `.forgeflow/` 산출물이 있다면 수동으로 글로벌 경로로 마이그레이션하세요.
+- **Python 런타임 제거**: v1.x의 `forgeflow_runtime/`, `schemas/`, `tests/` 디렉터리가 완전히 제거되었습니다. 검증은 `make validate`와 `scripts/validate_*.py`로만 수행됩니다.
+- **Skill Schema B 마이그레이션**: 모든 스킬의 YAML frontmatter가 Schema A(`intent`/`inputs`/`outputs`)에서 Schema B(`validate_prompt`/`dependencies`)로 마이그레이션되었습니다. 커스텀 스킬이 있다면 frontmatter를 업데이트하세요.
+- **Deprecated artifact 통합**: `decision-log.md` → `implementation-notes.md`, `evidence-manifest.md` → `ship-summary.md`, `re-execution-conditions.md` → `checkpoint.md`로 병합되었습니다. 기존 템플릿을 참조하는 워크플로우가 있다면 업데이트가 필요할 수 있습니다.
+
 ### 🔒 자동화·정합성
 
 - **Local Loop Runtime**: `scripts/forgeflow_loop.py` 완전 구현 — route-aware local loop supervisor CLI

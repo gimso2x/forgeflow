@@ -25,122 +25,6 @@ ForgeFlow에는 coding agent behavior guardrails도 포함됩니다: assumption 
 /plugin install forgeflow
 ```
 
-**Gemini CLI:**
-
-```bash
-gemini extensions install https://github.com/gimso2x/forgeflow
-printf 'Y\n' | gemini extensions update forgeflow
-gemini extensions list
-```
-
-개발 중인 checkout은 `gemini extensions validate .` 후 `gemini extensions link .`로 연결합니다.
-
-**Cursor (로컬 플러그인):**
-
-```bash
-mkdir -p ~/.cursor/plugins/local
-ln -s /path/to/forgeflow ~/.cursor/plugins/local/forgeflow
-```
-
-Cursor 명령은 콜론 없음: `/clarify`, `/ff-plan`, `/execute`, `/ff-review`, `/ship`.
-
-**Roach Code:**
-
-원클릭 설치:
-
-```bash
-bash <(curl -sL https://raw.githubusercontent.com/gimso2x/forgeflow/main/install-roach.sh)
-```
-
-또는 forgeflow clone에서:
-
-```bash
-git clone https://github.com/gimso2x/forgeflow.git
-cd forgeflow
-bash install-roach.sh
-```
-
-업데이트:
-
-```bash
-bash ~/.forgeflow/repo/install-roach.sh --update
-```
-
-설치 후 어느 프로젝트에서든 바로 사용:
-
-```text
-/forgeflow:ff-loop "작업 설명"
-/forgeflow:clarify "작업 설명"
-```
-
-수동 설치가 필요하면 `roach-code.toml`에 skill 경로를 추가:
-
-```toml
-[skills]
-paths = ["~/.roach-code/skills/forgeflow"]
-```
-
-**v2.0 Local Loop CLI (모든 어댑터 공통):**
-
-v2.0부터 `scripts/forgeflow_loop.py`로 로컬 루프를 직접 실행할 수 있습니다. 어댑터 내부에서 slash command로 stage를 밟는 기존 방식과 **병행**해서 씁니다.
-
-```bash
-# 상태 확인
-python3 scripts/forgeflow_loop.py status --task-dir ~/.forgeflow/projects/my-project/tasks/task-1
-
-# 다음 실행 항목 확인
-python3 scripts/forgeflow_loop.py next --task-dir ~/.forgeflow/projects/my-project/tasks/task-1
-
-# 완료 기록
-python3 scripts/forgeflow_loop.py record --task-dir ~/.forgeflow/projects/my-project/tasks/task-1 \
-  --status done --evidence "command=make-validate exit=0"
-
-# adapter 실행 (Claude Code 예시)
-python3 scripts/forgeflow_loop.py run-adapter \
-  --task-dir ~/.forgeflow/projects/my-project/tasks/task-1 \
-  --adapter claude \
-  --command "claude -p --dangerously-skip-permissions" \
-  --verify-command "make validate"
-
-# adapter 실행 (Codex 예시)
-python3 scripts/forgeflow_loop.py run-adapter \
-  --task-dir ~/.forgeflow/projects/my-project/tasks/task-1 \
-  --adapter codex \
-  --command "codex exec --full-auto -" \
-  --verify-command "make validate"
-
-# 폰에서 온 요청 큐에 넣기
-python3 scripts/forgeflow_loop.py queue \
-  --queue-root ~/.forgeflow/projects/my-project/phone-queue \
-  --request "이거 고쳐"
-
-# 병렬 worktree 실행
-python3 scripts/forgeflow_loop.py fanout \
-  --task-dir ~/.forgeflow/projects/my-project/tasks/task-1 \
-  --project-root . \
-  --worker-root /tmp/forgeflow-workers \
-  --max-workers 4
-
-# 병합 + 검증
-python3 scripts/forgeflow_loop.py fanin \
-  --task-dir ~/.forgeflow/projects/my-project/tasks/task-1 \
-  --project-root . \
-  --worker-root /tmp/forgeflow-workers \
-  --verify-command "make validate"
-
-# 학습 기록
-python3 scripts/forgeflow_loop.py learn \
-  --task-dir ~/.forgeflow/projects/my-project/tasks/task-1 \
-  --learning-root ~/.forgeflow/projects/my-project/learning
-
-# 다음 작업 전 preflight 경고
-python3 scripts/forgeflow_loop.py preflight \
-  --learning-root ~/.forgeflow/projects/my-project/learning \
-  --request "auth 로직 수정"
-```
-
-**중요:** Plugin/extension 설치 방법은 어댑터별로 다르지만, **v2.0의 local loop CLI는 어댑터에 상관없이** `scripts/forgeflow_loop.py` 하나로 동일하게 동작합니다. Slash command 기반 워크플로우와 CLI 기반 루프를 같이 써도 되고, CLI만 써도 됩니다.
-
 **Codex (CLI + Codex App):**
 
 Marketplace 권장:
@@ -151,13 +35,26 @@ codex plugin add forgeflow@forgeflow
 codex plugin list
 ```
 
-로컬 설치 타겟은 **대상 프로젝트 루트**에서 실행합니다. ForgeFlow repo나 Codex plugin cache 안에서 실행하면 산출물이 잘못된 위치에 생길 수 있습니다.
+로컬 설치 타임은 **대상 프로젝트 루트**에서 실행합니다.
+
+**Cursor (로컬 플러그인):**
 
 ```bash
-make -C /path/to/forgeflow install-codex-local CODEX_LOCAL_PLUGIN_DIR="$PWD/.codex/plugins/forgeflow"
+mkdir -p ~/.cursor/plugins/local
+ln -s /path/to/forgeflow ~/.cursor/plugins/local/forgeflow
 ```
 
-이 로컬 설치는 `.codex/plugins/forgeflow` 아래에 `plugin.json`, `skills/`, `templates/`를 복사합니다.
+Cursor 명령은 콜론 없음: `/clarify`, `/ff-plan`, `/execute`, `/ff-review`, `/ship`.
+
+**Antigravity CLI (agy):**
+
+```bash
+agy plugin link forgeflow /path/to/forgeflow
+agy plugin install forgeflow
+agy plugin list
+```
+
+개발 중인 checkout은 `agy plugin validate` 후 `agy plugin link forgeflow /path/to/forgeflow`로 연결합니다.
 
 **중요:** plugin/extension 설치 위치와 작업 위치를 분리하세요. `/forgeflow:clarify` 같은 workflow 명령은 변경하려는 프로젝트 루트에서 실행합니다. 기본 task 산출물은 `~/.forgeflow/projects/<project-slug>/tasks/<task-id>/`에 기록됩니다. plugin cache에서 열렸다면 `--task-dir ~/.forgeflow/projects/<project-slug>/tasks/<task-id>`를 명시하세요.
 
@@ -308,7 +205,7 @@ python3 scripts/forgeflow_loop.py fanin --task-dir <task-dir> --project-root . -
 python3 scripts/forgeflow_loop.py ship-candidate --task-dir <task-dir> --project-root . --verification-command "make validate"
 ```
 
-실제 Claude/Codex/Gemini CLI에 붙일 때도 원칙은 같습니다. command template은 `{task_dir}`와 `{prompt}`를 쓸 수 있고, prompt는 stdin으로도 들어갑니다. 예: `--command "claude -p @{prompt}"`, `--command "codex exec --full-auto -"`, `--command "gemini -p @{prompt}"`. 단, 검증 증거는 adapter 자기보고가 아니라 `--verify-command`의 실제 출력이어야 합니다.
+실제 Claude/Codex/Antigravity CLI에 붙일 때도 원칙은 같습니다. command template은 `{task_dir}`와 `{prompt}`를 쓸 수 있고, prompt는 stdin으로도 들어갑니다. 예: `--command "claude -p @{prompt}"`, `--command "codex exec --full-auto -"`, `--command "agy --print @{prompt}"`. 단, 검증 증거는 adapter 자기보고가 아니라 `--verify-command`의 실제 출력이어야 합니다.
 
 자주 쓰는 focused target:
 
@@ -349,17 +246,17 @@ provider/plugin 없이 임시 workspace에 `.forgeflow/tasks/demo-small/` 산출
 make smoke-local-plugins
 ```
 
-이 target은 live Claude/Codex/Cursor/Gemini CLI를 호출하지 않습니다. 대신 plugin manifest, slash command namespace, Gemini context import, Codex local install copy surface를 임시 디렉터리에서 검증합니다. 기본 `make validate`에는 포함하지 않습니다. credential이나 provider CLI 유무에 따라 기본 검증이 흔들리면 그건 검증이 아니라 지뢰입니다.
+이 target은 live Claude/Codex/Cursor/Antigravity CLI를 호출하지 않습니다. 대신 plugin manifest, slash command namespace, Antigravity context import, Codex local install copy surface를 임시 디렉터리에서 검증합니다. 기본 `make validate`에는 포함하지 않습니다. credential이나 provider CLI 유무에 따라 기본 검증이 흔들리면 그건 검증이 아니라 지뢰입니다.
 
 ## Release version policy
 
 루트 `VERSION` 파일이 단일 버전 기준입니다. README 본문에는 현재 릴리즈 버전을 고정하지 않습니다. `SKILL.md`는 루트 marketplace summary입니다. `skills/*/SKILL.md` 같은 public skill의 Per-skill frontmatter `version`은 skill schema version이며 릴리즈 `VERSION`과 별개입니다.
 
-CI는 `VERSION`, `CHANGELOG.md`, `SKILL.md`, `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json`, `.codex-plugin/plugin.json`, `.cursor-plugin/plugin.json`, `gemini-extension.json` 정합성을 봅니다.
+CI는 `VERSION`, `CHANGELOG.md`, `SKILL.md`, `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json` 정합성을 봅니다.
 
 ## 실제 외부 실행 안전 기준
 
-v1.x는 Python `exec-stage --real` 런타임을 포함하지 않습니다. 향후 실제 Claude/Codex/Gemini CLI 호출 adapter나 `--real` 경로를 다시 추가한다면 기본값은 stub/dry-run이어야 하고, 실제 외부 호출 전 stderr 경고와 `[y/N]` 확인 프롬프트가 필수입니다.
+v1.x는 Python `exec-stage --real` 런타임을 포함하지 않습니다. 향후 실제 Claude/Codex/Antigravity CLI 호출 adapter나 `--real` 경로를 다시 추가한다면 기본값은 stub/dry-run이어야 하고, 실제 외부 호출 전 stderr 경고와 `[y/N]` 확인 프롬프트가 필수입니다.
 
 ## 첫 실행 예시
 

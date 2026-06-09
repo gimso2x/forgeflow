@@ -11,9 +11,6 @@ ROOT = Path(__file__).resolve().parents[1]
 
 VERSIONED_JSON_FIELDS: tuple[tuple[str, tuple[str, ...]], ...] = (
     (".claude-plugin/plugin.json", ("version",)),
-    (".codex-plugin/plugin.json", ("version",)),
-    (".cursor-plugin/plugin.json", ("version",)),
-    ("gemini-extension.json", ("version",)),
     (".claude-plugin/marketplace.json", ("metadata", "version")),
 )
 

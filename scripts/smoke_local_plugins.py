@@ -3,7 +3,7 @@
 
 This smoke intentionally avoids live provider CLIs. It validates the local plugin
 manifests, command namespace mapping, and dry-run install surfaces that users hit
-before any real Claude/Codex/Cursor/Gemini execution.
+before any real Claude/Codex/Cursor/Antigravity CLI execution.
 """
 from __future__ import annotations
 
@@ -116,20 +116,20 @@ def validate_marketplaces() -> None:
             failures.append(".claude-plugin/marketplace.json: plugin source must be ./")
 
 
-def validate_gemini_extension() -> None:
-    data = load_json("gemini-extension.json")
+def validate_antigravity_plugin() -> None:
+    data = load_json("plugin.json")
     if not data:
         return
     if data.get("version") != VERSION:
-        failures.append("gemini-extension.json: version must match VERSION")
+        failures.append("plugin.json: version must match VERSION")
     context = data.get("contextFileName")
-    if context != "GEMINI.md" or not (ROOT / "GEMINI.md").exists():
-        failures.append("gemini-extension.json: contextFileName must point to tracked GEMINI.md")
-    gemini_text = (ROOT / "GEMINI.md").read_text(encoding="utf-8") if (ROOT / "GEMINI.md").exists() else ""
+    if context not in ("AGENTS.md", "GEMINI.md") or not (ROOT / context).exists():
+        failures.append("plugin.json: contextFileName must point to tracked AGENTS.md or GEMINI.md")
+    context_text = (ROOT / (context or "GEMINI.md")).read_text(encoding="utf-8") if (ROOT / (context or "GEMINI.md")).exists() else ""
     for command in CANONICAL_COMMANDS:
         skill_ref = f"@./skills/{command}/SKILL.md"
-        if skill_ref not in gemini_text:
-            failures.append(f"GEMINI.md: missing Gemini context import {skill_ref}")
+        if skill_ref not in context_text:
+            failures.append(f"{context}: missing Antigravity CLI context import {skill_ref}")
 
 
 def validate_required_artifacts(base: Path, label: str) -> None:
@@ -167,10 +167,7 @@ def validate_install_surfaces() -> None:
 
 def main() -> int:
     validate_manifest(".claude-plugin/plugin.json")
-    validate_manifest(".codex-plugin/plugin.json")
-    validate_manifest(".cursor-plugin/plugin.json", cursor=True)
     validate_marketplaces()
-    validate_gemini_extension()
     validate_install_surfaces()
 
     if failures:

@@ -1,3 +1,8 @@
+---
+schema: plan/v1
+route: <!-- small|medium|high|epic -->
+---
+
 # 실행 계획 (Execution Plan)
 
 <!-- ForgeFlow plan template. Created during plan stage. -->

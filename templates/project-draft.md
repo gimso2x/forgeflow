@@ -22,7 +22,7 @@ This artifact is generated at the target project root as `<storage-root>/project
 - **Merge Strategy**: <!-- squash|merge|rebase -->
 
 ## Agent Configuration
-- **Recommended Adapter**: <!-- claude|codex|gemini|cursor — based on repo type -->
+- **Recommended Adapter**: <!-- claude|codex|antigravity-cli|cursor — based on repo type -->
 - **Skill Overrides**: <!-- project-specific tuning -->
 - **Specialist Presets**: <!-- security|ux|perf — based on detected patterns -->
 

@@ -173,7 +173,7 @@ Read `skills/execute/references/testing-discipline.md` before choosing test dept
 
 ## Real external execution safety
 
-ForgeFlow v1.x does not ship the old Python `exec-stage --real` runtime. If a live adapter or `--real` path is reintroduced, stub/dry-run must remain the default. Before any actual Claude/Codex/Gemini CLI call, API call, billing event, or shared-system mutation, the executor must print a visible stderr warning and require an explicit `[y/N]` confirmation unless the user already approved that exact live action in the current scope.
+ForgeFlow v1.x does not ship the old Python `exec-stage --real` runtime. If a live adapter or `--real` path is reintroduced, stub/dry-run must remain the default. Before any actual Claude/Codex/Antigravity CLI call, API call, billing event, or shared-system mutation, the executor must print a visible stderr warning and require an explicit `[y/N]` confirmation unless the user already approved that exact live action in the current scope.
 
 Minimum warning contract:
 

@@ -8,9 +8,6 @@ on:
       - SKILL.md
       - .claude-plugin/plugin.json
       - .claude-plugin/marketplace.json
-      - .codex-plugin/plugin.json
-      - .cursor-plugin/plugin.json
-      - gemini-extension.json
   workflow_dispatch:
 
 concurrency:
@@ -40,10 +37,7 @@ jobs:
       - name: Sync JSON manifests
         run: |
           for f in \
-            .claude-plugin/plugin.json \
-            .codex-plugin/plugin.json \
-            .cursor-plugin/plugin.json \
-            gemini-extension.json; do
+            .claude-plugin/plugin.json; do
             jq --arg v "${{ steps.version.outputs.ver }}" '.version = $v' "$f" > "$f.tmp" && mv "$f.tmp" "$f"
           done
 
@@ -68,8 +62,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add VERSION SKILL.md \
-            .claude-plugin/plugin.json .claude-plugin/marketplace.json \
-            .codex-plugin/plugin.json .cursor-plugin/plugin.json \
-            gemini-extension.json
+            .claude-plugin/plugin.json .claude-plugin/marketplace.json
           git commit -m "[skip ci] sync versions to ${{ steps.version.outputs.ver }}"
           git push

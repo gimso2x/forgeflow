@@ -149,6 +149,39 @@ main() {
   detect_config
   update_config
 
+  # --- Post-install smoke test ---
+  echo ""
+  echo " Running post-install smoke test..."
+  local smoke_pass=true
+
+  # Check core skill files exist
+  for f in \
+    "$SKILL_TARGET/forgeflow/SKILL.md" \
+    "$SKILL_TARGET/clarify/SKILL.md" \
+    "$SKILL_TARGET/templates/brief.md" \
+    "$SKILL_TARGET/templates/run-state.json"; do
+    if [[ ! -f "$f" ]]; then
+      echo "  WARNING: Missing file: $f"
+      smoke_pass=false
+    fi
+  done
+
+  # Check scripts are present
+  if [[ -f "$SKILL_TARGET/scripts/forgeflow_storage.py" ]]; then
+    if python3 "$SKILL_TARGET/scripts/forgeflow_storage.py" --help >/dev/null 2>&1; then
+      echo "  forgeflow_storage.py: OK"
+    else
+      echo "  WARNING: forgeflow_storage.py failed --help check"
+      smoke_pass=false
+    fi
+  fi
+
+  if $smoke_pass; then
+    echo "  Smoke test: PASS"
+  else
+    echo "  Smoke test: WARNINGS (see above). Installation may be incomplete."
+  fi
+
   echo ""
   echo " Done!"
   echo ""

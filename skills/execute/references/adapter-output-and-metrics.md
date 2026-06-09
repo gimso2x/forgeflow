@@ -20,7 +20,7 @@ Detect the current adapter via `skills/forgeflow/SKILL.md` -> Adapter detection,
 |---------|-------------|-------------------|------------|
 | Claude | `build` preferred. Table-format reports. | Concise by default (~5KB/medium task). No special handling needed. | No known issues. |
 | Codex | `lint` mandatory (Codex naturally does this). | Normalize diff-heavy output. Strip raw git diffs; keep only summaries. Output can exceed 100KB without normalization. | No known issues. |
-| Gemini | `import type` enforced for TS with `verbatimModuleSyntax`. Structured markdown. | Compact output (~7KB/medium task). May introduce UI abstractions not requested. | HTTP 429 can occur under concurrent load. Run sequentially or add 30s cooldown between tasks when executing multiple plan steps. |
+| Antigravity CLI | `import type` enforced for TS with `verbatimModuleSyntax`. Structured markdown. | Compact output (~7KB/medium task). May introduce UI abstractions not requested. | HTTP 429 can occur under concurrent load. Run sequentially or add 30s cooldown between tasks when executing multiple plan steps. |
 | Cursor | Skill names without colons. Same adjustments as the underlying adapter (Claude by default). | Same as underlying adapter. | Same as underlying adapter. |
 
 ## Code quality metrics

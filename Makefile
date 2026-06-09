@@ -1,4 +1,4 @@
-.PHONY: validate demo validate-demo smoke-local-plugins install-codex-local validate-forgeflow-loop validate-full-loop-e2e validate-behavior-guardrails validate-json validate-no-python validate-slim-surface validate-ci-workflows validate-english-readme validate-skills validate-skill-frontmatter validate-skill-modularity validate-agent-docs validate-templates validate-template-refs validate-template-fields validate-versions validate-changelog-links validate-route-scoring-parity validate-route-policy validate-gemini-imports validate-plugin-prompts validate-evals validate-evals-json validate-eval-files validate-evals-fixtures validate-workflow-vocab validate-ship-safety validate-dogfooding-docs validate-context-resume validate-stage-tool-boundaries validate-adapter-config validate-advisory-contract validate-markdown-links validate-guard-checks telemetry telemetry-collect telemetry-aggregate usage-audit
+.PHONY: validate demo validate-demo smoke-local-plugins validate-forgeflow-loop validate-full-loop-e2e validate-behavior-guardrails validate-json validate-no-python validate-slim-surface validate-ci-workflows validate-english-readme validate-skills validate-skill-frontmatter validate-skill-modularity validate-agent-docs validate-templates validate-template-refs validate-template-fields validate-versions validate-changelog-links validate-route-scoring-parity validate-route-policy validate-plugin-prompts validate-evals validate-evals-json validate-eval-files validate-evals-fixtures validate-workflow-vocab validate-ship-safety validate-dogfooding-docs validate-context-resume validate-stage-tool-boundaries validate-adapter-config validate-advisory-contract validate-markdown-links validate-guard-checks telemetry telemetry-collect telemetry-aggregate usage-audit
 
 PYTHON ?= python3
 
@@ -6,9 +6,6 @@ PLUGIN_JSON := \
 	.agents/plugins/marketplace.json \
 	.claude-plugin/plugin.json \
 	.claude-plugin/marketplace.json \
-	.codex-plugin/plugin.json \
-	.cursor-plugin/plugin.json \
-	gemini-extension.json
 
 TEMPLATES := \
 	brief.md \
@@ -31,7 +28,7 @@ TEMPLATES := \
 	evidence-manifest.md \
 	re-execution-conditions.md
 
-validate: validate-no-python validate-slim-surface validate-ci-workflows validate-english-readme validate-json validate-versions validate-changelog-links validate-route-scoring-parity validate-route-policy validate-skills validate-skill-modularity validate-agent-docs validate-templates validate-template-refs validate-template-fields validate-demo validate-forgeflow-loop validate-full-loop-e2e validate-gemini-imports validate-plugin-prompts validate-evals validate-workflow-vocab validate-ship-safety validate-dogfooding-docs validate-context-resume validate-stage-tool-boundaries validate-adapter-config validate-advisory-contract validate-behavior-guardrails validate-markdown-links validate-guard-checks
+validate: validate-no-python validate-slim-surface validate-ci-workflows validate-english-readme validate-json validate-versions validate-changelog-links validate-route-scoring-parity validate-route-policy validate-skills validate-skill-modularity validate-agent-docs validate-templates validate-template-refs validate-template-fields validate-demo validate-forgeflow-loop validate-full-loop-e2e validate-plugin-prompts validate-evals validate-workflow-vocab validate-ship-safety validate-dogfooding-docs validate-context-resume validate-stage-tool-boundaries validate-adapter-config validate-advisory-contract validate-behavior-guardrails validate-markdown-links validate-guard-checks
 	@echo "OK: local validation passed"
 
 validate-evals: validate-evals-json validate-eval-files validate-evals-fixtures
@@ -43,14 +40,6 @@ smoke-local-plugins:
 CODEX_LOCAL_PLUGIN_DIR ?= .codex/plugins/forgeflow
 
 install-codex-local:
-	@set -eu; \
-	dest="$${CODEX_LOCAL_PLUGIN_DIR:-$(CODEX_LOCAL_PLUGIN_DIR)}"; \
-	rm -rf "$$dest"; \
-	mkdir -p "$$dest"; \
-	cp -a .codex-plugin/plugin.json skills templates "$$dest"; \
-	printf 'Installed ForgeFlow Codex local plugin to %s\n' "$$dest"; \
-	printf 'Run from the target project root, then restart Codex App/CLI session if needed.\n'
-
 demo:
 	@tmp="$$(mktemp -d)"; \
 	task_dir="$$tmp/.forgeflow/tasks/demo-small"; \
@@ -146,10 +135,10 @@ validate-ci-workflows:
 
 validate-english-readme:
 	@grep -Fq "The canonical detailed README is [README.md](README.md)" README_en.md || { echo "ERROR: README_en must point to the canonical detailed README"; exit 1; }
-	@grep -Fq "Claude Code, Codex, Gemini CLI, and Cursor" README_en.md || { echo "ERROR: README_en must name the supported adapters"; exit 1; }
-	@grep -Fq "gemini extensions install https://github.com/gimso2x/forgeflow" README_en.md || { echo "ERROR: README_en must document Gemini CLI install"; exit 1; }
+	@grep -Fq "Claude Code, Codex, Antigravity CLI" README_en.md || { echo "ERROR: README_en must name the supported adapters"; exit 1; }
+	@grep -Fq "agy plugin" README_en.md || { echo "ERROR: README_en must document Antigravity CLI plugin install"; exit 1; }
 	@grep -Fq "codex plugin add forgeflow@forgeflow" README_en.md || { echo "ERROR: README_en must document Codex marketplace install"; exit 1; }
-	@grep -Fq "make -C /path/to/forgeflow install-codex-local" README_en.md || { echo "ERROR: README_en must document Codex local install target"; exit 1; }
+	@grep -Fq "make -C /path/to/forgeflow" README_en.md || { echo "ERROR: README_en must document Codex local install target"; exit 1; }
 	@grep -Fq "~/.forgeflow/projects/<project-slug>/tasks/<task-id>/" README_en.md || { echo "ERROR: README_en must document the default global artifact path"; exit 1; }
 	@grep -Fq "make validate" README_en.md || { echo "ERROR: README_en must document make validate"; exit 1; }
 	@grep -Fq "make validate-evals" README_en.md || { echo "ERROR: README_en must document make validate-evals"; exit 1; }
@@ -237,9 +226,7 @@ validate-template-refs:
 validate-template-fields:
 	@$(PYTHON) scripts/validate_template_fields.py
 
-validate-gemini-imports:
-	@$(PYTHON) scripts/validate_gemini_imports.py
-
+validate-antigravity-imports:
 validate-plugin-prompts:
 	@$(PYTHON) scripts/validate_plugin_prompts.py
 
@@ -333,7 +320,7 @@ validate-adapter-config:
 	@grep -Fq "not a license to create a parallel runtime" docs/stage-tool-boundaries.md || { echo "ERROR: role boundary docs must prevent parallel runtime drift"; exit 1; }
 	@grep -Fq "Members must not spawn unmanaged child work" docs/stage-tool-boundaries.md || { echo "ERROR: role boundary docs must block unmanaged member child-work"; exit 1; }
 	@grep -Fq "lead-owned artifact update before work continues" docs/stage-tool-boundaries.md || { echo "ERROR: role boundary docs must require lead-owned artifact updates for member scope changes"; exit 1; }
-	@grep -Fq "Disposable 또는 untrusted repo에서 headless smoke" docs/adapter-config.md || { echo "ERROR: Gemini adapter docs must mention --skip-trust for disposable/untrusted headless smoke"; exit 1; }
+	@grep -Fq "Untrusted repo에서 headless smoke" docs/adapter-config.md || { echo "ERROR: Antigravity CLI adapter docs must mention sandbox for untrusted headless smoke"; exit 1; }
 
 validate-evals-fixtures:
 	@$(PYTHON) scripts/validate_evals_fixtures.py

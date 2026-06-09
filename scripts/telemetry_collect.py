@@ -75,8 +75,8 @@ def _extract_adapter():
         return "claude"
     if (ROOT / ".codex-plugin").exists():
         return "codex"
-    if (ROOT / "GEMINI.md").exists():
-        return "gemini"
+    if (ROOT / "AGY.md").exists() or (ROOT / ".antigravitycli").exists():
+        return "antigravity-cli"
     if (ROOT / ".cursor-plugin").exists():
         return "cursor"
     return "unknown"

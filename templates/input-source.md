@@ -1,3 +1,8 @@
+---
+schema: input-source/v1
+input_type: <!-- URL|GitHub PR|GitHub commit|GitHub compare|repo path|git range|diff/patch|file bundle|existing artifact|ambiguous -->
+---
+
 # Standalone Review Input Source
 
 <!-- ForgeFlow standalone review provenance template. Created before normalized-input.md. -->

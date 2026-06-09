@@ -1,3 +1,8 @@
+---
+schema: normalized-input/v1
+normalization_gate: <!-- PASS|FAIL -->
+---
+
 # Standalone Review Normalized Input
 
 <!-- ForgeFlow standalone review normalization template. Fill before reviewer judgment begins. -->

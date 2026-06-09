@@ -79,7 +79,7 @@ The branch name is used as the git branch name and commit message prefix. It mus
 
 The task ID remains as the internal identifier for the resolved `tasks/` directory and `<storage-root>/worktrees/` directories — it does NOT become the branch name.
 
-Plugin-cache/extension-cache safety rule: never create task artifacts under a path containing `.claude/plugins/cache`, `.codex/plugins`, `.cursor/plugins`, `~/.cursor/plugins/local`, `.gemini/extensions`, `~/.gemini/extensions`, or any plugin marketplace/cache/extension directory. If the working directory resolves to a plugin install/cache/extension directory and the user did not provide `--task-dir`, stop and ask for an explicit `--task-dir` instead of writing there.
+Plugin-cache/extension-cache safety rule: never create task artifacts under a path containing `.claude/plugins/cache`, `.codex/plugins`, `.cursor/plugins`, `~/.cursor/plugins/local`, `~/.gemini/antigravity-cli/plugins`, or any plugin marketplace/cache/extension directory. If the working directory resolves to a plugin install/cache/extension directory and the user did not provide `--task-dir`, stop and ask for an explicit `--task-dir` instead of writing there.
 
 ## Output Artifacts
 
@@ -153,6 +153,8 @@ When the user requests an exact output (label only, list only, dry run), return 
 
 ## Evolution preflight
 
+→ Full protocol: `_shared/evolution-preflight.md`.
+
 Unless the prompt is exact-output, label-only, dry-run, or says not to inspect files, check evolution rules before route selection:
 
 1. Load project active rules from `<storage-root>/evolution/active/*.md` if the directory exists (resolved via `forgeflow_storage.py`). Do **not** create this directory if it does not exist. Read-only check.
@@ -196,18 +198,22 @@ Generate `scope_files` list and compare against route thresholds. Record `bounda
 
 ## Procedure
 
+### Phase 1: Bootstrap (steps 1-2)
+
 1. **Bootstrap task workspace if missing** (all routes — never skip): If no active task directory exists (no `<task-dir>` found), generate a task ID (see Task ID generation above) or use `--task-id` if provided, and create `<task-dir>`. Do not overwrite if `brief.md` already exists — report that it was kept as-is.
    ```bash
    python3 <forgeflow-checkout>/scripts/forgeflow_storage.py --project-dir <repo-root> --task-id <task-id> --write-run-state
    ```
    If this fails, **do not proceed** to step 2. Resolve the error first.
 
+### Phase 2: Analysis & Grounding (steps 2-6)
+
 2. Inspect relevant repo context before inventing scope.
    - Run the Evolution preflight first when allowed, then map matched rules into brief.md.
    - **Common project context preflight**: If `<storage-root>/project-draft.md` exists in the target project root, treat it as section-scoped shared context produced by `/forgeflow:ff-config init --mode=full`. Read only the sections relevant to the request: `Reusable Project Context`, `Documentation Pointers`, `Context Usage Rules`, and verification/test framework fields. Reflect useful planning, architecture, WBS, cross-module contract, and verification pointers in `brief.md` under WHERE, Constraints, Assumptions, Verification Gates, and Environment Preflight. Do not copy the whole draft into task artifacts, and do not treat it as task-specific source of truth. If it does not exist, do not block; record a bounded assumption that common project context was unavailable and continue normal repo inspection.
    - Map Instructions, Tools, Environment, State, and Feedback into brief fields. Use Environment Notes, tech stack, Open Questions, and Verification Gates for missing context instead of creating a separate harness artifact.
    - If an Environment or Tools gap prevents execution, add it to Open Questions as a blocker and ask before routing to plan or execute.
-   - **Gemini optimization**: Leverage Gemini's ability to run parallel tool calls. When exploring the codebase, batch multiple `ls`, `grep`, or `cat` operations into a single turn to minimize latency.
+   - **Antigravity CLI optimization**: Leverage Antigravity CLI's ability to run parallel tool calls. When exploring the codebase, batch multiple `ls`, `grep`, or `cat` operations into a single turn to minimize latency.
    - Surface confusion instead of guessing. If the request has competing interpretations that materially change scope, say so in the brief.
    - For brownfield refactors or extensions, specifically identify **architectural friction**: where are modules **shallow** (interface as complex as implementation), where is **locality** missing, and where are **pass-throughs** bloating the path? Use `<storage-root>/project-draft.md` architecture and contract pointers as hints, but verify task-critical facts against source documents or code.
    - Do not silently pick one interpretation when the ambiguity affects user-visible behavior, data, security, or files to edit. Record material ambiguity in `brief.md` under `Assumptions and Interpretation`: `Selected interpretation`, `Assumptions`, `Open ambiguity`, and `Why safe to proceed`.
@@ -274,6 +280,8 @@ Generate `scope_files` list and compare against route thresholds. Record `bounda
      rounds: <!-- N -->
      status: pass | bounded_assumption
    ```
+
+### Phase 3: Scoring & Routing (steps 7-11)
 
 7. Score complexity using the documented weighted model:
    ```text
@@ -342,6 +350,8 @@ Generate `scope_files` list and compare against route thresholds. Record `bounda
    - `epic`: full verification suite, plus milestone-level integration tests.
 
 11. State the route and why, unless an exact-output/label-only instruction applies.
+
+### Phase 4: Output & Verification (steps 12-17)
 
 12. **Read project defaults** before producing the brief. Read `<storage-root>/defaults.md` if it exists. Propagate settings to `brief.md` frontmatter:
     - `auto: true` → set `brief.md` frontmatter `auto` to `true`. This ensures `--auto` chaining activates for all subsequent stages.

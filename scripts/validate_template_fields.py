@@ -124,6 +124,45 @@ if brief_template.exists() and clarify_skill.exists():
         if field not in brief_fm:
             failures.append(f"templates/brief.md: missing frontmatter field '{field}' required by clarify skill")
 
+    # Fields that MUST be in brief frontmatter
+    required_fm_fields = ['schema', 'task_id', 'route', 'specialist', 'scope_boundary']
+    for field in required_fm_fields:
+        if field not in brief_fm:
+            failures.append(f"templates/brief.md: missing frontmatter field '{field}' required by clarify skill")
+
+# Cross-check: all templates with YAML frontmatter must use consistent schema field name
+# review-report.md was using 'schema_version' instead of 'schema' — verify consistency
+template_schema_check = {
+    'brief.md': 'schema',
+    'review-report.md': 'schema',
+    'plan.md': 'schema',
+    'implementation-notes.md': 'schema',
+    'checkpoint.md': 'schema',
+    'ship-summary.md': 'schema',
+    'input-source.md': 'schema',
+    'normalized-input.md': 'schema',
+    'ledger.md': 'schema',
+    'metrics-dashboard.md': 'schema',
+    'project-draft.md': 'schema',
+    'telemetry-event.md': 'schema',
+    'run-state.json': 'schema',
+}
+
+for tmpl_name, expected_field in template_schema_check.items():
+    tmpl_path = root / 'templates' / tmpl_name
+    if not tmpl_path.exists():
+        continue
+    tmpl_text = tmpl_path.read_text(encoding='utf-8')
+    # Only check files that have YAML frontmatter (start with ---)
+    if not tmpl_text.startswith('---'):
+        continue
+    # Check for 'schema_version' (the old inconsistent name)
+    if 'schema_version:' in tmpl_text:
+        failures.append(
+            f"templates/{tmpl_name}: uses 'schema_version:' instead of '{expected_field}:' — "
+            f"must use consistent field name '{expected_field}' across all templates"
+        )
+
 if failures:
     print('ERROR: Template field cross-validation failed')
     for f in failures:

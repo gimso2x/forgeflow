@@ -13,7 +13,7 @@ task_id: <!-- TASK_ID -->
 - **duration_seconds**: <!-- N -->
 - **tokens_used**: <!-- N -->
 - **model**: <!-- model id -->
-- **adapter**: claude | codex | gemini | cursor
+- **adapter**: claude | codex | antigravity-cli | cursor
 - **route**: small | medium | high | epic
 - **specialist**: <!-- none or specialist name -->
 - **outcome**: success | partial | failed

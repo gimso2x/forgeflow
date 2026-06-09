@@ -42,9 +42,6 @@ if '> /forgeflow:ff-plan' in first_run and 'route: small' in first_run:
 for needle in ('plugin cache', '--task-dir'):
     if needle not in first_run:
         failures.append(f'README.md: first-run example must warn about plugin cache safety and explicit task dirs (missing {needle!r})')
-for needle in ('대상 프로젝트 루트', 'Codex plugin cache'):
-    if needle not in readme:
-        failures.append(f'README.md: Codex quickstart must warn about project-root execution and plugin-cache safety (missing {needle!r})')
 ship = pathlib.Path('skills/ship/SKILL.md').read_text(encoding='utf-8')
 for forbidden in ('Worktree cleanup (before verification)', 'After successful merge (or if user chose "discard")'):
     if forbidden in ship:
@@ -65,7 +62,7 @@ deprecated_artifact_generation_terms = (
     ('implementation-notes.md` + `run-ledger.md', 'use `implementation-notes.md` + `ledger.md` Execution Tracking section for post-execute review prerequisites'),
     ('| `run-ledger.md` | plan.md scope |', 'use `ledger.md` Execution Tracking section in post-execute review evidence tables'),
 )
-scan_roots = [pathlib.Path('README.md'), pathlib.Path('GEMINI.md'), pathlib.Path('SKILL.md'), pathlib.Path('AGENTS.md'), pathlib.Path('docs'), pathlib.Path('skills'), pathlib.Path('templates'), pathlib.Path('.claude/skills'), pathlib.Path('.gemini')]
+scan_roots = [pathlib.Path('README.md'), pathlib.Path('AGY.md'), pathlib.Path('SKILL.md'), pathlib.Path('AGENTS.md'), pathlib.Path('docs'), pathlib.Path('skills'), pathlib.Path('templates'), pathlib.Path('.claude/skills'), pathlib.Path('.antigravitycli')]
 for root in scan_roots:
     paths = [root] if root.is_file() else sorted(root.rglob('*.md'))
     for path in paths:

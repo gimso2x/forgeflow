@@ -1,5 +1,5 @@
 ---
-schema_version: v2
+schema: review-report/v2
 input_mode: post-execute | standalone
 evidence_source: ""
 specialist_profile:

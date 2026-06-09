@@ -6,7 +6,7 @@
 
 ForgeFlow: artifact-first delivery workflow for AI coding agents.
 Markdown-only distribution — no runtime, no external deps. **slim, markdown-only distribution.** Do not assume the older `forgeflow_runtime/`, `schemas/`, or `tests/` trees exist — use `make validate` as the contract surface. Skills are pure Markdown (SKILL.md + YAML frontmatter), templates are Markdown artifacts.
-Supports Claude Code, Codex, Gemini CLI, Cursor as adapters.
+Supports Claude Code, Codex, Antigravity CLI (agy), Cursor as adapters.
 
 - **Version**: `VERSION` 파일이 단일 소스 (currently `2.0.1`)
 - **Entry point**: `skills/forgeflow/SKILL.md` (canonical contract); root `SKILL.md` is marketplace summary only
@@ -38,6 +38,7 @@ skills/
   ff-loop/                  # Full lifecycle loop — one command clarify→ship with auto-retry
   benchmark/                # Cross-adapter benchmarks
   qa/                       # Lightweight 3-point QA verdict on any artifact
+  status/                   # Read-only task status and project overview
   unstuck/                  # Break through blocks using lateral thinking personas
   _shared/                  # discipline.md, preflight.md, isolation.md, automation.md, context-resume.md
 templates/                  # 19 template files: 18 Markdown templates + run-state.json
@@ -45,11 +46,7 @@ evals/                      # 125 eval cases (evals.json + fixture files)
 scripts/                    # validate_*.py validators + telemetry/evolution helpers
 docs/                       # adapter-config.md, stage-tool-boundaries.md, maintainer-backlog.md, roadmap-improvements.md archive
 .claude-plugin/             # Claude Code plugin config
-.codex-plugin/              # Codex plugin config
-.cursor-plugin/             # Cursor plugin config
 .claude/skills/release.md   # Release skill (Claude Code only, not in public inventory)
-GEMINI.md                   # Gemini CLI adapter
-gemini-extension.json       # Gemini extension manifest
 ```
 
 ## Key Design Patterns (v1.11+)
@@ -67,7 +64,7 @@ gemini-extension.json       # Gemini extension manifest
 1. Edit `skills/<name>/SKILL.md` (canonical contract changes → `skills/forgeflow/SKILL.md` first)
 2. Edit `templates/<name>.md` for artifact format changes
 3. Update `docs/adapter-config.md` for adapter-specific behavior
-4. Sync plugin configs: `.claude-plugin/`, `.codex-plugin/`, `.cursor-plugin/`, `GEMINI.md`
+4. Sync plugin configs: `.claude-plugin/`
 5. Run `make validate` — all 34 checks must pass
 6. Release: bump `VERSION`, update `CHANGELOG.md` (impact-axis format: 🔒🔍⚡👤), sync manifest version fields, commit via `.claude/skills/release.md`
 
@@ -75,7 +72,7 @@ gemini-extension.json       # Gemini extension manifest
 
 - All artifacts are Markdown; templates live in `templates/`
 - Public skills start with YAML frontmatter: `name`, `description`, `version`, `validate_prompt`. Skill `version`은 릴리즈 `VERSION`과 별개
-- Version sync: release commit must align `VERSION` with `SKILL.md`, `.claude-plugin/*.json`, `.codex-plugin/plugin.json`, `.cursor-plugin/plugin.json`, `gemini-extension.json` version fields
+- Version sync: release commit must align `VERSION` with `SKILL.md`, `.claude-plugin/*.json` version fields
 - Artifact storage: default `~/.forgeflow/projects/<project-slug>/tasks/<task-id>/`; local-only if explicitly configured
 - Review is read-only — never edits code
 - Verification uses real commands only — no hallucinated commands

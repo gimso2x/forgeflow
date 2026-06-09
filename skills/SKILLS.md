@@ -20,19 +20,20 @@ Surface tiers:
 
 `ff-config` is listed separately under Utility skills because it manages project defaults rather than advancing a task artifact chain.
 
-| # | Skill | Purpose |
-|---|-------|---------|
-| 00 | [`forgeflow`](forgeflow/SKILL.md) | Overview router for slash-style ForgeFlow prompts. |
-| 01 | [`clarify`](clarify/SKILL.md) | Bootstrap task workspace, resolve ambiguity, explore codebase, emit a **brief.md** with complexity routing. |
-| 02 | [`ff-plan`](ff-plan/SKILL.md) | Turn requirements into an executable **plan.md** with task contracts; includes epic decomposition for epic route. |
-| 03 | [`execute`](execute/SKILL.md) | Execute plan tasks with checkpoint/recovery tracking; includes opt-in subagent per-task loop. |
-| 04 | [`ff-review`](ff-review/SKILL.md) | **Information-isolated** verification. Pipeline mode: verify executed work against the plan. Standalone mode: review external input (URL/repo/diff/files) independently with role-based review. |
-| 05 | [`ship`](ship/SKILL.md) | Final handoff, evolution rule extraction, and branch disposition (merge/PR/keep/discard). |
-| 06 | [`long-run`](long-run/SKILL.md) | Record reusable learnings after high/epic route completion. |
-| 07 | [`benchmark`](benchmark/SKILL.md) | Cross-adapter benchmark: same prompt → multiple agents → comparison report. |
-| 08 | [`ff-loop`](ff-loop/SKILL.md) | Full lifecycle loop — one command from clarify through ship with auto-retry, route promotion, and re-plan. |
-| 09 | [`qa`](qa/SKILL.md) | Lightweight 3-point QA verdict (Completeness, Correctness, Actionability) on any ForgeFlow artifact. |
-| 10 | [`unstuck`](unstuck/SKILL.md) | Break through implementation blocks using lateral thinking personas (hacker, researcher, simplifier, architect, contrarian). |
+| # | Skill | Version | Purpose |
+|---|-------|---------|---------|
+| 00 | [`forgeflow`](forgeflow/SKILL.md) | 1.12.1 | Overview router for slash-style ForgeFlow prompts. |
+| 01 | [`clarify`](clarify/SKILL.md) | 0.6.0 | Bootstrap task workspace, resolve ambiguity, explore codebase, emit a **brief.md** with complexity routing. |
+| 02 | [`ff-plan`](ff-plan/SKILL.md) | 0.6.0 | Turn requirements into an executable **plan.md** with task contracts; includes epic decomposition for epic route. |
+| 03 | [`execute`](execute/SKILL.md) | 0.7.0 | Execute plan tasks with checkpoint/recovery tracking; includes opt-in subagent per-task loop. |
+| 04 | [`ff-review`](ff-review/SKILL.md) | 0.6.0 | **Information-isolated** verification. Pipeline mode: verify executed work against the plan. Standalone mode: review external input (URL/repo/diff/files) independently with role-based review. |
+| 05 | [`ship`](ship/SKILL.md) | 0.4.0 | Final handoff, evolution rule extraction, and branch disposition (merge/PR/keep/discard). |
+| 06 | [`long-run`](long-run/SKILL.md) | 0.5.0 | Record reusable learnings after high/epic route completion. |
+| 07 | [`benchmark`](benchmark/SKILL.md) | 0.3.0 | Cross-adapter benchmark: same prompt → multiple agents → comparison report. |
+| 08 | [`ff-loop`](ff-loop/SKILL.md) | 0.1.0 | Full lifecycle loop — one command from clarify through ship with auto-retry, route promotion, and re-plan. |
+| 09 | [`qa`](qa/SKILL.md) | 0.1.0 | Lightweight 3-point QA verdict (Completeness, Correctness, Actionability) on any ForgeFlow artifact. |
+| 10 | [`unstuck`](unstuck/SKILL.md) | 0.1.0 | Break through implementation blocks using lateral thinking personas (hacker, researcher, simplifier, architect, contrarian). |
+| 11 | [`status`](status/SKILL.md) | 0.1.0 | Show current task status, project task list, and active blockers. Read-only, no artifacts written. |
 
 ## Skill lifecycle in a single task
 
@@ -85,9 +86,10 @@ User: "/forgeflow:ff-review --type security ./src/"
 
 ## Utility skills
 
-| # | Skill | Purpose |
-|---|-------|---------|
-| U1 | [`ff-config`](ff-config/SKILL.md) | Manage ForgeFlow project defaults interactively. Toggle auto-chaining and worktree isolation. |
+| # | Skill | Version | Purpose |
+|---|-------|---------|---------|
+| U1 | [`ff-config`](ff-config/SKILL.md) | 0.6.0 | Manage ForgeFlow project defaults interactively. Toggle auto-chaining and worktree isolation. |
+| U2 | [`audit-report`](audit-report.md) | — | Historical skill audit report (v1.12.0 deep audit). Reference only, not a runtime skill. |
 
 ## Adding a new skill
 

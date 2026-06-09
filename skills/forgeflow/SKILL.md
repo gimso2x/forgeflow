@@ -38,7 +38,7 @@ Skills may need adapter-specific behavior. Use the canonical detection table in 
 Adapter-specific usage examples:
 
 - Codex output normalization: strip raw diff before artifact parsing (see `docs/adapter-config.md` → Output normalization)
-- Gemini: leverage 1M+ token context for project-wide "WHERE grounding" and consistency checks. Enforce `import type` for `verbatimModuleSyntax` compliance.
+- Antigravity CLI (agy): leverage 1M+ token context for project-wide "WHERE grounding" and consistency checks. Enforce `import type` for `verbatimModuleSyntax` compliance.
 - Claude: expect structured reports, but prefer bullet/list artifacts over Markdown tables unless a compact matrix is clearly easier to scan.
 - Cursor: use slash names without `:` (`/clarify`, not `/forgeflow:clarify`); resolve templates per Template resolution below
 
@@ -46,7 +46,7 @@ Adapter-specific CLI flags and timeout guides: `docs/adapter-config.md`.
 
 ## Slash-style entrypoints
 
-| Stage | Claude / Codex / Gemini | Cursor |
+| Stage | Claude / Codex / Antigravity CLI | Cursor |
 |-------|-------------------------|--------|
 | Overview | `/forgeflow` | `/forgeflow` |
 | Clarify | `/forgeflow:clarify` | `/clarify` |
@@ -56,6 +56,7 @@ Adapter-specific CLI flags and timeout guides: `docs/adapter-config.md`.
 | Ship | `/forgeflow:ship` | `/ship` |
 | Config | `/forgeflow:ff-config` | `/ff-config` |
 | Loop | `/forgeflow:ff-loop <task>` | `/ff-loop <task>` |
+| Status | `/forgeflow:status` | `/status` |
 | Init (full) | Select `full init` inside `/forgeflow:ff-config` | Select `full init` inside `/ff-config` |
 | Long-run | `/forgeflow:long-run` | `/long-run` |
 | Benchmark | `/forgeflow:benchmark` | `/benchmark` |

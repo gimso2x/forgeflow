@@ -100,6 +100,18 @@ Record any non-default role/model assignment in the role-pass record, adapter no
 
 In standalone mode, if role/model or specialist profile selection is known before reviewer judgment, record it in `normalized-input.md` -> `role capability hints`. Use provider-neutral capability language (`strongest reasoning available`, `standard reasoning/coding model`, or `not_applicable`) and treat the section as audit metadata only.
 
+## Specialist-to-Role mapping
+
+| Specialist (`brief.md`) | Reviewer Role(s) | Notes |
+|---|---|---|
+| security | security-reviewer | Direct 1:1 mapping |
+| ux | ux-reviewer | Direct 1:1 mapping |
+| perf | perf-reviewer | Direct 1:1 mapping |
+| correctness | quality-reviewer | Logic/edge-case assertions applied by quality-reviewer during standard quality pass |
+| maintainability | quality-reviewer | Structure/naming/DRY assertions applied by quality-reviewer during standard quality pass |
+
+When both specialist assertions and standard reviewer checklists apply to the same finding, record both sources. The specialist assertion takes severity weight priority.
+
 ## Specialist profiles
 
 Specialist profiles define focused review lenses tied to the `specialist` field in `brief.md` YAML frontmatter. When review reads `brief.md`, it extracts the specialist primary and secondary values and automatically applies the corresponding assertion sets below. These assertions supplement, not replace, standard reviewer role checklists.

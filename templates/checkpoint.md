@@ -1,3 +1,9 @@
+---
+schema: checkpoint/v1
+stage: <!-- clarify|plan|execute|review|ship|long-run -->
+status: <!-- in_progress|completed|blocked -->
+---
+
 # Checkpoint
 
 <!-- Resume source of truth. On context compression or handoff, read this file first, then the ledger row named in Resume Pointer, then implementation-notes.md Reader Summary/Evidence Index. -->

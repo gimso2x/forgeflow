@@ -1,3 +1,8 @@
+---
+schema: ship-summary/v1
+review_verdict: <!-- approved|changes_requested|blocked -->
+---
+
 # Ship 요약 (Ship Summary)
 
 <!-- ForgeFlow ship template. Created during ship stage after review approval. -->

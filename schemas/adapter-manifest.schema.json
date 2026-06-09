@@ -1,0 +1,69 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ForgeFlow Adapter Manifest",
+  "description": "Schema for ForgeFlow adapter plugin manifests (plugin.json, .claude-plugin/plugin.json, .codex-plugin/plugin.json, .cursor-plugin/plugin.json)",
+  "type": "object",
+  "required": ["name", "version", "description"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "const": "forgeflow",
+      "description": "Must be 'forgeflow' for all official adapters"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "description": "SemVer version, must match VERSION file"
+    },
+    "description": {
+      "type": "string",
+      "minLength": 10,
+      "description": "Human-readable adapter description"
+    },
+    "author": {
+      "type": "object",
+      "properties": {
+        "name": {"type": "string"},
+        "url": {"type": "string", "format": "uri"}
+      }
+    },
+    "repository": {
+      "type": "string",
+      "format": "uri"
+    },
+    "license": {
+      "type": "string"
+    },
+    "keywords": {
+      "type": "array",
+      "items": {"type": "string"}
+    },
+    "contextFileName": {
+      "type": "string",
+      "description": "Name of the context file for the adapter (e.g., AGENTS.md, GEMINI.md)"
+    },
+    "interface": {
+      "type": "object",
+      "required": ["defaultPrompt"],
+      "properties": {
+        "defaultPrompt": {
+          "type": "array",
+          "items": {"type": "string"},
+          "minItems": 1,
+          "description": "List of slash commands available in the adapter"
+        }
+      }
+    },
+    "skills": {
+      "type": "string",
+      "description": "Relative path to skills directory"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "version": {"type": "string"},
+        "description": {"type": "string"}
+      }
+    }
+  }
+}
