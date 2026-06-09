@@ -27,7 +27,9 @@
       "/forgeflow:benchmark",
       "/forgeflow:ff-config",
       "/forgeflow:ff-loop <describe the coding task>",
-      "/forgeflow:status"
+      "/forgeflow:status",
+      "/forgeflow:qa <artifact path>",
+      "/forgeflow:unstuck"
     ]
   }
 }

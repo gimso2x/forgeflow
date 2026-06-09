@@ -42,7 +42,7 @@ skills/
   unstuck/                  # Break through blocks using lateral thinking personas
   _shared/                  # discipline.md, preflight.md, isolation.md, automation.md, context-resume.md
 templates/                  # 19 template files: 18 Markdown templates + run-state.json
-evals/                      # 125 eval cases (evals.json + fixture files)
+evals/                      # 133 eval cases (evals.json + fixture files)
 scripts/                    # validate_*.py validators + telemetry/evolution helpers
 docs/                       # adapter-config.md, stage-tool-boundaries.md, maintainer-backlog.md, roadmap-improvements.md archive
 .claude-plugin/             # Claude Code plugin config

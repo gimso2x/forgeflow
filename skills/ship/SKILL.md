@@ -25,6 +25,11 @@ Use this skill to prepare the final handoff after review passes, extract reusabl
 
 > **Terminology:** "finish" is not a separate stage. It refers to branch disposition within ship (merge, PR, keep, or discard).
 
+## Reference inventory
+
+- [references/branch-disposition.md](references/branch-disposition.md) — merge/PR/keep/discard options, worktree preflight, and destructive-action guards.
+- [references/evolution-extraction.md](references/evolution-extraction.md) — evolution rule extraction, SOFT→HARD promotion, and fact-store handoff.
+
 ## Ship phases
 
 1. **Handoff summary**: Write `ship-summary.md`, extract evolution rules

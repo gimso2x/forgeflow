@@ -20,6 +20,8 @@ dependencies:
   - skills/_shared/discipline.md
   - skills/_shared/isolation.md
   - skills/_shared/context-resume.md
+  - skills/_shared/verification-gates.md
+  - skills/_shared/evolution-preflight.md
 ---
 
 # Clarify

@@ -1,6 +1,7 @@
 # Agent Delegation for Specialist Work
 
 > Reference for controller-led delegation in execute. Extracted from execute SKILL.md.
+> Implementer posture contract: `skills/_shared/role-implementer.md`.
 
 This is **controller-led delegation**: the execute controller decides which steps to delegate and handles result verification. This is distinct from `--subagent-per-task` mode (see `references/subagent-loop.md`), where every plan step runs through implementer → micro-review subagents automatically.
 

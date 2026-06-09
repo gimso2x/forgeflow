@@ -59,6 +59,8 @@ Adapter-specific CLI flags and timeout guides: `docs/adapter-config.md`.
 | Init (full) | Select `full init` inside `/forgeflow:ff-config` | Select `full init` inside `/ff-config` |
 | Long-run | `/forgeflow:long-run` | `/long-run` |
 | Benchmark | `/forgeflow:benchmark` | `/benchmark` |
+| QA | `/forgeflow:qa` | `/qa` |
+| Unstuck | `/forgeflow:unstuck` | `/unstuck` |
 
 Cursor skill names cannot contain `:`. Use the Cursor column when invoking skills in Cursor; other adapters keep the `/forgeflow:*` form.
 

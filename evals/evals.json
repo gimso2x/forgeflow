@@ -8398,6 +8398,221 @@
           "value": "long-run"
         }
       ]
+    },
+    {
+      "id": 128,
+      "name": "qa-three-point-verdict",
+      "prompt": "A user runs /forgeflow:qa on task-dir brief.md before moving to ff-plan. The brief has Objective and Route filled but Acceptance Criteria is empty. Produce only the QA verdict block the qa skill requires. Do not run ff-review.",
+      "expected_output": "A 3-point QA verdict with Completeness, Correctness, and Actionability scores, an overall pass/pass_with_notes/needs_rework verdict, and recommendations.",
+      "files": [
+        "skills/qa/SKILL.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output includes QA Verdict line.",
+          "type": "contains",
+          "value": "QA Verdict"
+        },
+        {
+          "text": "Output scores Completeness dimension.",
+          "type": "contains",
+          "value": "Completeness"
+        },
+        {
+          "text": "Output scores Correctness dimension.",
+          "type": "contains",
+          "value": "Correctness"
+        },
+        {
+          "text": "Output scores Actionability dimension.",
+          "type": "contains",
+          "value": "Actionability"
+        },
+        {
+          "text": "Output does not claim to replace ff-review.",
+          "type": "not_contains_any",
+          "values": [
+            "replaces ff-review",
+            "instead of ff-review for pipeline"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 129,
+      "name": "status-read-only-no-write",
+      "prompt": "A user runs /forgeflow:status with no --task-dir. The project storage root resolves to ~/.forgeflow/projects/shop-app/. Produce only the status skill operator guidance for listing tasks. Do not create or modify any task artifacts.",
+      "expected_output": "Read-only status guidance that reads checkpoint.md and run-state.json from disk, prints a report, and explicitly avoids writing artifacts.",
+      "files": [
+        "skills/status/SKILL.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output states read-only or no artifact write behavior.",
+          "type": "contains_any",
+          "values": [
+            "read-only",
+            "does not write",
+            "not write any artifacts",
+            "no artifacts"
+          ]
+        },
+        {
+          "text": "Output references forgeflow_storage.py or storage root resolution.",
+          "type": "contains_any",
+          "values": [
+            "forgeflow_storage.py",
+            "storage root",
+            "storage-root"
+          ]
+        },
+        {
+          "text": "Output mentions checkpoint.md as a read source.",
+          "type": "contains",
+          "value": "checkpoint.md"
+        },
+        {
+          "text": "Output forbids modifying artifacts.",
+          "type": "contains_any",
+          "values": [
+            "Must not modify",
+            "not modify",
+            "Do not create"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 130,
+      "name": "unstuck-persona-next-action",
+      "prompt": "Execute has failed twice on the same plan step with the same TypeError. checkpoint.md Blockers lists the error. The user says unstuck. Produce only unstuck solo-mode guidance using the Contrarian persona. End with one concrete next action.",
+      "expected_output": "Unstuck guidance applying Contrarian lens with at least one concrete next action, without replacing plan or review stages.",
+      "files": [
+        "skills/unstuck/SKILL.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output references Contrarian persona or challenging assumptions.",
+          "type": "contains_any",
+          "values": [
+            "Contrarian",
+            "assumption",
+            "opposite"
+          ]
+        },
+        {
+          "text": "Output includes a concrete next action.",
+          "type": "contains_any",
+          "values": [
+            "Next action",
+            "next action",
+            "Next Action"
+          ]
+        },
+        {
+          "text": "Output does not replace ff-plan or ff-review.",
+          "type": "not_contains_any",
+          "values": [
+            "skip ff-review",
+            "replace ff-plan"
+          ]
+        },
+        {
+          "text": "Output mentions reading checkpoint or blocker context.",
+          "type": "contains_any",
+          "values": [
+            "checkpoint.md",
+            "Blockers",
+            "blocker"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 131,
+      "name": "ff-loop-skill-retry-contract",
+      "prompt": "A user runs /forgeflow:ff-loop --auto on a medium task. Execute fails verification once; ff-loop should retry execute before promoting route. Produce only ff-loop operator guidance for this retry decision. Cite the skill contract, not chat memory.",
+      "expected_output": "ff-loop guidance that retries the failing stage within route budget, records retry in artifacts, and only promotes route when promotion criteria are met.",
+      "files": [
+        "skills/ff-loop/SKILL.md",
+        "skills/_shared/automation.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output mentions retry before route promotion.",
+          "type": "contains_any",
+          "values": [
+            "retry",
+            "re-execute",
+            "reexecute"
+          ]
+        },
+        {
+          "text": "Output references artifact recording for retries or route changes.",
+          "type": "contains_any",
+          "values": [
+            "artifact",
+            "checkpoint",
+            "ledger"
+          ]
+        },
+        {
+          "text": "Output mentions route promotion criteria or promotion guard.",
+          "type": "contains_any",
+          "values": [
+            "promotion",
+            "promote",
+            "route promotion"
+          ]
+        },
+        {
+          "text": "Output references ff-loop skill contract.",
+          "type": "contains_any",
+          "values": [
+            "ff-loop",
+            "/forgeflow:ff-loop"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 132,
+      "name": "qa-pipeline-boundary",
+      "prompt": "After execute on a medium route, the user asks for /forgeflow:qa on implementation-notes.md instead of ff-review. Produce only the boundary guidance: when qa is allowed vs when ff-review is mandatory.",
+      "expected_output": "Guidance that qa is lightweight and must not replace pipeline ff-review after execute on medium+ routes.",
+      "files": [
+        "skills/qa/SKILL.md",
+        "skills/ff-review/SKILL.md"
+      ],
+      "assertions": [
+        {
+          "text": "Output states ff-review is required after execute for medium route pipeline.",
+          "type": "contains_any",
+          "values": [
+            "ff-review",
+            "/forgeflow:ff-review",
+            "pipeline review"
+          ]
+        },
+        {
+          "text": "Output positions qa as lightweight or quick check.",
+          "type": "contains_any",
+          "values": [
+            "lightweight",
+            "quick",
+            "3-point"
+          ]
+        },
+        {
+          "text": "Output says qa must not replace ff-review for pipeline stages.",
+          "type": "contains_any",
+          "values": [
+            "must not replace",
+            "not replace ff-review",
+            "When NOT to use"
+          ]
+        }
+      ]
     }
   ]
 }

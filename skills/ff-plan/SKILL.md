@@ -16,6 +16,8 @@ dependencies:
   - skills/_shared/discipline.md
   - skills/_shared/automation.md
   - skills/_shared/context-resume.md
+  - skills/_shared/verification-gates.md
+  - skills/_shared/role-critic.md
 ---
 
 # Plan
@@ -351,7 +353,7 @@ For `epic` route without existing `roadmap.md`: run problem framing, five-angle 
 
 10. **Self-Critique Loop** (inspired by gajae-code's ralplan pattern):
 
-    After plan.md draft is complete, run an internal **Critic** pass. Fill the `## Self-Critique` section in `plan.md` (see `templates/plan.md` for the exact field structure) with a **receipt-only verdict**:
+    After plan.md draft is complete, run an internal **Critic** pass (`skills/_shared/role-critic.md`). Fill the `## Self-Critique` section in `plan.md` (see `templates/plan.md` for the exact field structure) with a **receipt-only verdict**:
 
     1. **Coverage**: Does this plan satisfy every acceptance criterion and Goal Contract success criteria from brief.md?
     2. **Dependency correctness**: Are there missing dependencies, ordering errors, or file-conflict risks not flagged?

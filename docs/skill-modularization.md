@@ -19,6 +19,6 @@ Run:
 make validate-skill-modularity
 ```
 
-The target is also part of `make validate`. It checks that the high-churn workflow skills (`clarify`, `ff-plan`, `execute`, `ff-review`) stay under their inline size budgets, declare shared dependencies, and link required reference files.
+The target is also part of `make validate`. It checks that the high-churn workflow skills (`clarify`, `ff-plan`, `execute`, `ff-review`, `ship`) stay under their inline size budgets, declare shared dependencies, and link required reference files.
 
 This guard is intentionally boring. Boring is good here; entropy is the enemy, not insufficient creativity.

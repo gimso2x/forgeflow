@@ -5,7 +5,7 @@ Skills are markdown documents that live in `skills/`. Each skill defines a bound
 ## Design rules
 
 1. **One skill = one bounded operation.** No skill tries to do everything.
-2. **Every skill declares its output artifacts.** If it doesn't write to disk, it's not a skill.
+2. **Every skill declares its output artifacts.** If it doesn't write to disk, it's not a skill — except **read-only utilities** (`status`), which print a report only and must state that in Output.
 3. **Skills chain; they don't fork.** The output of skill N is the required input of skill N+1.
 4. **Trigger phrases are advisory, not magical.** The operator or an adapter decides when to invoke a skill.
 5. **Keep the active skill surface minimal.** Optional discipline, debugging, QA, and learning guidance belongs in docs or prompts unless it is a first-class plugin skill.
@@ -40,9 +40,9 @@ Surface tiers:
 ```
 User: "I want to build a daily briefing app"
   → clarify          → task workspace + brief.md (route: medium)
-  → plan             → plan.md
+  → ff-plan          → plan.md
   → execute          → implementation-notes.md + code changes
-  → review           → review-report.md
+  → ff-review        → review-report.md
   → ship             → final handoff + branch disposition: merge, PR, keep, or discard
 ```
 
@@ -51,9 +51,9 @@ User: "I want to build a daily briefing app"
 ```
 User: "Refactor the entire payment module"
   → clarify          → task workspace + brief.md (route: high)
-  → plan             → plan.md with verification targets
+  → ff-plan          → plan.md with verification targets
   → execute          → implementation-notes.md
-  → review (spec pass → quality pass) → review-report.md
+  → ff-review (spec pass → quality pass) → review-report.md
   → ship             → final handoff + branch disposition
   → long-run         → eval-record.md
 ```
@@ -63,11 +63,11 @@ User: "Refactor the entire payment module"
 ```
 User: "Build a complete e-commerce platform"
   → clarify          → task workspace + brief.md (route: epic)
-  → plan             → roadmap.md (epic decomposition: M1: Auth, M2: Cart, M3: Checkout, M_final: Integration)
+  → ff-plan          → roadmap.md (epic decomposition: M1: Auth, M2: Cart, M3: Checkout, M_final: Integration)
   → (per milestone)
-    → plan           → plan.md
+    → ff-plan        → plan.md
     → execute        → implementation-notes.md
-    → review (spec pass → quality pass) → review-report.md
+    → ff-review (spec pass → quality pass) → review-report.md
   → ship             → final handoff + branch disposition
   → long-run         → eval-record.md
 ```
@@ -89,7 +89,7 @@ User: "/forgeflow:ff-review --type security ./src/"
 | # | Skill | Version | Purpose |
 |---|-------|---------|---------|
 | U1 | [`ff-config`](ff-config/SKILL.md) | 0.6.0 | Manage ForgeFlow project defaults interactively. Toggle auto-chaining and worktree isolation. |
-| U2 | [`audit-report`](audit-report.md) | — | Historical skill audit report (v1.12.0 deep audit). Reference only, not a runtime skill. |
+| U2 | [`audit-report`](audit-report.md) | — | Historical skill audit report (refreshed 2026-06-09). Reference only, not a runtime skill. |
 
 ## Adding a new skill
 

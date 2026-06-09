@@ -1,7 +1,8 @@
 ---
 name: ff-config
-version: 0.6.0
 description: Manage ForgeFlow project defaults interactively. Toggle auto-chaining and worktree isolation. Offers init from the config menu with reusable project context generation. Includes prune for orphan worktree cleanup. Use when the user says forgeflow 설정, 워크트리 정리, or 고아 브랜치 cleanup. Not for editing non-ForgeFlow config files like nginx, docker, or env.
+version: 0.6.0
+author: gimso2x
 validate_prompt: |
   Must present current resolved `defaults.md` values, offer toggle/init/prune actions by number, and write changes back without committing.
   When the user selects full project context init from the config menu, must detect repo type, documentation pointers, architecture/WBS signals, and generate project-draft.md as reusable project context.

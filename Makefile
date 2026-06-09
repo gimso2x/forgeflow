@@ -184,7 +184,7 @@ validate-skills: validate-skill-frontmatter
 			exit 1; \
 		fi; \
 	done
-	@$(PYTHON) -c 'import pathlib, re, sys; root = pathlib.Path("skills"); inventory = (root / "SKILLS.md").read_text(encoding="utf-8"); active = sorted(d.name for d in root.iterdir() if d.is_dir() and not d.name.startswith("_")); targets = re.findall(r"\(([^)]+/SKILL\.md)\)", inventory); linked_names = sorted(pathlib.PurePosixPath(target).parts[0] for target in targets if (root / target).exists()); missing = sorted(set(active) - set(linked_names)); stale = sorted(target for target in targets if not (root / target).exists() or pathlib.PurePosixPath(target).parts[0] not in active); (print("ERROR: skills/SKILLS.md inventory drift") or print(f"- missing active skills: {missing}") or print(f"- stale skill links: {stale}") or sys.exit(1)) if (missing or stale) else print(f"OK: skills/SKILLS.md lists {len(active)} active skills")'
+	@$(PYTHON) scripts/validate_skills_inventory.py
 	@grep -Fq "skills/forgeflow/SKILL.md" SKILL.md || { echo "ERROR: root SKILL.md must point to the canonical forgeflow skill"; exit 1; }
 	@grep -Fq "Claude marketplace entry" SKILL.md || { echo "ERROR: root SKILL.md must stay a marketplace summary, not the canonical contract"; exit 1; }
 	@grep -Fq "make validate-skills" README.md || { echo "ERROR: README local validation docs must include focused skills validation"; exit 1; }

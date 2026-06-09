@@ -9,6 +9,7 @@ validate_prompt: |
   Must produce a concrete next action, not abstract advice.
 dependencies:
   - skills/_shared/discipline.md
+  - skills/_shared/role-architect.md
 ---
 
 # Unstuck
@@ -33,7 +34,7 @@ Apply one selected persona to the problem:
 | **Hacker** | Exploit, workaround | "What's the fastest hack that works? What can we skip?" |
 | **Researcher** | Evidence, precedent | "What does the codebase/lib docs say? What worked before?" |
 | **Simplifier** | Reduction, deletion | "What can we remove entirely? What's the minimum viable change?" |
-| **Architect** | Structure, abstraction | "What's the right abstraction? Where should the boundary be?" |
+| **Architect** | Structure, abstraction | "What's the right abstraction? Where should the boundary be?" (see `skills/_shared/role-architect.md`) |
 | **Contrarian** | Challenge assumptions | "What if the requirement is wrong? What if we do the opposite?" |
 
 ### Debate mode

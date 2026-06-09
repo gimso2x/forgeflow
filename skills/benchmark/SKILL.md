@@ -8,7 +8,7 @@ dependencies:
   - skills/_shared/isolation.md
 validate_prompt: |
   Must run the same prompt against multiple adapters using the same test project.
-  Must resolve each adapter CLI before execution (claude, codex, gemini).
+  Must resolve each adapter CLI before execution (claude, codex, cursor).
   Must produce a structured comparison report with execution time, code volume, code quality, and ForgeFlow compliance scoring.
   Must not modify the repository where /benchmark was invoked. Test projects are created in isolated directories.
   Must record adapter DNF, rate limit hits, and CLI resolution failures in the report.

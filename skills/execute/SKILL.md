@@ -15,6 +15,7 @@ dependencies:
   - skills/_shared/discipline.md
   - skills/_shared/automation.md
   - skills/_shared/context-resume.md
+  - skills/_shared/role-implementer.md
 ---
 
 # Execute

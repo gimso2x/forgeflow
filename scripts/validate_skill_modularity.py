@@ -62,6 +62,20 @@ LARGE_SKILLS = {
             "references/pipeline-procedure.md",
         ],
     },
+    "ship": {
+        "max_inline_bytes": 45_000,
+        "required_dependencies": [
+            "skills/_shared/discipline.md",
+            "skills/_shared/automation.md",
+            "skills/_shared/isolation.md",
+            "skills/_shared/context-resume.md",
+            "skills/_shared/preflight.md",
+        ],
+        "required_references": [
+            "references/branch-disposition.md",
+            "references/evolution-extraction.md",
+        ],
+    },
 }
 
 FRONTMATTER_RE = re.compile(r"^---\s*\n(.*?)\n---\s*\n", re.DOTALL)

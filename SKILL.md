@@ -21,6 +21,8 @@ ForgeFlow는 Claude Code, Codex, Cursor를 위한 **artifact-first delivery work
 /forgeflow:ff-review     → review-report.md + optional Human Review Packet
 /forgeflow:ship          → ship-summary.md + branch disposition
 /forgeflow:status        → current task status (read-only)
+/forgeflow:qa            → lightweight 3-point artifact check
+/forgeflow:unstuck       → lateral-thinking unblock (after 2+ failures)
 ```
 
 Cursor는 콜론 없는 slash (`/clarify`, `/execute` 등)를 사용합니다. 전체 매핑은 canonical contract를 참고하세요.
